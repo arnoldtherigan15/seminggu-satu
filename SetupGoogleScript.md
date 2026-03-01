@@ -40,7 +40,7 @@ Ikuti panduan langkah demi langkah di bawah ini:
    ======================================================== */
 
 // GANTI TEKS DI BAWAH INI DENGAN ID FOLDER DRIVE ANDA
-const FOLDER_ID = "1fCvdScjmhYqC8dolqvzqCe7m22TTTg0K";
+const FOLDER_ID = "ganti ini";
 
 // BACA SISA SLOT PENDAFTARAN (MENGGUNAKAN JSONP UNTUK BYPASS CORS URL PARAMETER)
 function doGet(e) {
