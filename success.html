@@ -11,8 +11,6 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
         rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- html2canvas for ticket image export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -31,7 +29,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #f8f9fa;
+            background: #ffffff;
             color: var(--text-primary);
             min-height: 100vh;
             padding: 2rem 1.25rem 3rem;
@@ -582,12 +580,196 @@
         // Ticket ID
         document.getElementById('ticketId').textContent = 'SMGST-' + Date.now().toString(36).toUpperCase().slice(-6);
 
-        // --- Generate ticket image blob (shared helper) ---
+        // --- Generate ticket image via Canvas 2D (no external deps, always works) ---
         async function getTicketBlob() {
-            const ticket = document.getElementById('ticketCard');
-            const canvas = await html2canvas(ticket, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
+            const W = 800, PAD = 52;
+            const ACCENT = '#0955a0';
+            const ACCENT2 = '#1976d2';
+            const TEXT1 = '#111827';
+            const TEXT2 = '#4b5563';
+            const BGLIGHT = '#f8f9fa';
+            const BORDER = '#e5e7eb';
+
+            // Measure content height dynamically
+            const canvas = document.createElement('canvas');
+            canvas.width = W;
+            canvas.height = 100; // placeholder, we'll resize
+            const ctx = canvas.getContext('2d');
+
+            // Helper: rounded rect
+            function roundRect(x, y, w, h, r) {
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+                ctx.closePath();
+            }
+
+            // Calculate total height
+            const HEADER_H = 200;
+            const TEAR_H = 20;
+            const BODY_TOP = HEADER_H + TEAR_H;
+            const ROW_H = 56;
+            const SWATCH_H = 80;
+            const BARCODE_H = 70;
+            const BODY_H = 3 * ROW_H + 24 + SWATCH_H + 16 + BARCODE_H + PAD;
+            const TOTAL_H = HEADER_H + TEAR_H + BODY_H + 32;
+
+            // Resize canvas
+            canvas.height = TOTAL_H;
+            ctx.clearRect(0, 0, W, TOTAL_H);
+
+            // --- Card background ---
+            roundRect(0, 0, W, TOTAL_H, 24);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+
+            // --- Header gradient ---
+            ctx.save();
+            roundRect(0, 0, W, HEADER_H, 24);
+            ctx.clip();
+            const grad = ctx.createLinearGradient(0, 0, W, HEADER_H);
+            grad.addColorStop(0, ACCENT);
+            grad.addColorStop(1, ACCENT2);
+            ctx.fillStyle = grad;
+            ctx.fill();
+            ctx.restore();
+
+            // Header text
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.font = '600 24px system-ui, -apple-system, sans-serif';
+            ctx.fillText('SEMINGGU SATU · WORKSHOP TIKET', PAD, 54);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
+            ctx.fillText(name, PAD, 124);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = '400 26px system-ui, -apple-system, sans-serif';
+            ctx.fillText('Paper Journal Creative Workshop 2026', PAD, 168);
+
+            // --- Tear line ---
+            ctx.save();
+            ctx.strokeStyle = BORDER;
+            ctx.setLineDash([12, 8]);
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(30, HEADER_H + TEAR_H / 2);
+            ctx.lineTo(W - 30, HEADER_H + TEAR_H / 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            // Left circle
+            ctx.fillStyle = BGLIGHT;
+            ctx.beginPath();
+            ctx.arc(0, HEADER_H + TEAR_H / 2, 20, 0, Math.PI * 2);
+            ctx.fill();
+            // Right circle
+            ctx.beginPath();
+            ctx.arc(W, HEADER_H + TEAR_H / 2, 20, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // --- Body rows ---
+            const rows = [
+                { icon: '📅', label: 'SESI', value: session },
+                { icon: '🕒', label: 'WAKTU', value: '15:00 – 17:30 WIB' },
+                { icon: '📍', label: 'LOKASI', value: 'Senyawa+ Space, Cikini, Jakarta Pusat' },
+            ];
+
+            let rowY = BODY_TOP + PAD;
+            rows.forEach(row => {
+                // Icon
+                ctx.font = '28px serif';
+                ctx.fillText(row.icon, PAD, rowY + 28);
+
+                // Label
+                ctx.fillStyle = TEXT2;
+                ctx.font = '600 18px system-ui, -apple-system, sans-serif';
+                ctx.fillText(row.label, PAD + 44, rowY + 16);
+
+                // Value
+                ctx.fillStyle = TEXT1;
+                ctx.font = '600 24px system-ui, -apple-system, sans-serif';
+                ctx.fillText(row.value, PAD + 44, rowY + 42);
+
+                rowY += ROW_H;
+            });
+
+            // --- Color swatches section ---
+            const swY = rowY + 16;
+            ctx.fillStyle = BGLIGHT;
+            roundRect(PAD, swY, W - PAD * 2, SWATCH_H, 12);
+            ctx.fill();
+
+            ctx.fillStyle = TEXT2;
+            ctx.font = '600 18px system-ui, -apple-system, sans-serif';
+            ctx.fillText('PILIHAN WARNA JURNALMU', PAD + 20, swY + 26);
+
+            const swatchItems = [
+                { label: 'Cover: ' + colorBody, hex: colorBodyHex },
+                { label: 'Flap: ' + colorFlap, hex: colorFlapHex },
+                { label: 'Tali: ' + colorStrap, hex: colorStrapHex },
+            ];
+            let swX = PAD + 20;
+            swatchItems.forEach(s => {
+                // Circle
+                ctx.beginPath();
+                ctx.arc(swX + 12, swY + 54, 12, 0, Math.PI * 2);
+                ctx.fillStyle = s.hex;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // Label
+                ctx.fillStyle = TEXT1;
+                ctx.font = '500 20px system-ui, -apple-system, sans-serif';
+                ctx.fillText(s.label, swX + 30, swY + 60);
+
+                swX += ctx.measureText(s.label).width + 70;
+            });
+
+            // --- Barcode section ---
+            const bcY = swY + SWATCH_H + 16;
+            ctx.strokeStyle = BORDER;
+            ctx.setLineDash([8, 6]);
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(PAD, bcY);
+            ctx.lineTo(W - PAD, bcY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Barcode bars
+            const barHeights = [28, 18, 28, 12, 22, 28, 14, 28, 18, 28, 10, 28, 22, 14, 28, 18, 12, 28, 22, 28, 14, 28];
+            const totalBarW = barHeights.length * 5;
+            let barX = (W - totalBarW) / 2;
+            const barBaseY = bcY + 20 + 32;
+            barHeights.forEach(h => {
+                ctx.fillStyle = `rgba(17,24,39,0.15)`;
+                ctx.fillRect(barX, barBaseY - h, 3, h);
+                barX += 5;
+            });
+
+            // Ticket ID
+            const tid = 'SMGST-' + Date.now().toString(36).toUpperCase().slice(-6);
+            ctx.fillStyle = TEXT2;
+            ctx.font = '500 18px system-ui, -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(tid, W / 2, bcY + 68);
+            ctx.textAlign = 'left';
+
+            // --- Shadow / outer glow (fake with semi-transparent overlay) ---
+            // Return as blob
             return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         }
+
 
         function setButtonLoading(btnId, loading) {
             const btn = document.getElementById(btnId);
