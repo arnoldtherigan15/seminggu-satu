@@ -78,7 +78,7 @@ function showBlockerError(message = 'Sistem sedang dalam gangguan. Silakan coba 
             <div class="blocker-content blocker-error">
                 <i data-lucide="alert-triangle" style="width:48px;height:48px;color:#ef4444;"></i>
                 <p>${message}</p>
-                <button onclick="location.reload()" class="blocker-retry-btn">Coba Lagi</button>
+                <button onclick="fetchSlotAvailability()" class="blocker-retry-btn">Coba Lagi</button>
             </div>
         `;
         lucide.createIcons();
@@ -120,14 +120,19 @@ function showToast(message) {
 }
 
 // --- Helper: Fetch JSONP untuk menghindari CORS Block ---
-function fetchJSONP(url, callbackName) {
+// Menggunakan nama callback unik per-request untuk mencegah collision
+function fetchJSONP(url, callbackPrefix) {
     return new Promise((resolve, reject) => {
+        // Nama unik agar tidak collision jika dipanggil ulang
+        const callbackName = callbackPrefix + '_' + Date.now();
         const script = document.createElement('script');
+
+        // Timeout 30 detik untuk mengakomodasi GAS cold start (~10-30 detik)
         const timeout = setTimeout(() => {
             reject(new Error("Request timeout"));
             delete window[callbackName];
             script.remove();
-        }, 8000);
+        }, 30000);
 
         window[callbackName] = function (data) {
             clearTimeout(timeout);
@@ -149,8 +154,16 @@ function fetchJSONP(url, callbackName) {
 }
 
 // --- Fetch Kuota Sesi ke GAS Endpoint (JSONP Method) ---
-async function fetchSlotAvailability() {
-    showBlockerLoader('Sedang mengecek ketersediaan slot...');
+// Auto-retry hingga 3x dengan exponential backoff sebelum tampilkan error
+async function fetchSlotAvailability(attempt = 1) {
+    const MAX_ATTEMPTS = 3;
+    const retryDelay = attempt * 3000; // 3s, 6s, 9s
+
+    if (attempt === 1) {
+        showBlockerLoader('Memuat data...');
+    } else {
+        showBlockerLoader(`Memuat data... (${attempt}/${MAX_ATTEMPTS})`);
+    }
 
     try {
         const result = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuotaCallback');
@@ -199,8 +212,14 @@ async function fetchSlotAvailability() {
         hideBlockerLoader();
 
     } catch (error) {
-        console.error("Gagal mengambil ketersediaan slot", error);
-        showBlockerError('Sistem sedang dalam gangguan. Silakan coba beberapa saat lagi.');
+        console.error(`Gagal mengambil ketersediaan slot (attempt ${attempt})`, error);
+        if (attempt < MAX_ATTEMPTS) {
+            // Coba ulang otomatis setelah jeda
+            setTimeout(() => fetchSlotAvailability(attempt + 1), retryDelay);
+        } else {
+            // Setelah 3x gagal, tampilkan error dengan tombol retry yang lebih ringan
+            showBlockerError('Koneksi ke server gagal. Silakan coba lagi.');
+        }
     }
 }
 
@@ -223,7 +242,7 @@ function updateUrgencyBadge() {
 }
 sessionSelected.addEventListener('change', updateUrgencyBadge);
 
-window.addEventListener('load', fetchSlotAvailability);
+window.addEventListener('load', () => fetchSlotAvailability());
 
 // --- Initialize Color Pickers ---
 function renderColorPickers() {
@@ -399,7 +418,7 @@ form.addEventListener('submit', async (e) => {
     // --- Re-cek slot sebelum submit ---
     try {
         showBlockerLoader('Mengecek ketersediaan slot...');
-        const slotCheck = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handlePreSubmitCallback');
+        const slotCheck = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handlePreSubmitCallback');  // prefix unik sudah di-handle di fetchJSONP
         const selectedVal = sessionSelected.value;
         const isSesi1 = selectedVal.includes('28 March');
         const availableSlot = isSesi1 ? slotCheck.slotSesi1 : slotCheck.slotSesi2;
