@@ -402,6 +402,16 @@
             pointer-events: none;
         }
 
+        .btn-calendar {
+            background: white;
+            color: #0955a0;
+            border: 1.5px solid #0955a0;
+        }
+
+        .btn-calendar:hover {
+            background: #f0f6ff;
+        }
+
         footer {
             text-align: center;
             padding: 2rem 0 0;
@@ -505,6 +515,10 @@
                 <button id="btnDownload" class="share-btn btn-download" onclick="downloadTicket()">
                     <i data-lucide="download"></i>
                     Download Gambar Tiket
+                </button>
+                <button class="share-btn btn-calendar" onclick="addToCalendar()">
+                    <i data-lucide="calendar-plus"></i>
+                    Tambah ke Kalender
                 </button>
             </div>
         </div>
@@ -659,6 +673,38 @@
             } finally {
                 setButtonLoading('btnDownload', false);
             }
+        }
+        // --- Add to Calendar (.ics) ---
+        function addToCalendar() {
+            // Determine date from session string
+            const isSabtu = session.includes('28');
+            const dateStr = isSabtu ? '20260328' : '20260329';
+            // 15:00 WIB = 08:00 UTC, 17:30 WIB = 10:30 UTC
+            const dtStart = dateStr + 'T080000Z';
+            const dtEnd = dateStr + 'T103000Z';
+
+            const ics = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Seminggu Satu//Workshop 2026//EN',
+                'BEGIN:VEVENT',
+                `DTSTART:${dtStart}`,
+                `DTEND:${dtEnd}`,
+                'SUMMARY:Paper Journal Creative Workshop – Seminggu Satu',
+                `DESCRIPTION:Halo ${name}! Ini pengingat workshop Paper Journal Creative kamu bersama Seminggu Satu by Arnold. Sampai ketemu! 🐾`,
+                'LOCATION:Senyawa+ Space\, Cikini\, Jakarta Pusat',
+                'STATUS:CONFIRMED',
+                'END:VEVENT',
+                'END:VCALENDAR'
+            ].join('\r\n');
+
+            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'workshop-seminggu-satu.ics';
+            link.click();
+            URL.revokeObjectURL(url);
         }
     </script>
 
