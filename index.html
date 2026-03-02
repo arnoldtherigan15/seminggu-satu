@@ -273,50 +273,28 @@
     </footer>
 
     <!-- Background Music -->
-    <audio id="bgMusic" src="bg_music.mp3" loop preload="auto"></audio>
-
-    <!-- Floating Music Toggle Button -->
-    <button id="musicBtn" class="music-btn" title="Toggle Musik" aria-label="Play/Pause musik">
-        <i data-lucide="music-2"></i>
-    </button>
+    <audio id="bgMusic" src="bg_music.mp3" loop preload="auto" autoplay></audio>
 
     <script src="main.js"></script>
     <script>
         lucide.createIcons();
 
-        // Background Music Logic
+        // Background Music — autoplay + fallback on first interaction
         const bgMusic = document.getElementById('bgMusic');
-        const musicBtn = document.getElementById('musicBtn');
-        let musicStarted = false;
-        let isPlaying = false;
+        bgMusic.volume = 0.35;
 
-        function playMusic() {
-            bgMusic.volume = 0.35;
-            bgMusic.play().then(() => {
-                isPlaying = true;
-                musicBtn.classList.add('playing');
-            }).catch(() => { });
-        }
-
-        function pauseMusic() {
-            bgMusic.pause();
-            isPlaying = false;
-            musicBtn.classList.remove('playing');
-        }
-
-        // Auto-start on first user interaction (browser policy)
-        function startOnInteraction() {
-            if (!musicStarted) { musicStarted = true; playMusic(); }
-        }
-        document.addEventListener('click', startOnInteraction, { once: true });
-        document.addEventListener('scroll', startOnInteraction, { once: true });
-        document.addEventListener('touchstart', startOnInteraction, { once: true });
-
-        // Manual toggle
-        musicBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            musicStarted = true;
-            isPlaying ? pauseMusic() : playMusic();
+        // Try immediate play
+        bgMusic.play().catch(() => {
+            // Browser blocked autoplay — retry on first interaction
+            const unlock = () => {
+                bgMusic.play();
+                document.removeEventListener('click', unlock);
+                document.removeEventListener('scroll', unlock);
+                document.removeEventListener('touchstart', unlock);
+            };
+            document.addEventListener('click', unlock, { once: true });
+            document.addEventListener('scroll', unlock, { once: true });
+            document.addEventListener('touchstart', unlock, { once: true });
         });
     </script>
 
