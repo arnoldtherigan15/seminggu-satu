@@ -896,12 +896,6 @@
             ctx.beginPath();
             ctx.moveTo(CX + 20, CY + 310); ctx.lineTo(CX + CW - 20, CY + 310);
             ctx.stroke(); ctx.setLineDash([]);
-            ctx.fillStyle = bg; // match background
-            const tcg = ctx.createLinearGradient(0, SH * 0.35, 0, SH * 0.55);
-            tcg.addColorStop(0, '#1565c0'); tcg.addColorStop(1, '#0955a0');
-            ctx.fillStyle = tcg;
-            ctx.beginPath(); ctx.arc(CX, CY + 310, 24, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(CX + CW, CY + 310, 24, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
 
             // Detail rows
@@ -966,7 +960,6 @@
             ctx.fillText('@seminggu_satu', SW / 2, SH - 120);
             ctx.fillStyle = 'rgba(255,255,255,0.35)';
             ctx.font = '400 26px system-ui, -apple-system, sans-serif';
-            ctx.fillText('seminggu-satu.github.io', SW / 2, SH - 72);
             ctx.textAlign = 'left';
 
             return new Promise(resolve => sc.toBlob(resolve, 'image/png'));
