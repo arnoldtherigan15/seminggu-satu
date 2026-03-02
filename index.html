@@ -163,13 +163,15 @@
 
                 <div class="form-group">
                     <label for="frontCoverWord">Front Cover Word <span
-                            style="font-weight:400;color:var(--text-secondary)">(Maks. 2 Kata)</span></label>
+                            style="font-weight:400;color:var(--text-secondary)">(Maks. 2 Kata, tiap kata maks. 6
+                            huruf)</span></label>
                     <div class="input-wrapper">
                         <i data-lucide="pencil-line"></i>
-                        <input type="text" id="frontCoverWord" name="frontCoverWord" placeholder="Contoh: Hello World"
+                        <input type="text" id="frontCoverWord" name="frontCoverWord" placeholder="Contoh: Happy"
                             required>
                     </div>
-                    <span class="help-text">Kata ini akan dicetak di bagian depan jurnalmu.</span>
+                    <span class="help-text">Maks. 2 kata, tiap kata maks. 6 huruf. Contoh: <em>Happy</em> atau <em>My
+                            Joy</em></span>
                 </div>
 
 
@@ -270,11 +272,54 @@
         <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
     </footer>
 
+    <!-- Background Music -->
+    <audio id="bgMusic" src="bg_music.mp3" loop preload="auto"></audio>
+
+    <!-- Floating Music Toggle Button -->
+    <button id="musicBtn" class="music-btn" title="Toggle Musik" aria-label="Play/Pause musik">
+        <i data-lucide="music-2"></i>
+    </button>
+
     <script src="main.js"></script>
     <script>
-        // Init Lucide Icons
         lucide.createIcons();
+
+        // Background Music Logic
+        const bgMusic = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+        let musicStarted = false;
+        let isPlaying = false;
+
+        function playMusic() {
+            bgMusic.volume = 0.35;
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                musicBtn.classList.add('playing');
+            }).catch(() => { });
+        }
+
+        function pauseMusic() {
+            bgMusic.pause();
+            isPlaying = false;
+            musicBtn.classList.remove('playing');
+        }
+
+        // Auto-start on first user interaction (browser policy)
+        function startOnInteraction() {
+            if (!musicStarted) { musicStarted = true; playMusic(); }
+        }
+        document.addEventListener('click', startOnInteraction, { once: true });
+        document.addEventListener('scroll', startOnInteraction, { once: true });
+        document.addEventListener('touchstart', startOnInteraction, { once: true });
+
+        // Manual toggle
+        musicBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            musicStarted = true;
+            isPlaying ? pauseMusic() : playMusic();
+        });
     </script>
+
 </body>
 
 </html>

@@ -396,7 +396,26 @@ form.addEventListener('submit', async (e) => {
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
 
-    // Kirim data ke Google Apps Script via POST JSON
+    // --- Re-cek slot sebelum submit ---
+    try {
+        showBlockerLoader('Mengecek ketersediaan slot...');
+        const slotCheck = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handlePreSubmitCallback');
+        const selectedVal = sessionSelected.value;
+        const isSesi1 = selectedVal.includes('28 March');
+        const availableSlot = isSesi1 ? slotCheck.slotSesi1 : slotCheck.slotSesi2;
+        hideBlockerLoader();
+
+        if (availableSlot <= 0) {
+            window.location.href = 'soldout.html';
+            return;
+        }
+    } catch (err) {
+        hideBlockerLoader();
+        // Jika gagal cek slot, tetap lanjut agar user tidak terhambang
+        console.warn('Slot re-check failed, continuing submit:', err);
+    }
+
+    // --- Kirim data ke Google Apps Script via POST JSON ---
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -406,15 +425,23 @@ form.addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (result.status === 'success') {
-            showToast("Data berhasil di kirim");
-            statusMessage.textContent = "Pendaftaran Anda Berhasil! Kami akan menghubungi Anda segera.";
-            statusMessage.className = 'status-message success';
-            form.reset();
-            // Reset preview gambar
-            document.querySelectorAll('.upload-area').forEach(el => el.classList.remove('has-image'));
-            // Scroll ke atas dulu, lalu refetch slot
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            fetchSlotAvailability();
+            // Kumpulkan data untuk success page
+            const selectedBodyColor = colors.find(c => c.hex === payload.colorBody);
+            const selectedFlapColor = colors.find(c => c.hex === payload.colorFlap);
+            const selectedStrapColor = strapColors.find(c => c.hex === payload.colorStrap);
+
+            const params = new URLSearchParams({
+                name: payload.fullName || 'Peserta',
+                session: payload.sessionSelected || '-',
+                colorBody: selectedBodyColor ? selectedBodyColor.name : payload.colorBody,
+                colorFlap: selectedFlapColor ? selectedFlapColor.name : payload.colorFlap,
+                colorStrap: selectedStrapColor ? selectedStrapColor.name : payload.colorStrap,
+                colorBodyHex: payload.colorBody || '#ccc',
+                colorFlapHex: payload.colorFlap || '#ccc',
+                colorStrapHex: payload.colorStrap || '#ccc',
+            });
+
+            window.location.href = 'success.html?' + params.toString();
         } else {
             throw new Error(result.message || "Unknown error occurred.");
         }
@@ -426,6 +453,7 @@ form.addEventListener('submit', async (e) => {
     } catch (error) {
         statusMessage.textContent = "Terjadi kesalahan koneksi atau upload: " + error.message;
         statusMessage.className = 'status-message error';
+        statusMessage.style.display = 'block';
         submitBtn.innerHTML = originalBtnText;
         submitBtn.disabled = false;
         lucide.createIcons();

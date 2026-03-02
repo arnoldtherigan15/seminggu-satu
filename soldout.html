@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuota Habis - Seminggu Satu by Arnold</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --border-color: #e5e7eb;
+            --error-color: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        h2,
+        h3 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .brand {
+            margin-bottom: 2.5rem;
+        }
+
+        .brand-logo {
+            height: 80px;
+            width: auto;
+            max-width: 280px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .brand p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0.35rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .icon-wrap {
+            width: 72px;
+            height: 72px;
+            background: #fef2f2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .icon-wrap i {
+            width: 36px;
+            height: 36px;
+            color: var(--error-color);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        p.desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .divider {
+            width: 40px;
+            height: 3px;
+            background: var(--error-color);
+            border-radius: 99px;
+            margin: 0 auto 1.5rem;
+            opacity: 0.4;
+        }
+
+        .see-you {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 99px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .social-btn:hover {
+            background: var(--bg-color);
+            transform: translateY(-1px);
+        }
+
+        .social-btn i {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="brand">
+        <img src="logo_seminggu.png" alt="Seminggu Satu" class="brand-logo">
+        <p>by Arnold</p>
+    </div>
+
+    <div class="card">
+        <div class="icon-wrap">
+            <i data-lucide="ticket-x"></i>
+        </div>
+
+        <h2>Kuota Workshop Telah Habis</h2>
+        <div class="divider"></div>
+        <p class="desc">
+            Maaf, semua sesi untuk <strong>Paper Journal Creative Workshop</strong> ini sudah penuh.
+            Terima kasih atas antusiasme kalian yang luar biasa! 🐾
+        </p>
+
+        <p class="see-you">Sampai ketemu di kesempatan workshop berikutnya! ✨</p>
+
+        <div class="social-links">
+            <a href="https://www.instagram.com/seminggu_satu" target="_blank" class="social-btn">
+                <i data-lucide="instagram"></i> Follow Instagram
+            </a>
+            <a href="https://www.tiktok.com/@seminggusatu" target="_blank" class="social-btn">
+                <i data-lucide="video"></i> TikTok
+            </a>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
