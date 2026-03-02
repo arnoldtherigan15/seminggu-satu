@@ -31,7 +31,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(160deg, #f0f7ff 0%, #f8f9fa 60%);
+            background: #f8f9fa;
             color: var(--text-primary);
             min-height: 100vh;
             padding: 2rem 1.25rem 3rem;
@@ -381,6 +381,11 @@
             color: white;
         }
 
+        .btn-ig {
+            background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+        }
+
         .btn-share {
             background: var(--text-primary);
             color: white;
@@ -489,17 +494,17 @@
         <div class="share-section">
             <div class="share-title">Bagikan tiketmu</div>
             <div class="share-buttons">
-                <a id="btnWA" href="#" class="share-btn btn-wa" target="_blank">
+                <button id="btnWA" class="share-btn btn-wa" onclick="shareToWhatsApp()">
                     <i data-lucide="message-circle"></i>
                     Bagikan ke WhatsApp
-                </a>
+                </button>
+                <button id="btnIG" class="share-btn btn-ig" onclick="shareToInstagramStory()">
+                    <i data-lucide="instagram"></i>
+                    Share ke Instagram Story
+                </button>
                 <button id="btnDownload" class="share-btn btn-download" onclick="downloadTicket()">
                     <i data-lucide="download"></i>
                     Download Gambar Tiket
-                </button>
-                <button id="btnShare" class="share-btn btn-share" onclick="shareTicket()" style="display:none">
-                    <i data-lucide="share-2"></i>
-                    Share (Instagram / WA / lainnya)
                 </button>
             </div>
         </div>
@@ -510,25 +515,26 @@
 
     </div>
 
+
     <script>
         lucide.createIcons();
 
         // --- Read URL params ---
-        const params = new URLSearchParams(window.location.search);
-        const name = params.get('name') || 'Peserta';
-        const session = params.get('session') || '-';
-        const colorBody = params.get('colorBody') || '-';
-        const colorFlap = params.get('colorFlap') || '-';
-        const colorStrap = params.get('colorStrap') || '-';
-        const colorBodyHex = params.get('colorBodyHex') || '#ccc';
-        const colorFlapHex = params.get('colorFlapHex') || '#ccc';
-        const colorStrapHex = params.get('colorStrapHex') || '#ccc';
+        const p = new URLSearchParams(window.location.search);
+        const name = p.get('name') || 'Peserta';
+        const session = p.get('session') || '-';
+        const colorBody = p.get('colorBody') || '-';
+        const colorFlap = p.get('colorFlap') || '-';
+        const colorStrap = p.get('colorStrap') || '-';
+        const colorBodyHex = p.get('colorBodyHex') || '#cccccc';
+        const colorFlapHex = p.get('colorFlapHex') || '#cccccc';
+        const colorStrapHex = p.get('colorStrapHex') || '#cccccc';
 
         // --- Populate ticket ---
         document.getElementById('ticketName').textContent = name;
         document.getElementById('ticketSession').textContent = session;
 
-        // Color swatches
+        // Color swatches — using createElement to avoid innerHTML stripping inline styles
         const swatchData = [
             { label: 'Cover', name: colorBody, hex: colorBodyHex },
             { label: 'Flap', name: colorFlap, hex: colorFlapHex },
@@ -536,78 +542,122 @@
         ];
         const swatchContainer = document.getElementById('colorSwatches');
         swatchData.forEach(s => {
-            swatchContainer.innerHTML += `
-                <div class="swatch-item">
-                    <div class="swatch-dot" style="background:${s.hex}"></div>
-                    <span>${s.label}: ${s.name}</span>
-                </div>`;
+            const item = document.createElement('div');
+            item.className = 'swatch-item';
+
+            const dot = document.createElement('div');
+            dot.className = 'swatch-dot';
+            dot.style.backgroundColor = s.hex;   // set directly on style object — never gets stripped
+
+            const label = document.createElement('span');
+            label.textContent = `${s.label}: ${s.name}`;
+
+            item.appendChild(dot);
+            item.appendChild(label);
+            swatchContainer.appendChild(item);
         });
 
         // Barcode visual (decorative)
         const bc = document.getElementById('barcode');
-        const heights = [28, 18, 28, 12, 22, 28, 14, 28, 18, 28, 10, 28, 22, 14, 28, 18, 12, 28, 22, 28, 14, 28];
-        heights.forEach(h => {
+        [28, 18, 28, 12, 22, 28, 14, 28, 18, 28, 10, 28, 22, 14, 28, 18, 12, 28, 22, 28, 14, 28].forEach(h => {
             const span = document.createElement('span');
             span.style.height = h + 'px';
             bc.appendChild(span);
         });
 
         // Ticket ID
-        const ticketId = 'SMGST-' + Date.now().toString(36).toUpperCase().slice(-6);
-        document.getElementById('ticketId').textContent = ticketId;
+        document.getElementById('ticketId').textContent = 'SMGST-' + Date.now().toString(36).toUpperCase().slice(-6);
 
-        // --- WhatsApp Share ---
-        const sessionDate = session.split(',')[0] || session;
-        const waText = encodeURIComponent(
-            `🐾 Hai! Aku baru aja daftar *Paper Journal Creative Workshop* by Seminggu Satu!\n\n` +
-            `📅 Sesi: ${session}\n⏰ Jam: 15:00 – 17:30 WIB\n📍 Senyawa+ Space, Cikini, Jakarta Pusat\n\n` +
-            `Yukk ikutan juga! 🎨✨`
-        );
-        document.getElementById('btnWA').href = `https://wa.me/?text=${waText}`;
-
-        // --- Web Share API ---
-        if (navigator.share) {
-            document.getElementById('btnShare').style.display = 'flex';
+        // --- Generate ticket image blob (shared helper) ---
+        async function getTicketBlob() {
+            const ticket = document.getElementById('ticketCard');
+            const canvas = await html2canvas(ticket, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
+            return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         }
 
-        async function shareTicket() {
+        function setButtonLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            if (loading) {
+                btn.dataset.orig = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="loader-2"></i> Memproses...';
+                btn.disabled = true;
+            } else {
+                btn.innerHTML = btn.dataset.orig || btn.innerHTML;
+                btn.disabled = false;
+            }
+            lucide.createIcons();
+        }
+
+        // --- Share ke WhatsApp (kirim gambar tiket) ---
+        async function shareToWhatsApp() {
+            setButtonLoading('btnWA', true);
             try {
-                await navigator.share({
-                    title: 'Seminggu Satu Workshop Tiket',
-                    text: `Aku daftar Paper Journal Creative Workshop by Seminggu Satu! Sesi: ${session}, 15:00–17:30 WIB di Senyawa+ Space, Jakarta Pusat 🐾✨`,
-                    url: window.location.href
-                });
+                const blob = await getTicketBlob();
+                const file = new File([blob], `tiket-seminggu-satu.png`, { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Tiket Workshop Seminggu Satu',
+                        text: `🐾 Aku daftar *Paper Journal Creative Workshop* by Seminggu Satu!\n📅 ${session} | 15:00–17:30 WIB\n📍 Senyawa+ Space, Cikini, Jakarta Pusat 🎨✨`
+                    });
+                } else {
+                    // Fallback: open WA with text (desktop)
+                    const waText = encodeURIComponent(`🐾 Aku daftar Paper Journal Creative Workshop by Seminggu Satu!\n📅 ${session} | 15:00–17:30 WIB\n📍 Senyawa+ Space, Cikini, Jakarta Pusat 🎨✨`);
+                    window.open(`https://wa.me/?text=${waText}`, '_blank');
+                }
             } catch (e) {
-                console.log('Share cancelled or failed', e);
+                if (e.name !== 'AbortError') alert('Gagal share ke WhatsApp.');
+            } finally {
+                setButtonLoading('btnWA', false);
+            }
+        }
+
+        // --- Share ke Instagram Story ---
+        async function shareToInstagramStory() {
+            setButtonLoading('btnIG', true);
+            try {
+                const blob = await getTicketBlob();
+                const file = new File([blob], `tiket-seminggu-satu.png`, { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    // Web Share API with file → on mobile, user can pick Instagram Stories
+                    await navigator.share({
+                        files: [file],
+                        title: 'Tiket Workshop Seminggu Satu'
+                    });
+                } else {
+                    // Desktop fallback: download the image, then guide user
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'tiket-seminggu-satu.png';
+                    link.click();
+                    URL.revokeObjectURL(url);
+                    alert('Gambar tiket sudah didownload! Buka Instagram → Stories → pilih gambar yang baru didownload.');
+                }
+            } catch (e) {
+                if (e.name !== 'AbortError') alert('Gagal membuka share. Coba Download Gambar Tiket dulu.');
+            } finally {
+                setButtonLoading('btnIG', false);
             }
         }
 
         // --- Download Ticket as Image ---
         async function downloadTicket() {
-            const btn = document.getElementById('btnDownload');
-            btn.classList.add('loading');
-            btn.innerHTML = '<i data-lucide="loader-2"></i> Memproses...';
-            lucide.createIcons();
-
+            setButtonLoading('btnDownload', true);
             try {
-                const ticket = document.getElementById('ticketCard');
-                const canvas = await html2canvas(ticket, {
-                    scale: 3,
-                    useCORS: true,
-                    backgroundColor: '#ffffff'
-                });
-
+                const blob = await getTicketBlob();
+                const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.download = `tiket-workshop-${name.replace(/\s+/g, '-')}.png`;
-                link.href = canvas.toDataURL('image/png');
+                link.href = url;
                 link.click();
+                URL.revokeObjectURL(url);
             } catch (e) {
                 alert('Gagal membuat gambar tiket. Coba screenshot manual ya!');
-                console.error(e);
             } finally {
-                btn.classList.remove('loading');
-                btn.innerHTML = '<i data-lucide="download"></i> Download Gambar Tiket';
-                lucide.createIcons();
+                setButtonLoading('btnDownload', false);
             }
         }
     </script>

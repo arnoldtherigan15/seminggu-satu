@@ -425,23 +425,19 @@ form.addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (result.status === 'success') {
-            // Kumpulkan data untuk success page
-            const selectedBodyColor = colors.find(c => c.hex === payload.colorBody);
-            const selectedFlapColor = colors.find(c => c.hex === payload.colorFlap);
-            const selectedStrapColor = strapColors.find(c => c.hex === payload.colorStrap);
-
             const params = new URLSearchParams({
                 name: payload.fullName || 'Peserta',
                 session: payload.sessionSelected || '-',
-                colorBody: selectedBodyColor ? selectedBodyColor.name : payload.colorBody,
-                colorFlap: selectedFlapColor ? selectedFlapColor.name : payload.colorFlap,
-                colorStrap: selectedStrapColor ? selectedStrapColor.name : payload.colorStrap,
-                colorBodyHex: payload.colorBody || '#ccc',
-                colorFlapHex: payload.colorFlap || '#ccc',
-                colorStrapHex: payload.colorStrap || '#ccc',
+                colorBody: selectedBodyColor.name,
+                colorFlap: selectedFlapColor.name,
+                colorStrap: selectedStrapColor.name,
+                colorBodyHex: selectedBodyColor.hex,
+                colorFlapHex: selectedFlapColor.hex,
+                colorStrapHex: selectedStrapColor.hex,
             });
 
             window.location.href = 'success.html?' + params.toString();
+
         } else {
             throw new Error(result.message || "Unknown error occurred.");
         }
