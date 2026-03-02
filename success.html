@@ -479,7 +479,8 @@
                         <i data-lucide="map-pin"></i>
                         <div>
                             <div class="label">Lokasi</div>
-                            <div class="value">Senyawa+ Space, Cikini, Jakarta Pusat</div>
+                            <div class="value">Kopi Aloo
+                                Melawai</div>
                         </div>
                     </div>
                 </div>
@@ -679,7 +680,7 @@
             const rows = [
                 { icon: '📅', label: 'SESI', value: session },
                 { icon: '🕒', label: 'WAKTU', value: '15:00 – 17:30 WIB' },
-                { icon: '📍', label: 'LOKASI', value: 'Senyawa+ Space, Cikini, Jakarta Pusat' },
+                { icon: '📍', label: 'LOKASI', value: 'Kopi Aloo Melawai' },
             ];
 
             let rowY = BODY_TOP + PAD;
@@ -795,11 +796,11 @@
                     await navigator.share({
                         files: [file],
                         title: 'Tiket Workshop Seminggu Satu',
-                        text: `🐾 Aku daftar *Paper Journal Creative Workshop* by Seminggu Satu!\n📅 ${session} | 15:00–17:30 WIB\n📍 Senyawa+ Space, Cikini, Jakarta Pusat 🎨✨`
+                        text: `🐾 Aku daftar *Paper Journal Creative Workshop* by Seminggu Satu!\n📅 ${session} | 15:00–17:30 WIB\n📍 Kopi Aloo Melawai 🎨✨`
                     });
                 } else {
                     // Fallback: open WA with text (desktop)
-                    const waText = encodeURIComponent(`🐾 Aku daftar Paper Journal Creative Workshop by Seminggu Satu!\n📅 ${session} | 15:00–17:30 WIB\n📍 Senyawa+ Space, Cikini, Jakarta Pusat 🎨✨`);
+                    const waText = encodeURIComponent(`🐾 Aku daftar Paper Journal Creative Workshop by Seminggu Satu!\n📅 ${session} | 15:00–17:30 WIB\n📍 Kopi Aloo Melawai 🎨✨`);
                     window.open(`https://wa.me/?text=${waText}`, '_blank');
                 }
             } catch (e) {
@@ -902,7 +903,7 @@
             const rows = [
                 { icon: '📅', label: 'SESI', value: session },
                 { icon: '🕒', label: 'WAKTU', value: '15:00 – 17:30 WIB' },
-                { icon: '📍', label: 'LOKASI', value: 'Senyawa+ Space, Cikini, Jakarta Pusat' },
+                { icon: '📍', label: 'LOKASI', value: 'Kopi Aloo Melawai' },
             ];
             let ry = CY + 370;
             rows.forEach(row => {
@@ -1023,7 +1024,7 @@
                 `DTEND:${dtEnd}`,
                 'SUMMARY:Paper Journal Creative Workshop – Seminggu Satu',
                 `DESCRIPTION:Halo ${name}! Ini pengingat workshop Paper Journal Creative kamu bersama Seminggu Satu by Arnold. Sampai ketemu! 🐾`,
-                'LOCATION:Senyawa+ Space\, Cikini\, Jakarta Pusat',
+                'LOCATION:Kopi Aloo Melawai',
                 'STATUS:CONFIRMED',
                 'END:VEVENT',
                 'END:VCALENDAR'
