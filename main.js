@@ -9,7 +9,6 @@ const colors = [
     { name: 'Orange', hex: '#e94630' },
     { name: 'Merah', hex: '#d7181e' },
     { name: 'Pink Muda', hex: '#e4b9c8' },
-    { name: 'Pink Tua', hex: '#d9417e' },
     { name: 'Ungu Muda', hex: '#827cba' },
     { name: 'Ungu Tua', hex: '#7e4da5' },
     { name: 'Biru Pastel', hex: '#7dc9f0' },
