@@ -320,6 +320,28 @@ h4 {
     margin-bottom: 3rem;
 }
 
+.color-disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    margin-top: 0.75rem;
+    font-size: 0.78rem;
+    color: #1e40af;
+    line-height: 1.45;
+}
+
+.color-disclaimer i {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: #3b82f6;
+}
+
 .journal-preview-container {
     background: #e9ecef;
     border-radius: 24px;
@@ -489,6 +511,29 @@ h4 {
     border-color: var(--primary-color);
     transform: scale(1.15);
     box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary-color);
+}
+
+/* Disabled / Sold Out Colors */
+.color-btn.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.color-btn.disabled::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -2px;
+    right: -2px;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.55);
+    transform: rotate(-45deg);
+    border-radius: 2px;
+}
+
+.color-btn.disabled:hover {
+    transform: none;
 }
 
 /* Special borders for white/light colors */

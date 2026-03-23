@@ -1,44 +1,46 @@
 // Data Warna dari User (Cover & Tutup)
 // Urutan UX: Netral → Hangat → Dingin → Gelap
+// isAvailable: false → warna tetap tampil tapi tidak bisa dipilih (habis/sold out)
 const colors = [
-    { name: 'Putih Tulang', hex: '#e6e3da' },
-    { name: 'Beige Krem', hex: '#bbb6ad' },
-    { name: 'Coklat Muda', hex: '#c1a88a' },
-    { name: 'Kuning Muda', hex: '#e7dd5e' },
-    { name: 'Kuning', hex: '#dccf43' },
-    { name: 'Orange', hex: '#e94630' },
-    { name: 'Merah', hex: '#d7181e' },
-    { name: 'Pink Muda', hex: '#e4b9c8' },
-    { name: 'Ungu Muda', hex: '#827cba' },
-    { name: 'Ungu Tua', hex: '#7e4da5' },
-    { name: 'Biru Pastel', hex: '#7dc9f0' },
-    { name: 'Biru Tua', hex: '#0955a0' },
-    { name: 'Mint', hex: '#8ebc9f' },
-    { name: 'Hijau Pastel', hex: '#aecdbb' },
-    { name: 'Hijau Tua', hex: '#0c5c3c' },
-    { name: 'Coklat', hex: '#764432' },
-    { name: 'Hitam', hex: '#2f2f31' }
+    { name: 'Putih Tulang', hex: '#e6e3da', isAvailable: true },
+    { name: 'Beige Krem', hex: '#d3c4ac', isAvailable: true },
+    { name: 'Coklat Muda', hex: '#c1a88a', isAvailable: true },
+    { name: 'Kuning Muda', hex: '#e7dd5e', isAvailable: true },
+    { name: 'Kuning', hex: '#dccf43', isAvailable: true },
+    { name: 'Orange', hex: '#e94630', isAvailable: true },
+    { name: 'Merah', hex: '#d7181e', isAvailable: true },
+    { name: 'Pink Muda', hex: '#e4b9c8', isAvailable: true },
+    { name: 'Pink Tua', hex: '#f2507b', isAvailable: false },
+    { name: 'Ungu Muda', hex: '#827cba', isAvailable: true },
+    { name: 'Ungu Tua', hex: '#7e4da5', isAvailable: true },
+    { name: 'Biru Pastel', hex: '#7dc9f0', isAvailable: true },
+    { name: 'Biru Tua', hex: '#0955a0', isAvailable: true },
+    { name: 'Mint', hex: '#8ebc9f', isAvailable: true },
+    { name: 'Hijau Pastel', hex: '#aecdbb', isAvailable: true },
+    { name: 'Hijau Tua', hex: '#0c5c3c', isAvailable: true },
+    { name: 'Coklat', hex: '#764432', isAvailable: true },
+    { name: 'Hitam', hex: '#2f2f31', isAvailable: true }
 ];
 
 // Data Warna Khusus Tali
 // Urutan UX: Netral → Hangat → Dingin → Gelap
 const strapColors = [
-    { name: 'Putih', hex: '#ebe5e5' },
-    { name: 'Cream', hex: '#cfac8c' },
-    { name: 'Kuning', hex: '#fde355' },
-    { name: 'Stabilo', hex: '#9dde6d' },
-    { name: 'Orange', hex: '#f05e37' },
-    { name: 'Merah', hex: '#b71c2c' },
-    { name: 'Pink', hex: '#f3c3b9' },
-    { name: 'Pink Magenta', hex: '#b65179' },
-    { name: 'Ungu', hex: '#692f4a' },
-    { name: 'Hijau', hex: '#97ab52' },
-    { name: 'Tosca', hex: '#77b59b' },
-    { name: 'Biru Muda', hex: '#5cd0ea' },
-    { name: 'Biru Tua', hex: '#0955a0' },
-    { name: 'Abu Abu', hex: '#6c6f79' },
-    { name: 'Coklat', hex: '#633114' },
-    { name: 'Hitam', hex: '#110d0c' }
+    { name: 'Putih', hex: '#ebe5e5', isAvailable: true },
+    { name: 'Cream', hex: '#cfac8c', isAvailable: true },
+    { name: 'Kuning', hex: '#fde355', isAvailable: true },
+    { name: 'Stabilo', hex: '#9dde6d', isAvailable: true },
+    { name: 'Orange', hex: '#f05e37', isAvailable: true },
+    { name: 'Merah', hex: '#b71c2c', isAvailable: true },
+    { name: 'Pink', hex: '#f3c3b9', isAvailable: true },
+    { name: 'Pink Magenta', hex: '#b65179', isAvailable: true },
+    { name: 'Ungu', hex: '#692f4a', isAvailable: true },
+    { name: 'Hijau', hex: '#97ab52', isAvailable: true },
+    { name: 'Tosca', hex: '#77b59b', isAvailable: true },
+    { name: 'Biru Muda', hex: '#5cd0ea', isAvailable: true },
+    { name: 'Biru Tua', hex: '#0955a0', isAvailable: true },
+    { name: 'Abu Abu', hex: '#6c6f79', isAvailable: true },
+    { name: 'Coklat', hex: '#633114', isAvailable: true },
+    { name: 'Hitam', hex: '#110d0c', isAvailable: true }
 ];
 
 // State
@@ -249,23 +251,31 @@ function renderColorPickers() {
         // Body Pickers
         const btnBody = document.createElement('button');
         btnBody.type = 'button';
-        btnBody.className = `color-btn ${color.name === selectedBodyColor.name ? 'active' : ''}`;
+        btnBody.className = `color-btn ${color.name === selectedBodyColor.name ? 'active' : ''}${!color.isAvailable ? ' disabled' : ''}`;
         btnBody.style.backgroundColor = color.hex;
         btnBody.dataset.color = color.hex;
         btnBody.dataset.name = color.name;
-        btnBody.title = color.name;
-        btnBody.onclick = () => selectColor('body', color, btnBody);
+        btnBody.title = color.isAvailable ? color.name : `${color.name} (Habis)`;
+        if (color.isAvailable) {
+            btnBody.onclick = () => selectColor('body', color, btnBody);
+        } else {
+            btnBody.disabled = true;
+        }
         bodyColorGrid.appendChild(btnBody);
 
         // Flap Pickers
         const btnFlap = document.createElement('button');
         btnFlap.type = 'button';
-        btnFlap.className = `color-btn ${color.name === selectedFlapColor.name ? 'active' : ''}`;
+        btnFlap.className = `color-btn ${color.name === selectedFlapColor.name ? 'active' : ''}${!color.isAvailable ? ' disabled' : ''}`;
         btnFlap.style.backgroundColor = color.hex;
         btnFlap.dataset.color = color.hex;
         btnFlap.dataset.name = color.name;
-        btnFlap.title = color.name;
-        btnFlap.onclick = () => selectColor('flap', color, btnFlap);
+        btnFlap.title = color.isAvailable ? color.name : `${color.name} (Habis)`;
+        if (color.isAvailable) {
+            btnFlap.onclick = () => selectColor('flap', color, btnFlap);
+        } else {
+            btnFlap.disabled = true;
+        }
         flapColorGrid.appendChild(btnFlap);
     });
 
@@ -273,12 +283,16 @@ function renderColorPickers() {
         // Strap Pickers
         const btnStrap = document.createElement('button');
         btnStrap.type = 'button';
-        btnStrap.className = `color-btn ${color.name === selectedStrapColor.name ? 'active' : ''}`;
+        btnStrap.className = `color-btn ${color.name === selectedStrapColor.name ? 'active' : ''}${!color.isAvailable ? ' disabled' : ''}`;
         btnStrap.style.backgroundColor = color.hex;
         btnStrap.dataset.color = color.hex;
         btnStrap.dataset.name = color.name;
-        btnStrap.title = color.name;
-        btnStrap.onclick = () => selectColor('strap', color, btnStrap);
+        btnStrap.title = color.isAvailable ? color.name : `${color.name} (Habis)`;
+        if (color.isAvailable) {
+            btnStrap.onclick = () => selectColor('strap', color, btnStrap);
+        } else {
+            btnStrap.disabled = true;
+        }
         strapColorGrid.appendChild(btnStrap);
     });
 }
