@@ -10,7 +10,7 @@ const colors = [
     { name: 'Orange', hex: '#e94630', isAvailable: true },
     { name: 'Merah', hex: '#d7181e', isAvailable: true },
     { name: 'Pink Muda', hex: '#e4b9c8', isAvailable: true },
-    { name: 'Pink Tua', hex: '#f2507b', isAvailable: false },
+    { name: 'Pink Magenta', hex: '#f2507b', isAvailable: true },
     { name: 'Ungu Muda', hex: '#827cba', isAvailable: true },
     { name: 'Ungu Tua', hex: '#7e4da5', isAvailable: true },
     { name: 'Biru Pastel', hex: '#7dc9f0', isAvailable: true },
