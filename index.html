@@ -434,9 +434,12 @@
         </footer>
     </div>
 
+    <!-- Environment Config (Google Script URL) -->
+    <script src="env.js"></script>
+
     <script>
         const listEl = document.getElementById('workshopList');
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyh5OcWm7Jr0e196R9bg_FUPqT58uULQfWxniIUi3wfJ9KL83GkzKDeb7OB0uzI1eaDQ/exec';
+        // GOOGLE_SCRIPT_URL is loaded from env.js
 
         // --- Helper: Fetch JSONP ---
         function fetchJSONP(url, callbackPrefix) {

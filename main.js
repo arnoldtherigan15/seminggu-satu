@@ -104,7 +104,7 @@ const urgencyText = document.getElementById('urgencyText');
 // Variable global kuota
 let slotData = { slotSesi1: 0, slotSesi2: 0 };
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyh5OcWm7Jr0e196R9bg_FUPqT58uULQfWxniIUi3wfJ9KL83GkzKDeb7OB0uzI1eaDQ/exec';
+// GOOGLE_SCRIPT_URL is loaded from env.js
 
 // --- UI Toast Alert function ---
 function showToast(message) {

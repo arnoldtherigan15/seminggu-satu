@@ -2,8 +2,7 @@
 //  3D Frame Journaling Workshop — Registration Logic
 // ============================================================
 
-// --- Google Apps Script API endpoint (MUST be before checkQuota) ---
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyh5OcWm7Jr0e196R9bg_FUPqT58uULQfWxniIUi3wfJ9KL83GkzKDeb7OB0uzI1eaDQ/exec';
+// --- Google Apps Script API endpoint (loaded from env.js) ---
 
 // --- Workshop Config & Pricing ---
 const _workshopData = getWorkshopById("3d-frame-journaling");
