@@ -5,9 +5,6 @@
 .vscode/
 .idea/
 
-# Environment config (contains Google Script URL)
-env.js
-
 # Setup docs (contains spreadsheet links)
 SetupGoogleScript.md
 SetupGoogleScript_3DFrame.md
