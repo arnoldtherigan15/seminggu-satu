@@ -30,7 +30,7 @@ const WORKSHOPS = [
         closeDate: "24/04/2026",
         normalPrice: 188000,
         earlyBirdPrice: 169000,
-        earlyBirdDueDate: "13/04/2026",
+        earlyBirdDueDate: "12/04/2026",
         maxQuota: 12,
         workshopDate: "Sabtu, 25 April 2026",
         workshopTime: "15:00 - 17:30 WIB",
