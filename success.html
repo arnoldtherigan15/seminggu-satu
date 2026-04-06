@@ -527,7 +527,7 @@
         const p = new URLSearchParams(window.location.search);
         const name = p.get('name') || 'Peserta';
         const workshopId = p.get('workshop') || 'paper-journal';
-        
+
         const colorBody = p.get('colorBody') || '-';
         const colorFlap = p.get('colorFlap') || '-';
         const colorStrap = p.get('colorStrap') || '-';
@@ -536,7 +536,7 @@
         const colorStrapHex = p.get('colorStrapHex') || '#ccc';
 
         let session = '';
-        
+
         document.getElementById('ticketSubtitle').textContent = (workshopId === '3d-frame' || workshopId === '3d-frame-journaling')
             ? '3D Layered Journaling Workshop 2026'
             : 'Paper Journal Creative Workshop 2026';
@@ -548,7 +548,7 @@
             document.getElementById('successDescription').textContent = 'Frame, Texture & Motion. Kami tunggu kehadirannya!';
             session = 'Sabtu, 25 April 2026';
             document.getElementById('ticketSession').textContent = session;
-            document.getElementById('ticketLocation').textContent = 'ASHTA District 8, SCBD';
+            document.getElementById('ticketLocation').textContent = 'Melting Pot, GF at ASHTA District 8, SCBD';
             document.getElementById('ticketTime').textContent = '15:00 – 17:30 WIB';
             document.getElementById('colorSection').style.display = 'none';
         } else {
@@ -610,7 +610,7 @@
             const location = encodeURIComponent('Kopi Aloo Melawai');
 
             const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dtStart}/${dtEnd}&details=${details}&location=${location}`;
-            
+
             window.open(gcalUrl, '_blank');
         }
     </script>

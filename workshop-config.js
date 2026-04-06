@@ -34,7 +34,7 @@ const WORKSHOPS = [
         maxQuota: 12,
         workshopDate: "Sabtu, 25 April 2026",
         workshopTime: "15:00 - 17:30 WIB",
-        locationName: "ASHTA District 8",
+        locationName: "Melting Pot, GF at ASHTA District 8",
         mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
     },
     {
@@ -52,7 +52,7 @@ const WORKSHOPS = [
         maxQuota: 12,
         workshopDate: "Minggu, 17 Mei 2026",
         workshopTime: "15:00 - 17:30 WIB",
-        locationName: "ASHTA District 8",
+        locationName: "Melting Pot, GF at ASHTA District 8",
         mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
     }
 ];
