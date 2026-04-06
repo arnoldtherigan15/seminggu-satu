@@ -502,14 +502,6 @@
         <div class="share-section">
             <div class="share-title">Bagikan tiketmu</div>
             <div class="share-buttons">
-                <button id="btnWA" class="share-btn btn-wa" onclick="shareToWhatsApp()">
-                    <i data-lucide="message-circle"></i>
-                    Bagikan ke WhatsApp
-                </button>
-                <button id="btnIG" class="share-btn btn-ig" onclick="shareToInstagramStory()">
-                    <i data-lucide="instagram"></i>
-                    Share ke Instagram Story
-                </button>
                 <button id="btnDownload" class="share-btn btn-download" onclick="downloadTicket()">
                     <i data-lucide="download"></i>
                     Download Gambar Tiket
@@ -540,6 +532,15 @@
         const name = p.get('name') || 'Peserta';
         const workshopId = p.get('workshop') || 'paper-journal';
         
+        const colorBody = p.get('colorBody') || '-';
+        const colorFlap = p.get('colorFlap') || '-';
+        const colorStrap = p.get('colorStrap') || '-';
+        const colorBodyHex = p.get('colorBodyHex') || '#ccc';
+        const colorFlapHex = p.get('colorFlapHex') || '#ccc';
+        const colorStrapHex = p.get('colorStrapHex') || '#ccc';
+
+        let session = '';
+        
         document.getElementById('ticketSubtitle').textContent = (workshopId === '3d-frame' || workshopId === '3d-frame-journaling')
             ? '3D Layered Journaling Workshop 2026'
             : 'Paper Journal Creative Workshop 2026';
@@ -549,14 +550,16 @@
         if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling') {
             document.getElementById('successTitle').textContent = '3D Layered Journaling';
             document.getElementById('successDescription').textContent = 'Frame, Texture & Motion. Kami tunggu kehadirannya!';
-            document.getElementById('ticketSession').textContent = 'Sabtu, 25 April 2026';
+            session = 'Sabtu, 25 April 2026';
+            document.getElementById('ticketSession').textContent = session;
             document.getElementById('ticketLocation').textContent = 'ASHTA District 8, SCBD';
             document.getElementById('ticketTime').textContent = '15:00 – 17:30 WIB';
             document.getElementById('colorSection').style.display = 'none';
         } else {
             document.getElementById('successTitle').textContent = 'Paper Journal Workshop';
             document.getElementById('successDescription').textContent = 'Buat paper journal versimu dari kertas spesial bersama komunitas Seminggu Satu.';
-            document.getElementById('ticketSession').textContent = 'Minggu, 17 Mei 2026';
+            session = 'Minggu, 17 Mei 2026';
+            document.getElementById('ticketSession').textContent = session;
             document.getElementById('ticketLocation').textContent = 'Kopi Aloo Melawai, Blok M';
             document.getElementById('ticketTime').textContent = '15:00 – 17:30 WIB';
         }
@@ -803,216 +806,6 @@
             lucide.createIcons();
         }
 
-        // --- Share ke WhatsApp (kirim gambar tiket) ---
-        async function shareToWhatsApp() {
-            setButtonLoading('btnWA', true);
-            try {
-                const blob = await getTicketBlob();
-                const file = new File([blob], `tiket-seminggu-satu.png`, { type: 'image/png' });
-
-                const shareTitle = (workshopId.includes('3d')) ? '3D Layered Journaling' : 'Paper Journal Creative Workshop';
-                const shareText = `🐾 Aku daftar *${shareTitle}* by Seminggu Satu!\n📅 ${sessionDate} | 15:00–17:30 WIB\n📍 Kopi Aloo Melawai 🎨✨`;
-                
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        title: 'Tiket Workshop Seminggu Satu',
-                        text: shareText
-                    });
-                } else {
-                    // Fallback: open WA with text (desktop)
-                    const waText = encodeURIComponent(shareText);
-                    window.open(`https://wa.me/?text=${waText}`, '_blank');
-                }
-            } catch (e) {
-                if (e.name !== 'AbortError') alert('Gagal share ke WhatsApp.');
-            } finally {
-                setButtonLoading('btnWA', false);
-            }
-        }
-
-        // --- Share ke Instagram Story ---
-        // --- Generate 9:16 Story canvas (1080x1920) for Instagram ---
-        async function getStoryBlob() {
-            const SW = 1080, SH = 1920;
-            const sc = document.createElement('canvas');
-            sc.width = SW; sc.height = SH;
-            const ctx = sc.getContext('2d');
-
-            // Background gradient
-            const bg = ctx.createLinearGradient(0, 0, 0, SH);
-            bg.addColorStop(0, '#0a3d7a');
-            bg.addColorStop(0.45, '#0955a0');
-            bg.addColorStop(1, '#1565c0');
-            ctx.fillStyle = bg;
-            ctx.fillRect(0, 0, SW, SH);
-
-            // Subtle dot pattern overlay
-            for (let x = 0; x < SW; x += 40) {
-                for (let y = 0; y < SH; y += 40) {
-                    ctx.beginPath();
-                    ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255,255,255,0.06)';
-                    ctx.fill();
-                }
-            }
-
-            // --- Top branding ---
-            ctx.fillStyle = 'rgba(255,255,255,0.9)';
-            ctx.font = 'bold 64px system-ui, -apple-system, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('SEMINGGU SATU', SW / 2, 140);
-
-            ctx.fillStyle = 'rgba(255,255,255,0.55)';
-            ctx.font = '400 34px system-ui, -apple-system, sans-serif';
-            const storyTitle = (workshopId.includes('3d')) ? '3D Layered Journaling' : 'Paper Journal Creative Workshop';
-            ctx.fillText(storyTitle, SW / 2, 196);
-
-            // helper: rounded rect path
-            function rr(x, y, w, h, r) {
-                ctx.beginPath();
-                ctx.moveTo(x + r, y);
-                ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-                ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-                ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-                ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
-                ctx.closePath();
-            }
-
-            // --- Inner ticket card (white) ---
-            const CX = 80, CY = 260, CW = SW - 160;
-            const ACCENT = '#0955a0', ACCENT2 = '#1976d2';
-            const TEXT1 = '#111827', TEXT2 = '#4b5563';
-            const BGLIGHT = '#f8f9fa', BORDER = '#e5e7eb';
-
-            // Card shadow
-            ctx.shadowColor = 'rgba(0,0,0,0.25)';
-            ctx.shadowBlur = 40; ctx.shadowOffsetY = 16;
-            rr(CX, CY, CW, 1340, 32); ctx.fillStyle = '#fff'; ctx.fill();
-            ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-
-            // Header gradient
-            ctx.save();
-            rr(CX, CY, CW, 280, 32);
-            ctx.clip();
-            const hg = ctx.createLinearGradient(CX, CY, CX + CW, CY + 280);
-            hg.addColorStop(0, ACCENT); hg.addColorStop(1, ACCENT2);
-            ctx.fillStyle = hg; ctx.fill();
-            ctx.restore();
-
-            ctx.textAlign = 'left';
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            ctx.font = '600 30px system-ui, -apple-system, sans-serif';
-            ctx.fillText('SEMINGGU SATU · WORKSHOP TIKET', CX + 48, CY + 72);
-
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 72px system-ui, -apple-system, sans-serif';
-            ctx.fillText(name, CX + 48, CY + 170);
-
-            ctx.fillStyle = 'rgba(255,255,255,0.7)';
-            ctx.font = '400 34px system-ui, -apple-system, sans-serif';
-            const storyTicketTitle = (workshopId.includes('3d')) ? '3D Layered Journaling Workshop 2026' : 'Paper Journal Creative Workshop 2026';
-            ctx.fillText(storyTicketTitle, CX + 48, CY + 232);
-
-            // Tear line
-            ctx.save();
-            ctx.strokeStyle = BORDER; ctx.setLineDash([16, 10]); ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(CX + 20, CY + 310); ctx.lineTo(CX + CW - 20, CY + 310);
-            ctx.stroke(); ctx.setLineDash([]);
-            ctx.restore();
-
-            // Detail rows
-            const rows = [
-                { icon: '📅', label: 'SESI', value: session },
-                { icon: '🕒', label: 'WAKTU', value: '15:00 – 17:30 WIB' },
-                { icon: '📍', label: 'LOKASI', value: 'Kopi Aloo Melawai' },
-            ];
-            let ry = CY + 370;
-            rows.forEach(row => {
-                ctx.font = '38px serif'; ctx.fillText(row.icon, CX + 48, ry + 38);
-                ctx.fillStyle = TEXT2; ctx.font = '600 24px system-ui, -apple-system, sans-serif';
-                ctx.fillText(row.label, CX + 110, ry + 22);
-                ctx.fillStyle = TEXT1; ctx.font = '600 34px system-ui, -apple-system, sans-serif';
-                ctx.fillText(row.value, CX + 110, ry + 62);
-                ry += 86;
-            });
-
-            // Color swatches box (Only for Paper Journal)
-            if (!(workshopId.includes('3d'))) {
-                const swY = ry + 20;
-                ctx.fillStyle = BGLIGHT;
-                rr(CX + 40, swY, CW - 80, 120, 16); ctx.fill();
-
-                ctx.fillStyle = TEXT2; ctx.font = '600 24px system-ui, -apple-system, sans-serif';
-                ctx.fillText('PILIHAN WARNA JURNALMU', CX + 68, swY + 36);
-
-                const swatchItems = [
-                    { label: 'Cover: ' + colorBody, hex: colorBodyHex },
-                    { label: 'Flap: ' + colorFlap, hex: colorFlapHex },
-                    { label: 'Tali: ' + colorStrap, hex: colorStrapHex },
-                ];
-                let swX = CX + 68;
-                swatchItems.forEach(s => {
-                    ctx.beginPath(); ctx.arc(swX + 16, swY + 82, 16, 0, Math.PI * 2);
-                    ctx.fillStyle = s.hex; ctx.fill();
-                    ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 2; ctx.stroke();
-                    ctx.fillStyle = TEXT1; ctx.font = '500 26px system-ui, -apple-system, sans-serif';
-                    ctx.fillText(s.label, swX + 40, swY + 90);
-                    swX += ctx.measureText(s.label).width + 88;
-                });
-            }
-
-            // Barcode
-            const bcY = swY + 140;
-            ctx.strokeStyle = BORDER; ctx.setLineDash([10, 8]); ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(CX + 40, bcY); ctx.lineTo(CX + CW - 40, bcY); ctx.stroke();
-            ctx.setLineDash([]);
-
-            const bars = [28, 18, 28, 12, 22, 28, 14, 28, 18, 28, 10, 28, 22, 14, 28, 18, 12, 28, 22, 28, 14, 28];
-            let bx = SW / 2 - (bars.length * 7) / 2;
-            bars.forEach(h => {
-                ctx.fillStyle = 'rgba(17,24,39,0.15)';
-                ctx.fillRect(bx, bcY + 28 + 40 - h, 4, h);
-                bx += 7;
-            });
-            ctx.fillStyle = TEXT2; ctx.font = '500 24px system-ui, -apple-system, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('SMGST-' + Date.now().toString(36).toUpperCase().slice(-6), SW / 2, bcY + 100);
-
-            // --- Bottom branding ---
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.font = '400 32px system-ui, -apple-system, sans-serif';
-            ctx.fillText('@seminggu_satu', SW / 2, SH - 120);
-            ctx.fillStyle = 'rgba(255,255,255,0.35)';
-            ctx.font = '400 26px system-ui, -apple-system, sans-serif';
-            ctx.textAlign = 'left';
-
-            return new Promise(resolve => sc.toBlob(resolve, 'image/png'));
-        }
-
-        async function shareToInstagramStory() {
-            setButtonLoading('btnIG', true);
-            try {
-                const blob = await getStoryBlob();
-                const file = new File([blob], `story-seminggu-satu.png`, { type: 'image/png' });
-
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'Tiket Workshop Seminggu Satu' });
-                } else {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url; link.download = 'story-seminggu-satu.png'; link.click();
-                    URL.revokeObjectURL(url);
-                    alert('Gambar story sudah didownload! Buka Instagram → Stories → pilih gambar tersebut.');
-                }
-            } catch (e) {
-                if (e.name !== 'AbortError') alert('Gagal share. Coba Download Gambar Tiket dulu.');
-            } finally {
-                setButtonLoading('btnIG', false);
-            }
-        }
-
 
         // --- Download Ticket as Image ---
         async function downloadTicket() {
@@ -1033,8 +826,8 @@
         }
         // --- Add to Calendar (.ics) ---
         function addToCalendar() {
-            // Determine date from sessionDate string
-            const isSabtu = sessionDate.includes('25') || sessionDate.includes('April');
+            // Determine date from workshopId
+            const isSabtu = (workshopId === '3d-frame' || workshopId === '3d-frame-journaling');
             const dateStr = isSabtu ? '20260425' : '20260517';
             // 15:00 WIB = 08:00 UTC, 17:30 WIB = 10:30 UTC
             const dtStart = dateStr + 'T080000Z';
