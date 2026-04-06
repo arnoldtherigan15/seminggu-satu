@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Setup docs (contains spreadsheet links)
+SetupGoogleScript.md
+SetupGoogleScript_3DFrame.md
+SetupUnifiedScript.md
+
+# Google Apps Script source (contains Drive Folder ID)
+Google_Script_Code.js
