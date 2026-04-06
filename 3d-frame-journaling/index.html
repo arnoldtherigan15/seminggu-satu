@@ -199,7 +199,7 @@
         </div>
         <div class="hero-content">
             <h2>3D Layered Journaling</h2>
-            <p class="subtitle">Frame, Texture & Motion. Cara baru buat journaling di kanvas.</p>
+            <p class="subtitle">Frame, Texture & Motion. Cara baru buat journaling di frame.</p>
 
             <div class="social-links" style="justify-content: center; margin-bottom: 20px;">
                 <a href="https://www.instagram.com/seminggu_satu?igsh=MTJoaHdvdmszYzMxcQ%3D%3D&utm_source=qr"
@@ -421,9 +421,32 @@
         <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
     </footer>
 
+    <!-- Background Music -->
+    <audio id="bgMusic" src="../bg_music.mp3" loop preload="auto" autoplay></audio>
+
     <script src="../env.js"></script>
     <script src="main.js"></script>
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+
+        // Background Music — autoplay + fallback on first interaction
+        const bgMusic = document.getElementById('bgMusic');
+        bgMusic.volume = 0.35;
+
+        // Try immediate play
+        bgMusic.play().catch(() => {
+            // Browser blocked autoplay — retry on first interaction
+            const unlock = () => {
+                bgMusic.play();
+                document.removeEventListener('click', unlock);
+                document.removeEventListener('scroll', unlock);
+                document.removeEventListener('touchstart', unlock);
+            };
+            document.addEventListener('click', unlock, { once: true });
+            document.addEventListener('scroll', unlock, { once: true });
+            document.addEventListener('touchstart', unlock, { once: true });
+        });
+    </script>
 </body>
 
 </html>
