@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Paper Journal — Seminggu Satu by Arnold</title>
+    <meta name="description" content="Daftar Paper Journal Creative Workshop oleh Seminggu Satu. Buat paper journal versimu yang unik!">
+
+    <!-- Workshop Config — harus pertama untuk cek akses -->
+    <script src="../workshop-config.js"></script>
+    <script>
+        // Gate: cek status pendaftaran sebelum render halaman
+        const _ws = getWorkshopById("paper-journal");
+        const _status = getWorkshopStatus(_ws);
+        if (_status !== "open") {
+            window.location.replace("../closed.html?workshop=" + _ws.id + "&reason=" + _status);
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+
+    <header class="hero">
+        <div class="brand">
+            <a href="../" style="text-decoration:none;">
+                <img src="../logo_seminggu.png" alt="Seminggu Satu" class="brand-logo" style="width: auto;">
+                <p>by Arnold</p>
+            </a>
+        </div>
+        <div class="hero-content">
+            <h2>Paper Journal Creative Workshop</h2>
+            <p class="subtitle">Buat paper journal versimu yang unik dari kertas spesial. Pilih perpaduan warna
+                favoritmu sekarang!</p>
+
+            <div class="workshop-details">
+                <!-- Urgency Badge for Ticket Slots -->
+                <div class="urgency-badge" id="urgencyBadge">
+                    <i data-lucide="flame"></i> <span id="urgencyText">Mengecek slot...</span>
+                </div>
+
+                <div class="detail-item">
+                    <i data-lucide="calendar"></i>
+                    <span id="workshopDateText">Memuat tanggal...</span>
+                </div>
+
+                <div class="detail-item">
+                    <i data-lucide="clock"></i>
+                    <span id="workshopTimeText">Memuat waktu...</span>
+                </div>
+                <div class="detail-item">
+                    <i data-lucide="map-pin"></i>
+                    <a href="#" id="locationMapsLink" target="_blank" class="location-link">
+                        <span id="locationNameText">Memuat lokasi...</span>
+                    </a>
+                </div>
+                <div class="detail-item price">
+                    <i data-lucide="ticket"></i>
+                    <div class="price-box" id="priceBox">
+                        <!-- Price rendered by JS based on early bird status -->
+                        <span class="discount-price" id="discountPriceEl"></span>
+                        <span class="new-price" id="currentPriceEl"></span>
+                    </div>
+                </div>
+
+                <!-- Early Bird Countdown Info -->
+                <div class="early-bird-info" id="earlyBirdInfo" style="display:none;">
+                    <i data-lucide="timer"></i>
+                    <span id="earlyBirdText"></span>
+                </div>
+            </div>
+
+            <div class="social-links">
+                <a href="https://www.instagram.com/seminggu_satu?igsh=MTJoaHdvdmszYzMxcQ%3D%3D&utm_source=qr"
+                    target="_blank" class="social-btn">
+                    <img src="../images/Instagram.png" alt="Instagram" style="width:16px;height:16px;object-fit:contain;"> Instagram
+                </a>
+                <a href="https://www.tiktok.com/@seminggusatu?_r=1&_t=ZS-94BnQYTS4wx" target="_blank"
+                    class="social-btn">
+                    <img src="../images/tiktok.png" alt="TikTok" style="width:16px;height:16px;object-fit:contain;"> TikTok
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="visualizer-section">
+            <div class="section-header">
+                <h3>1. Rancang Jurnalmu</h3>
+                <p>Pilih warna kesukaanmu. Bagian cover adalah badan jurnal, dan flap adalah tutupnya.</p>
+                <div class="color-disclaimer">
+                    <i data-lucide="info"></i>
+                    <span>Warna yang ditampilkan mungkin sedikit berbeda dengan aslinya karena pengaruh pencahayaan dan pengaturan layar.</span>
+                </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div class="journal-preview-container">
+                <div class="journal-model" id="journalModel">
+                    <!-- Flap (Tutup Depan) -->
+                    <div class="journal-flap" id="journalFlap">
+                        <div class="flap-stitch"></div>
+                        <div class="flap-strap"></div>
+                    </div>
+                    <!-- Body (Badan Belakang) -->
+                    <div class="journal-body" id="journalBody">
+                        <div class="body-pattern"></div>
+                    </div>
+                </div>
+                <div class="color-indicator">
+                    <span class="badge" id="badgeBody">Cover: Biru Tua</span>
+                    <span class="badge" id="badgeFlap">Flap: Orange</span>
+                    <span class="badge" id="badgeStrap">Tali: Orange</span>
+                </div>
+            </div>
+
+            <!-- Color Pickers -->
+            <div class="color-selection">
+                <div class="picker-group">
+                    <label>Warna Badan (Cover)</label>
+                    <div class="color-grid" id="bodyColorGrid">
+                        <!-- Colors inject via JS -->
+                    </div>
+                </div>
+
+                <div class="picker-group">
+                    <label>Warna Tutup (Flap)</label>
+                    <div class="color-grid" id="flapColorGrid">
+                        <!-- Colors inject via JS -->
+                    </div>
+                </div>
+
+                <div class="picker-group">
+                    <label>Warna Tali</label>
+                    <div class="color-grid" id="strapColorGrid">
+                        <!-- Colors inject via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="registration-form-section">
+            <div class="section-header">
+                <h3>2. Data Pendaftaran</h3>
+                <p>Isi data diri untuk booking tempat.</p>
+            </div>
+
+            <form id="workshopForm">
+
+                <!-- Hidden inputs for colors -->
+                <input type="hidden" name="colorBody" id="inputColorBody" value="Biru Tua" required>
+                <input type="hidden" name="colorFlap" id="inputColorFlap" value="Orange" required>
+                <input type="hidden" name="colorStrap" id="inputColorStrap" value="Orange" required>
+
+                <div class="form-group">
+                    <label for="fullName">Nama Lengkap</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="user"></i>
+                        <input type="text" id="fullName" name="fullName" placeholder="Masukkan nama lengkap" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="initial">Inisial Jurnal (Maks. 7 Huruf)</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="type"></i>
+                        <input type="text" id="initial" name="initial" placeholder="Contoh: ARNOLD" maxlength="7"
+                            required>
+                    </div>
+                    <span class="help-text">Nama ini akan dicetak di jurnalmu.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="frontCoverWord">Front Cover Word <span
+                            style="font-weight:400;color:var(--text-secondary)">(Maks. 2 Kata, tiap kata maks. 6
+                            huruf)</span></label>
+                    <div class="input-wrapper">
+                        <i data-lucide="pencil-line"></i>
+                        <input type="text" id="frontCoverWord" name="frontCoverWord" placeholder="Contoh: Happy"
+                            required>
+                    </div>
+                    <span class="help-text">Maks. 2 kata, tiap kata maks. 6 huruf. Contoh: <em>Happy</em> atau <em>My
+                            Joy</em></span>
+                </div>
+
+
+                <div class="form-group upload-group">
+                    <label>Foto untuk Charm</label>
+                    <div class="upload-area" id="charmUploadArea">
+                        <i data-lucide="image-plus"></i>
+                        <span>Ketuk untuk upload foto charm</span>
+                        <input type="file" id="charmPhoto" name="charmPhoto" accept="image/*" required>
+                        <img id="charmPreview" class="preview-img" src="" alt="">
+                    </div>
+                    <input type="hidden" id="charmBase64" name="charmBase64">
+                    <input type="hidden" id="charmMimeType" name="charmMimeType">
+                </div>
+
+                <div class="payment-info">
+                    <h4>Informasi Pembayaran</h4>
+                    <p>Transfer <strong id="paymentAmount"></strong> ke rekening berikut:</p>
+                    <div class="bank-card">
+                        <div class="bank-name">BCA</div>
+                        <div class="bank-account">
+                            <span id="accountNumber">6042825961</span>
+                            <button type="button" class="copy-btn" id="copyBtn"><i data-lucide="copy"></i></button>
+                        </div>
+                        <div class="bank-owner">a.n Arnold Therigan</div>
+                    </div>
+                </div>
+
+                <div class="non-refund-notice">
+                    <i data-lucide="alert-circle"></i>
+                    <span>Pembayaran bersifat <strong>non-refundable</strong> — Hanya dapat dikembalikan dalam bentuk
+                        jurnal
+                        yang sudah dirakit.</span>
+                </div>
+
+                <div class="form-group upload-group">
+                    <label>Bukti Pembayaran</label>
+                    <div class="upload-area" id="paymentUploadArea">
+                        <i data-lucide="receipt"></i>
+                        <span>Ketuk untuk upload bukti transfer</span>
+                        <input type="file" id="paymentPhoto" name="paymentPhoto" accept="image/*" required>
+                        <img id="paymentPreview" class="preview-img" src="" alt="">
+                    </div>
+                    <input type="hidden" id="paymentBase64" name="paymentBase64">
+                    <input type="hidden" id="paymentMimeType" name="paymentMimeType">
+                </div>
+
+                <div class="form-group">
+                    <label for="whatsapp">Nomor WhatsApp</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="phone"></i>
+                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="Contoh: 0812xxxxxxxx" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="igUsername">Username Instagram</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="at-sign"></i>
+                        <input type="text" id="igUsername" name="igUsername" placeholder="@username">
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="consentCheck">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Saya bersedia untuk didokumentasikan (foto/video) selama workshop
+                            berlangsung untuk keperluan media sosial Seminggu Satu.</span>
+                    </label>
+                </div>
+
+                <div id="statusMessage" class="status-message"></div>
+
+                <!-- Submit button ditempatkan DI DALAM form tag -->
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span>Daftar Sekarang</span>
+                    <i data-lucide="arrow-right"></i>
+                </button>
+
+            </form>
+        </section>
+
+    </main>
+
+    <!-- Global Custom Toast Alert Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Full Page Blocker Loader -->
+    <div id="blockerLoader">
+        <div class="blocker-content">
+            <div class="blocker-spinner"></div>
+            <p id="blockerMessage">Sedang mengecek ketersediaan slot...</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
+    </footer>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" src="../bg_music.mp3" loop preload="auto" autoplay></audio>
+
+    <script src="main.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Background Music — autoplay + fallback on first interaction
+        const bgMusic = document.getElementById('bgMusic');
+        bgMusic.volume = 0.35;
+
+        // Try immediate play
+        bgMusic.play().catch(() => {
+            // Browser blocked autoplay — retry on first interaction
+            const unlock = () => {
+                bgMusic.play();
+                document.removeEventListener('click', unlock);
+                document.removeEventListener('scroll', unlock);
+                document.removeEventListener('touchstart', unlock);
+            };
+            document.addEventListener('click', unlock, { once: true });
+            document.addEventListener('scroll', unlock, { once: true });
+            document.addEventListener('touchstart', unlock, { once: true });
+        });
+    </script>
+
+</body>
+
+</html>

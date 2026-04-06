@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Ditutup — Seminggu Satu by Arnold</title>
+    <meta name="description" content="Pendaftaran workshop sedang tidak tersedia. Follow Instagram kami untuk info workshop selanjutnya.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Workshop Config -->
+    <script src="workshop-config.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #faf9f7;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --accent: #3b82f6;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        h2, h3 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .brand {
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.5s ease both;
+        }
+
+        .brand a {
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            height: 80px;
+            width: auto;
+            max-width: 280px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .brand p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0.35rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            animation: slideUp 0.5s ease 0.1s both;
+        }
+
+        .icon-wrap {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .icon-wrap i {
+            width: 38px;
+            height: 38px;
+        }
+
+        .icon-wrap.icon-closed {
+            background: #fef2f2;
+        }
+
+        .icon-wrap.icon-closed i {
+            color: var(--error-color);
+        }
+
+        .icon-wrap.icon-not-open {
+            background: #fffbeb;
+        }
+
+        .icon-wrap.icon-not-open i {
+            color: var(--warning-color);
+        }
+
+        .icon-wrap.icon-disabled {
+            background: #f3f4f6;
+        }
+
+        .icon-wrap.icon-disabled i {
+            color: var(--text-secondary);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .workshop-name {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .divider {
+            width: 40px;
+            height: 3px;
+            border-radius: 99px;
+            margin: 0 auto 1.5rem;
+            opacity: 0.5;
+        }
+
+        .divider-red { background: var(--error-color); }
+        .divider-yellow { background: var(--warning-color); }
+        .divider-gray { background: var(--text-secondary); }
+
+        p.desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 1.5rem;
+        }
+
+        .date-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f9fafb;
+            padding: 0.6rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .date-info i {
+            width: 16px;
+            height: 16px;
+            color: var(--text-secondary);
+        }
+
+        .see-you {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--text-primary);
+            color: white;
+            border: none;
+            border-radius: 99px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            margin-bottom: 1.5rem;
+            font-family: inherit;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .back-btn i { width: 16px; height: 16px; }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            background: white;
+            border: 1.5px solid var(--border-color);
+            border-radius: 99px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .social-btn:hover {
+            background: var(--bg-color);
+            transform: translateY(-1px);
+        }
+
+        .social-btn i { width: 16px; height: 16px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="brand">
+        <a href="./">
+            <img src="logo_seminggu.png" alt="Seminggu Satu" class="brand-logo">
+            <p>by Arnold</p>
+        </a>
+    </div>
+
+    <div class="card" id="closedCard">
+        <!-- Content rendered by JS based on query params -->
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const workshopId = params.get('workshop');
+        const reason = params.get('reason') || 'disabled';
+
+        const workshop = getWorkshopById(workshopId);
+        const workshopName = workshop ? workshop.name : 'Workshop';
+
+        const card = document.getElementById('closedCard');
+        let iconClass, iconName, dividerClass, title, description, dateHTML = '';
+
+        switch (reason) {
+            case 'not-open-yet':
+                iconClass = 'icon-not-open';
+                iconName = 'clock';
+                dividerClass = 'divider-yellow';
+                title = 'Pendaftaran Belum Dibuka';
+                description = `Pendaftaran untuk <strong>${workshopName}</strong> belum dibuka saat ini. Pantau terus media sosial kami untuk info pembukaan! 🐾`;
+                if (workshop && workshop.openDate) {
+                    dateHTML = `
+                        <div class="date-info">
+                            <i data-lucide="calendar"></i>
+                            Dibuka: ${formatDateIndo(workshop.openDate)}
+                        </div>`;
+                }
+                break;
+
+            case 'closed':
+                iconClass = 'icon-closed';
+                iconName = 'calendar-x';
+                dividerClass = 'divider-red';
+                title = 'Pendaftaran Telah Ditutup';
+                description = `Maaf, pendaftaran untuk <strong>${workshopName}</strong> sudah ditutup. Terima kasih atas antusiasme kalian! 🐾`;
+                if (workshop && workshop.closeDate) {
+                    dateHTML = `
+                        <div class="date-info">
+                            <i data-lucide="calendar-x-2"></i>
+                            Ditutup: ${formatDateIndo(workshop.closeDate)}
+                        </div>`;
+                }
+                break;
+
+            default: // disabled
+                iconClass = 'icon-disabled';
+                iconName = 'lock';
+                dividerClass = 'divider-gray';
+                title = 'Pendaftaran Ditutup';
+                description = `Pendaftaran untuk <strong>${workshopName}</strong> saat ini sedang tidak dibuka. Pantau terus media sosial kami untuk info workshop selanjutnya! 🐾`;
+                break;
+        }
+
+        card.innerHTML = `
+            <div class="icon-wrap ${iconClass}">
+                <i data-lucide="${iconName}"></i>
+            </div>
+            <h2>${title}</h2>
+            <div class="divider ${dividerClass}"></div>
+            <p class="desc">${description}</p>
+            ${dateHTML}
+            <p class="see-you">Sampai ketemu di kesempatan berikutnya! ✨</p>
+            <a href="./" class="back-btn"><i data-lucide="arrow-left"></i> Kembali ke Home</a>
+            <div class="social-links">
+                <a href="https://www.instagram.com/seminggu_satu" target="_blank" class="social-btn">
+                    <i data-lucide="instagram"></i> Follow Instagram
+                </a>
+                <a href="https://www.tiktok.com/@seminggusatu" target="_blank" class="social-btn">
+                    <i data-lucide="video"></i> TikTok
+                </a>
+            </div>
+        `;
+
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
