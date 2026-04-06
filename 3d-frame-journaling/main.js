@@ -1,5 +1,5 @@
 // ============================================================
-//  3D Frame Journaling Workshop — Registration Logic
+//  3D Layered Journaling Workshop — Registration Logic
 // ============================================================
 
 // --- Google Apps Script API endpoint (loaded from env.js) ---

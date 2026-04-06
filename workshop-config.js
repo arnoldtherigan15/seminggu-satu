@@ -21,7 +21,7 @@
 const WORKSHOPS = [
     {
         id: "3d-frame-journaling",
-        name: "3D Frame Journaling",
+        name: "3D Layered Journaling",
         description: "Frame, Texture & Motion",
         icon: "frame",
         path: "3d-frame-journaling/index.html",

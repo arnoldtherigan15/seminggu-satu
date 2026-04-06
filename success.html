@@ -541,13 +541,13 @@
         const workshopId = p.get('workshop') || 'paper-journal';
         
         document.getElementById('ticketSubtitle').textContent = (workshopId === '3d-frame' || workshopId === '3d-frame-journaling')
-            ? '3D Frame Journaling Workshop 2026'
+            ? '3D Layered Journaling Workshop 2026'
             : 'Paper Journal Creative Workshop 2026';
 
         // Set session/description info based on workshop-config if available
         // Or keep it hardcoded for now as per current data
         if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling') {
-            document.getElementById('successTitle').textContent = '3D Frame Journaling';
+            document.getElementById('successTitle').textContent = '3D Layered Journaling';
             document.getElementById('successDescription').textContent = 'Frame, Texture & Motion. Kami tunggu kehadirannya!';
             document.getElementById('ticketSession').textContent = 'Sabtu, 25 April 2026';
             document.getElementById('ticketLocation').textContent = 'ASHTA District 8, SCBD';
@@ -668,7 +668,7 @@
             ctx.fillText(name, PAD, 124);
 
             const workshopTitle = (workshopId === '3d-frame' || workshopId === '3d-frame-journaling') 
-                ? '3D Frame Journaling Workshop 2026' 
+                ? '3D Layered Journaling Workshop 2026' 
                 : 'Paper Journal Creative Workshop 2026';
             ctx.fillText(workshopTitle, PAD, 168);
 
@@ -810,7 +810,7 @@
                 const blob = await getTicketBlob();
                 const file = new File([blob], `tiket-seminggu-satu.png`, { type: 'image/png' });
 
-                const shareTitle = (workshopId.includes('3d')) ? '3D Frame Journaling' : 'Paper Journal Creative Workshop';
+                const shareTitle = (workshopId.includes('3d')) ? '3D Layered Journaling' : 'Paper Journal Creative Workshop';
                 const shareText = `🐾 Aku daftar *${shareTitle}* by Seminggu Satu!\n📅 ${sessionDate} | 15:00–17:30 WIB\n📍 Kopi Aloo Melawai 🎨✨`;
                 
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -865,7 +865,7 @@
 
             ctx.fillStyle = 'rgba(255,255,255,0.55)';
             ctx.font = '400 34px system-ui, -apple-system, sans-serif';
-            const storyTitle = (workshopId.includes('3d')) ? '3D Frame Journaling' : 'Paper Journal Creative Workshop';
+            const storyTitle = (workshopId.includes('3d')) ? '3D Layered Journaling' : 'Paper Journal Creative Workshop';
             ctx.fillText(storyTitle, SW / 2, 196);
 
             // helper: rounded rect path
@@ -911,7 +911,7 @@
 
             ctx.fillStyle = 'rgba(255,255,255,0.7)';
             ctx.font = '400 34px system-ui, -apple-system, sans-serif';
-            const storyTicketTitle = (workshopId.includes('3d')) ? '3D Frame Journaling Workshop 2026' : 'Paper Journal Creative Workshop 2026';
+            const storyTicketTitle = (workshopId.includes('3d')) ? '3D Layered Journaling Workshop 2026' : 'Paper Journal Creative Workshop 2026';
             ctx.fillText(storyTicketTitle, CX + 48, CY + 232);
 
             // Tear line
@@ -1047,7 +1047,7 @@
                 'BEGIN:VEVENT',
                 `DTSTART:${dtStart}`,
                 `DTEND:${dtEnd}`,
-                'SUMMARY:' + (workshopId.includes('3d') ? '3D Frame Journaling' : 'Paper Journal Creative Workshop') + ' – Seminggu Satu',
+                'SUMMARY:' + (workshopId.includes('3d') ? '3D Layered Journaling' : 'Paper Journal Creative Workshop') + ' – Seminggu Satu',
                 `DESCRIPTION:Halo ${name}! Ini pengingat workshop kamu bersama Seminggu Satu by Arnold. Sampai ketemu! 🐾`,
                 'LOCATION:Kopi Aloo Melawai',
                 'STATUS:CONFIRMED',
