@@ -61,7 +61,7 @@ const WORKSHOPS = [
         description: "Recycle your favorite shopping bag into a unique journal cover. Limited stock for each bag!",
         icon: "shopping-bag",
         path: "artcycle-journal/index.html",
-        enabled: true,
+        enabled: false,
         openDate: "11/04/2026",
         closeDate: "16/05/2026",
         normalPrice: 382000,
