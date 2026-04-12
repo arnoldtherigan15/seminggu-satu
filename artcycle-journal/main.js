@@ -40,8 +40,8 @@ document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
 // ============================================================
 //  Data Bag Images (Stock)
 // ============================================================
-// Total 42 bags, each unique
-const bagIds = Array.from({ length: 42 }, (_, i) => `Bag_${i + 1}`);
+// Total 66 bags, each unique
+const bagIds = Array.from({ length: 66 }, (_, i) => `Bag_${i + 1}`);
 
 // Data Warna Khusus Tali (Closure)
 const strapColors = [
@@ -230,44 +230,90 @@ function renderBagSliders() {
 function renderSlider(container, type) {
     if (!container) return;
     container.innerHTML = '';
-    
-    bagIds.forEach(id => {
-        const isSoldOut = takenBags.includes(id);
-        
-        // --- REQUEST: Hide Sold Out Items ---
-        if (isSoldOut) return; 
 
-        // Special check: if bag is currently selected for the OTHER part by this user
-        const isReservedByMe = (type === 'body' && selectedFlapBagId === id) || 
-                               (type === 'flap' && selectedBodyBagId === id);
-        
-        // Check if currently selected for THIS slider
-        const isActive = (type === 'body' && selectedBodyBagId === id) || 
-                         (type === 'flap' && selectedFlapBagId === id);
-        
-        const item = document.createElement('div');
-        item.className = `bag-item ${isReservedByMe ? 'reserved' : ''} ${isActive ? 'active' : ''}`;
-        
-        const imgPath = `../images/shopping_bag/${id}.jpg`;
-        
-        item.innerHTML = `
-            <div class="bag-img-wrap">
-                ${isReservedByMe ? '<div class="reserved-badge">Sudah Terpilih</div>' : ''}
-                <img src="${imgPath}" alt="${id}" class="bag-img" draggable="false">
-            </div>
-            <span class="bag-label">${id.replace('_', ' ')}</span>
-        `;
-        
-        if (!isReservedByMe) {
-            item.onclick = () => selectBag(id, type, item);
-        } else {
-            item.onclick = (e) => {
-                e.preventDefault();
-                showToast(`Bag ini sedang digunakan untuk ${type === 'body' ? 'Flap' : 'Cover'} kamu.`);
+    const visibleBagsList = bagIds.filter(id => !takenBags.includes(id));
+    const bagCount = visibleBagsList.length;
+    const itemWidth = 140 + 15; // item width + gap
+
+    // To make it infinite, we render the set 3 times: [set1] [set2] [set3]
+    // We will start at [set2].
+    for (let setIndex = 0; setIndex < 3; setIndex++) {
+        visibleBagsList.forEach(id => {
+            // Special check: if bag is currently selected for the OTHER part by this user
+            const isReservedByMe = (type === 'body' && selectedFlapBagId === id) ||
+                (type === 'flap' && selectedBodyBagId === id);
+
+            // Check if currently selected for THIS slider
+            const isActive = (type === 'body' && selectedBodyBagId === id) ||
+                (type === 'flap' && selectedFlapBagId === id);
+
+            const item = document.createElement('div');
+            item.className = `bag-item ${isReservedByMe ? 'reserved' : ''} ${isActive ? 'active' : ''}`;
+            item.setAttribute('data-id', id);
+
+            const imgPath = `../images/shopping_bag/${id}.jpg`;
+
+            item.innerHTML = `
+                <div class="bag-img-wrap">
+                    ${isReservedByMe ? '<div class="reserved-badge">Sudah Terpilih</div>' : ''}
+                    <img src="${imgPath}" alt="${id}" class="bag-img" draggable="false">
+                </div>
+                <span class="bag-label">${id.replace('_', ' ')}</span>
+            `;
+
+            if (!isReservedByMe) {
+                item.onclick = () => selectBag(id, type, item);
+            } else {
+                item.onclick = (e) => {
+                    e.preventDefault();
+                    showToast(`Bag ini sedang digunakan untuk ${type === 'body' ? 'Flap' : 'Cover'} kamu.`);
+                }
             }
-        }
+
+            container.appendChild(item);
+        });
+    }
+
+    // Set initial scroll to middle set after a short delay to ensure rendering
+    setTimeout(() => {
+        // Disable smooth scroll & snap for the jump
+        const originalSmooth = container.style.scrollBehavior;
+        const originalSnap = container.style.scrollSnapType;
+        container.style.scrollBehavior = 'auto';
+        container.style.scrollSnapType = 'none';
         
-        container.appendChild(item);
+        container.scrollLeft = bagCount * itemWidth;
+        
+        // Re-enable after jump
+        setTimeout(() => {
+            container.style.scrollBehavior = originalSmooth;
+            container.style.scrollSnapType = originalSnap;
+        }, 50);
+
+        // Init infinite scroll listener
+        if (!container.dataset.infiniteInit) {
+            initInfiniteScroll(container, bagCount, itemWidth);
+            container.dataset.infiniteInit = "true";
+        }
+    }, 50);
+}
+
+function initInfiniteScroll(slider, bagCount, itemWidth) {
+    const setWidth = bagCount * itemWidth;
+    
+    slider.addEventListener('scroll', () => {
+        // If we've scrolled into the first set (left), jump to the second set (middle)
+        if (slider.scrollLeft < setWidth * 0.5) {
+            slider.style.scrollBehavior = 'auto';
+            slider.scrollLeft += setWidth;
+            slider.style.scrollBehavior = 'smooth';
+        } 
+        // If we've scrolled into the third set (right), jump back to the second set (middle)
+        else if (slider.scrollLeft > setWidth * 1.5) {
+            slider.style.scrollBehavior = 'auto';
+            slider.scrollLeft -= setWidth;
+            slider.style.scrollBehavior = 'smooth';
+        }
     });
 }
 
@@ -282,27 +328,42 @@ function selectBag(id, type, element) {
     }
 
     const imgPath = `../images/shopping_bag/${id}.jpg`;
+    const sliderId = type === 'body' ? 'bodyBagSlider' : 'flapBagSlider';
     
     if (type === 'body') {
         selectedBodyBagId = id;
-        document.querySelectorAll('#bodyBagSlider .bag-item').forEach(i => i.classList.remove('active'));
-        element.classList.add('active');
+        document.querySelectorAll(`#${sliderId} .bag-item`).forEach(i => i.classList.remove('active'));
+        // Sync active class to all clones of this ID in THIS slider
+        document.querySelectorAll(`#${sliderId} .bag-item[data-id="${id}"]`).forEach(i => i.classList.add('active'));
+        
         const motifBody = document.getElementById('motifBody');
         motifBody.style.backgroundImage = `url(${imgPath})`;
         badgeBody.textContent = `Cover: ${id.replace('_', ' ')}`;
         inputBodyBagId.value = id;
     } else {
         selectedFlapBagId = id;
-        document.querySelectorAll('#flapBagSlider .bag-item').forEach(i => i.classList.remove('active'));
-        element.classList.add('active');
+        document.querySelectorAll(`#${sliderId} .bag-item`).forEach(i => i.classList.remove('active'));
+        // Sync active class to all clones of this ID in THIS slider
+        document.querySelectorAll(`#${sliderId} .bag-item[data-id="${id}"]`).forEach(i => i.classList.add('active'));
+        
         const motifFlap = document.getElementById('motifFlap');
         motifFlap.style.backgroundImage = `url(${imgPath})`;
         badgeFlap.textContent = `Flap: ${id.replace('_', ' ')}`;
         inputFlapBagId.value = id;
     }
 
-    // Refresh sliders to update "Reserved" state for the other slider
-    renderBagSliders();
+    // Update "Reserved" status in the OTHER slider
+    const otherType = type === 'body' ? 'flap' : 'body';
+    const otherSliderId = otherType === 'body' ? 'bodyBagSlider' : 'flapBagSlider';
+    const otherContainer = document.getElementById(otherSliderId);
+    
+    if (otherContainer) {
+        const savedScroll = otherContainer.scrollLeft;
+        renderSlider(otherContainer, otherType);
+        setTimeout(() => {
+            otherContainer.scrollLeft = savedScroll;
+        }, 60);
+    }
 }
 
 // --- Initialize Strap Colors ---

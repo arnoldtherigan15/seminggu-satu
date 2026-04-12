@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pendaftaran Artcycle Bag Journal — Seminggu Satu by Arnold</title>
-    <meta name="description" content="Daftar Artcycle Bag Journal Workshop oleh Seminggu Satu. Ubah shopping bag bekasmu menjadi jurnal unik!">
+    <meta name="description"
+        content="Daftar Artcycle Bag Journal Workshop oleh Seminggu Satu. Ubah shopping bag bekasmu menjadi jurnal unik!">
 
     <!-- Workshop Config — harus pertama untuk cek akses -->
     <script src="../workshop-config.js"></script>
@@ -48,8 +49,10 @@
             overflow-x: auto;
             scroll-behavior: smooth;
             padding: 25px 5px 25px;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
             scroll-snap-type: x mandatory;
             user-select: none;
             -webkit-user-drag: none;
@@ -61,7 +64,8 @@
         }
 
         .bag-slider::-webkit-scrollbar {
-            display: none; /* Chrome, Safari and Opera */
+            display: none;
+            /* Chrome, Safari and Opera */
         }
 
         .bag-item {
@@ -78,7 +82,7 @@
             border-radius: 12px;
             overflow: hidden;
             border: 3px solid transparent;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             background: #eee;
         }
 
@@ -95,7 +99,7 @@
 
         .bag-item.active .bag-img-wrap {
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         .bag-item.active {
@@ -130,23 +134,30 @@
             justify-content: center;
             cursor: pointer;
             z-index: 10;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
         }
 
         .slider-nav:hover {
             background: var(--bg-color);
             color: var(--accent-color);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
         }
 
-        .slider-nav.prev { left: -15px; }
-        .slider-nav.next { right: -15px; }
+        .slider-nav.prev {
+            left: -15px;
+        }
+
+        .slider-nav.next {
+            right: -15px;
+        }
 
         /* Journal Preview Updates */
-        .journal-body, .journal-flap {
+        .journal-body,
+        .journal-flap {
             transition: background-color 0.5s ease;
-            position: absolute; /* Consistent with style.css */
+            position: absolute;
+            /* Consistent with style.css */
         }
 
         .motif-bg {
@@ -172,14 +183,15 @@
             background-color: transparent !important;
         }
 
-        .journal-body::after, .journal-flap::after {
+        .journal-body::after,
+        .journal-flap::after {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.05) 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.05) 100%);
             pointer-events: none;
             border-radius: inherit;
         }
@@ -193,18 +205,21 @@
         }
 
         /* Sold Out Styling */
-        .bag-item.sold-out, .bag-item.reserved {
+        .bag-item.sold-out,
+        .bag-item.reserved {
             opacity: 0.6;
             cursor: not-allowed;
             filter: grayscale(0.5);
         }
 
         .bag-item.reserved {
-            filter: sepia(0.5); /* yellowish to distinguish from sold out */
+            filter: sepia(0.5);
+            /* yellowish to distinguish from sold out */
             border: 2px dashed var(--accent);
         }
 
-        .sold-out-badge, .reserved-badge {
+        .sold-out-badge,
+        .reserved-badge {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -225,8 +240,13 @@
         }
 
         @media (max-width: 480px) {
-            .slider-nav { display: none; }
-            .bag-slider-container { padding: 0; }
+            .slider-nav {
+                display: none;
+            }
+
+            .bag-slider-container {
+                padding: 0;
+            }
         }
     </style>
 </head>
@@ -235,14 +255,15 @@
 
     <header class="hero">
         <div class="brand">
-            <a href="../" style="text-decoration:none;">
+            <a href="../index.html" style="text-decoration:none;">
                 <img src="../logo_seminggu.png" alt="Seminggu Satu" class="brand-logo" style="width: auto;">
                 <p>by Arnold</p>
             </a>
         </div>
         <div class="hero-content">
             <h2>Artcycle Bag Journal Workshop</h2>
-            <p class="subtitle">Ubah shopping bag bekas (spunbond bag) favoritmu menjadi kover jurnal yang estetik. Pilih stok bag yang tersedia sekarang!</p>
+            <p class="subtitle">Ubah shopping bag bekas (spunbond bag) favoritmu menjadi cover jurnal yang estetik.
+                Pilih stok bag yang tersedia sekarang!</p>
 
             <div class="workshop-details">
                 <!-- Urgency Badge for Ticket Slots -->
@@ -284,11 +305,13 @@
             <div class="social-links">
                 <a href="https://www.instagram.com/seminggu_satu?igsh=MTJoaHdvdmszYzMxcQ%3D%3D&utm_source=qr"
                     target="_blank" class="social-btn">
-                    <img src="../images/Instagram.png" alt="Instagram" style="width:16px;height:16px;object-fit:contain;"> Instagram
+                    <img src="../images/Instagram.png" alt="Instagram"
+                        style="width:16px;height:16px;object-fit:contain;"> Instagram
                 </a>
                 <a href="https://www.tiktok.com/@seminggusatu?_r=1&_t=ZS-94BnQYTS4wx" target="_blank"
                     class="social-btn">
-                    <img src="../images/tiktok.png" alt="TikTok" style="width:16px;height:16px;object-fit:contain;"> TikTok
+                    <img src="../images/tiktok.png" alt="TikTok" style="width:16px;height:16px;object-fit:contain;">
+                    TikTok
                 </a>
             </div>
         </div>
@@ -299,10 +322,13 @@
         <section class="visualizer-section">
             <div class="section-header">
                 <h3>1. Pilih Shopping Bag Bekas-mu</h3>
-                <p>Silakan pilih motif shopping bag bekas (spunbond bag) yang ingin kamu jadikan kover jurnal. Satu motif hanya tersedia untuk satu orang!</p>
+                <p>Silakan pilih motif shopping bag bekas (spunbond bag) yang ingin kamu jadikan cover jurnal. Satu
+                    motif hanya tersedia untuk satu orang!</p>
                 <div class="color-disclaimer">
                     <i data-lucide="info"></i>
-                    <span>Warna yang ditampilkan mungkin berbeda dengan aslinya. Visualizer ini hanyalah ilustrasi; penempatan motif shopping bag pada jurnal asli dapat berbeda sesuai dengan hasil produksi.</span>
+                    <span>Warna yang ditampilkan mungkin berbeda dengan aslinya. Visualizer ini hanyalah ilustrasi;
+                        penempatan motif shopping bag pada jurnal asli dapat berbeda sesuai dengan hasil
+                        produksi.</span>
                 </div>
             </div>
 
@@ -338,8 +364,10 @@
                         <div class="bag-slider" id="bodyBagSlider">
                             <div class="loading-bags">Memuat stok bag...</div>
                         </div>
-                        <button type="button" class="slider-nav prev" onclick="scrollSlider('bodyBagSlider', -200)"><i data-lucide="chevron-left"></i></button>
-                        <button type="button" class="slider-nav next" onclick="scrollSlider('bodyBagSlider', 200)"><i data-lucide="chevron-right"></i></button>
+                        <button type="button" class="slider-nav prev" onclick="scrollSlider('bodyBagSlider', -200)"><i
+                                data-lucide="chevron-left"></i></button>
+                        <button type="button" class="slider-nav next" onclick="scrollSlider('bodyBagSlider', 200)"><i
+                                data-lucide="chevron-right"></i></button>
                     </div>
                 </div>
 
@@ -350,8 +378,10 @@
                         <div class="bag-slider" id="flapBagSlider">
                             <div class="loading-bags">Memuat stok bag...</div>
                         </div>
-                        <button type="button" class="slider-nav prev" onclick="scrollSlider('flapBagSlider', -200)"><i data-lucide="chevron-left"></i></button>
-                        <button type="button" class="slider-nav next" onclick="scrollSlider('flapBagSlider', 200)"><i data-lucide="chevron-right"></i></button>
+                        <button type="button" class="slider-nav prev" onclick="scrollSlider('flapBagSlider', -200)"><i
+                                data-lucide="chevron-left"></i></button>
+                        <button type="button" class="slider-nav next" onclick="scrollSlider('flapBagSlider', 200)"><i
+                                data-lucide="chevron-right"></i></button>
                     </div>
                 </div>
 
@@ -401,7 +431,7 @@
                     <label>Foto untuk Charm</label>
                     <div class="upload-area" id="charmUploadArea">
                         <i data-lucide="image-plus"></i>
-                        <span>Ketuk untuk upload foto charm</span>
+                        <span>Upload foto charm</span>
                         <input type="file" id="charmPhoto" name="charmPhoto" accept="image/*" required>
                         <img id="charmPreview" class="preview-img" src="" alt="">
                     </div>
@@ -433,7 +463,7 @@
                     <label>Bukti Pembayaran</label>
                     <div class="upload-area" id="paymentUploadArea">
                         <i data-lucide="receipt"></i>
-                        <span>Ketuk untuk upload bukti transfer</span>
+                        <span>Upload bukti transfer</span>
                         <input type="file" id="paymentPhoto" name="paymentPhoto" accept="image/*" required>
                         <img id="paymentPreview" class="preview-img" src="" alt="">
                     </div>
