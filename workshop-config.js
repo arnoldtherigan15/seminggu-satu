@@ -36,6 +36,7 @@ const WORKSHOPS = [
         workshopTime: "15:00 - 17:30 WIB",
         locationName: "Melting Pot, GF at ASHTA District 8",
         mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
+        isDisplay: true,
     },
     {
         id: "paper-journal",
@@ -54,24 +55,26 @@ const WORKSHOPS = [
         workshopTime: "15:00 - 17:30 WIB",
         locationName: "Melting Pot, GF at ASHTA District 8",
         mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
+        isDisplay: true,
     },
     {
         id: "artcycle-journal",
         name: "Artcycle Bag Journal Workshop",
-        description: "Recycle your favorite shopping bag into a unique journal cover. Limited stock for each bag!",
+        description: "Recycle shopping bag into a unique journal cover. Limited stock for each bag!",
         icon: "shopping-bag",
         path: "artcycle-journal/index.html",
-        enabled: false,
-        openDate: "11/04/2026",
+        enabled: true,
+        openDate: "12/04/2026",
         closeDate: "16/05/2026",
         normalPrice: 382000,
         earlyBirdPrice: 344000,
-        earlyBirdDueDate: "01/05/2026",
+        earlyBirdDueDate: "20/04/2026",
         maxQuota: 12,
         workshopDate: "Minggu, 17 Mei 2026",
         workshopTime: "15:00 - 17:30 WIB",
         locationName: "Melting Pot, GF at ASHTA District 8",
         mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
+        isDisplay: true,
     }
 ];
 

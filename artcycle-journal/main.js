@@ -241,8 +241,12 @@ function renderSlider(container, type) {
         const isReservedByMe = (type === 'body' && selectedFlapBagId === id) || 
                                (type === 'flap' && selectedBodyBagId === id);
         
+        // Check if currently selected for THIS slider
+        const isActive = (type === 'body' && selectedBodyBagId === id) || 
+                         (type === 'flap' && selectedFlapBagId === id);
+        
         const item = document.createElement('div');
-        item.className = `bag-item ${isReservedByMe ? 'reserved' : ''}`;
+        item.className = `bag-item ${isReservedByMe ? 'reserved' : ''} ${isActive ? 'active' : ''}`;
         
         const imgPath = `../images/shopping_bag/${id}.jpg`;
         
@@ -328,6 +332,8 @@ function renderStrapColors() {
 }
 
 // --- Image Upload Handlers ---
+let isProcessingImages = 0;
+
 function setupImageUpload(inputId, previewBoxId, previewImgId, base64Id, mimeId) {
     const input = document.getElementById(inputId);
     const previewBox = document.getElementById(previewBoxId);
@@ -339,21 +345,42 @@ function setupImageUpload(inputId, previewBoxId, previewImgId, base64Id, mimeId)
 
     input.addEventListener('change', function (e) {
         const file = e.target.files[0];
-        if (!file) return;
-
-        if (file.size > 5 * 1024 * 1024) {
-            alert("Ukuran gambar terlalu besar! Maksimal 5MB.");
-            input.value = "";
+        if (!file) {
+            base64Input.value = "";
+            previewBox.classList.remove('has-image');
             return;
         }
+
+        // Reset and show loading
+        base64Input.value = "";
+        
+        if (file.size > 5 * 1024 * 1024) {
+            showToast("Ukuran gambar too large! Max 5MB.");
+            input.value = "";
+            previewBox.classList.remove('has-image');
+            previewImg.src = "";
+            return;
+        }
+
+        isProcessingImages++;
+        previewBox.classList.add('loading');
 
         const reader = new FileReader();
         reader.onload = function (event) {
             previewImg.src = event.target.result;
             previewBox.classList.add('has-image');
+            previewBox.classList.remove('loading');
+            
             const base64String = event.target.result.split(',')[1];
             base64Input.value = base64String;
             mimeInput.value = file.type;
+            
+            isProcessingImages = Math.max(0, isProcessingImages - 1);
+        };
+        reader.onerror = function() {
+            showToast("Gagal membaca file.");
+            isProcessingImages = Math.max(0, isProcessingImages - 1);
+            previewBox.classList.remove('loading');
         };
         reader.readAsDataURL(file);
     });
@@ -378,6 +405,20 @@ if (form) {
 
         if (!selectedBodyBagId || !selectedFlapBagId) {
             showToast("Harap pilih Shopping Bag Bekas untuk Cover & Flap");
+            return;
+        }
+
+        if (isProcessingImages > 0) {
+            showToast("Harap tunggu, gambar sedang diproses...");
+            return;
+        }
+
+        // Final check for image data
+        const charmBase64 = document.getElementById('charmBase64').value;
+        const paymentBase64 = document.getElementById('paymentBase64').value;
+
+        if (!charmBase64 || !paymentBase64) {
+            showToast("Harap upload foto charm dan bukti bayar dengan benar");
             return;
         }
 

@@ -11,6 +11,9 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
         rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- Workshop Config -->
+    <script src="workshop-config.js"></script>
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -130,9 +133,86 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.12);
-            overflow: hidden;
+            overflow: visible;
             margin-bottom: 1.5rem;
             animation: slideUp 0.4s ease 0.1s both;
+        }
+
+        /* Journal Visualizer in Ticket (Smaller Scale) */
+        .journal-preview-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2.5rem 0 3.5rem;
+            background: #f1f5f9;
+            perspective: 1000px;
+            overflow: visible;
+        }
+
+        .journal-model {
+            position: relative;
+            width: 220px;
+            height: 140px;
+            transform-style: preserve-3d;
+            transform: rotateX(5deg) rotateY(-5deg);
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+        }
+
+        .journal-body, .journal-flap {
+            position: absolute;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .journal-body {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--j-body-color, #eee);
+            border-radius: 8px;
+            z-index: 1;
+        }
+
+        .journal-flap {
+            top: 0;
+            left: 10%;
+            width: 80%;
+            height: 70%;
+            background-color: var(--j-flap-color, #ddd);
+            border-radius: 0 0 16px 16px;
+            z-index: 2;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .motif-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            border-radius: inherit;
+        }
+
+        .flap-strap {
+            position: absolute;
+            top: -15px;
+            bottom: -45px;
+            width: 4px;
+            background-color: var(--j-strap-color, #888);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .journal-stitch {
+            position: absolute;
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border: 1px dashed rgba(255,255,255,0.3);
+            border-radius: inherit;
+            pointer-events: none;
         }
 
         @keyframes slideUp {
@@ -410,6 +490,16 @@
             background: #f0f6ff;
         }
 
+        .btn-save-image {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(9, 85, 160, 0.2);
+        }
+
+        .btn-save-image:hover {
+            opacity: 0.9;
+        }
+
         footer {
             text-align: center;
             padding: 2rem 0 0;
@@ -484,8 +574,23 @@
                     </div>
                 </div>
 
+                <!-- NEW: Integrated Journal Visualizer -->
+                <div class="journal-preview-container">
+                    <div class="journal-model" id="journalModel">
+                        <div class="journal-body" id="journalBody">
+                            <div class="motif-bg" id="motifBody"></div>
+                            <div class="journal-stitch"></div>
+                        </div>
+                        <div class="journal-flap" id="journalFlap">
+                            <div class="motif-bg" id="motifFlap"></div>
+                            <div class="flap-strap" id="flapStrap"></div>
+                            <div class="journal-stitch"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="color-section" id="colorSection">
-                    <div class="color-section-title">Pilihan Warna Jurnalmu</div>
+                    <div class="color-section-title" id="metadataLabel">Pilihan Warna Jurnalmu</div>
                     <div class="color-swatches" id="colorSwatches">
                         <!-- Injected by JS -->
                     </div>
@@ -502,6 +607,10 @@
         <div class="share-section">
             <div class="share-title">Bagikan tiketmu</div>
             <div class="share-buttons">
+                <button class="share-btn btn-save-image" onclick="downloadTicket()">
+                    <i data-lucide="download"></i>
+                    Simpan Tiket ke Galeri
+                </button>
                 <button class="share-btn btn-calendar" onclick="addToCalendar()">
                     <i data-lucide="calendar-plus"></i>
                     Tambah ke Kalender
@@ -527,55 +636,93 @@
         const p = new URLSearchParams(window.location.search);
         const name = p.get('name') || 'Peserta';
         const workshopId = p.get('workshop') || 'paper-journal';
+        const wsData = getWorkshopById(workshopId) || {};
 
+        // Artcycle Specific
+        const bodyBagId = p.get('bodyBagId');
+        const flapBagId = p.get('flapBagId');
+        
+        // Paper Specific
         const colorBody = p.get('colorBody') || '-';
         const colorFlap = p.get('colorFlap') || '-';
+        
+        // Common
         const colorStrap = p.get('colorStrap') || '-';
-        const colorBodyHex = p.get('colorBodyHex') || '#ccc';
-        const colorFlapHex = p.get('colorFlapHex') || '#ccc';
-        const colorStrapHex = p.get('colorStrapHex') || '#ccc';
+        const colorStrapHex = p.get('colorStrapHex') || '#888';
+        const colorBodyHex = p.get('colorBodyHex') || '#eee';
+        const colorFlapHex = p.get('colorFlapHex') || '#ddd';
 
-        let session = '';
-
-        document.getElementById('ticketSubtitle').textContent = (workshopId === '3d-frame' || workshopId === '3d-frame-journaling')
-            ? '3D Layered Journaling Workshop 2026'
-            : 'Paper Journal Creative Workshop 2026';
-
-        // Set session/description info based on workshop-config if available
-        // Or keep it hardcoded for now as per current data
-        if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling') {
-            document.getElementById('successTitle').textContent = '3D Layered Journaling';
-            document.getElementById('successDescription').textContent = 'Frame, Texture & Motion. Kami tunggu kehadirannya!';
-            session = 'Sabtu, 25 April 2026';
-            document.getElementById('ticketSession').textContent = session;
-            document.getElementById('ticketLocation').textContent = 'Melting Pot, GF at ASHTA District 8, SCBD';
-            document.getElementById('ticketTime').textContent = '15:00 – 17:30 WIB';
-            document.getElementById('colorSection').style.display = 'none';
-        } else {
-            document.getElementById('successTitle').textContent = 'Paper Journal Workshop';
-            document.getElementById('successDescription').textContent = 'Buat paper journal versimu dari kertas spesial bersama komunitas Seminggu Satu.';
-            session = 'Minggu, 17 Mei 2026';
-            document.getElementById('ticketSession').textContent = session;
-            document.getElementById('ticketLocation').textContent = 'Kopi Aloo Melawai, Blok M';
-            document.getElementById('ticketTime').textContent = '15:00 – 17:30 WIB';
+        // Update Ticket Labels
+        document.getElementById('ticketName').textContent = name;
+        document.getElementById('ticketSubtitle').textContent = wsData.name || 'Creative Workshop 2026';
+        document.getElementById('successTitle').textContent = wsData.name || 'Pendaftaran Berhasil';
+        
+        // Dynamic Workshop Info from Config
+        document.getElementById('ticketSession').textContent = wsData.workshopDate || '--';
+        document.getElementById('ticketTime').textContent = wsData.workshopTime || '--';
+        document.getElementById('ticketLocation').textContent = wsData.locationName || '--';
+        
+        if (wsData.description) {
+            document.getElementById('successDescription').textContent = "Kami tunggu kehadirannya! Detail pendaftaran Anda telah kami terima.";
         }
 
-        document.getElementById('ticketName').textContent = name;
+        // --- Visualizer Logic ---
+        const motifBody = document.getElementById('motifBody');
+        const motifFlap = document.getElementById('motifFlap');
+        const journalBody = document.getElementById('journalBody');
+        const journalFlap = document.getElementById('journalFlap');
+        const flapStrap = document.getElementById('flapStrap');
+        const metadataLabel = document.getElementById('metadataLabel');
 
-        // Color swatches — using createElement to avoid innerHTML stripping inline styles
-        const swatchData = [
-            { label: 'Cover', name: colorBody, hex: colorBodyHex },
-            { label: 'Flap', name: colorFlap, hex: colorFlapHex },
-            { label: 'Tali', name: colorStrap, hex: colorStrapHex },
-        ];
+        // Apply Strap Color (Always exists)
+        flapStrap.style.backgroundColor = colorStrapHex;
+
         const swatchContainer = document.getElementById('colorSwatches');
+        let swatchData = [];
+
+        if (workshopId === 'artcycle-journal') {
+            metadataLabel.textContent = "Pilihan Motif Jurnalmu";
+            
+            // Set Motifs
+            if (bodyBagId) {
+                motifBody.style.backgroundImage = `url(images/shopping_bag/${bodyBagId}.jpg)`;
+                swatchData.push({ label: 'Cover', name: bodyBagId.replace('_', ' '), hex: '#eee', isMotif: true, path: `images/shopping_bag/${bodyBagId}.jpg` });
+            }
+            if (flapBagId) {
+                motifFlap.style.backgroundImage = `url(images/shopping_bag/${flapBagId}.jpg)`;
+                swatchData.push({ label: 'Flap', name: flapBagId.replace('_', ' '), hex: '#ddd', isMotif: true, path: `images/shopping_bag/${flapBagId}.jpg` });
+            }
+            swatchData.push({ label: 'Tali', name: colorStrap, hex: colorStrapHex });
+
+        } else if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling') {
+            document.getElementById('colorSection').style.display = 'none';
+            document.getElementById('journalModel').style.display = 'none';
+        } else {
+            // Paper Journal
+            metadataLabel.textContent = "Pilihan Warna Jurnalmu";
+            journalBody.style.backgroundColor = colorBodyHex;
+            journalFlap.style.backgroundColor = colorFlapHex;
+            
+            swatchData = [
+                { label: 'Cover', name: colorBody, hex: colorBodyHex },
+                { label: 'Flap', name: colorFlap, hex: colorFlapHex },
+                { label: 'Tali', name: colorStrap, hex: colorStrapHex },
+            ];
+        }
+
+        // Render Swatches
         swatchData.forEach(s => {
             const item = document.createElement('div');
             item.className = 'swatch-item';
 
             const dot = document.createElement('div');
             dot.className = 'swatch-dot';
-            dot.style.backgroundColor = s.hex;   // set directly on style object — never gets stripped
+            if (s.isMotif) {
+                dot.style.backgroundImage = `url(${s.path})`;
+                dot.style.backgroundSize = 'cover';
+            } else {
+                dot.style.backgroundColor = s.hex;
+            }
 
             const label = document.createElement('span');
             label.textContent = `${s.label}: ${s.name}`;
@@ -596,18 +743,85 @@
         // Ticket ID
         document.getElementById('ticketId').textContent = 'SMGST-' + Date.now().toString(36).toUpperCase().slice(-6);
 
-        // --- Add to Calendar (Google Calendar Link) ---
-        function addToCalendar() {
-            // Determine date from workshopId
-            const isSabtu = (workshopId === '3d-frame' || workshopId === '3d-frame-journaling');
-            const dateStr = isSabtu ? '20260425' : '20260517';
-            // 15:00 WIB = 08:00 UTC, 17:30 WIB = 10:30 UTC
-            const dtStart = dateStr + 'T080000Z';
-            const dtEnd = dateStr + 'T103000Z';
+        // --- Save Ticket as Image ---
+        function downloadTicket() {
+            const ticket = document.getElementById('ticketCard');
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> <span>Menyiapkan Gambar...</span>';
+            lucide.createIcons();
+            
+            // Temporary style to ensure good capture
+            const originalBoxShadow = ticket.style.boxShadow;
+            ticket.style.boxShadow = 'none';
 
-            const title = encodeURIComponent((isSabtu ? '3D Layered Journaling' : 'Paper Journal Creative Workshop') + ' – Seminggu Satu');
-            const details = encodeURIComponent(`Halo ${name}! Ini pengingat workshop kamu bersama Seminggu Satu by Arnold. Sampai ketemu! 🐾`);
-            const location = encodeURIComponent('Kopi Aloo Melawai');
+            html2canvas(ticket, {
+                scale: 2, // Higher quality
+                useCORS: true, 
+                backgroundColor: "#f8f9fa",
+                logging: false,
+                onclone: (clonedDoc) => {
+                    // Ensure fonts and icons load in clone if needed
+                }
+            }).then(canvas => {
+                ticket.style.boxShadow = originalBoxShadow;
+                
+                const link = document.createElement('a');
+                link.download = `Tiket_${name.replace(/\s+/g, '_')}_${workshopId}.jpg`;
+                link.href = canvas.toDataURL("image/jpeg", 0.9);
+                link.click();
+                
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+            }).catch(err => {
+                console.error("Download failed:", err);
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+                alert("Gagal mengunduh gambar. Silakan screenshot manual.");
+            });
+        }
+
+        // --- Add to Calendar ---
+        function addToCalendar() {
+            if (!wsData || !wsData.workshopDate) {
+                alert("Data workshop tidak ditemukan.");
+                return;
+            }
+
+            // Simple map for months (Indonesian to English short or numeric)
+            const monthsMap = {
+                'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04', 
+                'Mei': '05', 'Juni': '06', 'Juli': '07', 'Agustus': '08', 
+                'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12'
+            };
+
+            // Parse Date: "Minggu, 17 Mei 2026" or "Sabtu, 25 April 2026"
+            const dateParts = wsData.workshopDate.split(' ');
+            if (dateParts.length < 4) return;
+            
+            const dayNum = dateParts[1].padStart(2, '0');
+            const monthName = dateParts[2];
+            const yearNum = dateParts[3];
+            const monthNum = monthsMap[monthName] || '01';
+
+            // Parse Time: "15:00 – 17:30 WIB"
+            const timeRange = wsData.workshopTime.split(' – ');
+            const startTimeStr = timeRange[0].replace(':', ''); // "1500"
+            const endTimeStr = timeRange[1].split(' ')[0].replace(':', ''); // "1730"
+
+            const dateStr = `${yearNum}${monthNum}${dayNum}`;
+            
+            // Convert WIB (UTC+7) to UTC for GCal link
+            const startHourUTC = (parseInt(startTimeStr.substring(0,2)) - 7).toString().padStart(2, '0');
+            const endHourUTC = (parseInt(endTimeStr.substring(0,2)) - 7).toString().padStart(2, '0');
+            
+            const dtStart = `${dateStr}T${startHourUTC}${startTimeStr.substring(2)}00Z`;
+            const dtEnd = `${dateStr}T${endHourUTC}${endTimeStr.substring(2)}00Z`;
+
+            const title = encodeURIComponent(`${wsData.name} – Seminggu Satu`);
+            const details = encodeURIComponent(`Halo ${name}! Ini pengingat workshop kamu bersama Seminggu Satu by Arnold. Sampai ketemu!\n\nLokasi: ${wsData.locationName}`);
+            const location = encodeURIComponent(wsData.locationName);
 
             const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dtStart}/${dtEnd}&details=${details}&location=${location}`;
 

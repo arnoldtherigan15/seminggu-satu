@@ -491,6 +491,9 @@
             listEl.innerHTML = ''; // Clear loading state
 
             WORKSHOPS.forEach((ws, index) => {
+                // Skip if not meant to be displayed
+                if (ws.hasOwnProperty('isDisplay') && ws.isDisplay === false) return;
+
                 const currentCount = counts[ws.id] || 0;
                 const isFull = currentCount >= (ws.maxQuota || 12);
                 let status = getWorkshopStatus(ws);
