@@ -334,6 +334,42 @@ function renderStrapColors() {
 // --- Image Upload Handlers ---
 let isProcessingImages = 0;
 
+function compressImage(file, maxSize, quality) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxSize) {
+                        height *= maxSize / width;
+                        width = maxSize;
+                    }
+                } else {
+                    if (height > maxSize) {
+                        width *= maxSize / height;
+                        height = maxSize;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = error => reject(error);
+        };
+        reader.onerror = error => reject(error);
+    });
+}
+
 function setupImageUpload(inputId, previewBoxId, previewImgId, base64Id, mimeId) {
     const input = document.getElementById(inputId);
     const previewBox = document.getElementById(previewBoxId);
@@ -343,7 +379,7 @@ function setupImageUpload(inputId, previewBoxId, previewImgId, base64Id, mimeId)
 
     if (!input) return;
 
-    input.addEventListener('change', function (e) {
+    input.addEventListener('change', async function (e) {
         const file = e.target.files[0];
         if (!file) {
             base64Input.value = "";
@@ -365,24 +401,22 @@ function setupImageUpload(inputId, previewBoxId, previewImgId, base64Id, mimeId)
         isProcessingImages++;
         previewBox.classList.add('loading');
 
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            previewImg.src = event.target.result;
+        try {
+            const compressedDataUrl = await compressImage(file, 800, 0.7);
+            
+            previewImg.src = compressedDataUrl;
             previewBox.classList.add('has-image');
             previewBox.classList.remove('loading');
             
-            const base64String = event.target.result.split(',')[1];
-            base64Input.value = base64String;
-            mimeInput.value = file.type;
+            base64Input.value = compressedDataUrl.split(',')[1];
+            mimeInput.value = 'image/jpeg';
             
             isProcessingImages = Math.max(0, isProcessingImages - 1);
-        };
-        reader.onerror = function() {
-            showToast("Gagal membaca file.");
+        } catch (error) {
+            showToast("Gagal memproses gambar.");
             isProcessingImages = Math.max(0, isProcessingImages - 1);
             previewBox.classList.remove('loading');
-        };
-        reader.readAsDataURL(file);
+        }
     });
 }
 

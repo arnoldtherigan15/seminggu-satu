@@ -333,6 +333,42 @@ function selectColor(type, color, btnElement) {
 }
 
 // --- Image Upload Handlers ---
+function compressImage(file, maxSize, quality) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxSize) {
+                        height *= maxSize / width;
+                        width = maxSize;
+                    }
+                } else {
+                    if (height > maxSize) {
+                        width *= maxSize / height;
+                        height = maxSize;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = error => reject(error);
+        };
+        reader.onerror = error => reject(error);
+    });
+}
+
 function setupImageUpload(inputId, previewBoxId, previewImgId, base64Id, mimeId) {
     const input = document.getElementById(inputId);
     const previewBox = document.getElementById(previewBoxId);
@@ -340,7 +376,7 @@ function setupImageUpload(inputId, previewBoxId, previewImgId, base64Id, mimeId)
     const base64Input = document.getElementById(base64Id);
     const mimeInput = document.getElementById(mimeId);
 
-    input.addEventListener('change', function (e) {
+    input.addEventListener('change', async function (e) {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -351,18 +387,16 @@ function setupImageUpload(inputId, previewBoxId, previewImgId, base64Id, mimeId)
             return;
         }
 
-        // Preview Image
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            previewImg.src = event.target.result;
+        try {
+            const compressedDataUrl = await compressImage(file, 800, 0.7);
+            previewImg.src = compressedDataUrl;
             previewBox.classList.add('has-image');
-
-            // Extract Base64 without data URI prefix for Google Apps Script processing later
-            const base64String = event.target.result.split(',')[1];
-            base64Input.value = base64String;
-            mimeInput.value = file.type;
-        };
-        reader.readAsDataURL(file);
+            
+            base64Input.value = compressedDataUrl.split(',')[1];
+            mimeInput.value = 'image/jpeg';
+        } catch (error) {
+            alert("Gagal memproses gambar.");
+        }
     });
 }
 
