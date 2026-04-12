@@ -156,10 +156,11 @@
             height: 140px;
             transform-style: preserve-3d;
             transform: rotateX(5deg) rotateY(-5deg);
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
         }
 
-        .journal-body, .journal-flap {
+        .journal-body,
+        .journal-flap {
             position: absolute;
             transition: all 0.4s ease;
             overflow: hidden;
@@ -183,12 +184,15 @@
             background-color: var(--j-flap-color, #ddd);
             border-radius: 0 0 16px 16px;
             z-index: 2;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .motif-bg {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-size: cover;
             background-position: center;
             z-index: -1;
@@ -204,13 +208,16 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 3;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
 
         .journal-stitch {
             position: absolute;
-            top: 5px; left: 5px; right: 5px; bottom: 5px;
-            border: 1px dashed rgba(255,255,255,0.3);
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
             border-radius: inherit;
             pointer-events: none;
         }
@@ -641,11 +648,11 @@
         // Artcycle Specific
         const bodyBagId = p.get('bodyBagId');
         const flapBagId = p.get('flapBagId');
-        
+
         // Paper Specific
         const colorBody = p.get('colorBody') || '-';
         const colorFlap = p.get('colorFlap') || '-';
-        
+
         // Common
         const colorStrap = p.get('colorStrap') || '-';
         const colorStrapHex = p.get('colorStrapHex') || '#888';
@@ -656,12 +663,12 @@
         document.getElementById('ticketName').textContent = name;
         document.getElementById('ticketSubtitle').textContent = wsData.name || 'Creative Workshop 2026';
         document.getElementById('successTitle').textContent = wsData.name || 'Pendaftaran Berhasil';
-        
+
         // Dynamic Workshop Info from Config
         document.getElementById('ticketSession').textContent = wsData.workshopDate || '--';
         document.getElementById('ticketTime').textContent = wsData.workshopTime || '--';
         document.getElementById('ticketLocation').textContent = wsData.locationName || '--';
-        
+
         if (wsData.description) {
             document.getElementById('successDescription').textContent = "Kami tunggu kehadirannya! Detail pendaftaran Anda telah kami terima.";
         }
@@ -682,7 +689,7 @@
 
         if (workshopId === 'artcycle-journal') {
             metadataLabel.textContent = "Pilihan Motif Jurnalmu";
-            
+
             // Set Motifs
             if (bodyBagId) {
                 motifBody.style.backgroundImage = `url(images/shopping_bag/${bodyBagId}.jpg)`;
@@ -702,7 +709,7 @@
             metadataLabel.textContent = "Pilihan Warna Jurnalmu";
             journalBody.style.backgroundColor = colorBodyHex;
             journalFlap.style.backgroundColor = colorFlapHex;
-            
+
             swatchData = [
                 { label: 'Cover', name: colorBody, hex: colorBodyHex },
                 { label: 'Flap', name: colorFlap, hex: colorFlapHex },
@@ -748,30 +755,35 @@
             const ticket = document.getElementById('ticketCard');
             const btn = event.currentTarget;
             const originalText = btn.innerHTML;
-            
+
             btn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> <span>Menyiapkan Gambar...</span>';
             lucide.createIcons();
-            
+
             // Temporary style to ensure good capture
             const originalBoxShadow = ticket.style.boxShadow;
             ticket.style.boxShadow = 'none';
 
             html2canvas(ticket, {
                 scale: 2, // Higher quality
-                useCORS: true, 
+                useCORS: true,
                 backgroundColor: "#f8f9fa",
                 logging: false,
                 onclone: (clonedDoc) => {
-                    // Ensure fonts and icons load in clone if needed
+                    // Disable animations on cloned DOM so it doesn't restart at opacity 0 (blank white bug)
+                    const clonedTicket = clonedDoc.getElementById('ticketCard');
+                    if (clonedTicket) {
+                        clonedTicket.style.animation = 'none';
+                        clonedTicket.style.transform = 'none';
+                    }
                 }
             }).then(canvas => {
                 ticket.style.boxShadow = originalBoxShadow;
-                
+
                 const link = document.createElement('a');
                 link.download = `Tiket_${name.replace(/\s+/g, '_')}_${workshopId}.jpg`;
                 link.href = canvas.toDataURL("image/jpeg", 0.9);
                 link.click();
-                
+
                 btn.innerHTML = originalText;
                 lucide.createIcons();
             }).catch(err => {
@@ -791,15 +803,15 @@
 
             // Simple map for months (Indonesian to English short or numeric)
             const monthsMap = {
-                'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04', 
-                'Mei': '05', 'Juni': '06', 'Juli': '07', 'Agustus': '08', 
+                'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04',
+                'Mei': '05', 'Juni': '06', 'Juli': '07', 'Agustus': '08',
                 'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12'
             };
 
             // Parse Date: "Minggu, 17 Mei 2026" or "Sabtu, 25 April 2026"
             const dateParts = wsData.workshopDate.split(' ');
             if (dateParts.length < 4) return;
-            
+
             const dayNum = dateParts[1].padStart(2, '0');
             const monthName = dateParts[2];
             const yearNum = dateParts[3];
@@ -811,11 +823,11 @@
             const endTimeStr = timeRange[1].split(' ')[0].replace(':', ''); // "1730"
 
             const dateStr = `${yearNum}${monthNum}${dayNum}`;
-            
+
             // Convert WIB (UTC+7) to UTC for GCal link
-            const startHourUTC = (parseInt(startTimeStr.substring(0,2)) - 7).toString().padStart(2, '0');
-            const endHourUTC = (parseInt(endTimeStr.substring(0,2)) - 7).toString().padStart(2, '0');
-            
+            const startHourUTC = (parseInt(startTimeStr.substring(0, 2)) - 7).toString().padStart(2, '0');
+            const endHourUTC = (parseInt(endTimeStr.substring(0, 2)) - 7).toString().padStart(2, '0');
+
             const dtStart = `${dateStr}T${startHourUTC}${startTimeStr.substring(2)}00Z`;
             const dtEnd = `${dateStr}T${endHourUTC}${endTimeStr.substring(2)}00Z`;
 
