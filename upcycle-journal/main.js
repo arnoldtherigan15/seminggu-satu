@@ -1,10 +1,10 @@
 // ============================================================
-//  Artcycle Bag Journal — Registration Logic
+//  Upcycle Bag Journal — Registration Logic
 //  (Seminggu Satu by Arnold)
 // ============================================================
 
 // --- Dynamic Early Bird Pricing ---
-const _workshopData = getWorkshopById("artcycle-journal");
+const _workshopData = getWorkshopById("upcycle-journal");
 const _isEarlyBird = isEarlyBird(_workshopData);
 const _currentPrice = getCurrentPrice(_workshopData);
 
@@ -170,7 +170,7 @@ function fetchJSONP(url, callbackPrefix) {
             script.remove();
         };
 
-        script.src = `${url}?callback=${callbackName}&workshop=artcycle-journal`;
+        script.src = `${url}?callback=${callbackName}&workshop=upcycle-journal`;
         script.onerror = () => {
             clearTimeout(timeout);
             reject(new Error("Failed to load script"));
@@ -187,7 +187,7 @@ async function checkStock() {
         const result = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota');
         
         // Handle general quota (Uses whatever is in workshop-config.js)
-        const currentCount = result['artcycle-journal'] || 0;
+        const currentCount = result['upcycle-journal'] || 0;
         const maxQuota = _workshopData.maxQuota || 12; 
         const sisa = Math.max(0, maxQuota - currentCount);
 
@@ -527,7 +527,7 @@ if (form) {
 
         const formData = new FormData(form);
         const payload = Object.fromEntries(formData.entries());
-        payload.workshopType = 'artcycle-journal';
+        payload.workshopType = 'upcycle-journal';
 
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL, {
@@ -540,7 +540,7 @@ if (form) {
             if (result.status === 'success') {
                 const params = new URLSearchParams({
                     name: payload.fullName || 'Peserta',
-                    workshop: 'artcycle-journal',
+                    workshop: 'upcycle-journal',
                     bodyBagId: selectedBodyBagId,
                     flapBagId: selectedFlapBagId,
                     colorStrap: selectedStrapColor.name,

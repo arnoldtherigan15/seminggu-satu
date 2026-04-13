@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pendaftaran Artcycle Bag Journal — Seminggu Satu by Arnold</title>
+    <title>Pendaftaran Upcycle Bag Journal — Seminggu Satu by Arnold</title>
     <meta name="description"
-        content="Daftar Artcycle Bag Journal Workshop oleh Seminggu Satu. Ubah shopping bag bekasmu menjadi jurnal unik!">
+        content="Daftar Upcycle Bag Journal Workshop oleh Seminggu Satu. Ubah shopping bag bekasmu menjadi jurnal unik!">
 
     <!-- Workshop Config — harus pertama untuk cek akses -->
     <script src="../workshop-config.js"></script>
     <script>
         // Gate: cek status pendaftaran sebelum render halaman
-        const _ws = getWorkshopById("artcycle-journal");
+        const _ws = getWorkshopById("upcycle-journal");
         const _status = getWorkshopStatus(_ws);
         if (_status !== "open") {
             window.location.replace("../closed.html?workshop=" + _ws.id + "&reason=" + _status);
@@ -261,7 +261,7 @@
             </a>
         </div>
         <div class="hero-content">
-            <h2>Artcycle Bag Journal Workshop</h2>
+            <h2>Upcycle Bag Journal Workshop</h2>
             <p class="subtitle">Ubah shopping bag bekas (spunbond bag) favoritmu menjadi cover jurnal yang estetik.
                 Pilih stok bag yang tersedia sekarang!</p>
 
