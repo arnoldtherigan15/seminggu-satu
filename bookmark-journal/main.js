@@ -275,6 +275,24 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const originalBtnText = submitBtn.innerHTML;
+    // --- Validation: ensure required fields are filled ---
+    const missing = [];
+    if (!form.fullName.value.trim()) missing.push('Nama Lengkap');
+    if (!form.nickname.value.trim()) missing.push('Nickname');
+    if (!form.whatsapp.value.trim()) missing.push('Nomor WhatsApp');
+    // Check required photo uploads
+    ['photo1','photo2','photo3','photo4','paymentPhoto'].forEach(id => {
+        const inp = document.getElementById(id);
+        if (!inp || !inp.files || inp.files.length === 0) missing.push(`Foto ${id.replace('photo','')}`);
+    });
+    if (missing.length) {
+        alert('Harap isi semua field yang diperlukan:\n' + missing.join('\n'));
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+        lucide.createIcons();
+        hideBlockerLoader();
+        return;
+    }
     submitBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> <span>Mengirim Data...</span>';
     submitBtn.disabled = true;
     lucide.createIcons();
