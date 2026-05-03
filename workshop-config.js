@@ -31,7 +31,7 @@ const WORKSHOPS = [
         normalPrice: 175000,
         earlyBirdPrice: null,
         earlyBirdDueDate: null,
-        maxQuota: 9,
+        maxQuota: 10,
         workshopDate: "Rabu, 27 Mei 2026",
         workshopTime: "15:00 - 17:30 WIB",
         locationName: "Kopi Aloo Melawai",
