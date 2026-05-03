@@ -20,6 +20,26 @@
 
 const WORKSHOPS = [
     {
+        id: "bookmark-journal",
+        name: "Pull & Pop: A Journaling Bookmark",
+        description: "Buat bookmark interaktifmu sendiri dengan mekanisme pull & pop! Pilih pita dan rantai favoritmu.",
+        icon: "bookmark",
+        path: "bookmark-journal/index.html",
+        enabled: true,
+        openDate: "03/05/2026",
+        closeDate: "26/05/2026",
+        normalPrice: 155000,
+        earlyBirdPrice: null,
+        earlyBirdDueDate: null,
+        maxQuota: 9,
+        workshopDate: "Rabu, 27 Mei 2026",
+        workshopTime: "15:00 - 17:30 WIB",
+        locationName: "Kopi Aloo Melawai",
+        mapsLink: "https://maps.app.goo.gl/6T7QmqryfE7ATbkz5",
+        isDisplay: true,
+        whatsappGroupLink: "https://chat.whatsapp.com/Ba3DC7JFQSt1u1tgIMATw9?mode=gi_t"
+    },
+    {
         id: "3d-frame-journaling",
         name: "3D Layered Journaling",
         description: "Frame, Texture & Motion",
@@ -36,7 +56,7 @@ const WORKSHOPS = [
         workshopTime: "15:00 - 17:30 WIB",
         locationName: "Melting Pot, GF at ASHTA District 8",
         mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
-        isDisplay: true,
+        isDisplay: false,
     },
     {
         id: "paper-journal",
@@ -76,26 +96,6 @@ const WORKSHOPS = [
         mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
         isDisplay: true,
         whatsappGroupLink: ""
-    },
-    {
-        id: "bookmark-journal",
-        name: "Pull & Pop: A Journaling Bookmark",
-        description: "Buat bookmark interaktifmu sendiri dengan mekanisme pull & pop! Pilih pita dan rantai favoritmu.",
-        icon: "bookmark",
-        path: "bookmark-journal/index.html",
-        enabled: true,
-        openDate: "03/05/2026",
-        closeDate: "26/05/2026",
-        normalPrice: 155000,
-        earlyBirdPrice: null,
-        earlyBirdDueDate: null,
-        maxQuota: 9,
-        workshopDate: "Rabu, 27 Mei 2026",
-        workshopTime: "15:00 - 17:30 WIB",
-        locationName: "Kopi Aloo Melawai",
-        mapsLink: "https://maps.app.goo.gl/6T7QmqryfE7ATbkz5",
-        isDisplay: true,
-        whatsappGroupLink: "https://chat.whatsapp.com/Ba3DC7JFQSt1u1tgIMATw9?mode=gi_t"
     }
 ];
 
