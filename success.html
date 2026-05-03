@@ -839,56 +839,11 @@
 
                 const shareText = `Halo! Ini detail pendaftaran workshopku:\n*${title}*\n\nNama: ${name}\nTanggal: ${date}\nWaktu: ${time}\nLokasi: ${loc}\n${extraDetails}\n*Link Join Grup WA Peserta:*\n${wsData.whatsappGroupLink}\n\n_(Simpan pesan ini sebagai tiket kamu!)_`;
 
-                // Capture ticket as image
-                try {
-                    const ticket = document.getElementById('ticketCard');
-                    const originalBoxShadow = ticket.style.boxShadow;
-                    ticket.style.boxShadow = 'none';
-
-                    const canvas = await html2canvas(ticket, {
-                        scale: 2,
-                        useCORS: true,
-                        backgroundColor: "#f8f9fa",
-                        logging: false,
-                        onclone: (clonedDoc) => {
-                            const clonedTicket = clonedDoc.getElementById('ticketCard');
-                            if (clonedTicket) {
-                                clonedTicket.style.animation = 'none';
-                                clonedTicket.style.transform = 'none';
-                            }
-                        }
-                    });
-
-                    ticket.style.boxShadow = originalBoxShadow;
-
-                    // Step 1: Auto-download the ticket image to phone
-                    const imgLink = document.createElement('a');
-                    imgLink.download = `Tiket_${name.replace(/\s+/g, '_')}_${workshopId}.jpg`;
-                    imgLink.href = canvas.toDataURL("image/jpeg", 0.9);
-                    imgLink.click();
-
-                    // Step 2: After short delay, open WA directly to their own number
-                    // (delay ensures download dialog doesn't interfere)
-                    setTimeout(() => {
-                        const waUrl = phone
-                            ? `https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`
-                            : wsData.whatsappGroupLink;
-                        window.location.href = waUrl;
-                    }, 600);
-
-                } catch (err) {
-                    console.error("Ticket capture failed:", err);
-                    // Fallback: just open WA with text if capture fails
-                    const waUrl = phone
-                        ? `https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`
-                        : wsData.whatsappGroupLink;
-                    window.location.href = waUrl;
-                }
-
-                btnWaGroup.innerHTML = originalContent;
-                btnWaGroup.style.opacity = '';
-                btnWaGroup.style.pointerEvents = '';
-                lucide.createIcons();
+                // Redirect directly to WhatsApp with text summary
+                const waUrl = phone
+                    ? `https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`
+                    : wsData.whatsappGroupLink;
+                window.location.href = waUrl;
             };
             btnWaGroup.style.display = 'flex';
         }
