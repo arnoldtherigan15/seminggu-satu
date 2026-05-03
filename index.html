@@ -20,6 +20,7 @@
     <!-- Workshop Config -->
     <script src="workshop-config.js?v=2"></script>
     <script src="testimony-config.js?v=1"></script>
+    <script src="gallery-config.js?v=1"></script>
 
     <!-- Instagram Embed -->
     <script async src="https://www.instagram.com/embed.js"></script>
@@ -477,6 +478,14 @@
             </div>
         </section>
 
+        <!-- Gallery List -->
+        <section style="margin-top: 2rem; margin-bottom: 2rem;">
+            <h2 class="section-title">Galeri</h2>
+            <div id="galleryList" class="testimony-slider">
+                <!-- Rendered by JS -->
+            </div>
+        </section>
+
         <footer class="footer">
             <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
         </footer>
@@ -663,6 +672,50 @@
             }
         }
         initTestimonies();
+
+        // Render galleries
+        function initGalleries() {
+            const galleryEl = document.getElementById('galleryList');
+            if (typeof GALLERIES !== 'undefined' && GALLERIES.length > 0) {
+                GALLERIES.forEach((g) => {
+                    const card = document.createElement('div');
+                    card.className = 'testimony-slide'; // Reuse the same slider CSS
+                    
+                    const title = document.createElement('div');
+                    title.style.fontSize = '0.85rem';
+                    title.style.fontWeight = '600';
+                    title.style.color = 'var(--text-2)';
+                    title.style.marginBottom = '0.5rem';
+                    title.style.textAlign = 'center';
+                    title.textContent = g.title;
+
+                    const embedWrapper = document.createElement('div');
+                    embedWrapper.style.width = '100%';
+                    embedWrapper.style.display = 'flex';
+                    embedWrapper.style.justifyContent = 'center';
+                    embedWrapper.innerHTML = g.embedCode;
+
+                    card.appendChild(title);
+                    card.appendChild(embedWrapper);
+                    galleryEl.appendChild(card);
+                });
+
+                // Trigger Instagram embed processing since we added dynamically
+                let retries = 0;
+                const processIg = setInterval(() => {
+                    if (window.instgrm && window.instgrm.Embeds) {
+                        window.instgrm.Embeds.process();
+                        clearInterval(processIg);
+                    } else {
+                        retries++;
+                        if (retries > 10) clearInterval(processIg); // stop after 5s
+                    }
+                }, 500);
+            } else {
+                galleryEl.innerHTML = '<p style="color:var(--text-3); font-size:0.85rem; text-align:center;">Belum ada foto galeri.</p>';
+            }
+        }
+        initGalleries();
     </script>
 
 </body>
