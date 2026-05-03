@@ -330,10 +330,10 @@ form.addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (result.status === 'success') {
-            // Redirect to success
             const params = new URLSearchParams({
                 name: payload.fullName || 'Peserta',
-                workshop: '3d-frame'
+                whatsapp: payload.whatsapp || '',
+                workshop: '3d-frame-journaling'
             });
             window.location.href = '../success.html?' + params.toString();
         } else {

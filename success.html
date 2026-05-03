@@ -801,8 +801,131 @@
         // WhatsApp Group Link
         if (wsData.whatsappGroupLink) {
             const btnWaGroup = document.getElementById('btnWaGroup');
-            btnWaGroup.href = wsData.whatsappGroupLink;
+            btnWaGroup.href = '#';
+            btnWaGroup.onclick = async (e) => {
+                e.preventDefault();
+
+                // Disable button while processing
+                btnWaGroup.style.opacity = '0.7';
+                btnWaGroup.style.pointerEvents = 'none';
+                const originalContent = btnWaGroup.innerHTML;
+                btnWaGroup.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Menyiapkan tiket...';
+                lucide.createIcons();
+
+                let phone = p.get('whatsapp') || '';
+
+                // Format phone number
+                phone = phone.replace(/\D/g, '');
+                if (phone.startsWith('0')) {
+                    phone = '62' + phone.substring(1);
+                } else if (phone.startsWith('8')) {
+                    phone = '62' + phone;
+                }
+
+                // Generate summary text
+                let extraDetails = "";
+                if (workshopId === 'paper-journal') {
+                    extraDetails = `Warna: Cover (${colorBody}), Flap (${colorFlap}), Tali (${colorStrap})\n`;
+                } else if (workshopId === 'bookmark-journal') {
+                    extraDetails = `Bookmark: Pita (${colorPita}), Rantai (${colorRantai})\n`;
+                } else if (workshopId === 'upcycle-journal') {
+                    extraDetails = `Motif: Cover (${p.get('bodyBagId') || '-'}), Flap (${p.get('flapBagId') || '-'})\n`;
+                }
+
+                const title = wsData.name || "Creative Workshop";
+                const date = wsData.workshopDate || "--";
+                const time = wsData.workshopTime || "--";
+                const loc = wsData.locationName || "--";
+
+                const shareText = `Halo! Ini detail pendaftaran workshopku:\n*${title}*\n\nNama: ${name}\nTanggal: ${date}\nWaktu: ${time}\nLokasi: ${loc}\n${extraDetails}\n*Link Join Grup WA Peserta:*\n${wsData.whatsappGroupLink}\n\n_(Simpan pesan ini sebagai tiket kamu!)_`;
+
+                // Capture ticket as image
+                try {
+                    const ticket = document.getElementById('ticketCard');
+                    const originalBoxShadow = ticket.style.boxShadow;
+                    ticket.style.boxShadow = 'none';
+
+                    const canvas = await html2canvas(ticket, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: "#f8f9fa",
+                        logging: false,
+                        onclone: (clonedDoc) => {
+                            const clonedTicket = clonedDoc.getElementById('ticketCard');
+                            if (clonedTicket) {
+                                clonedTicket.style.animation = 'none';
+                                clonedTicket.style.transform = 'none';
+                            }
+                        }
+                    });
+
+                    ticket.style.boxShadow = originalBoxShadow;
+
+                    // Try Web Share API (supports file sharing on mobile)
+                    if (navigator.canShare) {
+                        canvas.toBlob(async (blob) => {
+                            const file = new File([blob], `Tiket_${name.replace(/\s+/g, '_')}.jpg`, { type: 'image/jpeg' });
+                            const shareData = { files: [file], text: shareText };
+
+                            if (navigator.canShare(shareData)) {
+                                try {
+                                    await navigator.share(shareData);
+                                } catch (shareErr) {
+                                    if (shareErr.name !== 'AbortError') {
+                                        // Share failed — fallback to download + wa.me
+                                        _fallbackShareWA(canvas, phone, shareText, name, workshopId);
+                                    }
+                                }
+                            } else {
+                                // canShare returns false — fallback
+                                _fallbackShareWA(canvas, phone, shareText, name, workshopId);
+                            }
+
+                            btnWaGroup.innerHTML = originalContent;
+                            btnWaGroup.style.opacity = '';
+                            btnWaGroup.style.pointerEvents = '';
+                            lucide.createIcons();
+                        }, 'image/jpeg', 0.9);
+                    } else {
+                        // Desktop / browser doesn't support Web Share — fallback
+                        _fallbackShareWA(canvas, phone, shareText, name, workshopId);
+                        btnWaGroup.innerHTML = originalContent;
+                        btnWaGroup.style.opacity = '';
+                        btnWaGroup.style.pointerEvents = '';
+                        lucide.createIcons();
+                    }
+
+                } catch (err) {
+                    console.error("Ticket capture failed:", err);
+                    // If capture fails completely, just open WA with text
+                    if (phone) {
+                        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`, '_blank');
+                    } else {
+                        window.open(wsData.whatsappGroupLink, '_blank');
+                    }
+                    btnWaGroup.innerHTML = originalContent;
+                    btnWaGroup.style.opacity = '';
+                    btnWaGroup.style.pointerEvents = '';
+                    lucide.createIcons();
+                }
+            };
             btnWaGroup.style.display = 'flex';
+        }
+
+        // Fallback: download image + open wa.me with text
+        function _fallbackShareWA(canvas, phone, text, personName, wsId) {
+            // Download the ticket image
+            const link = document.createElement('a');
+            link.download = `Tiket_${personName.replace(/\s+/g, '_')}_${wsId}.jpg`;
+            link.href = canvas.toDataURL("image/jpeg", 0.9);
+            link.click();
+
+            // Open WA with text (they can manually attach the downloaded image)
+            setTimeout(() => {
+                if (phone) {
+                    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+                }
+            }, 800);
         }
 
         // --- Visualizer Logic ---
@@ -901,10 +1024,10 @@
         document.getElementById('ticketId').textContent = 'SMGST-' + Date.now().toString(36).toUpperCase().slice(-6);
 
         // --- Save Ticket as Image ---
-        function downloadTicket() {
+        function downloadTicket(btnElem) {
             const ticket = document.getElementById('ticketCard');
-            const btn = event.currentTarget;
-            const originalText = btn.innerHTML;
+            const btn = btnElem || (event ? event.currentTarget : document.createElement('button'));
+            const originalText = btn.innerHTML || '';
 
             btn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> <span>Menyiapkan Gambar...</span>';
             lucide.createIcons();
@@ -930,17 +1053,20 @@
                 ticket.style.boxShadow = originalBoxShadow;
 
                 const link = document.createElement('a');
-                link.download = `Tiket_${name.replace(/\s+/g, '_')}_${workshopId}.jpg`;
+                link.download = `Tiket_${name.replace(/\\s+/g, '_')}_${workshopId}.jpg`;
                 link.href = canvas.toDataURL("image/jpeg", 0.9);
                 link.click();
 
-                btn.innerHTML = originalText;
-                lucide.createIcons();
+                if (originalText) {
+                    btn.innerHTML = originalText;
+                    lucide.createIcons();
+                }
             }).catch(err => {
                 console.error("Download failed:", err);
-                btn.innerHTML = originalText;
-                lucide.createIcons();
-                alert("Gagal mengunduh gambar. Silakan screenshot manual.");
+                if (originalText) {
+                    btn.innerHTML = originalText;
+                    lucide.createIcons();
+                }
             });
         }
 

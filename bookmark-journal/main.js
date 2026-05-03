@@ -315,6 +315,7 @@ form.addEventListener('submit', async (e) => {
         if (result.status === 'success') {
             const params = new URLSearchParams({
                 name: payload.fullName || 'Peserta',
+                whatsapp: payload.whatsapp || '',
                 workshop: 'bookmark-journal',
                 colorPita: selectedPitaColor.name,
                 colorRantai: selectedRantaiColor.name,

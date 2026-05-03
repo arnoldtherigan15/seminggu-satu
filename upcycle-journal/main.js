@@ -540,6 +540,7 @@ if (form) {
             if (result.status === 'success') {
                 const params = new URLSearchParams({
                     name: payload.fullName || 'Peserta',
+                    whatsapp: payload.whatsapp || '',
                     workshop: 'upcycle-journal',
                     bodyBagId: selectedBodyBagId,
                     flapBagId: selectedFlapBagId,
