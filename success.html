@@ -234,6 +234,98 @@
             }
         }
 
+        /* Bookmark Model */
+        .bookmark-model {
+            position: relative;
+            width: 140px;
+            height: 220px;
+            background: #FFD54F;
+            /* Kuning belakang */
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: center;
+            transform: scale(0.65);
+            /* scaled down for ticket view */
+            margin: -20px 0;
+        }
+
+        .bookmark-model::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 40px;
+            background: #FFD54F;
+            border-radius: 40px 40px 0 0;
+            z-index: 0;
+        }
+
+        .bookmark-pocket {
+            position: absolute;
+            bottom: 0;
+            width: 130px;
+            height: 180px;
+            background: #1976D2;
+            /* Biru depan */
+            border-radius: 4px;
+            z-index: 1;
+        }
+
+        .bookmark-pocket::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 35px;
+            background: #1976D2;
+            border-radius: 35px 35px 0 0;
+            z-index: 1;
+        }
+
+        .bookmark-hole {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 14px;
+            background: #f1f5f9;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            z-index: 3;
+        }
+
+        .bookmark-pita {
+            position: absolute;
+            bottom: 15px;
+            left: -5px;
+            right: -5px;
+            height: 22px;
+            background-color: var(--pita-color, #e94630);
+            background-image: var(--pita-pattern, none);
+            background-size: 10px 10px;
+            z-index: 4;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .bookmark-rantai {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 60px;
+            border: 3px dotted var(--rantai-color, #fff);
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+            z-index: 2;
+        }
+
         .ticket-header {
             background: linear-gradient(135deg, var(--accent) 0%, #1976d2 100%);
             padding: 1.5rem 1.5rem 1rem;
@@ -420,16 +512,6 @@
             animation: slideUp 0.4s ease 0.2s both;
         }
 
-        .share-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-align: center;
-            margin-bottom: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
         .share-buttons {
             display: flex;
             flex-direction: column;
@@ -497,14 +579,41 @@
             background: #f0f6ff;
         }
 
-        .btn-save-image {
-            background: var(--accent);
+        .btn-wa-group {
+            background: #25D366;
             color: white;
-            box-shadow: 0 4px 12px rgba(9, 85, 160, 0.2);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            animation: waHeartbeat 2s infinite;
         }
 
-        .btn-save-image:hover {
+        .btn-wa-group:hover {
             opacity: 0.9;
+        }
+
+        @keyframes waHeartbeat {
+            0% {
+                transform: scale(1);
+            }
+
+            10% {
+                transform: scale(1.03);
+            }
+
+            20% {
+                transform: scale(1);
+            }
+
+            30% {
+                transform: scale(1.03);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         footer {
@@ -596,6 +705,14 @@
                             <div class="journal-stitch"></div>
                         </div>
                     </div>
+
+                    <!-- Bookmark Visualizer -->
+                    <div class="bookmark-model" id="bookmarkModel" style="display:none;">
+                        <div class="bookmark-hole"></div>
+                        <div class="bookmark-rantai" id="bookmarkRantai"></div>
+                        <div class="bookmark-pocket"></div>
+                        <div class="bookmark-pita" id="bookmarkPita"></div>
+                    </div>
                 </div>
 
                 <div class="color-section" id="colorSection">
@@ -614,12 +731,11 @@
 
         <!-- Share Section -->
         <div class="share-section">
-            <div class="share-title">Bagikan tiketmu</div>
             <div class="share-buttons">
-                <button class="share-btn btn-save-image" onclick="downloadTicket()">
-                    <i data-lucide="download"></i>
-                    Simpan Tiket ke Galeri
-                </button>
+                <a href="#" target="_blank" class="share-btn btn-wa-group" id="btnWaGroup" style="display: none;">
+                    <i data-lucide="message-circle"></i>
+                    Join WhatsApp Grup
+                </a>
                 <button class="share-btn btn-calendar" onclick="addToCalendar()">
                     <i data-lucide="calendar-plus"></i>
                     Tambah ke Kalender
@@ -655,6 +771,13 @@
         const colorBody = p.get('colorBody') || '-';
         const colorFlap = p.get('colorFlap') || '-';
 
+        // Bookmark Specific
+        const colorPita = p.get('colorPita') || '-';
+        const colorRantai = p.get('colorRantai') || '-';
+        const pitaBase = p.get('pitaBase') || '#e94630';
+        const pitaPattern = p.get('pitaPattern') || 'none';
+        const rantaiHex = p.get('rantaiHex') || '#fff';
+
         // Common
         const colorStrap = p.get('colorStrap') || '-';
         const colorStrapHex = p.get('colorStrapHex') || '#888';
@@ -675,6 +798,13 @@
             document.getElementById('successDescription').textContent = "Kami tunggu kehadirannya! Detail pendaftaran Anda telah kami terima.";
         }
 
+        // WhatsApp Group Link
+        if (wsData.whatsappGroupLink) {
+            const btnWaGroup = document.getElementById('btnWaGroup');
+            btnWaGroup.href = wsData.whatsappGroupLink;
+            btnWaGroup.style.display = 'flex';
+        }
+
         // --- Visualizer Logic ---
         const motifBody = document.getElementById('motifBody');
         const motifFlap = document.getElementById('motifFlap');
@@ -682,6 +812,7 @@
         const journalFlap = document.getElementById('journalFlap');
         const flapStrap = document.getElementById('flapStrap');
         const metadataLabel = document.getElementById('metadataLabel');
+        const bookmarkModel = document.getElementById('bookmarkModel');
 
         // Apply Strap Color (Always exists)
         flapStrap.style.backgroundColor = colorStrapHex;
@@ -706,6 +837,19 @@
         } else if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling') {
             document.getElementById('colorSection').style.display = 'none';
             document.getElementById('journalModel').style.display = 'none';
+        } else if (workshopId === 'bookmark-journal') {
+            document.getElementById('journalModel').style.display = 'none';
+            bookmarkModel.style.display = 'flex';
+            metadataLabel.textContent = "Pilihan Bookmarkmu";
+
+            document.documentElement.style.setProperty('--pita-color', pitaBase);
+            document.documentElement.style.setProperty('--pita-pattern', pitaPattern);
+            document.documentElement.style.setProperty('--rantai-color', rantaiHex);
+
+            swatchData = [
+                { label: 'Pita', name: colorPita, hex: pitaBase, pattern: pitaPattern },
+                { label: 'Rantai', name: colorRantai, hex: rantaiHex }
+            ];
         } else {
             // Paper Journal
             metadataLabel.textContent = "Pilihan Warna Jurnalmu";
@@ -729,6 +873,10 @@
             if (s.isMotif) {
                 dot.style.backgroundImage = `url(${s.path})`;
                 dot.style.backgroundSize = 'cover';
+            } else if (s.pattern && s.pattern !== 'none') {
+                dot.style.backgroundColor = s.hex;
+                dot.style.backgroundImage = s.pattern;
+                dot.style.backgroundSize = '5px 5px';
             } else {
                 dot.style.backgroundColor = s.hex;
             }
