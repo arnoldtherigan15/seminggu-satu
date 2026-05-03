@@ -946,8 +946,8 @@
 
         // --- Add to Calendar ---
         function addToCalendar() {
-            if (!wsData || !wsData.workshopDate) {
-                alert("Data workshop tidak ditemukan.");
+            if (!wsData || !wsData.workshopDate || !wsData.workshopTime) {
+                alert("Data waktu workshop tidak ditemukan.");
                 return;
             }
 
@@ -958,8 +958,11 @@
                 'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12'
             };
 
-            // Parse Date: "Minggu, 17 Mei 2026" or "Sabtu, 25 April 2026"
-            const dateParts = wsData.workshopDate.split(' ');
+            // Parse Date: "Minggu, 17 Mei 2026" or "17 Mei 2026"
+            let dateParts = wsData.workshopDate.split(' ');
+            if (dateParts.length === 3) {
+                dateParts = ["", dateParts[0], dateParts[1], dateParts[2]]; // Normalize if day name is missing
+            }
             if (dateParts.length < 4) return;
 
             const dayNum = dateParts[1].padStart(2, '0');
@@ -967,27 +970,50 @@
             const yearNum = dateParts[3];
             const monthNum = monthsMap[monthName] || '01';
 
-            // Parse Time: "15:00 – 17:30 WIB"
-            const timeRange = wsData.workshopTime.split(' – ');
-            const startTimeStr = timeRange[0].replace(':', ''); // "1500"
-            const endTimeStr = timeRange[1].split(' ')[0].replace(':', ''); // "1730"
+            // Parse Time: normalize dashes (en-dash to hyphen)
+            const timeString = wsData.workshopTime.replace(/–/g, '-');
+            const timeRange = timeString.split('-');
+            if (timeRange.length < 2) return;
+
+            const startTimeStr = timeRange[0].trim().replace(':', ''); // "1500"
+            const endTimeStr = timeRange[1].trim().split(' ')[0].replace(':', ''); // "1730"
 
             const dateStr = `${yearNum}${monthNum}${dayNum}`;
 
-            // Convert WIB (UTC+7) to UTC for GCal link
+            // Convert WIB (UTC+7) to UTC
             const startHourUTC = (parseInt(startTimeStr.substring(0, 2)) - 7).toString().padStart(2, '0');
             const endHourUTC = (parseInt(endTimeStr.substring(0, 2)) - 7).toString().padStart(2, '0');
 
             const dtStart = `${dateStr}T${startHourUTC}${startTimeStr.substring(2)}00Z`;
             const dtEnd = `${dateStr}T${endHourUTC}${endTimeStr.substring(2)}00Z`;
 
-            const title = encodeURIComponent(`${wsData.name} – Seminggu Satu`);
-            const details = encodeURIComponent(`Halo ${name}! Ini pengingat workshop kamu bersama Seminggu Satu by Arnold. Sampai ketemu!\n\nLokasi: ${wsData.locationName}`);
-            const location = encodeURIComponent(wsData.locationName);
+            const title = `${wsData.name} – Seminggu Satu`;
+            const details = `Halo ${name}! Ini pengingat workshop kamu bersama Seminggu Satu by Arnold. Sampai ketemu!\\n\\nLokasi: ${wsData.locationName}`;
+            const location = wsData.locationName;
 
-            const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dtStart}/${dtEnd}&details=${details}&location=${location}`;
+            // Generate .ics file content
+            const icsContent = 
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Seminggu Satu//Workshop Calendar//ID
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+SUMMARY:${title}
+DTSTART:${dtStart}
+DTEND:${dtEnd}
+DESCRIPTION:${details.replace(/\\n/g, '\\\\n')}
+LOCATION:${location}
+END:VEVENT
+END:VCALENDAR`;
 
-            window.open(gcalUrl, '_blank');
+            // Download as .ics file (Triggers native calendar app on iOS/Android)
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `Workshop_Seminggu_Satu.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 
