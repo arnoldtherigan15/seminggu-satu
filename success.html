@@ -861,71 +861,36 @@
 
                     ticket.style.boxShadow = originalBoxShadow;
 
-                    // Try Web Share API (supports file sharing on mobile)
-                    if (navigator.canShare) {
-                        canvas.toBlob(async (blob) => {
-                            const file = new File([blob], `Tiket_${name.replace(/\s+/g, '_')}.jpg`, { type: 'image/jpeg' });
-                            const shareData = { files: [file], text: shareText };
+                    // Step 1: Auto-download the ticket image to phone
+                    const imgLink = document.createElement('a');
+                    imgLink.download = `Tiket_${name.replace(/\s+/g, '_')}_${workshopId}.jpg`;
+                    imgLink.href = canvas.toDataURL("image/jpeg", 0.9);
+                    imgLink.click();
 
-                            if (navigator.canShare(shareData)) {
-                                try {
-                                    await navigator.share(shareData);
-                                } catch (shareErr) {
-                                    if (shareErr.name !== 'AbortError') {
-                                        // Share failed — fallback to download + wa.me
-                                        _fallbackShareWA(canvas, phone, shareText, name, workshopId);
-                                    }
-                                }
-                            } else {
-                                // canShare returns false — fallback
-                                _fallbackShareWA(canvas, phone, shareText, name, workshopId);
-                            }
-
-                            btnWaGroup.innerHTML = originalContent;
-                            btnWaGroup.style.opacity = '';
-                            btnWaGroup.style.pointerEvents = '';
-                            lucide.createIcons();
-                        }, 'image/jpeg', 0.9);
-                    } else {
-                        // Desktop / browser doesn't support Web Share — fallback
-                        _fallbackShareWA(canvas, phone, shareText, name, workshopId);
-                        btnWaGroup.innerHTML = originalContent;
-                        btnWaGroup.style.opacity = '';
-                        btnWaGroup.style.pointerEvents = '';
-                        lucide.createIcons();
-                    }
+                    // Step 2: After short delay, open WA directly to their own number
+                    // (delay ensures download dialog doesn't interfere)
+                    setTimeout(() => {
+                        const waUrl = phone
+                            ? `https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`
+                            : wsData.whatsappGroupLink;
+                        window.location.href = waUrl;
+                    }, 600);
 
                 } catch (err) {
                     console.error("Ticket capture failed:", err);
-                    // If capture fails completely, just open WA with text
-                    if (phone) {
-                        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`, '_blank');
-                    } else {
-                        window.open(wsData.whatsappGroupLink, '_blank');
-                    }
-                    btnWaGroup.innerHTML = originalContent;
-                    btnWaGroup.style.opacity = '';
-                    btnWaGroup.style.pointerEvents = '';
-                    lucide.createIcons();
+                    // Fallback: just open WA with text if capture fails
+                    const waUrl = phone
+                        ? `https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`
+                        : wsData.whatsappGroupLink;
+                    window.location.href = waUrl;
                 }
+
+                btnWaGroup.innerHTML = originalContent;
+                btnWaGroup.style.opacity = '';
+                btnWaGroup.style.pointerEvents = '';
+                lucide.createIcons();
             };
             btnWaGroup.style.display = 'flex';
-        }
-
-        // Fallback: download image + open wa.me with text
-        function _fallbackShareWA(canvas, phone, text, personName, wsId) {
-            // Download the ticket image
-            const link = document.createElement('a');
-            link.download = `Tiket_${personName.replace(/\s+/g, '_')}_${wsId}.jpg`;
-            link.href = canvas.toDataURL("image/jpeg", 0.9);
-            link.click();
-
-            // Open WA with text (they can manually attach the downloaded image)
-            setTimeout(() => {
-                if (phone) {
-                    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
-                }
-            }, 800);
         }
 
         // --- Visualizer Logic ---
