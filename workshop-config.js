@@ -94,7 +94,7 @@ const WORKSHOPS = [
         workshopTime: "15:00 - 17:30 WIB",
         locationName: "Melting Pot, GF at ASHTA District 8",
         mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
-        isDisplay: true,
+        isDisplay: false,
         whatsappGroupLink: ""
     }
 ];
