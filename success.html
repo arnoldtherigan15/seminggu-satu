@@ -799,7 +799,96 @@
         }
 
         // WhatsApp Group Link
-        if (wsData.whatsappGroupLink) {
+        if (wsData.whatsappGroupLink && workshopId !== 'bookmark-journal-sheraton') {
+            let displayedCount = 0;
+
+            WORKSHOPS.forEach((ws, index) => {
+                // Skip if not meant to be displayed
+                if (ws.hasOwnProperty('isDisplay') && ws.isDisplay === false) return;
+
+                displayedCount++;
+                const currentCount = counts[ws.id] || 0;
+                const isFull = currentCount >= (ws.maxQuota || 12);
+                let status = getWorkshopStatus(ws);
+                
+                // Override status if full
+                if (status === 'open' && isFull) {
+                    status = 'full';
+                }
+
+                const earlyBird = isEarlyBird(ws);
+                const card = document.createElement('div');
+                card.className = `workshop-card${(status !== 'open') ? ' disabled' : ''}`;
+                card.style.animationDelay = `${0.4 + index * 0.1}s`;
+
+                // Build price HTML
+                let priceHTML = '';
+                if (ws.normalPrice > 0) {
+                    if (earlyBird) {
+                        priceHTML = `
+                            <div class="price-row">
+                                <span class="early-bird-tag"><i data-lucide="flame"></i> Early Bird</span>
+                                <span class="price-original">${formatRupiah(ws.normalPrice)}</span>
+                                <span class="price-current">${formatRupiah(ws.earlyBirdPrice)}</span>
+                            </div>`;
+                    } else if (status === 'open' || status === 'full') {
+                        priceHTML = `
+                            <div class="price-row">
+                                <span class="price-normal-only">${formatRupiah(ws.normalPrice)}</span>
+                            </div>`;
+                    }
+                }
+
+                // Build status badge
+                let badgeHTML = '';
+                if (status === 'open') {
+                    badgeHTML = '<span class="status-badge badge-open"><i data-lucide="circle-check"></i> Buka</span>';
+                } else if (status === 'full') {
+                    badgeHTML = '<span class="status-badge badge-closed"><i data-lucide="x-circle"></i> PENUH</span>';
+                } else if (status === 'not-open-yet') {
+                    badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="clock"></i> Segera Dibuka</span>';
+                } else if (status === 'closed') {
+                    badgeHTML = '<span class="status-badge badge-closed"><i data-lucide="x-circle"></i> Ditutup</span>';
+                } else {
+                    badgeHTML = '<span class="status-badge badge-coming-soon"><i data-lucide="sparkles"></i> Segera Hadir</span>';
+                }
+
+                // Build CTA
+                let ctaHTML = '';
+                if (status === 'open') {
+                    ctaHTML = `<a href="${ws.path}" class="cta-btn" id="cta-${ws.id}">Daftar Sekarang <i data-lucide="arrow-right"></i></a>`;
+                } else if (status === 'full') {
+                    ctaHTML = `<div class="cta-btn disabled-btn">Pendaftaran Penuh</div>`;
+                } else {
+                    ctaHTML = `<div class="cta-btn disabled-btn">${status === 'not-open-yet' ? 'Belum Dibuka' : status === 'closed' ? 'Pendaftaran Ditutup' : 'Segera Hadir'}</div>`;
+                }
+
+                card.innerHTML = `
+                    ${badgeHTML}
+                    <div class="card-header">
+                        <div class="card-icon"><i data-lucide="${ws.icon}"></i></div>
+                        <div>
+                            <div class="card-title">${ws.name}</div>
+                        </div>
+                    </div>
+                    <p class="card-desc">${ws.description}</p>
+                    ${priceHTML}
+                    ${ctaHTML}
+                `;
+
+                listEl.appendChild(card);
+            });
+
+            if (displayedCount === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state" style="display: block; padding: 2rem 1rem; background: var(--bg-card); border: 1.5px dashed var(--border); border-radius: var(--radius);">
+                        <i data-lucide="calendar-x" style="width: 32px; height: 32px; color: var(--text-3); margin: 0 auto 0.75rem; display: block;"></i>
+                        <p style="color: var(--text-2); font-size: 0.9rem; margin-bottom: 0;">Belum ada jadwal workshop baru saat ini. Pantau terus Instagram Seminggu Satu ya!</p>
+                    </div>
+                `;
+            }
+
+            lucide.createIcons();    
             const btnWaGroup = document.getElementById('btnWaGroup');
             btnWaGroup.href = '#';
             btnWaGroup.onclick = async (e) => {
@@ -880,7 +969,7 @@
         } else if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling') {
             document.getElementById('colorSection').style.display = 'none';
             document.getElementById('journalModel').style.display = 'none';
-        } else if (workshopId === 'bookmark-journal') {
+        } else if (workshopId === 'bookmark-journal' || workshopId === 'bookmark-journal-sheraton') {
             document.getElementById('journalModel').style.display = 'none';
             bookmarkModel.style.display = 'flex';
             metadataLabel.textContent = "Pilihan Bookmarkmu";

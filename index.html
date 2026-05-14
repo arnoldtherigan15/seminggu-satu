@@ -561,11 +561,14 @@
             }
 
             listEl.innerHTML = ''; // Clear loading state
+            
+            let displayedCount = 0;
 
             WORKSHOPS.forEach((ws, index) => {
                 // Skip if not meant to be displayed
                 if (ws.hasOwnProperty('isDisplay') && ws.isDisplay === false) return;
 
+                displayedCount++;
                 const currentCount = counts[ws.id] || 0;
                 const isFull = currentCount >= (ws.maxQuota || 12);
                 let status = getWorkshopStatus(ws);
@@ -637,6 +640,16 @@
 
                 listEl.appendChild(card);
             });
+
+            if (displayedCount === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state" style="display: block; padding: 2.5rem 1.5rem; background: var(--bg-card); border: 1.5px dashed var(--border); border-radius: var(--radius); text-align: center; margin-top: 0.5rem; animation: slideUp 0.5s ease both;">
+                        <i data-lucide="calendar-x" style="width: 36px; height: 36px; color: var(--text-3); margin: 0 auto 1rem; display: block;"></i>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Belum ada jadwal baru</h3>
+                        <p style="color: var(--text-2); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">Pantau terus Instagram atau TikTok Seminggu Satu untuk info workshop selanjutnya ya!</p>
+                    </div>
+                `;
+            }
 
             lucide.createIcons();
         }
