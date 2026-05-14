@@ -86,6 +86,78 @@ const RECOMMENDATIONS = [
         description: "Paper clip dengan warna bagus",
         link: "https://shopee.co.id/HighTide-Penco-Clampy-Glitter-Plastic-Clip-Penjepit-Dokumen-Klip-Plastik-Gliter-Shiny-Document-Clip-i.16606759.57905002387",
         category: "tools"
+    },
+    {
+        id: "curved-min-scissor",
+        title: "Curved Mini Scissor",
+        image: "images/reccomendation/curved-min-scissor.webp",
+        description: "Gunting mini berbahan stainless steel  cocok untuk gunting detail",
+        link: "https://shopee.co.id/Haquhara-Curved-Mini-Scissor-Gunting-Lengkung-Makeup-i.8076053.2862548103",
+        category: "tools"
+    },
+    {
+        id: "gunting-canary",
+        title: "CANARY DSB-100 - Gunting anti sticky",
+        image: "images/reccomendation/gunting-canary.webp",
+        description: "Gunting kecil super tajam, Lapisan fluorin di bagian belakang mata pisau mencegah selotip dan zat lain menempel",
+        link: "https://shopee.co.id/CANARY-DSB-100-Gunting-Desain-Ultra-Halus-Small-Scissors-Fluorinecorted-i.29904204.22228858030",
+        category: "tools"
+    },
+    {
+        id: "gunting-besar-non-sticky",
+        title: "Gunting titanium anti sticky",
+        image: "images/reccomendation/gunting-besar-non-sticky.webp",
+        description: "Gunting besar super tajam, Lapisan fluorin di bagian belakang mata pisau mencegah selotip dan zat lain menempel",
+        link: "https://shopee.co.id/PLUS-Gunting-titanium-coating-i.79188535.22113198626",
+        category: "tools"
+    },
+    {
+        id: "awl",
+        title: "Awl - Book binding tool",
+        image: "images/reccomendation/awl.webp",
+        description: "Alat untuk melubangi kertas",
+        link: "https://shopee.co.id/Leather-Tool-Stitching-Awl-Alat-Tusukan-Pembolong-3mm-Tusukan-kain-E1595-i.382915809.25914203441",
+        category: "tools"
+    },
+    {
+        id: "kokuyo-dotliner-glue",
+        title: "Kokuyo Dotliner Glue Stamp",
+        image: "images/reccomendation/kokuyo-dotliner-glue.webp",
+        description: "Alat untuk melubangi kertas",
+        link: "https://shopee.co.id/Kokuyo-Dotliner-Glue-Stamp-Lem-Tape-Double-Dobel-Isolasi-i.6092587.24458068647",
+        category: "tools"
+    },
+    {
+        id: "embossing-folder-1",
+        title: "Embossing folder",
+        image: "images/reccomendation/embossing-folder-1.webp",
+        description: "Ini toko buat cari embossing folder atau metal dies",
+        link: "https://shopee.co.id/Hollow-Heart-Plastic-Embossing-Folder-i.52961772.15836536562",
+        category: "tools"
+    },
+    {
+        id: "paper-trimmer",
+        title: "Embossing folder",
+        image: "images/reccomendation/paper-trimmer.webp",
+        description: "Alat untuk memotong kertas",
+        link: "https://shopee.co.id/Alat-Potong-Kertas-Paper-Cutter-SUN-JOURNEY-KM-5646-5669-5692-A4-Alat-Potong-Mesin-Pemotong-Kertas-HVS-Sticker-Art-Paper-Cocok-Untuk-DIY-Perlengkapan-Kantor-Perlengkapan-Sekolah-ATK-i.19826898.41318072453",
+        category: "tools"
+    },
+    {
+        id: "deco-paper",
+        title: "[INFINITYSTUFF] Scrapbook background deco paper",
+        image: "images/reccomendation/deco-paper.webp",
+        description: "Tempat aku beli deco paper berbagai ukuran",
+        link: "https://shopee.co.id/-INFINITYSTUFF-Scrapbook-background-deco-paper-tema-flower-colorful-gingham-1-set-isi-12-i.162371882.51304728331",
+        category: "paper"
+    },
+    {
+        id: "lem-astero",
+        title: "Lem Astero Serbaguna",
+        image: "images/reccomendation/lem-astero.webp",
+        description: "Lem serbaguna untuk journaling, bisa untuk nempelin kain juga kayak bordir patch",
+        link: "https://shopee.co.id/LEM-ASTERO-lem-serbaguna-lem-Glitter-i.143143674.24336397678",
+        category: "paper"
     }
 ];
 
