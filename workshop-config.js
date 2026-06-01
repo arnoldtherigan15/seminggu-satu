@@ -116,6 +116,27 @@ const WORKSHOPS = [
         mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
         isDisplay: false,
         whatsappGroupLink: ""
+    },
+    {
+        id: "reka-rekat",
+        name: "Reka Rekat - Journaling Date",
+        description: "Sesi buat kita ngejurnal bareng. Konsepnya seru banget karena tiap pertemuan bakal punya tema dan challenge visual yang beda-beda, jadi selalu ada eksplorasi baru yang menanti.",
+        icon: "heart",
+        path: "reka-rekat/index.html",
+        enabled: true,
+        openDate: "01/06/2026",
+        closeDate: "19/06/2026",
+        normalPrice: 167000,
+        earlyBirdPrice: null,
+        earlyBirdDueDate: null,
+        maxQuota: 18,
+        workshopDate: "Sabtu, 20 Juni 2026",
+        workshopTime: "12:00 - 14:30 WIB",
+        locationName: "Oma Huis - Cikajang",
+        mapsLink: "https://maps.app.goo.gl/FZv5Qo9j933TQmDw9",
+        isDisplay: false,
+        isPrintPhoto: true,
+        whatsappGroupLink: "https://chat.whatsapp.com/Ba3DC7JFQSt1u1tgIMATw9?mode=gi_t"
     }
 ];
 
