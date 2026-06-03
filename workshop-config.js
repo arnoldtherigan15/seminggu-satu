@@ -126,7 +126,7 @@ const WORKSHOPS = [
         enabled: true,
         openDate: "01/06/2026",
         closeDate: "19/06/2026",
-        normalPrice: 167000,
+        normalPrice: 175000,
         earlyBirdPrice: null,
         earlyBirdDueDate: null,
         maxQuota: 18,
