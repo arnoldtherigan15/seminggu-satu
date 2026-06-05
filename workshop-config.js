@@ -136,7 +136,7 @@ const WORKSHOPS = [
         mapsLink: "https://maps.app.goo.gl/FZv5Qo9j933TQmDw9",
         isDisplay: false,
         isPrintPhoto: true,
-        whatsappGroupLink: "https://chat.whatsapp.com/Ba3DC7JFQSt1u1tgIMATw9?mode=gi_t"
+        whatsappGroupLink: "https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?s=cl&p=i&ilr=4&amv=0"
     }
 ];
 
