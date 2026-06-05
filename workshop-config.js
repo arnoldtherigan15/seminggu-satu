@@ -132,7 +132,7 @@ const WORKSHOPS = [
         maxQuota: 18,
         workshopDate: "Sabtu, 20 Juni 2026",
         workshopTime: "12:00 - 14:30 WIB",
-        locationName: "Oma Huis - Cikajang",
+        locationName: "Oma Huis - Jakarta Selatan",
         mapsLink: "https://maps.app.goo.gl/FZv5Qo9j933TQmDw9",
         isDisplay: false,
         isPrintPhoto: true,
