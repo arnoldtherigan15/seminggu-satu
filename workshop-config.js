@@ -120,23 +120,23 @@ const WORKSHOPS = [
     {
         id: "reka-rekat",
         name: "Reka Rekat - Journaling Date",
-        description: "Sesi buat kita ngejurnal bareng. Konsepnya seru banget karena tiap pertemuan bakal punya tema dan challenge visual yang beda-beda, jadi selalu ada eksplorasi baru yang menanti.",
+        description: "Sesi buat kita ngejurnal bareng. Setiap pertemuan ada tema yang berbeda.",
         icon: "heart",
         path: "reka-rekat/index.html",
         enabled: true,
-        openDate: "01/06/2026",
-        closeDate: "19/06/2026",
+        openDate: "22/06/2026",
+        closeDate: "10/07/2026",
         normalPrice: 175000,
         earlyBirdPrice: null,
         earlyBirdDueDate: null,
         maxQuota: 18,
-        workshopDate: "Sabtu, 20 Juni 2026",
-        workshopTime: "12:00 - 14:30 WIB",
+        workshopDate: "Sabtu, 11 Juli 2026",
+        workshopTime: "11:00 - 13:30 WIB",
         locationName: "Oma Huis - Jakarta Selatan",
         mapsLink: "https://maps.app.goo.gl/FZv5Qo9j933TQmDw9",
         isDisplay: false,
         isPrintPhoto: true,
-        whatsappGroupLink: "https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?s=cl&p=i&ilr=4&amv=0"
+        whatsappGroupLink: "https://chat.whatsapp.com/G9h0V6VCTp2GomdJBFEo8F?mode=gi_t"
     }
 ];
 
