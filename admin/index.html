@@ -1173,86 +1173,707 @@
     }
 
     /* --- Check-in kehadiran --- */
-    .hadir-summary { font-size: 13px; color: var(--ink); margin-bottom: 10px; }
-    .hadir-summary b { color: var(--ok, #16a34a); }
-    .att-check { width: 18px; height: 18px; cursor: pointer; }
+    .hadir-summary {
+      font-size: 13px;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .hadir-summary b {
+      color: var(--ok, #16a34a);
+    }
+
+    .att-check {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
 
     /* --- Cari & Export (Registrations) --- */
-    .reg-tools { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .reg-tools input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; font-size: 14px; }
+    .reg-tools {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .reg-tools input {
+      flex: 1;
+      min-width: 0;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      font-size: 14px;
+    }
 
     /* --- Loyalty --- */
-    .loyalty-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-    .loyalty-title { font-size: 18px; }
-    .loyalty-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
-    .loyalty-stats { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-    .loyalty-stats .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; min-width: 120px; }
-    .loyalty-stats .stat-n { font-size: 24px; font-weight: 700; }
-    .loyalty-stats .stat-l { font-size: 12px; color: var(--muted); }
-    .loy-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
-    .loy-card.loy-reward { border-color: #f59e0b; background: #fffbeb; }
-    .loy-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-    .loy-name { font-weight: 700; font-size: 15px; }
-    .loy-wa { font-size: 12px; color: var(--muted); }
-    .loy-badge { font-size: 11px; font-weight: 700; color: #92400e; background: #fde68a; padding: 2px 8px; border-radius: 999px; margin-left: 4px; }
-    .loy-count { font-weight: 700; font-size: 15px; color: var(--brand); white-space: nowrap; }
-    .loy-extra { font-size: 12px; color: var(--muted); font-weight: 400; }
-    .loy-stamps { margin: 8px 0 6px; letter-spacing: 2px; }
-    .stamp { font-size: 20px; color: #d1d5db; }
-    .stamp.on { color: #f59e0b; }
-    .loy-events { font-size: 12px; color: var(--muted); }
-    .loy-claimed { font-size: 12px; color: #92400e; margin-left: 6px; }
-    .loy-actions { display: flex; gap: 8px; margin-top: 10px; }
-    .loy-claim { background: #f59e0b; }
-    .loy-claim:hover { background: #d97706; }
-    .loy-card { cursor: pointer; transition: box-shadow .15s, transform .15s; }
-    .loy-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); transform: translateY(-1px); }
-    .loy-tap { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: right; }
-    .loy-note-badge { font-size: 11px; background: #eef2ff; color: var(--brand); padding: 2px 7px; border-radius: 999px; }
+    .loyalty-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .loyalty-title {
+      font-size: 18px;
+    }
+
+    .loyalty-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .loyalty-stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .loyalty-stats .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 16px;
+      min-width: 120px;
+    }
+
+    .loyalty-stats .stat-n {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .loyalty-stats .stat-l {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .loy-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    .loy-card.loy-reward {
+      border-color: #f59e0b;
+      background: #fffbeb;
+    }
+
+    .loy-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .loy-name {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .loy-wa {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .loy-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: #92400e;
+      background: #fde68a;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 4px;
+    }
+
+    .loy-count {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--brand);
+      white-space: nowrap;
+    }
+
+    .loy-extra {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .loy-stamps {
+      margin: 8px 0 6px;
+      letter-spacing: 2px;
+    }
+
+    .stamp {
+      font-size: 20px;
+      color: #d1d5db;
+    }
+
+    .stamp.on {
+      color: #f59e0b;
+    }
+
+    .loy-events {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .loy-claimed {
+      font-size: 12px;
+      color: #92400e;
+      margin-left: 6px;
+    }
+
+    .loy-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .loy-claim {
+      background: #f59e0b;
+    }
+
+    .loy-claim:hover {
+      background: #d97706;
+    }
+
+    .loy-card {
+      cursor: pointer;
+      transition: box-shadow .15s, transform .15s;
+    }
+
+    .loy-card:hover {
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+      transform: translateY(-1px);
+    }
+
+    .loy-tap {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+      text-align: right;
+    }
+
+    .loy-note-badge {
+      font-size: 11px;
+      background: #eef2ff;
+      color: var(--brand);
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
 
     /* --- Modal detail --- */
-    .modal { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
-    .modal-box { background: var(--card); border-radius: 16px; max-width: 520px; width: 100%; max-height: 88vh; overflow-y: auto; padding: 22px; position: relative; }
-    .modal-close { position: absolute; top: 12px; right: 14px; background: #eef0f3; border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 20px; cursor: pointer; line-height: 1; }
-    .det-name { font-size: 20px; margin-bottom: 8px; padding-right: 30px; }
-    .det-stamps { margin-bottom: 6px; }
-    .det-prog { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
-    .det-sec { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; }
-    .det-sec h4 { font-size: 14px; margin-bottom: 10px; }
-    .det-row { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: 14px; }
-    .det-row span { color: var(--muted); }
-    .det-events { list-style: none; padding: 0 4px 0 0; margin: 0; max-height: 220px; overflow-y: auto; }
-    .det-events li { padding: 6px 2px; border-bottom: 1px dashed var(--line); font-size: 14px; }
-    .det-events li:last-child { border-bottom: none; }
-    .loy-ev-date { color: var(--muted); font-size: 12px; }
-    .note-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 7px 10px; margin-bottom: 6px; font-size: 13px; }
-    .note-del { background: none; border: none; color: var(--err); font-size: 18px; cursor: pointer; line-height: 1; }
-    .note-add { display: flex; gap: 8px; margin-top: 8px; }
-    .note-add input { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, .55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: var(--card);
+      border-radius: 16px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 22px;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: #eef0f3;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .det-name {
+      font-size: 20px;
+      margin-bottom: 8px;
+      padding-right: 30px;
+    }
+
+    .det-stamps {
+      margin-bottom: 6px;
+    }
+
+    .det-prog {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .det-sec {
+      border-top: 1px solid var(--line);
+      margin-top: 14px;
+      padding-top: 14px;
+    }
+
+    .det-sec h4 {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .det-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 5px 0;
+      font-size: 14px;
+    }
+
+    .det-row span {
+      color: var(--muted);
+    }
+
+    .det-events {
+      list-style: none;
+      padding: 0 4px 0 0;
+      margin: 0;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .det-events li {
+      padding: 6px 2px;
+      border-bottom: 1px dashed var(--line);
+      font-size: 14px;
+    }
+
+    .det-events li:last-child {
+      border-bottom: none;
+    }
+
+    .loy-ev-date {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .note-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 7px 10px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .note-del {
+      background: none;
+      border: none;
+      color: var(--err);
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .note-add {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .note-add input {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+    }
 
     /* --- Passport --- */
-    .passport-box { max-width: 400px; }
-    .passport {
-      width: 100%; border-radius: 16px; padding: 22px; color: #fff;
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #db2777 100%);
-      position: relative; overflow: hidden;
+    .passport-box {
+      max-width: 400px;
     }
-    .pp-head { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 1px; font-weight: 700; opacity: .9; }
-    .pp-title { font-size: 12px; letter-spacing: 3px; font-weight: 800; margin-top: 2px; opacity: .85; }
-    .pp-holder { margin: 16px 0 14px; }
-    .pp-label { font-size: 10px; letter-spacing: 2px; opacity: .7; }
-    .pp-name { font-size: 26px; font-weight: 800; line-height: 1.1; }
-    .pp-persona { background: rgba(255,255,255,.15); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
-    .pp-persona-title { font-size: 18px; font-weight: 800; }
-    .pp-persona-tag { font-size: 12px; opacity: .92; margin-top: 2px; }
-    .pp-stats { display: flex; gap: 8px; margin-bottom: 14px; }
-    .pp-stats > div { flex: 1; background: rgba(255,255,255,.12); border-radius: 10px; padding: 8px 4px; text-align: center; }
-    .pp-stats b { display: block; font-size: 20px; font-weight: 800; }
-    .pp-stats span { font-size: 10px; opacity: .85; }
-    .pp-stamps { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 14px; min-height: 22px; }
-    .pp-stamp { font-size: 18px; color: #fde68a; }
-    .pp-more { font-size: 12px; font-weight: 700; align-self: center; opacity: .9; }
-    .pp-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; opacity: .9; border-top: 1px dashed rgba(255,255,255,.35); padding-top: 10px; }
+
+    .passport {
+      width: 100%;
+      border-radius: 16px;
+      padding: 22px;
+      color: #fff;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #db2777 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pp-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      letter-spacing: 1px;
+      font-weight: 700;
+      opacity: .9;
+    }
+
+    .pp-title {
+      font-size: 12px;
+      letter-spacing: 3px;
+      font-weight: 800;
+      margin-top: 2px;
+      opacity: .85;
+    }
+
+    .pp-holder {
+      margin: 16px 0 14px;
+    }
+
+    .pp-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      opacity: .7;
+    }
+
+    .pp-name {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .pp-persona {
+      background: rgba(255, 255, 255, .15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .pp-persona-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .pp-persona-tag {
+      font-size: 12px;
+      opacity: .92;
+      margin-top: 2px;
+    }
+
+    .pp-stats {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .pp-stats>div {
+      flex: 1;
+      background: rgba(255, 255, 255, .12);
+      border-radius: 10px;
+      padding: 8px 4px;
+      text-align: center;
+    }
+
+    .pp-stats b {
+      display: block;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .pp-stats span {
+      font-size: 10px;
+      opacity: .85;
+    }
+
+    .pp-stamps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-bottom: 14px;
+      min-height: 22px;
+    }
+
+    .pp-stamp {
+      font-size: 18px;
+      color: #fde68a;
+    }
+
+    .pp-more {
+      font-size: 12px;
+      font-weight: 700;
+      align-self: center;
+      opacity: .9;
+    }
+
+    .pp-foot {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+      opacity: .9;
+      border-top: 1px dashed rgba(255, 255, 255, .35);
+      padding-top: 10px;
+    }
+
+    /* --- Pencapaian (Overview) --- */
+    .ach-headrow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ach-level {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .ach-level-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .ach-level-name {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .ach-level-next {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .ach-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .ach-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .ach-stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .ach-stat b {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .ach-stat span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .ach-badges {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 8px;
+    }
+
+    .ach-badge {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+      background: #f8fafc;
+      opacity: .5;
+      filter: grayscale(1);
+    }
+
+    .ach-badge.on {
+      opacity: 1;
+      filter: none;
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+
+    .ach-badge-e {
+      display: block;
+      font-size: 24px;
+    }
+
+    .ach-badge-t {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    /* --- Recap card --- */
+    .recap-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .recap-tab {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .recap-tab.active {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+
+    .recap {
+      width: 100%;
+      border-radius: 16px;
+      padding: 24px 22px;
+      color: #fff;
+      background: linear-gradient(135deg, #0ea5e9 0%, #4f46e5 55%, #7c3aed 100%);
+    }
+
+    .recap-title {
+      font-size: 15px;
+      letter-spacing: 2px;
+      font-weight: 800;
+      margin: 6px 0 16px;
+    }
+
+    .recap-big {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .recap-num {
+      flex: 1;
+      background: rgba(255, 255, 255, .14);
+      border-radius: 12px;
+      padding: 14px 8px;
+      text-align: center;
+    }
+
+    .recap-num b {
+      display: block;
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .recap-num span {
+      font-size: 11px;
+      opacity: .9;
+    }
+
+    .recap-sub {
+      font-size: 12px;
+      opacity: .95;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    /* --- Loading bar global --- */
+    #loadingBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      z-index: 2000;
+      background: transparent;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    #loadingBar.on {
+      opacity: 1;
+    }
+
+    #loadingBar::before {
+      content: "";
+      position: absolute;
+      height: 100%;
+      width: 40%;
+      left: -40%;
+      background: linear-gradient(90deg, transparent, var(--brand), #7c3aed);
+      animation: barslide 1.1s infinite ease-in-out;
+    }
+
+    @keyframes barslide {
+      0% {
+        left: -40%;
+      }
+
+      50% {
+        left: 40%;
+      }
+
+      100% {
+        left: 100%;
+      }
+    }
+
+    /* --- Skeleton loader --- */
+    .skel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 6px 2px;
+    }
+
+    .skel-line,
+    td .skel-line {
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #eef0f3 25%, #e2e6ea 37%, #eef0f3 63%);
+      background-size: 400% 100%;
+      animation: shimmer 1.3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 100% 0;
+      }
+
+      100% {
+        background-position: -100% 0;
+      }
+    }
+
+    .skel-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+    }
 
     /* --- Prep hub --- */
     .prep-card {
@@ -1476,6 +2097,7 @@
 
   <!-- ============ DASHBOARD ============ -->
   <div id="dashboard">
+    <div id="loadingBar"></div>
     <!-- Mobile top bar -->
     <header class="mobile-header">
       <button class="menu-toggle-btn" id="menuToggleBtn">☰</button>
@@ -1540,6 +2162,12 @@
           <h3 class="ov-section-title">Workshop Sedang Buka</h3>
           <div id="ovCards" class="ov-cards"></div>
 
+          <div class="ach-headrow" style="margin:28px 0;">
+            <h3 class="ov-section-title" style="margin:0;">🏆 Pencapaian Kamu</h3>
+            <button class="btn btn-sm" id="recapBtn">🎉 Buat Recap</button>
+          </div>
+          <div id="achievements"></div>
+
           <h3 class="ov-section-title" style="margin-top:28px;">💡 Ide Workshop Berikutnya</h3>
           <div class="fin-card">
             <div id="ideaList"></div>
@@ -1591,7 +2219,8 @@
           <div class="loyalty-head">
             <div>
               <h2 class="loyalty-title">🎁 Loyalty Card</h2>
-              <p class="loyalty-sub">Kumpulkan <b>6 stamp</b> (6× ikut event) → dapat hadiah. Otomatis dari semua event.</p>
+              <p class="loyalty-sub">Kumpulkan <b>6 stamp</b> (6× ikut event) → dapat hadiah. Otomatis dari semua event.
+              </p>
             </div>
             <button class="btn btn-sm btn-ghost" id="loyaltyReload">🔄 Muat Ulang</button>
           </div>
@@ -1733,6 +2362,19 @@
     </div>
   </div>
 
+  <!-- Modal recap (konten share) -->
+  <div id="recapModal" class="modal" style="display:none;">
+    <div class="modal-box passport-box">
+      <button class="modal-close" id="recapClose" aria-label="Tutup">&times;</button>
+      <div class="recap-tabs">
+        <button class="recap-tab active" data-mode="all">Semua</button>
+        <button class="recap-tab" data-mode="active">Workshop Aktif</button>
+      </div>
+      <div id="recapCard" class="recap"></div>
+      <button class="btn" id="recapDownload" style="margin-top:14px;width:100%;">⬇️ Download PNG</button>
+    </div>
+  </div>
+
   <!-- Config global: GOOGLE_SCRIPT_URL & data statis (untuk seed awal editor) -->
   <script src="../env.js"></script>
   <script src="../workshop-config.js"></script>
@@ -1751,12 +2393,42 @@
     let KONTEN = [];                  // item konten yang sedang diedit
 
     // Kirim aksi ke Apps Script (POST JSON, tanpa custom header -> tanpa CORS preflight)
+    // --- Loading bar global: nyala selama ada request ke server ---
+    let _apiCount = 0;
+    function _bar(on) {
+      const el = document.getElementById("loadingBar");
+      if (!el) return;
+      if (on) { _apiCount++; el.classList.add("on"); }
+      else { _apiCount = Math.max(0, _apiCount - 1); if (_apiCount === 0) el.classList.remove("on"); }
+    }
+
     async function api(action, payload = {}) {
-      const res = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(Object.assign({ action }, payload))
-      });
-      return res.json();
+      _bar(true);
+      try {
+        const res = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(Object.assign({ action }, payload))
+        });
+        return await res.json();
+      } finally {
+        _bar(false);
+      }
+    }
+
+    // Skeleton helpers (placeholder saat loading)
+    function skelLines(n) {
+      let h = "";
+      for (let i = 0; i < n; i++) h += `<div class="skel-line" style="width:${70 + (i % 3) * 10}%"></div>`;
+      return `<div class="skel">${h}</div>`;
+    }
+    function skelTableRows(cols, rows) {
+      let h = "";
+      for (let r = 0; r < rows; r++) {
+        let tds = "";
+        for (let c = 0; c < cols; c++) tds += `<td><div class="skel-line" style="width:${60 + (c % 3) * 15}%"></div></td>`;
+        h += `<tr>${tds}</tr>`;
+      }
+      return h;
     }
 
     function getToken() { return localStorage.getItem(TOKEN_KEY); }
@@ -1902,7 +2574,7 @@
       const body = document.getElementById("tableBody");
       const empty = document.getElementById("tableEmpty");
       head.innerHTML = "";
-      body.innerHTML = `<tr><td style="padding:24px;color:#6b7280;">Memuat...</td></tr>`;
+      body.innerHTML = skelTableRows(5, 6);
       empty.style.display = "none";
       document.getElementById("exportCsvBtn").disabled = true; // aktif lagi kalau data berhasil dimuat
 
@@ -2272,12 +2944,24 @@
           const card = e.target.closest(".ov-card[data-event]");
           if (card) location.hash = "prep:" + card.dataset.event;
         });
+        document.getElementById("recapBtn").addEventListener("click", openRecap);
+        document.getElementById("recapClose").addEventListener("click", closeRecap);
+        document.getElementById("recapModal").addEventListener("click", (e) => { if (e.target.id === "recapModal") closeRecap(); });
+        document.getElementById("recapDownload").addEventListener("click", downloadRecap);
+        document.querySelectorAll(".recap-tab").forEach(t => t.addEventListener("click", () => {
+          document.querySelectorAll(".recap-tab").forEach(x => x.classList.remove("active"));
+          t.classList.add("active"); recapMode = t.dataset.mode; renderRecap();
+        }));
         await loadIdeas();
         overviewInit = true;
       }
-      if (!Object.keys(SUMMARY).length) await loadSummary();
+      if (!Object.keys(SUMMARY).length) {
+        document.getElementById("ovCards").innerHTML = `<div class="skel-card">${skelLines(3)}</div><div class="skel-card">${skelLines(3)}</div>`;
+        await loadSummary();
+      }
       if (!Object.keys(MODAL).length) await loadModal();
       renderOverview();
+      loadStats(); // pencapaian (async, non-blocking)
     }
 
     async function loadIdeas() {
@@ -2561,7 +3245,7 @@
     async function loadKonten() {
       const type = currentKontenType();
       const listEl = document.getElementById("kontenList");
-      listEl.innerHTML = `<p class="hint">Memuat...</p>`;
+      listEl.innerHTML = skelLines(4);
       try {
         const r = await api("getContent", { token: getToken(), contentType: type });
         if (r.status !== "success") { handleAuthError(r); listEl.innerHTML = ""; return; }
@@ -2673,7 +3357,7 @@
       const event = document.getElementById("prepSelect").value;
       renderPrepHeader(event);
       const cont = document.getElementById("prepSections");
-      cont.innerHTML = `<p class="hint">Memuat...</p>`;
+      cont.innerHTML = skelLines(5);
       try {
         const r = await api("getPrep", { token: getToken(), event });
         if (r.status !== "success") { handleAuthError(r); cont.innerHTML = ""; return; }
@@ -2775,7 +3459,7 @@
         msgEl.addEventListener("input", () => localStorage.setItem(WA_MSG_KEY, msgEl.value));
       }
 
-      body.innerHTML = `<tr><td style="padding:16px;color:#6b7280;">Memuat...</td></tr>`;
+      body.innerHTML = skelTableRows(4, 5);
       try {
         const r = await api("getRegistrations", { token: getToken(), workshop: event }); // batch aktif
         if (r.status !== "success") { handleAuthError(r); return; }
@@ -2956,7 +3640,7 @@
     document.getElementById("imgLightbox").addEventListener("click", (e) => {
       if (e.target.id === "imgLightbox") closeLightbox(); // klik area gelap
     });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeLightbox(); closeLoyaltyModal(); closePassport(); } });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeLightbox(); closeLoyaltyModal(); closePassport(); closeRecap(); } });
 
     // ---------- LOYALTY ----------
     const LOYALTY_TARGET = 6;
@@ -2979,7 +3663,7 @@
 
     async function loadLoyalty() {
       const list = document.getElementById("loyaltyList");
-      list.innerHTML = `<p class="hint">Memuat data dari semua event...</p>`;
+      list.innerHTML = `<div class="skel-card">${skelLines(2)}</div><div class="skel-card">${skelLines(2)}</div><div class="skel-card">${skelLines(2)}</div>`;
       try {
         const r = await api("getLoyalty", { token: getToken() });
         if (r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
@@ -3199,6 +3883,148 @@
         a.download = "passport-" + nm + ".png";
         a.click();
       } catch (e) { alert("Gagal render gambar. Coba lagi."); }
+      finally { btn.disabled = false; btn.textContent = label; }
+    }
+
+    // ---------- PENCAPAIAN (gamifikasi) + RECAP ----------
+    let STATS = null;
+    let recapMode = "all";
+    const MONTHS_ = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+    const LEVELS_ = [
+      { min: 0, name: "Perintis 🌱" }, { min: 50, name: "Penggerak 🚀" }, { min: 100, name: "Kreator ⭐" },
+      { min: 200, name: "Juragan Workshop 👑" }, { min: 350, name: "Legenda 🏆" }, { min: 600, name: "Maestro 💎" }
+    ];
+
+    function computeStats(members) {
+      let totalReg = 0, rewards = 0, loyal = 0;
+      const eventSet = new Set();
+      const byMonth = {}; // "yyyy-mm" -> { reg, events:Set }
+      members.forEach(m => {
+        totalReg += m.count;
+        rewards += (m.claimed || 0);
+        if (m.count >= 6) loyal++;
+        m.events.forEach(e => {
+          const evKey = e.workshop + "|" + e.label;
+          eventSet.add(evKey);
+          const mm = String(e.date || "").match(/^(\d{1,2}) (\w{3}) (\d{4})$/);
+          if (mm && MONTHS_[mm[2]] !== undefined) {
+            const key = mm[3] + "-" + String(MONTHS_[mm[2]] + 1).padStart(2, "0");
+            if (!byMonth[key]) byMonth[key] = { reg: 0, events: new Set() };
+            byMonth[key].reg++; byMonth[key].events.add(evKey);
+          }
+        });
+      });
+      return { unique: members.length, totalReg, events: eventSet.size, rewards, loyal, byMonth };
+    }
+
+    async function loadStats() {
+      const box = document.getElementById("achievements");
+      if (box) box.innerHTML = `<div class="skel-card">${skelLines(3)}</div>`;
+      try {
+        const r = await api("getLoyalty", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); if (box) box.innerHTML = `<p class="hint">Gagal memuat pencapaian.</p>`; return; }
+        STATS = computeStats(r.members || []);
+        renderAchievements();
+      } catch (e) { if (box) box.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat pencapaian.</p>`; }
+    }
+
+    function levelInfo(totalReg) {
+      let idx = 0;
+      for (let i = 0; i < LEVELS_.length; i++) if (totalReg >= LEVELS_[i].min) idx = i;
+      const cur = LEVELS_[idx], next = LEVELS_[idx + 1] || null;
+      const prog = next ? Math.min(100, Math.round((totalReg - cur.min) / (next.min - cur.min) * 100)) : 100;
+      return { level: idx + 1, name: cur.name, next, prog, toNext: next ? next.min - totalReg : 0 };
+    }
+
+    function renderAchievements() {
+      if (!STATS) return;
+      const s = STATS;
+      const L = levelInfo(s.totalReg);
+      const badges = [
+        { e: "🎬", t: "Event Pertama", ok: s.events >= 1 },
+        { e: "🖐️", t: "5 Event", ok: s.events >= 5 },
+        { e: "🔟", t: "10 Event", ok: s.events >= 10 },
+        { e: "👥", t: "50 Pendaftaran", ok: s.totalReg >= 50 },
+        { e: "💯", t: "100 Pendaftaran", ok: s.totalReg >= 100 },
+        { e: "🧑‍🤝‍🧑", t: "50 Peserta Unik", ok: s.unique >= 50 },
+        { e: "🎁", t: "Hadiah Pertama", ok: s.rewards >= 1 },
+        { e: "⭐", t: "Punya Loyalis 6★", ok: s.loyal >= 1 }
+      ];
+      document.getElementById("achievements").innerHTML = `
+        <div class="ach-level">
+          <div class="ach-level-top">
+            <span class="ach-level-name">Lv.${L.level} · ${L.name}</span>
+            ${L.next ? `<span class="ach-level-next">${L.toNext} pendaftaran lagi → ${escapeHtml(L.next.name)}</span>` : `<span class="ach-level-next">Level maksimal 🎉</span>`}
+          </div>
+          <div class="ov-progress"><div class="ov-progress-bar" style="width:${L.prog}%"></div></div>
+        </div>
+        <div class="ach-stats">
+          <div class="ach-stat"><b>${s.events}</b><span>Event</span></div>
+          <div class="ach-stat"><b>${s.unique}</b><span>Peserta unik</span></div>
+          <div class="ach-stat"><b>${s.totalReg}</b><span>Total daftar</span></div>
+          <div class="ach-stat"><b>${s.rewards}</b><span>🎁 Hadiah</span></div>
+        </div>
+        <div class="ach-badges">
+          ${badges.map(b => `<div class="ach-badge ${b.ok ? "on" : ""}" title="${b.ok ? "Tercapai" : "Belum"}"><span class="ach-badge-e">${b.e}</span><span class="ach-badge-t">${b.t}</span></div>`).join("")}
+        </div>`;
+    }
+
+    // ---- Recap card (buat share medsos) ----
+    function openRecap() {
+      if (!STATS) { alert("Data masih dimuat, coba lagi sebentar."); return; }
+      recapMode = "all";
+      document.querySelectorAll(".recap-tab").forEach(x => x.classList.toggle("active", x.dataset.mode === "all"));
+      renderRecap();
+      document.getElementById("recapModal").style.display = "flex";
+    }
+    function closeRecap() { document.getElementById("recapModal").style.display = "none"; }
+
+    function renderRecap() {
+      if (!STATS) return;
+      const s = STATS;
+      let title, big, sub;
+      if (recapMode === "active") {
+        const ids = (typeof openWorkshopIds === "function") ? openWorkshopIds() : [];
+        const peserta = ids.reduce((t, id) => t + (SUMMARY[id] || 0), 0);
+        title = "RECAP · WORKSHOP AKTIF";
+        big = [
+          { n: ids.length, l: "Workshop dibuka" },
+          { n: peserta, l: "Total pendaftar" }
+        ];
+        sub = ids.length
+          ? ids.map(id => `${workshopName(id)}: ${SUMMARY[id] || 0}`).join(" · ")
+          : "Belum ada workshop yang buka pendaftaran";
+      } else {
+        title = "RECAP · SEMINGGU SATU";
+        big = [
+          { n: s.events, l: "Total event" },
+          { n: s.unique, l: "Peserta unik" },
+          { n: s.totalReg, l: "Total pendaftaran" }
+        ];
+        sub = `🎁 ${s.rewards} hadiah ditukar · ⭐ ${s.loyal} loyalis · ${s.events} event digelar`;
+      }
+      document.getElementById("recapCard").innerHTML = `
+        <div class="pp-head"><span>🎫 SEMINGGU SATU</span><span>by Arnold</span></div>
+        <div class="recap-title">${escapeHtml(title)}</div>
+        <div class="recap-big">
+          ${big.map(x => `<div class="recap-num"><b>${x.n}</b><span>${x.l}</span></div>`).join("")}
+        </div>
+        <div class="recap-sub">${escapeHtml(sub)}</div>
+        <div class="pp-foot"><span>Terima kasih sudah journaling bareng! ✨</span><span>seminggu.satu</span></div>`;
+    }
+
+    async function downloadRecap() {
+      const card = document.getElementById("recapCard");
+      const btn = document.getElementById("recapDownload");
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = "Merender...";
+      try {
+        const canvas = await html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true });
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = "recap-" + recapMode + ".png";
+        a.click();
+      } catch (e) { alert("Gagal render gambar."); }
       finally { btn.disabled = false; btn.textContent = label; }
     }
 
