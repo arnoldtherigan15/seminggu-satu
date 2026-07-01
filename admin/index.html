@@ -6,122 +6,1047 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Dashboard Admin — Seminggu Satu</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { max-width: 100%; overflow-x: clip; min-height: 100%; }
+    img, video { max-width: 100%; }
+    
     :root {
-      --bg: #f4f5f7; --card: #fff; --ink: #1f2430; --muted: #6b7280;
-      --line: #e5e7eb; --brand: #4f46e5; --brand-d: #4338ca; --ok: #16a34a; --err: #dc2626;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --brand: #4f46e5;
+      --brand-hover: #4338ca;
+      --brand-light: #e0e7ff;
+      --ok: #10b981;
+      --ok-light: #d1fae5;
+      --err: #ef4444;
+      --err-light: #fee2e2;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     }
-    body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
     /* --- Login --- */
     #loginScreen {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
     }
     .login-card {
-      background: var(--card); border-radius: 16px; padding: 32px; width: 100%; max-width: 360px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      background: var(--card);
+      border-radius: 16px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--line);
     }
-    .login-card h1 { font-size: 20px; margin-bottom: 4px; }
-    .login-card p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
-    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-    input[type=password], select {
-      width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px;
-      font-size: 15px; outline: none; background: #fff;
+    .login-card h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--ink);
+      letter-spacing: -0.025em;
     }
-    input:focus, select:focus { border-color: var(--brand); }
+    .login-card p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+    input[type=password], input[type=text], input[type=number], select, textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 16px; /* Prevent iOS zoom-on-focus */
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    @media (min-width: 640px) {
+      input[type=password], input[type=text], input[type=number], select, textarea {
+        font-size: 14px;
+      }
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      background: var(--brand); color: #fff; border: none; border-radius: 10px;
-      padding: 11px 16px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.15s ease, transform 0.1s ease;
     }
-    .btn:hover { background: var(--brand-d); }
-    .btn:disabled { opacity: .6; cursor: not-allowed; }
-    .btn-sm { width: auto; padding: 8px 14px; font-size: 14px; }
-    .btn-ghost { background: #eef0f3; color: var(--ink); }
-    .btn-ghost:hover { background: #e2e5ea; }
-    .msg { font-size: 13px; margin-top: 12px; min-height: 18px; }
+    .btn:hover {
+      background: var(--brand-hover);
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-sm {
+      width: auto;
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+    .btn-ghost {
+      background: #f1f5f9;
+      color: #334155;
+    }
+    .btn-ghost:hover {
+      background: #e2e8f0;
+      color: var(--ink);
+    }
+    .msg {
+      font-size: 13px;
+      margin-top: 12px;
+      min-height: 18px;
+      font-weight: 500;
+    }
     .msg.err { color: var(--err); }
     .msg.ok { color: var(--ok); }
 
-    /* --- Dashboard --- */
-    #dashboard { display: none; }
-    header.top {
-      background: var(--card); border-bottom: 1px solid var(--line);
-      padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 10;
+    /* --- Dashboard Layout --- */
+    #dashboard {
+      display: none;
     }
-    header.top h1 { font-size: 17px; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    .dashboard-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    /* Mobile Header */
+    .mobile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .mobile-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .menu-toggle-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--ink);
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .menu-toggle-btn:hover {
+      background: #f1f5f9;
+    }
 
-    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
-    .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
-    .stat .n { font-size: 26px; font-weight: 700; }
-    .stat .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    /* Sidebar drawer on mobile, static on desktop */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      bottom: 0;
+      width: 280px;
+      background: var(--card);
+      border-right: 1px solid var(--line);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-lg);
+    }
+    .sidebar.open {
+      transform: translateX(280px);
+    }
+    .sidebar-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.4);
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(2px);
+    }
+    .sidebar-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
-    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 16px; }
-    .toolbar .field { flex: 1; min-width: 200px; }
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .sidebar-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .sidebar-header p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
 
-    .table-box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-    .table-scroll { overflow-x: auto; }
-    table { border-collapse: collapse; width: 100%; font-size: 13px; white-space: nowrap; }
-    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); }
-    th { background: #f9fafb; font-weight: 700; position: sticky; top: 0; }
-    tr:hover td { background: #fafafe; }
-    td a { color: var(--brand); text-decoration: none; font-weight: 600; }
-    .empty { padding: 40px; text-align: center; color: var(--muted); }
-    .badge { display:inline-block; background:#eef2ff; color:var(--brand); font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; }
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+    .sidebar-nav .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: none;
+      background: transparent;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #475569;
+      text-align: left;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      width: 100%;
+    }
+    .sidebar-nav .nav-btn:hover {
+      background: #f1f5f9;
+      color: var(--ink);
+    }
+    .sidebar-nav .nav-btn.active {
+      background: var(--brand-light);
+      color: var(--brand);
+    }
+    .nav-icon {
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+    }
 
-    /* --- Nav --- */
-    .head-left { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-    .nav { display: flex; gap: 4px; background: #eef0f3; padding: 4px; border-radius: 10px; }
-    .nav-btn { border: none; background: transparent; padding: 7px 14px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted); }
-    .nav-btn.active { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+    }
+    .sidebar-footer .btn {
+      width: 100%;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      animation: fadeIn 0.25s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Desktop layout overrides */
+    @media (min-width: 992px) {
+      .dashboard-container {
+        flex-direction: row;
+      }
+      .mobile-header {
+        display: none;
+      }
+      .sidebar {
+        position: sticky;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 260px;
+        height: 100vh;
+        transform: none !important;
+        box-shadow: none;
+      }
+      .sidebar-backdrop {
+        display: none;
+      }
+      .wrap {
+        padding: 32px 40px;
+      }
+    }
+
+    /* --- Overview --- */
+    .ov-income {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .ov-income::after {
+      content: "";
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+    }
+    .ov-income-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .ov-income-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.9;
+    }
+    .ov-eye {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      color: #fff;
+      transition: background-color 0.15s ease;
+      z-index: 1;
+    }
+    .ov-eye:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    .ov-income-body {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 480px) {
+      .ov-income-body {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .ov-income-item span {
+      display: block;
+      font-size: 12px;
+      opacity: 0.8;
+      margin-bottom: 4px;
+    }
+    .ov-income-item b {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .ov-section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+    .ov-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 640px) {
+      .ov-cards {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      }
+    }
+    .ov-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .ov-card-clickable {
+      cursor: pointer;
+    }
+    .ov-card-clickable:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: #cbd5e1;
+    }
+    .ov-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .ov-card-name {
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+    .ov-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+    .ov-badge.green { background: var(--ok-light); color: #065f46; }
+    .ov-badge.red { background: var(--err-light); color: #991b1b; }
+    .ov-badge.gray { background: #f1f5f9; color: #475569; }
+    .ov-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .ov-progress {
+      height: 8px;
+      background: #f1f5f9;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .ov-progress-bar {
+      height: 100%;
+      background: var(--brand);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+    .ov-progress-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      font-weight: 600;
+    }
+    .ov-prep {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--line);
+    }
+    .ov-prep-line { font-size: 13px; color: var(--ink); }
+    .ov-prep-line b { color: var(--brand); }
+    .ov-prep-todo { list-style: none; margin: 8px 0 0; padding: 0; }
+    .ov-prep-todo li { font-size: 12px; color: var(--muted); padding: 2px 0 2px 18px; position: relative; }
+    .ov-prep-todo li::before { content: "○"; position: absolute; left: 0; color: var(--brand); font-weight: bold; }
+    .ov-prep-todo li.ov-prep-more::before { content: ""; }
+    .ov-prep-alldone { font-size: 12px; color: var(--ok); margin-top: 6px; font-weight: 500; }
+    .ov-prep-empty { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
+    
+    .idea-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .idea-row .idea-input {
+      flex: 1;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .idea-row .del {
+      background: var(--err-light);
+      color: var(--err);
+      border: none;
+      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: background-color 0.15s ease;
+      flex-shrink: 0;
+    }
+    .idea-row .del:hover {
+      background: #fca5a5;
+    }
+
+    /* --- Toolbar & Forms --- */
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+      background: var(--card);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    @media (min-width: 576px) {
+      .toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (min-width: 992px) {
+      .toolbar {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        align-items: end;
+      }
+    }
+    .toolbar .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .toolbar .btn {
+      height: 40px;
+    }
+    .batch-info {
+      margin: -8px 0 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      background: var(--brand-light);
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    /* --- Tables --- */
+    .table-box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #475569;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background: #f8fafc;
+    }
+    td a {
+      color: var(--brand);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    td a:hover {
+      text-decoration: underline;
+    }
+    .empty {
+      padding: 48px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
 
     /* --- Keuangan --- */
-    .fin-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start; }
-    @media (max-width: 720px) { .fin-grid { grid-template-columns: 1fr; } }
-    .fin-col { display: flex; flex-direction: column; gap: 16px; }
-    .fin-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
-    .fin-card h3 { font-size: 15px; margin-bottom: 12px; }
-    .fin-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .fin-card-head h3 { margin: 0; }
-    input[type=number], input[type=text] { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; font-size: 14px; outline: none; }
-    input:focus { border-color: var(--brand); }
-    .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
-    .cost-row { display: grid; grid-template-columns: 1fr 110px 120px 34px; gap: 8px; margin-bottom: 8px; align-items: center; }
-    .cost-row select { padding: 9px 8px; border: 1px solid var(--line); border-radius: 9px; font-size: 13px; }
-    .cost-row .del { background: #fee2e2; color: var(--err); border: none; border-radius: 8px; height: 36px; cursor: pointer; font-size: 16px; }
-    @media (max-width: 520px) { .cost-row { grid-template-columns: 1fr 1fr; } }
-    .result h3 { margin-bottom: 14px; }
-    .res-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 15px; }
-    .res-row span { color: var(--muted); }
-    .res-row.big { font-size: 20px; }
-    .res-row.big b { color: var(--ok); }
-    .result hr { border: none; border-top: 1px solid var(--line); margin: 6px 0; }
-    .profit-neg { color: var(--err) !important; }
+    .fin-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (min-width: 992px) {
+      .fin-grid {
+        grid-template-columns: 1.5fr 1fr;
+      }
+    }
+    .fin-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .fin-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .fin-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .fin-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .fin-card-head h3 {
+      margin: 0;
+    }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    .cost-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .cost-row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .cost-row select {
+      background: #fff;
+    }
+    .cost-row .del {
+      background: var(--err-light);
+      color: var(--err);
+      border: none;
+      border-radius: 8px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease;
+      width: 100%;
+    }
+    .cost-row .del:hover {
+      background: #fca5a5;
+    }
+    @media (min-width: 640px) {
+      .cost-row {
+        grid-template-columns: 2fr 1.2fr 1.2fr 44px;
+        gap: 8px;
+        padding-bottom: 0;
+        border-bottom: none;
+        margin-bottom: 10px;
+      }
+      .cost-row .del {
+        width: auto;
+      }
+    }
+    .result h3 {
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+    .res-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+    .res-row span {
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .res-row b {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .res-row.big {
+      font-size: 18px;
+      margin-top: 8px;
+    }
+    .res-row.big b {
+      color: var(--ok);
+      font-weight: 700;
+    }
+    .result hr {
+      border: none;
+      border-top: 1px solid var(--line);
+      margin: 8px 0;
+    }
+    .profit-neg {
+      color: var(--err) !important;
+    }
 
-    /* --- Batch --- */
-    .batch-info { margin: -6px 0 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    /* --- Accordion --- */
+    .acc {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .acc-head {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: none;
+      border: none;
+      padding: 16px 20px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: left;
+      font-family: inherit;
+      transition: background-color 0.15s ease;
+    }
+    .acc-head:hover {
+      background: #f8fafc;
+    }
+    .acc-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .acc-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--brand);
+      background: var(--brand-light);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .acc-chevron {
+      transition: transform 0.2s ease;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .acc.open .acc-chevron {
+      transform: rotate(90deg);
+    }
+    .acc-body {
+      display: none;
+      padding: 0 20px 20px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+    .acc.open .acc-body {
+      display: block;
+    }
+
+    /* --- WA reminder --- */
+    .wa-reminder {
+      margin-bottom: 16px;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    .wa-reminder label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .wa-reminder textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 13px;
+      background: #fff;
+    }
+    .wa-cell {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .wa-btn {
+      background: #25D366;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .wa-btn:hover {
+      background: #1da851;
+    }
+    .wa-copy {
+      background: #e2e8f0;
+      color: #334155;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .wa-copy:hover {
+      background: #cbd5e1;
+    }
+
+    /* --- Prep hub --- */
+    .prep-card {
+      margin-bottom: 16px;
+    }
+    .prep-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .prep-row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .prep-row-check {
+      align-items: center;
+    }
+    .prep-check {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      accent-color: var(--brand);
+    }
+    .prep-fields {
+      flex: 1;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .prep-fields .prep-input {
+      flex: 1 1 140px;
+    }
+    .prep-fields .prep-input.narrow {
+      flex: 0 0 90px;
+    }
+    .prep-input {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .prep-row .del {
+      background: var(--err-light);
+      color: var(--err);
+      border: none;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background-color 0.15s ease;
+    }
+    .prep-row .del:hover {
+      background: #fca5a5;
+    }
 
     /* --- Config editor --- */
-    .cfg-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
-    @media (max-width: 640px) { .cfg-form { grid-template-columns: 1fr; } }
-    .cfg-field { display: flex; flex-direction: column; gap: 4px; }
-    .cfg-field label { font-size: 13px; font-weight: 600; }
-    .cfg-field.cfg-full { grid-column: 1 / -1; }
-    .cfg-field textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; font-size: 14px; font-family: inherit; resize: vertical; }
-    .cfg-field.cfg-check { flex-direction: row; align-items: center; }
-    .cfg-field.cfg-check label { font-weight: 500; display: flex; align-items: center; gap: 8px; }
-    .cfg-field.cfg-check input { width: auto; }
+    .cfg-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 768px) {
+      .cfg-form {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .cfg-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cfg-field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+    .cfg-field.cfg-full {
+      grid-column: 1 / -1;
+    }
+    .cfg-field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+    }
+    .cfg-field.cfg-check {
+      flex-direction: row;
+      align-items: center;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    .cfg-field.cfg-check label {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .cfg-field.cfg-check input[type=checkbox] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--brand);
+      cursor: pointer;
+    }
 
     /* --- Konten editor --- */
-    .konten-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-    .konten-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .konten-item-head .k-num { font-weight: 700; font-size: 13px; color: var(--muted); }
-    .konten-item .k-del { background: #fee2e2; color: var(--err); border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 13px; font-weight: 600; }
-    .konten-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
-    .konten-field label { font-size: 12px; font-weight: 600; color: var(--muted); }
-    .konten-field textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; font-family: monospace; resize: vertical; }
+    .konten-item {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .konten-item-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+    .konten-item-head .k-num {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .konten-item .k-del {
+      background: var(--err-light);
+      color: var(--err);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background-color 0.15s ease;
+    }
+    .konten-item .k-del:hover {
+      background: #fca5a5;
+    }
+    .konten-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .konten-field:last-child {
+      margin-bottom: 0;
+    }
+    .konten-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+    }
+    .konten-field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: monospace;
+    }
   </style>
 </head>
 <body>
@@ -141,23 +1066,80 @@
 
   <!-- ============ DASHBOARD ============ -->
   <div id="dashboard">
-    <header class="top">
-      <div class="head-left">
-        <h1>📋 Dashboard Admin</h1>
-        <nav class="nav">
-          <button class="nav-btn active" data-view="pendaftar">Pendaftar</button>
-          <button class="nav-btn" data-view="keuangan">Keuangan</button>
-          <button class="nav-btn" data-view="config">Config</button>
-          <button class="nav-btn" data-view="konten">Konten</button>
-        </nav>
-      </div>
-      <button class="btn btn-sm btn-ghost" id="logoutBtn">Keluar</button>
+    <!-- Mobile top bar -->
+    <header class="mobile-header">
+      <button class="menu-toggle-btn" id="menuToggleBtn">☰</button>
+      <h1 class="mobile-title">📋 Dashboard Admin</h1>
+      <button class="btn btn-sm btn-ghost" id="logoutBtnMobile">Keluar</button>
     </header>
 
-    <!-- ===== VIEW: PENDAFTAR ===== -->
-    <div class="wrap view" id="viewPendaftar">
-      <div class="cards" id="statCards"></div>
+    <div class="dashboard-container">
+      <!-- Responsive Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2>📋 Dashboard Admin</h2>
+          <p>Seminggu Satu</p>
+        </div>
+        <nav class="sidebar-nav">
+          <button class="nav-btn active" data-view="overview">
+            <span class="nav-icon">📊</span> Overview
+          </button>
+          <button class="nav-btn" data-view="pendaftar">
+            <span class="nav-icon">👥</span> Registrations
+          </button>
+          <button class="nav-btn" data-view="keuangan">
+            <span class="nav-icon">💰</span> Finance
+          </button>
+          <button class="nav-btn" data-view="prep">
+            <span class="nav-icon">⚙️</span> Prep
+          </button>
+          <button class="nav-btn" data-view="config">
+            <span class="nav-icon">🔧</span> Config
+          </button>
+          <button class="nav-btn" data-view="konten">
+            <span class="nav-icon">✍️</span> Content
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <button class="btn btn-ghost" id="logoutBtn">Keluar</button>
+        </div>
+      </aside>
 
+      <!-- Sidebar Backdrop for Mobile -->
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+
+    <!-- ===== VIEW: OVERVIEW ===== -->
+    <div class="wrap view" id="viewOverview">
+      <div class="ov-income">
+        <div class="ov-income-head">
+          <span class="ov-income-title">Pemasukan — Workshop Aktif</span>
+          <button class="ov-eye" id="incomeToggle" title="Tampilkan/sembunyikan">👁️</button>
+        </div>
+        <div class="ov-income-body">
+          <div class="ov-income-item"><span>Pemasukan</span><b id="ovRevenue">Rp •••••••</b></div>
+          <div class="ov-income-item"><span>Perkiraan Untung</span><b id="ovProfit">Rp •••••••</b></div>
+        </div>
+      </div>
+
+      <h3 class="ov-section-title">Workshop Sedang Buka</h3>
+      <div id="ovCards" class="ov-cards"></div>
+
+      <h3 class="ov-section-title" style="margin-top:28px;">💡 Ide Workshop Berikutnya</h3>
+      <div class="fin-card">
+        <div id="ideaList"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <button class="btn btn-sm btn-ghost" id="ideaAddBtn">＋ Tambah Ide</button>
+          <button class="btn btn-sm" id="ideaSaveBtn">💾 Simpan Ide</button>
+        </div>
+        <div class="msg" id="ideaMsg"></div>
+      </div>
+    </div>
+
+    <!-- ===== VIEW: PENDAFTAR (Registrations) ===== -->
+    <div class="wrap view" id="viewPendaftar" style="display:none;">
       <div class="toolbar">
         <div class="field">
           <label for="wsSelect">Workshop</label>
@@ -232,6 +1214,18 @@
       </div>
     </div>
 
+    <!-- ===== VIEW: PREP (per-event) ===== -->
+    <div class="wrap view" id="viewPrep" style="display:none;">
+      <div class="toolbar">
+        <div class="field">
+          <label for="prepSelect">Pilih Event</label>
+          <select id="prepSelect"></select>
+        </div>
+      </div>
+      <div id="prepHeader"></div>
+      <div id="prepSections"></div>
+    </div>
+
     <!-- ===== VIEW: CONFIG ===== -->
     <div class="wrap view" id="viewConfig" style="display:none;">
       <div class="toolbar">
@@ -272,6 +1266,8 @@
         <div class="msg" id="kontenMsg"></div>
         <p class="hint">Untuk galeri/testimoni: tempel <b>embed code</b> dari Instagram. Item kosong (tanpa judul) diabaikan saat simpan.</p>
       </div>
+    </div>
+      </main>
     </div>
   </div>
 
@@ -335,11 +1331,36 @@
     loginBtn.addEventListener("click", doLogin);
     pwdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
 
-    // ---------- LOGOUT ----------
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      clearToken();
-      location.reload();
+    // ---------- LOGOUT & SIDEBAR ----------
+    document.querySelectorAll("#logoutBtn, #logoutBtnMobile").forEach(btn => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          clearToken();
+          location.reload();
+        });
+      }
     });
+
+    const menuToggleBtn = document.getElementById("menuToggleBtn");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+
+    function toggleSidebar() {
+      if (sidebar && sidebarBackdrop) {
+        sidebar.classList.toggle("open");
+        sidebarBackdrop.classList.toggle("visible");
+      }
+    }
+
+    function closeSidebar() {
+      if (sidebar && sidebarBackdrop) {
+        sidebar.classList.remove("open");
+        sidebarBackdrop.classList.remove("visible");
+      }
+    }
+
+    if (menuToggleBtn) menuToggleBtn.addEventListener("click", toggleSidebar);
+    if (sidebarBackdrop) sidebarBackdrop.addEventListener("click", closeSidebar);
 
     // ---------- DASHBOARD ----------
     function workshopName(id) {
@@ -351,8 +1372,12 @@
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
       populateWorkshopSelect();
-      loadSummary();
-      loadBatches();
+      applyHash(); // buka view sesuai URL hash (default overview)
+    }
+
+    let pendaftarInit = false;
+    function ensurePendaftar() {
+      if (!pendaftarInit) { loadBatches(); pendaftarInit = true; }
     }
 
     // Daftar workshop yang punya sheet (sama dengan WORKSHOP_SHEETS di Apps Script)
@@ -366,19 +1391,22 @@
       sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
     }
 
+    // Ambil jumlah pendaftar (batch aktif) semua workshop; render ulang Overview kalau lagi tampil
     async function loadSummary() {
-      const box = document.getElementById("statCards");
-      box.innerHTML = "";
       try {
         const r = await api("getSummary", { token: getToken() });
         if (r.status !== "success") return handleAuthError(r);
         SUMMARY = r.summary || {};
-        box.innerHTML = WORKSHOP_IDS.map(id => `
-          <div class="stat">
-            <div class="n">${r.summary[id] ?? 0}</div>
-            <div class="l">${workshopName(id)}</div>
-          </div>`).join("");
-      } catch (e) { /* diamkan; tabel utama yang penting */ }
+        if (document.getElementById("viewOverview").style.display !== "none") renderOverview();
+      } catch (e) { /* diamkan */ }
+    }
+
+    // Daftar workshop yang SEDANG BUKA (status open) berdasarkan config
+    function openWorkshopIds() {
+      return WORKSHOP_IDS.filter(id => {
+        const w = (typeof getWorkshopById === "function") ? getWorkshopById(id) : null;
+        return w && typeof getWorkshopStatus === "function" && getWorkshopStatus(w) === "open";
+      });
     }
 
     function isUrl(v) { return typeof v === "string" && /^https?:\/\//i.test(v); }
@@ -513,16 +1541,34 @@
     }
 
     // ---------- NAVIGASI ----------
+    // Navigasi berbasis URL hash -> posisi ketahan saat refresh, tombol back berfungsi
     document.querySelectorAll(".nav-btn").forEach(btn => {
-      btn.addEventListener("click", () => switchView(btn.dataset.view));
+      btn.addEventListener("click", () => { location.hash = btn.dataset.view; });
     });
-    function switchView(view) {
+    window.addEventListener("hashchange", applyHash);
+
+    function applyHash() {
+      let h = (location.hash || "").replace(/^#/, "");
+      if (!h) h = "overview";
+      const parts = h.split(":");
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten"];
+      const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
+      switchView(view, parts[1]);
+    }
+
+    function switchView(view, event) {
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+      closeSidebar();
+      document.getElementById("viewOverview").style.display  = (view === "overview")  ? "block" : "none";
       document.getElementById("viewPendaftar").style.display = (view === "pendaftar") ? "block" : "none";
       document.getElementById("viewKeuangan").style.display  = (view === "keuangan")  ? "block" : "none";
+      document.getElementById("viewPrep").style.display      = (view === "prep")      ? "block" : "none";
       document.getElementById("viewConfig").style.display    = (view === "config")    ? "block" : "none";
       document.getElementById("viewKonten").style.display    = (view === "konten")    ? "block" : "none";
+      if (view === "overview") ensureOverview();
+      if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") ensureFinanceLoaded();
+      if (view === "prep") ensurePrep(event);
       if (view === "config") ensureConfigLoaded();
       if (view === "konten") ensureKontenLoaded();
     }
@@ -685,6 +1731,144 @@
       }
     }
 
+    // ---------- OVERVIEW ----------
+    let overviewInit = false;
+    let incomeVisible = false;
+    let lastIncome = { revenue: 0, profit: 0 };
+
+    let IDEAS = [];
+
+    async function ensureOverview() {
+      if (!overviewInit) {
+        document.getElementById("incomeToggle").addEventListener("click", () => {
+          incomeVisible = !incomeVisible;
+          document.getElementById("incomeToggle").textContent = incomeVisible ? "🙈" : "👁️";
+          renderIncome();
+        });
+        document.getElementById("ideaAddBtn").addEventListener("click", () => { IDEAS.push(""); renderIdeas(); });
+        document.getElementById("ideaSaveBtn").addEventListener("click", saveIdeas);
+        // Tap kartu workshop -> buka detail (tab Prep event itu) via hash
+        document.getElementById("ovCards").addEventListener("click", (e) => {
+          const card = e.target.closest(".ov-card[data-event]");
+          if (card) location.hash = "prep:" + card.dataset.event;
+        });
+        await loadIdeas();
+        overviewInit = true;
+      }
+      if (!Object.keys(SUMMARY).length) await loadSummary();
+      if (!Object.keys(MODAL).length) await loadModal();
+      renderOverview();
+    }
+
+    async function loadIdeas() {
+      try {
+        const r = await api("getIdeas", { token: getToken() });
+        if (r.status === "success") IDEAS = r.ideas || [];
+        else handleAuthError(r);
+      } catch (e) { /* diamkan */ }
+      renderIdeas();
+    }
+
+    function renderIdeas() {
+      const box = document.getElementById("ideaList");
+      if (!IDEAS.length) { box.innerHTML = `<p class="hint">Belum ada ide. Klik "＋ Tambah Ide".</p>`; return; }
+      box.innerHTML = "";
+      IDEAS.forEach((text, idx) => {
+        const div = document.createElement("div");
+        div.className = "idea-row";
+        div.innerHTML = `<input type="text" class="idea-input" placeholder="Ide workshop berikutnya..." value="${escapeHtml(text)}"/>
+          <button class="del" title="Hapus">&times;</button>`;
+        div.querySelector(".idea-input").addEventListener("input", (e) => { IDEAS[idx] = e.target.value; });
+        div.querySelector(".del").addEventListener("click", () => { IDEAS.splice(idx, 1); renderIdeas(); });
+        box.appendChild(div);
+      });
+    }
+
+    async function saveIdeas() {
+      const ideas = IDEAS.map(s => (s || "").trim()).filter(Boolean);
+      const btn = document.getElementById("ideaSaveBtn");
+      const msg = document.getElementById("ideaMsg");
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      try {
+        const r = await api("saveIdeas", { token: getToken(), ideas });
+        if (r.status === "success") {
+          IDEAS = ideas; renderIdeas();
+          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function countdownBadge(dateStr) {
+      if (typeof parseDate !== "function") return "";
+      const d = parseDate(dateStr);
+      if (!d) return `<span class="ov-badge gray">atur tanggal</span>`;
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+      if (diff > 0) return `<span class="ov-badge green">H-${diff}</span>`;
+      if (diff === 0) return `<span class="ov-badge red">HARI INI</span>`;
+      return `<span class="ov-badge red">Selesai</span>`;
+    }
+
+    function renderIncome() {
+      const rev = document.getElementById("ovRevenue");
+      const prof = document.getElementById("ovProfit");
+      if (incomeVisible) {
+        rev.textContent = rupiah(lastIncome.revenue);
+        prof.textContent = rupiah(lastIncome.profit);
+      } else {
+        rev.textContent = "Rp •••••••";
+        prof.textContent = "Rp •••••••";
+      }
+    }
+
+    function renderOverview() {
+      const ids = openWorkshopIds();
+
+      // Pemasukan & untung dari workshop aktif (modal general per workshop)
+      let revenue = 0, profit = 0;
+      ids.forEach(id => {
+        const w = getWorkshopById(id);
+        if (!w) return;
+        const price = (typeof getCurrentPrice === "function" ? getCurrentPrice(w) : w.normalPrice) || 0;
+        const count = SUMMARY[id] || 0;
+        const rev = price * count;
+        const items = (MODAL[id] && MODAL[id][""]) || [];
+        let cost = 0;
+        items.forEach(it => { cost += (it.tipe === "tetap") ? (Number(it.biaya) || 0) : (Number(it.biaya) || 0) * count; });
+        revenue += rev; profit += (rev - cost);
+      });
+      lastIncome = { revenue, profit };
+      renderIncome();
+
+      // Kartu workshop aktif
+      const box = document.getElementById("ovCards");
+      if (!ids.length) { box.innerHTML = `<p class="hint">Belum ada workshop yang sedang buka pendaftaran.</p>`; return; }
+      box.innerHTML = ids.map(id => {
+        const w = getWorkshopById(id);
+        const count = SUMMARY[id] || 0;
+        const quota = Number(w.maxQuota) || 0;
+        const pct = quota ? Math.min(100, Math.round(count / quota * 100)) : 0;
+        const badge = countdownBadge(w.eventDate || w.closeDate);
+        return `<div class="ov-card ov-card-clickable" data-event="${id}" title="Tap untuk detail & persiapan">
+          <div class="ov-card-top">
+            <div class="ov-card-name">${escapeHtml(w.name || id)}</div>
+            ${badge}
+          </div>
+          <div class="ov-meta">📅 ${escapeHtml(w.workshopDate || "-")}${w.workshopTime ? " · " + escapeHtml(w.workshopTime) : ""}</div>
+          <div class="ov-meta">📍 ${escapeHtml(w.locationName || "-")}</div>
+          <div class="ov-progress"><div class="ov-progress-bar" style="width:${pct}%"></div></div>
+          <div class="ov-progress-label">${count} / ${quota || "?"} peserta (${pct}%)</div>
+        </div>`;
+      }).join("");
+    }
+
     // ---------- CONFIG EDITOR ----------
     const CFG_FIELDS = [
       { key: "name", label: "Nama", type: "text" },
@@ -698,7 +1882,8 @@
       { key: "earlyBirdPrice", label: "Harga early bird (Rp, kosong = tidak ada)", type: "number" },
       { key: "earlyBirdDueDate", label: "Batas early bird (DD/MM/YYYY)", type: "text" },
       { key: "maxQuota", label: "Kuota maksimal", type: "number" },
-      { key: "workshopDate", label: "Tanggal acara (teks bebas)", type: "text" },
+      { key: "eventDate", label: "Tanggal event (DD/MM/YYYY) — untuk countdown Overview", type: "text" },
+      { key: "workshopDate", label: "Tanggal acara (teks bebas, tampil di web)", type: "text" },
       { key: "workshopTime", label: "Jam acara (teks bebas)", type: "text" },
       { key: "locationName", label: "Nama lokasi", type: "text" },
       { key: "mapsLink", label: "Link Google Maps", type: "text" },
@@ -919,6 +2104,269 @@
         msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
       } finally {
         btn.disabled = false;
+      }
+    }
+
+    // ---------- PREP HUB (per-event) ----------
+    const PREP_SECTIONS = [
+      { type: "todos",    title: "✅ Todo Persiapan",  check: true,  fields: [{ key: "text", ph: "mis. Beli bahan, konfirmasi lokasi" }] },
+      { type: "bring",    title: "🎒 Barang Bawaan",   check: true,  fields: [{ key: "text", ph: "Nama barang (mis. Gunting)" }, { key: "qty", ph: "Jumlah", narrow: true }] },
+      { type: "notes",    title: "📝 Notes & Link",     check: false, fields: [{ key: "title", ph: "Judul" }, { key: "url", ph: "https://youtube/artikel..." }, { key: "note", ph: "Catatan (opsional)" }] },
+      { type: "supplies", title: "🛒 Alat & Bahan",     check: false, fields: [{ key: "name", ph: "Nama alat/bahan" }, { key: "link", ph: "Link beli (Shopee, dll)" }, { key: "note", ph: "Catatan (opsional)" }] }
+    ];
+
+    let PREP = {};
+    let prepInit = false;
+
+    async function ensurePrep(event) {
+      if (!prepInit) {
+        const sel = document.getElementById("prepSelect");
+        sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
+        // Ganti dropdown -> update URL hash (biar ketahan saat refresh)
+        sel.addEventListener("change", () => { location.hash = "prep:" + sel.value; });
+        prepInit = true;
+      }
+      if (event && WORKSHOP_IDS.indexOf(event) >= 0) document.getElementById("prepSelect").value = event;
+      if (!Object.keys(SUMMARY).length) await loadSummary(); // buat header (jumlah pendaftar)
+      await loadPrep();
+    }
+
+    function renderPrepHeader(event) {
+      const el = document.getElementById("prepHeader");
+      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
+      if (!w) { el.innerHTML = ""; return; }
+      const count = SUMMARY[event] || 0;
+      const quota = Number(w.maxQuota) || 0;
+      const pct = quota ? Math.min(100, Math.round(count / quota * 100)) : 0;
+      const badge = countdownBadge(w.eventDate || w.closeDate);
+      el.innerHTML =
+        `<div class="ov-card" style="margin-bottom:16px;">
+          <div class="ov-card-top"><div class="ov-card-name">${escapeHtml(w.name || event)}</div>${badge}</div>
+          <div class="ov-meta">📅 ${escapeHtml(w.workshopDate || "-")}${w.workshopTime ? " · " + escapeHtml(w.workshopTime) : ""}</div>
+          <div class="ov-meta">📍 ${escapeHtml(w.locationName || "-")}</div>
+          <div class="ov-progress"><div class="ov-progress-bar" style="width:${pct}%"></div></div>
+          <div class="ov-progress-label">${count} / ${quota || "?"} peserta (${pct}%)</div>
+        </div>`;
+    }
+
+    async function loadPrep() {
+      const event = document.getElementById("prepSelect").value;
+      renderPrepHeader(event);
+      const cont = document.getElementById("prepSections");
+      cont.innerHTML = `<p class="hint">Memuat...</p>`;
+      try {
+        const r = await api("getPrep", { token: getToken(), event });
+        if (r.status !== "success") { handleAuthError(r); cont.innerHTML = ""; return; }
+        PREP = r.prep || {};
+        renderPrep();
+      } catch (e) {
+        cont.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat.</p>`;
+      }
+    }
+
+    function renderPrep() {
+      const cont = document.getElementById("prepSections");
+      cont.innerHTML = "";
+
+      // 1) Peserta (accordion)
+      cont.appendChild(buildParticipantsAccordion());
+
+      // 2) Section prep (accordion)
+      PREP_SECTIONS.forEach(sec => {
+        if (!Array.isArray(PREP[sec.type])) PREP[sec.type] = [];
+        cont.appendChild(buildPrepAccordion(sec));
+        renderPrepList(sec);
+      });
+
+      loadPrepParticipants();
+    }
+
+    function buildPrepAccordion(sec) {
+      const acc = document.createElement("div");
+      acc.className = "acc";
+      acc.innerHTML =
+        `<button class="acc-head" type="button">
+           <span class="acc-title">${sec.title} <span class="acc-count" id="prep-count-${sec.type}"></span></span>
+           <span class="acc-chevron">▸</span>
+         </button>
+         <div class="acc-body">
+           <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+             <button class="btn btn-sm" data-add="${sec.type}">＋ Tambah</button>
+           </div>
+           <div class="prep-list" id="prep-list-${sec.type}"></div>
+           <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+             <button class="btn btn-sm" data-save="${sec.type}" disabled>💾 Simpan</button>
+             <span class="msg" id="prep-msg-${sec.type}"></span>
+           </div>
+         </div>`;
+      acc.querySelector(".acc-head").addEventListener("click", () => acc.classList.toggle("open"));
+      acc.querySelector(`[data-add="${sec.type}"]`).addEventListener("click", () => { PREP[sec.type].push({}); renderPrepList(sec); markPrepDirty(sec.type); });
+      acc.querySelector(`[data-save="${sec.type}"]`).addEventListener("click", () => savePrep(sec.type));
+      return acc;
+    }
+
+    const WA_MSG_KEY = "ss_wa_reminder_msg";
+    const WA_MSG_DEFAULT = "Halo {nama} 👋\nReminder ya, workshop kamu akan segera berlangsung. Sampai jumpa & jangan lupa datang tepat waktu! 🎨";
+
+    // Ubah nomor jadi format internasional untuk wa.me (Indonesia)
+    function waNormalize(raw) {
+      let d = String(raw || "").replace(/\D/g, "");
+      if (!d) return "";
+      if (d.indexOf("62") === 0) return d;
+      if (d.indexOf("0") === 0) return "62" + d.slice(1);
+      if (d.indexOf("8") === 0) return "62" + d;
+      return d;
+    }
+
+    function buildParticipantsAccordion() {
+      const acc = document.createElement("div");
+      acc.className = "acc";
+      acc.innerHTML =
+        `<button class="acc-head" type="button">
+           <span class="acc-title">👥 Peserta <span class="acc-count" id="prep-peserta-count"></span></span>
+           <span class="acc-chevron">▸</span>
+         </button>
+         <div class="acc-body">
+           <div class="wa-reminder">
+             <label for="waMessage">💬 Pesan reminder <span style="font-weight:400;color:var(--muted)">— tulis {nama} untuk nama peserta</span></label>
+             <textarea id="waMessage" rows="3"></textarea>
+             <p class="hint">Klik <b>Chat WA</b> di tiap baris → WhatsApp kebuka dengan pesan ini (nama otomatis terisi). Tinggal Kirim.</p>
+           </div>
+           <div class="table-box"><div class="table-scroll">
+             <table><thead><tr id="pesertaHead"></tr></thead><tbody id="pesertaBody"></tbody></table>
+           </div><div class="empty" id="pesertaEmpty" style="display:none;">Belum ada peserta.</div></div>
+         </div>`;
+      acc.querySelector(".acc-head").addEventListener("click", () => acc.classList.toggle("open"));
+      return acc;
+    }
+
+    async function loadPrepParticipants() {
+      const event = document.getElementById("prepSelect").value;
+      const head = document.getElementById("pesertaHead");
+      const body = document.getElementById("pesertaBody");
+      const empty = document.getElementById("pesertaEmpty");
+      const cnt = document.getElementById("prep-peserta-count");
+
+      // Setup pesan reminder (persist di browser)
+      const msgEl = document.getElementById("waMessage");
+      if (msgEl) {
+        msgEl.value = localStorage.getItem(WA_MSG_KEY) || WA_MSG_DEFAULT;
+        msgEl.addEventListener("input", () => localStorage.setItem(WA_MSG_KEY, msgEl.value));
+      }
+
+      body.innerHTML = `<tr><td style="padding:16px;color:#6b7280;">Memuat...</td></tr>`;
+      try {
+        const r = await api("getRegistrations", { token: getToken(), workshop: event }); // batch aktif
+        if (r.status !== "success") { handleAuthError(r); return; }
+        if (cnt) cnt.textContent = r.total || 0;
+
+        const headers = r.headers || [];
+        const waIdx = headers.findIndex(h => /whats?app|nomor|\bwa\b|hp|telp/i.test(h));
+        // Nama untuk sapaan: utamakan Nickname, fallback ke Nama
+        let nameIdx = headers.findIndex(h => /nickname|panggil/i.test(h));
+        if (nameIdx < 0) nameIdx = headers.findIndex(h => /nama|name/i.test(h));
+
+        head.innerHTML = "<th>#</th>" + (waIdx >= 0 ? "<th>Kirim</th>" : "") + headers.map(h => `<th>${h}</th>`).join("");
+        if (!r.rows.length) { body.innerHTML = ""; empty.style.display = "block"; return; }
+        empty.style.display = "none";
+
+        body.innerHTML = r.rows.map((row, i) => {
+          const cells = row.map(c => isUrl(c)
+            ? `<td><a href="${c}" target="_blank" rel="noopener">Lihat</a></td>`
+            : `<td>${c === "" ? "-" : escapeHtml(c)}</td>`).join("");
+          let action = "";
+          if (waIdx >= 0) {
+            const num = waNormalize(row[waIdx]);
+            const name = nameIdx >= 0 ? (row[nameIdx] || "") : "";
+            if (num) {
+              action = `<td class="wa-cell">
+                <button class="wa-btn" data-num="${num}" data-name="${escapeHtml(name)}">💬 Chat WA</button>
+                <button class="wa-copy" data-num="${escapeHtml(row[waIdx] || "")}" title="Copy nomor">📋</button>
+              </td>`;
+            } else {
+              action = `<td class="wa-cell">-</td>`;
+            }
+          }
+          return `<tr><td>${i + 1}</td>${action}${cells}</tr>`;
+        }).join("");
+
+        // Wiring tombol WA (delegasi)
+        body.onclick = (e) => {
+          const chat = e.target.closest(".wa-btn");
+          if (chat) {
+            const msg = (document.getElementById("waMessage").value || "").replace(/\{nama\}/g, chat.dataset.name || "");
+            window.open("https://wa.me/" + chat.dataset.num + "?text=" + encodeURIComponent(msg), "_blank");
+            return;
+          }
+          const cp = e.target.closest(".wa-copy");
+          if (cp) {
+            navigator.clipboard.writeText(cp.dataset.num).then(() => {
+              cp.textContent = "✓"; setTimeout(() => { cp.textContent = "📋"; }, 1200);
+            });
+          }
+        };
+      } catch (e) {
+        body.innerHTML = `<tr><td style="padding:16px;color:#dc2626;">Gagal memuat.</td></tr>`;
+      }
+    }
+
+    function updatePrepCount(sec) {
+      const cEl = document.getElementById("prep-count-" + sec.type);
+      if (!cEl) return;
+      const items = PREP[sec.type] || [];
+      cEl.textContent = sec.check ? `${items.filter(i => i.done).length}/${items.length}` : `${items.length}`;
+    }
+
+    function renderPrepList(sec) {
+      const box = document.getElementById("prep-list-" + sec.type);
+      if (!box) return;
+      const items = PREP[sec.type] || [];
+      updatePrepCount(sec);
+      if (!items.length) { box.innerHTML = `<p class="hint">Belum ada. Klik "＋ Tambah".</p>`; return; }
+      box.innerHTML = "";
+      items.forEach((item, idx) => {
+        const row = document.createElement("div");
+        row.className = "prep-row" + (sec.check ? " prep-row-check" : "");
+        let html = "";
+        if (sec.check) html += `<input type="checkbox" class="prep-check" ${item.done ? "checked" : ""}/>`;
+        html += `<div class="prep-fields">` + sec.fields.map(f =>
+          `<input type="text" class="prep-input${f.narrow ? " narrow" : ""}" data-key="${f.key}" placeholder="${f.ph}" value="${item[f.key] != null ? escapeHtml(item[f.key]) : ""}"/>`
+        ).join("") + `</div>`;
+        html += `<button class="del" title="Hapus">&times;</button>`;
+        row.innerHTML = html;
+        if (sec.check) row.querySelector(".prep-check").addEventListener("change", e => { item.done = e.target.checked; markPrepDirty(sec.type); updatePrepCount(sec); });
+        row.querySelectorAll(".prep-input").forEach(el => el.addEventListener("input", () => { item[el.dataset.key] = el.value; markPrepDirty(sec.type); }));
+        row.querySelector(".del").addEventListener("click", () => { items.splice(idx, 1); renderPrepList(sec); markPrepDirty(sec.type); });
+        box.appendChild(row);
+      });
+    }
+
+    // Aktifkan tombol Simpan hanya kalau ada perubahan
+    function markPrepDirty(type) {
+      const btn = document.querySelector(`[data-save="${type}"]`);
+      if (btn) btn.disabled = false;
+    }
+
+    async function savePrep(type) {
+      const event = document.getElementById("prepSelect").value;
+      const sec = PREP_SECTIONS.find(s => s.type === type);
+      // buang item yang semua field-nya kosong
+      const items = (PREP[type] || []).filter(it => sec.fields.some(f => it[f.key] && String(it[f.key]).trim()));
+      const msg = document.getElementById("prep-msg-" + type);
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      try {
+        const r = await api("savePrep", { token: getToken(), event, prepType: type, items });
+        if (r.status === "success") {
+          PREP[type] = items; renderPrepList(sec);
+          const btn = document.querySelector(`[data-save="${type}"]`);
+          if (btn) btn.disabled = true; // balik nonaktif sampai ada perubahan lagi
+          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
       }
     }
 
