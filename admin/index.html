@@ -1828,6 +1828,8 @@
       sel.innerHTML = `<option>Memuat...</option>`;
       try {
         const r = await api("listBatches", { token: getToken(), workshop });
+        // Abaikan hasil basi kalau user sudah pindah workshop lain (cegah race)
+        if (document.getElementById("wsSelect").value !== workshop) return;
         if (r.status !== "success") { handleAuthError(r); return; }
         BATCHES = r.batches || [];
         if (!BATCHES.length) {
@@ -1961,12 +1963,15 @@
     async function onFinanceWorkshopChange() {
       const id = document.getElementById("finSelect").value;
       const sel = document.getElementById("finBatchSelect");
-      sel.innerHTML = `<option value="">⭐ General (default)</option>`;
+      const GENERAL = `<option value="">⭐ General (default)</option>`;
+      sel.innerHTML = GENERAL;
       try {
         const r = await api("listBatches", { token: getToken(), workshop: id });
+        // Abaikan hasil yang basi kalau user sudah pindah workshop lain (cegah race)
+        if (document.getElementById("finSelect").value !== id) return;
         if (r.status === "success") {
           FIN_BATCHES = r.batches || [];
-          sel.innerHTML += FIN_BATCHES.map(b =>
+          sel.innerHTML = GENERAL + FIN_BATCHES.map(b =>
             `<option value="${escapeHtml(b.sheetName)}">${escapeHtml(b.label)} (${b.count} org)${b.active ? " • AKTIF" : ""}</option>`
           ).join("");
         } else { FIN_BATCHES = []; handleAuthError(r); }
