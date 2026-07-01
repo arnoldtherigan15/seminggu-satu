@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -18,17 +19,31 @@
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("sw.js").catch(function () {});
+        navigator.serviceWorker.register("sw.js").catch(function () { });
       });
     }
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { max-width: 100%; overflow-x: clip; min-height: 100%; }
-    img, video { max-width: 100%; }
-    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      max-width: 100%;
+      overflow-x: clip;
+      min-height: 100%;
+    }
+
+    img,
+    video {
+      max-width: 100%;
+    }
+
     :root {
       --bg: #f8fafc;
       --card: #ffffff;
@@ -46,7 +61,7 @@
       --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     }
-    
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
@@ -64,6 +79,7 @@
       padding: 24px;
       background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
     }
+
     .login-card {
       background: var(--card);
       border-radius: 16px;
@@ -73,6 +89,7 @@
       box-shadow: var(--shadow-lg);
       border: 1px solid var(--line);
     }
+
     .login-card h1 {
       font-size: 24px;
       font-weight: 700;
@@ -80,11 +97,13 @@
       color: var(--ink);
       letter-spacing: -0.025em;
     }
+
     .login-card p {
       color: var(--muted);
       font-size: 14px;
       margin-bottom: 28px;
     }
+
     label {
       display: block;
       font-size: 13px;
@@ -92,27 +111,43 @@
       margin-bottom: 6px;
       color: #334155;
     }
-    input[type=password], input[type=text], input[type=number], select, textarea {
+
+    input[type=password],
+    input[type=text],
+    input[type=number],
+    select,
+    textarea {
       width: 100%;
       padding: 10px 14px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      font-size: 16px; /* Prevent iOS zoom-on-focus */
+      font-size: 16px;
+      /* Prevent iOS zoom-on-focus */
       font-family: inherit;
       outline: none;
       background: #fff;
       color: var(--ink);
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
+
     @media (min-width: 640px) {
-      input[type=password], input[type=text], input[type=number], select, textarea {
+
+      input[type=password],
+      input[type=text],
+      input[type=number],
+      select,
+      textarea {
         font-size: 14px;
       }
     }
-    input:focus, select:focus, textarea:focus {
+
+    input:focus,
+    select:focus,
+    textarea:focus {
       border-color: var(--brand);
       box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
     }
+
     .btn {
       display: inline-flex;
       align-items: center;
@@ -129,49 +164,63 @@
       width: 100%;
       transition: background-color 0.15s ease, transform 0.1s ease;
     }
+
     .btn:hover {
       background: var(--brand-hover);
     }
+
     .btn:active {
       transform: scale(0.98);
     }
+
     .btn:disabled {
       opacity: .6;
       cursor: not-allowed;
       transform: none;
     }
+
     .btn-sm {
       width: auto;
       padding: 8px 14px;
       font-size: 13px;
     }
+
     .btn-ghost {
       background: #f1f5f9;
       color: #334155;
     }
+
     .btn-ghost:hover {
       background: #e2e8f0;
       color: var(--ink);
     }
+
     .msg {
       font-size: 13px;
       margin-top: 12px;
       min-height: 18px;
       font-weight: 500;
     }
-    .msg.err { color: var(--err); }
-    .msg.ok { color: var(--ok); }
+
+    .msg.err {
+      color: var(--err);
+    }
+
+    .msg.ok {
+      color: var(--ok);
+    }
 
     /* --- Dashboard Layout --- */
     #dashboard {
       display: none;
     }
+
     .dashboard-container {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
-    
+
     /* Mobile Header */
     .mobile-header {
       display: flex;
@@ -184,11 +233,13 @@
       top: 0;
       z-index: 40;
     }
+
     .mobile-title {
       font-size: 16px;
       font-weight: 700;
       color: var(--ink);
     }
+
     .menu-toggle-btn {
       background: none;
       border: none;
@@ -201,6 +252,7 @@
       align-items: center;
       justify-content: center;
     }
+
     .menu-toggle-btn:hover {
       background: #f1f5f9;
     }
@@ -220,9 +272,11 @@
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: var(--shadow-lg);
     }
+
     .sidebar.open {
       transform: translateX(280px);
     }
+
     .sidebar-backdrop {
       position: fixed;
       top: 0;
@@ -236,6 +290,7 @@
       transition: opacity 0.3s ease;
       backdrop-filter: blur(2px);
     }
+
     .sidebar-backdrop.visible {
       opacity: 1;
       pointer-events: auto;
@@ -245,11 +300,13 @@
       padding: 24px;
       border-bottom: 1px solid var(--line);
     }
+
     .sidebar-header h2 {
       font-size: 18px;
       font-weight: 700;
       color: var(--ink);
     }
+
     .sidebar-header p {
       font-size: 12px;
       color: var(--muted);
@@ -264,6 +321,7 @@
       gap: 6px;
       overflow-y: auto;
     }
+
     .sidebar-nav .nav-btn {
       display: flex;
       align-items: center;
@@ -280,14 +338,17 @@
       transition: background-color 0.15s ease, color 0.15s ease;
       width: 100%;
     }
+
     .sidebar-nav .nav-btn:hover {
       background: #f1f5f9;
       color: var(--ink);
     }
+
     .sidebar-nav .nav-btn.active {
       background: var(--brand-light);
       color: var(--brand);
     }
+
     .nav-icon {
       font-size: 16px;
       display: inline-flex;
@@ -300,6 +361,7 @@
       padding: 16px 20px;
       border-top: 1px solid var(--line);
     }
+
     .sidebar-footer .btn {
       width: 100%;
     }
@@ -309,15 +371,24 @@
       flex: 1;
       min-width: 0;
     }
+
     .wrap {
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px 16px;
       animation: fadeIn 0.25s ease-out;
     }
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Desktop layout overrides */
@@ -325,9 +396,11 @@
       .dashboard-container {
         flex-direction: row;
       }
+
       .mobile-header {
         display: none;
       }
+
       .sidebar {
         position: sticky;
         top: 0;
@@ -338,9 +411,11 @@
         transform: none !important;
         box-shadow: none;
       }
+
       .sidebar-backdrop {
         display: none;
       }
+
       .wrap {
         padding: 32px 40px;
       }
@@ -357,6 +432,7 @@
       position: relative;
       overflow: hidden;
     }
+
     .ov-income::after {
       content: "";
       position: absolute;
@@ -364,15 +440,17 @@
       right: -10%;
       width: 200px;
       height: 200px;
-      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
       pointer-events: none;
     }
+
     .ov-income-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
     }
+
     .ov-income-title {
       font-size: 13px;
       font-weight: 600;
@@ -380,8 +458,9 @@
       letter-spacing: 0.05em;
       opacity: 0.9;
     }
+
     .ov-eye {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       border: none;
       border-radius: 8px;
       width: 36px;
@@ -395,46 +474,55 @@
       transition: background-color 0.15s ease;
       z-index: 1;
     }
+
     .ov-eye:hover {
-      background: rgba(255,255,255,0.3);
+      background: rgba(255, 255, 255, 0.3);
     }
+
     .ov-income-body {
       display: grid;
       grid-template-columns: 1fr;
       gap: 20px;
     }
+
     @media (min-width: 480px) {
       .ov-income-body {
         grid-template-columns: 1fr 1fr;
       }
     }
+
     .ov-income-item span {
       display: block;
       font-size: 12px;
       opacity: 0.8;
       margin-bottom: 4px;
     }
+
     .ov-income-item b {
       font-size: 24px;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
+
     .ov-section-title {
       font-size: 16px;
       font-weight: 700;
       margin-bottom: 16px;
       color: var(--ink);
     }
+
     .ov-cards {
       display: grid;
       grid-template-columns: 1fr;
       gap: 16px;
     }
+
     @media (min-width: 640px) {
       .ov-cards {
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       }
     }
+
     .ov-card {
       background: var(--card);
       border: 1px solid var(--line);
@@ -443,14 +531,17 @@
       box-shadow: var(--shadow-sm);
       transition: box-shadow 0.2s ease, transform 0.2s ease;
     }
+
     .ov-card-clickable {
       cursor: pointer;
     }
+
     .ov-card-clickable:hover {
       box-shadow: var(--shadow-md);
       transform: translateY(-2px);
       border-color: #cbd5e1;
     }
+
     .ov-card-top {
       display: flex;
       justify-content: space-between;
@@ -458,12 +549,14 @@
       gap: 12px;
       margin-bottom: 12px;
     }
+
     .ov-card-name {
       font-weight: 700;
       font-size: 15px;
       line-height: 1.4;
       color: var(--ink);
     }
+
     .ov-badge {
       font-size: 11px;
       font-weight: 700;
@@ -472,14 +565,28 @@
       text-transform: uppercase;
       letter-spacing: 0.025em;
     }
-    .ov-badge.green { background: var(--ok-light); color: #065f46; }
-    .ov-badge.red { background: var(--err-light); color: #991b1b; }
-    .ov-badge.gray { background: #f1f5f9; color: #475569; }
+
+    .ov-badge.green {
+      background: var(--ok-light);
+      color: #065f46;
+    }
+
+    .ov-badge.red {
+      background: var(--err-light);
+      color: #991b1b;
+    }
+
+    .ov-badge.gray {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
     .ov-meta {
       font-size: 13px;
       color: var(--muted);
       margin-bottom: 6px;
     }
+
     .ov-progress {
       height: 8px;
       background: #f1f5f9;
@@ -487,37 +594,82 @@
       overflow: hidden;
       margin-top: 16px;
     }
+
     .ov-progress-bar {
       height: 100%;
       background: var(--brand);
       border-radius: 999px;
       transition: width 0.4s ease;
     }
+
     .ov-progress-label {
       font-size: 12px;
       color: var(--muted);
       margin-top: 8px;
       font-weight: 600;
     }
+
     .ov-prep {
       margin-top: 16px;
       padding-top: 16px;
       border-top: 1px dashed var(--line);
     }
-    .ov-prep-line { font-size: 13px; color: var(--ink); }
-    .ov-prep-line b { color: var(--brand); }
-    .ov-prep-todo { list-style: none; margin: 8px 0 0; padding: 0; }
-    .ov-prep-todo li { font-size: 12px; color: var(--muted); padding: 2px 0 2px 18px; position: relative; }
-    .ov-prep-todo li::before { content: "○"; position: absolute; left: 0; color: var(--brand); font-weight: bold; }
-    .ov-prep-todo li.ov-prep-more::before { content: ""; }
-    .ov-prep-alldone { font-size: 12px; color: var(--ok); margin-top: 6px; font-weight: 500; }
-    .ov-prep-empty { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
-    
+
+    .ov-prep-line {
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .ov-prep-line b {
+      color: var(--brand);
+    }
+
+    .ov-prep-todo {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 0;
+    }
+
+    .ov-prep-todo li {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 2px 0 2px 18px;
+      position: relative;
+    }
+
+    .ov-prep-todo li::before {
+      content: "○";
+      position: absolute;
+      left: 0;
+      color: var(--brand);
+      font-weight: bold;
+    }
+
+    .ov-prep-todo li.ov-prep-more::before {
+      content: "";
+    }
+
+    .ov-prep-alldone {
+      font-size: 12px;
+      color: var(--ok);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .ov-prep-empty {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--line);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
     .idea-row {
       display: flex;
       gap: 10px;
       margin-bottom: 10px;
     }
+
     .idea-row .idea-input {
       flex: 1;
       padding: 9px 12px;
@@ -525,6 +677,7 @@
       border-radius: 8px;
       font-size: 14px;
     }
+
     .idea-row .del {
       background: var(--err-light);
       color: var(--err);
@@ -540,6 +693,7 @@
       transition: background-color 0.15s ease;
       flex-shrink: 0;
     }
+
     .idea-row .del:hover {
       background: #fca5a5;
     }
@@ -555,25 +709,30 @@
       border-radius: 12px;
       border: 1px solid var(--line);
     }
+
     @media (min-width: 576px) {
       .toolbar {
         grid-template-columns: 1fr 1fr;
       }
     }
+
     @media (min-width: 992px) {
       .toolbar {
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         align-items: end;
       }
     }
+
     .toolbar .field {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
+
     .toolbar .btn {
       height: 40px;
     }
+
     .batch-info {
       margin: -8px 0 20px;
       display: flex;
@@ -581,6 +740,7 @@
       align-items: center;
       flex-wrap: wrap;
     }
+
     .badge {
       display: inline-flex;
       align-items: center;
@@ -600,43 +760,81 @@
       overflow: hidden;
       box-shadow: var(--shadow-sm);
     }
+
     .table-scroll {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
+
     table {
       border-collapse: collapse;
       width: 100%;
       font-size: 13px;
     }
-    th, td {
+
+    th,
+    td {
       padding: 12px 16px;
       text-align: left;
       border-bottom: 1px solid var(--line);
       white-space: nowrap;
+      vertical-align: middle;
     }
-    .cell-img-link { display: inline-block; line-height: 0; }
+
+    .cell-img-link {
+      display: inline-block;
+      line-height: 0;
+    }
+
     .cell-img {
-      width: 54px; height: 54px; object-fit: cover;
-      border-radius: 8px; border: 1px solid var(--line); display: block;
-      background: #f1f5f9; cursor: zoom-in;
+      width: 54px;
+      height: 54px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      display: block;
+      background: #f1f5f9;
+      cursor: zoom-in;
     }
+
     .lightbox {
-      position: fixed; inset: 0; z-index: 1000;
-      background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, .85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 24px;
     }
+
     .lightbox img {
-      max-width: 100%; max-height: 100%; object-fit: contain;
-      border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,.5);
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
     }
+
     .lightbox-close {
-      position: absolute; top: 16px; right: 20px;
-      background: rgba(255,255,255,.15); color: #fff; border: none;
-      width: 44px; height: 44px; border-radius: 50%; font-size: 26px; line-height: 1;
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: rgba(255, 255, 255, .15);
+      color: #fff;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 26px;
+      line-height: 1;
       cursor: pointer;
     }
-    .lightbox-close:hover { background: rgba(255,255,255,.3); }
+
+    .lightbox-close:hover {
+      background: rgba(255, 255, 255, .3);
+    }
+
     th {
       background: #f8fafc;
       font-weight: 600;
@@ -645,20 +843,25 @@
       top: 0;
       z-index: 5;
     }
+
     tr:last-child td {
       border-bottom: none;
     }
+
     tr:hover td {
       background: #f8fafc;
     }
+
     td a {
       color: var(--brand);
       text-decoration: none;
       font-weight: 600;
     }
+
     td a:hover {
       text-decoration: underline;
     }
+
     .empty {
       padding: 48px;
       text-align: center;
@@ -673,16 +876,19 @@
       gap: 20px;
       align-items: start;
     }
+
     @media (min-width: 992px) {
       .fin-grid {
         grid-template-columns: 1.5fr 1fr;
       }
     }
+
     .fin-col {
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
+
     .fin-card {
       background: var(--card);
       border: 1px solid var(--line);
@@ -690,11 +896,13 @@
       padding: 20px;
       box-shadow: var(--shadow-sm);
     }
+
     .fin-card h3 {
       font-size: 16px;
       font-weight: 700;
       color: var(--ink);
     }
+
     .fin-card-head {
       display: flex;
       align-items: center;
@@ -703,15 +911,18 @@
       flex-wrap: wrap;
       gap: 10px;
     }
+
     .fin-card-head h3 {
       margin: 0;
     }
+
     .hint {
       font-size: 12px;
       color: var(--muted);
       margin-top: 8px;
       line-height: 1.4;
     }
+
     .cost-row {
       display: grid;
       grid-template-columns: 1fr;
@@ -721,14 +932,17 @@
       border-bottom: 1px solid var(--line);
       align-items: center;
     }
+
     .cost-row:last-child {
       border-bottom: none;
       margin-bottom: 0;
       padding-bottom: 0;
     }
+
     .cost-row select {
       background: #fff;
     }
+
     .cost-row .del {
       background: var(--err-light);
       color: var(--err);
@@ -743,9 +957,11 @@
       transition: background-color 0.15s ease;
       width: 100%;
     }
+
     .cost-row .del:hover {
       background: #fca5a5;
     }
+
     @media (min-width: 640px) {
       .cost-row {
         grid-template-columns: 2fr 1.2fr 1.2fr 44px;
@@ -754,15 +970,18 @@
         border-bottom: none;
         margin-bottom: 10px;
       }
+
       .cost-row .del {
         width: auto;
       }
     }
+
     .result h3 {
       margin-bottom: 16px;
       border-bottom: 1px solid var(--line);
       padding-bottom: 12px;
     }
+
     .res-row {
       display: flex;
       justify-content: space-between;
@@ -770,27 +989,33 @@
       padding: 10px 0;
       font-size: 14px;
     }
+
     .res-row span {
       color: var(--muted);
       font-weight: 500;
     }
+
     .res-row b {
       font-weight: 600;
       color: var(--ink);
     }
+
     .res-row.big {
       font-size: 18px;
       margin-top: 8px;
     }
+
     .res-row.big b {
       color: var(--ok);
       font-weight: 700;
     }
+
     .result hr {
       border: none;
       border-top: 1px solid var(--line);
       margin: 8px 0;
     }
+
     .profit-neg {
       color: var(--err) !important;
     }
@@ -804,6 +1029,7 @@
       overflow: hidden;
       box-shadow: var(--shadow-sm);
     }
+
     .acc-head {
       width: 100%;
       display: flex;
@@ -821,14 +1047,17 @@
       font-family: inherit;
       transition: background-color 0.15s ease;
     }
+
     .acc-head:hover {
       background: #f8fafc;
     }
+
     .acc-title {
       display: flex;
       align-items: center;
       gap: 10px;
     }
+
     .acc-count {
       font-size: 11px;
       font-weight: 700;
@@ -837,20 +1066,24 @@
       padding: 2px 8px;
       border-radius: 999px;
     }
+
     .acc-chevron {
       transition: transform 0.2s ease;
       color: var(--muted);
       font-size: 14px;
     }
+
     .acc.open .acc-chevron {
       transform: rotate(90deg);
     }
+
     .acc-body {
       display: none;
       padding: 0 20px 20px;
       border-top: 1px solid var(--line);
       background: #fff;
     }
+
     .acc.open .acc-body {
       display: block;
     }
@@ -863,12 +1096,14 @@
       border-radius: 12px;
       border: 1px solid var(--line);
     }
+
     .wa-reminder label {
       display: block;
       font-size: 13px;
       font-weight: 600;
       margin-bottom: 8px;
     }
+
     .wa-reminder textarea {
       width: 100%;
       padding: 10px 12px;
@@ -877,11 +1112,17 @@
       font-size: 13px;
       background: #fff;
     }
+
     .wa-cell {
-      display: flex;
+      white-space: nowrap;
+    }
+
+    .wa-actions {
+      display: inline-flex;
       gap: 6px;
       align-items: center;
     }
+
     .wa-btn {
       background: #25D366;
       color: #fff;
@@ -893,9 +1134,11 @@
       cursor: pointer;
       transition: background-color 0.15s ease;
     }
+
     .wa-btn:hover {
       background: #1da851;
     }
+
     .wa-copy {
       background: #e2e8f0;
       color: #334155;
@@ -906,14 +1149,31 @@
       cursor: pointer;
       transition: background-color 0.15s ease;
     }
+
     .wa-copy:hover {
       background: #cbd5e1;
+    }
+
+    .ig-copy {
+      background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ig-copy:hover {
+      filter: brightness(1.08);
     }
 
     /* --- Prep hub --- */
     .prep-card {
       margin-bottom: 16px;
     }
+
     .prep-row {
       display: flex;
       gap: 10px;
@@ -922,14 +1182,17 @@
       padding-bottom: 12px;
       border-bottom: 1px solid var(--line);
     }
+
     .prep-row:last-child {
       border-bottom: none;
       margin-bottom: 0;
       padding-bottom: 0;
     }
+
     .prep-row-check {
       align-items: center;
     }
+
     .prep-check {
       width: 18px;
       height: 18px;
@@ -937,24 +1200,29 @@
       margin-top: 2px;
       accent-color: var(--brand);
     }
+
     .prep-fields {
       flex: 1;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
+
     .prep-fields .prep-input {
       flex: 1 1 140px;
     }
+
     .prep-fields .prep-input.narrow {
       flex: 0 0 90px;
     }
+
     .prep-input {
       padding: 8px 12px;
       border: 1px solid var(--line);
       border-radius: 8px;
       font-size: 13px;
     }
+
     .prep-row .del {
       background: var(--err-light);
       color: var(--err);
@@ -970,6 +1238,7 @@
       flex-shrink: 0;
       transition: background-color 0.15s ease;
     }
+
     .prep-row .del:hover {
       background: #fca5a5;
     }
@@ -980,24 +1249,29 @@
       grid-template-columns: 1fr;
       gap: 16px;
     }
+
     @media (min-width: 768px) {
       .cfg-form {
         grid-template-columns: 1fr 1fr;
       }
     }
+
     .cfg-field {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
+
     .cfg-field label {
       font-size: 13px;
       font-weight: 600;
       color: #334155;
     }
+
     .cfg-field.cfg-full {
       grid-column: 1 / -1;
     }
+
     .cfg-field textarea {
       width: 100%;
       padding: 10px 12px;
@@ -1006,6 +1280,7 @@
       font-size: 14px;
       background: #fff;
     }
+
     .cfg-field.cfg-check {
       flex-direction: row;
       align-items: center;
@@ -1014,6 +1289,7 @@
       border-radius: 8px;
       border: 1px solid var(--line);
     }
+
     .cfg-field.cfg-check label {
       font-weight: 500;
       display: flex;
@@ -1021,6 +1297,7 @@
       gap: 10px;
       cursor: pointer;
     }
+
     .cfg-field.cfg-check input[type=checkbox] {
       width: 18px;
       height: 18px;
@@ -1037,6 +1314,7 @@
       margin-bottom: 16px;
       box-shadow: var(--shadow-sm);
     }
+
     .konten-item-head {
       display: flex;
       justify-content: space-between;
@@ -1045,11 +1323,13 @@
       border-bottom: 1px solid var(--line);
       padding-bottom: 12px;
     }
+
     .konten-item-head .k-num {
       font-weight: 700;
       font-size: 14px;
       color: var(--ink);
     }
+
     .konten-item .k-del {
       background: var(--err-light);
       color: var(--err);
@@ -1061,23 +1341,28 @@
       font-weight: 600;
       transition: background-color 0.15s ease;
     }
+
     .konten-item .k-del:hover {
       background: #fca5a5;
     }
+
     .konten-field {
       display: flex;
       flex-direction: column;
       gap: 6px;
       margin-bottom: 12px;
     }
+
     .konten-field:last-child {
       margin-bottom: 0;
     }
+
     .konten-field label {
       font-size: 12px;
       font-weight: 600;
       color: #475569;
     }
+
     .konten-field textarea {
       width: 100%;
       padding: 10px 12px;
@@ -1088,6 +1373,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- ============ LOGIN ============ -->
@@ -1150,162 +1436,167 @@
       <!-- Main Content Area -->
       <main class="main-content">
 
-    <!-- ===== VIEW: OVERVIEW ===== -->
-    <div class="wrap view" id="viewOverview">
-      <div class="ov-income">
-        <div class="ov-income-head">
-          <span class="ov-income-title">Pemasukan — Workshop Aktif</span>
-          <button class="ov-eye" id="incomeToggle" title="Tampilkan/sembunyikan">👁️</button>
-        </div>
-        <div class="ov-income-body">
-          <div class="ov-income-item"><span>Pemasukan</span><b id="ovRevenue">Rp •••••••</b></div>
-          <div class="ov-income-item"><span>Perkiraan Untung</span><b id="ovProfit">Rp •••••••</b></div>
-        </div>
-      </div>
-
-      <h3 class="ov-section-title">Workshop Sedang Buka</h3>
-      <div id="ovCards" class="ov-cards"></div>
-
-      <h3 class="ov-section-title" style="margin-top:28px;">💡 Ide Workshop Berikutnya</h3>
-      <div class="fin-card">
-        <div id="ideaList"></div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-          <button class="btn btn-sm btn-ghost" id="ideaAddBtn">＋ Tambah Ide</button>
-          <button class="btn btn-sm" id="ideaSaveBtn">💾 Simpan Ide</button>
-        </div>
-        <div class="msg" id="ideaMsg"></div>
-      </div>
-    </div>
-
-    <!-- ===== VIEW: PENDAFTAR (Registrations) ===== -->
-    <div class="wrap view" id="viewPendaftar" style="display:none;">
-      <div class="toolbar">
-        <div class="field">
-          <label for="wsSelect">Workshop</label>
-          <select id="wsSelect"></select>
-        </div>
-        <div class="field">
-          <label for="batchSelect">Batch / Volume</label>
-          <select id="batchSelect"></select>
-        </div>
-        <button class="btn btn-sm" id="refreshBtn">🔄 Muat Ulang</button>
-        <button class="btn btn-sm btn-ghost" id="newBatchBtn">＋ Batch Baru</button>
-        <button class="btn btn-sm btn-ghost" id="regBatchBtn">Daftarkan tab lama</button>
-      </div>
-      <div id="batchInfo" class="batch-info"></div>
-
-      <div class="table-box">
-        <div class="table-scroll">
-          <table id="dataTable">
-            <thead><tr id="tableHead"></tr></thead>
-            <tbody id="tableBody"></tbody>
-          </table>
-        </div>
-        <div class="empty" id="tableEmpty" style="display:none;">Belum ada data.</div>
-      </div>
-    </div>
-
-    <!-- ===== VIEW: KEUANGAN ===== -->
-    <div class="wrap view" id="viewKeuangan" style="display:none;">
-      <div class="toolbar">
-        <div class="field">
-          <label for="finSelect">Pilih Workshop</label>
-          <select id="finSelect"></select>
-        </div>
-        <div class="field">
-          <label for="finBatchSelect">Batch</label>
-          <select id="finBatchSelect"></select>
-        </div>
-      </div>
-      <div id="finBatchInfo" class="batch-info"></div>
-
-      <div class="fin-grid">
-        <!-- Kiri: input -->
-        <div class="fin-col">
-          <div class="fin-card">
-            <label for="finPrice">Harga per peserta (Rp)</label>
-            <input type="number" id="finPrice" min="0" />
-            <p class="hint">Jumlah pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
-          </div>
-
-          <div class="fin-card">
-            <div class="fin-card-head">
-              <h3>Komponen Modal / Biaya</h3>
-              <button class="btn btn-sm" id="addCostBtn">+ Tambah</button>
+        <!-- ===== VIEW: OVERVIEW ===== -->
+        <div class="wrap view" id="viewOverview">
+          <div class="ov-income">
+            <div class="ov-income-head">
+              <span class="ov-income-title">Pemasukan — Workshop Aktif</span>
+              <button class="ov-eye" id="incomeToggle" title="Tampilkan/sembunyikan">👁️</button>
             </div>
-            <div id="costRows"></div>
-            <p class="hint">Tipe <b>per-peserta</b> otomatis dikali jumlah pendaftar. <b>tetap</b> = sekali saja.</p>
-            <button class="btn" id="saveModalBtn" style="margin-top:12px;">💾 Simpan Modal</button>
-            <div class="msg" id="finMsg"></div>
+            <div class="ov-income-body">
+              <div class="ov-income-item"><span>Pemasukan</span><b id="ovRevenue">Rp •••••••</b></div>
+              <div class="ov-income-item"><span>Perkiraan Untung</span><b id="ovProfit">Rp •••••••</b></div>
+            </div>
+          </div>
+
+          <h3 class="ov-section-title">Workshop Sedang Buka</h3>
+          <div id="ovCards" class="ov-cards"></div>
+
+          <h3 class="ov-section-title" style="margin-top:28px;">💡 Ide Workshop Berikutnya</h3>
+          <div class="fin-card">
+            <div id="ideaList"></div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+              <button class="btn btn-sm btn-ghost" id="ideaAddBtn">＋ Tambah Ide</button>
+              <button class="btn btn-sm" id="ideaSaveBtn">💾 Simpan Ide</button>
+            </div>
+            <div class="msg" id="ideaMsg"></div>
           </div>
         </div>
 
-        <!-- Kanan: hasil -->
-        <div class="fin-col">
-          <div class="fin-card result">
-            <h3>Ringkasan</h3>
-            <div class="res-row"><span>Pemasukan</span><b id="resRevenue">Rp 0</b></div>
-            <div class="res-row"><span>Total Modal</span><b id="resCost">Rp 0</b></div>
-            <hr />
-            <div class="res-row big"><span>Untung</span><b id="resProfit">Rp 0</b></div>
+        <!-- ===== VIEW: PENDAFTAR (Registrations) ===== -->
+        <div class="wrap view" id="viewPendaftar" style="display:none;">
+          <div class="toolbar">
+            <div class="field">
+              <label for="wsSelect">Workshop</label>
+              <select id="wsSelect"></select>
+            </div>
+            <div class="field">
+              <label for="batchSelect">Batch / Volume</label>
+              <select id="batchSelect"></select>
+            </div>
+            <button class="btn btn-sm" id="refreshBtn">🔄 Muat Ulang</button>
+            <button class="btn btn-sm btn-ghost" id="newBatchBtn">＋ Batch Baru</button>
+            <button class="btn btn-sm btn-ghost" id="regBatchBtn">Daftarkan tab lama</button>
+          </div>
+          <div id="batchInfo" class="batch-info"></div>
+
+          <div class="table-box">
+            <div class="table-scroll">
+              <table id="dataTable">
+                <thead>
+                  <tr id="tableHead"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+            <div class="empty" id="tableEmpty" style="display:none;">Belum ada data.</div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- ===== VIEW: PREP (per-event) ===== -->
-    <div class="wrap view" id="viewPrep" style="display:none;">
-      <div class="toolbar">
-        <div class="field">
-          <label for="prepSelect">Pilih Event</label>
-          <select id="prepSelect"></select>
-        </div>
-      </div>
-      <div id="prepHeader"></div>
-      <div id="prepSections"></div>
-    </div>
+        <!-- ===== VIEW: KEUANGAN ===== -->
+        <div class="wrap view" id="viewKeuangan" style="display:none;">
+          <div class="toolbar">
+            <div class="field">
+              <label for="finSelect">Pilih Workshop</label>
+              <select id="finSelect"></select>
+            </div>
+            <div class="field">
+              <label for="finBatchSelect">Batch</label>
+              <select id="finBatchSelect"></select>
+            </div>
+          </div>
+          <div id="finBatchInfo" class="batch-info"></div>
 
-    <!-- ===== VIEW: CONFIG ===== -->
-    <div class="wrap view" id="viewConfig" style="display:none;">
-      <div class="toolbar">
-        <div class="field">
-          <label for="cfgSelect">Pilih Workshop</label>
-          <select id="cfgSelect"></select>
-        </div>
-        <button class="btn btn-sm btn-ghost" id="cfgReloadBtn">🔄 Muat Ulang</button>
-      </div>
-      <div class="fin-card">
-        <div id="cfgForm" class="cfg-form"></div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-          <button class="btn" id="cfgSaveBtn">💾 Simpan Config</button>
-          <button class="btn btn-sm" id="cfgDeleteBtn" style="background:#fee2e2;color:var(--err);">🗑️ Hapus workshop ini</button>
-        </div>
-        <div class="msg" id="cfgMsg"></div>
-        <p class="hint">Perubahan langsung tersimpan. Efek di web publik aktif setelah wiring Fase 3 bagian 2.</p>
-      </div>
-    </div>
+          <div class="fin-grid">
+            <!-- Kiri: input -->
+            <div class="fin-col">
+              <div class="fin-card">
+                <label for="finPrice">Harga per peserta (Rp)</label>
+                <input type="number" id="finPrice" min="0" />
+                <p class="hint">Jumlah pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
+              </div>
 
-    <!-- ===== VIEW: KONTEN (galeri/testimoni/rekomendasi) ===== -->
-    <div class="wrap view" id="viewKonten" style="display:none;">
-      <div class="toolbar">
-        <div class="field">
-          <label for="kontenSelect">Jenis Konten</label>
-          <select id="kontenSelect">
-            <option value="galeri">Galeri</option>
-            <option value="testimoni">Testimoni</option>
-            <option value="recommendation">Rekomendasi</option>
-          </select>
+              <div class="fin-card">
+                <div class="fin-card-head">
+                  <h3>Komponen Modal / Biaya</h3>
+                  <button class="btn btn-sm" id="addCostBtn">+ Tambah</button>
+                </div>
+                <div id="costRows"></div>
+                <p class="hint">Tipe <b>per-peserta</b> otomatis dikali jumlah pendaftar. <b>tetap</b> = sekali saja.
+                </p>
+                <button class="btn" id="saveModalBtn" style="margin-top:12px;">💾 Simpan Modal</button>
+                <div class="msg" id="finMsg"></div>
+              </div>
+            </div>
+
+            <!-- Kanan: hasil -->
+            <div class="fin-col">
+              <div class="fin-card result">
+                <h3>Ringkasan</h3>
+                <div class="res-row"><span>Pemasukan</span><b id="resRevenue">Rp 0</b></div>
+                <div class="res-row"><span>Total Modal</span><b id="resCost">Rp 0</b></div>
+                <hr />
+                <div class="res-row big"><span>Untung</span><b id="resProfit">Rp 0</b></div>
+              </div>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-sm" id="kontenAddBtn">＋ Tambah Item</button>
-        <button class="btn btn-sm btn-ghost" id="kontenReloadBtn">🔄 Muat Ulang</button>
-      </div>
-      <div id="kontenList"></div>
-      <div class="fin-card" style="margin-top:14px;">
-        <button class="btn" id="kontenSaveBtn">💾 Simpan Konten</button>
-        <div class="msg" id="kontenMsg"></div>
-        <p class="hint">Untuk galeri/testimoni: tempel <b>embed code</b> dari Instagram. Item kosong (tanpa judul) diabaikan saat simpan.</p>
-      </div>
-    </div>
+
+        <!-- ===== VIEW: PREP (per-event) ===== -->
+        <div class="wrap view" id="viewPrep" style="display:none;">
+          <div class="toolbar">
+            <div class="field">
+              <label for="prepSelect">Pilih Event</label>
+              <select id="prepSelect"></select>
+            </div>
+          </div>
+          <div id="prepHeader"></div>
+          <div id="prepSections"></div>
+        </div>
+
+        <!-- ===== VIEW: CONFIG ===== -->
+        <div class="wrap view" id="viewConfig" style="display:none;">
+          <div class="toolbar">
+            <div class="field">
+              <label for="cfgSelect">Pilih Workshop</label>
+              <select id="cfgSelect"></select>
+            </div>
+            <button class="btn btn-sm btn-ghost" id="cfgReloadBtn">🔄 Muat Ulang</button>
+          </div>
+          <div class="fin-card">
+            <div id="cfgForm" class="cfg-form"></div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+              <button class="btn" id="cfgSaveBtn">💾 Simpan Config</button>
+              <button class="btn btn-sm" id="cfgDeleteBtn" style="background:#fee2e2;color:var(--err);">🗑️ Hapus
+                workshop ini</button>
+            </div>
+            <div class="msg" id="cfgMsg"></div>
+            <p class="hint">Perubahan langsung tersimpan. Efek di web publik aktif setelah wiring Fase 3 bagian 2.</p>
+          </div>
+        </div>
+
+        <!-- ===== VIEW: KONTEN (galeri/testimoni/rekomendasi) ===== -->
+        <div class="wrap view" id="viewKonten" style="display:none;">
+          <div class="toolbar">
+            <div class="field">
+              <label for="kontenSelect">Jenis Konten</label>
+              <select id="kontenSelect">
+                <option value="galeri">Galeri</option>
+                <option value="testimoni">Testimoni</option>
+                <option value="recommendation">Rekomendasi</option>
+              </select>
+            </div>
+            <button class="btn btn-sm" id="kontenAddBtn">＋ Tambah Item</button>
+            <button class="btn btn-sm btn-ghost" id="kontenReloadBtn">🔄 Muat Ulang</button>
+          </div>
+          <div id="kontenList"></div>
+          <div class="fin-card" style="margin-top:14px;">
+            <button class="btn" id="kontenSaveBtn">💾 Simpan Konten</button>
+            <div class="msg" id="kontenMsg"></div>
+            <p class="hint">Untuk galeri/testimoni: tempel <b>embed code</b> dari Instagram. Item kosong (tanpa judul)
+              diabaikan saat simpan.</p>
+          </div>
+        </div>
       </main>
     </div>
   </div>
@@ -1623,12 +1914,12 @@
     function switchView(view, event) {
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
       closeSidebar();
-      document.getElementById("viewOverview").style.display  = (view === "overview")  ? "block" : "none";
+      document.getElementById("viewOverview").style.display = (view === "overview") ? "block" : "none";
       document.getElementById("viewPendaftar").style.display = (view === "pendaftar") ? "block" : "none";
-      document.getElementById("viewKeuangan").style.display  = (view === "keuangan")  ? "block" : "none";
-      document.getElementById("viewPrep").style.display      = (view === "prep")      ? "block" : "none";
-      document.getElementById("viewConfig").style.display    = (view === "config")    ? "block" : "none";
-      document.getElementById("viewKonten").style.display    = (view === "konten")    ? "block" : "none";
+      document.getElementById("viewKeuangan").style.display = (view === "keuangan") ? "block" : "none";
+      document.getElementById("viewPrep").style.display = (view === "prep") ? "block" : "none";
+      document.getElementById("viewConfig").style.display = (view === "config") ? "block" : "none";
+      document.getElementById("viewKonten").style.display = (view === "konten") ? "block" : "none";
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") ensureFinanceLoaded();
@@ -2173,10 +2464,10 @@
 
     // ---------- PREP HUB (per-event) ----------
     const PREP_SECTIONS = [
-      { type: "todos",    title: "✅ Todo Persiapan",  check: true,  fields: [{ key: "text", ph: "mis. Beli bahan, konfirmasi lokasi" }] },
-      { type: "bring",    title: "🎒 Barang Bawaan",   check: true,  fields: [{ key: "text", ph: "Nama barang (mis. Gunting)" }, { key: "qty", ph: "Jumlah", narrow: true }] },
-      { type: "notes",    title: "📝 Notes & Link",     check: false, fields: [{ key: "title", ph: "Judul" }, { key: "url", ph: "https://youtube/artikel..." }, { key: "note", ph: "Catatan (opsional)" }] },
-      { type: "supplies", title: "🛒 Alat & Bahan",     check: false, fields: [{ key: "name", ph: "Nama alat/bahan" }, { key: "link", ph: "Link beli (Shopee, dll)" }, { key: "note", ph: "Catatan (opsional)" }] }
+      { type: "todos", title: "✅ Todo Persiapan", check: true, fields: [{ key: "text", ph: "mis. Beli bahan, konfirmasi lokasi" }] },
+      { type: "bring", title: "🎒 Barang Bawaan", check: true, fields: [{ key: "text", ph: "Nama barang (mis. Gunting)" }, { key: "qty", ph: "Jumlah", narrow: true }] },
+      { type: "notes", title: "📝 Notes & Link", check: false, fields: [{ key: "title", ph: "Judul" }, { key: "url", ph: "https://youtube/artikel..." }, { key: "note", ph: "Catatan (opsional)" }] },
+      { type: "supplies", title: "🛒 Alat & Bahan", check: false, fields: [{ key: "name", ph: "Nama alat/bahan" }, { key: "link", ph: "Link beli (Shopee, dll)" }, { key: "note", ph: "Catatan (opsional)" }] }
     ];
 
     let PREP = {};
@@ -2326,33 +2617,39 @@
 
         const headers = r.headers || [];
         const waIdx = headers.findIndex(h => /whats?app|nomor|\bwa\b|hp|telp/i.test(h));
+        const igIdx = headers.findIndex(h => /instagram|\big\b/i.test(h));
         // Nama untuk sapaan: utamakan Nickname, fallback ke Nama
         let nameIdx = headers.findIndex(h => /nickname|panggil/i.test(h));
         if (nameIdx < 0) nameIdx = headers.findIndex(h => /nama|name/i.test(h));
 
-        head.innerHTML = "<th>#</th>" + (waIdx >= 0 ? "<th>Kirim</th>" : "") + headers.map(h => `<th>${h}</th>`).join("");
+        const hasAction = waIdx >= 0 || igIdx >= 0;
+        head.innerHTML = "<th>#</th>" + (hasAction ? "<th>Aksi</th>" : "") + headers.map(h => `<th>${h}</th>`).join("");
         if (!r.rows.length) { body.innerHTML = ""; empty.style.display = "block"; return; }
         empty.style.display = "none";
 
         body.innerHTML = r.rows.map((row, i) => {
           const cells = row.map(cellHtml).join("");
           let action = "";
-          if (waIdx >= 0) {
-            const num = waNormalize(row[waIdx]);
-            const name = nameIdx >= 0 ? (row[nameIdx] || "") : "";
-            if (num) {
-              action = `<td class="wa-cell">
-                <button class="wa-btn" data-num="${num}" data-name="${escapeHtml(name)}">💬 Chat WA</button>
-                <button class="wa-copy" data-num="${escapeHtml(row[waIdx] || "")}" title="Copy nomor">📋</button>
-              </td>`;
-            } else {
-              action = `<td class="wa-cell">-</td>`;
+          if (hasAction) {
+            let btns = "";
+            if (waIdx >= 0) {
+              const num = waNormalize(row[waIdx]);
+              const name = nameIdx >= 0 ? (row[nameIdx] || "") : "";
+              if (num) {
+                btns += `<button class="wa-btn" data-num="${num}" data-name="${escapeHtml(name)}">💬 Chat WA</button>`;
+                btns += `<button class="wa-copy" data-num="${escapeHtml(row[waIdx] || "")}" title="Copy nomor WA">📋</button>`;
+              }
             }
+            if (igIdx >= 0) {
+              const ig = String(row[igIdx] || "").trim().replace(/^@/, "");
+              if (ig) btns += `<button class="ig-copy" data-ig="${escapeHtml(ig)}" title="Copy username IG">IG</button>`;
+            }
+            action = `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>`;
           }
           return `<tr><td>${i + 1}</td>${action}${cells}</tr>`;
         }).join("");
 
-        // Wiring tombol WA (delegasi)
+        // Wiring tombol aksi (delegasi)
         body.onclick = (e) => {
           const chat = e.target.closest(".wa-btn");
           if (chat) {
@@ -2364,6 +2661,13 @@
           if (cp) {
             navigator.clipboard.writeText(cp.dataset.num).then(() => {
               cp.textContent = "✓"; setTimeout(() => { cp.textContent = "📋"; }, 1200);
+            });
+            return;
+          }
+          const ig = e.target.closest(".ig-copy");
+          if (ig) {
+            navigator.clipboard.writeText(ig.dataset.ig).then(() => {
+              const t = ig.textContent; ig.textContent = "✓ IG"; setTimeout(() => { ig.textContent = t; }, 1200);
             });
           }
         };
@@ -2464,4 +2768,5 @@
     }
   </script>
 </body>
+
 </html>
