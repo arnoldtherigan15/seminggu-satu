@@ -7,6 +7,9 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Dashboard Admin — Seminggu Satu</title>
 
+  <!-- Untuk render passport jadi gambar (download) -->
+  <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
   <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#4f46e5" />
@@ -1227,6 +1230,30 @@
     .note-add { display: flex; gap: 8px; margin-top: 8px; }
     .note-add input { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
 
+    /* --- Passport --- */
+    .passport-box { max-width: 400px; }
+    .passport {
+      width: 100%; border-radius: 16px; padding: 22px; color: #fff;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #db2777 100%);
+      position: relative; overflow: hidden;
+    }
+    .pp-head { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 1px; font-weight: 700; opacity: .9; }
+    .pp-title { font-size: 12px; letter-spacing: 3px; font-weight: 800; margin-top: 2px; opacity: .85; }
+    .pp-holder { margin: 16px 0 14px; }
+    .pp-label { font-size: 10px; letter-spacing: 2px; opacity: .7; }
+    .pp-name { font-size: 26px; font-weight: 800; line-height: 1.1; }
+    .pp-persona { background: rgba(255,255,255,.15); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
+    .pp-persona-title { font-size: 18px; font-weight: 800; }
+    .pp-persona-tag { font-size: 12px; opacity: .92; margin-top: 2px; }
+    .pp-stats { display: flex; gap: 8px; margin-bottom: 14px; }
+    .pp-stats > div { flex: 1; background: rgba(255,255,255,.12); border-radius: 10px; padding: 8px 4px; text-align: center; }
+    .pp-stats b { display: block; font-size: 20px; font-weight: 800; }
+    .pp-stats span { font-size: 10px; opacity: .85; }
+    .pp-stamps { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 14px; min-height: 22px; }
+    .pp-stamp { font-size: 18px; color: #fde68a; }
+    .pp-more { font-size: 12px; font-weight: 700; align-self: center; opacity: .9; }
+    .pp-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; opacity: .9; border-top: 1px dashed rgba(255,255,255,.35); padding-top: 10px; }
+
     /* --- Prep hub --- */
     .prep-card {
       margin-bottom: 16px;
@@ -1694,6 +1721,15 @@
     <div class="modal-box">
       <button class="modal-close" id="loyaltyModalClose" aria-label="Tutup">&times;</button>
       <div id="loyaltyDetail"></div>
+    </div>
+  </div>
+
+  <!-- Modal passport -->
+  <div id="passportModal" class="modal" style="display:none;">
+    <div class="modal-box passport-box">
+      <button class="modal-close" id="passportClose" aria-label="Tutup">&times;</button>
+      <div id="passportCard" class="passport"></div>
+      <button class="btn" id="passportDownload" style="margin-top:14px;width:100%;">⬇️ Download PNG</button>
     </div>
   </div>
 
@@ -2920,7 +2956,7 @@
     document.getElementById("imgLightbox").addEventListener("click", (e) => {
       if (e.target.id === "imgLightbox") closeLightbox(); // klik area gelap
     });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeLightbox(); closeLoyaltyModal(); } });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeLightbox(); closeLoyaltyModal(); closePassport(); } });
 
     // ---------- LOYALTY ----------
     const LOYALTY_TARGET = 6;
@@ -2933,6 +2969,9 @@
         document.getElementById("loyaltySearch").addEventListener("input", renderLoyalty);
         document.getElementById("loyaltyModalClose").addEventListener("click", closeLoyaltyModal);
         document.getElementById("loyaltyModal").addEventListener("click", (e) => { if (e.target.id === "loyaltyModal") closeLoyaltyModal(); });
+        document.getElementById("passportClose").addEventListener("click", closePassport);
+        document.getElementById("passportModal").addEventListener("click", (e) => { if (e.target.id === "passportModal") closePassport(); });
+        document.getElementById("passportDownload").addEventListener("click", downloadPassport);
         loyaltyInit = true;
       }
       await loadLoyalty();
@@ -3019,6 +3058,7 @@
 
       const igLine = m.ig ? `<div class="det-row"><span>📸 Instagram</span><b>@${escapeHtml(m.ig.replace(/^@/, ""))}</b></div>` : "";
       const actions =
+        `<button class="btn btn-sm loy-passport">🎫 Buat Passport</button>` +
         (m.eligible ? `<button class="btn btn-sm loy-claim">🎁 Tukar Hadiah</button>` : "") +
         (m.claimed > 0 ? `<button class="btn btn-sm btn-ghost loy-unclaim">↩︎ Batal 1 penukaran</button>` : "");
 
@@ -3056,6 +3096,8 @@
       if (cl) cl.addEventListener("click", () => claimReward(m.key, 1, m.count));
       const uc = d.querySelector(".loy-unclaim");
       if (uc) uc.addEventListener("click", () => claimReward(m.key, -1, 0));
+      const pp = d.querySelector(".loy-passport");
+      if (pp) pp.addEventListener("click", () => openPassport(m));
       d.querySelector("#noteAddBtn").addEventListener("click", addNote);
       d.querySelector("#noteInput").addEventListener("keydown", e => { if (e.key === "Enter") addNote(); });
       d.querySelectorAll(".note-del").forEach(b => b.addEventListener("click", () => delNote(Number(b.dataset.i))));
@@ -3091,6 +3133,73 @@
           if (document.getElementById("loyaltyModal").style.display !== "none") renderLoyaltyDetail();
         } else { handleAuthError(r); alert(r.message || "Gagal."); }
       } catch (e) { alert("Gagal terhubung."); }
+    }
+
+    // ---------- PASSPORT ----------
+    function passportPersona(m) {
+      const n = m.count;
+      let title, tag;
+      if (n >= 10) { title = "DEWA JOURNALING"; tag = "Warga kehormatan Seminggu Satu 👑"; }
+      else if (n >= 6) { title = "LEGENDA JOURNALING"; tag = "Loyalis sejati — udah dapat hadiah 🎁"; }
+      else if (n >= 4) { title = "JOURNALING ENTHUSIAST"; tag = "Ketagihan ngejurnal 🔥"; }
+      else if (n >= 2) { title = "PETUALANG KREATIF"; tag = "Mulai jatuh cinta sama journaling ✨"; }
+      else { title = "PENDATANG BARU"; tag = "Baru mulai perjalanan journaling 🌱"; }
+      const uniqueWs = new Set(m.events.map(e => e.workshop)).size;
+      const trait = uniqueWs >= 3 ? "Sang Penjelajah" : (n >= 3 ? "Si Paling Setia" : "Pencari Inspirasi");
+      return { title, tag, uniqueWs, trait };
+    }
+
+    function openPassport(m) {
+      const p = passportPersona(m);
+      const years = m.events.map(e => { const mm = String(e.date || "").match(/(\d{4})$/); return mm ? Number(mm[1]) : null; }).filter(Boolean);
+      const since = years.length ? Math.min.apply(null, years) : null;
+      const name = m.nickname || m.name || "Journaler";
+      const MAX = 12;
+      const shown = Math.min(m.count, MAX);
+      let stamps = "";
+      for (let i = 0; i < shown; i++) stamps += `<span class="pp-stamp">★</span>`;
+      const more = m.count > MAX ? `<span class="pp-more">+${m.count - MAX}</span>` : "";
+      document.getElementById("passportCard").innerHTML = `
+        <div class="pp-head"><span>🎫 SEMINGGU SATU</span><span>No. ${escapeHtml((m.key || "").slice(-4).toUpperCase())}</span></div>
+        <div class="pp-title">JOURNALING PASSPORT</div>
+        <div class="pp-holder">
+          <div class="pp-label">PEMEGANG</div>
+          <div class="pp-name">${escapeHtml(name)}</div>
+        </div>
+        <div class="pp-persona">
+          <div class="pp-persona-title">${escapeHtml(p.title)}</div>
+          <div class="pp-persona-tag">${escapeHtml(p.tag)}</div>
+        </div>
+        <div class="pp-stats">
+          <div><b>${m.count}</b><span>Event</span></div>
+          <div><b>${p.uniqueWs}</b><span>Jenis</span></div>
+          <div><b>${m.claimed}</b><span>🎁 Hadiah</span></div>
+        </div>
+        <div class="pp-stamps">${stamps}${more}</div>
+        <div class="pp-foot">
+          <span>${escapeHtml(p.trait)}${since ? " · sejak " + since : ""}</span>
+          <span>${m.ig ? "@" + escapeHtml(m.ig.replace(/^@/, "")) : "seminggu.satu"}</span>
+        </div>`;
+      document.getElementById("passportModal").style.display = "flex";
+    }
+
+    function closePassport() { document.getElementById("passportModal").style.display = "none"; }
+
+    async function downloadPassport() {
+      const card = document.getElementById("passportCard");
+      const btn = document.getElementById("passportDownload");
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = "Merender...";
+      try {
+        const canvas = await html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true });
+        const nmeEl = card.querySelector(".pp-name");
+        const nm = (nmeEl ? nmeEl.textContent : "peserta").trim().replace(/\s+/g, "-").toLowerCase();
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = "passport-" + nm + ".png";
+        a.click();
+      } catch (e) { alert("Gagal render gambar. Coba lagi."); }
+      finally { btn.disabled = false; btn.textContent = label; }
     }
 
     // ---------- AUTO-LOGIN kalau token masih ada ----------
