@@ -22,7 +22,7 @@
  * ====================================================
  */
 
-const RECOMMENDATIONS = [
+var RECOMMENDATIONS = [
     {
         id: "kamei-machine",
         title: "Kamei — Die Cut & Emboss",
@@ -169,3 +169,38 @@ const RECOMMENDATION_CATEGORIES = {
     "material": "🎨 Bahan",
     "paper": "📄 Kertas"
 };
+
+// ============================================================
+//  KONTEN LIVE (mode "cached") — Fase 4
+//  Sinkron: pakai cache localStorage kalau ada. Background: refresh dari server
+//  untuk load berikutnya. Fallback ke data statis di atas kalau kosong/gagal.
+// ============================================================
+(function () {
+    var CACHE_KEY = "ss_recommendation_cache";
+    try {
+        var cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+            var parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length) RECOMMENDATIONS = parsed;
+        }
+    } catch (e) { /* pakai statis */ }
+
+    function refreshCache() {
+        if (typeof GOOGLE_SCRIPT_URL === "undefined" || !GOOGLE_SCRIPT_URL) return;
+        var cbName = "_recommendationCb_" + Date.now();
+        var s;
+        window[cbName] = function (data) {
+            try {
+                if (Array.isArray(data) && data.length) localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+            } catch (e) {}
+            try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+            if (s && s.parentNode) s.parentNode.removeChild(s);
+        };
+        s = document.createElement("script");
+        s.src = GOOGLE_SCRIPT_URL + "?page=content&type=recommendation&callback=" + cbName;
+        s.onerror = function () { try { delete window[cbName]; } catch (e) {} };
+        document.body.appendChild(s);
+    }
+    if (document.readyState === "complete") refreshCache();
+    else window.addEventListener("load", refreshCache);
+})();

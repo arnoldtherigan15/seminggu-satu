@@ -41,26 +41,7 @@ var WORKSHOPS = [
         isDisplay: false,
         whatsappGroupLink: "https://chat.whatsapp.com/Ba3DC7JFQSt1u1tgIMATw9?mode=gi_t"
     },
-    {
-        id: "bookmark-journal-sheraton",
-        name: "Sheraton Pull & Pop: A Journaling Bookmark",
-        description: "Buat bookmark interaktifmu sendiri dengan mekanisme pull & pop! (Private Event)",
-        icon: "bookmark",
-        path: "bookmark-journal-sheraton/index.html",
-        enabled: true,
-        openDate: "03/05/2026",
-        closeDate: "26/05/2026",
-        normalPrice: 0,
-        earlyBirdPrice: null,
-        earlyBirdDueDate: null,
-        maxQuota: 15,
-        workshopDate: "Kamis, 21 Mei 2026",
-        workshopTime: "15:00 - 17:00 WIB",
-        locationName: "Sheraton",
-        mapsLink: "https://maps.app.goo.gl/4jgzwYXtQG1g5ZTH8",
-        isDisplay: false,
-        whatsappGroupLink: ""
-    },
+    // Catatan: "bookmark-journal-sheraton" dipensiunkan — jadi batch dari "bookmark-journal".
     {
         id: "3d-frame-journaling",
         name: "3D Layered Journaling",

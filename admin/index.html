@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Dashboard Admin — Seminggu Satu</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f4f5f7; --card: #fff; --ink: #1f2430; --muted: #6b7280;
+      --line: #e5e7eb; --brand: #4f46e5; --brand-d: #4338ca; --ok: #16a34a; --err: #dc2626;
+    }
+    body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+
+    /* --- Login --- */
+    #loginScreen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .login-card {
+      background: var(--card); border-radius: 16px; padding: 32px; width: 100%; max-width: 360px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+    .login-card h1 { font-size: 20px; margin-bottom: 4px; }
+    .login-card p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    input[type=password], select {
+      width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px;
+      font-size: 15px; outline: none; background: #fff;
+    }
+    input:focus, select:focus { border-color: var(--brand); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      background: var(--brand); color: #fff; border: none; border-radius: 10px;
+      padding: 11px 16px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%;
+    }
+    .btn:hover { background: var(--brand-d); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-sm { width: auto; padding: 8px 14px; font-size: 14px; }
+    .btn-ghost { background: #eef0f3; color: var(--ink); }
+    .btn-ghost:hover { background: #e2e5ea; }
+    .msg { font-size: 13px; margin-top: 12px; min-height: 18px; }
+    .msg.err { color: var(--err); }
+    .msg.ok { color: var(--ok); }
+
+    /* --- Dashboard --- */
+    #dashboard { display: none; }
+    header.top {
+      background: var(--card); border-bottom: 1px solid var(--line);
+      padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    header.top h1 { font-size: 17px; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+    .stat .n { font-size: 26px; font-weight: 700; }
+    .stat .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 16px; }
+    .toolbar .field { flex: 1; min-width: 200px; }
+
+    .table-box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .table-scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 13px; white-space: nowrap; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+    th { background: #f9fafb; font-weight: 700; position: sticky; top: 0; }
+    tr:hover td { background: #fafafe; }
+    td a { color: var(--brand); text-decoration: none; font-weight: 600; }
+    .empty { padding: 40px; text-align: center; color: var(--muted); }
+    .badge { display:inline-block; background:#eef2ff; color:var(--brand); font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; }
+
+    /* --- Nav --- */
+    .head-left { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .nav { display: flex; gap: 4px; background: #eef0f3; padding: 4px; border-radius: 10px; }
+    .nav-btn { border: none; background: transparent; padding: 7px 14px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted); }
+    .nav-btn.active { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+    /* --- Keuangan --- */
+    .fin-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start; }
+    @media (max-width: 720px) { .fin-grid { grid-template-columns: 1fr; } }
+    .fin-col { display: flex; flex-direction: column; gap: 16px; }
+    .fin-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+    .fin-card h3 { font-size: 15px; margin-bottom: 12px; }
+    .fin-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .fin-card-head h3 { margin: 0; }
+    input[type=number], input[type=text] { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; font-size: 14px; outline: none; }
+    input:focus { border-color: var(--brand); }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .cost-row { display: grid; grid-template-columns: 1fr 110px 120px 34px; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .cost-row select { padding: 9px 8px; border: 1px solid var(--line); border-radius: 9px; font-size: 13px; }
+    .cost-row .del { background: #fee2e2; color: var(--err); border: none; border-radius: 8px; height: 36px; cursor: pointer; font-size: 16px; }
+    @media (max-width: 520px) { .cost-row { grid-template-columns: 1fr 1fr; } }
+    .result h3 { margin-bottom: 14px; }
+    .res-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 15px; }
+    .res-row span { color: var(--muted); }
+    .res-row.big { font-size: 20px; }
+    .res-row.big b { color: var(--ok); }
+    .result hr { border: none; border-top: 1px solid var(--line); margin: 6px 0; }
+    .profit-neg { color: var(--err) !important; }
+
+    /* --- Batch --- */
+    .batch-info { margin: -6px 0 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    /* --- Config editor --- */
+    .cfg-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+    @media (max-width: 640px) { .cfg-form { grid-template-columns: 1fr; } }
+    .cfg-field { display: flex; flex-direction: column; gap: 4px; }
+    .cfg-field label { font-size: 13px; font-weight: 600; }
+    .cfg-field.cfg-full { grid-column: 1 / -1; }
+    .cfg-field textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; font-size: 14px; font-family: inherit; resize: vertical; }
+    .cfg-field.cfg-check { flex-direction: row; align-items: center; }
+    .cfg-field.cfg-check label { font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    .cfg-field.cfg-check input { width: auto; }
+
+    /* --- Konten editor --- */
+    .konten-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+    .konten-item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .konten-item-head .k-num { font-weight: 700; font-size: 13px; color: var(--muted); }
+    .konten-item .k-del { background: #fee2e2; color: var(--err); border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .konten-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+    .konten-field label { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .konten-field textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; font-family: monospace; resize: vertical; }
+  </style>
+</head>
+<body>
+
+  <!-- ============ LOGIN ============ -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <h1>Dashboard Admin</h1>
+      <p>Seminggu Satu — khusus admin</p>
+      <label for="pwd">Password</label>
+      <input type="password" id="pwd" placeholder="Masukkan password" autocomplete="current-password" />
+      <div style="height:14px"></div>
+      <button class="btn" id="loginBtn">Masuk</button>
+      <div class="msg" id="loginMsg"></div>
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="dashboard">
+    <header class="top">
+      <div class="head-left">
+        <h1>📋 Dashboard Admin</h1>
+        <nav class="nav">
+          <button class="nav-btn active" data-view="pendaftar">Pendaftar</button>
+          <button class="nav-btn" data-view="keuangan">Keuangan</button>
+          <button class="nav-btn" data-view="config">Config</button>
+          <button class="nav-btn" data-view="konten">Konten</button>
+        </nav>
+      </div>
+      <button class="btn btn-sm btn-ghost" id="logoutBtn">Keluar</button>
+    </header>
+
+    <!-- ===== VIEW: PENDAFTAR ===== -->
+    <div class="wrap view" id="viewPendaftar">
+      <div class="cards" id="statCards"></div>
+
+      <div class="toolbar">
+        <div class="field">
+          <label for="wsSelect">Workshop</label>
+          <select id="wsSelect"></select>
+        </div>
+        <div class="field">
+          <label for="batchSelect">Batch / Volume</label>
+          <select id="batchSelect"></select>
+        </div>
+        <button class="btn btn-sm" id="refreshBtn">🔄 Muat Ulang</button>
+        <button class="btn btn-sm btn-ghost" id="newBatchBtn">＋ Batch Baru</button>
+        <button class="btn btn-sm btn-ghost" id="regBatchBtn">Daftarkan tab lama</button>
+      </div>
+      <div id="batchInfo" class="batch-info"></div>
+
+      <div class="table-box">
+        <div class="table-scroll">
+          <table id="dataTable">
+            <thead><tr id="tableHead"></tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="tableEmpty" style="display:none;">Belum ada data.</div>
+      </div>
+    </div>
+
+    <!-- ===== VIEW: KEUANGAN ===== -->
+    <div class="wrap view" id="viewKeuangan" style="display:none;">
+      <div class="toolbar">
+        <div class="field">
+          <label for="finSelect">Pilih Workshop</label>
+          <select id="finSelect"></select>
+        </div>
+        <div class="field">
+          <label for="finBatchSelect">Batch</label>
+          <select id="finBatchSelect"></select>
+        </div>
+      </div>
+      <div id="finBatchInfo" class="batch-info"></div>
+
+      <div class="fin-grid">
+        <!-- Kiri: input -->
+        <div class="fin-col">
+          <div class="fin-card">
+            <label for="finPrice">Harga per peserta (Rp)</label>
+            <input type="number" id="finPrice" min="0" />
+            <p class="hint">Jumlah pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
+          </div>
+
+          <div class="fin-card">
+            <div class="fin-card-head">
+              <h3>Komponen Modal / Biaya</h3>
+              <button class="btn btn-sm" id="addCostBtn">+ Tambah</button>
+            </div>
+            <div id="costRows"></div>
+            <p class="hint">Tipe <b>per-peserta</b> otomatis dikali jumlah pendaftar. <b>tetap</b> = sekali saja.</p>
+            <button class="btn" id="saveModalBtn" style="margin-top:12px;">💾 Simpan Modal</button>
+            <div class="msg" id="finMsg"></div>
+          </div>
+        </div>
+
+        <!-- Kanan: hasil -->
+        <div class="fin-col">
+          <div class="fin-card result">
+            <h3>Ringkasan</h3>
+            <div class="res-row"><span>Pemasukan</span><b id="resRevenue">Rp 0</b></div>
+            <div class="res-row"><span>Total Modal</span><b id="resCost">Rp 0</b></div>
+            <hr />
+            <div class="res-row big"><span>Untung</span><b id="resProfit">Rp 0</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== VIEW: CONFIG ===== -->
+    <div class="wrap view" id="viewConfig" style="display:none;">
+      <div class="toolbar">
+        <div class="field">
+          <label for="cfgSelect">Pilih Workshop</label>
+          <select id="cfgSelect"></select>
+        </div>
+        <button class="btn btn-sm btn-ghost" id="cfgReloadBtn">🔄 Muat Ulang</button>
+      </div>
+      <div class="fin-card">
+        <div id="cfgForm" class="cfg-form"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+          <button class="btn" id="cfgSaveBtn">💾 Simpan Config</button>
+          <button class="btn btn-sm" id="cfgDeleteBtn" style="background:#fee2e2;color:var(--err);">🗑️ Hapus workshop ini</button>
+        </div>
+        <div class="msg" id="cfgMsg"></div>
+        <p class="hint">Perubahan langsung tersimpan. Efek di web publik aktif setelah wiring Fase 3 bagian 2.</p>
+      </div>
+    </div>
+
+    <!-- ===== VIEW: KONTEN (galeri/testimoni/rekomendasi) ===== -->
+    <div class="wrap view" id="viewKonten" style="display:none;">
+      <div class="toolbar">
+        <div class="field">
+          <label for="kontenSelect">Jenis Konten</label>
+          <select id="kontenSelect">
+            <option value="galeri">Galeri</option>
+            <option value="testimoni">Testimoni</option>
+            <option value="recommendation">Rekomendasi</option>
+          </select>
+        </div>
+        <button class="btn btn-sm" id="kontenAddBtn">＋ Tambah Item</button>
+        <button class="btn btn-sm btn-ghost" id="kontenReloadBtn">🔄 Muat Ulang</button>
+      </div>
+      <div id="kontenList"></div>
+      <div class="fin-card" style="margin-top:14px;">
+        <button class="btn" id="kontenSaveBtn">💾 Simpan Konten</button>
+        <div class="msg" id="kontenMsg"></div>
+        <p class="hint">Untuk galeri/testimoni: tempel <b>embed code</b> dari Instagram. Item kosong (tanpa judul) diabaikan saat simpan.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Config global: GOOGLE_SCRIPT_URL & data statis (untuk seed awal editor) -->
+  <script src="../env.js"></script>
+  <script src="../workshop-config.js"></script>
+  <script src="../gallery-config.js"></script>
+  <script src="../testimony-config.js"></script>
+  <script src="../recommendation-config.js"></script>
+  <script>
+    const TOKEN_KEY = "ss_admin_token";
+    let SUMMARY = {};                 // { workshopId: jumlah }
+    let MODAL = {};                   // { workshopId: { batchKey: [ {nama,biaya,tipe} ] } } ("" = general)
+    let BATCHES = [];                 // batch untuk workshop yang sedang dipilih
+    let CONFIG = null;                // array config workshop (editor)
+    let financeInit = false;
+    let configInit = false;
+    let kontenInit = false;
+    let KONTEN = [];                  // item konten yang sedang diedit
+
+    // Kirim aksi ke Apps Script (POST JSON, tanpa custom header -> tanpa CORS preflight)
+    async function api(action, payload = {}) {
+      const res = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(Object.assign({ action }, payload))
+      });
+      return res.json();
+    }
+
+    function getToken() { return localStorage.getItem(TOKEN_KEY); }
+    function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+    function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+
+    // ---------- LOGIN ----------
+    const loginBtn = document.getElementById("loginBtn");
+    const pwdInput = document.getElementById("pwd");
+    const loginMsg = document.getElementById("loginMsg");
+
+    async function doLogin() {
+      const password = pwdInput.value.trim();
+      if (!password) return;
+      loginBtn.disabled = true;
+      loginMsg.className = "msg";
+      loginMsg.textContent = "Memeriksa...";
+      try {
+        const r = await api("login", { password });
+        if (r.status === "success" && r.token) {
+          setToken(r.token);
+          showDashboard();
+        } else {
+          loginMsg.className = "msg err";
+          loginMsg.textContent = r.message || "Login gagal.";
+        }
+      } catch (e) {
+        loginMsg.className = "msg err";
+        loginMsg.textContent = "Gagal terhubung ke server.";
+      } finally {
+        loginBtn.disabled = false;
+      }
+    }
+    loginBtn.addEventListener("click", doLogin);
+    pwdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+
+    // ---------- LOGOUT ----------
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      clearToken();
+      location.reload();
+    });
+
+    // ---------- DASHBOARD ----------
+    function workshopName(id) {
+      const w = (typeof WORKSHOPS !== "undefined") ? WORKSHOPS.find(x => x.id === id) : null;
+      return w ? w.name : id;
+    }
+
+    function showDashboard() {
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      populateWorkshopSelect();
+      loadSummary();
+      loadBatches();
+    }
+
+    // Daftar workshop yang punya sheet (sama dengan WORKSHOP_SHEETS di Apps Script)
+    const WORKSHOP_IDS = [
+      "3d-frame-journaling", "paper-journal", "upcycle-journal",
+      "bookmark-journal", "reka-rekat"
+    ];
+
+    function populateWorkshopSelect() {
+      const sel = document.getElementById("wsSelect");
+      sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
+    }
+
+    async function loadSummary() {
+      const box = document.getElementById("statCards");
+      box.innerHTML = "";
+      try {
+        const r = await api("getSummary", { token: getToken() });
+        if (r.status !== "success") return handleAuthError(r);
+        SUMMARY = r.summary || {};
+        box.innerHTML = WORKSHOP_IDS.map(id => `
+          <div class="stat">
+            <div class="n">${r.summary[id] ?? 0}</div>
+            <div class="l">${workshopName(id)}</div>
+          </div>`).join("");
+      } catch (e) { /* diamkan; tabel utama yang penting */ }
+    }
+
+    function isUrl(v) { return typeof v === "string" && /^https?:\/\//i.test(v); }
+
+    async function loadRegistrations() {
+      const workshop = document.getElementById("wsSelect").value;
+      const sheetName = document.getElementById("batchSelect").value; // batch terpilih (kosong = batch aktif)
+      const head = document.getElementById("tableHead");
+      const body = document.getElementById("tableBody");
+      const empty = document.getElementById("tableEmpty");
+      head.innerHTML = "";
+      body.innerHTML = `<tr><td style="padding:24px;color:#6b7280;">Memuat...</td></tr>`;
+      empty.style.display = "none";
+
+      try {
+        const r = await api("getRegistrations", { token: getToken(), workshop, sheetName });
+        if (r.status !== "success") return handleAuthError(r);
+
+        head.innerHTML = "<th>#</th>" + r.headers.map(h => `<th>${h}</th>`).join("");
+
+        if (!r.rows.length) {
+          body.innerHTML = "";
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+        body.innerHTML = r.rows.map((row, i) => {
+          const cells = row.map(c => {
+            if (isUrl(c)) return `<td><a href="${c}" target="_blank" rel="noopener">Lihat</a></td>`;
+            return `<td>${c === "" ? "-" : escapeHtml(c)}</td>`;
+          }).join("");
+          return `<tr><td>${i + 1}</td>${cells}</tr>`;
+        }).join("");
+      } catch (e) {
+        body.innerHTML = `<tr><td style="padding:24px;color:#dc2626;">Gagal memuat data.</td></tr>`;
+      }
+    }
+
+    function handleAuthError(r) {
+      // Kalau sesi tidak valid/kedaluwarsa -> balik ke login
+      if (r.message && /sesi/i.test(r.message)) {
+        clearToken();
+        alert(r.message);
+        location.reload();
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, m => (
+        { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]
+      ));
+    }
+
+    document.getElementById("wsSelect").addEventListener("change", loadBatches);
+    document.getElementById("batchSelect").addEventListener("change", () => { updateBatchInfo(); loadRegistrations(); });
+    document.getElementById("refreshBtn").addEventListener("click", () => { loadSummary(); loadBatches(); });
+    document.getElementById("newBatchBtn").addEventListener("click", createNewBatch);
+    document.getElementById("regBatchBtn").addEventListener("click", registerOldBatch);
+
+    // ---------- BATCH / VOLUME ----------
+    async function loadBatches() {
+      const workshop = document.getElementById("wsSelect").value;
+      const sel = document.getElementById("batchSelect");
+      sel.innerHTML = `<option>Memuat...</option>`;
+      try {
+        const r = await api("listBatches", { token: getToken(), workshop });
+        if (r.status !== "success") { handleAuthError(r); return; }
+        BATCHES = r.batches || [];
+        if (!BATCHES.length) {
+          sel.innerHTML = `<option value="">(belum ada batch)</option>`;
+        } else {
+          sel.innerHTML = BATCHES.map(b =>
+            `<option value="${escapeHtml(b.sheetName)}">${escapeHtml(b.label)}${b.active ? " • AKTIF" : ""}</option>`
+          ).join("");
+          const activeIdx = BATCHES.findIndex(b => b.active);
+          if (activeIdx >= 0) sel.selectedIndex = activeIdx;
+        }
+        updateBatchInfo();
+        loadRegistrations();
+      } catch (e) {
+        sel.innerHTML = `<option value="">(gagal memuat)</option>`;
+      }
+    }
+
+    function updateBatchInfo() {
+      const info = document.getElementById("batchInfo");
+      const name = document.getElementById("batchSelect").value;
+      const b = BATCHES.find(x => x.sheetName === name);
+      if (!b) { info.innerHTML = ""; return; }
+      if (b.active) {
+        info.innerHTML = `<span class="badge">✅ Batch aktif — pendaftaran baru masuk ke sini</span>`;
+      } else {
+        info.innerHTML = `<span class="badge" style="background:#fef3c7;color:#92400e;">📦 Arsip</span>`;
+        const btn = document.createElement("button");
+        btn.className = "btn btn-sm";
+        btn.textContent = "Jadikan Aktif";
+        btn.addEventListener("click", setActiveBatch);
+        info.appendChild(btn);
+      }
+    }
+
+    async function createNewBatch() {
+      const workshop = document.getElementById("wsSelect").value;
+      const label = prompt("Label batch baru (mis. 'Vol 2 - 11 Juli'):");
+      if (!label) return;
+      const suggested = (workshop + "-" + label).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const sheetName = prompt("Nama tab baru di Google Sheet (huruf/angka/strip):", suggested);
+      if (!sheetName) return;
+      const r = await api("newBatch", { token: getToken(), workshop, label, sheetName });
+      alert(r.message || r.status);
+      if (r.status === "success") { await loadBatches(); loadSummary(); }
+    }
+
+    async function registerOldBatch() {
+      const workshop = document.getElementById("wsSelect").value;
+      const sheetName = prompt("Nama tab yang sudah ada (persis seperti di Google Sheet):");
+      if (!sheetName) return;
+      const label = prompt("Label untuk batch ini (mis. 'Vol 1 - 20 Juni'):", sheetName);
+      if (label === null) return;
+      const r = await api("registerBatch", { token: getToken(), workshop, sheetName, label });
+      alert(r.message || r.status);
+      if (r.status === "success") await loadBatches();
+    }
+
+    async function setActiveBatch() {
+      const workshop = document.getElementById("wsSelect").value;
+      const sheetName = document.getElementById("batchSelect").value;
+      if (!confirm("Jadikan batch ini AKTIF?\nPendaftaran baru akan masuk ke sini, dan batch lain jadi arsip.")) return;
+      const r = await api("setActiveBatch", { token: getToken(), workshop, sheetName });
+      alert(r.message || r.status);
+      if (r.status === "success") { await loadBatches(); loadSummary(); }
+    }
+
+    // ---------- NAVIGASI ----------
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchView(btn.dataset.view));
+    });
+    function switchView(view) {
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+      document.getElementById("viewPendaftar").style.display = (view === "pendaftar") ? "block" : "none";
+      document.getElementById("viewKeuangan").style.display  = (view === "keuangan")  ? "block" : "none";
+      document.getElementById("viewConfig").style.display    = (view === "config")    ? "block" : "none";
+      document.getElementById("viewKonten").style.display    = (view === "konten")    ? "block" : "none";
+      if (view === "keuangan") ensureFinanceLoaded();
+      if (view === "config") ensureConfigLoaded();
+      if (view === "konten") ensureKontenLoaded();
+    }
+
+    // ---------- KEUANGAN ----------
+    function rupiah(n) { return "Rp " + (Number(n) || 0).toLocaleString("id-ID"); }
+
+    let FIN_BATCHES = [];   // batch (dengan count) untuk workshop keuangan yg dipilih
+
+    async function ensureFinanceLoaded() {
+      if (!financeInit) {
+        const sel = document.getElementById("finSelect");
+        sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
+        sel.addEventListener("change", onFinanceWorkshopChange);
+        document.getElementById("finBatchSelect").addEventListener("change", renderFinance);
+        document.getElementById("addCostBtn").addEventListener("click", () => { addCostRow(); recalc(); });
+        document.getElementById("saveModalBtn").addEventListener("click", saveModal);
+        document.getElementById("finPrice").addEventListener("input", recalc);
+        if (!Object.keys(SUMMARY).length) await loadSummary();
+        await loadModal();
+        financeInit = true;
+      }
+      await onFinanceWorkshopChange();
+    }
+
+    async function loadModal() {
+      try {
+        const r = await api("getModal", { token: getToken() });
+        if (r.status === "success") MODAL = r.modal || {};
+        else handleAuthError(r);
+      } catch (e) { /* diamkan */ }
+    }
+
+    // Ganti workshop -> muat daftar batch + isi dropdown batch keuangan
+    async function onFinanceWorkshopChange() {
+      const id = document.getElementById("finSelect").value;
+      const sel = document.getElementById("finBatchSelect");
+      sel.innerHTML = `<option value="">⭐ General (default)</option>`;
+      try {
+        const r = await api("listBatches", { token: getToken(), workshop: id });
+        if (r.status === "success") {
+          FIN_BATCHES = r.batches || [];
+          sel.innerHTML += FIN_BATCHES.map(b =>
+            `<option value="${escapeHtml(b.sheetName)}">${escapeHtml(b.label)} (${b.count} org)${b.active ? " • AKTIF" : ""}</option>`
+          ).join("");
+        } else { FIN_BATCHES = []; handleAuthError(r); }
+      } catch (e) { FIN_BATCHES = []; }
+      renderFinance();
+    }
+
+    function renderFinance() {
+      const id = document.getElementById("finSelect").value;
+      const batchKey = document.getElementById("finBatchSelect").value; // "" = general
+      const w = (typeof WORKSHOPS !== "undefined") ? WORKSHOPS.find(x => x.id === id) : null;
+      const price = w ? (typeof getCurrentPrice === "function" ? getCurrentPrice(w) : w.normalPrice) : 0;
+      document.getElementById("finPrice").value = price || 0;
+
+      // Jumlah pendaftar: general -> batch aktif; batch -> count batch itu
+      let count;
+      if (batchKey === "") count = SUMMARY[id] || 0;
+      else { const b = FIN_BATCHES.find(x => x.sheetName === batchKey); count = b ? b.count : 0; }
+      document.getElementById("finCount").textContent = count;
+
+      // Resolusi item modal: batch spesifik -> pakai; kalau belum ada -> warisi general
+      const wsModal = MODAL[id] || {};
+      let items, inherited = false;
+      if (batchKey === "") {
+        items = wsModal[""] || [];
+      } else if (wsModal[batchKey]) {
+        items = wsModal[batchKey];
+      } else {
+        items = wsModal[""] || [];   // warisan dari general (bisa diedit lalu disimpan sbg khusus)
+        inherited = true;
+      }
+
+      // Info status
+      const info = document.getElementById("finBatchInfo");
+      if (batchKey === "") {
+        info.innerHTML = `<span class="badge">Modal default — dipakai semua batch yang belum punya modal sendiri</span>`;
+      } else if (inherited) {
+        info.innerHTML = `<span class="badge" style="background:#fef3c7;color:#92400e;">Warisan dari General — edit & simpan untuk bikin modal khusus batch ini</span>`;
+      } else {
+        info.innerHTML = `<span class="badge" style="background:#dcfce7;color:#166534;">Modal khusus batch ini</span>`;
+      }
+
+      const box = document.getElementById("costRows");
+      box.innerHTML = "";
+      if (!items.length) addCostRow();
+      else items.forEach(it => addCostRow(it));
+      recalc();
+    }
+
+    function addCostRow(item) {
+      const box = document.getElementById("costRows");
+      const div = document.createElement("div");
+      div.className = "cost-row";
+      div.innerHTML = `
+        <input type="text" class="c-nama" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" />
+        <input type="number" class="c-biaya" placeholder="0" min="0" value="${item ? item.biaya : ""}" />
+        <select class="c-tipe">
+          <option value="per-peserta">per-peserta</option>
+          <option value="tetap">tetap</option>
+        </select>
+        <button class="del" title="Hapus">&times;</button>`;
+      if (item && item.tipe === "tetap") div.querySelector(".c-tipe").value = "tetap";
+      div.querySelector(".del").addEventListener("click", () => { div.remove(); recalc(); });
+      div.querySelectorAll("input, select").forEach(el => el.addEventListener("input", recalc));
+      box.appendChild(div);
+    }
+
+    function recalc() {
+      const price = Number(document.getElementById("finPrice").value) || 0;
+      const count = Number(document.getElementById("finCount").textContent) || 0;
+      let cost = 0;
+      document.querySelectorAll("#costRows .cost-row").forEach(row => {
+        const biaya = Number(row.querySelector(".c-biaya").value) || 0;
+        const tipe = row.querySelector(".c-tipe").value;
+        cost += (tipe === "tetap") ? biaya : biaya * count;
+      });
+      const revenue = price * count;
+      const profit = revenue - cost;
+      document.getElementById("resRevenue").textContent = rupiah(revenue);
+      document.getElementById("resCost").textContent = rupiah(cost);
+      const profitEl = document.getElementById("resProfit");
+      profitEl.textContent = rupiah(profit);
+      profitEl.classList.toggle("profit-neg", profit < 0);
+    }
+
+    async function saveModal() {
+      const id = document.getElementById("finSelect").value;
+      const batchKey = document.getElementById("finBatchSelect").value; // "" = general
+      const items = [];
+      document.querySelectorAll("#costRows .cost-row").forEach(row => {
+        const nama = row.querySelector(".c-nama").value.trim();
+        if (!nama) return;
+        items.push({
+          nama,
+          biaya: Number(row.querySelector(".c-biaya").value) || 0,
+          tipe: row.querySelector(".c-tipe").value
+        });
+      });
+      const btn = document.getElementById("saveModalBtn");
+      const msg = document.getElementById("finMsg");
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      try {
+        const r = await api("saveModal", { token: getToken(), workshop: id, batch: batchKey, items });
+        if (r.status === "success") {
+          if (!MODAL[id]) MODAL[id] = {};
+          MODAL[id][batchKey] = items;
+          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+          renderFinance(); // refresh status badge (warisan -> khusus)
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ---------- CONFIG EDITOR ----------
+    const CFG_FIELDS = [
+      { key: "name", label: "Nama", type: "text" },
+      { key: "description", label: "Deskripsi", type: "textarea" },
+      { key: "enabled", label: "Aktif (buka pendaftaran)", type: "checkbox" },
+      { key: "isDisplay", label: "Tampilkan di home", type: "checkbox" },
+      { key: "isPrintPhoto", label: "Butuh upload foto (print)", type: "checkbox" },
+      { key: "openDate", label: "Tanggal buka (DD/MM/YYYY)", type: "text" },
+      { key: "closeDate", label: "Tanggal tutup (DD/MM/YYYY)", type: "text" },
+      { key: "normalPrice", label: "Harga normal (Rp)", type: "number" },
+      { key: "earlyBirdPrice", label: "Harga early bird (Rp, kosong = tidak ada)", type: "number" },
+      { key: "earlyBirdDueDate", label: "Batas early bird (DD/MM/YYYY)", type: "text" },
+      { key: "maxQuota", label: "Kuota maksimal", type: "number" },
+      { key: "workshopDate", label: "Tanggal acara (teks bebas)", type: "text" },
+      { key: "workshopTime", label: "Jam acara (teks bebas)", type: "text" },
+      { key: "locationName", label: "Nama lokasi", type: "text" },
+      { key: "mapsLink", label: "Link Google Maps", type: "text" },
+      { key: "whatsappGroupLink", label: "Link grup WhatsApp", type: "text" },
+      { key: "icon", label: "Icon (nama lucide)", type: "text" },
+      { key: "path", label: "Path halaman", type: "text" }
+    ];
+
+    async function ensureConfigLoaded() {
+      if (!configInit) {
+        document.getElementById("cfgSelect").addEventListener("change", renderConfigForm);
+        document.getElementById("cfgSaveBtn").addEventListener("click", saveConfig);
+        document.getElementById("cfgDeleteBtn").addEventListener("click", deleteWorkshopConfig);
+        document.getElementById("cfgReloadBtn").addEventListener("click", loadConfig);
+        await loadConfig();
+        configInit = true;
+      }
+    }
+
+    async function loadConfig() {
+      try {
+        const r = await api("getConfig", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); return; }
+        // Pakai config tersimpan; kalau belum ada, mulai dari WORKSHOPS statis
+        CONFIG = (r.config && r.config.length) ? r.config : JSON.parse(JSON.stringify(WORKSHOPS));
+        const sel = document.getElementById("cfgSelect");
+        const prev = sel.value;
+        sel.innerHTML = CONFIG.map((w, i) => `<option value="${i}">${escapeHtml(w.name || w.id)}</option>`).join("");
+        if (prev !== "" && CONFIG[Number(prev)]) sel.value = prev;
+        renderConfigForm();
+      } catch (e) { /* diamkan */ }
+    }
+
+    function renderConfigForm() {
+      if (!CONFIG) return;
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG[idx] || {};
+      const box = document.getElementById("cfgForm");
+      box.innerHTML = CFG_FIELDS.map(f => {
+        const val = w[f.key];
+        if (f.type === "checkbox") {
+          return `<div class="cfg-field cfg-check">
+            <label><input type="checkbox" data-key="${f.key}" ${val ? "checked" : ""}/> ${f.label}</label>
+          </div>`;
+        }
+        if (f.type === "textarea") {
+          return `<div class="cfg-field cfg-full">
+            <label>${f.label}</label>
+            <textarea data-key="${f.key}" rows="2">${val != null ? escapeHtml(val) : ""}</textarea>
+          </div>`;
+        }
+        const inputType = (f.type === "number") ? "number" : "text";
+        return `<div class="cfg-field">
+          <label>${f.label}</label>
+          <input type="${inputType}" data-key="${f.key}" value="${val != null ? escapeHtml(val) : ""}"/>
+        </div>`;
+      }).join("");
+    }
+
+    async function deleteWorkshopConfig() {
+      if (!CONFIG) return;
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG[idx];
+      if (!w) return;
+      if (!confirm(`Hapus workshop "${w.name || w.id}" dari config?\n\nCatatan: ini hanya menghapus dari daftar config (halaman & dashboard). Data pendaftar di sheet TIDAK terhapus.`)) return;
+      CONFIG.splice(idx, 1);
+      const msg = document.getElementById("cfgMsg");
+      msg.className = "msg"; msg.textContent = "Menghapus...";
+      try {
+        const r = await api("saveConfig", { token: getToken(), config: CONFIG });
+        if (r.status === "success") {
+          msg.className = "msg ok"; msg.textContent = "Workshop dihapus ✓";
+          await loadConfig();
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Gagal menghapus.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+      }
+    }
+
+    async function saveConfig() {
+      if (!CONFIG) return;
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG[idx];
+      document.querySelectorAll("#cfgForm [data-key]").forEach(el => {
+        const key = el.dataset.key;
+        if (el.type === "checkbox") w[key] = el.checked;
+        else if (el.type === "number") w[key] = (el.value === "") ? null : Number(el.value);
+        else w[key] = el.value;
+      });
+      const btn = document.getElementById("cfgSaveBtn");
+      const msg = document.getElementById("cfgMsg");
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      try {
+        const r = await api("saveConfig", { token: getToken(), config: CONFIG });
+        if (r.status === "success") {
+          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ---------- KONTEN EDITOR (galeri/testimoni/rekomendasi) ----------
+    const KONTEN_SCHEMA = {
+      galeri: {
+        seed: () => (typeof GALLERIES !== "undefined" ? GALLERIES : []),
+        fields: [
+          { key: "id", label: "ID" },
+          { key: "title", label: "Judul" },
+          { key: "embedCode", label: "Embed Code (Instagram)", type: "textarea" }
+        ]
+      },
+      testimoni: {
+        seed: () => (typeof TESTIMONIES !== "undefined" ? TESTIMONIES : []),
+        fields: [
+          { key: "id", label: "ID" },
+          { key: "title", label: "Judul" },
+          { key: "embedCode", label: "Embed Code (Instagram)", type: "textarea" }
+        ]
+      },
+      recommendation: {
+        seed: () => (typeof RECOMMENDATIONS !== "undefined" ? RECOMMENDATIONS : []),
+        fields: [
+          { key: "id", label: "ID" },
+          { key: "title", label: "Judul" },
+          { key: "image", label: "Path Gambar (mis. images/reccomendation/x.webp)" },
+          { key: "description", label: "Deskripsi", type: "textarea" },
+          { key: "link", label: "Link toko" },
+          { key: "category", label: "Kategori (tools/material/paper)" }
+        ]
+      }
+    };
+
+    async function ensureKontenLoaded() {
+      if (!kontenInit) {
+        document.getElementById("kontenSelect").addEventListener("change", loadKonten);
+        document.getElementById("kontenAddBtn").addEventListener("click", () => { KONTEN.push({}); renderKonten(); });
+        document.getElementById("kontenReloadBtn").addEventListener("click", loadKonten);
+        document.getElementById("kontenSaveBtn").addEventListener("click", saveKonten);
+        await loadKonten();
+        kontenInit = true;
+      }
+    }
+
+    function currentKontenType() { return document.getElementById("kontenSelect").value; }
+
+    async function loadKonten() {
+      const type = currentKontenType();
+      const listEl = document.getElementById("kontenList");
+      listEl.innerHTML = `<p class="hint">Memuat...</p>`;
+      try {
+        const r = await api("getContent", { token: getToken(), contentType: type });
+        if (r.status !== "success") { handleAuthError(r); listEl.innerHTML = ""; return; }
+        // Pakai data tersimpan; kalau kosong, seed dari statis
+        KONTEN = (r.items && r.items.length) ? r.items : JSON.parse(JSON.stringify(KONTEN_SCHEMA[type].seed()));
+        renderKonten();
+      } catch (e) {
+        listEl.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat.</p>`;
+      }
+    }
+
+    function renderKonten() {
+      const type = currentKontenType();
+      const fields = KONTEN_SCHEMA[type].fields;
+      const listEl = document.getElementById("kontenList");
+      if (!KONTEN.length) { listEl.innerHTML = `<p class="hint">Belum ada item. Klik "＋ Tambah Item".</p>`; return; }
+      listEl.innerHTML = "";
+      KONTEN.forEach((item, idx) => {
+        const div = document.createElement("div");
+        div.className = "konten-item";
+        div.innerHTML =
+          `<div class="konten-item-head">
+             <span class="k-num">Item #${idx + 1}</span>
+             <button class="k-del" data-idx="${idx}">Hapus</button>
+           </div>` +
+          fields.map(f => {
+            const val = item[f.key] != null ? item[f.key] : "";
+            if (f.type === "textarea") {
+              return `<div class="konten-field"><label>${f.label}</label>
+                <textarea data-key="${f.key}" rows="3">${escapeHtml(val)}</textarea></div>`;
+            }
+            return `<div class="konten-field"><label>${f.label}</label>
+              <input type="text" data-key="${f.key}" value="${escapeHtml(val)}"/></div>`;
+          }).join("");
+        // sync input -> KONTEN
+        div.querySelectorAll("[data-key]").forEach(el => {
+          el.addEventListener("input", () => { KONTEN[idx][el.dataset.key] = el.value; });
+        });
+        div.querySelector(".k-del").addEventListener("click", () => { KONTEN.splice(idx, 1); renderKonten(); });
+        listEl.appendChild(div);
+      });
+    }
+
+    async function saveKonten() {
+      const type = currentKontenType();
+      // buang item tanpa judul/id
+      const items = KONTEN.filter(it => (it.title && String(it.title).trim()) || (it.id && String(it.id).trim()));
+      const btn = document.getElementById("kontenSaveBtn");
+      const msg = document.getElementById("kontenMsg");
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      try {
+        const r = await api("saveContent", { token: getToken(), contentType: type, items });
+        if (r.status === "success") {
+          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ---------- AUTO-LOGIN kalau token masih ada ----------
+    if (getToken()) {
+      showDashboard();
+    }
+  </script>
+</body>
+</html>
