@@ -1169,6 +1169,64 @@
       filter: brightness(1.08);
     }
 
+    /* --- Check-in kehadiran --- */
+    .hadir-summary { font-size: 13px; color: var(--ink); margin-bottom: 10px; }
+    .hadir-summary b { color: var(--ok, #16a34a); }
+    .att-check { width: 18px; height: 18px; cursor: pointer; }
+
+    /* --- Cari & Export (Registrations) --- */
+    .reg-tools { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .reg-tools input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; font-size: 14px; }
+
+    /* --- Loyalty --- */
+    .loyalty-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .loyalty-title { font-size: 18px; }
+    .loyalty-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .loyalty-stats { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .loyalty-stats .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; min-width: 120px; }
+    .loyalty-stats .stat-n { font-size: 24px; font-weight: 700; }
+    .loyalty-stats .stat-l { font-size: 12px; color: var(--muted); }
+    .loy-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+    .loy-card.loy-reward { border-color: #f59e0b; background: #fffbeb; }
+    .loy-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .loy-name { font-weight: 700; font-size: 15px; }
+    .loy-wa { font-size: 12px; color: var(--muted); }
+    .loy-badge { font-size: 11px; font-weight: 700; color: #92400e; background: #fde68a; padding: 2px 8px; border-radius: 999px; margin-left: 4px; }
+    .loy-count { font-weight: 700; font-size: 15px; color: var(--brand); white-space: nowrap; }
+    .loy-extra { font-size: 12px; color: var(--muted); font-weight: 400; }
+    .loy-stamps { margin: 8px 0 6px; letter-spacing: 2px; }
+    .stamp { font-size: 20px; color: #d1d5db; }
+    .stamp.on { color: #f59e0b; }
+    .loy-events { font-size: 12px; color: var(--muted); }
+    .loy-claimed { font-size: 12px; color: #92400e; margin-left: 6px; }
+    .loy-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .loy-claim { background: #f59e0b; }
+    .loy-claim:hover { background: #d97706; }
+    .loy-card { cursor: pointer; transition: box-shadow .15s, transform .15s; }
+    .loy-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); transform: translateY(-1px); }
+    .loy-tap { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: right; }
+    .loy-note-badge { font-size: 11px; background: #eef2ff; color: var(--brand); padding: 2px 7px; border-radius: 999px; }
+
+    /* --- Modal detail --- */
+    .modal { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal-box { background: var(--card); border-radius: 16px; max-width: 520px; width: 100%; max-height: 88vh; overflow-y: auto; padding: 22px; position: relative; }
+    .modal-close { position: absolute; top: 12px; right: 14px; background: #eef0f3; border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 20px; cursor: pointer; line-height: 1; }
+    .det-name { font-size: 20px; margin-bottom: 8px; padding-right: 30px; }
+    .det-stamps { margin-bottom: 6px; }
+    .det-prog { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+    .det-sec { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; }
+    .det-sec h4 { font-size: 14px; margin-bottom: 10px; }
+    .det-row { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: 14px; }
+    .det-row span { color: var(--muted); }
+    .det-events { list-style: none; padding: 0 4px 0 0; margin: 0; max-height: 220px; overflow-y: auto; }
+    .det-events li { padding: 6px 2px; border-bottom: 1px dashed var(--line); font-size: 14px; }
+    .det-events li:last-child { border-bottom: none; }
+    .loy-ev-date { color: var(--muted); font-size: 12px; }
+    .note-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 7px 10px; margin-bottom: 6px; font-size: 13px; }
+    .note-del { background: none; border: none; color: var(--err); font-size: 18px; cursor: pointer; line-height: 1; }
+    .note-add { display: flex; gap: 8px; margin-top: 8px; }
+    .note-add input { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+
     /* --- Prep hub --- */
     .prep-card {
       margin-bottom: 16px;
@@ -1415,6 +1473,9 @@
           <button class="nav-btn" data-view="pendaftar">
             <span class="nav-icon">👥</span> Registrations
           </button>
+          <button class="nav-btn" data-view="loyalty">
+            <span class="nav-icon">🎁</span> Loyalty
+          </button>
           <button class="nav-btn" data-view="keuangan">
             <span class="nav-icon">💰</span> Finance
           </button>
@@ -1480,6 +1541,11 @@
           </div>
           <div id="batchInfo" class="batch-info"></div>
 
+          <div class="reg-tools">
+            <input type="text" id="regSearch" placeholder="🔍 Cari nama / WA / apa aja..." />
+            <button class="btn btn-sm btn-ghost" id="exportCsvBtn" disabled>⬇️ Export CSV</button>
+          </div>
+
           <div class="table-box">
             <div class="table-scroll">
               <table id="dataTable">
@@ -1491,6 +1557,22 @@
             </div>
             <div class="empty" id="tableEmpty" style="display:none;">Belum ada data.</div>
           </div>
+        </div>
+
+        <!-- ===== VIEW: LOYALTY ===== -->
+        <div class="wrap view" id="viewLoyalty" style="display:none;">
+          <div class="loyalty-head">
+            <div>
+              <h2 class="loyalty-title">🎁 Loyalty Card</h2>
+              <p class="loyalty-sub">Kumpulkan <b>6 stamp</b> (6× ikut event) → dapat hadiah. Otomatis dari semua event.</p>
+            </div>
+            <button class="btn btn-sm btn-ghost" id="loyaltyReload">🔄 Muat Ulang</button>
+          </div>
+          <div class="loyalty-stats" id="loyaltyStats"></div>
+          <div class="reg-tools">
+            <input type="text" id="loyaltySearch" placeholder="🔍 Cari nama / nomor WA..." />
+          </div>
+          <div id="loyaltyList"></div>
         </div>
 
         <!-- ===== VIEW: KEUANGAN ===== -->
@@ -1605,6 +1687,14 @@
   <div id="imgLightbox" class="lightbox" style="display:none;">
     <button class="lightbox-close" id="lightboxClose" aria-label="Tutup">&times;</button>
     <img id="lightboxImg" src="" alt="preview" />
+  </div>
+
+  <!-- Modal detail peserta loyalty -->
+  <div id="loyaltyModal" class="modal" style="display:none;">
+    <div class="modal-box">
+      <button class="modal-close" id="loyaltyModalClose" aria-label="Tutup">&times;</button>
+      <div id="loyaltyDetail"></div>
+    </div>
   </div>
 
   <!-- Config global: GOOGLE_SCRIPT_URL & data statis (untuk seed awal editor) -->
@@ -1778,10 +1868,14 @@
       head.innerHTML = "";
       body.innerHTML = `<tr><td style="padding:24px;color:#6b7280;">Memuat...</td></tr>`;
       empty.style.display = "none";
+      document.getElementById("exportCsvBtn").disabled = true; // aktif lagi kalau data berhasil dimuat
 
       try {
         const r = await api("getRegistrations", { token: getToken(), workshop, sheetName });
         if (r.status !== "success") return handleAuthError(r);
+
+        REG_DATA = { headers: r.headers || [], rows: r.rows || [], sheetName: r.sheetName || (sheetName || workshop) };
+        document.getElementById("exportCsvBtn").disabled = REG_DATA.rows.length === 0;
 
         head.innerHTML = "<th>#</th>" + r.headers.map(h => `<th>${h}</th>`).join("");
 
@@ -1795,9 +1889,35 @@
           const cells = row.map(cellHtml).join("");
           return `<tr><td>${i + 1}</td>${cells}</tr>`;
         }).join("");
+        filterReg(); // terapkan pencarian yang aktif (kalau ada)
       } catch (e) {
         body.innerHTML = `<tr><td style="padding:24px;color:#dc2626;">Gagal memuat data.</td></tr>`;
       }
+    }
+
+    // --- Cari & Export CSV (Registrations) ---
+    let REG_DATA = { headers: [], rows: [], sheetName: "" };
+
+    function filterReg() {
+      const q = (document.getElementById("regSearch").value || "").toLowerCase().trim();
+      document.querySelectorAll("#tableBody tr").forEach(tr => {
+        tr.style.display = (!q || tr.textContent.toLowerCase().includes(q)) ? "" : "none";
+      });
+    }
+
+    function exportReg() {
+      if (!REG_DATA.rows.length) { alert("Belum ada data untuk diekspor."); return; }
+      const esc = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+      const lines = [REG_DATA.headers.map(esc).join(",")];
+      REG_DATA.rows.forEach(row => lines.push(row.map(esc).join(",")));
+      const csv = "﻿" + lines.join("\r\n"); // BOM biar Excel baca UTF-8
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = (REG_DATA.sheetName || "peserta") + ".csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
     }
 
     function handleAuthError(r) {
@@ -1818,6 +1938,8 @@
     document.getElementById("wsSelect").addEventListener("change", loadBatches);
     document.getElementById("batchSelect").addEventListener("change", () => { updateBatchInfo(); loadRegistrations(); });
     document.getElementById("refreshBtn").addEventListener("click", () => { loadSummary(); loadBatches(); });
+    document.getElementById("regSearch").addEventListener("input", filterReg);
+    document.getElementById("exportCsvBtn").addEventListener("click", exportReg);
     document.getElementById("newBatchBtn").addEventListener("click", createNewBatch);
     document.getElementById("regBatchBtn").addEventListener("click", registerOldBatch);
 
@@ -1908,7 +2030,7 @@
       let h = (location.hash || "").replace(/^#/, "");
       if (!h) h = "overview";
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "loyalty"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1]);
     }
@@ -1922,12 +2044,14 @@
       document.getElementById("viewPrep").style.display = (view === "prep") ? "block" : "none";
       document.getElementById("viewConfig").style.display = (view === "config") ? "block" : "none";
       document.getElementById("viewKonten").style.display = (view === "konten") ? "block" : "none";
+      document.getElementById("viewLoyalty").style.display = (view === "loyalty") ? "block" : "none";
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") ensureFinanceLoaded();
       if (view === "prep") ensurePrep(event);
       if (view === "config") ensureConfigLoaded();
       if (view === "konten") ensureKontenLoaded();
+      if (view === "loyalty") ensureLoyalty();
     }
 
     // ---------- KEUANGAN ----------
@@ -2592,6 +2716,7 @@
              <textarea id="waMessage" rows="3"></textarea>
              <p class="hint">Klik <b>Chat WA</b> di tiap baris → WhatsApp kebuka dengan pesan ini (nama otomatis terisi). Tinggal Kirim.</p>
            </div>
+           <div id="hadirSummary" class="hadir-summary"></div>
            <div class="table-box"><div class="table-scroll">
              <table><thead><tr id="pesertaHead"></tr></thead><tbody id="pesertaBody"></tbody></table>
            </div><div class="empty" id="pesertaEmpty" style="display:none;">Belum ada peserta.</div></div>
@@ -2621,19 +2746,27 @@
         if (cnt) cnt.textContent = r.total || 0;
 
         const headers = r.headers || [];
+        pesertaSheetName = r.sheetName || "";
         const waIdx = headers.findIndex(h => /whats?app|nomor|\bwa\b|hp|telp/i.test(h));
         const igIdx = headers.findIndex(h => /instagram|\big\b/i.test(h));
+        const hadirIdx = headers.findIndex(h => String(h) === "Hadir");
         // Nama untuk sapaan: utamakan Nickname, fallback ke Nama
         let nameIdx = headers.findIndex(h => /nickname|panggil/i.test(h));
         if (nameIdx < 0) nameIdx = headers.findIndex(h => /nama|name/i.test(h));
 
         const hasAction = waIdx >= 0 || igIdx >= 0;
-        head.innerHTML = "<th>#</th>" + (hasAction ? "<th>Aksi</th>" : "") + headers.map(h => `<th>${h}</th>`).join("");
-        if (!r.rows.length) { body.innerHTML = ""; empty.style.display = "block"; return; }
+        // Kolom "Hadir" mentah disembunyikan dari data (diganti checkbox)
+        const dataHeaders = headers.map((h, idx) => idx === hadirIdx ? null : `<th>${h}</th>`).filter(Boolean).join("");
+        head.innerHTML = "<th>#</th><th>✅</th>" + (hasAction ? "<th>Aksi</th>" : "") + dataHeaders;
+        if (!r.rows.length) { body.innerHTML = ""; empty.style.display = "block"; renderHadirSummary(0, 0); return; }
         empty.style.display = "none";
 
+        let hadirCount = 0;
         body.innerHTML = r.rows.map((row, i) => {
-          const cells = row.map(cellHtml).join("");
+          const isHadir = hadirIdx >= 0 && String(row[hadirIdx]) === "Ya";
+          if (isHadir) hadirCount++;
+          const attCell = `<td><input type="checkbox" class="att-check" data-row="${i + 1}" ${isHadir ? "checked" : ""}/></td>`;
+          const cells = row.map((c, idx) => idx === hadirIdx ? null : cellHtml(c)).filter(x => x !== null).join("");
           let action = "";
           if (hasAction) {
             let btns = "";
@@ -2651,8 +2784,9 @@
             }
             action = `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>`;
           }
-          return `<tr><td>${i + 1}</td>${action}${cells}</tr>`;
+          return `<tr><td>${i + 1}</td>${attCell}${action}${cells}</tr>`;
         }).join("");
+        renderHadirSummary(hadirCount, r.rows.length);
 
         // Wiring tombol aksi (delegasi)
         body.onclick = (e) => {
@@ -2674,11 +2808,32 @@
             navigator.clipboard.writeText(ig.dataset.ig).then(() => {
               const t = ig.textContent; ig.textContent = "✓ IG"; setTimeout(() => { ig.textContent = t; }, 1200);
             });
+            return;
           }
+          const att = e.target.closest(".att-check");
+          if (att) { setAttendance(att.dataset.row, att.checked, att); }
         };
       } catch (e) {
         body.innerHTML = `<tr><td style="padding:16px;color:#dc2626;">Gagal memuat.</td></tr>`;
       }
+    }
+
+    let pesertaSheetName = "";
+    function renderHadirSummary(hadir, total) {
+      const el = document.getElementById("hadirSummary");
+      if (el) el.innerHTML = total ? `✅ Hadir: <b>${hadir}</b> / ${total} peserta` : "";
+    }
+    async function setAttendance(row, hadir, el) {
+      if (el) el.disabled = true;
+      try {
+        const r = await api("setAttendance", { token: getToken(), sheetName: pesertaSheetName, row: row, hadir: hadir });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal simpan kehadiran."); if (el) el.checked = !hadir; }
+        else {
+          const checks = document.querySelectorAll("#pesertaBody .att-check");
+          renderHadirSummary(Array.from(checks).filter(c => c.checked).length, checks.length);
+        }
+      } catch (e) { if (el) el.checked = !hadir; }
+      finally { if (el) el.disabled = false; }
     }
 
     function updatePrepCount(sec) {
@@ -2765,7 +2920,178 @@
     document.getElementById("imgLightbox").addEventListener("click", (e) => {
       if (e.target.id === "imgLightbox") closeLightbox(); // klik area gelap
     });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeLightbox(); closeLoyaltyModal(); } });
+
+    // ---------- LOYALTY ----------
+    const LOYALTY_TARGET = 6;
+    let loyaltyInit = false;
+    let LOYALTY = [];
+
+    async function ensureLoyalty() {
+      if (!loyaltyInit) {
+        document.getElementById("loyaltyReload").addEventListener("click", loadLoyalty);
+        document.getElementById("loyaltySearch").addEventListener("input", renderLoyalty);
+        document.getElementById("loyaltyModalClose").addEventListener("click", closeLoyaltyModal);
+        document.getElementById("loyaltyModal").addEventListener("click", (e) => { if (e.target.id === "loyaltyModal") closeLoyaltyModal(); });
+        loyaltyInit = true;
+      }
+      await loadLoyalty();
+    }
+
+    async function loadLoyalty() {
+      const list = document.getElementById("loyaltyList");
+      list.innerHTML = `<p class="hint">Memuat data dari semua event...</p>`;
+      try {
+        const r = await api("getLoyalty", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
+        LOYALTY = r.members || [];
+        renderLoyalty();
+      } catch (e) {
+        list.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat.</p>`;
+      }
+    }
+
+    function renderLoyalty() {
+      const q = (document.getElementById("loyaltySearch").value || "").toLowerCase().trim();
+      const eligibleCount = LOYALTY.filter(m => m.eligible).length;
+      const totalRewards = LOYALTY.reduce((s, m) => s + (m.claimed || 0), 0);
+      document.getElementById("loyaltyStats").innerHTML =
+        `<div class="stat"><div class="stat-n">${LOYALTY.length}</div><div class="stat-l">Total peserta</div></div>` +
+        `<div class="stat"><div class="stat-n">${eligibleCount}</div><div class="stat-l">🎁 Siap tukar</div></div>` +
+        `<div class="stat"><div class="stat-n">${totalRewards}</div><div class="stat-l">Hadiah ditukar</div></div>`;
+
+      const rows = LOYALTY.filter(m => {
+        if (!q) return true;
+        return (m.name || "").toLowerCase().includes(q) || String(m.wa || "").toLowerCase().includes(q);
+      });
+      const list = document.getElementById("loyaltyList");
+      if (!rows.length) { list.innerHTML = `<p class="hint">Belum ada data peserta.</p>`; return; }
+
+      list.innerHTML = rows.map(m => {
+        const filled = Math.min(m.progress, LOYALTY_TARGET);
+        let stamps = "";
+        for (let i = 0; i < LOYALTY_TARGET; i++) stamps += `<span class="stamp ${i < filled ? "on" : ""}">${i < filled ? "★" : "☆"}</span>`;
+        const rewardBadge = m.eligible ? '<span class="loy-badge">🎁 SIAP TUKAR</span>' : "";
+        const noteBadge = (m.notes && m.notes.length) ? `<span class="loy-note-badge" title="Ada catatan">📝 ${m.notes.length}</span>` : "";
+        return `<div class="loy-card${m.eligible ? " loy-reward" : ""}" data-key="${escapeHtml(m.key)}">
+          <div class="loy-top">
+            <div>
+              <div class="loy-name">${escapeHtml(m.name || "(tanpa nama)")} ${rewardBadge} ${noteBadge}</div>
+              <div class="loy-wa">${escapeHtml(m.wa || "-")} · Total ikut: <b>${m.count}</b>${m.claimed > 0 ? ` · 🎁 ${m.claimed}×` : ""}</div>
+            </div>
+            <div class="loy-count">${m.progress}/${LOYALTY_TARGET}</div>
+          </div>
+          <div class="loy-stamps">${stamps}</div>
+          <div class="loy-tap">Ketuk untuk detail →</div>
+        </div>`;
+      }).join("");
+
+      list.querySelectorAll(".loy-card").forEach(c => c.addEventListener("click", () => openLoyaltyDetail(c.dataset.key)));
+    }
+
+    // ---------- DETAIL PESERTA LOYALTY ----------
+    let detailKey = null;
+
+    function openLoyaltyDetail(key) {
+      detailKey = key;
+      renderLoyaltyDetail();
+      document.getElementById("loyaltyModal").style.display = "flex";
+    }
+    function closeLoyaltyModal() {
+      document.getElementById("loyaltyModal").style.display = "none";
+      detailKey = null;
+    }
+
+    function renderLoyaltyDetail() {
+      const m = LOYALTY.find(x => x.key === detailKey);
+      if (!m) { closeLoyaltyModal(); return; }
+      const filled = Math.min(m.progress, LOYALTY_TARGET);
+      let stamps = "";
+      for (let i = 0; i < LOYALTY_TARGET; i++) stamps += `<span class="stamp ${i < filled ? "on" : ""}">${i < filled ? "★" : "☆"}</span>`;
+
+      const events = m.events.map(e =>
+        `<li>${escapeHtml(workshopName(e.workshop) || e.workshop)}${e.date ? ` <span class="loy-ev-date">— ${escapeHtml(e.date)}</span>` : ""}</li>`
+      ).join("");
+
+      const notes = (m.notes || []).map((n, i) =>
+        `<div class="note-item"><span>${escapeHtml(n)}</span><button class="note-del" data-i="${i}" title="Hapus">&times;</button></div>`
+      ).join("");
+
+      const igLine = m.ig ? `<div class="det-row"><span>📸 Instagram</span><b>@${escapeHtml(m.ig.replace(/^@/, ""))}</b></div>` : "";
+      const actions =
+        (m.eligible ? `<button class="btn btn-sm loy-claim">🎁 Tukar Hadiah</button>` : "") +
+        (m.claimed > 0 ? `<button class="btn btn-sm btn-ghost loy-unclaim">↩︎ Batal 1 penukaran</button>` : "");
+
+      document.getElementById("loyaltyDetail").innerHTML = `
+        <h2 class="det-name">${escapeHtml(m.name || "(tanpa nama)")}</h2>
+        <div class="loy-stamps det-stamps">${stamps}</div>
+        <div class="det-prog">${m.progress}/${LOYALTY_TARGET} stamp · Total ikut <b>${m.count}</b> · 🎁 ditukar <b>${m.claimed}</b></div>
+        ${actions ? `<div class="loy-actions">${actions}</div>` : ""}
+
+        <div class="det-sec">
+          <div class="det-row"><span>🏷️ Nama panggilan</span><b>${escapeHtml(m.nickname || "-")}</b></div>
+          <div class="det-row"><span>📛 Nama lengkap</span><b>${escapeHtml(m.fullName || "-")}</b></div>
+          <div class="det-row"><span>📱 WhatsApp</span><b>${escapeHtml(m.wa || "-")}</b></div>
+          ${igLine}
+        </div>
+
+        <div class="det-sec">
+          <h4>📝 Catatan</h4>
+          <div id="noteList">${notes || '<p class="hint">Belum ada catatan.</p>'}</div>
+          <div class="note-add">
+            <input type="text" id="noteInput" placeholder="mis. Ultah 12 Mei, suka warna pastel..." />
+            <button class="btn btn-sm" id="noteAddBtn">＋ Tambah</button>
+          </div>
+        </div>
+
+        <div class="det-sec">
+          <h4>🗓️ Event yang diikuti (${m.events.length})</h4>
+          <ul class="det-events">${events}</ul>
+        </div>
+      `;
+
+      // wiring
+      const d = document.getElementById("loyaltyDetail");
+      const cl = d.querySelector(".loy-claim");
+      if (cl) cl.addEventListener("click", () => claimReward(m.key, 1, m.count));
+      const uc = d.querySelector(".loy-unclaim");
+      if (uc) uc.addEventListener("click", () => claimReward(m.key, -1, 0));
+      d.querySelector("#noteAddBtn").addEventListener("click", addNote);
+      d.querySelector("#noteInput").addEventListener("keydown", e => { if (e.key === "Enter") addNote(); });
+      d.querySelectorAll(".note-del").forEach(b => b.addEventListener("click", () => delNote(Number(b.dataset.i))));
+    }
+
+    async function saveNotes(m) {
+      try {
+        const r = await api("saveLoyaltyNotes", { token: getToken(), key: m.key, notes: m.notes });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal simpan catatan."); }
+      } catch (e) { alert("Gagal terhubung."); }
+    }
+    function addNote() {
+      const m = LOYALTY.find(x => x.key === detailKey); if (!m) return;
+      const inp = document.getElementById("noteInput");
+      const v = (inp.value || "").trim();
+      if (!v) return;
+      m.notes = m.notes || []; m.notes.push(v);
+      renderLoyaltyDetail(); saveNotes(m);
+    }
+    function delNote(i) {
+      const m = LOYALTY.find(x => x.key === detailKey); if (!m) return;
+      m.notes.splice(i, 1);
+      renderLoyaltyDetail(); saveNotes(m);
+    }
+
+    async function claimReward(key, dir, total) {
+      if (dir > 0 && !confirm("Tandai hadiah sudah DITUKAR?\nCounter orang ini akan reset (−6 stamp), total history tetap.")) return;
+      if (dir < 0 && !confirm("Batalkan 1 penukaran hadiah?")) return;
+      try {
+        const r = await api("claimReward", { token: getToken(), key: key, dir: dir, total: total });
+        if (r.status === "success") {
+          await loadLoyalty();
+          if (document.getElementById("loyaltyModal").style.display !== "none") renderLoyaltyDetail();
+        } else { handleAuthError(r); alert(r.message || "Gagal."); }
+      } catch (e) { alert("Gagal terhubung."); }
+    }
 
     // ---------- AUTO-LOGIN kalau token masih ada ----------
     if (getToken()) {
