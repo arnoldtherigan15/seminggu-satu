@@ -598,6 +598,28 @@
       border-bottom: 1px solid var(--line);
       white-space: nowrap;
     }
+    .cell-img-link { display: inline-block; line-height: 0; }
+    .cell-img {
+      width: 54px; height: 54px; object-fit: cover;
+      border-radius: 8px; border: 1px solid var(--line); display: block;
+      background: #f1f5f9; cursor: zoom-in;
+    }
+    .lightbox {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .lightbox img {
+      max-width: 100%; max-height: 100%; object-fit: contain;
+      border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    }
+    .lightbox-close {
+      position: absolute; top: 16px; right: 20px;
+      background: rgba(255,255,255,.15); color: #fff; border: none;
+      width: 44px; height: 44px; border-radius: 50%; font-size: 26px; line-height: 1;
+      cursor: pointer;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,.3); }
     th {
       background: #f8fafc;
       font-weight: 600;
@@ -1271,6 +1293,12 @@
     </div>
   </div>
 
+  <!-- Lightbox preview gambar -->
+  <div id="imgLightbox" class="lightbox" style="display:none;">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Tutup">&times;</button>
+    <img id="lightboxImg" src="" alt="preview" />
+  </div>
+
   <!-- Config global: GOOGLE_SCRIPT_URL & data statis (untuk seed awal editor) -->
   <script src="../env.js"></script>
   <script src="../workshop-config.js"></script>
@@ -1411,6 +1439,28 @@
 
     function isUrl(v) { return typeof v === "string" && /^https?:\/\//i.test(v); }
 
+    // Ambil ID file dari berbagai format URL Google Drive
+    function driveId(url) {
+      const m = String(url).match(/\/d\/([-\w]{20,})/)
+        || String(url).match(/[?&]id=([-\w]{20,})/)
+        || String(url).match(/([-\w]{25,})/);
+      return m ? m[1] : null;
+    }
+
+    // Render 1 sel tabel: kalau URL (gambar Drive) -> preview thumbnail; else teks
+    function cellHtml(c) {
+      if (isUrl(c)) {
+        const id = driveId(c);
+        const small = id ? ("https://drive.google.com/thumbnail?id=" + id + "&sz=w400") : c;
+        const big = id ? ("https://drive.google.com/thumbnail?id=" + id + "&sz=w1600") : c;
+        const open = id ? ("https://drive.google.com/file/d/" + id + "/view") : c;
+        return `<td><a href="${escapeHtml(open)}" target="_blank" rel="noopener" class="cell-img-link" data-full="${escapeHtml(big)}">` +
+          `<img class="cell-img" src="${escapeHtml(small)}" alt="foto" loading="lazy" referrerpolicy="no-referrer" ` +
+          `onerror="this.onerror=null;this.parentNode.textContent='Lihat ↗';"></a></td>`;
+      }
+      return `<td>${c === "" ? "-" : escapeHtml(c)}</td>`;
+    }
+
     async function loadRegistrations() {
       const workshop = document.getElementById("wsSelect").value;
       const sheetName = document.getElementById("batchSelect").value; // batch terpilih (kosong = batch aktif)
@@ -1434,10 +1484,7 @@
         }
         empty.style.display = "none";
         body.innerHTML = r.rows.map((row, i) => {
-          const cells = row.map(c => {
-            if (isUrl(c)) return `<td><a href="${c}" target="_blank" rel="noopener">Lihat</a></td>`;
-            return `<td>${c === "" ? "-" : escapeHtml(c)}</td>`;
-          }).join("");
+          const cells = row.map(cellHtml).join("");
           return `<tr><td>${i + 1}</td>${cells}</tr>`;
         }).join("");
       } catch (e) {
@@ -2271,9 +2318,7 @@
         empty.style.display = "none";
 
         body.innerHTML = r.rows.map((row, i) => {
-          const cells = row.map(c => isUrl(c)
-            ? `<td><a href="${c}" target="_blank" rel="noopener">Lihat</a></td>`
-            : `<td>${c === "" ? "-" : escapeHtml(c)}</td>`).join("");
+          const cells = row.map(cellHtml).join("");
           let action = "";
           if (waIdx >= 0) {
             const num = waNormalize(row[waIdx]);
@@ -2369,6 +2414,32 @@
         msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
       }
     }
+
+    // ---------- LIGHTBOX PREVIEW GAMBAR ----------
+    function openLightbox(url) {
+      const box = document.getElementById("imgLightbox");
+      document.getElementById("lightboxImg").src = url;
+      box.style.display = "flex";
+    }
+    function closeLightbox() {
+      const box = document.getElementById("imgLightbox");
+      box.style.display = "none";
+      document.getElementById("lightboxImg").src = "";
+    }
+    // Klik thumbnail di tabel mana pun -> buka preview (kecuali gambar gagal load)
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest(".cell-img-link");
+      if (!link) return;
+      const img = link.querySelector("img.cell-img");
+      if (!img) return; // gambar error -> biarkan buka link biasa
+      e.preventDefault();
+      openLightbox(link.dataset.full || img.src);
+    });
+    document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+    document.getElementById("imgLightbox").addEventListener("click", (e) => {
+      if (e.target.id === "imgLightbox") closeLightbox(); // klik area gelap
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
 
     // ---------- AUTO-LOGIN kalau token masih ada ----------
     if (getToken()) {
