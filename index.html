@@ -542,37 +542,23 @@
             });
         }
 
-        async function initWorkshops() {
-            // Show Loader
-            listEl.innerHTML = `
-                <div class="loader-container">
-                    <div class="spinner"></div>
-                    <p class="loader-text">Memuat workshop...</p>
-                </div>
-            `;
-            
-            let counts = { "paper-journal": 0, "3d-frame-journaling": 0, "reka-rekat": 0 };
-            
-            try {
-                // Fetch current registration counts
-                counts = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota');
-            } catch (err) {
-                console.error("Gagal mengambil kuota:", err);
-            }
-
-            listEl.innerHTML = ''; // Clear loading state
-            
+        // Render kartu workshop dari config. counts = jumlah pendaftar (buat status "penuh").
+        // animate = true cuma pas render pertama (biar nggak animasi ulang pas update kuota).
+        function renderWorkshops(counts, animate, countsReady) {
+            counts = counts || {};
+            listEl.innerHTML = '';
             let displayedCount = 0;
 
-            WORKSHOPS.forEach((ws, index) => {
+            const _workshops = (typeof WORKSHOPS !== 'undefined' && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
+            _workshops.forEach((ws, index) => {
                 // Skip if not meant to be displayed
                 if (ws.hasOwnProperty('isDisplay') && ws.isDisplay === false) return;
 
                 displayedCount++;
-                const currentCount = counts[ws.id] || 0;
+                const currentCount = (counts && counts[ws.id]) || 0;
                 const isFull = currentCount >= (ws.maxQuota || 12);
                 let status = getWorkshopStatus(ws);
-                
+
                 // Override status if full
                 if (status === 'open' && isFull) {
                     status = 'full';
@@ -581,7 +567,8 @@
                 const earlyBird = isEarlyBird(ws);
                 const card = document.createElement('div');
                 card.className = `workshop-card${(status !== 'open') ? ' disabled' : ''}`;
-                card.style.animationDelay = `${0.4 + index * 0.1}s`;
+                if (animate) card.style.animationDelay = `${0.4 + index * 0.1}s`;
+                else card.style.animation = 'none';
 
                 // Build price HTML
                 let priceHTML = '';
@@ -603,7 +590,9 @@
 
                 // Build status badge
                 let badgeHTML = '';
-                if (status === 'open') {
+                if (status === 'open' && !countsReady) {
+                    badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="loader"></i> Cek slot…</span>';
+                } else if (status === 'open') {
                     badgeHTML = '<span class="status-badge badge-open"><i data-lucide="circle-check"></i> Buka</span>';
                 } else if (status === 'full') {
                     badgeHTML = '<span class="status-badge badge-closed"><i data-lucide="x-circle"></i> PENUH</span>';
@@ -617,7 +606,9 @@
 
                 // Build CTA
                 let ctaHTML = '';
-                if (status === 'open') {
+                if (status === 'open' && !countsReady) {
+                    ctaHTML = `<div class="cta-btn disabled-btn">Mengecek ketersediaan…</div>`;
+                } else if (status === 'open') {
                     ctaHTML = `<a href="${ws.path}" class="cta-btn" id="cta-${ws.id}">Daftar Sekarang <i data-lucide="arrow-right"></i></a>`;
                 } else if (status === 'full') {
                     ctaHTML = `<div class="cta-btn disabled-btn">Pendaftaran Penuh</div>`;
@@ -652,6 +643,21 @@
             }
 
             lucide.createIcons();
+        }
+
+        async function initWorkshops() {
+            // 1) Langsung tampil dari config; tombol daftar disabled dulu (status belum pasti)
+            renderWorkshops({}, true, false);
+
+            // 2) Ambil kuota di background, lalu render ulang dgn status final (tombol aktif)
+            try {
+                const res = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota');
+                renderWorkshops((res && typeof res === 'object') ? res : {}, false, true);
+            } catch (err) {
+                console.error("Gagal mengambil kuota:", err);
+                // Fetch gagal: tetap aktifkan tombol biar peserta nggak kejebak (server yg validasi ulang saat submit)
+                renderWorkshops({}, false, true);
+            }
         }
 
         // Initialize on load
