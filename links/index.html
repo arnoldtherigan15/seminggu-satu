@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seminggu Satu — Links</title>
+    <meta name="description" content="Semua tautan Seminggu Satu: workshop yang lagi buka, rekomendasi alat journaling, dan sosial media.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Config + Env -->
+    <script src="../env.js?v=1"></script>
+    <script src="../workshop-config.js?v=2"></script>
+
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-card: #ffffff;
+            --text-1: #111827;
+            --text-2: #6b7280;
+            --text-3: #9ca3af;
+            --border: #e5e7eb;
+            --accent: #111827;
+            --accent-light: #f3f4f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --radius: 18px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 8px 30px rgba(0,0,0,0.06);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body { overflow-x: clip; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background:
+                radial-gradient(1200px 500px at 50% -10%, #f6f7fb 0%, #ffffff 60%);
+            color: var(--text-1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+        .page {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 2.5rem 1.25rem 3rem;
+        }
+
+        /* --- Profile --- */
+        .profile { text-align: center; margin-bottom: 2rem; }
+
+        .profile-logo {
+            width: auto;
+            height: 80px;
+            max-width: 260px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto 0.5rem;
+            animation: fadeIn 0.6s ease both;
+        }
+
+        .profile-subtitle {
+            font-size: 0.72rem;
+            color: var(--text-2);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            margin-bottom: 0.9rem;
+            animation: fadeIn 0.6s ease 0.1s both;
+        }
+
+        .profile-bio {
+            font-size: 0.9rem;
+            color: var(--text-2);
+            line-height: 1.6;
+            max-width: 300px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease 0.2s both;
+        }
+
+        /* --- Section --- */
+        .section { margin-top: 1.75rem; }
+        .section-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-3);
+            margin-bottom: 0.85rem;
+            padding-left: 4px;
+        }
+
+        .link-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+        /* --- Link Card (linktree style) --- */
+        .link-card {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.95rem 1.1rem;
+            text-decoration: none;
+            color: var(--text-1);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            animation: slideUp 0.45s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+        .link-card:hover, .link-card:active {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--accent), #6366f1);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .link-card:hover::before { opacity: 1; }
+
+        .lc-icon {
+            flex-shrink: 0;
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: var(--accent-light);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            line-height: 1;
+        }
+        .lc-icon i { width: 22px; height: 22px; color: var(--text-1); }
+        .lc-img { width: 26px; height: 26px; object-fit: contain; border-radius: 6px; }
+
+        .lc-body { flex: 1; min-width: 0; }
+        .lc-title {
+            display: block;
+            font-weight: 600;
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
+        .lc-sub {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-2);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lc-chevron { width: 18px; height: 18px; color: var(--text-3); flex-shrink: 0; }
+
+        .lc-tag {
+            flex-shrink: 0;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.3rem 0.65rem;
+            border-radius: 99px;
+            letter-spacing: 0.3px;
+        }
+        .tag-open { background: rgba(16,185,129,0.12); color: #059669; }
+        .tag-soon { background: rgba(245,158,11,0.12); color: #b45309; }
+        .tag-full { background: var(--accent-light); color: var(--text-3); }
+        .tag-checking {
+            background: var(--accent-light); color: var(--text-2);
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .tag-checking i { width: 12px; height: 12px; animation: spin 1s linear infinite; }
+
+        .ws-card.soon { opacity: 0.85; }
+        .ws-card.full, .ws-card.checking { cursor: default; }
+        .ws-card.full { opacity: 0.6; }
+        .ws-card.checking { opacity: 0.75; }
+        .ws-card.full:hover, .ws-card.checking:hover { transform: none; box-shadow: var(--shadow-sm); border-color: var(--border); }
+        .ws-card.full:hover::before, .ws-card.checking:hover::before { opacity: 0; }
+
+        /* --- Skeleton --- */
+        .skel {
+            height: 74px;
+            border-radius: var(--radius);
+            background: linear-gradient(90deg, #f3f4f6 25%, #eaecef 37%, #f3f4f6 63%);
+            background-size: 400% 100%;
+            animation: shimmer 1.3s ease infinite;
+        }
+
+        .empty-note {
+            font-size: 0.85rem;
+            color: var(--text-3);
+            text-align: center;
+            padding: 0.75rem;
+        }
+
+        /* --- Home CTA --- */
+        .home-cta {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            background: var(--accent);
+            color: #fff;
+            border-radius: var(--radius);
+            padding: 1.05rem 1.2rem;
+            text-decoration: none;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: slideUp 0.45s ease both;
+        }
+        .home-cta:hover, .home-cta:active {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .home-cta-body { flex: 1; min-width: 0; }
+        .home-cta-title {
+            display: block;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .home-cta-sub {
+            display: block;
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.7);
+            margin-top: 2px;
+        }
+        .home-cta i { width: 20px; height: 20px; color: #fff; flex-shrink: 0; }
+
+        /* --- Footer --- */
+        .foot {
+            text-align: center;
+            margin-top: 2.5rem;
+            font-size: 0.75rem;
+            color: var(--text-3);
+        }
+        .foot a { color: var(--text-2); text-decoration: none; font-weight: 600; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+        @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <header class="profile">
+            <img src="../logo_seminggu.png" alt="Seminggu Satu" class="profile-logo">
+            <p class="profile-subtitle">by Arnold</p>
+            <p class="profile-bio">Creative workshop & journaling community. Semua yang kamu butuhin ada di sini ✨🐾</p>
+        </header>
+
+        <!-- Daftar event (auto dari config) -->
+        <section class="section" id="wsSection" style="display:none;">
+            <h2 class="section-title">Daftar Event</h2>
+            <div id="wsList" class="link-list"></div>
+        </section>
+
+        <!-- Link custom (dari admin dashboard) -->
+        <section class="section">
+            <h2 class="section-title">Tautan</h2>
+            <div id="linkList" class="link-list">
+                <div class="skel"></div>
+                <div class="skel"></div>
+            </div>
+        </section>
+
+        <!-- Navigasi ke home -->
+        <section class="section">
+            <a class="home-cta" href="../index.html">
+                <span class="home-cta-body">
+                    <span class="home-cta-title">Tentang Seminggu Satu</span>
+                    <span class="home-cta-sub">Kenalan sama komunitas & lihat semua workshop</span>
+                </span>
+                <i data-lucide="arrow-right"></i>
+            </a>
+        </section>
+
+        <footer class="foot">
+            <a href="../index.html">seminggusatu.com</a> · dibuat dengan 🤍
+        </footer>
+    </main>
+
+    <script>
+        // --- JSONP helper ---
+        function fetchJSONP(url, callbackPrefix) {
+            return new Promise(function (resolve, reject) {
+                var cb = callbackPrefix + "_" + Math.floor(Math.random() * 1e9);
+                var timer = setTimeout(function () {
+                    cleanup();
+                    reject(new Error("timeout"));
+                }, 12000);
+                function cleanup() {
+                    clearTimeout(timer);
+                    try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                }
+                window[cb] = function (data) { cleanup(); resolve(data); };
+                var s = document.createElement("script");
+                s.src = url + (url.indexOf("?") > -1 ? "&" : "?") + "callback=" + cb + "&_=" + Date.now();
+                s.onerror = function () { cleanup(); reject(new Error("network")); };
+                document.body.appendChild(s);
+            });
+        }
+
+        var GS = (typeof GOOGLE_SCRIPT_URL !== "undefined") ? GOOGLE_SCRIPT_URL : "";
+
+        // --- Render daftar event ---
+        // counts: objek { workshopId: jumlahPendaftar } dari server
+        // countsReady: true kalau data pendaftar sudah didapat (biar tahu penuh/nggak)
+        function renderWorkshops(list, counts, countsReady) {
+            var section = document.getElementById("wsSection");
+            var el = document.getElementById("wsList");
+            if (!Array.isArray(list)) list = [];
+            counts = counts || {};
+
+            var items = list
+                .filter(function (w) { return w && w.isDisplay !== false; })
+                .map(function (w) {
+                    var status = getWorkshopStatus(w);
+                    // Kalau buka: cek kuota (butuh data pendaftar dulu)
+                    if (status === "open" && countsReady) {
+                        var count = (counts && counts[w.id]) || 0;
+                        var quota = w.maxQuota || 0;
+                        if (quota > 0 && count >= quota) status = "full";
+                    }
+                    return { w: w, status: status };
+                })
+                .filter(function (x) {
+                    return x.status === "open" || x.status === "not-open-yet" || x.status === "full";
+                })
+                // buka dulu, lalu segera, sold out paling bawah
+                .sort(function (a, b) {
+                    var rank = { open: 0, "not-open-yet": 1, full: 2 };
+                    return rank[a.status] - rank[b.status];
+                });
+
+            if (!items.length) { section.style.display = "none"; return; }
+            section.style.display = "block";
+
+            el.innerHTML = items.map(function (x, i) {
+                var w = x.w;
+                var st = x.status;
+                var price = (typeof getCurrentPrice === "function") ? getCurrentPrice(w) : w.normalPrice;
+                var priceTxt = (typeof formatRupiah === "function") ? formatRupiah(price) : "";
+                var dateTxt = w.workshopDate || "";
+                var sub = [dateTxt, priceTxt].filter(Boolean).join(" · ");
+                var href = "../" + (w.path || "index.html");
+                var icon = w.icon
+                    ? '<i data-lucide="' + w.icon + '"></i>'
+                    : '<i data-lucide="palette"></i>';
+
+                var tag, cls, clickable;
+                if (st === "open" && !countsReady) {
+                    // Belum tahu penuh/nggak -> jangan langsung "Daftar", jangan bisa diklik
+                    tag = '<span class="lc-tag tag-checking"><i data-lucide="loader"></i> Cek slot…</span>';
+                    cls = "checking"; clickable = false;
+                } else if (st === "open") {
+                    tag = '<span class="lc-tag tag-open">Daftar</span>'; cls = ""; clickable = true;
+                } else if (st === "not-open-yet") {
+                    tag = '<span class="lc-tag tag-soon">Segera</span>'; cls = "soon"; clickable = true;
+                } else { // full
+                    tag = '<span class="lc-tag tag-full">Sold Out</span>'; cls = "full"; clickable = false;
+                }
+
+                var inner =
+                    '<span class="lc-icon">' + icon + '</span>' +
+                    '<span class="lc-body">' +
+                        '<span class="lc-title">' + esc(w.name || "Workshop") + '</span>' +
+                        (sub ? '<span class="lc-sub">' + esc(sub) + '</span>' : '') +
+                    '</span>' +
+                    tag;
+
+                var style = 'animation-delay:' + (i * 0.05) + 's';
+                if (clickable) {
+                    return '<a class="link-card ws-card ' + cls + '" href="' + href + '" style="' + style + '">' + inner + '</a>';
+                }
+                return '<div class="link-card ws-card ' + cls + '" style="' + style + '">' + inner + '</div>';
+            }).join("");
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // --- Render link custom ---
+        function renderLinks(items) {
+            var el = document.getElementById("linkList");
+            if (!Array.isArray(items)) items = [];
+            items = items.filter(function (it) { return it && it.title && it.url; });
+
+            if (!items.length) {
+                el.innerHTML = '<p class="empty-note">Belum ada tautan.</p>';
+                return;
+            }
+
+            el.innerHTML = items.map(function (it, i) {
+                var url = String(it.url).trim();
+                var external = /^https?:\/\//i.test(url);
+                var target = external ? ' target="_blank" rel="noopener"' : '';
+                var iconVal = it.icon ? String(it.icon).trim() : "";
+                var icon;
+                if (/^https?:\/\//i.test(iconVal)) {
+                    // URL gambar -> tampilkan sebagai <img>
+                    icon = '<img src="' + esc(iconVal) + '" alt="" class="lc-img" loading="lazy">';
+                } else if (iconVal) {
+                    // Emoji / teks
+                    icon = '<span style="font-size:1.4rem;line-height:1;">' + esc(iconVal) + '</span>';
+                } else {
+                    icon = '<i data-lucide="link"></i>';
+                }
+                var chev = external ? "arrow-up-right" : "chevron-right";
+                return '' +
+                    '<a class="link-card" href="' + esc(url) + '"' + target + ' style="animation-delay:' + (i * 0.05) + 's">' +
+                        '<span class="lc-icon">' + icon + '</span>' +
+                        '<span class="lc-body">' +
+                            '<span class="lc-title">' + esc(it.title) + '</span>' +
+                            (it.subtitle ? '<span class="lc-sub">' + esc(it.subtitle) + '</span>' : '') +
+                        '</span>' +
+                        '<i data-lucide="' + chev + '" class="lc-chevron"></i>' +
+                    '</a>';
+            }).join("");
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function esc(s) {
+            return String(s == null ? "" : s)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        // --- Init ---
+        var _workshops = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
+        var _counts = null;      // objek pendaftar (null = belum didapat)
+        var _countsReady = false; // true kalau sudah tahu penuh/nggak
+        function rerenderWorkshops() { renderWorkshops(_workshops, _counts || {}, _countsReady); }
+
+        (async function init() {
+            // Workshop: render dari config (cache) dulu; status "Cek slot…" (belum tahu penuh)
+            rerenderWorkshops();
+
+            if (GS) {
+                // Refresh config (data workshop terbaru)
+                fetchJSONP(GS + "?page=config", "cfg")
+                    .then(function (data) {
+                        if (Array.isArray(data) && data.length) { _workshops = data; rerenderWorkshops(); }
+                    })
+                    .catch(function () { /* pakai cache */ });
+
+                // Ambil jumlah pendaftar -> tahu mana yang sold out
+                fetchJSONP(GS, "qta")
+                    .then(function (res) {
+                        _counts = (res && typeof res === "object") ? res : {};
+                        _countsReady = true;
+                        rerenderWorkshops();
+                    })
+                    .catch(function () {
+                        // Gagal ambil kuota: aktifkan "Daftar" biar user nggak kejebak (server validasi ulang saat submit)
+                        _counts = {}; _countsReady = true; rerenderWorkshops();
+                    });
+
+                // Link custom dari admin
+                try {
+                    var items = await fetchJSONP(GS + "?page=content&type=links", "lnk");
+                    renderLinks(items);
+                } catch (e) {
+                    renderLinks([]);
+                }
+            } else {
+                renderLinks([]);
+            }
+
+            if (window.lucide) lucide.createIcons();
+        })();
+    </script>
+</body>
+
+</html>

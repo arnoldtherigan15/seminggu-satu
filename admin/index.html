@@ -2322,6 +2322,7 @@
                 <option value="galeri">Galeri</option>
                 <option value="testimoni">Testimoni</option>
                 <option value="recommendation">Rekomendasi</option>
+                <option value="links">Link Page (/links)</option>
               </select>
             </div>
             <button class="btn btn-sm" id="kontenAddBtn">＋ Tambah Item</button>
@@ -2331,7 +2332,9 @@
           <div class="fin-card" style="margin-top:14px;">
             <button class="btn" id="kontenSaveBtn">💾 Simpan Konten</button>
             <div class="msg" id="kontenMsg"></div>
-            <p class="hint">Untuk galeri/testimoni: tempel <b>embed code</b> dari Instagram. Item kosong (tanpa judul)
+            <p class="hint">Untuk galeri/testimoni: tempel <b>embed code</b> dari Instagram. Untuk <b>Link Page</b>:
+              isi ikon (emoji), judul, dan URL tujuan (link internal pakai <code>../recommendation.html</code>,
+              atau link luar pakai <code>https://...</code>) — tampil di <b>/links</b>. Item kosong (tanpa judul)
               diabaikan saat simpan.</p>
           </div>
         </div>
@@ -3225,6 +3228,19 @@
           { key: "description", label: "Deskripsi", type: "textarea" },
           { key: "link", label: "Link toko" },
           { key: "category", label: "Kategori (tools/material/paper)" }
+        ]
+      },
+      links: {
+        seed: () => ([
+          { id: "rekomendasi", title: "Rekomendasi Alat & Bahan", subtitle: "Barang-barang buat journaling", icon: "🛠️", url: "../recommendation.html" },
+          { id: "ig", title: "Instagram", subtitle: "@seminggu.satu", icon: "📷", url: "https://instagram.com/seminggu.satu" }
+        ]),
+        fields: [
+          { key: "id", label: "ID" },
+          { key: "icon", label: "Ikon — emoji (🛠️) ATAU URL gambar (https://.../icon.png)" },
+          { key: "title", label: "Judul" },
+          { key: "subtitle", label: "Sub-judul (opsional)" },
+          { key: "url", label: "URL tujuan (mis. ../recommendation.html atau https://...)" }
         ]
       }
     };
