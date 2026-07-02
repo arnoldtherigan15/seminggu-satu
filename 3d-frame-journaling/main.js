@@ -320,12 +320,16 @@ form.addEventListener('submit', async (e) => {
     delete payload.photo4;
     delete payload.paymentPhoto;
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
     try {
         showBlockerLoader("Mengirim data pendaftaran...");
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         const result = await response.json();
 
@@ -340,10 +344,14 @@ form.addEventListener('submit', async (e) => {
             throw new Error(result.message || "Unknown error occurred.");
         }
     } catch (error) {
-        statusMessage.textContent = "Terjadi kesalahan: " + error.message;
+        statusMessage.textContent = (error.name === 'AbortError')
+            ? "Koneksi timeout. Data mungkin belum terkirim — cek internetmu lalu coba lagi. Kalau tetap gagal, hubungi admin ya."
+            : ("Terjadi kesalahan: " + error.message);
         statusMessage.className = 'status-message error';
         statusMessage.style.display = 'block';
+        statusMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } finally {
+        clearTimeout(timeoutId);
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
         lucide.createIcons();

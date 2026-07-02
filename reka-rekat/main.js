@@ -142,15 +142,23 @@ function fileToBase64(file) {
     });
 }
 
+// Bungkus promise dengan batas waktu biar nggak nge-hang selamanya
+function withTimeout(promise, ms, label) {
+    return new Promise((resolve, reject) => {
+        const t = setTimeout(() => reject(new Error((label || 'Proses') + ' timeout')), ms);
+        promise.then(v => { clearTimeout(t); resolve(v); }, e => { clearTimeout(t); reject(e); });
+    });
+}
+
 async function getCompressedBase64(file) {
     try {
         // Try canvas-based compression first (max 800px width/height, 0.7 quality)
-        const compressedDataUrl = await compressImage(file, 800, 0.7);
+        const compressedDataUrl = await withTimeout(compressImage(file, 800, 0.7), 20000, 'Kompres gambar');
         return compressedDataUrl.split(',')[1];
     } catch (err) {
         console.warn("Canvas compression failed, falling back to raw base64:", err);
         // Fallback to reading file directly as base64
-        return await fileToBase64(file);
+        return await withTimeout(fileToBase64(file), 20000, 'Baca gambar');
     }
 }
 
@@ -339,11 +347,15 @@ form.addEventListener('submit', async (e) => {
         console.warn('Quota re-check failed, continuing submit:', err);
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 dtk maksimal
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         const result = await response.json();
 
@@ -359,10 +371,15 @@ form.addEventListener('submit', async (e) => {
             throw new Error(result.message || "Terjadi kesalahan pada server.");
         }
     } catch (error) {
-        statusMessage.textContent = "Terjadi kesalahan pendaftaran: " + error.message;
+        const msg = (error.name === 'AbortError')
+            ? "Koneksi timeout. Data mungkin belum terkirim — cek koneksi internetmu lalu coba lagi. Kalau tetap gagal, hubungi admin ya."
+            : ("Terjadi kesalahan pendaftaran: " + error.message);
+        statusMessage.textContent = msg;
         statusMessage.className = 'status-message error';
         statusMessage.style.display = 'block';
+        statusMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } finally {
+        clearTimeout(timeoutId);
         submitBtn.innerHTML = originalBtnText;
         submitBtn.disabled = false;
         lucide.createIcons();

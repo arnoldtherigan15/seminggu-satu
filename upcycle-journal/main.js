@@ -529,11 +529,15 @@ if (form) {
         const payload = Object.fromEntries(formData.entries());
         payload.workshopType = 'upcycle-journal';
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
 
             const result = await response.json();
 
@@ -552,15 +556,20 @@ if (form) {
                 throw new Error(result.message || "Gagal mengirim data.");
             }
         } catch (error) {
+            const msg = (error.name === 'AbortError')
+                ? "Koneksi timeout. Data mungkin belum terkirim — cek internetmu lalu coba lagi. Kalau tetap gagal, hubungi admin ya."
+                : ("Terjadi kesalahan: " + error.message);
             const statusMessage = document.getElementById('statusMessage');
             if (statusMessage) {
-                statusMessage.textContent = "Terjadi kesalahan: " + error.message;
+                statusMessage.textContent = msg;
                 statusMessage.className = 'status-message error';
                 statusMessage.style.display = 'block';
+                statusMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
-                showToast("Kesalahan: " + error.message);
+                showToast(msg);
             }
         } finally {
+            clearTimeout(timeoutId);
             submitBtn.innerHTML = originalBtnText;
             submitBtn.disabled = false;
             lucide.createIcons();
