@@ -4060,7 +4060,7 @@
       links: {
         seed: () => ([
           { id: "rekomendasi", title: "Rekomendasi Alat & Bahan", subtitle: "Barang-barang buat journaling", icon: "🛠️", url: "../recommendation.html" },
-          { id: "ig", title: "Instagram", subtitle: "@seminggu.satu", icon: "📷", url: "https://instagram.com/seminggu.satu" }
+          { id: "ig", title: "Instagram", subtitle: "@seminggu_satu", icon: "📷", url: "https://instagram.com/seminggu_satu" }
         ]),
         fields: [
           { key: "id", label: "ID" },
@@ -5048,7 +5048,7 @@
         <div class="pp-stamps">${stamps}${more}</div>
         <div class="pp-foot">
           <span>${escapeHtml(p.trait)}${since ? " · sejak " + since : ""}</span>
-          <span>${m.ig ? "@" + escapeHtml(m.ig.replace(/^@/, "")) : "seminggu.satu"}</span>
+          <span>${m.ig ? "@" + escapeHtml(m.ig.replace(/^@/, "")) : "seminggu_satu"}</span>
         </div>`;
       document.getElementById("passportModal").style.display = "flex";
     }
