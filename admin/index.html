@@ -2315,6 +2315,45 @@
       font-weight: 800;
     }
 
+    /* Versi EXPORT (khusus render IG Story): konten digeser ke TENGAH (safe zone) biar
+       bagian atas/bawah yang ketutup UI Instagram cuma area gradient kosong, bukan teks. */
+    .recap-story.export {
+      padding: 92px 26px 110px;
+    }
+
+    .recap-story.export .rs-period {
+      margin-top: 12px;
+    }
+
+    .recap-story.export .rs-title {
+      font-size: 27px;
+    }
+
+    .recap-story.export .rs-hero {
+      margin-top: 12px;
+    }
+
+    .recap-story.export .rs-hero b {
+      font-size: 56px;
+    }
+
+    .recap-story.export .rs-grid {
+      margin-top: 12px;
+    }
+
+    .recap-story.export .rs-stat {
+      padding: 11px 14px;
+    }
+
+    .recap-story.export .rs-spot {
+      margin-top: 10px;
+      padding: 12px 14px;
+    }
+
+    .recap-story.export .rs-orb.a {
+      top: 40px;
+    }
+
     /* --- Loading bar global --- */
     #loadingBar {
       position: fixed;
@@ -5144,7 +5183,7 @@
         </div>
         <div class="rs-spot hi"><div class="rs-emoji">🏆</div><div>${topUserLine}</div></div>
         <div class="rs-spot"><div class="rs-emoji">🔥</div><div>${topWsLine}</div></div>
-        <div class="rs-foot"><span>Terima kasih sudah berproses ✨</span><span class="rs-brand">@seminggu.satu</span></div>`;
+        <div class="rs-foot"><span>Bercerita & Didengar 💛</span><span class="rs-brand">@semingg_satu</span></div>`;
     }
 
     async function downloadRecap() {
@@ -5156,6 +5195,7 @@
       // Render dari CLONE off-screen berukuran TEPAT 9:16 (360x640) -> scale 3 = 1080x1920,
       // persis rasio Instagram Story. Jadi langsung full, nggak perlu pinch/crop.
       const clone = card.cloneNode(true);
+      clone.classList.add("export"); // safe-zone padding biar nggak ketutup UI IG Story
       clone.style.width = "360px";
       clone.style.height = "640px";
       clone.style.minHeight = "0";
