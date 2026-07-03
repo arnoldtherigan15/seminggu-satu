@@ -2065,12 +2065,13 @@
 
     .recap-tab {
       flex: 1;
-      padding: 8px;
+      padding: 8px 4px;
       border: 1px solid var(--line);
       background: #f8fafc;
       border-radius: 8px;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12px;
+      white-space: nowrap;
       cursor: pointer;
     }
 
@@ -2315,10 +2316,76 @@
       font-weight: 800;
     }
 
+    /* --- Leaderboard Top 5 --- */
+    .rs-sub {
+      margin-top: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      opacity: .9;
+      position: relative;
+      z-index: 1;
+    }
+
+    .rs-ranks {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .rs-rank {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .28);
+      border-radius: 14px;
+      padding: 10px 14px;
+    }
+
+    .rs-rank .n {
+      font-size: 20px;
+      font-weight: 800;
+      width: 30px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .rs-rank .nm {
+      flex: 1;
+      min-width: 0;
+      font-size: 16px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rs-rank .ct {
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+      color: #ffe600;
+    }
+
+    .rs-rank.top {
+      background: #ffe600;
+      border-color: #ffe600;
+      color: #10245e;
+      transform: rotate(-1.2deg);
+      box-shadow: 0 8px 20px rgba(0, 30, 120, .3);
+    }
+
+    .rs-rank.top .ct {
+      color: #0046ff;
+    }
+
     /* Versi EXPORT (khusus render IG Story): konten digeser ke TENGAH (safe zone) biar
        bagian atas/bawah yang ketutup UI Instagram cuma area gradient kosong, bukan teks. */
     .recap-story.export {
-      padding: 92px 26px 110px;
+      padding: 72px 26px 110px;
     }
 
     .recap-story.export .rs-period {
@@ -3074,6 +3141,7 @@
       <div class="recap-tabs">
         <button class="recap-tab active" data-mode="all">✨ All-Time</button>
         <button class="recap-tab" data-mode="active">📅 Event Aktif</button>
+        <button class="recap-tab" data-mode="top5">🏅 Top 5</button>
       </div>
       <div id="recapStory" class="recap-story"></div>
       <button class="btn" id="recapDownload" style="margin-top:14px;width:100%;">⬇️ Download IG Story (PNG)</button>
@@ -5144,6 +5212,9 @@
     function closeRecap() { document.getElementById("recapModal").style.display = "none"; }
 
     function renderRecap() {
+      // Mode Top 5 — leaderboard peserta paling sering ikut (all-time)
+      if (recapMode === "top5") { renderRecapTop5(); return; }
+
       const w = computeWrapped(WRAP_MEMBERS, recapMode);
       const now = new Date();
       const isActive = recapMode === "active";
@@ -5161,7 +5232,7 @@
       const topUserLine = w.topUser.count
         ? `<div class="rs-lbl">Paling Rajin Hadir</div>
            <div class="rs-val">${escapeHtml(w.topUser.name)}</div>
-           <div class="rs-meta">Ikut ${w.topUser.count} workshop bareng kita!</div>`
+           <div class="rs-meta">Ikut ${w.topUser.count} event bareng!</div>`
         : `<div class="rs-lbl">Paling Rajin</div><div class="rs-val">Belum ada data</div>`;
 
       const wsMeta = w.topWorkshop.label ? (" · " + escapeHtml(w.topWorkshop.label)) : "";
@@ -5183,7 +5254,33 @@
         </div>
         <div class="rs-spot hi"><div class="rs-emoji">🏆</div><div>${topUserLine}</div></div>
         <div class="rs-spot"><div class="rs-emoji">🔥</div><div>${topWsLine}</div></div>
-        <div class="rs-foot"><span>Bercerita & Didengar 💛</span><span class="rs-brand">@semingg_satu</span></div>`;
+        <div class="rs-foot"><span>Bercerita & Didengar 💛</span><span class="rs-brand">@seminggu_satu</span></div>`;
+    }
+
+    function renderRecapTop5() {
+      const top = [...WRAP_MEMBERS]
+        .filter(m => (m.count || 0) > 0)
+        .sort((a, b) => (b.count || 0) - (a.count || 0))
+        .slice(0, 5);
+      const medals = ["🥇", "🥈", "🥉", "4", "5"];
+      const rows = top.length
+        ? top.map((m, i) => `
+            <div class="rs-rank ${i === 0 ? "top" : ""}">
+              <span class="n">${medals[i]}</span>
+              <span class="nm">${escapeHtml(m.name || "(tanpa nama)")}</span>
+              <span class="ct">${m.count}×</span>
+            </div>`).join("")
+        : `<div class="rs-rank"><span class="nm">Belum ada data peserta</span></div>`;
+
+      document.getElementById("recapStory").innerHTML = `
+        <div class="rs-orb a"></div>
+        <div class="rs-orb b"></div>
+        <div class="rs-head"><span><span class="rs-dot"></span>Seminggu Satu</span><span>Wrapped</span></div>
+        <div class="rs-period">Paling Setia</div>
+        <div class="rs-title">Top 5<br><span class='hl'>Teman Jurnal</span></div>
+        <div class="rs-sub">Yang paling sering journaling bareng ✨</div>
+        <div class="rs-ranks">${rows}</div>
+        <div class="rs-foot"><span>Bercerita & Didengar 💛</span><span class="rs-brand">@seminggu_satu</span></div>`;
     }
 
     async function downloadRecap() {
