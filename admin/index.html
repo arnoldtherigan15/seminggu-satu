@@ -5152,15 +5152,33 @@
       const btn = document.getElementById("recapDownload");
       const label = btn.textContent;
       btn.disabled = true; btn.textContent = "Merender...";
+
+      // Render dari CLONE off-screen berukuran TEPAT 9:16 (360x640) -> scale 3 = 1080x1920,
+      // persis rasio Instagram Story. Jadi langsung full, nggak perlu pinch/crop.
+      const clone = card.cloneNode(true);
+      clone.style.width = "360px";
+      clone.style.height = "640px";
+      clone.style.minHeight = "0";
+      clone.style.maxWidth = "none";
+      clone.style.margin = "0";
+      clone.style.position = "fixed";
+      clone.style.left = "-10000px";
+      clone.style.top = "0";
+      document.body.appendChild(clone);
       try {
-        // scale 3 -> ~1020x1815, mendekati 1080x1920 IG Story
-        const canvas = await html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true });
+        const canvas = await html2canvas(clone, {
+          scale: 3, backgroundColor: null, useCORS: true,
+          width: 360, height: 640, windowWidth: 360, windowHeight: 640
+        });
         const a = document.createElement("a");
         a.href = canvas.toDataURL("image/png");
         a.download = "seminggu-satu-wrapped-" + recapMode + ".png";
         a.click();
       } catch (e) { alert("Gagal render gambar."); }
-      finally { btn.disabled = false; btn.textContent = label; }
+      finally {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        btn.disabled = false; btn.textContent = label;
+      }
     }
 
     // ---------- AUTO-LOGIN kalau token masih ada ----------
