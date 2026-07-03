@@ -2080,52 +2080,239 @@
       border-color: var(--brand);
     }
 
-    .recap {
-      width: 100%;
-      border-radius: 16px;
-      padding: 24px 22px;
+    /* --- Wrapped / IG Story (9:16) --- */
+    .recap-story {
+      width: 340px;
+      max-width: 100%;
+      min-height: 604px;
+      /* height 9:16 dari lebar; tumbuh kalau konten lebih tinggi biar nggak kepotong */
+      margin: 0 auto;
+      border-radius: 22px;
+      padding: 28px 24px;
       color: #fff;
-      background: linear-gradient(310deg, #11cdef 0%, #5e72e4 55%, #825ee4 100%);
-    }
-
-    .recap-title {
-      font-size: 15px;
-      letter-spacing: 2px;
-      font-weight: 800;
-      margin: 6px 0 16px;
-    }
-
-    .recap-big {
+      position: relative;
+      overflow: hidden;
+      box-sizing: border-box;
       display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
+      flex-direction: column;
+      background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%);
+      font-family: 'Open Sans', sans-serif;
+      box-shadow: 0 20px 60px rgba(0, 60, 200, .4);
     }
 
-    .recap-num {
-      flex: 1;
-      background: rgba(255, 255, 255, .14);
-      border-radius: 12px;
-      padding: 14px 8px;
-      text-align: center;
+    .rs-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(2px);
+      pointer-events: none;
     }
 
-    .recap-num b {
-      display: block;
+    .rs-orb.a {
+      width: 200px;
+      height: 200px;
+      top: -60px;
+      right: -50px;
+      background: radial-gradient(circle, rgba(255, 230, 0, .55) 0%, transparent 70%);
+    }
+
+    .rs-orb.b {
+      width: 150px;
+      height: 150px;
+      bottom: 90px;
+      left: -55px;
+      background: radial-gradient(circle, rgba(255, 255, 255, .35) 0%, transparent 70%);
+    }
+
+    .rs-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #ffe600;
+      position: relative;
+      z-index: 1;
+      border-bottom: 2px dashed rgba(255, 255, 255, .35);
+      padding-bottom: 12px;
+    }
+
+    .rs-head .rs-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ffe600;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .rs-period {
+      margin-top: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #ffe600;
+      position: relative;
+      z-index: 1;
+    }
+
+    .rs-title {
       font-size: 30px;
       font-weight: 800;
-      line-height: 1;
+      line-height: 1.08;
+      letter-spacing: -.5px;
+      margin-top: 4px;
+      position: relative;
+      z-index: 1;
+      text-transform: uppercase;
     }
 
-    .recap-num span {
+    .rs-title .hl {
+      color: #ffe600;
+    }
+
+    .rs-hero {
+      margin-top: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .rs-hero b {
+      display: block;
+      font-size: 66px;
+      font-weight: 800;
+      line-height: .9;
+      color: #ffe600;
+      text-shadow: 0 3px 0 rgba(0, 40, 140, .35);
+    }
+
+    .rs-hero span {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: .95;
+    }
+
+    .rs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .rs-stat {
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .28);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+
+    .rs-stat b {
+      display: block;
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+      color: #fff;
+    }
+
+    .rs-stat span {
+      font-size: 10.5px;
+      font-weight: 700;
+      opacity: .9;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .rs-spot {
+      margin-top: 12px;
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .28);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rs-spot .rs-emoji {
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .rs-spot .rs-lbl {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ffe600;
+    }
+
+    .rs-spot .rs-val {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-top: 2px;
+      word-break: break-word;
+    }
+
+    .rs-spot .rs-meta {
       font-size: 11px;
       opacity: .9;
+      margin-top: 1px;
     }
 
-    .recap-sub {
-      font-size: 12px;
+    /* Kartu highlight kuning miring (playful, ala Wrapped) */
+    .rs-spot.hi {
+      background: #ffe600;
+      border-color: #ffe600;
+      color: #10245e;
+      transform: rotate(-1.5deg);
+      box-shadow: 0 10px 24px rgba(0, 30, 120, .3);
+    }
+
+    .rs-spot.hi .rs-lbl {
+      color: #fff;
+      background: #0046ff;
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: .5px;
+    }
+
+    .rs-spot.hi .rs-val {
+      color: #10245e;
+      margin-top: 5px;
+    }
+
+    .rs-spot.hi .rs-meta {
+      color: #10245e;
+      opacity: .78;
+    }
+
+    .rs-foot {
+      margin-top: 10px;
+      padding-top: 14px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
       opacity: .95;
-      margin-bottom: 14px;
-      line-height: 1.5;
+      border-top: 2px dashed rgba(255, 255, 255, .35);
+    }
+
+    .rs-foot .rs-brand {
+      color: #ffe600;
+      font-weight: 800;
     }
 
     /* --- Loading bar global --- */
@@ -2497,7 +2684,7 @@
 
           <div class="ach-headrow" style="margin:28px 0;">
             <h3 class="ov-section-title" style="margin:0;">🏆 Pencapaian Kamu</h3>
-            <button class="btn btn-sm" id="recapBtn">🎉 Buat Recap</button>
+            <button class="btn btn-sm" id="recapBtn">🎁 Buat Wrapped</button>
           </div>
           <div id="achievements"></div>
 
@@ -2708,10 +2895,12 @@
                   lalu download file ZIP-nya & <b>extract</b>.</li>
                 <li>Di dalam folder <code>connections/followers_and_following/</code> ada
                   <code>following.json</code> dan <b>satu atau beberapa</b> file followers:
-                  <code>followers_1.json</code>, <code>followers_2.json</code>, dst.</li>
+                  <code>followers_1.json</code>, <code>followers_2.json</code>, dst.
+                </li>
                 <li>⚠️ <b>PENTING:</b> pilih <b>SEMUA</b> file itu sekaligus — termasuk semua
                   <code>followers_2/3/...</code> kalau ada. Kalau cuma <code>followers_1.json</code>,
-                  follower lama nggak kebaca &amp; bakal salah dianggap "nggak follow balik".</li>
+                  follower lama nggak kebaca &amp; bakal salah dianggap "nggak follow balik".
+                </li>
               </ol>
             </details>
             <div class="ig-upload">
@@ -2839,16 +3028,17 @@
     </div>
   </div>
 
-  <!-- Modal recap (konten share) -->
+  <!-- Modal recap / Wrapped (IG Story) -->
   <div id="recapModal" class="modal" style="display:none;">
-    <div class="modal-box passport-box">
+    <div class="modal-box passport-box" style="max-width:380px;">
       <button class="modal-close" id="recapClose" aria-label="Tutup">&times;</button>
       <div class="recap-tabs">
-        <button class="recap-tab active" data-mode="all">Semua</button>
-        <button class="recap-tab" data-mode="active">Workshop Aktif</button>
+        <button class="recap-tab active" data-mode="all">✨ All-Time</button>
+        <button class="recap-tab" data-mode="active">📅 Event Aktif</button>
       </div>
-      <div id="recapCard" class="recap"></div>
-      <button class="btn" id="recapDownload" style="margin-top:14px;width:100%;">⬇️ Download PNG</button>
+      <div id="recapStory" class="recap-story"></div>
+      <button class="btn" id="recapDownload" style="margin-top:14px;width:100%;">⬇️ Download IG Story (PNG)</button>
+      <p class="hint" style="text-align:center;margin-top:8px;">Ukuran 9:16, pas buat Instagram Story</p>
     </div>
   </div>
 
@@ -2881,12 +3071,31 @@
 
     async function api(action, payload = {}) {
       _bar(true);
+      // Auto-retry cuma buat aksi baca (get*/list*) — aman diulang. Aksi tulis TIDAK diulang
+      // biar nggak dobel simpan (mis. daftar/batch/simpan).
+      const readOnly = /^(get|list)/.test(action);
+      const maxAttempts = readOnly ? 2 : 1;
+      const TIMEOUT_MS = 30000;
       try {
-        const res = await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify(Object.assign({ action }, payload))
-        });
-        return await res.json();
+        let lastErr;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+          try {
+            const res = await fetch(GOOGLE_SCRIPT_URL, {
+              method: "POST",
+              body: JSON.stringify(Object.assign({ action }, payload)),
+              signal: controller.signal
+            });
+            clearTimeout(timer);
+            return await res.json();
+          } catch (e) {
+            clearTimeout(timer);
+            lastErr = e;
+            // coba lagi (khusus read-only) kalau masih ada jatah
+          }
+        }
+        throw lastErr || new Error("Gagal terhubung ke server.");
       } finally {
         _bar(false);
       }
@@ -2982,8 +3191,10 @@
     function showDashboard() {
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // jangan pulihkan scroll lama
       populateWorkshopSelect();
       applyHash(); // buka view sesuai URL hash (default overview)
+      window.scrollTo(0, 0);
     }
 
     let pendaftarInit = false;
@@ -3239,6 +3450,8 @@
     function switchView(view, event) {
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
       closeSidebar();
+      // Selalu mulai dari atas — biar bagian atas nggak ketutup header sticky pas load / ganti tab
+      window.scrollTo(0, 0);
       document.getElementById("viewOverview").style.display = (view === "overview") ? "block" : "none";
       document.getElementById("viewPendaftar").style.display = (view === "pendaftar") ? "block" : "none";
       document.getElementById("viewKeuangan").style.display = (view === "keuangan") ? "block" : "none";
@@ -3447,17 +3660,32 @@
           document.querySelectorAll(".recap-tab").forEach(x => x.classList.remove("active"));
           t.classList.add("active"); recapMode = t.dataset.mode; renderRecap();
         }));
-        await loadIdeas();
         overviewInit = true;
       }
-      if (!Object.keys(SUMMARY).length) {
+      // 1 request gabungan (summary + modal + ideas + loyalty) — jauh lebih cepat &
+      // hasilnya di-cache di server, jadi buka berikutnya makin ngebut.
+      if (!overviewDataLoaded) {
         document.getElementById("ovCards").innerHTML = `<div class="skel-card">${skelLines(3)}</div><div class="skel-card">${skelLines(3)}</div>`;
-        await loadSummary();
+        const ach = document.getElementById("achievements");
+        if (ach) ach.innerHTML = `<div class="skel-card">${skelLines(3)}</div>`;
+        try {
+          const r = await api("getOverview", { token: getToken() });
+          if (r.status === "success") {
+            SUMMARY = r.summary || {};
+            MODAL = r.modal || {};
+            IDEAS = r.ideas || [];
+            WRAP_MEMBERS = r.members || [];
+            ACTIVE_SHEETS = r.activeSheets || {};
+            STATS = computeStats(WRAP_MEMBERS);
+            overviewDataLoaded = true;
+            renderIdeas();
+          } else { handleAuthError(r); }
+        } catch (e) { /* tampilkan apa adanya */ }
       }
-      if (!Object.keys(MODAL).length) await loadModal();
       renderOverview();
-      loadStats(); // pencapaian (async, non-blocking)
+      renderAchievements();
     }
+    let overviewDataLoaded = false;
 
     async function loadIdeas() {
       try {
@@ -4739,6 +4967,8 @@
 
     // ---------- PENCAPAIAN (gamifikasi) + RECAP ----------
     let STATS = null;
+    let WRAP_MEMBERS = [];
+    let ACTIVE_SHEETS = {};
     let recapMode = "all";
     const MONTHS_ = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
     const LEVELS_ = [
@@ -4774,7 +5004,8 @@
       try {
         const r = await api("getLoyalty", { token: getToken() });
         if (r.status !== "success") { handleAuthError(r); if (box) box.innerHTML = `<p class="hint">Gagal memuat pencapaian.</p>`; return; }
-        STATS = computeStats(r.members || []);
+        WRAP_MEMBERS = r.members || [];
+        STATS = computeStats(WRAP_MEMBERS);
         renderAchievements();
       } catch (e) { if (box) box.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat pencapaian.</p>`; }
     }
@@ -4820,9 +5051,52 @@
         </div>`;
     }
 
-    // ---- Recap card (buat share medsos) ----
+    // ---- Wrapped / IG Story (buat share medsos) ----
+
+    // Hitung data wrapped. mode:
+    //   "all"    -> semua event dari awal
+    //   "active" -> hanya peserta batch AKTIF dari workshop yang lagi BUKA (bukan filter tanggal daftar)
+    function computeWrapped(members, mode) {
+      // Set batch aktif (sheet) untuk workshop yang statusnya "open"
+      const activeSet = new Set();
+      if (mode === "active") {
+        const openIds = (typeof openWorkshopIds === "function") ? openWorkshopIds() : [];
+        openIds.forEach(id => { if (ACTIVE_SHEETS[id]) activeSet.add(id + "|" + ACTIVE_SHEETS[id]); });
+      }
+      const inPeriod = (e) => {
+        if (mode !== "active") return true;
+        return activeSet.has(e.workshop + "|" + (e.sn || ""));
+      };
+      let totalReg = 0, rewards = 0;
+      const eventSet = new Set(), uniqueSet = new Set(), byEvent = {};
+      let topUser = { name: "—", count: 0 };
+      (members || []).forEach(m => {
+        let c = 0;
+        (m.events || []).forEach(e => {
+          if (!inPeriod(e)) return;
+          c++; totalReg++;
+          // Hitung PER EVENT/BATCH (workshop + batch), bukan digabung per tipe workshop.
+          const evKey = e.workshop + "|" + e.label;
+          eventSet.add(evKey);
+          const wn = ((typeof workshopName === "function" ? workshopName(e.workshop) : e.workshop) || e.workshop);
+          if (!byEvent[evKey]) byEvent[evKey] = { name: wn, label: e.label || "", count: 0 };
+          byEvent[evKey].count++;
+        });
+        if (c > 0) {
+          uniqueSet.add(m.key);
+          // Peserta paling loyal yang aktif di periode ini (pakai total ikut keseluruhan)
+          if ((m.count || 0) > topUser.count) topUser = { name: m.name || "(tanpa nama)", count: m.count || 0 };
+        }
+        if (mode !== "active") rewards += (m.claimed || 0);
+      });
+      // Event/batch tunggal paling rame (bukan akumulasi semua batch)
+      let topWorkshop = { name: "—", label: "", count: 0 };
+      Object.keys(byEvent).forEach(k => { if (byEvent[k].count > topWorkshop.count) topWorkshop = byEvent[k]; });
+      return { totalReg, events: eventSet.size, unique: uniqueSet.size, rewards, topUser, topWorkshop };
+    }
+
     function openRecap() {
-      if (!STATS) { alert("Data masih dimuat, coba lagi sebentar."); return; }
+      if (!WRAP_MEMBERS.length && !STATS) { alert("Data masih dimuat, coba lagi sebentar."); return; }
       recapMode = "all";
       document.querySelectorAll(".recap-tab").forEach(x => x.classList.toggle("active", x.dataset.mode === "all"));
       renderRecap();
@@ -4831,49 +5105,59 @@
     function closeRecap() { document.getElementById("recapModal").style.display = "none"; }
 
     function renderRecap() {
-      if (!STATS) return;
-      const s = STATS;
-      let title, big, sub;
-      if (recapMode === "active") {
-        const ids = (typeof openWorkshopIds === "function") ? openWorkshopIds() : [];
-        const peserta = ids.reduce((t, id) => t + (SUMMARY[id] || 0), 0);
-        title = "RECAP · WORKSHOP AKTIF";
-        big = [
-          { n: ids.length, l: "Workshop dibuka" },
-          { n: peserta, l: "Total pendaftar" }
-        ];
-        sub = ids.length
-          ? ids.map(id => `${workshopName(id)}: ${SUMMARY[id] || 0}`).join(" · ")
-          : "Belum ada workshop yang buka pendaftaran";
-      } else {
-        title = "RECAP · SEMINGGU SATU";
-        big = [
-          { n: s.events, l: "Total event" },
-          { n: s.unique, l: "Peserta unik" },
-          { n: s.totalReg, l: "Total pendaftaran" }
-        ];
-        sub = `🎁 ${s.rewards} hadiah ditukar · ⭐ ${s.loyal} loyalis · ${s.events} event digelar`;
-      }
-      document.getElementById("recapCard").innerHTML = `
-        <div class="pp-head"><span>🎫 SEMINGGU SATU</span><span>by Arnold</span></div>
-        <div class="recap-title">${escapeHtml(title)}</div>
-        <div class="recap-big">
-          ${big.map(x => `<div class="recap-num"><b>${x.n}</b><span>${x.l}</span></div>`).join("")}
+      const w = computeWrapped(WRAP_MEMBERS, recapMode);
+      const now = new Date();
+      const isActive = recapMode === "active";
+      const period = isActive ? "Event Aktif" : "All-Time Recap";
+      const title = isActive
+        ? "Serunya<br><span class='hl'>Event Ini!</span>"
+        : "Kilas Balik<br><span class='hl'>Perjalanan!</span>";
+      const heroLabel = isActive ? "Peserta terdaftar" : "Total pendaftaran";
+
+      const stats = [
+        { n: w.events, l: isActive ? "Event aktif" : "Event digelar" },
+        { n: w.unique, l: "Teman jurnal" }
+      ];
+
+      const topUserLine = w.topUser.count
+        ? `<div class="rs-lbl">Paling Rajin Hadir</div>
+           <div class="rs-val">${escapeHtml(w.topUser.name)}</div>
+           <div class="rs-meta">Ikut ${w.topUser.count} workshop bareng kita!</div>`
+        : `<div class="rs-lbl">Paling Rajin</div><div class="rs-val">Belum ada data</div>`;
+
+      const wsMeta = w.topWorkshop.label ? (" · " + escapeHtml(w.topWorkshop.label)) : "";
+      const topWsLine = w.topWorkshop.count
+        ? `<div class="rs-lbl">Event Terrame</div>
+           <div class="rs-val">${escapeHtml(w.topWorkshop.name)}</div>
+           <div class="rs-meta">${w.topWorkshop.count} peserta${wsMeta}</div>`
+        : `<div class="rs-lbl">Event Terrame</div><div class="rs-val">Belum ada</div>`;
+
+      document.getElementById("recapStory").innerHTML = `
+        <div class="rs-orb a"></div>
+        <div class="rs-orb b"></div>
+        <div class="rs-head"><span><span class="rs-dot"></span>Seminggu Satu</span><span>Wrapped</span></div>
+        <div class="rs-period">${escapeHtml(period)}</div>
+        <div class="rs-title">${title}</div>
+        <div class="rs-hero"><b>${w.totalReg}</b><span>${heroLabel}</span></div>
+        <div class="rs-grid">
+          ${stats.map(x => `<div class="rs-stat"><b>${x.n}</b><span>${x.l}</span></div>`).join("")}
         </div>
-        <div class="recap-sub">${escapeHtml(sub)}</div>
-        <div class="pp-foot"><span>Terima kasih sudah journaling bareng! ✨</span><span>seminggu.satu</span></div>`;
+        <div class="rs-spot hi"><div class="rs-emoji">🏆</div><div>${topUserLine}</div></div>
+        <div class="rs-spot"><div class="rs-emoji">🔥</div><div>${topWsLine}</div></div>
+        <div class="rs-foot"><span>Terima kasih sudah berproses ✨</span><span class="rs-brand">@seminggu.satu</span></div>`;
     }
 
     async function downloadRecap() {
-      const card = document.getElementById("recapCard");
+      const card = document.getElementById("recapStory");
       const btn = document.getElementById("recapDownload");
       const label = btn.textContent;
       btn.disabled = true; btn.textContent = "Merender...";
       try {
-        const canvas = await html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true });
+        // scale 3 -> ~1020x1815, mendekati 1080x1920 IG Story
+        const canvas = await html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true });
         const a = document.createElement("a");
         a.href = canvas.toDataURL("image/png");
-        a.download = "recap-" + recapMode + ".png";
+        a.download = "seminggu-satu-wrapped-" + recapMode + ".png";
         a.click();
       } catch (e) { alert("Gagal render gambar."); }
       finally { btn.disabled = false; btn.textContent = label; }
