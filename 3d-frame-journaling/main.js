@@ -71,15 +71,15 @@ function hideBlockerLoader() {
 }
 
 // --- Helper: Fetch JSONP ---
-function fetchJSONP(url, callbackPrefix) {
+function fetchJSONP(url, callbackPrefix, timeoutMs) {
     return new Promise((resolve, reject) => {
-        const callbackName = callbackPrefix + '_' + Date.now();
+        const callbackName = callbackPrefix + '_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
         const script = document.createElement('script');
         const timeout = setTimeout(() => {
             reject(new Error("Request timeout"));
             delete window[callbackName];
             script.remove();
-        }, 15000);
+        }, timeoutMs || 15000);
 
         window[callbackName] = function (data) {
             clearTimeout(timeout);
@@ -102,22 +102,29 @@ function fetchJSONP(url, callbackPrefix) {
 // --- Check Quota (Sisa Tiket) ---
 async function checkQuota() {
     showBlockerLoader('Mengecek ketersediaan tiket...');
+    // Coba beberapa kali — Apps Script kadang lambat/dingin. Timeout per percobaan 9 dtk.
+    let counts = null;
+    for (let attempt = 1; attempt <= 3 && !counts; attempt++) {
+        try {
+            counts = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota', 9000);
+        } catch (err) {
+            console.error(`Cek kuota gagal (percobaan ${attempt}/3):`, err);
+        }
+    }
     try {
-        const counts = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota');
-        const currentCount = counts['3d-frame-journaling'] || 0;
-        const maxQuota = _workshopData.maxQuota || 12;
-        const sisa = Math.max(0, maxQuota - currentCount);
+        if (counts) {
+            const currentCount = counts['3d-frame-journaling'] || 0;
+            const maxQuota = _workshopData.maxQuota || 12;
+            const sisa = Math.max(0, maxQuota - currentCount);
 
-        if (sisa <= 0) {
-            // Blokir penuh — redirect ke closed.html, user tidak bisa lihat/scroll halaman
-            window.location.replace('../closed.html?workshop=' + _workshopData.id + '&reason=sold-out');
-            return;
-        } else {
+            if (sisa <= 0) {
+                window.location.replace('../closed.html?workshop=' + _workshopData.id + '&reason=sold-out');
+                return;
+            }
             urgencyBadge.classList.add('show');
             urgencyText.textContent = `Sisa ${sisa} Tiket!`;
         }
-    } catch (err) {
-        console.error("Gagal mengecek kuota:", err);
+        // Semua percobaan gagal: halaman tetap jalan; kuota divalidasi ulang saat submit.
     } finally {
         hideBlockerLoader();
     }

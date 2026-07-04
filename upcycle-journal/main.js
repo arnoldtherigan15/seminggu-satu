@@ -152,16 +152,16 @@ function hideBlockerLoader() {
 }
 
 // --- Helper: Fetch JSONP ---
-function fetchJSONP(url, callbackPrefix) {
+function fetchJSONP(url, callbackPrefix, timeoutMs) {
     return new Promise((resolve, reject) => {
         const callbackPrefixStr = callbackPrefix || 'callback';
-        const callbackName = callbackPrefixStr + '_' + Date.now();
+        const callbackName = callbackPrefixStr + '_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
         const script = document.createElement('script');
         const timeout = setTimeout(() => {
             reject(new Error("Request timeout"));
             delete window[callbackName];
             script.remove();
-        }, 15000);
+        }, timeoutMs || 15000);
 
         window[callbackName] = function (data) {
             clearTimeout(timeout);
@@ -183,32 +183,34 @@ function fetchJSONP(url, callbackPrefix) {
 
 async function checkStock() {
     showBlockerLoader('Mengecek ketersediaan stok bag...');
+    // Coba beberapa kali — Apps Script kadang lambat/dingin. Timeout per percobaan 9 dtk.
+    let result = null;
+    for (let attempt = 1; attempt <= 3 && !result; attempt++) {
+        try {
+            result = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota', 9000);
+        } catch (err) {
+            console.error(`Cek stok gagal (percobaan ${attempt}/3):`, err);
+        }
+    }
     try {
-        const result = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota');
-        
-        // Handle general quota (Uses whatever is in workshop-config.js)
-        const currentCount = result['upcycle-journal'] || 0;
-        const maxQuota = _workshopData.maxQuota || 12; 
-        const sisa = Math.max(0, maxQuota - currentCount);
+        if (result) {
+            const currentCount = result['upcycle-journal'] || 0;
+            const maxQuota = _workshopData.maxQuota || 12;
+            const sisa = Math.max(0, maxQuota - currentCount);
 
-        // Handle specific taken bags from spreadsheet
-        takenBags = result.takenBags || [];
+            // Bag yang sudah terjual (dari spreadsheet)
+            takenBags = result.takenBags || [];
 
-        if (sisa <= 0) {
-            // Blokir penuh — redirect ke closed.html, user tidak bisa lihat/scroll halaman
-            window.location.replace('../closed.html?workshop=' + _workshopData.id + '&reason=sold-out');
-            return;
-        } else {
+            if (sisa <= 0) {
+                window.location.replace('../closed.html?workshop=' + _workshopData.id + '&reason=sold-out');
+                return;
+            }
             urgencyBadge.classList.add('show');
             urgencyText.textContent = `Sisa ${sisa} Tiket!`;
         }
-
+        // Semua percobaan gagal: tetap tampilkan halaman (takenBags kosong);
+        // ketersediaan & bag divalidasi ulang di server saat submit.
         renderBagSliders();
-        renderStrapColors();
-        lucide.createIcons();
-    } catch (err) {
-        console.error("Gagal mengecek stok:", err);
-        renderBagSliders(); 
         renderStrapColors();
         lucide.createIcons();
     } finally {
