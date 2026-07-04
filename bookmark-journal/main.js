@@ -114,11 +114,9 @@ async function checkQuota() {
         const sisa = Math.max(0, maxQuota - currentCount);
 
         if (sisa <= 0) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i data-lucide="x-circle"></i> <span>Pendaftaran Penuh</span>';
-            lucide.createIcons();
-            urgencyBadge.classList.add('show');
-            urgencyText.textContent = "Pendaftaran Penuh";
+            // Blokir penuh — redirect ke closed.html, user tidak bisa lihat/scroll halaman
+            window.location.replace('../closed.html?workshop=' + _workshopData.id + '&reason=sold-out');
+            return;
         } else {
             urgencyBadge.classList.add('show');
             urgencyText.textContent = `Sisa ${sisa} Tiket!`;

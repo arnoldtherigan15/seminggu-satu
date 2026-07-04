@@ -195,10 +195,9 @@ async function checkStock() {
         takenBags = result.takenBags || [];
 
         if (sisa <= 0) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i data-lucide="x-circle"></i> <span>Pendaftaran Penuh</span>';
-            urgencyBadge.classList.add('show');
-            urgencyText.textContent = "Pendaftaran Penuh";
+            // Blokir penuh — redirect ke closed.html, user tidak bisa lihat/scroll halaman
+            window.location.replace('../closed.html?workshop=' + _workshopData.id + '&reason=sold-out');
+            return;
         } else {
             urgencyBadge.classList.add('show');
             urgencyText.textContent = `Sisa ${sisa} Tiket!`;

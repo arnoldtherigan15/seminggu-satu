@@ -309,6 +309,14 @@
                 }
                 break;
 
+            case 'sold-out':
+                iconClass = 'icon-closed';
+                iconName = 'ticket-x';
+                dividerClass = 'divider-red';
+                title = 'Kuota Sudah Penuh!';
+                description = `Maaf, semua slot untuk <strong>${workshopName}</strong> sudah terisi. Terima kasih atas antusiasme kalian! 🐾`;
+                break;
+
             default: // disabled
                 iconClass = 'icon-disabled';
                 iconName = 'lock';

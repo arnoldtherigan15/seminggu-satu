@@ -2382,6 +2382,13 @@
       color: #0046ff;
     }
 
+    /* Passport (pakai kartu Wrapped) — baris stamp bintang */
+    .rs-stamps {
+      margin-top: 12px; font-size: 19px; letter-spacing: 3px; line-height: 1.25;
+      color: #ffe600; position: relative; z-index: 1; word-break: break-word;
+    }
+    .rs-stamps .more { font-size: 12px; font-weight: 800; letter-spacing: 0; opacity: .9; }
+
     /* Versi EXPORT (khusus render IG Story): konten digeser ke TENGAH (safe zone) biar
        bagian atas/bawah yang ketutup UI Instagram cuma area gradient kosong, bukan teks. */
     .recap-story.export {
@@ -3127,10 +3134,11 @@
 
   <!-- Modal passport -->
   <div id="passportModal" class="modal" style="display:none;">
-    <div class="modal-box passport-box">
+    <div class="modal-box passport-box" style="max-width:380px;">
       <button class="modal-close" id="passportClose" aria-label="Tutup">&times;</button>
-      <div id="passportCard" class="passport"></div>
-      <button class="btn" id="passportDownload" style="margin-top:14px;width:100%;">⬇️ Download PNG</button>
+      <div id="passportCard" class="recap-story"></div>
+      <button class="btn" id="passportDownload" style="margin-top:14px;width:100%;">⬇️ Download IG Story (PNG)</button>
+      <p class="hint" style="text-align:center;margin-top:8px;">Ukuran 9:16, pas buat Instagram Story 📲</p>
     </div>
   </div>
 
@@ -5026,30 +5034,28 @@
       const name = m.nickname || m.name || "Journaler";
       const MAX = 12;
       const shown = Math.min(m.count, MAX);
-      let stamps = "";
-      for (let i = 0; i < shown; i++) stamps += `<span class="pp-stamp">★</span>`;
-      const more = m.count > MAX ? `<span class="pp-more">+${m.count - MAX}</span>` : "";
+      const stampStr = "★".repeat(shown);
+      const more = m.count > MAX ? `<span class="more"> +${m.count - MAX}</span>` : "";
+      const handle = m.ig ? ("@" + escapeHtml(m.ig.replace(/^@/, ""))) : "@seminggu_satu";
+
       document.getElementById("passportCard").innerHTML = `
-        <div class="pp-head"><span>🎫 SEMINGGU SATU</span><span>No. ${escapeHtml((m.key || "").slice(-4).toUpperCase())}</span></div>
-        <div class="pp-title">JOURNALING PASSPORT</div>
-        <div class="pp-holder">
-          <div class="pp-label">PEMEGANG</div>
-          <div class="pp-name">${escapeHtml(name)}</div>
+        <div class="rs-orb a"></div>
+        <div class="rs-orb b"></div>
+        <div class="rs-head"><span><span class="rs-dot"></span>Seminggu Satu</span><span>Passport</span></div>
+        <div class="rs-period">Journaling Passport</div>
+        <div class="rs-title">${escapeHtml(name)}</div>
+        <div class="rs-hero"><b>${m.count}</b><span>Event diikuti bareng kita</span></div>
+        <div class="rs-stamps">${stampStr}${more}</div>
+        <div class="rs-grid">
+          <div class="rs-stat"><b>${p.uniqueWs}</b><span>Jenis workshop</span></div>
+          <div class="rs-stat"><b>${m.claimed}</b><span>🎁 Hadiah</span></div>
         </div>
-        <div class="pp-persona">
-          <div class="pp-persona-title">${escapeHtml(p.title)}</div>
-          <div class="pp-persona-tag">${escapeHtml(p.tag)}</div>
-        </div>
-        <div class="pp-stats">
-          <div><b>${m.count}</b><span>Event</span></div>
-          <div><b>${p.uniqueWs}</b><span>Jenis</span></div>
-          <div><b>${m.claimed}</b><span>🎁 Hadiah</span></div>
-        </div>
-        <div class="pp-stamps">${stamps}${more}</div>
-        <div class="pp-foot">
-          <span>${escapeHtml(p.trait)}${since ? " · sejak " + since : ""}</span>
-          <span>${m.ig ? "@" + escapeHtml(m.ig.replace(/^@/, "")) : "seminggu_satu"}</span>
-        </div>`;
+        <div class="rs-spot hi"><div class="rs-emoji">🎖️</div><div>
+          <div class="rs-lbl">${escapeHtml(p.title)}</div>
+          <div class="rs-val">${escapeHtml(p.trait)}</div>
+          <div class="rs-meta">${escapeHtml(p.tag)}</div>
+        </div></div>
+        <div class="rs-foot"><span>${since ? "Journaling sejak " + since + " ✨" : "Terima kasih sudah berproses ✨"}</span><span class="rs-brand">${handle}</span></div>`;
       document.getElementById("passportModal").style.display = "flex";
     }
 
@@ -5059,17 +5065,36 @@
       const card = document.getElementById("passportCard");
       const btn = document.getElementById("passportDownload");
       const label = btn.textContent;
+      const nmeEl = card.querySelector(".rs-title");
+      const nm = (nmeEl ? nmeEl.textContent : "peserta").trim().replace(/\s+/g, "-").toLowerCase() || "peserta";
       btn.disabled = true; btn.textContent = "Merender...";
+
+      // Sama seperti Wrapped: clone off-screen 360x640 (9:16) + safe zone -> 1080x1920 pas IG Story
+      const clone = card.cloneNode(true);
+      clone.classList.add("export");
+      clone.style.width = "360px";
+      clone.style.height = "640px";
+      clone.style.minHeight = "0";
+      clone.style.maxWidth = "none";
+      clone.style.margin = "0";
+      clone.style.position = "fixed";
+      clone.style.left = "-10000px";
+      clone.style.top = "0";
+      document.body.appendChild(clone);
       try {
-        const canvas = await html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true });
-        const nmeEl = card.querySelector(".pp-name");
-        const nm = (nmeEl ? nmeEl.textContent : "peserta").trim().replace(/\s+/g, "-").toLowerCase();
+        const canvas = await html2canvas(clone, {
+          scale: 3, backgroundColor: null, useCORS: true,
+          width: 360, height: 640, windowWidth: 360, windowHeight: 640
+        });
         const a = document.createElement("a");
         a.href = canvas.toDataURL("image/png");
         a.download = "passport-" + nm + ".png";
         a.click();
       } catch (e) { alert("Gagal render gambar. Coba lagi."); }
-      finally { btn.disabled = false; btn.textContent = label; }
+      finally {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        btn.disabled = false; btn.textContent = label;
+      }
     }
 
     // ---------- PENCAPAIAN (gamifikasi) + RECAP ----------
