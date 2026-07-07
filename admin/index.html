@@ -2510,6 +2510,33 @@
       margin-bottom: 16px;
     }
 
+    /* --- Rich note (WYSIWYG mini) --- */
+    .rn-toolbar {
+      display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;
+      padding: 6px; background: #f8fafc; border: 1px solid var(--line);
+      border-radius: 10px 10px 0 0; border-bottom: none;
+    }
+    .rn-btn {
+      min-width: 32px; height: 32px; padding: 0 8px;
+      border: 1px solid var(--line); background: #fff; border-radius: 7px;
+      font-size: 13px; font-weight: 700; cursor: pointer; color: var(--ink);
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .rn-btn:hover { border-color: var(--brand); color: var(--brand); }
+    .rn-btn.rn-i { font-style: italic; }
+    .rn-btn.rn-u { text-decoration: underline; }
+    .rn-editor {
+      min-height: 180px; max-height: 460px; overflow-y: auto;
+      border: 1px solid var(--line); border-radius: 0 0 10px 10px;
+      padding: 12px 14px; font-size: 14px; line-height: 1.6; color: var(--ink);
+      background: #fff; outline: none;
+    }
+    .rn-editor:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(94,114,228,.15); }
+    .rn-editor:empty::before { content: attr(data-ph); color: var(--muted); }
+    .rn-editor a { color: var(--brand); }
+    .rn-editor ul, .rn-editor ol { margin: 6px 0 6px 22px; }
+    .rn-editor h3 { font-size: 16px; margin: 8px 0 4px; }
+
     .prep-row {
       display: flex;
       gap: 10px;
@@ -4568,7 +4595,92 @@
         renderPrepList(sec);
       });
 
+      // 3) Catatan Lengkap (WYSIWYG)
+      cont.appendChild(buildRichNoteAccordion());
+
       loadPrepParticipants();
+    }
+
+    function buildRichNoteAccordion() {
+      const existing = (Array.isArray(PREP.richnote) && PREP.richnote[0] && PREP.richnote[0].html) || "";
+      const acc = document.createElement("div");
+      acc.className = "acc";
+      acc.innerHTML =
+        `<button class="acc-head" type="button">
+           <span class="acc-title">🗒️ Catatan Lengkap</span>
+           <span class="acc-chevron">▸</span>
+         </button>
+         <div class="acc-body">
+           <div class="rn-toolbar">
+             <button class="rn-btn" type="button" data-cmd="bold" title="Tebal">B</button>
+             <button class="rn-btn rn-i" type="button" data-cmd="italic" title="Miring">I</button>
+             <button class="rn-btn rn-u" type="button" data-cmd="underline" title="Garis bawah">U</button>
+             <button class="rn-btn" type="button" data-cmd="h3" title="Judul">H</button>
+             <button class="rn-btn" type="button" data-cmd="ul" title="Bullet list">•</button>
+             <button class="rn-btn" type="button" data-cmd="ol" title="Nomor list">1.</button>
+             <button class="rn-btn" type="button" data-cmd="link" title="Tautan">🔗</button>
+             <button class="rn-btn" type="button" data-cmd="clear" title="Hapus format">⨯</button>
+           </div>
+           <div class="rn-editor" id="rnEditor" contenteditable="true" data-ph="Tulis catatan panjang di sini… (bisa tebal, list, link, dll)">${existing}</div>
+           <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+             <button class="btn btn-sm" id="rnSaveBtn" disabled>💾 Simpan Catatan</button>
+             <span class="msg" id="rnMsg"></span>
+           </div>
+         </div>`;
+      acc.querySelector(".acc-head").addEventListener("click", () => acc.classList.toggle("open"));
+
+      const editor = acc.querySelector("#rnEditor");
+      const saveBtn = acc.querySelector("#rnSaveBtn");
+      const dirty = () => { saveBtn.disabled = false; };
+
+      acc.querySelectorAll(".rn-btn").forEach(b => {
+        b.addEventListener("click", () => {
+          editor.focus();
+          const cmd = b.dataset.cmd;
+          if (cmd === "bold" || cmd === "italic" || cmd === "underline") document.execCommand(cmd, false, null);
+          else if (cmd === "ul") document.execCommand("insertUnorderedList", false, null);
+          else if (cmd === "ol") document.execCommand("insertOrderedList", false, null);
+          else if (cmd === "h3") document.execCommand("formatBlock", false, "H3");
+          else if (cmd === "clear") { document.execCommand("removeFormat", false, null); document.execCommand("formatBlock", false, "P"); }
+          else if (cmd === "link") {
+            const url = prompt("Tempel URL:", "https://");
+            if (url) document.execCommand("createLink", false, url);
+          }
+          dirty();
+        });
+      });
+      editor.addEventListener("input", dirty);
+      // Tempel sebagai teks polos (biar nggak bawa style aneh dari sumber lain)
+      editor.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        document.execCommand("insertText", false, text);
+      });
+      saveBtn.addEventListener("click", saveRichNote);
+      return acc;
+    }
+
+    async function saveRichNote() {
+      const event = document.getElementById("prepSelect").value;
+      const editor = document.getElementById("rnEditor");
+      const saveBtn = document.getElementById("rnSaveBtn");
+      const msg = document.getElementById("rnMsg");
+      const html = editor.innerHTML.trim();
+      const items = (html && html !== "<br>") ? [{ html: html }] : [];
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      try {
+        const r = await api("savePrep", { token: getToken(), event, prepType: "richnote", items });
+        if (r.status === "success") {
+          PREP.richnote = items;
+          saveBtn.disabled = true;
+          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+      }
     }
 
     function buildPrepAccordion(sec) {
