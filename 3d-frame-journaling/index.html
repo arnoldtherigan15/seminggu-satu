@@ -23,16 +23,19 @@
             if (typeof GOOGLE_SCRIPT_URL !== "undefined" && GOOGLE_SCRIPT_URL) {
                 var done = false, s;
                 var cb = "_wsGuard_" + Date.now();
-                function finish() { if (done) return; done = true; try { delete window[cb]; } catch (e) {} if (s && s.parentNode) s.parentNode.removeChild(s); decide(); }
-                var to = setTimeout(finish, 6000);
+                function cleanup() { if (done) return; done = true; try { delete window[cb]; } catch (e) {} if (s && s.parentNode) s.parentNode.removeChild(s); }
+                // Gagal/lambat ambil config -> FAIL-OPEN: biarkan halaman terbuka (jangan salah-closed).
+                var to = setTimeout(cleanup, 6000);
                 window[cb] = function (data) {
                     if (done) return;
+                    clearTimeout(to);
                     try { if (Array.isArray(data) && data.length) { WORKSHOPS = data; localStorage.setItem("ss_workshops_cache", JSON.stringify(data)); } } catch (e) {}
-                    clearTimeout(to); finish();
+                    cleanup();
+                    decide(); // cuma redirect kalau dapat config RESMI dari server
                 };
                 s = document.createElement("script");
                 s.src = GOOGLE_SCRIPT_URL + "?page=config&callback=" + cb + "&_=" + Date.now();
-                s.onerror = function () { clearTimeout(to); finish(); };
+                s.onerror = function () { clearTimeout(to); cleanup(); };
                 document.head.appendChild(s);
             } else {
                 decide();
