@@ -595,3 +595,36 @@ function showToast(msg) {
 checkStock();
 setupImageUpload('charmPhoto', 'charmUploadArea', 'charmPreview', 'charmBase64', 'charmMimeType');
 setupImageUpload('paymentPhoto', 'paymentUploadArea', 'paymentPreview', 'paymentBase64', 'paymentMimeType');
+
+
+// ============================================================
+//  AUTO-UPDATE saat config server datang (biar harga/tanggal SELALU terbaru,
+//  nggak pernah nampilin cache/statis lama). Aman: pakai guard if(el).
+// ============================================================
+window.addEventListener('workshops:updated', function () {
+    try {
+        var w = getWorkshopById("upcycle-journal"); if (!w) return;
+        var eb = (typeof isEarlyBird === 'function') && isEarlyBird(w);
+        var cur = getCurrentPrice(w);
+        var dEl = document.getElementById('discountPriceEl');
+        var cEl = document.getElementById('currentPriceEl');
+        var pEl = document.getElementById('paymentAmount');
+        var ebInfo = document.getElementById('earlyBirdInfo');
+        var ebTxt = document.getElementById('earlyBirdText');
+        if (eb) {
+            if (dEl) { dEl.textContent = formatRupiah(w.normalPrice); dEl.style.display = ''; }
+            if (cEl) { cEl.textContent = formatRupiah(w.earlyBirdPrice); cEl.className = 'new-price'; }
+            if (ebInfo) ebInfo.style.display = 'flex';
+            if (ebTxt) ebTxt.textContent = 'Harga Early Bird sampai ' + formatDateIndo(w.earlyBirdDueDate);
+        } else {
+            if (dEl) dEl.style.display = 'none';
+            if (cEl) { cEl.textContent = formatRupiah(w.normalPrice); cEl.className = 'new-price'; cEl.style.color = 'var(--text-primary)'; }
+            if (ebInfo) ebInfo.style.display = 'none';
+        }
+        if (pEl) pEl.textContent = formatRupiah(cur);
+        var dt = document.getElementById('workshopDateText'); if (dt) dt.textContent = w.workshopDate || '';
+        var tm = document.getElementById('workshopTimeText'); if (tm) tm.textContent = w.workshopTime || '';
+        var ln = document.getElementById('locationNameText'); if (ln) ln.textContent = w.locationName || '';
+        var ml = document.getElementById('locationMapsLink'); if (ml && w.mapsLink) ml.href = w.mapsLink;
+    } catch (e) { /* jangan ganggu halaman */ }
+});

@@ -167,10 +167,10 @@ async function handlePhotoUpload(inputId, boxId, previewImgId, slotId, b64Id) {
         }
 
         try {
-            // Foto ini DICETAK -> resolusi & kualitas dijaga tinggi (1600px, q0.9).
-            // Cukup tajam buat print foto di frame (sampai ~13cm @300dpi), tapi tetap
-            // jauh lebih ringan dari file asli kamera biar upload nggak berat.
-            const compressedDataUrl = await compressImage(file, 1600, 0.9);
+            // Foto ini DICETAK -> resolusi dijaga (1500px, q0.85): tajam buat print foto
+            // di frame (~300 DPI sampai ~12cm) TAPI jauh lebih ringan dari 1600/0.9,
+            // biar upload saat submit nggak lama. Sweet spot kualitas vs kecepatan.
+            const compressedDataUrl = await compressImage(file, 1500, 0.85);
 
             // Set mini preview
             previewImg.src = compressedDataUrl;
@@ -365,4 +365,37 @@ form.addEventListener('submit', async (e) => {
         lucide.createIcons();
         hideBlockerLoader();
     }
+});
+
+
+// ============================================================
+//  AUTO-UPDATE saat config server datang (biar harga/tanggal SELALU terbaru,
+//  nggak pernah nampilin cache/statis lama). Aman: pakai guard if(el).
+// ============================================================
+window.addEventListener('workshops:updated', function () {
+    try {
+        var w = getWorkshopById("3d-frame-journaling"); if (!w) return;
+        var eb = (typeof isEarlyBird === 'function') && isEarlyBird(w);
+        var cur = getCurrentPrice(w);
+        var dEl = document.getElementById('discountPriceEl');
+        var cEl = document.getElementById('currentPriceEl');
+        var pEl = document.getElementById('paymentAmount');
+        var ebInfo = document.getElementById('earlyBirdInfo');
+        var ebTxt = document.getElementById('earlyBirdText');
+        if (eb) {
+            if (dEl) { dEl.textContent = formatRupiah(w.normalPrice); dEl.style.display = ''; }
+            if (cEl) { cEl.textContent = formatRupiah(w.earlyBirdPrice); cEl.className = 'new-price'; }
+            if (ebInfo) ebInfo.style.display = 'flex';
+            if (ebTxt) ebTxt.textContent = 'Harga Early Bird sampai ' + formatDateIndo(w.earlyBirdDueDate);
+        } else {
+            if (dEl) dEl.style.display = 'none';
+            if (cEl) { cEl.textContent = formatRupiah(w.normalPrice); cEl.className = 'new-price'; cEl.style.color = 'var(--text-primary)'; }
+            if (ebInfo) ebInfo.style.display = 'none';
+        }
+        if (pEl) pEl.textContent = formatRupiah(cur);
+        var dt = document.getElementById('workshopDateText'); if (dt) dt.textContent = w.workshopDate || '';
+        var tm = document.getElementById('workshopTimeText'); if (tm) tm.textContent = w.workshopTime || '';
+        var ln = document.getElementById('locationNameText'); if (ln) ln.textContent = w.locationName || '';
+        var ml = document.getElementById('locationMapsLink'); if (ml && w.mapsLink) ml.href = w.mapsLink;
+    } catch (e) { /* jangan ganggu halaman */ }
 });

@@ -645,6 +645,8 @@
             lucide.createIcons();
         }
 
+        let _lastCounts = {};
+        let _countsReady = false;
         async function initWorkshops() {
             // 1) Langsung tampil dari config; tombol daftar disabled dulu (status belum pasti)
             renderWorkshops({}, true, false);
@@ -652,16 +654,23 @@
             // 2) Ambil kuota di background, lalu render ulang dgn status final (tombol aktif)
             try {
                 const res = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota');
-                renderWorkshops((res && typeof res === 'object') ? res : {}, false, true);
+                _lastCounts = (res && typeof res === 'object') ? res : {};
             } catch (err) {
                 console.error("Gagal mengambil kuota:", err);
-                // Fetch gagal: tetap aktifkan tombol biar peserta nggak kejebak (server yg validasi ulang saat submit)
-                renderWorkshops({}, false, true);
+                _lastCounts = {};
             }
+            _countsReady = true;
+            renderWorkshops(_lastCounts, false, _countsReady);
         }
 
         // Initialize on load
         initWorkshops();
+
+        // Config server (harga/tanggal terbaru) datang belakangan -> render ulang kartu
+        // biar peserta SELALU lihat data terbaru, bukan cache/statis lama.
+        window.addEventListener('workshops:updated', function () {
+            renderWorkshops(_lastCounts, false, _countsReady);
+        });
 
         // Render testimonies
         function initTestimonies() {

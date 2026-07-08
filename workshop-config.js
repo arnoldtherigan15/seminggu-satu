@@ -22,104 +22,127 @@
 // Nilai di bawah = FALLBACK statis (dipakai saat cache kosong / server tak terjangkau).
 var WORKSHOPS = [
     {
-        id: "bookmark-journal",
-        name: "Pull & Pop: A Journaling Bookmark",
-        description: "Buat bookmark interaktifmu sendiri dengan mekanisme pull & pop! Pilih pita dan rantai favoritmu.",
-        icon: "bookmark",
-        path: "bookmark-journal/index.html",
-        enabled: true,
-        openDate: "03/05/2026",
-        closeDate: "26/05/2026",
-        normalPrice: 175000,
-        earlyBirdPrice: null,
-        earlyBirdDueDate: null,
-        maxQuota: 10,
-        workshopDate: "Rabu, 27 Mei 2026",
-        workshopTime: "15:00 - 17:30 WIB",
-        locationName: "Kopi Aloo Melawai",
-        mapsLink: "https://maps.app.goo.gl/6T7QmqryfE7ATbkz5",
-        isDisplay: false,
-        whatsappGroupLink: "https://chat.whatsapp.com/Ba3DC7JFQSt1u1tgIMATw9?mode=gi_t"
-    },
-    // Catatan: "bookmark-journal-sheraton" dipensiunkan — jadi batch dari "bookmark-journal".
-    {
-        id: "3d-frame-journaling",
-        name: "3D Layered Journaling",
-        description: "Frame, Texture & Motion",
-        icon: "frame",
-        path: "3d-frame-journaling/index.html",
-        enabled: true,
-        openDate: "04/04/2026",
-        closeDate: "24/04/2026",
-        normalPrice: 188000,
-        earlyBirdPrice: 169000,
-        earlyBirdDueDate: "12/04/2026",
-        maxQuota: 12,
-        workshopDate: "Sabtu, 25 April 2026",
-        workshopTime: "15:00 - 17:30 WIB",
-        locationName: "Melting Pot, GF at ASHTA District 8",
-        mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
-        isDisplay: false,
+        "id": "bookmark-journal",
+        "name": "Pull & Pop: A Journaling Bookmark",
+        "description": "Buat bookmark interaktifmu sendiri dengan mekanisme pull & pop! Pilih pita dan rantai favoritmu.",
+        "icon": "bookmark",
+        "path": "bookmark-journal/index.html",
+        "enabled": false,
+        "openDate": "01/07/2026",
+        "closeDate": "03/07/2026",
+        "normalPrice": 175000,
+        "earlyBirdPrice": null,
+        "earlyBirdDueDate": "",
+        "maxQuota": 10,
+        "workshopDate": "Rabu, 27 Mei 2026",
+        "workshopTime": "15:00 - 17:30 WIB",
+        "locationName": "Kopi Aloo Melawai",
+        "mapsLink": "https://maps.app.goo.gl/6T7QmqryfE7ATbkz5",
+        "isDisplay": false,
+        "whatsappGroupLink": "https://chat.whatsapp.com/Ba3DC7JFQSt1u1tgIMATw9?mode=gi_t",
+        "isPrintPhoto": false
     },
     {
-        id: "paper-journal",
-        name: "Paper Journal Creative Workshop",
-        description: "Buat paper journal versimu yang unik dari kertas spesial. Pilih perpaduan warna favoritmu!",
-        icon: "book-open",
-        path: "paper-journal/index.html",
-        enabled: true,
-        openDate: "12/04/2026",
-        closeDate: "13/04/2026",
-        normalPrice: 255000,
-        earlyBirdPrice: 344000,
-        earlyBirdDueDate: "10/04/2026",
-        maxQuota: 1,
-        workshopDate: "Minggu, 17 Mei 2026",
-        workshopTime: "15:00 - 17:30 WIB",
-        locationName: "Melting Pot, GF at ASHTA District 8",
-        mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
-        isDisplay: false,
+        "id": "bookmark-journal-sheraton",
+        "name": "Sheraton Pull & Pop: A Journaling Bookmark",
+        "description": "Buat bookmark interaktifmu sendiri dengan mekanisme pull & pop! (Private Event)",
+        "icon": "bookmark",
+        "path": "bookmark-journal-sheraton/index.html",
+        "enabled": true,
+        "openDate": "03/05/2026",
+        "closeDate": "26/05/2026",
+        "normalPrice": 0,
+        "earlyBirdPrice": null,
+        "earlyBirdDueDate": null,
+        "maxQuota": 15,
+        "workshopDate": "Kamis, 21 Mei 2026",
+        "workshopTime": "15:00 - 17:00 WIB",
+        "locationName": "Sheraton",
+        "mapsLink": "https://maps.app.goo.gl/4jgzwYXtQG1g5ZTH8",
+        "isDisplay": false,
+        "whatsappGroupLink": ""
     },
     {
-        id: "upcycle-journal",
-        name: "Upcycle Bag Journal Workshop",
-        description: "Recycle shopping bag into a unique journal cover. Limited stock for each bag!",
-        icon: "shopping-bag",
-        path: "upcycle-journal/index.html",
-        enabled: true,
-        openDate: "12/04/2026",
-        closeDate: "16/05/2026",
-        normalPrice: 382000,
-        earlyBirdPrice: 344000,
-        earlyBirdDueDate: "20/04/2026",
-        maxQuota: 12,
-        workshopDate: "Minggu, 17 Mei 2026",
-        workshopTime: "15:00 - 17:30 WIB",
-        locationName: "Melting Pot, GF at ASHTA District 8",
-        mapsLink: "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
-        isDisplay: false,
-        whatsappGroupLink: ""
+        "id": "3d-frame-journaling",
+        "name": "3D Layered Journaling",
+        "description": "Frame, Texture & Motion",
+        "icon": "frame",
+        "path": "3d-frame-journaling/index.html",
+        "enabled": true,
+        "openDate": "05/06/2026",
+        "closeDate": "08/08/2026",
+        "normalPrice": 250000,
+        "earlyBirdPrice": null,
+        "earlyBirdDueDate": "",
+        "maxQuota": 12,
+        "workshopDate": "Sabtu, 8 Agustus 2026",
+        "workshopTime": "11:00 - 13:00 WIB",
+        "locationName": "Community Lounge Tomo Land, Grand Indonesia",
+        "mapsLink": "https://maps.app.goo.gl/tk7y3uLCwRbvMkuS8",
+        "isDisplay": true,
+        "isPrintPhoto": false,
+        "eventDate": "08/08/2026",
+        "whatsappGroupLink": "https://chat.whatsapp.com/HHnM66321WwFMH8Ligi9qG?mode=gi_t"
     },
     {
-        id: "reka-rekat",
-        name: "Reka Rekat - Journaling Date",
-        description: "Sesi buat kita ngejurnal bareng. Setiap pertemuan ada tema yang berbeda.",
-        icon: "heart",
-        path: "reka-rekat/index.html",
-        enabled: true,
-        openDate: "22/06/2026",
-        closeDate: "10/07/2026",
-        normalPrice: 175000,
-        earlyBirdPrice: null,
-        earlyBirdDueDate: null,
-        maxQuota: 18,
-        workshopDate: "Sabtu, 11 Juli 2026",
-        workshopTime: "11:00 - 13:30 WIB",
-        locationName: "Oma Huis - Jakarta Selatan",
-        mapsLink: "https://maps.app.goo.gl/FZv5Qo9j933TQmDw9",
-        isDisplay: false,
-        isPrintPhoto: true,
-        whatsappGroupLink: "https://chat.whatsapp.com/G9h0V6VCTp2GomdJBFEo8F?mode=gi_t"
+        "id": "paper-journal",
+        "name": "Paper Journal Creative Workshop",
+        "description": "Buat paper journal versimu yang unik dari kertas spesial. Pilih perpaduan warna favoritmu!",
+        "icon": "book-open",
+        "path": "paper-journal/index.html",
+        "enabled": true,
+        "openDate": "12/04/2026",
+        "closeDate": "13/04/2026",
+        "normalPrice": 255000,
+        "earlyBirdPrice": 344000,
+        "earlyBirdDueDate": "10/04/2026",
+        "maxQuota": 1,
+        "workshopDate": "Minggu, 17 Mei 2026",
+        "workshopTime": "15:00 - 17:30 WIB",
+        "locationName": "Melting Pot, GF at ASHTA District 8",
+        "mapsLink": "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
+        "isDisplay": false
+    },
+    {
+        "id": "upcycle-journal",
+        "name": "Upcycle Bag Journal Workshop",
+        "description": "Recycle shopping bag into a unique journal cover. Limited stock for each bag!",
+        "icon": "shopping-bag",
+        "path": "upcycle-journal/index.html",
+        "enabled": true,
+        "openDate": "12/04/2026",
+        "closeDate": "16/05/2026",
+        "normalPrice": 382000,
+        "earlyBirdPrice": 344000,
+        "earlyBirdDueDate": "20/04/2026",
+        "maxQuota": 12,
+        "workshopDate": "Minggu, 17 Mei 2026",
+        "workshopTime": "15:00 - 17:30 WIB",
+        "locationName": "Melting Pot, GF at ASHTA District 8",
+        "mapsLink": "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
+        "isDisplay": false,
+        "whatsappGroupLink": ""
+    },
+    {
+        "id": "reka-rekat",
+        "name": "Reka Rekat - Journaling Date",
+        "description": "Sesi buat kita ngejurnal bareng. Setiap pertemuan ada tema yang berbeda.",
+        "icon": "heart",
+        "path": "reka-rekat/index.html",
+        "enabled": true,
+        "openDate": "22/06/2026",
+        "closeDate": "10/07/2026",
+        "normalPrice": 175000,
+        "earlyBirdPrice": null,
+        "earlyBirdDueDate": "",
+        "maxQuota": 18,
+        "workshopDate": "Sabtu, 11 Juli 2026",
+        "workshopTime": "11:00 - 13:30 WIB",
+        "locationName": "Oma Huis - Jakarta Selatan",
+        "mapsLink": "https://maps.app.goo.gl/FZv5Qo9j933TQmDw9",
+        "isDisplay": true,
+        "isPrintPhoto": true,
+        "whatsappGroupLink": "https://chat.whatsapp.com/G9h0V6VCTp2GomdJBFEo8F?mode=gi_t"
     }
 ];
 
@@ -209,7 +232,7 @@ function formatDateIndo(dateStr) {
 (function () {
     var CACHE_KEY = "ss_workshops_cache";
 
-    // 1) Terapkan cache secara sinkron (sebelum main.js jalan)
+    // 1) Paint instan dari cache terakhir (biar nggak blank), TAPI ini bisa basi.
     try {
         var cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
@@ -218,25 +241,33 @@ function formatDateIndo(dateStr) {
         }
     } catch (e) { /* abaikan, pakai statis */ }
 
-    // 2) Refresh cache di background (butuh GOOGLE_SCRIPT_URL dari env.js -> tunggu load)
-    function refreshCache() {
-        if (typeof GOOGLE_SCRIPT_URL === "undefined" || !GOOGLE_SCRIPT_URL) return;
-        var cbName = "_wsCfgCb_" + Date.now();
-        window[cbName] = function (data) {
-            try {
-                if (Array.isArray(data) && data.length) {
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                }
-            } catch (e) { /* abaikan */ }
-            try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
-            if (s && s.parentNode) s.parentNode.removeChild(s);
-        };
-        var s = document.createElement("script");
-        s.src = GOOGLE_SCRIPT_URL + "?page=config&callback=" + cbName;
-        s.onerror = function () { try { delete window[cbName]; } catch (e) {} };
-        document.body.appendChild(s);
+    // 2) SELALU ambil config TERBARU dari server sesegera mungkin, lalu TIMPA + re-render.
+    //    Ini yang bikin harga/tanggal nggak pernah basi: begitu config server datang,
+    //    halaman langsung update (event "workshops:updated") — nggak nunggu reload.
+    function applyLive(data) {
+        if (!Array.isArray(data) || !data.length) return;
+        WORKSHOPS = data;
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) { }
+        try { window.dispatchEvent(new CustomEvent("workshops:updated")); } catch (e) { }
     }
 
-    if (document.readyState === "complete") refreshCache();
-    else window.addEventListener("load", refreshCache);
+    var tries = 0;
+    function refreshLive() {
+        // GOOGLE_SCRIPT_URL dari env.js — kalau belum ke-load, tunggu sebentar (maks ~4 dtk)
+        if (typeof GOOGLE_SCRIPT_URL === "undefined" || !GOOGLE_SCRIPT_URL) {
+            if (tries++ < 40) { setTimeout(refreshLive, 100); }
+            return;
+        }
+        var cb = "_wsCfgCb_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
+        var s;
+        window[cb] = function (data) {
+            try { applyLive(data); }
+            finally { try { delete window[cb]; } catch (e) { } if (s && s.parentNode) s.parentNode.removeChild(s); }
+        };
+        s = document.createElement("script");
+        s.src = GOOGLE_SCRIPT_URL + "?page=config&callback=" + cb + "&_=" + Date.now();
+        s.onerror = function () { try { delete window[cb]; } catch (e) { } };
+        (document.head || document.documentElement).appendChild(s);
+    }
+    refreshLive();
 })();
