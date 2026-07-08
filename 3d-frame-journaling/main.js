@@ -143,7 +143,7 @@ frameOptions.forEach(option => {
         frameOptions.forEach(opt => opt.classList.remove('active'));
         option.classList.add('active');
         const frameId = option.getAttribute('data-frame');
-        activeFrameImg.src = `../images/frame${frameId}.png`;
+        activeFrameImg.src = `../images/frame${frameId}.webp`;
         inputSelectedFrame.value = `Tipe ${frameId}`;
     });
 });
