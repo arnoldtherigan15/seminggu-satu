@@ -74,11 +74,11 @@ async function checkQuota() {
     showBlockerLoader('Mengecek ketersediaan tiket...');
     // Coba beberapa kali — Apps Script kadang lambat/dingin. Timeout per percobaan 9 dtk.
     let counts = null;
-    for (let attempt = 1; attempt <= 3 && !counts; attempt++) {
+    for (let attempt = 1; attempt <= 2 && !counts; attempt++) {
         try {
-            counts = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota', 9000);
+            counts = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota', 8000);
         } catch (err) {
-            console.error(`Cek kuota gagal (percobaan ${attempt}/3):`, err);
+            console.error(`Cek kuota gagal (percobaan ${attempt}/2):`, err);
         }
     }
     try {

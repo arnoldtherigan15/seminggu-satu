@@ -185,11 +185,11 @@ async function checkStock() {
     showBlockerLoader('Mengecek ketersediaan stok bag...');
     // Coba beberapa kali — Apps Script kadang lambat/dingin. Timeout per percobaan 9 dtk.
     let result = null;
-    for (let attempt = 1; attempt <= 3 && !result; attempt++) {
+    for (let attempt = 1; attempt <= 2 && !result; attempt++) {
         try {
-            result = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota', 9000);
+            result = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota', 8000);
         } catch (err) {
-            console.error(`Cek stok gagal (percobaan ${attempt}/3):`, err);
+            console.error(`Cek stok gagal (percobaan ${attempt}/2):`, err);
         }
     }
     try {
