@@ -167,7 +167,10 @@ async function handlePhotoUpload(inputId, boxId, previewImgId, slotId, b64Id) {
         }
 
         try {
-            const compressedDataUrl = await compressImage(file, 800, 0.7);
+            // Foto ini DICETAK -> resolusi & kualitas dijaga tinggi (1600px, q0.9).
+            // Cukup tajam buat print foto di frame (sampai ~13cm @300dpi), tapi tetap
+            // jauh lebih ringan dari file asli kamera biar upload nggak berat.
+            const compressedDataUrl = await compressImage(file, 1600, 0.9);
 
             // Set mini preview
             previewImg.src = compressedDataUrl;
