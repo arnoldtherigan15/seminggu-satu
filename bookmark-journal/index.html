@@ -9,14 +9,36 @@
         content="Daftar Pull & Pop: A Journaling Bookmark Workshop. Buat bookmark interaktifmu sendiri dengan mekanisme pull & pop!">
 
     <!-- Workshop Config — harus pertama untuk cek akses -->
+    <script src="../env.js"></script>
     <script src="../workshop-config.js?v=2"></script>
     <script>
-        // Gate: cek status pendaftaran sebelum render halaman
-        const _ws = getWorkshopById("bookmark-journal");
-        const _status = getWorkshopStatus(_ws);
-        if (_status !== "open") {
-            window.location.replace("../closed.html?workshop=" + _ws.id + "&reason=" + _status);
-        }
+        (function () {
+            var ID = "bookmark-journal";
+            function decide() {
+                var w = (typeof getWorkshopById === "function") ? getWorkshopById(ID) : null;
+                if (!w) return;
+                var st = getWorkshopStatus(w);
+                if (st !== "open") window.location.replace("../closed.html?workshop=" + ID + "&reason=" + st);
+            }
+            // Ambil config TERBARU dari server dulu — biar keputusan buka/tutup nggak pakai config lama (cache/statis)
+            if (typeof GOOGLE_SCRIPT_URL !== "undefined" && GOOGLE_SCRIPT_URL) {
+                var done = false, s;
+                var cb = "_wsGuard_" + Date.now();
+                function finish() { if (done) return; done = true; try { delete window[cb]; } catch (e) {} if (s && s.parentNode) s.parentNode.removeChild(s); decide(); }
+                var to = setTimeout(finish, 6000);
+                window[cb] = function (data) {
+                    if (done) return;
+                    try { if (Array.isArray(data) && data.length) { WORKSHOPS = data; localStorage.setItem("ss_workshops_cache", JSON.stringify(data)); } } catch (e) {}
+                    clearTimeout(to); finish();
+                };
+                s = document.createElement("script");
+                s.src = GOOGLE_SCRIPT_URL + "?page=config&callback=" + cb + "&_=" + Date.now();
+                s.onerror = function () { clearTimeout(to); finish(); };
+                document.head.appendChild(s);
+            } else {
+                decide();
+            }
+        })();
     </script>
 
     <!-- Google Fonts -->
@@ -426,7 +448,6 @@
 
     <audio id="bgMusic" src="../bg_music.mp3" loop preload="auto" autoplay></audio>
 
-    <script src="../env.js"></script>
     <script src="main.js"></script>
     <script>
         lucide.createIcons();
