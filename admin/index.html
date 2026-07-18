@@ -1709,8 +1709,13 @@
       transition: filter .12s ease, transform .12s ease;
     }
 
-    .loy-send:hover { filter: brightness(1.05); }
-    .loy-send:active { transform: scale(.97); }
+    .loy-send:hover {
+      filter: brightness(1.05);
+    }
+
+    .loy-send:active {
+      transform: scale(.97);
+    }
 
     .loy-note-badge {
       font-size: 11px;
@@ -2406,10 +2411,22 @@
 
     /* Passport (pakai kartu Wrapped) — baris stamp bintang */
     .rs-stamps {
-      margin-top: 12px; font-size: 19px; letter-spacing: 3px; line-height: 1.25;
-      color: #ffe600; position: relative; z-index: 1; word-break: break-word;
+      margin-top: 12px;
+      font-size: 19px;
+      letter-spacing: 3px;
+      line-height: 1.25;
+      color: #ffe600;
+      position: relative;
+      z-index: 1;
+      word-break: break-word;
     }
-    .rs-stamps .more { font-size: 12px; font-weight: 800; letter-spacing: 0; opacity: .9; }
+
+    .rs-stamps .more {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      opacity: .9;
+    }
 
     /* Versi EXPORT (khusus render IG Story): konten digeser ke TENGAH (safe zone) biar
        bagian atas/bawah yang ketutup UI Instagram cuma area gradient kosong, bukan teks. */
@@ -2534,30 +2551,83 @@
 
     /* --- Rich note (WYSIWYG mini) --- */
     .rn-toolbar {
-      display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;
-      padding: 6px; background: #f8fafc; border: 1px solid var(--line);
-      border-radius: 10px 10px 0 0; border-bottom: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 8px;
+      padding: 6px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 10px 10px 0 0;
+      border-bottom: none;
     }
+
     .rn-btn {
-      min-width: 32px; height: 32px; padding: 0 8px;
-      border: 1px solid var(--line); background: #fff; border-radius: 7px;
-      font-size: 13px; font-weight: 700; cursor: pointer; color: var(--ink);
-      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
-    .rn-btn:hover { border-color: var(--brand); color: var(--brand); }
-    .rn-btn.rn-i { font-style: italic; }
-    .rn-btn.rn-u { text-decoration: underline; }
+
+    .rn-btn:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+
+    .rn-btn.rn-i {
+      font-style: italic;
+    }
+
+    .rn-btn.rn-u {
+      text-decoration: underline;
+    }
+
     .rn-editor {
-      min-height: 180px; max-height: 460px; overflow-y: auto;
-      border: 1px solid var(--line); border-radius: 0 0 10px 10px;
-      padding: 12px 14px; font-size: 14px; line-height: 1.6; color: var(--ink);
-      background: #fff; outline: none;
+      min-height: 180px;
+      max-height: 460px;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: 0 0 10px 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
     }
-    .rn-editor:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(94,114,228,.15); }
-    .rn-editor:empty::before { content: attr(data-ph); color: var(--muted); }
-    .rn-editor a { color: var(--brand); }
-    .rn-editor ul, .rn-editor ol { margin: 6px 0 6px 22px; }
-    .rn-editor h3 { font-size: 16px; margin: 8px 0 4px; }
+
+    .rn-editor:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(94, 114, 228, .15);
+    }
+
+    .rn-editor:empty::before {
+      content: attr(data-ph);
+      color: var(--muted);
+    }
+
+    .rn-editor a {
+      color: var(--brand);
+    }
+
+    .rn-editor ul,
+    .rn-editor ol {
+      margin: 6px 0 6px 22px;
+    }
+
+    .rn-editor h3 {
+      font-size: 16px;
+      margin: 8px 0 4px;
+    }
 
     .prep-row {
       display: flex;
@@ -2735,18 +2805,22 @@
     .konten-item.draggable-item {
       transition: box-shadow 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
     }
+
     .konten-item.dragging {
       opacity: 0.5;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
     }
+
     .konten-item.drag-over {
       border-top: 3px solid var(--brand);
     }
+
     .k-head-left {
       display: flex;
       align-items: center;
       gap: 8px;
     }
+
     .k-drag {
       cursor: grab;
       color: #94a3b8;
@@ -2757,18 +2831,22 @@
       user-select: none;
       touch-action: none;
     }
+
     .k-drag:hover {
       background: var(--bg);
       color: var(--brand);
     }
+
     .k-drag:active {
       cursor: grabbing;
     }
+
     .k-head-right {
       display: flex;
       align-items: center;
       gap: 6px;
     }
+
     .k-move {
       background: var(--bg);
       color: var(--ink);
@@ -2785,11 +2863,13 @@
       justify-content: center;
       transition: background-color 0.15s ease;
     }
+
     .k-move:hover:not(:disabled) {
       background: var(--brand);
       color: #fff;
       border-color: var(--brand);
     }
+
     .k-move:disabled {
       opacity: 0.35;
       cursor: default;
@@ -4066,7 +4146,7 @@
         CONFIG = (r.config && r.config.length) ? r.config : [];
         // Sinkronin ke WORKSHOPS global biar helper (workshopName, renderFinance,
         // getCurrentPrice) nampilin nama/harga yang benar, bukan cuma ID.
-        if (CONFIG.length) { try { WORKSHOPS = CONFIG; } catch (e) {} }
+        if (CONFIG.length) { try { WORKSHOPS = CONFIG; } catch (e) { } }
         const sel = document.getElementById("cfgSelect");
         const prev = sel.value;
         sel.innerHTML = CONFIG.map((w, i) => `<option value="${i}">${escapeHtml(w.name || w.id)}</option>`).join("");
@@ -4299,7 +4379,7 @@
           div.addEventListener("dragstart", (e) => {
             _dragFrom = idx;
             e.dataTransfer.effectAllowed = "move";
-            try { e.dataTransfer.setData("text/plain", String(idx)); } catch (err) {}
+            try { e.dataTransfer.setData("text/plain", String(idx)); } catch (err) { }
             div.classList.add("dragging");
           });
           div.addEventListener("dragend", () => {
@@ -5207,7 +5287,7 @@
       const msg =
         "Hai " + nm + "! " + _party + "\n\n" +
         "Makasih ya udah journaling bareng Seminggu Satu " + _heart + "\n\n" +
-        "Cek Loyalty Card & Journaling Passport kamu di sini - kelihatan udah berapa kali ikut event, progress hadiah, dan bisa simpan passport buat IG Story:\n" +
+        "Cek Loyalty Card & Journaling Passport kamu di sini:\n" +
         link + "\n\n" +
         "Sampai ketemu di event berikutnya ya! " + _spark;
       window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(msg), "_blank");
@@ -5362,7 +5442,7 @@
           <div class="rs-val">${escapeHtml(p.trait)}</div>
           <div class="rs-meta">${escapeHtml(p.tag)}</div>
         </div></div>
-        <div class="rs-foot"><span>Terima kasih udah kumpul bareng ✨</span><span class="rs-brand">${handle}</span></div>`;
+        <div class="rs-foot"><span>Sampai jumpa lagi ✨</span><span class="rs-brand">${handle}</span></div>`;
       document.getElementById("passportModal").style.display = "flex";
     }
 
