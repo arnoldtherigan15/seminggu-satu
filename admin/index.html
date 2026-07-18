@@ -3345,7 +3345,7 @@
         <button class="recap-tab" data-mode="top5">🏅 Top 5</button>
       </div>
       <div id="recapStory" class="recap-story"></div>
-      <button class="btn" id="recapDownload" style="margin-top:14px;width:100%;">⬇️ Download IG Story (PNG)</button>
+      <button class="btn" id="recapDownload" style="margin-top:14px;width:100%;">📲 Bagikan ke IG Story</button>
       <p class="hint" style="text-align:center;margin-top:8px;">Ukuran 9:16, pas buat Instagram Story</p>
     </div>
   </div>
@@ -5695,14 +5695,10 @@
         <div class="rs-foot"><span>Bercerita & Didengar 💛</span><span class="rs-brand">@seminggu_satu</span></div>`;
     }
 
-    async function downloadRecap() {
+    // Render recap jadi PNG blob (1080x1920, safe zone IG Story)
+    async function renderRecapPng() {
       const card = document.getElementById("recapStory");
-      const btn = document.getElementById("recapDownload");
-      const label = btn.textContent;
-      btn.disabled = true; btn.textContent = "Merender...";
-
-      // Render dari CLONE off-screen berukuran TEPAT 9:16 (360x640) -> scale 3 = 1080x1920,
-      // persis rasio Instagram Story. Jadi langsung full, nggak perlu pinch/crop.
+      // Render dari CLONE off-screen berukuran TEPAT 9:16 (360x640) -> scale 3 = 1080x1920.
       const clone = card.cloneNode(true);
       clone.classList.add("export"); // safe-zone padding biar nggak ketutup UI IG Story
       clone.style.width = "360px";
@@ -5719,13 +5715,39 @@
           scale: 3, backgroundColor: null, useCORS: true,
           width: 360, height: 640, windowWidth: 360, windowHeight: 640
         });
-        const a = document.createElement("a");
-        a.href = canvas.toDataURL("image/png");
-        a.download = "seminggu-satu-wrapped-" + recapMode + ".png";
-        a.click();
-      } catch (e) { alert("Gagal render gambar."); }
-      finally {
+        return await new Promise(function (res) { canvas.toBlob(res, "image/png"); });
+      } finally {
         if (clone.parentNode) clone.parentNode.removeChild(clone);
+      }
+    }
+
+    // Bagikan Wrapped ke IG Story lewat share sheet HP; fallback download di desktop.
+    async function downloadRecap() {
+      const btn = document.getElementById("recapDownload");
+      const label = btn.textContent;
+      const fname = "seminggu-satu-wrapped-" + recapMode + ".png";
+      btn.disabled = true; btn.textContent = "Menyiapkan...";
+      try {
+        const blob = await renderRecapPng();
+        if (!blob) throw new Error("no blob");
+        const file = new File([blob], fname, { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: "Seminggu Satu Wrapped", text: "Wrapped Seminggu Satu ✨ @seminggu_satu" });
+          } catch (err) {
+            if (err && err.name === "AbortError") return; // user batal
+            throw err;
+          }
+        } else {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = fname;
+          a.click();
+          URL.revokeObjectURL(a.href);
+          alert("Gambar Wrapped ke-download 📥\nBuka Instagram → Story → pilih gambar ini buat di-post ya!");
+        }
+      } catch (e) { alert("Gagal menyiapkan gambar. Coba lagi ya."); }
+      finally {
         btn.disabled = false; btn.textContent = label;
       }
     }
