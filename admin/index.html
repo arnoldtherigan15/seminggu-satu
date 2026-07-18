@@ -5199,7 +5199,17 @@
       const base = (location.origin && location.origin.indexOf("http") === 0) ? location.origin : "https://seminggusatu.com";
       const link = base + "/loyalty/?wa=" + num;
       const nm = (String(name || "").trim().split(/\s+/)[0]) || "kamu";
-      const msg = `Hai ${nm}! 🎉\n\nMakasih ya udah journaling bareng Seminggu Satu 💙\n\nCek Loyalty Card & Journaling Passport kamu di sini — kelihatan udah berapa kali ikut event, progress hadiah, dan bisa simpan passport buat IG Story:\n${link}\n\nSampai ketemu di event berikutnya ya! ✨`;
+      // Emoji dibikin dari codepoint (source ASCII) biar nggak pernah rusak jadi "�"
+      // apa pun encoding file / cara di-serve.
+      const _party = String.fromCodePoint(0x1F389); // 🎉
+      const _heart = String.fromCodePoint(0x1F499); // 💙
+      const _spark = String.fromCodePoint(0x2728);  // ✨
+      const msg =
+        "Hai " + nm + "! " + _party + "\n\n" +
+        "Makasih ya udah journaling bareng Seminggu Satu " + _heart + "\n\n" +
+        "Cek Loyalty Card & Journaling Passport kamu di sini - kelihatan udah berapa kali ikut event, progress hadiah, dan bisa simpan passport buat IG Story:\n" +
+        link + "\n\n" +
+        "Sampai ketemu di event berikutnya ya! " + _spark;
       window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(msg), "_blank");
     }
 
@@ -5341,10 +5351,10 @@
         <div class="rs-head"><span><span class="rs-dot"></span>Seminggu Satu</span><span>Passport</span></div>
         <div class="rs-period">Journaling Passport</div>
         <div class="rs-title">${escapeHtml(name)}</div>
-        <div class="rs-hero"><b>${m.count}</b><span>Event diikuti bareng kita</span></div>
+        <div class="rs-hero"><b>${m.count}</b><span>Kali kumpul bareng kita</span></div>
         <div class="rs-stamps">${stampStr}${more}</div>
         <div class="rs-grid">
-          <div class="rs-stat"><b>${p.uniqueWs}</b><span>Jenis workshop</span></div>
+          <div class="rs-stat"><b>${since || "🌱"}</b><span>Sahabat sejak</span></div>
           <div class="rs-stat"><b>${m.claimed}</b><span>🎁 Hadiah</span></div>
         </div>
         <div class="rs-spot hi"><div class="rs-emoji">🎖️</div><div>
@@ -5352,7 +5362,7 @@
           <div class="rs-val">${escapeHtml(p.trait)}</div>
           <div class="rs-meta">${escapeHtml(p.tag)}</div>
         </div></div>
-        <div class="rs-foot"><span>${since ? "Sahabat sejak " + since + " ✨" : "Terima kasih sudah berproses ✨"}</span><span class="rs-brand">${handle}</span></div>`;
+        <div class="rs-foot"><span>Terima kasih udah kumpul bareng ✨</span><span class="rs-brand">${handle}</span></div>`;
       document.getElementById("passportModal").style.display = "flex";
     }
 
