@@ -3,15 +3,19 @@
 //  (Seminggu Satu by Arnold)
 // ============================================================
 
-const _workshopData = getWorkshopById("bookmark-journal");
-const _currentPrice = getCurrentPrice(_workshopData);
+// Config = sumber tunggal dari server (cache/live). Bisa null di kunjungan pertama
+// (cache kosong) -> jangan crash; placeholder "Memuat..." + listener 'workshops:updated'.
+let _workshopData = getWorkshopById("bookmark-journal");
+let _currentPrice = _workshopData ? getCurrentPrice(_workshopData) : 0;
 
-document.getElementById('currentPriceEl').textContent = formatRupiah(_currentPrice);
-document.getElementById('paymentAmount').textContent = formatRupiah(_currentPrice);
-document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
-document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
-document.getElementById('locationNameText').textContent = _workshopData.locationName;
-document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
+if (_workshopData) {
+    document.getElementById('currentPriceEl').textContent = formatRupiah(_currentPrice);
+    document.getElementById('paymentAmount').textContent = formatRupiah(_currentPrice);
+    document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
+    document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
+    document.getElementById('locationNameText').textContent = _workshopData.locationName;
+    document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
+}
 
 // Data Pita
 const pitaColors = [
@@ -64,7 +68,7 @@ const submitBtn = document.getElementById('submitBtn');
 const urgencyBadge = document.getElementById('urgencyBadge');
 const urgencyText = document.getElementById('urgencyText');
 
-function showBlockerLoader(message = 'Mengecek slot...') {
+function showBlockerLoader(message = 'Mengecek tiket...') {
     let blocker = document.getElementById('blockerLoader');
     if (blocker) {
         document.getElementById('blockerMessage').textContent = message;
@@ -134,7 +138,15 @@ async function checkQuota() {
         hideBlockerLoader();
     }
 }
-checkQuota();
+// Cek kuota HANYA kalau config udah ada (butuh maxQuota & id). Kalau belum,
+// dijalanin nanti pas config live masuk (lihat listener 'workshops:updated').
+let _quotaChecked = false;
+function runQuotaWhenReady() {
+    if (_quotaChecked || !_workshopData) return;
+    _quotaChecked = true;
+    checkQuota();
+}
+runQuotaWhenReady();
 
 function renderColorPickers() {
     // Render Pita
@@ -279,6 +291,12 @@ const statusMessage = document.getElementById('statusMessage');
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Config belum siap (jarang) -> jangan submit dgn data kosong
+    if (!_workshopData) {
+        alert("Data workshop masih dimuat, tunggu sebentar ya.");
+        return;
+    }
+
     const originalBtnText = submitBtn.innerHTML;
     // --- Validation: ensure required fields are filled ---
     const missing = [];
@@ -389,6 +407,7 @@ window.addEventListener('workshops:updated', function () {
         var w = getWorkshopById("bookmark-journal"); if (!w) return;
         var eb = (typeof isEarlyBird === 'function') && isEarlyBird(w);
         var cur = getCurrentPrice(w);
+        _workshopData = w; _currentPrice = cur;   // simpan buat checkQuota & submit
         var dEl = document.getElementById('discountPriceEl');
         var cEl = document.getElementById('currentPriceEl');
         var pEl = document.getElementById('paymentAmount');
@@ -409,5 +428,6 @@ window.addEventListener('workshops:updated', function () {
         var tm = document.getElementById('workshopTimeText'); if (tm) tm.textContent = w.workshopTime || '';
         var ln = document.getElementById('locationNameText'); if (ln) ln.textContent = w.locationName || '';
         var ml = document.getElementById('locationMapsLink'); if (ml && w.mapsLink) ml.href = w.mapsLink;
+        runQuotaWhenReady();   // config baru siap -> cek kuota kalau belum
     } catch (e) { /* jangan ganggu halaman */ }
 });

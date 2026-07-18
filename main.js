@@ -49,7 +49,7 @@ let selectedFlapColor = colors.find(c => c.name === 'Orange');
 let selectedStrapColor = strapColors.find(c => c.name === 'Orange');
 
 // --- Full Page Blocker Loader ---
-function showBlockerLoader(message = 'Mengecek slot...') {
+function showBlockerLoader(message = 'Mengecek tiket...') {
     let blocker = document.getElementById('blockerLoader');
     if (!blocker) {
         blocker = document.createElement('div');
@@ -213,7 +213,7 @@ async function fetchSlotAvailability(attempt = 1) {
         hideBlockerLoader();
 
     } catch (error) {
-        console.error(`Gagal mengambil ketersediaan slot (attempt ${attempt})`, error);
+        console.error(`Gagal mengambil ketersediaan tiket (attempt ${attempt})`, error);
         if (attempt < MAX_ATTEMPTS) {
             // Coba ulang otomatis setelah jeda
             setTimeout(() => fetchSlotAvailability(attempt + 1), retryDelay);
@@ -464,7 +464,7 @@ form.addEventListener('submit', async (e) => {
 
     // --- Re-cek slot sebelum submit ---
     try {
-        showBlockerLoader('Mengecek ketersediaan slot...');
+        showBlockerLoader('Mengecek ketersediaan tiket...');
         const slotCheck = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handlePreSubmitCallback');  // prefix unik sudah di-handle di fetchJSONP
         const selectedVal = sessionSelected.value;
         const isSesi1 = selectedVal.includes('28 March');

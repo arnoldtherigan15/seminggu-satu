@@ -372,7 +372,7 @@
                 var tag, cls, clickable;
                 if (st === "open" && !countsReady) {
                     // Belum tahu penuh/nggak -> jangan langsung "Daftar", jangan bisa diklik
-                    tag = '<span class="lc-tag tag-checking"><i data-lucide="loader"></i> Cek slot…</span>';
+                    tag = '<span class="lc-tag tag-checking"><i data-lucide="loader"></i> Cek tiket…</span>';
                     cls = "checking"; clickable = false;
                 } else if (st === "open") {
                     tag = '<span class="lc-tag tag-open">Daftar</span>'; cls = ""; clickable = true;
@@ -452,7 +452,7 @@
         function rerenderWorkshops() { renderWorkshops(_workshops, _counts || {}, _countsReady); }
 
         (async function init() {
-            // Workshop: render dari config (cache) dulu; status "Cek slot…" (belum tahu penuh)
+            // Workshop: render dari config (cache) dulu; status "Cek tiket…" (belum tahu penuh)
             rerenderWorkshops();
 
             if (GS) {

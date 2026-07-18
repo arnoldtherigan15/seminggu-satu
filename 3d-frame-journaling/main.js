@@ -5,9 +5,12 @@
 // --- Google Apps Script API endpoint (loaded from env.js) ---
 
 // --- Workshop Config & Pricing ---
-const _workshopData = getWorkshopById("3d-frame-journaling");
-const _isEarlyBird = isEarlyBird(_workshopData);
-const _currentPrice = getCurrentPrice(_workshopData);
+// Config = sumber tunggal dari server (via cache/live). Bisa null di kunjungan
+// pertama (cache kosong) -> jangan crash; placeholder "Memuat..." + listener
+// 'workshops:updated' yang bakal ngisi.
+let _workshopData = getWorkshopById("3d-frame-journaling");
+let _isEarlyBird = _workshopData ? isEarlyBird(_workshopData) : false;
+let _currentPrice = _workshopData ? getCurrentPrice(_workshopData) : 0;
 
 const discountPriceEl = document.getElementById('discountPriceEl');
 const currentPriceEl = document.getElementById('currentPriceEl');
@@ -15,28 +18,30 @@ const paymentAmountEl = document.getElementById('paymentAmount');
 const earlyBirdInfoEl = document.getElementById('earlyBirdInfo');
 const earlyBirdTextEl = document.getElementById('earlyBirdText');
 
-if (_isEarlyBird) {
-    discountPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
-    discountPriceEl.style.display = '';
-    currentPriceEl.textContent = formatRupiah(_workshopData.earlyBirdPrice);
-    currentPriceEl.className = 'new-price';
-    earlyBirdInfoEl.style.display = 'flex';
-    earlyBirdTextEl.textContent = `Harga Early Bird sampai ${formatDateIndo(_workshopData.earlyBirdDueDate)}`;
-} else {
-    discountPriceEl.style.display = 'none';
-    currentPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
-    currentPriceEl.className = 'new-price';
-    currentPriceEl.style.color = 'var(--text-primary)';
-    currentPriceEl.style.animation = 'none';
+if (_workshopData) {
+    if (_isEarlyBird) {
+        discountPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
+        discountPriceEl.style.display = '';
+        currentPriceEl.textContent = formatRupiah(_workshopData.earlyBirdPrice);
+        currentPriceEl.className = 'new-price';
+        earlyBirdInfoEl.style.display = 'flex';
+        earlyBirdTextEl.textContent = `Harga Early Bird sampai ${formatDateIndo(_workshopData.earlyBirdDueDate)}`;
+    } else {
+        discountPriceEl.style.display = 'none';
+        currentPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
+        currentPriceEl.className = 'new-price';
+        currentPriceEl.style.color = 'var(--text-primary)';
+        currentPriceEl.style.animation = 'none';
+    }
+
+    paymentAmountEl.textContent = formatRupiah(_currentPrice);
+
+    // --- Populate Dynamic Workshop Info ---
+    document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
+    document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
+    document.getElementById('locationNameText').textContent = _workshopData.locationName;
+    document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
 }
-
-paymentAmountEl.textContent = formatRupiah(_currentPrice);
-
-// --- Populate Dynamic Workshop Info ---
-document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
-document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
-document.getElementById('locationNameText').textContent = _workshopData.locationName;
-document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
 
 // --- DOM Elements (ALL defined here before any function uses them) ---
 const form = document.getElementById('workshopForm');
@@ -130,8 +135,15 @@ async function checkQuota() {
     }
 }
 
-// Check on load
-checkQuota();
+// Cek kuota HANYA kalau config udah ada (butuh maxQuota & id). Kalau belum,
+// dijalanin nanti pas config live masuk (lihat listener 'workshops:updated').
+let _quotaChecked = false;
+function runQuotaWhenReady() {
+    if (_quotaChecked || !_workshopData) return;
+    _quotaChecked = true;
+    checkQuota();
+}
+runQuotaWhenReady();
 
 // --- Frame Selection Logic ---
 const frameOptions = document.querySelectorAll('.frame-option');
@@ -270,6 +282,12 @@ document.getElementById('copyBtn').addEventListener('click', () => {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Config belum siap (jarang) -> jangan submit dgn data kosong
+    if (!_workshopData) {
+        showToast("Data workshop masih dimuat, tunggu sebentar ya.");
+        return;
+    }
+
     // Validate all photos are uploaded
     const requiredId = ['b64Photo1', 'b64Photo2', 'b64Photo3', 'b64Photo4', 'paymentBase64'];
     let valid = true;
@@ -302,7 +320,7 @@ form.addEventListener('submit', async (e) => {
 
     // --- Re-cek slot sebelum submit ---
     try {
-        showBlockerLoader('Mengecek ketersediaan slot...');
+        showBlockerLoader('Mengecek ketersediaan tiket...');
         const counts = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handlePreSubmit');
         const currentCount = counts['3d-frame-journaling'] || 0;
         const maxQuota = _workshopData.maxQuota || 12;
@@ -377,6 +395,8 @@ window.addEventListener('workshops:updated', function () {
         var w = getWorkshopById("3d-frame-journaling"); if (!w) return;
         var eb = (typeof isEarlyBird === 'function') && isEarlyBird(w);
         var cur = getCurrentPrice(w);
+        // Simpan config terbaru buat checkQuota & submit
+        _workshopData = w; _isEarlyBird = eb; _currentPrice = cur;
         var dEl = document.getElementById('discountPriceEl');
         var cEl = document.getElementById('currentPriceEl');
         var pEl = document.getElementById('paymentAmount');
@@ -397,5 +417,6 @@ window.addEventListener('workshops:updated', function () {
         var tm = document.getElementById('workshopTimeText'); if (tm) tm.textContent = w.workshopTime || '';
         var ln = document.getElementById('locationNameText'); if (ln) ln.textContent = w.locationName || '';
         var ml = document.getElementById('locationMapsLink'); if (ml && w.mapsLink) ml.href = w.mapsLink;
+        runQuotaWhenReady();   // config baru siap -> cek kuota kalau belum
     } catch (e) { /* jangan ganggu halaman */ }
 });

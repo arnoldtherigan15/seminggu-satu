@@ -4,9 +4,11 @@
 // ============================================================
 
 // --- Dynamic Early Bird Pricing ---
-const _workshopData = getWorkshopById("paper-journal");
-const _isEarlyBird = isEarlyBird(_workshopData);
-const _currentPrice = getCurrentPrice(_workshopData);
+// Config = sumber tunggal dari server (cache/live). Bisa null di kunjungan pertama
+// (cache kosong) -> jangan crash; placeholder "Memuat..." + listener 'workshops:updated'.
+let _workshopData = getWorkshopById("paper-journal");
+let _isEarlyBird = _workshopData ? isEarlyBird(_workshopData) : false;
+let _currentPrice = _workshopData ? getCurrentPrice(_workshopData) : 0;
 
 // Update price display in hero
 const discountPriceEl = document.getElementById('discountPriceEl');
@@ -15,33 +17,35 @@ const paymentAmountEl = document.getElementById('paymentAmount');
 const earlyBirdInfoEl = document.getElementById('earlyBirdInfo');
 const earlyBirdTextEl = document.getElementById('earlyBirdText');
 
-if (_isEarlyBird) {
-    // Show: strikethrough normal + green early bird price
-    discountPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
-    discountPriceEl.style.display = '';
-    currentPriceEl.textContent = formatRupiah(_workshopData.earlyBirdPrice);
-    currentPriceEl.className = 'new-price';
+if (_workshopData) {
+    if (_isEarlyBird) {
+        // Show: strikethrough normal + green early bird price
+        discountPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
+        discountPriceEl.style.display = '';
+        currentPriceEl.textContent = formatRupiah(_workshopData.earlyBirdPrice);
+        currentPriceEl.className = 'new-price';
 
-    // Show early bird info
-    earlyBirdInfoEl.style.display = 'flex';
-    earlyBirdTextEl.textContent = `Harga Early Bird sampai ${formatDateIndo(_workshopData.earlyBirdDueDate)}`;
-} else {
-    // Show normal price only (no discount display)
-    discountPriceEl.style.display = 'none';
-    currentPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
-    currentPriceEl.className = 'new-price';
-    currentPriceEl.style.color = 'var(--text-primary)';
-    currentPriceEl.style.animation = 'none';
+        // Show early bird info
+        earlyBirdInfoEl.style.display = 'flex';
+        earlyBirdTextEl.textContent = `Harga Early Bird sampai ${formatDateIndo(_workshopData.earlyBirdDueDate)}`;
+    } else {
+        // Show normal price only (no discount display)
+        discountPriceEl.style.display = 'none';
+        currentPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
+        currentPriceEl.className = 'new-price';
+        currentPriceEl.style.color = 'var(--text-primary)';
+        currentPriceEl.style.animation = 'none';
+    }
+
+    // Update payment info
+    paymentAmountEl.textContent = formatRupiah(_currentPrice);
+
+    // --- Populate Dynamic Workshop Info ---
+    document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
+    document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
+    document.getElementById('locationNameText').textContent = _workshopData.locationName;
+    document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
 }
-
-// Update payment info
-paymentAmountEl.textContent = formatRupiah(_currentPrice);
-
-// --- Populate Dynamic Workshop Info ---
-document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
-document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
-document.getElementById('locationNameText').textContent = _workshopData.locationName;
-document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
 
 
 // ============================================================
@@ -94,7 +98,7 @@ let selectedFlapColor = colors.find(c => c.name === 'Orange');
 let selectedStrapColor = strapColors.find(c => c.name === 'Orange');
 
 // --- Full Page Blocker Loader ---
-function showBlockerLoader(message = 'Mengecek slot...') {
+function showBlockerLoader(message = 'Mengecek tiket...') {
     let blocker = document.getElementById('blockerLoader');
     if (!blocker) {
         blocker = document.createElement('div');
@@ -207,8 +211,15 @@ async function checkQuota() {
     }
 }
 
-// Check on load
-checkQuota();
+// Cek kuota HANYA kalau config udah ada (butuh maxQuota & id). Kalau belum,
+// dijalanin nanti pas config live masuk (lihat listener 'workshops:updated').
+let _quotaChecked = false;
+function runQuotaWhenReady() {
+    if (_quotaChecked || !_workshopData) return;
+    _quotaChecked = true;
+    checkQuota();
+}
+runQuotaWhenReady();
 
 // --- Initialize Color Pickers ---
 function renderColorPickers() {
@@ -396,6 +407,12 @@ const statusMessage = document.getElementById('statusMessage');
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Config belum siap (jarang) -> jangan submit dgn data kosong
+    if (!_workshopData) {
+        alert("Data workshop masih dimuat, tunggu sebentar ya.");
+        return;
+    }
+
     if (!validateFrontCoverWord()) return;
 
     const originalBtnText = submitBtn.innerHTML;
@@ -415,7 +432,7 @@ form.addEventListener('submit', async (e) => {
 
     // --- Re-cek slot sebelum submit ---
     try {
-        showBlockerLoader('Mengecek ketersediaan slot...');
+        showBlockerLoader('Mengecek ketersediaan tiket...');
         const counts = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handlePreSubmit');
         const currentCount = counts['paper-journal'] || 0;
         const maxQuota = _workshopData.maxQuota || 12;
@@ -501,6 +518,7 @@ window.addEventListener('workshops:updated', function () {
         var w = getWorkshopById("paper-journal"); if (!w) return;
         var eb = (typeof isEarlyBird === 'function') && isEarlyBird(w);
         var cur = getCurrentPrice(w);
+        _workshopData = w; _isEarlyBird = eb; _currentPrice = cur;   // simpan buat checkQuota & submit
         var dEl = document.getElementById('discountPriceEl');
         var cEl = document.getElementById('currentPriceEl');
         var pEl = document.getElementById('paymentAmount');
@@ -521,5 +539,6 @@ window.addEventListener('workshops:updated', function () {
         var tm = document.getElementById('workshopTimeText'); if (tm) tm.textContent = w.workshopTime || '';
         var ln = document.getElementById('locationNameText'); if (ln) ln.textContent = w.locationName || '';
         var ml = document.getElementById('locationMapsLink'); if (ml && w.mapsLink) ml.href = w.mapsLink;
+        runQuotaWhenReady();   // config baru siap -> cek kuota kalau belum
     } catch (e) { /* jangan ganggu halaman */ }
 });

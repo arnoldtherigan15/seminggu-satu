@@ -4,9 +4,11 @@
 // ============================================================
 
 // --- Dynamic Early Bird Pricing ---
-const _workshopData = getWorkshopById("upcycle-journal");
-const _isEarlyBird = isEarlyBird(_workshopData);
-const _currentPrice = getCurrentPrice(_workshopData);
+// Config = sumber tunggal dari server (cache/live). Bisa null di kunjungan pertama
+// (cache kosong) -> jangan crash; placeholder "Memuat..." + listener 'workshops:updated'.
+let _workshopData = getWorkshopById("upcycle-journal");
+let _isEarlyBird = _workshopData ? isEarlyBird(_workshopData) : false;
+let _currentPrice = _workshopData ? getCurrentPrice(_workshopData) : 0;
 
 // Update price display in hero
 const discountPriceEl = document.getElementById('discountPriceEl');
@@ -15,27 +17,29 @@ const paymentAmountEl = document.getElementById('paymentAmount');
 const earlyBirdInfoEl = document.getElementById('earlyBirdInfo');
 const earlyBirdTextEl = document.getElementById('earlyBirdText');
 
-if (_isEarlyBird) {
-    discountPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
-    discountPriceEl.style.display = '';
-    currentPriceEl.textContent = formatRupiah(_workshopData.earlyBirdPrice);
-    currentPriceEl.className = 'new-price';
-    earlyBirdInfoEl.style.display = 'flex';
-    earlyBirdTextEl.textContent = `Harga Early Bird sampai ${formatDateIndo(_workshopData.earlyBirdDueDate)}`;
-} else {
-    discountPriceEl.style.display = 'none';
-    currentPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
-    currentPriceEl.className = 'new-price';
-    currentPriceEl.style.color = 'var(--text-primary)';
+if (_workshopData) {
+    if (_isEarlyBird) {
+        discountPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
+        discountPriceEl.style.display = '';
+        currentPriceEl.textContent = formatRupiah(_workshopData.earlyBirdPrice);
+        currentPriceEl.className = 'new-price';
+        earlyBirdInfoEl.style.display = 'flex';
+        earlyBirdTextEl.textContent = `Harga Early Bird sampai ${formatDateIndo(_workshopData.earlyBirdDueDate)}`;
+    } else {
+        discountPriceEl.style.display = 'none';
+        currentPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
+        currentPriceEl.className = 'new-price';
+        currentPriceEl.style.color = 'var(--text-primary)';
+    }
+
+    paymentAmountEl.textContent = formatRupiah(_currentPrice);
+
+    // --- Populate Dynamic Workshop Info ---
+    document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
+    document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
+    document.getElementById('locationNameText').textContent = _workshopData.locationName;
+    document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
 }
-
-paymentAmountEl.textContent = formatRupiah(_currentPrice);
-
-// --- Populate Dynamic Workshop Info ---
-document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
-document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
-document.getElementById('locationNameText').textContent = _workshopData.locationName;
-document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
 
 // ============================================================
 //  Data Bag Images (Stock)
@@ -499,6 +503,12 @@ if (form) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Config belum siap (jarang) -> jangan submit dgn data kosong
+        if (!_workshopData) {
+            showToast("Data workshop masih dimuat, tunggu sebentar ya.");
+            return;
+        }
+
         if (!selectedBodyBagId || !selectedFlapBagId) {
             showToast("Harap pilih Shopping Bag Bekas untuk Cover & Flap");
             return;
@@ -591,8 +601,15 @@ function showToast(msg) {
     }
 }
 
-// Init
-checkStock();
+// Cek stok HANYA kalau config udah ada (butuh maxQuota & id). Kalau belum,
+// dijalanin nanti pas config live masuk (lihat listener 'workshops:updated').
+let _stockChecked = false;
+function runStockWhenReady() {
+    if (_stockChecked || !_workshopData) return;
+    _stockChecked = true;
+    checkStock();
+}
+runStockWhenReady();
 setupImageUpload('charmPhoto', 'charmUploadArea', 'charmPreview', 'charmBase64', 'charmMimeType');
 setupImageUpload('paymentPhoto', 'paymentUploadArea', 'paymentPreview', 'paymentBase64', 'paymentMimeType');
 
@@ -606,6 +623,7 @@ window.addEventListener('workshops:updated', function () {
         var w = getWorkshopById("upcycle-journal"); if (!w) return;
         var eb = (typeof isEarlyBird === 'function') && isEarlyBird(w);
         var cur = getCurrentPrice(w);
+        _workshopData = w; _isEarlyBird = eb; _currentPrice = cur;   // simpan buat checkStock & submit
         var dEl = document.getElementById('discountPriceEl');
         var cEl = document.getElementById('currentPriceEl');
         var pEl = document.getElementById('paymentAmount');
@@ -626,5 +644,6 @@ window.addEventListener('workshops:updated', function () {
         var tm = document.getElementById('workshopTimeText'); if (tm) tm.textContent = w.workshopTime || '';
         var ln = document.getElementById('locationNameText'); if (ln) ln.textContent = w.locationName || '';
         var ml = document.getElementById('locationMapsLink'); if (ml && w.mapsLink) ml.href = w.mapsLink;
+        runStockWhenReady();   // config baru siap -> cek stok kalau belum
     } catch (e) { /* jangan ganggu halaman */ }
 });

@@ -399,6 +399,78 @@
             100% { transform: scale(1); }
         }
 
+        /* --- Skeleton shimmer (loading config) --- */
+        @keyframes shimmer {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+        .ws-skeleton {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .ws-skeleton .sk-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.1rem;
+        }
+        .ws-skeleton .sk-box,
+        .ws-skeleton .sk-line,
+        .ws-skeleton .sk-pill,
+        .ws-skeleton .sk-btn {
+            display: block;
+            border-radius: 8px;
+            background: #eceef1;
+            background-image: linear-gradient(90deg, #eceef1 0px, #f6f7f8 100px, #eceef1 200px);
+            background-size: 400px 100%;
+            background-repeat: no-repeat;
+            animation: shimmer 1.2s ease-in-out infinite;
+        }
+        .ws-skeleton .sk-icon { width: 44px; height: 44px; border-radius: 12px; flex: 0 0 auto; }
+        .ws-skeleton .sk-title { height: 18px; width: 45%; }
+        .ws-skeleton .sk-pill { height: 26px; width: 90px; border-radius: 999px; margin-left: auto; flex: 0 0 auto; }
+        .ws-skeleton .sk-desc { height: 13px; width: 70%; margin-bottom: 1.1rem; }
+        .ws-skeleton .sk-price { height: 24px; width: 40%; margin-bottom: 1.3rem; }
+        .ws-skeleton .sk-btn { height: 52px; width: 100%; border-radius: 14px; }
+
+        /* --- Error state (config gagal dimuat) --- */
+        .ws-error {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            animation: slideUp 0.4s ease both;
+        }
+        .ws-error svg {
+            width: 40px; height: 40px;
+            color: var(--text-3);
+            margin: 0 auto 1rem;
+            display: block;
+        }
+        .ws-error h3 {
+            font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;
+            font-family: 'Outfit', sans-serif;
+        }
+        .ws-error p {
+            color: var(--text-2); font-size: 0.9rem; line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+        .ws-error .cta-btn { display: inline-flex; width: auto; padding: 0.7rem 1.75rem; cursor: pointer; }
+
+        @media (prefers-color-scheme: dark) {
+            .ws-skeleton .sk-box,
+            .ws-skeleton .sk-line,
+            .ws-skeleton .sk-pill,
+            .ws-skeleton .sk-btn {
+                background: #2a2d31;
+                background-image: linear-gradient(90deg, #2a2d31 0px, #3a3d42 100px, #2a2d31 200px);
+            }
+        }
+
         /* --- Testimoni Slider --- */
         .testimony-slider {
             display: flex;
@@ -550,6 +622,35 @@
             let displayedCount = 0;
 
             const _workshops = (typeof WORKSHOPS !== 'undefined' && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
+            const cfgState = (typeof window.WS_CONFIG_STATE === 'string') ? window.WS_CONFIG_STATE : 'pending';
+
+            // Belum ada config sama sekali (server sumber tunggal, cache kosong):
+            if (_workshops.length === 0) {
+                if (cfgState === 'failed') {
+                    // Gagal ambil config & nggak ada cache -> error + tombol coba lagi
+                    listEl.innerHTML = `
+                        <div class="ws-error">
+                            <i data-lucide="wifi-off"></i>
+                            <h3>Gagal memuat workshop</h3>
+                            <p>Koneksi ke server bermasalah. Cek internetmu lalu coba lagi.</p>
+                            <button class="cta-btn" onclick="location.reload()">Coba Lagi</button>
+                        </div>`;
+                } else if (cfgState === 'live') {
+                    // Sudah dapat jawaban server tapi memang kosong
+                    listEl.innerHTML = `
+                        <div class="empty-state" style="display: block; padding: 2.5rem 1.5rem; background: var(--bg-card); border: 1.5px dashed var(--border); border-radius: var(--radius); text-align: center; margin-top: 0.5rem;">
+                            <i data-lucide="calendar-x" style="width: 36px; height: 36px; color: var(--text-3); margin: 0 auto 1rem; display: block;"></i>
+                            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Belum ada jadwal baru</h3>
+                            <p style="color: var(--text-2); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">Pantau terus Instagram atau TikTok Seminggu Satu untuk info workshop selanjutnya ya!</p>
+                        </div>`;
+                } else {
+                    // Masih nunggu config -> shimmer skeleton
+                    listEl.innerHTML = shimmerCardsHTML(2);
+                }
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
             _workshops.forEach((ws, index) => {
                 // Skip if not meant to be displayed
                 if (ws.hasOwnProperty('isDisplay') && ws.isDisplay === false) return;
@@ -564,13 +665,17 @@
                     status = 'full';
                 }
 
+                // "checking" = tiket/kuota belum selesai dicek (config sudah ada dari
+                // cache/live). Selama checking, kartu tampil netral "Cek tiket…".
+                const checking = (status === 'open' && !countsReady);
+
                 const earlyBird = isEarlyBird(ws);
                 const card = document.createElement('div');
-                card.className = `workshop-card${(status !== 'open') ? ' disabled' : ''}`;
+                card.className = `workshop-card${(checking || status !== 'open') ? ' disabled' : ''}`;
                 if (animate) card.style.animationDelay = `${0.4 + index * 0.1}s`;
                 else card.style.animation = 'none';
 
-                // Build price HTML
+                // Build price HTML (config dari cache/server, bukan statis basi)
                 let priceHTML = '';
                 if (ws.normalPrice > 0) {
                     if (earlyBird) {
@@ -590,8 +695,8 @@
 
                 // Build status badge
                 let badgeHTML = '';
-                if (status === 'open' && !countsReady) {
-                    badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="loader"></i> Cek slot…</span>';
+                if (checking) {
+                    badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="loader"></i> Cek tiket…</span>';
                 } else if (status === 'open') {
                     badgeHTML = '<span class="status-badge badge-open"><i data-lucide="circle-check"></i> Buka</span>';
                 } else if (status === 'full') {
@@ -606,7 +711,7 @@
 
                 // Build CTA
                 let ctaHTML = '';
-                if (status === 'open' && !countsReady) {
+                if (checking) {
                     ctaHTML = `<div class="cta-btn disabled-btn">Mengecek ketersediaan…</div>`;
                 } else if (status === 'open') {
                     ctaHTML = `<a href="${ws.path}" class="cta-btn" id="cta-${ws.id}">Daftar Sekarang <i data-lucide="arrow-right"></i></a>`;
@@ -645,10 +750,29 @@
             lucide.createIcons();
         }
 
+        // Skeleton shimmer buat state loading (config belum masuk)
+        function shimmerCardsHTML(n) {
+            let html = '';
+            for (let i = 0; i < n; i++) {
+                html += `
+                    <div class="ws-skeleton">
+                        <div class="sk-row">
+                            <span class="sk-box sk-icon"></span>
+                            <span class="sk-line sk-title"></span>
+                            <span class="sk-pill"></span>
+                        </div>
+                        <span class="sk-line sk-desc"></span>
+                        <span class="sk-line sk-price"></span>
+                        <span class="sk-btn"></span>
+                    </div>`;
+            }
+            return html;
+        }
+
         let _lastCounts = {};
         let _countsReady = false;
         async function initWorkshops() {
-            // 1) Langsung tampil dari config; tombol daftar disabled dulu (status belum pasti)
+            // 1) Paint awal: kalau ada cache -> kartu; kalau belum -> shimmer (di renderWorkshops)
             renderWorkshops({}, true, false);
 
             // 2) Ambil kuota di background, lalu render ulang dgn status final (tombol aktif)
@@ -666,9 +790,13 @@
         // Initialize on load
         initWorkshops();
 
-        // Config server (harga/tanggal terbaru) datang belakangan -> render ulang kartu
-        // biar peserta SELALU lihat data terbaru, bukan cache/statis lama.
+        // Config server (harga/tanggal/status terbaru) datang -> render ulang kartu.
         window.addEventListener('workshops:updated', function () {
+            renderWorkshops(_lastCounts, false, _countsReady);
+        });
+
+        // Config gagal diambil & nggak ada cache -> render ulang (bakal tampil error).
+        window.addEventListener('workshops:failed', function () {
             renderWorkshops(_lastCounts, false, _countsReady);
         });
 

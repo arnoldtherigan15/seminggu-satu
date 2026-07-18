@@ -18,133 +18,24 @@
  * ====================================================
  */
 
-// Dibuat 'var' (bukan const) supaya bisa ditimpa config live dari cache/server.
-// Nilai di bawah = FALLBACK statis (dipakai saat cache kosong / server tak terjangkau).
-var WORKSHOPS = [
-    {
-        "id": "bookmark-journal",
-        "name": "Pull & Pop: A Journaling Bookmark",
-        "description": "Buat bookmark interaktifmu sendiri dengan mekanisme pull & pop! Pilih pita dan rantai favoritmu.",
-        "icon": "bookmark",
-        "path": "bookmark-journal/index.html",
-        "enabled": false,
-        "openDate": "01/07/2026",
-        "closeDate": "03/07/2026",
-        "normalPrice": 175000,
-        "earlyBirdPrice": null,
-        "earlyBirdDueDate": "",
-        "maxQuota": 10,
-        "workshopDate": "Rabu, 27 Mei 2026",
-        "workshopTime": "15:00 - 17:30 WIB",
-        "locationName": "Kopi Aloo Melawai",
-        "mapsLink": "https://maps.app.goo.gl/6T7QmqryfE7ATbkz5",
-        "isDisplay": false,
-        "whatsappGroupLink": "https://chat.whatsapp.com/Ba3DC7JFQSt1u1tgIMATw9?mode=gi_t",
-        "isPrintPhoto": false
-    },
-    {
-        "id": "bookmark-journal-sheraton",
-        "name": "Sheraton Pull & Pop: A Journaling Bookmark",
-        "description": "Buat bookmark interaktifmu sendiri dengan mekanisme pull & pop! (Private Event)",
-        "icon": "bookmark",
-        "path": "bookmark-journal-sheraton/index.html",
-        "enabled": true,
-        "openDate": "03/05/2026",
-        "closeDate": "26/05/2026",
-        "normalPrice": 0,
-        "earlyBirdPrice": null,
-        "earlyBirdDueDate": null,
-        "maxQuota": 15,
-        "workshopDate": "Kamis, 21 Mei 2026",
-        "workshopTime": "15:00 - 17:00 WIB",
-        "locationName": "Sheraton",
-        "mapsLink": "https://maps.app.goo.gl/4jgzwYXtQG1g5ZTH8",
-        "isDisplay": false,
-        "whatsappGroupLink": ""
-    },
-    {
-        "id": "3d-frame-journaling",
-        "name": "3D Layered Journaling",
-        "description": "Frame, Texture & Motion",
-        "icon": "frame",
-        "path": "3d-frame-journaling/index.html",
-        "enabled": true,
-        "openDate": "05/06/2026",
-        "closeDate": "08/08/2026",
-        "normalPrice": 250000,
-        "earlyBirdPrice": null,
-        "earlyBirdDueDate": "",
-        "maxQuota": 12,
-        "workshopDate": "Sabtu, 8 Agustus 2026",
-        "workshopTime": "11:00 - 13:00 WIB",
-        "locationName": "Community Lounge Tomo Land, Grand Indonesia",
-        "mapsLink": "https://maps.app.goo.gl/tk7y3uLCwRbvMkuS8",
-        "isDisplay": true,
-        "isPrintPhoto": false,
-        "eventDate": "08/08/2026",
-        "whatsappGroupLink": "https://chat.whatsapp.com/HHnM66321WwFMH8Ligi9qG?mode=gi_t"
-    },
-    {
-        "id": "paper-journal",
-        "name": "Paper Journal Creative Workshop",
-        "description": "Buat paper journal versimu yang unik dari kertas spesial. Pilih perpaduan warna favoritmu!",
-        "icon": "book-open",
-        "path": "paper-journal/index.html",
-        "enabled": true,
-        "openDate": "12/04/2026",
-        "closeDate": "13/04/2026",
-        "normalPrice": 255000,
-        "earlyBirdPrice": 344000,
-        "earlyBirdDueDate": "10/04/2026",
-        "maxQuota": 1,
-        "workshopDate": "Minggu, 17 Mei 2026",
-        "workshopTime": "15:00 - 17:30 WIB",
-        "locationName": "Melting Pot, GF at ASHTA District 8",
-        "mapsLink": "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
-        "isDisplay": false
-    },
-    {
-        "id": "upcycle-journal",
-        "name": "Upcycle Bag Journal Workshop",
-        "description": "Recycle shopping bag into a unique journal cover. Limited stock for each bag!",
-        "icon": "shopping-bag",
-        "path": "upcycle-journal/index.html",
-        "enabled": true,
-        "openDate": "12/04/2026",
-        "closeDate": "16/05/2026",
-        "normalPrice": 382000,
-        "earlyBirdPrice": 344000,
-        "earlyBirdDueDate": "20/04/2026",
-        "maxQuota": 12,
-        "workshopDate": "Minggu, 17 Mei 2026",
-        "workshopTime": "15:00 - 17:30 WIB",
-        "locationName": "Melting Pot, GF at ASHTA District 8",
-        "mapsLink": "https://maps.app.goo.gl/aanUWLu5we3VvQqg6",
-        "isDisplay": false,
-        "whatsappGroupLink": ""
-    },
-    {
-        "id": "reka-rekat",
-        "name": "Reka Rekat - Journaling Date",
-        "description": "Sesi buat kita ngejurnal bareng. Setiap pertemuan ada tema yang berbeda.",
-        "icon": "heart",
-        "path": "reka-rekat/index.html",
-        "enabled": true,
-        "openDate": "22/06/2026",
-        "closeDate": "10/07/2026",
-        "normalPrice": 175000,
-        "earlyBirdPrice": null,
-        "earlyBirdDueDate": "",
-        "maxQuota": 18,
-        "workshopDate": "Sabtu, 11 Juli 2026",
-        "workshopTime": "11:00 - 13:30 WIB",
-        "locationName": "Oma Huis - Jakarta Selatan",
-        "mapsLink": "https://maps.app.goo.gl/FZv5Qo9j933TQmDw9",
-        "isDisplay": true,
-        "isPrintPhoto": true,
-        "whatsappGroupLink": "https://chat.whatsapp.com/G9h0V6VCTp2GomdJBFEo8F?mode=gi_t"
-    }
-];
+// ============================================================
+//  SUMBER TUNGGAL = SERVER. Config workshop HANYA diedit dari
+//  dashboard admin (tab Config), disimpan di server, disajikan via
+//  ?page=config. TIDAK ADA data statis lagi di file ini biar nggak
+//  pernah ada "dua versi" yang bikin data basi.
+//
+//  Alur di halaman publik:
+//    1) Kalau ada cache localStorage (data server terakhir) -> paint instan.
+//    2) Selalu ambil config TERBARU dari server -> timpa + re-render.
+//    3) Belum ada config sama sekali -> tampil shimmer/loading.
+//    4) Gagal & nggak ada cache -> tampil error.
+// ============================================================
+// 'var' supaya bisa ditimpa cache/server. Default KOSONG (bukan data statis).
+var WORKSHOPS = [];
+
+// Status pengambilan config: "pending" | "live" | "failed"
+// (dibaca halaman buat nentuin shimmer vs error vs render).
+window.WS_CONFIG_STATE = "pending";
 
 // ============================================================
 //  HELPER FUNCTIONS — Jangan diubah kecuali kamu tahu caranya
@@ -231,32 +122,42 @@ function formatDateIndo(dateStr) {
 // ============================================================
 (function () {
     var CACHE_KEY = "ss_workshops_cache";
+    var settled = false;   // sudah dapat hasil (sukses/gagal final)?
 
-    // 1) Paint instan dari cache terakhir (biar nggak blank), TAPI ini bisa basi.
+    // 1) Paint instan dari cache terakhir (data server terakhir yg diketahui).
     try {
         var cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
             var parsed = JSON.parse(cached);
             if (Array.isArray(parsed) && parsed.length) WORKSHOPS = parsed;
         }
-    } catch (e) { /* abaikan, pakai statis */ }
+    } catch (e) { /* cache rusak -> biarin kosong, tunggu live */ }
 
-    // 2) SELALU ambil config TERBARU dari server sesegera mungkin, lalu TIMPA + re-render.
-    //    Ini yang bikin harga/tanggal nggak pernah basi: begitu config server datang,
-    //    halaman langsung update (event "workshops:updated") — nggak nunggu reload.
+    // 2) SELALU ambil config TERBARU dari server, lalu TIMPA + re-render.
+    //    Begitu config server datang, halaman langsung update (event "workshops:updated").
     function applyLive(data) {
-        if (!Array.isArray(data) || !data.length) return;
+        if (!Array.isArray(data) || !data.length) { fail(); return; }
+        settled = true;
         WORKSHOPS = data;
+        window.WS_CONFIG_STATE = "live";
         try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) { }
         try { window.dispatchEvent(new CustomEvent("workshops:updated")); } catch (e) { }
+    }
+
+    function fail() {
+        if (settled) return;
+        settled = true;
+        // Kalau ada cache, pakai itu (last-known-good) & anggap "live" biar nggak error.
+        window.WS_CONFIG_STATE = (WORKSHOPS && WORKSHOPS.length) ? "live" : "failed";
+        try { window.dispatchEvent(new CustomEvent(WORKSHOPS && WORKSHOPS.length ? "workshops:updated" : "workshops:failed")); } catch (e) { }
     }
 
     var tries = 0;
     function refreshLive() {
         // GOOGLE_SCRIPT_URL dari env.js — kalau belum ke-load, tunggu sebentar (maks ~4 dtk)
         if (typeof GOOGLE_SCRIPT_URL === "undefined" || !GOOGLE_SCRIPT_URL) {
-            if (tries++ < 40) { setTimeout(refreshLive, 100); }
-            return;
+            if (tries++ < 40) { setTimeout(refreshLive, 100); return; }
+            fail(); return;
         }
         var cb = "_wsCfgCb_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
         var s;
@@ -266,8 +167,10 @@ function formatDateIndo(dateStr) {
         };
         s = document.createElement("script");
         s.src = GOOGLE_SCRIPT_URL + "?page=config&callback=" + cb + "&_=" + Date.now();
-        s.onerror = function () { try { delete window[cb]; } catch (e) { } };
+        s.onerror = function () { try { delete window[cb]; } catch (e) { } fail(); };
         (document.head || document.documentElement).appendChild(s);
+        // Timeout: JSONP script tag kadang nggak trigger onerror kalau server hang.
+        setTimeout(function () { fail(); }, 12000);
     }
     refreshLive();
 })();
