@@ -932,13 +932,13 @@
                 '<div class="section-title">Passport Kamu</div>' +
                 '<div id="passportCard" class="recap-story"></div>' +
                 '<div class="pp-actions">' +
-                '<button class="btn-primary" id="ppDownload">📥 Simpan Passport (buat IG Story)</button>' +
+                '<button class="btn-primary" id="ppShare">📲 Bagikan ke IG Story</button>' +
                 '<a class="btn-ghost" href="../index.html">Lihat Event Berikutnya →</a>' +
                 '</div>' +
-                '<p class="share-note">Share passport-mu di IG Story & tag <b>@seminggu_satu</b> ya! 💙</p>';
+                '<p class="share-note">Pencet tombol → pilih <b>Instagram → Story</b>. Jangan lupa tag <b>@seminggu_satu</b> ya! 💙</p>';
 
             renderPassport(d, p, since, uniqueWs);
-            document.getElementById("ppDownload").addEventListener("click", downloadPassport);
+            document.getElementById("ppShare").addEventListener("click", sharePassport);
         }
 
         function renderPassport(d, p, since, uniqueWs) {
@@ -967,14 +967,9 @@
                 '<div class="rs-foot"><span>Bercerita & didengar ✨</span><span class="rs-brand">@seminggu_satu</span></div>';
         }
 
-        async function downloadPassport() {
+        // Render passport jadi PNG (1080x1920, safe zone IG Story)
+        async function renderPassportPng() {
             var card = document.getElementById("passportCard");
-            var btn = document.getElementById("ppDownload");
-            var label = btn.textContent;
-            var nm = (lastData && lastData.nickname ? lastData.nickname : "peserta").trim().replace(/\s+/g, "-").toLowerCase() || "peserta";
-            btn.disabled = true; btn.textContent = "Merender…";
-
-            // clone off-screen 360x640 (9:16) + safe zone -> 1080x1920 pas IG Story
             var clone = card.cloneNode(true);
             clone.classList.add("export");
             clone.style.width = "360px";
@@ -991,13 +986,48 @@
                     scale: 3, backgroundColor: null, useCORS: true,
                     width: 360, height: 640, windowWidth: 360, windowHeight: 640
                 });
-                var a = document.createElement("a");
-                a.href = canvas.toDataURL("image/png");
-                a.download = "passport-" + nm + ".png";
-                a.click();
-            } catch (e) { alert("Gagal render gambar. Coba lagi ya."); }
-            finally {
+                return await new Promise(function (res) { canvas.toBlob(res, "image/png"); });
+            } finally {
                 if (clone.parentNode) clone.parentNode.removeChild(clone);
+            }
+        }
+
+        // Bagikan ke IG Story lewat share sheet HP (navigator.share dgn file).
+        // Kalau nggak didukung (mis. desktop) -> download + instruksi.
+        async function sharePassport() {
+            var btn = document.getElementById("ppShare");
+            var label = btn.textContent;
+            var nm = (lastData && lastData.nickname ? lastData.nickname : "peserta").trim().replace(/\s+/g, "-").toLowerCase() || "peserta";
+            btn.disabled = true; btn.textContent = "Menyiapkan…";
+            try {
+                var blob = await renderPassportPng();
+                if (!blob) throw new Error("no blob");
+                var file = new File([blob], "passport-" + nm + ".png", { type: "image/png" });
+
+                // HP modern: buka share sheet -> pilih Instagram -> Story
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: "Journaling Passport",
+                            text: "Passport journaling-ku di Seminggu Satu! 💙 @seminggu_satu"
+                        });
+                    } catch (err) {
+                        if (err && err.name === "AbortError") return; // user batal, diem aja
+                        throw err;
+                    }
+                } else {
+                    // Fallback (desktop / browser lama): download gambar
+                    var a = document.createElement("a");
+                    a.href = URL.createObjectURL(blob);
+                    a.download = "passport-" + nm + ".png";
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                    alert("Gambar passport-mu udah ke-download 📥\nBuka Instagram → Story → pilih gambar ini buat di-post ya! Jangan lupa tag @seminggu_satu 💙");
+                }
+            } catch (e) {
+                alert("Gagal menyiapkan gambar. Coba lagi ya.");
+            } finally {
                 btn.disabled = false; btn.textContent = label;
             }
         }
