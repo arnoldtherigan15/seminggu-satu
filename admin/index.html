@@ -1683,12 +1683,34 @@
       transform: translateY(-1px);
     }
 
+    .loy-card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
     .loy-tap {
       font-size: 11px;
       color: var(--muted);
-      margin-top: 8px;
-      text-align: right;
     }
+
+    .loy-send {
+      border: none;
+      background: #25d366;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: filter .12s ease, transform .12s ease;
+    }
+
+    .loy-send:hover { filter: brightness(1.05); }
+    .loy-send:active { transform: scale(.97); }
 
     .loy-note-badge {
       font-size: 11px;
@@ -5156,11 +5178,29 @@
             <div class="loy-count">${m.progress}/${LOYALTY_TARGET}</div>
           </div>
           <div class="loy-stamps">${stamps}</div>
-          <div class="loy-tap">Ketuk untuk detail →</div>
+          <div class="loy-card-foot">
+            <span class="loy-tap">Ketuk untuk detail →</span>
+            <button class="loy-send" type="button" data-wa="${escapeHtml(m.wa || "")}" data-name="${escapeHtml(m.name || "")}">💬 Kirim loyalty ke WA</button>
+          </div>
         </div>`;
       }).join("");
 
       list.querySelectorAll(".loy-card").forEach(c => c.addEventListener("click", () => openLoyaltyDetail(c.dataset.key)));
+      list.querySelectorAll(".loy-send").forEach(b => b.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        sendLoyaltyWa(b.dataset.wa, b.dataset.name);
+      }));
+    }
+
+    // Kirim link loyalty (prefilled) ke WA peserta lewat click-to-chat
+    function sendLoyaltyWa(wa, name) {
+      const num = waNormalize(wa);
+      if (!num) { alert("Nomor WA peserta ini nggak valid."); return; }
+      const base = (location.origin && location.origin.indexOf("http") === 0) ? location.origin : "https://seminggusatu.com";
+      const link = base + "/loyalty/?wa=" + num;
+      const nm = (String(name || "").trim().split(/\s+/)[0]) || "kamu";
+      const msg = `Hai ${nm}! 🎉\n\nMakasih ya udah journaling bareng Seminggu Satu 💙\n\nCek Loyalty Card & Journaling Passport kamu di sini — kelihatan udah berapa kali ikut event, progress hadiah, dan bisa simpan passport buat IG Story:\n${link}\n\nSampai ketemu di event berikutnya ya! ✨`;
+      window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(msg), "_blank");
     }
 
     // ---------- DETAIL PESERTA LOYALTY ----------
@@ -5275,10 +5315,10 @@
       const n = m.count;
       let title, tag;
       if (n >= 10) { title = "DEWA JOURNALING"; tag = "Warga kehormatan Seminggu Satu 👑"; }
-      else if (n >= 6) { title = "LEGENDA JOURNALING"; tag = "Loyalis sejati — udah dapat hadiah 🎁"; }
-      else if (n >= 4) { title = "JOURNALING ENTHUSIAST"; tag = "Ketagihan ngejurnal 🔥"; }
-      else if (n >= 2) { title = "PETUALANG KREATIF"; tag = "Mulai jatuh cinta sama journaling ✨"; }
-      else { title = "PENDATANG BARU"; tag = "Baru mulai perjalanan journaling 🌱"; }
+      else if (n >= 6) { title = "LEGENDA JOURNALING"; tag = "Sahabat setia Seminggu Satu — udah dapat hadiah 🎁"; }
+      else if (n >= 4) { title = "JOURNALING ENTHUSIAST"; tag = "Anak tongkrongan Seminggu Satu 🔥"; }
+      else if (n >= 2) { title = "PETUALANG KREATIF"; tag = "Mulai betah kumpul bareng kita ✨"; }
+      else { title = "PENDATANG BARU"; tag = "Baru gabung keluarga Seminggu Satu 🌱"; }
       const uniqueWs = new Set(m.events.map(e => e.workshop)).size;
       const trait = uniqueWs >= 3 ? "Sang Penjelajah" : (n >= 3 ? "Si Paling Setia" : "Pencari Inspirasi");
       return { title, tag, uniqueWs, trait };
@@ -5312,7 +5352,7 @@
           <div class="rs-val">${escapeHtml(p.trait)}</div>
           <div class="rs-meta">${escapeHtml(p.tag)}</div>
         </div></div>
-        <div class="rs-foot"><span>${since ? "Journaling sejak " + since + " ✨" : "Terima kasih sudah berproses ✨"}</span><span class="rs-brand">${handle}</span></div>`;
+        <div class="rs-foot"><span>${since ? "Sahabat sejak " + since + " ✨" : "Terima kasih sudah berproses ✨"}</span><span class="rs-brand">${handle}</span></div>`;
       document.getElementById("passportModal").style.display = "flex";
     }
 
