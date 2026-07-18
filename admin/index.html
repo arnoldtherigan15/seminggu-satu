@@ -3705,12 +3705,26 @@
         btn.addEventListener("click", setActiveBatch);
         info.appendChild(btn);
       }
-      // Tombol ubah nama (label) — buat batch aktif maupun arsip
-      const renameBtn = document.createElement("button");
-      renameBtn.className = "btn btn-sm btn-ghost";
-      renameBtn.textContent = "✏️ Ubah Nama";
-      renameBtn.addEventListener("click", renameBatch);
-      info.appendChild(renameBtn);
+      // Tanggal event (kalau udah diisi)
+      if (b.eventDate) {
+        const dspan = document.createElement("span");
+        dspanStyle(dspan);
+        dspan.textContent = "📅 " + b.eventDate;
+        info.appendChild(dspan);
+      }
+      // Tombol edit batch (label + tanggal event) — buat batch aktif maupun arsip
+      const editBtn = document.createElement("button");
+      editBtn.className = "btn btn-sm btn-ghost";
+      editBtn.textContent = "✏️ Edit Batch";
+      editBtn.addEventListener("click", renameBatch);
+      info.appendChild(editBtn);
+    }
+
+    function dspanStyle(el) {
+      el.style.marginLeft = "8px";
+      el.style.fontSize = "13px";
+      el.style.color = "var(--muted)";
+      el.style.fontWeight = "600";
     }
 
     async function renameBatch() {
@@ -3718,22 +3732,25 @@
       const sheetName = document.getElementById("batchSelect").value;
       const b = BATCHES.find(x => x.sheetName === sheetName);
       if (!b) { alert("Pilih batch dulu ya."); return; }
-      const label = prompt("Nama batch baru (mis. 'Vol 2 - 11 Juli'):", b.label || "");
+      const label = prompt("Nama/label batch (mis. 'Vol 2'):", b.label || "");
       if (label === null) return;
-      if (!label.trim()) { alert("Nama nggak boleh kosong."); return; }
-      const r = await api("renameBatch", { token: getToken(), workshop, sheetName, label: label.trim() });
+      const eventDate = prompt("Tanggal event (mis. '11 Juli 2026') — ini yang tampil di loyalty peserta:", b.eventDate || "");
+      if (eventDate === null) return;
+      const r = await api("renameBatch", { token: getToken(), workshop, sheetName, label: (label || "").trim(), eventDate: (eventDate || "").trim() });
       alert(r.message || r.status);
       if (r.status === "success") { await loadBatches(); loadSummary(); }
     }
 
     async function createNewBatch() {
       const workshop = document.getElementById("wsSelect").value;
-      const label = prompt("Label batch baru (mis. 'Vol 2 - 11 Juli'):");
+      const label = prompt("Label batch baru (mis. 'Vol 2'):");
       if (!label) return;
+      const eventDate = prompt("Tanggal event (mis. '11 Juli 2026') — tampil di loyalty peserta:", "");
+      if (eventDate === null) return;
       const suggested = (workshop + "-" + label).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
       const sheetName = prompt("Nama tab baru di Google Sheet (huruf/angka/strip):", suggested);
       if (!sheetName) return;
-      const r = await api("newBatch", { token: getToken(), workshop, label, sheetName });
+      const r = await api("newBatch", { token: getToken(), workshop, label, sheetName, eventDate: (eventDate || "").trim() });
       alert(r.message || r.status);
       if (r.status === "success") { await loadBatches(); loadSummary(); }
     }
@@ -5333,7 +5350,7 @@
       for (let i = 0; i < LOYALTY_TARGET; i++) stamps += `<span class="stamp ${i < filled ? "on" : ""}">${i < filled ? "★" : "☆"}</span>`;
 
       const events = m.events.map(e => {
-        const when = e.label || e.date || "";  // label batch (mis. "Vol 1 - 20 Juni"), bukan timestamp daftar
+        const when = e.eventDate || e.label || e.date || "";  // tanggal event (per batch), bukan timestamp daftar
         return `<li>${escapeHtml(workshopName(e.workshop) || e.workshop)}${when ? ` <span class="loy-ev-date">— ${escapeHtml(when)}</span>` : ""}</li>`;
       }
       ).join("");

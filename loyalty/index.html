@@ -907,7 +907,7 @@
             // Timeline
             var tl = "";
             (d.events || []).slice().reverse().forEach(function (e) {
-                var when = e.label || e.date || "";  // label batch (tanggal event), bukan tanggal daftar
+                var when = e.eventDate || e.label || e.date || "";  // tanggal event (per batch), bukan tanggal daftar
                 tl += '<div class="tl-item"><div class="nm">' + esc(e.name) + '</div>' +
                     (when ? '<div class="dt">' + esc(when) + '</div>' : '') + '</div>';
             });
