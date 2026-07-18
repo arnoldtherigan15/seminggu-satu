@@ -3705,6 +3705,25 @@
         btn.addEventListener("click", setActiveBatch);
         info.appendChild(btn);
       }
+      // Tombol ubah nama (label) — buat batch aktif maupun arsip
+      const renameBtn = document.createElement("button");
+      renameBtn.className = "btn btn-sm btn-ghost";
+      renameBtn.textContent = "✏️ Ubah Nama";
+      renameBtn.addEventListener("click", renameBatch);
+      info.appendChild(renameBtn);
+    }
+
+    async function renameBatch() {
+      const workshop = document.getElementById("wsSelect").value;
+      const sheetName = document.getElementById("batchSelect").value;
+      const b = BATCHES.find(x => x.sheetName === sheetName);
+      if (!b) { alert("Pilih batch dulu ya."); return; }
+      const label = prompt("Nama batch baru (mis. 'Vol 2 - 11 Juli'):", b.label || "");
+      if (label === null) return;
+      if (!label.trim()) { alert("Nama nggak boleh kosong."); return; }
+      const r = await api("renameBatch", { token: getToken(), workshop, sheetName, label: label.trim() });
+      alert(r.message || r.status);
+      if (r.status === "success") { await loadBatches(); loadSummary(); }
     }
 
     async function createNewBatch() {
