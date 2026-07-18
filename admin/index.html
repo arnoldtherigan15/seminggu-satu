@@ -2709,6 +2709,70 @@
       background: #fca5a5;
     }
 
+    /* ---- Drag & reorder (galeri/testimoni) ---- */
+    .konten-item.draggable-item {
+      transition: box-shadow 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+    }
+    .konten-item.dragging {
+      opacity: 0.5;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+    }
+    .konten-item.drag-over {
+      border-top: 3px solid var(--brand);
+    }
+    .k-head-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .k-drag {
+      cursor: grab;
+      color: #94a3b8;
+      font-size: 18px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 6px;
+      user-select: none;
+      touch-action: none;
+    }
+    .k-drag:hover {
+      background: var(--bg);
+      color: var(--brand);
+    }
+    .k-drag:active {
+      cursor: grabbing;
+    }
+    .k-head-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .k-move {
+      background: var(--bg);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease;
+    }
+    .k-move:hover:not(:disabled) {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+    .k-move:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
     .konten-field {
       display: flex;
       flex-direction: column;
@@ -3976,8 +4040,11 @@
       try {
         const r = await api("getConfig", { token: getToken() });
         if (r.status !== "success") { handleAuthError(r); return; }
-        // Pakai config tersimpan; kalau belum ada, mulai dari WORKSHOPS statis
-        CONFIG = (r.config && r.config.length) ? r.config : JSON.parse(JSON.stringify(WORKSHOPS));
+        // Server = sumber tunggal config workshop.
+        CONFIG = (r.config && r.config.length) ? r.config : [];
+        // Sinkronin ke WORKSHOPS global biar helper (workshopName, renderFinance,
+        // getCurrentPrice) nampilin nama/harga yang benar, bukan cuma ID.
+        if (CONFIG.length) { try { WORKSHOPS = CONFIG; } catch (e) {} }
         const sel = document.getElementById("cfgSelect");
         const prev = sel.value;
         sel.innerHTML = CONFIG.map((w, i) => `<option value="${i}">${escapeHtml(w.name || w.id)}</option>`).join("");
@@ -4067,6 +4134,8 @@
     const KONTEN_SCHEMA = {
       galeri: {
         seed: () => (typeof GALLERIES !== "undefined" ? GALLERIES : []),
+        reorder: true,
+        autoId: true,
         fields: [
           { key: "id", label: "ID" },
           { key: "title", label: "Judul" },
@@ -4075,6 +4144,8 @@
       },
       testimoni: {
         seed: () => (typeof TESTIMONIES !== "undefined" ? TESTIMONIES : []),
+        reorder: true,
+        autoId: true,
         fields: [
           { key: "id", label: "ID" },
           { key: "title", label: "Judul" },
@@ -4083,6 +4154,8 @@
       },
       recommendation: {
         seed: () => (typeof RECOMMENDATIONS !== "undefined" ? RECOMMENDATIONS : []),
+        reorder: true,
+        autoId: true,
         fields: [
           { key: "id", label: "ID" },
           { key: "title", label: "Judul" },
@@ -4097,6 +4170,8 @@
           { id: "rekomendasi", title: "Rekomendasi Alat & Bahan", subtitle: "Barang-barang buat journaling", icon: "🛠️", url: "../recommendation.html" },
           { id: "ig", title: "Instagram", subtitle: "@seminggu_satu", icon: "📷", url: "https://instagram.com/seminggu_satu" }
         ]),
+        reorder: true,
+        autoId: true,
         fields: [
           { key: "id", label: "ID" },
           { key: "icon", label: "Ikon — emoji (🛠️) ATAU URL gambar (https://.../icon.png)" },
@@ -4135,19 +4210,45 @@
       }
     }
 
+    let _dragFrom = null;   // index item yang lagi di-drag
+
+    // Pindahkan item di array KONTEN dari index `from` ke `to`, lalu render ulang
+    function moveKontenItem(from, to) {
+      if (from == null || to == null || from === to) return;
+      if (from < 0 || to < 0 || from >= KONTEN.length || to >= KONTEN.length) return;
+      const [it] = KONTEN.splice(from, 1);
+      KONTEN.splice(to, 0, it);
+      renderKonten();
+    }
+
     function renderKonten() {
       const type = currentKontenType();
-      const fields = KONTEN_SCHEMA[type].fields;
+      const schema = KONTEN_SCHEMA[type];
+      const canReorder = !!schema.reorder;
+      // Galeri/testimoni: ID di-generate otomatis → sembunyiin dari form
+      const fields = schema.autoId ? schema.fields.filter(f => f.key !== "id") : schema.fields;
       const listEl = document.getElementById("kontenList");
       if (!KONTEN.length) { listEl.innerHTML = `<p class="hint">Belum ada item. Klik "＋ Tambah Item".</p>`; return; }
       listEl.innerHTML = "";
+      if (canReorder) {
+        const hint = document.createElement("p");
+        hint.className = "hint";
+        hint.style.marginBottom = "12px";
+        hint.innerHTML = "💡 Seret ikon <b>⠿</b> untuk atur urutan, atau pakai tombol ▲▼. Urutan di sini = urutan tampil di halaman utama.";
+        listEl.appendChild(hint);
+      }
       KONTEN.forEach((item, idx) => {
         const div = document.createElement("div");
-        div.className = "konten-item";
+        div.className = "konten-item" + (canReorder ? " draggable-item" : "");
+        const dragHandle = canReorder ? `<span class="k-drag" title="Seret untuk atur urutan">⠿</span>` : "";
+        const moveBtns = canReorder
+          ? `<button class="k-move k-up" title="Naik" ${idx === 0 ? "disabled" : ""}>▲</button>
+             <button class="k-move k-down" title="Turun" ${idx === KONTEN.length - 1 ? "disabled" : ""}>▼</button>`
+          : "";
         div.innerHTML =
           `<div class="konten-item-head">
-             <span class="k-num">Item #${idx + 1}</span>
-             <button class="k-del" data-idx="${idx}">Hapus</button>
+             <span class="k-head-left">${dragHandle}<span class="k-num">Item #${idx + 1}</span></span>
+             <span class="k-head-right">${moveBtns}<button class="k-del" data-idx="${idx}">Hapus</button></span>
            </div>` +
           fields.map(f => {
             const val = item[f.key] != null ? item[f.key] : "";
@@ -4163,14 +4264,58 @@
           el.addEventListener("input", () => { KONTEN[idx][el.dataset.key] = el.value; });
         });
         div.querySelector(".k-del").addEventListener("click", () => { KONTEN.splice(idx, 1); renderKonten(); });
+
+        if (canReorder) {
+          // Tombol naik/turun (jalan di HP juga)
+          div.querySelector(".k-up").addEventListener("click", () => moveKontenItem(idx, idx - 1));
+          div.querySelector(".k-down").addEventListener("click", () => moveKontenItem(idx, idx + 1));
+
+          // Drag-and-drop (desktop). Item cuma bisa di-drag lewat handle ⠿ biar
+          // ngetik di input nggak keganggu.
+          const handle = div.querySelector(".k-drag");
+          handle.addEventListener("mousedown", () => div.setAttribute("draggable", "true"));
+          div.addEventListener("dragstart", (e) => {
+            _dragFrom = idx;
+            e.dataTransfer.effectAllowed = "move";
+            try { e.dataTransfer.setData("text/plain", String(idx)); } catch (err) {}
+            div.classList.add("dragging");
+          });
+          div.addEventListener("dragend", () => {
+            div.classList.remove("dragging");
+            div.setAttribute("draggable", "false");
+            listEl.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
+          });
+          div.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            if (_dragFrom !== idx) div.classList.add("drag-over");
+          });
+          div.addEventListener("dragleave", () => div.classList.remove("drag-over"));
+          div.addEventListener("drop", (e) => {
+            e.preventDefault();
+            div.classList.remove("drag-over");
+            moveKontenItem(_dragFrom, idx);
+            _dragFrom = null;
+          });
+        }
         listEl.appendChild(div);
       });
     }
 
     async function saveKonten() {
       const type = currentKontenType();
+      const schema = KONTEN_SCHEMA[type];
       // buang item tanpa judul/id
       const items = KONTEN.filter(it => (it.title && String(it.title).trim()) || (it.id && String(it.id).trim()));
+      // Galeri/testimoni/links/rekomendasi: ID di-generate otomatis (field disembunyiin).
+      // Yang belum punya id dikasih id unik & stabil biar backend tetap ada key-nya.
+      if (schema.autoId) {
+        items.forEach((it, i) => {
+          if (!it.id || !String(it.id).trim()) {
+            it.id = type + "-" + Date.now().toString(36) + "-" + i;
+          }
+        });
+      }
       const btn = document.getElementById("kontenSaveBtn");
       const msg = document.getElementById("kontenMsg");
       btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
