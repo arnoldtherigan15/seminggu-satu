@@ -5332,8 +5332,10 @@
       let stamps = "";
       for (let i = 0; i < LOYALTY_TARGET; i++) stamps += `<span class="stamp ${i < filled ? "on" : ""}">${i < filled ? "★" : "☆"}</span>`;
 
-      const events = m.events.map(e =>
-        `<li>${escapeHtml(workshopName(e.workshop) || e.workshop)}${e.date ? ` <span class="loy-ev-date">— ${escapeHtml(e.date)}</span>` : ""}</li>`
+      const events = m.events.map(e => {
+        const when = e.label || e.date || "";  // label batch (mis. "Vol 1 - 20 Juni"), bukan timestamp daftar
+        return `<li>${escapeHtml(workshopName(e.workshop) || e.workshop)}${when ? ` <span class="loy-ev-date">— ${escapeHtml(when)}</span>` : ""}</li>`;
+      }
       ).join("");
 
       const notes = (m.notes || []).map((n, i) =>
