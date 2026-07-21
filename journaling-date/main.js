@@ -160,10 +160,10 @@ function wirePhoto(inputId, boxId, previewId, b64Id) {
         finally { hideBlocker(); }
     });
 }
-wirePhoto('photo1', 'uploadBox1', 'preview1', 'b64Photo1');
-wirePhoto('photo2', 'uploadBox2', 'preview2', 'b64Photo2');
-wirePhoto('photo3', 'uploadBox3', 'preview3', 'b64Photo3');
-wirePhoto('photo4', 'uploadBox4', 'preview4', 'b64Photo4');
+wirePhoto('photo1', 'box1', 'preview1', 'photo1Base64');
+wirePhoto('photo2', 'box2', 'preview2', 'photo2Base64');
+wirePhoto('photo3', 'box3', 'preview3', 'photo3Base64');
+wirePhoto('photo4', 'box4', 'preview4', 'photo4Base64');
 
 // ---------- Submit ----------
 document.getElementById("jdForm").addEventListener("submit", async (e) => {
@@ -181,10 +181,10 @@ document.getElementById("jdForm").addEventListener("submit", async (e) => {
         workshopType: ID,
         whatsapp: _member.wa,
         nickname: _member.nickname,
-        photo1Base64: document.getElementById("b64Photo1").value || "",
-        photo2Base64: document.getElementById("b64Photo2").value || "",
-        photo3Base64: document.getElementById("b64Photo3").value || "",
-        photo4Base64: document.getElementById("b64Photo4").value || ""
+        photo1Base64: document.getElementById("photo1Base64").value || "",
+        photo2Base64: document.getElementById("photo2Base64").value || "",
+        photo3Base64: document.getElementById("photo3Base64").value || "",
+        photo4Base64: document.getElementById("photo4Base64").value || ""
     };
 
     const controller = new AbortController();

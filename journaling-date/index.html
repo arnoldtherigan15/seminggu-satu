@@ -17,68 +17,23 @@
     <link rel="stylesheet" href="../style.css">
 
     <style>
-        .jd-gate {
-            max-width: 480px;
-            margin: 1rem auto 0;
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.75rem 1.5rem;
-            text-align: center;
-        }
-
-        .jd-gate h3 { font-family: 'Outfit', sans-serif; font-size: 1.15rem; margin-bottom: 0.4rem; }
-        .jd-gate p { color: var(--text-2); font-size: 0.9rem; margin-bottom: 1.1rem; }
-
-        .jd-input {
-            width: 100%; padding: 0.9rem 1rem; border: 1.5px solid var(--border);
-            border-radius: 12px; font-size: 1rem; font-family: inherit; text-align: center;
-            font-weight: 600; letter-spacing: 1px; margin-bottom: 0.7rem;
-        }
-        .jd-input:focus { outline: none; border-color: var(--text-primary); }
-
-        .jd-msg { font-size: 0.85rem; margin-top: 0.8rem; }
-        .jd-msg.err { color: #dc2626; }
-        .jd-msg.ok { color: #059669; }
-
         .jd-info-row {
-            display: flex; align-items: center; gap: 0.6rem;
-            font-size: 0.92rem; color: var(--text-2); margin-bottom: 0.6rem;
+            display: flex; align-items: center; gap: 0.65rem;
+            font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.65rem;
         }
-        .jd-info-row i { width: 18px; height: 18px; flex-shrink: 0; }
+        .jd-info-row i { width: 18px; height: 18px; flex-shrink: 0; color: var(--primary-color); }
+        .jd-info-row a { color: var(--text-secondary); }
 
         .jd-slot-badge {
             display: inline-flex; align-items: center; gap: 6px;
-            background: #fef9c3; color: #854d0e; font-weight: 700; font-size: 0.85rem;
-            padding: 6px 14px; border-radius: 999px; margin-bottom: 1rem;
+            background: #fef9c3; color: #854d0e; font-weight: 700; font-size: 0.88rem;
+            padding: 7px 15px; border-radius: 999px; margin-top: 0.5rem;
         }
+        .jd-slot-badge i { width: 16px; height: 16px; }
 
-        .photo-uploads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .upload-mini {
-            border: 2px dashed var(--border); border-radius: 12px; padding: 1rem;
-            text-align: center; cursor: pointer; position: relative; overflow: hidden;
-            background: #f9fafb; transition: all 0.2s ease;
-        }
-        .upload-mini:hover { background: #f3f4f6; }
-        .upload-mini i { color: var(--text-secondary); margin-bottom: 0.4rem; }
-        .upload-mini span { display: block; font-size: 0.78rem; font-weight: 500; color: var(--text-secondary); }
-        .upload-mini input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
-        .upload-mini i, .upload-mini span { pointer-events: none; }
-        .upload-mini img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.3s ease; }
-        .upload-mini.has-image img { opacity: 1; }
-
-        #blockerLoader {
-            position: fixed; inset: 0; background: rgba(255,255,255,0.92);
-            display: none; align-items: center; justify-content: center; flex-direction: column;
-            z-index: 9999; gap: 1rem;
-        }
-        #blockerLoader.visible { display: flex; }
-        #blockerLoader .spin { width: 42px; height: 42px; border: 4px solid var(--border); border-top-color: var(--text-primary); border-radius: 50%; animation: jdspin 0.8s linear infinite; }
-        @keyframes jdspin { to { transform: rotate(360deg); } }
-        #blockerMessage { font-weight: 600; color: var(--text-2); }
-
-        #toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
-        .toast { background: #1f2937; color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+        .jd-msg { font-size: 0.88rem; margin-top: 0.9rem; line-height: 1.5; }
+        .jd-msg.err { color: #dc2626; }
+        .jd-msg.ok { color: #059669; }
     </style>
 </head>
 
@@ -92,61 +47,90 @@
         </div>
         <div class="hero-content">
             <h2>Journaling Date</h2>
-            <p class="subtitle">Sesi journaling intim, khusus member ✨ (gratis, bayar sendiri-sendiri)</p>
+            <p class="subtitle">Sesi journaling intim khusus member ✨ (gratis, bayar sendiri-sendiri)</p>
         </div>
     </header>
 
-    <main class="container" style="max-width:520px;">
+    <main class="container">
 
         <!-- GATE: cek member via WA -->
-        <section class="jd-gate" id="gateSection">
-            <h3>Khusus Member 💙</h3>
-            <p>Masukin nomor WhatsApp yang kamu pakai waktu daftar event kami ya.</p>
-            <input type="tel" id="waInput" class="jd-input" inputmode="numeric" placeholder="cth: 0812xxxxxxx" autocomplete="tel">
-            <button class="cta-btn" id="checkBtn" style="width:100%;">Cek Keanggotaan</button>
+        <section class="registration-form-section" id="gateSection">
+            <div class="section-header">
+                <h3>Khusus Member 💙</h3>
+                <p>Masukin nomor WhatsApp yang kamu pakai waktu daftar event kami ya.</p>
+            </div>
+            <div class="form-group">
+                <label for="waInput">Nomor WhatsApp</label>
+                <div class="input-wrapper">
+                    <i data-lucide="phone"></i>
+                    <input type="tel" id="waInput" inputmode="numeric" placeholder="cth: 0812xxxxxxx" autocomplete="tel">
+                </div>
+            </div>
+            <button class="submit-btn" id="checkBtn">Cek Keanggotaan <i data-lucide="arrow-right"></i></button>
             <div class="jd-msg" id="gateMsg"></div>
         </section>
 
         <!-- CLOSED -->
-        <section class="jd-gate" id="closedSection" style="display:none;">
-            <h3>Belum ada sesi 🌱</h3>
-            <p id="closedMsg">Pendaftaran Journaling Date lagi ditutup. Pantau IG kami buat sesi berikutnya ya!</p>
-            <a class="cta-btn" href="../index.html" style="width:100%;">Kembali ke Beranda</a>
+        <section class="registration-form-section" id="closedSection" style="display:none;">
+            <div class="section-header">
+                <h3>Belum ada sesi 🌱</h3>
+                <p id="closedMsg">Pendaftaran Journaling Date lagi ditutup. Pantau IG kami buat sesi berikutnya ya!</p>
+            </div>
+            <a class="submit-btn" href="../index.html" style="text-decoration:none;">Kembali ke Beranda</a>
         </section>
 
         <!-- FORM: setelah lolos gate -->
-        <section id="formSection" style="display:none;">
-            <div class="workshop-card" style="margin-bottom:1.25rem;">
-                <div class="card-title" id="greetName" style="margin-bottom:0.75rem;">Hai! 👋</div>
-                <div class="jd-info-row"><i data-lucide="calendar"></i><span id="jdDate">-</span></div>
-                <div class="jd-info-row"><i data-lucide="clock"></i><span id="jdTime">-</span></div>
-                <div class="jd-info-row"><i data-lucide="map-pin"></i><a id="jdLoc" href="#" target="_blank" style="color:var(--text-2);">-</a></div>
-                <div style="margin-top:1rem;"><span class="jd-slot-badge" id="jdSlot"><i data-lucide="users"></i> <span id="jdSlotText">Cek slot…</span></span></div>
+        <section class="registration-form-section" id="formSection" style="display:none;">
+            <div class="section-header">
+                <h3 id="greetName">Hai! 👋</h3>
+                <p>Amankan tempatmu di sesi journaling intim ini.</p>
             </div>
 
-            <form id="jdForm">
+            <div class="jd-info-row"><i data-lucide="calendar"></i><span id="jdDate">-</span></div>
+            <div class="jd-info-row"><i data-lucide="clock"></i><span id="jdTime">-</span></div>
+            <div class="jd-info-row"><i data-lucide="map-pin"></i><a id="jdLoc" href="#" target="_blank">-</a></div>
+            <div><span class="jd-slot-badge" id="jdSlot"><i data-lucide="users"></i> <span id="jdSlotText">Cek slot…</span></span></div>
+
+            <form id="jdForm" style="margin-top:1.5rem;">
                 <div class="form-group">
-                    <label style="font-weight:600;">Foto buat kenang-kenangan <span style="color:var(--text-3);font-weight:400;">(opsional)</span></label>
-                    <p style="font-size:0.8rem;color:var(--text-3);margin:0.2rem 0 0.7rem;">Boleh upload foto spread jurnal / momen kamu 💛</p>
-                    <div class="photo-uploads">
-                        <label class="upload-mini" id="uploadBox1"><i data-lucide="camera"></i><span>Foto 1</span><input type="file" id="photo1" accept="image/*"><img id="preview1" alt=""></label>
-                        <label class="upload-mini" id="uploadBox2"><i data-lucide="camera"></i><span>Foto 2</span><input type="file" id="photo2" accept="image/*"><img id="preview2" alt=""></label>
-                        <label class="upload-mini" id="uploadBox3"><i data-lucide="camera"></i><span>Foto 3</span><input type="file" id="photo3" accept="image/*"><img id="preview3" alt=""></label>
-                        <label class="upload-mini" id="uploadBox4"><i data-lucide="camera"></i><span>Foto 4</span><input type="file" id="photo4" accept="image/*"><img id="preview4" alt=""></label>
+                    <label>Foto buat kenang-kenangan <span style="color:var(--text-tertiary,#9ca3af);font-weight:400;">(opsional)</span></label>
+                    <p style="font-size:0.82rem;color:var(--text-tertiary,#9ca3af);margin:0 0 0.8rem;">Boleh upload foto spread jurnal / momen kamu 💛</p>
+
+                    <div class="form-group upload-group">
+                        <label>Foto 1</label>
+                        <div class="upload-area" id="box1"><i data-lucide="image-plus"></i><span>Pilih Foto 1</span><input type="file" id="photo1" accept="image/*"><img id="preview1" class="preview-img" src="" alt=""></div>
+                        <input type="hidden" id="photo1Base64">
+                    </div>
+                    <div class="form-group upload-group">
+                        <label>Foto 2</label>
+                        <div class="upload-area" id="box2"><i data-lucide="image-plus"></i><span>Pilih Foto 2</span><input type="file" id="photo2" accept="image/*"><img id="preview2" class="preview-img" src="" alt=""></div>
+                        <input type="hidden" id="photo2Base64">
+                    </div>
+                    <div class="form-group upload-group">
+                        <label>Foto 3</label>
+                        <div class="upload-area" id="box3"><i data-lucide="image-plus"></i><span>Pilih Foto 3</span><input type="file" id="photo3" accept="image/*"><img id="preview3" class="preview-img" src="" alt=""></div>
+                        <input type="hidden" id="photo3Base64">
+                    </div>
+                    <div class="form-group upload-group">
+                        <label>Foto 4</label>
+                        <div class="upload-area" id="box4"><i data-lucide="image-plus"></i><span>Pilih Foto 4</span><input type="file" id="photo4" accept="image/*"><img id="preview4" class="preview-img" src="" alt=""></div>
+                        <input type="hidden" id="photo4Base64">
                     </div>
                 </div>
 
-                <input type="hidden" id="b64Photo1"><input type="hidden" id="b64Photo2">
-                <input type="hidden" id="b64Photo3"><input type="hidden" id="b64Photo4">
-
-                <button type="submit" class="cta-btn" id="submitBtn" style="width:100%;margin-top:0.5rem;">Amankan Tempatku <i data-lucide="arrow-right"></i></button>
+                <button type="submit" class="submit-btn" id="submitBtn">Amankan Tempatku <i data-lucide="arrow-right"></i></button>
                 <div class="jd-msg" id="statusMessage" style="display:none;"></div>
             </form>
         </section>
     </main>
 
-    <div id="blockerLoader"><div class="spin"></div><div id="blockerMessage">Memproses…</div></div>
-    <div id="toastContainer"></div>
+    <div id="toastContainer" class="toast-container"></div>
+    <div id="blockerLoader">
+        <div class="blocker-content">
+            <div class="blocker-spinner"></div>
+            <p id="blockerMessage">Memproses…</p>
+        </div>
+    </div>
 
     <script src="main.js"></script>
 </body>
