@@ -2939,6 +2939,9 @@
           <button class="nav-btn active" data-view="overview">
             <span class="nav-icon">📊</span> Overview
           </button>
+          <button class="nav-btn" data-view="activity">
+            <span class="nav-icon">🔔</span> Notifikasi
+          </button>
           <button class="nav-btn" data-view="prep">
             <span class="nav-icon">⚙️</span> Prep
           </button>
@@ -3201,6 +3204,15 @@
 
           <div style="font-weight:800;margin:22px 0 10px;">🏆 Leaderboard Side Quest</div>
           <div id="adminLbList"></div>
+        </div>
+
+        <!-- ===== VIEW: NOTIFIKASI / AKTIVITAS ===== -->
+        <div class="wrap view" id="viewActivity" style="display:none;">
+          <div class="toolbar">
+            <div style="font-weight:800;font-size:16px;">🔔 Aktivitas Terbaru</div>
+            <button class="btn btn-sm btn-ghost" id="actReloadBtn">🔄 Muat Ulang</button>
+          </div>
+          <div id="activityList"></div>
         </div>
 
         <!-- ===== VIEW: LEADS / OUTREACH TRACKER ===== -->
@@ -3824,7 +3836,7 @@
       let h = (location.hash || "").replace(/^#/, "");
       if (!h) h = "overview";
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "loyalty", "leads", "quest"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "loyalty", "leads", "quest", "activity"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1]);
     }
@@ -3843,6 +3855,7 @@
       document.getElementById("viewLoyalty").style.display = (view === "loyalty") ? "block" : "none";
       document.getElementById("viewLeads").style.display = (view === "leads") ? "block" : "none";
       document.getElementById("viewQuest").style.display = (view === "quest") ? "block" : "none";
+      document.getElementById("viewActivity").style.display = (view === "activity") ? "block" : "none";
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") ensureFinanceLoaded();
@@ -3852,6 +3865,7 @@
       if (view === "loyalty") ensureLoyalty();
       if (view === "leads") ensureLeads();
       if (view === "quest") ensureQuest();
+      if (view === "activity") ensureActivity();
     }
 
     // ---------- KEUANGAN ----------
@@ -4540,6 +4554,38 @@
       } finally {
         btn.disabled = false;
       }
+    }
+
+    // ---------- NOTIFIKASI / AKTIVITAS (admin) ----------
+    let activityInit = false;
+    async function ensureActivity() {
+      if (!activityInit) {
+        document.getElementById("actReloadBtn").addEventListener("click", loadActivity);
+        activityInit = true;
+      }
+      loadActivity(); // selalu refresh tiap dibuka
+    }
+
+    async function loadActivity() {
+      const el = document.getElementById("activityList");
+      el.innerHTML = skelLines(5);
+      try {
+        const r = await api("getActivity", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
+        const acts = r.activity || [];
+        if (!acts.length) { el.innerHTML = '<p class="hint">Belum ada aktivitas.</p>'; return; }
+        const icon = t => t === "quest" ? "⚡" : t === "member" ? "🙌" : "📝";
+        const verb = t => t === "quest" ? "submit challenge" : t === "member" ? "gabung" : "daftar";
+        el.innerHTML = acts.map(a =>
+          `<div class="loy-card"><div class="loy-top">
+             <div style="min-width:0;">
+               <div class="loy-name">${icon(a.type)} ${escapeHtml(a.who)}
+                 <span style="font-weight:600;color:var(--muted);">${verb(a.type)}</span> ${escapeHtml(a.detail)}</div>
+               <div class="loy-wa">🕒 ${escapeHtml(a.time || "")}</div>
+             </div>
+           </div></div>`
+        ).join("");
+      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
     }
 
     // ---------- SIDE QUEST (admin) ----------

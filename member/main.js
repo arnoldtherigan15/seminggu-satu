@@ -532,7 +532,7 @@ async function loadLoyalty() {
             '</div>' +
             '<div class="tier"><div class="em">' + p.emoji + '</div><div><div class="t">' + esc(p.title) + '</div><div class="d">' + esc(p.tag) + '</div></div></div>' +
             '<div class="card"><div class="section-lbl">Kartu Loyalty 🎁</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>' +
-            '<a class="btn-primary" href="../loyalty/?wa=' + encodeURIComponent(_profile.wa) + '">Buka Passport Lengkap →</a>';
+            '<a class="btn-primary" href="../loyalty/?wa=' + encodeURIComponent(_profile.wa) + '&from=member">Buka Passport Lengkap →</a>';
     } catch (e) {
         loading.style.display = "none";
         content.innerHTML = '<div class="placeholder"><div class="em">📡</div><h3>Gagal memuat</h3><p>Cek internetmu lalu coba lagi.</p></div>';

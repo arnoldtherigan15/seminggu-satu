@@ -777,7 +777,7 @@
 <body>
     <div class="wrap">
         <div class="top">
-            <a href="../index.html">
+            <a href="../index.html" id="brandLink">
                 <img src="../logo_seminggu.png" alt="Seminggu Satu">
                 <div class="by">JOURNALING PASSPORT</div>
             </a>
@@ -807,6 +807,9 @@
     <script>
         var GS = (typeof GOOGLE_SCRIPT_URL !== "undefined") ? GOOGLE_SCRIPT_URL : "";
         var lastData = null;
+        // Datang dari portal member -> logo & tombol balik ke portal (bukan home publik)
+        var FROM_MEMBER = new URLSearchParams(location.search).get("from") === "member";
+        if (FROM_MEMBER) { var _bl = document.getElementById("brandLink"); if (_bl) _bl.href = "../member/"; }
 
         function esc(s) {
             return String(s == null ? "" : s)
@@ -934,7 +937,7 @@
                 '<div id="passportCard" class="recap-story"></div>' +
                 '<div class="pp-actions">' +
                 '<button class="btn-primary" id="ppShare">📲 Bagikan ke IG Story</button>' +
-                '<a class="btn-ghost" href="../index.html">Lihat Event Berikutnya →</a>' +
+                '<a class="btn-ghost" href="' + (FROM_MEMBER ? "../member/#events" : "../index.html") + '">Lihat Event Berikutnya →</a>' +
                 '</div>' +
                 '<p class="share-note">Pencet tombol → pilih <b>Instagram → Story</b>. Jangan lupa tag <b>@seminggu_satu</b> ya! 💙</p>';
 
