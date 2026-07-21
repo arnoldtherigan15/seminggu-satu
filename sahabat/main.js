@@ -401,10 +401,20 @@ function startQuestSubmit(card) {
         try {
             const r = await apiPost({ action: "memberSubmitQuest", token: _profile.token, challengeId: card.dataset.id, photoBase64: b64 });
             if (r.status === "success") {
-                action.innerHTML = '<div class="ev-done">✅ Challenge kekirim! 🎉</div>' +
-                    '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Kirim fotomu ke Grup WA</a>' +
-                    '<p style="font-size:0.8rem;color:var(--muted);text-align:center;margin-top:6px;">Grup kebuka otomatis — tinggal kirim fotonya ya 💙</p>';
-                // Buka grup WA otomatis biar tinggal kirim
+                const qt = card.querySelector(".quest-title") ? card.querySelector(".quest-title").textContent.trim() : "";
+                const caption = "Halo semuaa! 🎉 Ini spread challenge" + (qt ? ' "' + qt + '"' : "") + " journaling-ku ✨ #SemingguSatu";
+                action.innerHTML =
+                    '<div class="ev-done">✅ Challenge kekirim! 🎉</div>' +
+                    '<div class="q-caption" id="qCap">' + esc(caption) + '</div>' +
+                    '<button class="btn-ghost2 quest-copy" style="margin-top:8px;">📋 Salin caption</button>' +
+                    '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Buka Grup WA</a>' +
+                    '<p style="font-size:0.78rem;color:var(--muted);text-align:center;margin-top:6px;">Buka grup → kirim fotomu + paste caption-nya ya 💙</p>';
+                const copyBtn = action.querySelector(".quest-copy");
+                copyBtn.addEventListener("click", async () => {
+                    try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; }
+                    catch (e) { const el = document.getElementById("qCap"); const rng = document.createRange(); rng.selectNodeContents(el); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(rng); copyBtn.textContent = "Blok teks di atas → copy"; }
+                });
+                try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; } catch (e) {}
                 try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) {}
             } else { send.disabled = false; send.textContent = "Kirim Challenge 🎉"; alert(r.message || "Gagal kirim."); }
         } catch (e) { send.disabled = false; send.textContent = "Kirim Challenge 🎉"; alert("Gagal terhubung ke server."); }
