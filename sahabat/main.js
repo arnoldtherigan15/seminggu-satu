@@ -309,25 +309,6 @@ function recList_() {
 
 // ---------- Side Quest pane ----------
 let _questsLoaded = false;
-function compressImage(file, maxSize, quality) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            const img = new Image();
-            img.onload = () => {
-                const c = document.createElement("canvas");
-                let w = img.width, h = img.height;
-                if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
-                else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
-                c.width = w; c.height = h;
-                c.getContext("2d").drawImage(img, 0, 0, w, h);
-                resolve(c.toDataURL("image/jpeg", quality));
-            };
-            img.onerror = reject; img.src = ev.target.result;
-        };
-        reader.onerror = reject; reader.readAsDataURL(file);
-    });
-}
 
 async function loadQuests() {
     if (_questsLoaded) return;
@@ -367,58 +348,35 @@ async function loadQuests() {
     pane.innerHTML = html;
     pane.querySelectorAll(".quest").forEach(card => {
         const btn = card.querySelector(".quest-join");
-        if (btn) btn.addEventListener("click", () => startQuestSubmit(card));
+        if (btn) btn.addEventListener("click", () => submitQuest(card));
     });
 }
 
-function startQuestSubmit(card) {
+// Submit challenge = 1 tap (tanpa upload foto). Foto dikirim member sendiri ke grup WA.
+async function submitQuest(card) {
+    const qt = card.querySelector(".quest-title") ? card.querySelector(".quest-title").textContent.trim() : "";
+    if (!confirm("Ikut challenge" + (qt ? ' "' + qt + '"' : "") + "?\nHabis ini kirim foto spread-mu di grup WA ya 💙")) return;
     const action = card.querySelector(".quest-action");
-    action.innerHTML =
-        '<input type="file" accept="image/*" class="quest-file" style="display:none">' +
-        '<div class="quest-preview"></div>' +
-        '<button class="btn-ghost2 quest-pick">📷 Pilih foto spread kamu</button>' +
-        '<button class="btn-primary quest-send" style="display:none;margin-top:8px;">Kirim Challenge 🎉</button>';
-    const file = action.querySelector(".quest-file");
-    const pick = action.querySelector(".quest-pick");
-    const send = action.querySelector(".quest-send");
-    const prev = action.querySelector(".quest-preview");
-    let b64 = "";
-    pick.addEventListener("click", () => file.click());
-    file.addEventListener("change", async e => {
-        const f = e.target.files[0]; if (!f) return;
-        if (f.size > 5 * 1024 * 1024) { alert("Ukuran foto maks 5MB ya."); return; }
-        try {
-            const dataUrl = await compressImage(f, 1400, 0.82);
-            b64 = dataUrl.split(",")[1];
-            prev.innerHTML = '<img src="' + dataUrl + '" style="width:100%;border-radius:12px;margin-bottom:8px;">';
-            pick.textContent = "📷 Ganti foto";
-            send.style.display = "block";
-        } catch (err) { alert("Gagal memproses foto, coba lagi."); }
-    });
-    send.addEventListener("click", async () => {
-        if (!b64) { alert("Pilih foto dulu ya."); return; }
-        send.disabled = true; send.textContent = "Mengirim…";
-        try {
-            const r = await apiPost({ action: "memberSubmitQuest", token: _profile.token, challengeId: card.dataset.id, photoBase64: b64 });
-            if (r.status === "success") {
-                const qt = card.querySelector(".quest-title") ? card.querySelector(".quest-title").textContent.trim() : "";
-                const caption = "Halo semuaa! 🎉 Ini spread challenge" + (qt ? ' "' + qt + '"' : "") + " journaling-ku ✨ #SemingguSatu";
-                action.innerHTML =
-                    '<div class="ev-done">✅ Challenge kekirim! 🎉</div>' +
-                    '<div class="q-caption" id="qCap">' + esc(caption) + '</div>' +
-                    '<button class="btn-ghost2 quest-copy" style="margin-top:8px;">📋 Salin caption</button>' +
-                    '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Buka Grup WA</a>' +
-                    '<p style="font-size:0.78rem;color:var(--muted);text-align:center;margin-top:6px;">Buka grup → kirim fotomu + paste caption-nya ya 💙</p>';
-                const copyBtn = action.querySelector(".quest-copy");
-                copyBtn.addEventListener("click", async () => {
-                    try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; }
-                    catch (e) { const el = document.getElementById("qCap"); const rng = document.createRange(); rng.selectNodeContents(el); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(rng); copyBtn.textContent = "Blok teks di atas → copy"; }
-                });
-                try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; } catch (e) {}
-                try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) {}
-            } else { send.disabled = false; send.textContent = "Kirim Challenge 🎉"; alert(r.message || "Gagal kirim."); }
-        } catch (e) { send.disabled = false; send.textContent = "Kirim Challenge 🎉"; alert("Gagal terhubung ke server."); }
-    });
+    const btn = card.querySelector(".quest-join");
+    if (btn) { btn.disabled = true; btn.textContent = "Mengirim…"; }
+    try {
+        const r = await apiPost({ action: "memberSubmitQuest", token: _profile.token, challengeId: card.dataset.id });
+        if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = "Ikut Challenge →"; } alert(r.message || "Gagal."); return; }
+        const caption = "Halo semuaa! 🎉 Ini spread challenge" + (qt ? ' "' + qt + '"' : "") + " journaling-ku ✨ #SemingguSatu";
+        action.innerHTML =
+            '<div class="ev-done">✅ Kamu ikut challenge ini! 🎉</div>' +
+            '<div class="q-caption">' + esc(caption) + '</div>' +
+            '<button class="btn-ghost2 quest-copy" style="margin-top:8px;">📋 Salin caption</button>' +
+            '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Buka Grup WA & kirim fotomu</a>' +
+            '<p style="font-size:0.78rem;color:var(--muted);text-align:center;margin-top:6px;">Kirim foto spread-mu di grup + paste caption-nya ya 💙</p>';
+        const copyBtn = action.querySelector(".quest-copy");
+        copyBtn.addEventListener("click", async () => {
+            try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; }
+            catch (e) { copyBtn.textContent = "Salin manual ya (blok teks di atas)"; }
+        });
+        try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; } catch (e) {}
+        try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) {}
+    } catch (e) { if (btn) { btn.disabled = false; btn.textContent = "Ikut Challenge →"; } alert("Gagal terhubung ke server."); }
 }
 
 // ---------- Leaderboard pane ----------
