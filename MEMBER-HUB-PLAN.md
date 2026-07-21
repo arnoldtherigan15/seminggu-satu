@@ -20,7 +20,7 @@ Bikin member makin loyal & aktif lewat:
 3. **Login member** pakai **No. WA + password**. Pertama kali set password + tanggal lahir; selanjutnya auto-login (token di browser).
 4. **Nama event**: "Journaling Date by Seminggu Satu".
 5. **Journaling Date tetap ada upload foto** (kayak reka-rekat), TANPA transfer & TANPA isi nama (auto dari data member).
-6. **Member Hub** di route **`/member`**.
+6. **Member Hub** di route **`/sahabat`**.
 7. **Side quest**: boleh **beberapa challenge aktif** sekaligus.
 8. **Share side quest** → ke **grup WhatsApp komunitas**.
 9. **Foto side quest**: **privat** (cuma buat tracking, nggak dipajang publik).
@@ -99,7 +99,7 @@ Tiap fase = deliverable yang bisa dites sendiri. Backend berubah → **redeploy 
 ## Fase 0/2 — Member Hub: Login + Shell
 **Fondasi portal.** (Bisa barengan/after Fase 1.)
 - [ ] Sheet `members` + endpoint auth (checkWa, setPassword, login, session, logout).
-- [ ] Halaman `/member/` — layar login (WA → password / set password) + auto-login token.
+- [ ] Halaman `/sahabat/` — layar login (WA → password / set password) + auto-login token.
 - [ ] Shell dashboard dengan tab kosong: Loyalty · Event · Rekomendasi · Side Quest.
 - **Tes:** daftar akun baru, login, refresh tetap login, logout, non-member ditolak.
 
