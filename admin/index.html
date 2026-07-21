@@ -3125,6 +3125,7 @@
               <label for="cfgSelect">Pilih Workshop</label>
               <select id="cfgSelect"></select>
             </div>
+            <button class="btn btn-sm btn-ghost" id="cfgNewBtn">＋ Workshop Baru</button>
             <button class="btn btn-sm btn-ghost" id="cfgReloadBtn">🔄 Muat Ulang</button>
           </div>
           <div class="fin-card">
@@ -4169,9 +4170,39 @@
         document.getElementById("cfgSaveBtn").addEventListener("click", saveConfig);
         document.getElementById("cfgDeleteBtn").addEventListener("click", deleteWorkshopConfig);
         document.getElementById("cfgReloadBtn").addEventListener("click", loadConfig);
+        document.getElementById("cfgNewBtn").addEventListener("click", createNewWorkshopConfig);
         await loadConfig();
         configInit = true;
       }
+    }
+
+    // Tambah workshop baru ke config (mis. journaling-date)
+    function createNewWorkshopConfig() {
+      const idRaw = prompt("ID workshop (huruf kecil & strip, mis. 'journaling-date'):");
+      if (!idRaw) return;
+      const id = idRaw.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/(^-|-$)/g, "");
+      if (!id) { alert("ID nggak valid."); return; }
+      const sel = document.getElementById("cfgSelect");
+      const existIdx = CONFIG.findIndex(w => w.id === id);
+      if (existIdx >= 0) { alert("ID '" + id + "' udah ada — dipilih ya."); sel.value = existIdx; renderConfigForm(); return; }
+      const name = prompt("Nama workshop:", "");
+      if (name === null) return;
+      CONFIG.push({
+        id: id,
+        name: (name.trim() || id),
+        description: "",
+        enabled: false, isDisplay: false, isPrintPhoto: false,
+        openDate: "", closeDate: "",
+        normalPrice: 0, earlyBirdPrice: null, earlyBirdDueDate: "",
+        maxQuota: 6,
+        eventDate: "", workshopDate: "", workshopTime: "",
+        locationName: "", mapsLink: "", whatsappGroupLink: "",
+        icon: "heart", path: id + "/index.html"
+      });
+      sel.innerHTML = CONFIG.map((w, i) => `<option value="${i}">${escapeHtml(w.name || w.id)}</option>`).join("");
+      sel.value = CONFIG.length - 1;
+      renderConfigForm();
+      alert("Workshop '" + id + "' ditambahkan. Isi detailnya, lalu klik 💾 Simpan Config ya.");
     }
 
     async function loadConfig() {
