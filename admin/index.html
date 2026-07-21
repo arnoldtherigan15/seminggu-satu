@@ -2960,6 +2960,9 @@
           <button class="nav-btn" data-view="konten">
             <span class="nav-icon">✍️</span> Content
           </button>
+          <button class="nav-btn" data-view="quest">
+            <span class="nav-icon">⚡</span> Side Quest
+          </button>
         </nav>
         <div class="sidebar-footer">
           <button class="btn btn-ghost" id="logoutBtn">Keluar</button>
@@ -3164,6 +3167,40 @@
               atau link luar pakai <code>https://...</code>) — tampil di <b>/links</b>. Item kosong (tanpa judul)
               diabaikan saat simpan.</p>
           </div>
+        </div>
+
+        <!-- ===== VIEW: SIDE QUEST ===== -->
+        <div class="wrap view" id="viewQuest" style="display:none;">
+          <div class="toolbar">
+            <button class="btn btn-sm" id="questNewBtn">＋ Challenge Baru</button>
+            <button class="btn btn-sm btn-ghost" id="questReloadBtn">🔄 Muat Ulang</button>
+          </div>
+          <div class="fin-card">
+            <input type="hidden" id="qId">
+            <div class="konten-field"><label>Judul Challenge</label><input type="text" id="qTitle" placeholder="mis. Spread Film Bioskop"></div>
+            <div class="konten-field"><label>Tema (badge kecil)</label><input type="text" id="qTheme" placeholder="mis. Movie Night 🎬"></div>
+            <div class="konten-field"><label>Deskripsi / instruksi</label><textarea id="qDesc" rows="4" placeholder="mis. Bikin spread tentang film yang baru kamu tonton — wajib ada tiket bioskopnya!"></textarea></div>
+            <div class="konten-field">
+              <label>Gambar contoh (biar member kebayang)</label>
+              <input type="file" id="qImageFile" accept="image/*">
+              <div id="qImagePreview" style="margin-top:8px;"></div>
+              <input type="hidden" id="qImageBase64"><input type="hidden" id="qImageExisting">
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
+              <div class="konten-field" style="flex:1;min-width:110px;"><label>Poin</label><input type="number" id="qPoints" value="10"></div>
+              <label style="display:flex;gap:8px;align-items:center;font-weight:600;padding-bottom:12px;"><input type="checkbox" id="qActive"> Aktif (tampil ke member)</label>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+              <button class="btn" id="qSaveBtn">💾 Simpan Challenge</button>
+              <button class="btn btn-sm" id="qDeleteBtn" style="background:#fee2e2;color:var(--err);display:none;">🗑️ Hapus</button>
+            </div>
+            <div class="msg" id="qMsg"></div>
+          </div>
+          <div style="font-weight:800;margin:18px 0 10px;">Daftar Challenge</div>
+          <div id="questList"></div>
+
+          <div style="font-weight:800;margin:22px 0 10px;">🏆 Leaderboard Side Quest</div>
+          <div id="adminLbList"></div>
         </div>
 
         <!-- ===== VIEW: LEADS / OUTREACH TRACKER ===== -->
@@ -3787,7 +3824,7 @@
       let h = (location.hash || "").replace(/^#/, "");
       if (!h) h = "overview";
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "loyalty", "leads"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "loyalty", "leads", "quest"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1]);
     }
@@ -3805,6 +3842,7 @@
       document.getElementById("viewKonten").style.display = (view === "konten") ? "block" : "none";
       document.getElementById("viewLoyalty").style.display = (view === "loyalty") ? "block" : "none";
       document.getElementById("viewLeads").style.display = (view === "leads") ? "block" : "none";
+      document.getElementById("viewQuest").style.display = (view === "quest") ? "block" : "none";
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") ensureFinanceLoaded();
@@ -3813,6 +3851,7 @@
       if (view === "konten") ensureKontenLoaded();
       if (view === "loyalty") ensureLoyalty();
       if (view === "leads") ensureLeads();
+      if (view === "quest") ensureQuest();
     }
 
     // ---------- KEUANGAN ----------
@@ -4501,6 +4540,158 @@
       } finally {
         btn.disabled = false;
       }
+    }
+
+    // ---------- SIDE QUEST (admin) ----------
+    let questInit = false;
+    let CHALLENGES = [];
+
+    async function ensureQuest() {
+      if (!questInit) {
+        document.getElementById("questNewBtn").addEventListener("click", newChallengeForm);
+        document.getElementById("questReloadBtn").addEventListener("click", () => { loadChallenges(); loadAdminLeaderboard(); });
+        document.getElementById("qSaveBtn").addEventListener("click", saveChallenge);
+        document.getElementById("qDeleteBtn").addEventListener("click", deleteChallenge);
+        document.getElementById("qImageFile").addEventListener("change", onQuestImagePick);
+        questInit = true;
+        await loadChallenges();
+        loadAdminLeaderboard();
+      }
+    }
+
+    async function loadAdminLeaderboard() {
+      const el = document.getElementById("adminLbList");
+      el.innerHTML = skelLines(3);
+      try {
+        const r = await api("getLeaderboard", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
+        const top = (r.leaderboard && r.leaderboard.top) || [];
+        if (!top.length) { el.innerHTML = '<p class="hint">Belum ada yang ngumpulin poin side quest.</p>'; return; }
+        el.innerHTML = top.map(x =>
+          `<div class="loy-card"><div class="loy-top">
+             <div><div class="loy-name">#${x.rank} ${escapeHtml(x.nickname)}</div>
+             <div class="loy-wa">${x.quests} challenge selesai</div></div>
+             <div class="loy-count">${x.poin} poin</div>
+           </div></div>`
+        ).join("");
+      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+    }
+
+    function qCompress(file, maxSize, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const c = document.createElement("canvas");
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
+            else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+            c.width = w; c.height = h;
+            c.getContext("2d").drawImage(img, 0, 0, w, h);
+            resolve(c.toDataURL("image/jpeg", quality));
+          };
+          img.onerror = reject; img.src = ev.target.result;
+        };
+        reader.onerror = reject; reader.readAsDataURL(file);
+      });
+    }
+
+    async function onQuestImagePick(e) {
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 5 * 1024 * 1024) { alert("Ukuran gambar maks 5MB ya."); e.target.value = ""; return; }
+      try {
+        const dataUrl = await qCompress(f, 1400, 0.82);
+        document.getElementById("qImageBase64").value = dataUrl.split(",")[1];
+        document.getElementById("qImagePreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:320px;border-radius:12px;">';
+      } catch (err) { alert("Gagal memproses gambar."); }
+    }
+
+    async function loadChallenges() {
+      const list = document.getElementById("questList");
+      list.innerHTML = skelLines(3);
+      try {
+        const r = await api("getChallenges", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
+        CHALLENGES = r.challenges || [];
+        renderQuestList();
+      } catch (e) { list.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+    }
+
+    function renderQuestList() {
+      const list = document.getElementById("questList");
+      if (!CHALLENGES.length) { list.innerHTML = '<p class="hint">Belum ada challenge. Klik "＋ Challenge Baru".</p>'; return; }
+      list.innerHTML = CHALLENGES.map((c, i) =>
+        `<div class="konten-item" style="cursor:pointer;" data-idx="${i}">
+           <div class="konten-item-head">
+             <span class="k-num">${escapeHtml(c.title || "(tanpa judul)")} ${c.active ? '<span class="loy-badge">AKTIF</span>' : '<span class="loy-note-badge">draft</span>'}</span>
+           </div>
+           <div style="display:flex;gap:12px;align-items:center;">
+             ${c.image ? `<img src="${escapeHtml(c.image)}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;flex-shrink:0;">` : ""}
+             <div style="min-width:0;"><div style="font-weight:600;font-size:13px;">${escapeHtml(c.theme || "")}</div>
+             <div class="hint" style="margin:0;">${escapeHtml((c.description || "").slice(0, 90))}</div></div>
+           </div>
+         </div>`
+      ).join("");
+      list.querySelectorAll(".konten-item").forEach(el => el.addEventListener("click", () => editChallenge(Number(el.dataset.idx))));
+    }
+
+    function fillQuestForm(c) {
+      document.getElementById("qId").value = c.id || "";
+      document.getElementById("qTitle").value = c.title || "";
+      document.getElementById("qTheme").value = c.theme || "";
+      document.getElementById("qDesc").value = c.description || "";
+      document.getElementById("qPoints").value = c.points || 10;
+      document.getElementById("qActive").checked = !!c.active;
+      document.getElementById("qImageBase64").value = "";
+      document.getElementById("qImageExisting").value = c.image || "";
+      document.getElementById("qImageFile").value = "";
+      document.getElementById("qImagePreview").innerHTML = c.image ? '<img src="' + escapeHtml(c.image) + '" style="width:100%;max-width:320px;border-radius:12px;">' : "";
+      document.getElementById("qDeleteBtn").style.display = c.id ? "inline-flex" : "none";
+      document.getElementById("qMsg").textContent = "";
+    }
+
+    function editChallenge(idx) { const c = CHALLENGES[idx]; if (c) { fillQuestForm(c); window.scrollTo(0, 0); } }
+    function newChallengeForm() { fillQuestForm({ points: 10, active: true }); window.scrollTo(0, 0); }
+
+    async function saveChallenge() {
+      const btn = document.getElementById("qSaveBtn");
+      const msg = document.getElementById("qMsg");
+      const title = document.getElementById("qTitle").value.trim();
+      if (!title) { msg.className = "msg err"; msg.textContent = "Judul wajib diisi."; return; }
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      try {
+        const r = await api("saveChallenge", {
+          token: getToken(),
+          id: document.getElementById("qId").value,
+          title: title,
+          theme: document.getElementById("qTheme").value,
+          description: document.getElementById("qDesc").value,
+          points: document.getElementById("qPoints").value,
+          active: document.getElementById("qActive").checked,
+          imageBase64: document.getElementById("qImageBase64").value || "",
+          image: document.getElementById("qImageExisting").value || ""
+        });
+        if (r.status === "success") {
+          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+          await loadChallenges();
+          newChallengeForm();
+        } else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan."; }
+      } catch (e) { msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server."; }
+      finally { btn.disabled = false; }
+    }
+
+    async function deleteChallenge() {
+      const id = document.getElementById("qId").value;
+      if (!id) return;
+      if (!confirm("Hapus challenge ini? Submission peserta tetap tersimpan.")) return;
+      const msg = document.getElementById("qMsg");
+      msg.className = "msg"; msg.textContent = "Menghapus...";
+      try {
+        const r = await api("deleteChallenge", { token: getToken(), id });
+        if (r.status === "success") { await loadChallenges(); newChallengeForm(); }
+        else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Gagal hapus."; }
+      } catch (e) { msg.className = "msg err"; msg.textContent = "Gagal terhubung."; }
     }
 
     // ---------- LEADS / OUTREACH TRACKER ----------
@@ -5502,8 +5693,9 @@
         <div class="rs-title">${escapeHtml(name)}</div>
         <div class="rs-hero"><b>${m.count}</b><span>Kali kumpul bareng kita</span></div>
         <div class="rs-stamps">${stampStr}${more}</div>
-        <div class="rs-grid">
+        <div class="rs-grid" style="grid-template-columns:repeat(3,1fr);">
           <div class="rs-stat"><b>${since || "🌱"}</b><span>Sahabat sejak</span></div>
+          <div class="rs-stat"><b>${m.questCount || 0}</b><span>⚡ Quest</span></div>
           <div class="rs-stat"><b>${m.claimed}</b><span>🎁 Hadiah</span></div>
         </div>
         <div class="rs-spot hi"><div class="rs-emoji">🎖️</div><div>

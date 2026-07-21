@@ -71,6 +71,7 @@ window.addEventListener("workshops:updated", applyConfig);
 // ---------- Slot / kuota ----------
 async function refreshSlot() {
     const el = document.getElementById("jdSlotText");
+    const sub = document.getElementById("submitBtn");
     try {
         const counts = await fetchJSONP(GOOGLE_SCRIPT_URL, "cnt", 10000);
         const w = (typeof getWorkshopById === "function") ? getWorkshopById(ID) : null;
@@ -79,13 +80,15 @@ async function refreshSlot() {
         const left = Math.max(0, max - used);
         if (left <= 0) {
             el.textContent = "Slot penuh 😢";
-            const btn = document.getElementById("submitBtn");
-            btn.disabled = true; btn.innerHTML = "Slot Penuh";
+            sub.disabled = true; sub.innerHTML = "Slot Penuh";
         } else {
             el.textContent = "Sisa " + left + " dari " + max + " slot";
+            sub.disabled = false;
         }
     } catch (e) {
+        // Gagal cek: fail-open (server tetap validasi ulang saat submit)
         el.textContent = "Slot terbatas (" + MAX_SLOT + " orang)";
+        sub.disabled = false;
     }
 }
 
@@ -110,8 +113,11 @@ async function checkMember() {
             document.getElementById("gateSection").style.display = "none";
             document.getElementById("formSection").style.display = "block";
             document.getElementById("greetName").textContent = "Hai, " + _member.nickname + "! 👋";
+            document.getElementById("submitBtn").disabled = true; // kunci sampai tiket dicek
             applyConfig();
-            refreshSlot();
+            // Cek tiket dengan blocker biar user nggak submit duluan
+            showBlocker("Mengecek tiket…");
+            await refreshSlot();
         } else {
             msg.className = "jd-msg err";
             msg.innerHTML = "Nomor ini belum terdaftar sebagai member 🌱<br>Journaling Date khusus alumni event. Yuk ikut salah satu event kami dulu!";
@@ -195,6 +201,7 @@ document.getElementById("jdForm").addEventListener("submit", async (e) => {
         const result = await res.json();
         if (result.status === "success") {
             const params = new URLSearchParams({ name: _member.nickname, whatsapp: _member.wa, workshop: ID });
+            if (new URLSearchParams(location.search).get("from") === "member") params.set("from", "member");
             window.location.href = "../success.html?" + params.toString();
         } else {
             throw new Error(result.message || "Terjadi kesalahan.");
@@ -212,5 +219,14 @@ document.getElementById("jdForm").addEventListener("submit", async (e) => {
         hideBlocker();
     }
 });
+
+// Datang dari portal member (udah login) -> WA dibawa lewat ?wa= -> auto cek, nggak input ulang
+(function () {
+    var wa = new URLSearchParams(location.search).get("wa");
+    if (wa) {
+        document.getElementById("waInput").value = wa;
+        checkMember();
+    }
+})();
 
 if (window.lucide) lucide.createIcons();

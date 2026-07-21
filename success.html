@@ -632,7 +632,7 @@
         <!-- Header -->
         <header class="hero">
             <div class="brand">
-                <a href="index.html" style="text-decoration:none;">
+                <a href="index.html" id="brandLink" style="text-decoration:none;">
                     <img src="logo_seminggu.png" alt="Seminggu Satu" class="brand-logo">
                     <p>by Arnold</p>
                 </a>
@@ -740,9 +740,9 @@
                     <i data-lucide="calendar-plus"></i>
                     Tambah ke Kalender
                 </button>
-                <a href="index.html" class="share-btn btn-download">
+                <a href="index.html" id="homeBtn" class="share-btn btn-download">
                     <i data-lucide="home"></i>
-                    Kembali ke Beranda
+                    <span id="homeBtnText">Kembali ke Beranda</span>
                 </a>
             </div>
         </div>
@@ -762,6 +762,13 @@
         const name = p.get('name') || 'Peserta';
         const workshopId = p.get('workshop') || 'paper-journal';
         const wsData = getWorkshopById(workshopId) || {};
+
+        // Entry point member: logo & tombol balik ke /member (bukan home publik)
+        if (p.get('from') === 'member') {
+            const bl = document.getElementById('brandLink'); if (bl) bl.href = 'member/';
+            const hb = document.getElementById('homeBtn'); if (hb) hb.href = 'member/';
+            const ht = document.getElementById('homeBtnText'); if (ht) ht.textContent = 'Kembali ke Member Hub';
+        }
 
         // Upcycle Specific
         const bodyBagId = p.get('bodyBagId');
@@ -877,7 +884,7 @@
             }
             swatchData.push({ label: 'Tali', name: colorStrap, hex: colorStrapHex });
 
-        } else if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling' || workshopId === 'reka-rekat') {
+        } else if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling' || workshopId === 'reka-rekat' || workshopId === 'journaling-date') {
             document.getElementById('colorSection').style.display = 'none';
             document.querySelector('.journal-preview-container').style.display = 'none';
         } else if (workshopId === 'bookmark-journal' || workshopId === 'bookmark-journal-sheraton') {

@@ -24,12 +24,13 @@
         .jd-info-row i { width: 18px; height: 18px; flex-shrink: 0; color: var(--primary-color); }
         .jd-info-row a { color: var(--text-secondary); }
 
+        .jd-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 1.1rem; }
         .jd-slot-badge {
             display: inline-flex; align-items: center; gap: 6px;
-            background: #fef9c3; color: #854d0e; font-weight: 700; font-size: 0.88rem;
-            padding: 7px 15px; border-radius: 999px; margin-top: 0.5rem;
+            background: #fef9c3; color: #854d0e; font-weight: 700; font-size: 0.82rem;
+            padding: 6px 12px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;
         }
-        .jd-slot-badge i { width: 16px; height: 16px; }
+        .jd-slot-badge i { width: 15px; height: 15px; }
 
         .jd-msg { font-size: 0.88rem; margin-top: 0.9rem; line-height: 1.5; }
         .jd-msg.err { color: #dc2626; }
@@ -81,15 +82,17 @@
 
         <!-- FORM: setelah lolos gate -->
         <section class="registration-form-section" id="formSection" style="display:none;">
-            <div class="section-header">
-                <h3 id="greetName">Hai! 👋</h3>
-                <p>Amankan tempatmu di sesi journaling intim ini.</p>
+            <div class="jd-head">
+                <div class="section-header" style="margin-bottom:0;">
+                    <h3 id="greetName">Hai! 👋</h3>
+                    <p>Amankan tempatmu di sesi journaling intim ini.</p>
+                </div>
+                <span class="jd-slot-badge" id="jdSlot"><i data-lucide="users"></i> <span id="jdSlotText">Cek tiket…</span></span>
             </div>
 
             <div class="jd-info-row"><i data-lucide="calendar"></i><span id="jdDate">-</span></div>
             <div class="jd-info-row"><i data-lucide="clock"></i><span id="jdTime">-</span></div>
             <div class="jd-info-row"><i data-lucide="map-pin"></i><a id="jdLoc" href="#" target="_blank">-</a></div>
-            <div><span class="jd-slot-badge" id="jdSlot"><i data-lucide="users"></i> <span id="jdSlotText">Cek slot…</span></span></div>
 
             <form id="jdForm" style="margin-top:1.5rem;">
                 <div class="form-group">

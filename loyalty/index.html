@@ -956,8 +956,9 @@
                 '<div class="rs-title">' + esc(name) + '</div>' +
                 '<div class="rs-hero"><b>' + d.count + '</b><span>Kali kumpul bareng kita</span></div>' +
                 '<div class="rs-stamps">' + stampStr + more + '</div>' +
-                '<div class="rs-grid">' +
+                '<div class="rs-grid" style="grid-template-columns:repeat(3,1fr);">' +
                 '<div class="rs-stat"><b>' + (since || "🌱") + '</b><span>Sahabat sejak</span></div>' +
+                '<div class="rs-stat"><b>' + (d.questCount || 0) + '</b><span>⚡ Quest</span></div>' +
                 '<div class="rs-stat"><b>' + (d.claimed || 0) + '</b><span>🎁 Hadiah</span></div>' +
                 '</div>' +
                 '<div class="rs-spot hi"><div class="rs-emoji">🎖️</div><div>' +
