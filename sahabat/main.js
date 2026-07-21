@@ -3,6 +3,7 @@
 // ============================================================
 const GS = (typeof GOOGLE_SCRIPT_URL !== "undefined") ? GOOGLE_SCRIPT_URL : "";
 const TOKEN_KEY = "ss_member_token";
+const QUEST_WA_GROUP = "https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?s=cl&p=i&ilr=0&amv=0"; // grup WA buat kirim spread challenge
 let _wa = "";        // wa (normalized) yang lagi diproses
 let _profile = null; // { token, nickname, birthDate, wa }
 let _loyaltyLoaded = false;
@@ -346,6 +347,8 @@ async function loadQuests() {
         pane.innerHTML = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada challenge</h3><p>Pantau terus ya, side quest baru bakal muncul di sini! 🌱</p></div>';
         return;
     }
+    // Yang BELUM diikuti tampil di atas, yang udah selesai ke bawah
+    challenges.sort((a, b) => (submitted.indexOf(a.id) >= 0 ? 1 : 0) - (submitted.indexOf(b.id) >= 0 ? 1 : 0));
     let html = '<div class="section-lbl">Challenge yang lagi jalan ⚡</div>';
     challenges.forEach(q => {
         const done = submitted.indexOf(q.id) >= 0;
@@ -398,24 +401,14 @@ function startQuestSubmit(card) {
         try {
             const r = await apiPost({ action: "memberSubmitQuest", token: _profile.token, challengeId: card.dataset.id, photoBase64: b64 });
             if (r.status === "success") {
-                action.innerHTML = '<div class="ev-done">✅ Challenge kekirim! Makasih ya 🎉</div>' +
-                    '<button class="btn-primary quest-share" style="margin-top:8px;">📲 Share ke grup WA</button>';
-                action.querySelector(".quest-share").addEventListener("click", () => shareQuestImage(b64));
+                action.innerHTML = '<div class="ev-done">✅ Challenge kekirim! 🎉</div>' +
+                    '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Kirim fotomu ke Grup WA</a>' +
+                    '<p style="font-size:0.8rem;color:var(--muted);text-align:center;margin-top:6px;">Grup kebuka otomatis — tinggal kirim fotonya ya 💙</p>';
+                // Buka grup WA otomatis biar tinggal kirim
+                try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) {}
             } else { send.disabled = false; send.textContent = "Kirim Challenge 🎉"; alert(r.message || "Gagal kirim."); }
         } catch (e) { send.disabled = false; send.textContent = "Kirim Challenge 🎉"; alert("Gagal terhubung ke server."); }
     });
-}
-
-async function shareQuestImage(b64) {
-    try {
-        const blob = await (await fetch("data:image/jpeg;base64," + b64)).blob();
-        const f = new File([blob], "spread-journal.jpg", { type: "image/jpeg" });
-        if (navigator.canShare && navigator.canShare({ files: [f] })) {
-            await navigator.share({ files: [f], text: "Spread challenge journaling-ku bareng Seminggu Satu! 💙 #SemingguSatu" });
-        } else {
-            alert("Yuk share foto spread-mu ke grup WA komunitas ya! 💙 (Buka WhatsApp → grup → kirim foto)");
-        }
-    } catch (e) { if (e && e.name === "AbortError") return; alert("Gagal share, coba lagi ya."); }
 }
 
 // ---------- Leaderboard pane ----------
