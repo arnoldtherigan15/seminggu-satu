@@ -3218,10 +3218,21 @@
           <div id="memStats" class="loyalty-stats" style="margin-bottom:6px;"></div>
           <div style="font-weight:800;margin:18px 0 10px;" id="memBdayTitle">🎂 Ultah bulan ini</div>
           <div id="memBirthdays"></div>
-          <div style="font-weight:800;margin:22px 0 10px;">✅ Member aktif <span class="hint" style="font-weight:400;">(udah daftar /sahabat)</span></div>
-          <div id="memActive"></div>
-          <div style="font-weight:800;margin:22px 0 10px;">⏳ Belum aktif <span class="hint" style="font-weight:400;">(pernah ikut event, belum daftar /sahabat)</span></div>
-          <div id="memInactive"></div>
+          <div style="height:14px;"></div>
+          <div class="acc" id="accActive">
+            <button class="acc-head" type="button">
+              <span class="acc-title">✅ Member aktif <span class="acc-count" id="memActiveCount">0</span></span>
+              <span class="acc-chevron">▸</span>
+            </button>
+            <div class="acc-body"><div id="memActive"></div></div>
+          </div>
+          <div class="acc" id="accInactive">
+            <button class="acc-head" type="button">
+              <span class="acc-title">⏳ Belum aktif <span class="acc-count" id="memInactiveCount">0</span></span>
+              <span class="acc-chevron">▸</span>
+            </button>
+            <div class="acc-body"><div id="memInactive"></div></div>
+          </div>
         </div>
 
         <!-- ===== VIEW: NOTIFIKASI / AKTIVITAS ===== -->
@@ -4581,6 +4592,10 @@
     async function ensureMembers() {
       if (!membersInit) {
         document.getElementById("memReloadBtn").addEventListener("click", loadMembers);
+        ["accActive", "accInactive"].forEach(id => {
+          const acc = document.getElementById(id);
+          acc.querySelector(".acc-head").addEventListener("click", () => acc.classList.toggle("open"));
+        });
         membersInit = true;
       }
       loadMembers();
@@ -4623,10 +4638,12 @@
         act.innerHTML = r.accounts.length
           ? r.accounts.map(a => memRow(a.nickname, (a.birthDate ? "🎂 " + a.birthDate + " · " : "") + "login terakhir: " + (a.lastLogin || "-"), a.wa, "Chat", "chat")).join("")
           : '<p class="hint">Belum ada yang daftar /sahabat.</p>';
+        document.getElementById("memActiveCount").textContent = r.accounts.length;
 
         inact.innerHTML = r.notRegistered.length
           ? r.notRegistered.map(m => memRow(m.nickname, m.count + " event · belum daftar /sahabat", m.wa, "Ajak daftar", "nudge")).join("")
           : '<p class="hint">Semua member udah daftar 🎉</p>';
+        document.getElementById("memInactiveCount").textContent = r.notRegistered.length;
 
         document.querySelectorAll(".mem-wa").forEach(b => b.addEventListener("click", () => {
           const num = waNormalize(b.dataset.memwa);
