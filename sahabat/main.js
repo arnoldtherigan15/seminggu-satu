@@ -716,18 +716,12 @@ function initJournalTrackerListeners(wa) {
 
 // ---------- Birthday Surprise ----------
 // Voucher = umur% (mis. 27 th -> 27%), tampil sepanjang BULAN ulang tahun.
-// ⚠️ TESTING: paksa voucher ultah selalu muncul. Balikin ke false kalau udah selesai tes.
-const TEST_BIRTHDAY = true;
 function birthdayInfo() {
     const bd = _profile && _profile.birthDate ? String(_profile.birthDate) : "";
     const m = bd.match(/(\d{4})-(\d{2})-(\d{2})/);
-    const now = new Date();
-    if (TEST_BIRTHDAY) {
-        const age = m ? (now.getFullYear() - parseInt(m[1], 10)) : 27;
-        return { age: (age > 0 && age <= 120) ? age : 27 };
-    }
     if (!m) return null;
-    if ((now.getMonth() + 1) !== parseInt(m[2], 10)) return null; // bukan bulan ultah
+    const now = new Date();
+    if ((now.getMonth() + 1) !== parseInt(m[2], 10)) return null; // cuma tampil pas bulan ultah
     const age = now.getFullYear() - parseInt(m[1], 10);
     if (age <= 0 || age > 120) return null;
     return { age: age };

@@ -2942,6 +2942,9 @@
           <button class="nav-btn" data-view="activity">
             <span class="nav-icon">🔔</span> Notifikasi
           </button>
+          <button class="nav-btn" data-view="members">
+            <span class="nav-icon">👥</span> Member
+          </button>
           <button class="nav-btn" data-view="prep">
             <span class="nav-icon">⚙️</span> Prep
           </button>
@@ -3204,6 +3207,21 @@
 
           <div style="font-weight:800;margin:22px 0 10px;">🏆 Leaderboard Side Quest</div>
           <div id="adminLbList"></div>
+        </div>
+
+        <!-- ===== VIEW: MEMBER (akun /sahabat, ultah, aktif) ===== -->
+        <div class="wrap view" id="viewMembers" style="display:none;">
+          <div class="toolbar">
+            <div style="font-weight:800;font-size:16px;">👥 Member Hub</div>
+            <button class="btn btn-sm btn-ghost" id="memReloadBtn">🔄 Muat Ulang</button>
+          </div>
+          <div id="memStats" class="loyalty-stats" style="margin-bottom:6px;"></div>
+          <div style="font-weight:800;margin:18px 0 10px;" id="memBdayTitle">🎂 Ultah bulan ini</div>
+          <div id="memBirthdays"></div>
+          <div style="font-weight:800;margin:22px 0 10px;">✅ Member aktif <span class="hint" style="font-weight:400;">(udah daftar /sahabat)</span></div>
+          <div id="memActive"></div>
+          <div style="font-weight:800;margin:22px 0 10px;">⏳ Belum aktif <span class="hint" style="font-weight:400;">(pernah ikut event, belum daftar /sahabat)</span></div>
+          <div id="memInactive"></div>
         </div>
 
         <!-- ===== VIEW: NOTIFIKASI / AKTIVITAS ===== -->
@@ -3836,7 +3854,7 @@
       let h = (location.hash || "").replace(/^#/, "");
       if (!h) h = "overview";
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "loyalty", "leads", "quest", "activity"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "loyalty", "leads", "quest", "activity", "members"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1]);
     }
@@ -3856,6 +3874,7 @@
       document.getElementById("viewLeads").style.display = (view === "leads") ? "block" : "none";
       document.getElementById("viewQuest").style.display = (view === "quest") ? "block" : "none";
       document.getElementById("viewActivity").style.display = (view === "activity") ? "block" : "none";
+      document.getElementById("viewMembers").style.display = (view === "members") ? "block" : "none";
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") ensureFinanceLoaded();
@@ -3866,6 +3885,7 @@
       if (view === "leads") ensureLeads();
       if (view === "quest") ensureQuest();
       if (view === "activity") ensureActivity();
+      if (view === "members") ensureMembers();
     }
 
     // ---------- KEUANGAN ----------
@@ -4554,6 +4574,67 @@
       } finally {
         btn.disabled = false;
       }
+    }
+
+    // ---------- MEMBER (akun /sahabat, ultah, aktif) ----------
+    let membersInit = false;
+    async function ensureMembers() {
+      if (!membersInit) {
+        document.getElementById("memReloadBtn").addEventListener("click", loadMembers);
+        membersInit = true;
+      }
+      loadMembers();
+    }
+
+    function memRow(nickname, sub, wa, btnLabel, type) {
+      return `<div class="loy-card"><div class="loy-top">
+        <div style="min-width:0;"><div class="loy-name">${escapeHtml(nickname || "(tanpa nama)")}</div>
+        <div class="loy-wa">${escapeHtml(sub || "")}</div></div>
+        ${wa ? `<button class="mem-wa loy-send" data-memwa="${escapeHtml(wa)}" data-memname="${escapeHtml(nickname || "")}" data-memtype="${type}">${btnLabel}</button>` : ""}
+      </div></div>`;
+    }
+
+    function memWaMsg(type, nm) {
+      const base = "https://seminggusatu.com/sahabat";
+      if (type === "bday") return "Hai " + nm + "! 🎂✨ Selamat ulang tahun yaa dari keluarga Seminggu Satu 💙 Semoga makin kreatif & bahagia! Ada kejutan voucher ultah buat kamu di Member Hub: " + base;
+      if (type === "nudge") return "Hai " + nm + "! 👋 Kamu sekarang bisa akses *Member Hub* Seminggu Satu — cek loyalty, event, side quest & kejutan ultah kamu di sini ya: " + base + " 💙";
+      return "Hai " + nm + "! 👋";
+    }
+
+    async function loadMembers() {
+      const stats = document.getElementById("memStats");
+      const bd = document.getElementById("memBirthdays");
+      const act = document.getElementById("memActive");
+      const inact = document.getElementById("memInactive");
+      bd.innerHTML = skelLines(2); act.innerHTML = skelLines(3); inact.innerHTML = "";
+      try {
+        const r = await api("getMembers", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); return; }
+        stats.innerHTML =
+          `<div class="stat"><div class="stat-n">${r.totalAccounts}</div><div class="stat-l">Aktif</div></div>` +
+          `<div class="stat"><div class="stat-n">${r.notRegistered.length}</div><div class="stat-l">Belum daftar</div></div>` +
+          `<div class="stat"><div class="stat-n">${r.birthdays.length}</div><div class="stat-l">🎂 Ultah ${escapeHtml(r.monthName)}</div></div>`;
+        document.getElementById("memBdayTitle").textContent = "🎂 Ultah bulan " + r.monthName;
+
+        bd.innerHTML = r.birthdays.length
+          ? r.birthdays.map(b => memRow(b.nickname, "🎂 " + b.day + " " + r.monthName, b.wa, "Ucapin 🎉", "bday")).join("")
+          : '<p class="hint">Nggak ada yang ultah bulan ini.</p>';
+
+        act.innerHTML = r.accounts.length
+          ? r.accounts.map(a => memRow(a.nickname, (a.birthDate ? "🎂 " + a.birthDate + " · " : "") + "login terakhir: " + (a.lastLogin || "-"), a.wa, "Chat", "chat")).join("")
+          : '<p class="hint">Belum ada yang daftar /sahabat.</p>';
+
+        inact.innerHTML = r.notRegistered.length
+          ? r.notRegistered.map(m => memRow(m.nickname, m.count + " event · belum daftar /sahabat", m.wa, "Ajak daftar", "nudge")).join("")
+          : '<p class="hint">Semua member udah daftar 🎉</p>';
+
+        document.querySelectorAll(".mem-wa").forEach(b => b.addEventListener("click", () => {
+          const num = waNormalize(b.dataset.memwa);
+          if (!num) { alert("Nomor WA nggak valid."); return; }
+          const nm = (String(b.dataset.memname || "").trim().split(/\s+/)[0]) || "kak";
+          window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(memWaMsg(b.dataset.memtype, nm)), "_blank");
+        }));
+      } catch (e) { bd.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
     }
 
     // ---------- NOTIFIKASI / AKTIVITAS (admin) ----------
