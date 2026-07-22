@@ -134,7 +134,7 @@ function fireConfetti(preset) {
 }
 
 function onAuthSuccess(r) {
-    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa };
+    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}" };
     try { localStorage.setItem(TOKEN_KEY, r.token); } catch (e) {}
     showDashboard();
     fireConfetti("login");
@@ -155,6 +155,7 @@ function showAuth() {
     hideBoot();
     $("dashView").style.display = "none";
     $("authView").style.display = "block";
+    const mw = $("mochiWidget"); if (mw) mw.classList.remove("show");
 }
 
 function showDashboard() {
@@ -162,6 +163,7 @@ function showDashboard() {
     $("authView").style.display = "none";
     $("dashView").style.display = "block";
     $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
+    const mw = $("mochiWidget"); if (mw) mw.classList.add("show");
     // Ikutin tab dari hash (biar refresh nggak balik ke tab pertama)
     activateTab((location.hash || "").replace("#", "") || "loyalty");
 }
@@ -344,23 +346,37 @@ async function loadQuests() {
     }
     // Yang BELUM diikuti tampil di atas, yang udah selesai ke bawah
     challenges.sort((a, b) => (submitted.indexOf(a.id) >= 0 ? 1 : 0) - (submitted.indexOf(b.id) >= 0 ? 1 : 0));
-    let html = '<div class="section-lbl">Challenge yang lagi jalan ⚡</div>';
+    let html = '<div class="section-lbl">🎯 Quest Board — selesaikan & kumpulin poin!</div>';
     challenges.forEach(q => {
         const done = submitted.indexOf(q.id) >= 0;
-        const img = q.image ? (/^https?:\/\//.test(q.image) ? q.image : "../" + q.image) : "";
-        html += '<div class="quest" data-id="' + esc(q.id) + '">' +
-            (img ? '<img class="quest-img" src="' + esc(img) + '" alt="" loading="lazy">' : '') +
-            '<div class="quest-body">' +
-            (q.theme ? '<span class="quest-theme">' + esc(q.theme) + '</span>' : '') +
-            '<div class="quest-title">' + esc(q.title) + '</div>' +
-            (q.description ? '<div class="quest-desc">' + esc(q.description) + '</div>' : '') +
-            '<div class="quest-action">' +
-            (done ? '<div class="ev-done">✅ Kamu udah ikut challenge ini</div>'
-                : '<button class="btn-primary quest-join">Ikut Challenge →</button>') +
-            '</div></div></div>';
+        const img = q.image ? (/^https?:\/\//.test(q.image) ? q.image : "../" + q.image) : "../images/mochi_maskot_sm.png";
+        const points = (q.points && q.points > 0) ? q.points : 50;
+        html +=
+            '<div class="quest-game-card' + (done ? ' is-done' : '') + '" data-id="' + esc(q.id) + '">' +
+                '<div class="quest-banner-wrap">' +
+                    '<img class="quest-banner-img" src="' + esc(img) + '" alt="" loading="lazy">' +
+                    '<span class="quest-status-pill ' + (done ? 'done' : 'active') + '">' + (done ? '✓ CLEARED' : '⚡ QUEST OPEN') + '</span>' +
+                '</div>' +
+                '<div class="quest-content">' +
+                    '<div class="quest-meta-tags">' +
+                        (q.theme ? '<span class="q-tag theme">🎨 ' + esc(q.theme) + '</span>' : '') +
+                        '<span class="q-tag exp">🪙 +' + points + ' EXP</span>' +
+                    '</div>' +
+                    '<div class="quest-game-title">' + esc(q.title) + '</div>' +
+                    (q.description ? '<div class="quest-game-desc">' + esc(q.description) + '</div>' : '') +
+                    '<div class="quest-objective-box">' +
+                        '<div class="q-obj-header">Mission Objective</div>' +
+                        '<div class="q-obj-text"><span>📖</span> Bikin spread sesuai tema, terus kirim buktinya ke Grup WA.</div>' +
+                    '</div>' +
+                    '<div class="quest-action">' +
+                    (done ? '<div class="ev-done">🎉 QUEST COMPLETED! Poin udah masuk.</div>'
+                        : '<button class="btn-quest-start quest-join">⚔️ Ambil Quest & Kirim Spread →</button>') +
+                    '</div>' +
+                '</div>' +
+            '</div>';
     });
     pane.innerHTML = html;
-    pane.querySelectorAll(".quest").forEach(card => {
+    pane.querySelectorAll(".quest-game-card").forEach(card => {
         const btn = card.querySelector(".quest-join");
         if (btn) btn.addEventListener("click", () => submitQuest(card));
     });
@@ -368,14 +384,16 @@ async function loadQuests() {
 
 // Submit challenge = 1 tap (tanpa upload foto). Foto dikirim member sendiri ke grup WA.
 async function submitQuest(card) {
-    const qt = card.querySelector(".quest-title") ? card.querySelector(".quest-title").textContent.trim() : "";
-    if (!confirm("Ikut challenge" + (qt ? ' "' + qt + '"' : "") + "?\nHabis ini kirim foto spread-mu di grup WA ya 💙")) return;
+    const titleEl = card.querySelector(".quest-game-title") || card.querySelector(".quest-title");
+    const qt = titleEl ? titleEl.textContent.trim() : "";
+    if (!confirm("Ambil quest" + (qt ? ' "' + qt + '"' : "") + "?\nHabis ini kirim foto spread-mu di grup WA ya 💙")) return;
     const action = card.querySelector(".quest-action");
     const btn = card.querySelector(".quest-join");
+    const origLabel = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Mengirim…"; }
     try {
         const r = await apiPost({ action: "memberSubmitQuest", token: _profile.token, challengeId: card.dataset.id });
-        if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = "Ikut Challenge →"; } alert(r.message || "Gagal."); return; }
+        if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = origLabel; } alert(r.message || "Gagal."); return; }
         fireConfetti("quest");
         const caption = "Halo semuaa! 🎉 Ini spread challenge" + (qt ? ' "' + qt + '"' : "") + " journaling-ku ✨ #SemingguSatu";
         action.innerHTML =
@@ -391,7 +409,7 @@ async function submitQuest(card) {
         });
         try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; } catch (e) {}
         try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) {}
-    } catch (e) { if (btn) { btn.disabled = false; btn.textContent = "Ikut Challenge →"; } alert("Gagal terhubung ke server."); }
+    } catch (e) { if (btn) { btn.disabled = false; btn.textContent = origLabel; } alert("Gagal terhubung ke server."); }
 }
 
 // ---------- Leaderboard pane ----------
@@ -576,20 +594,14 @@ function getMonthWeekObj(d) {
     };
 }
 
+// Tracker disimpan di server (sheet members, per WA) -> ngikut lintas device/browser.
+// Data records ada di _profile.journalRecords (dikirim server saat login/session).
 function getJournalTrackerData(wa) {
-    const key = "ss_journal_tracker_" + (wa || "default");
     try {
-        const raw = localStorage.getItem(key);
-        if (raw) return JSON.parse(raw);
-    } catch (e) {}
-    return { records: {} };
-}
-
-function saveJournalTrackerData(wa, data) {
-    const key = "ss_journal_tracker_" + (wa || "default");
-    try {
-        localStorage.setItem(key, JSON.stringify(data));
-    } catch (e) {}
+        const raw = (_profile && _profile.journalRecords) ? _profile.journalRecords : "{}";
+        const parsed = JSON.parse(raw);
+        return { records: (parsed && typeof parsed === "object") ? parsed : {} };
+    } catch (e) { return { records: {} }; }
 }
 
 function calculateJournalStreak(records) {
@@ -693,24 +705,28 @@ function initJournalTrackerListeners(wa) {
     const btn = $("jtCheckInBtn");
     if (!btn) return;
 
-    btn.addEventListener("click", () => {
-        const note = prompt("Udah journaling minggu ini? 📖✨\nTulis tema / judul spread-mu minggu ini (opsional):") || "";
-        const data = getJournalTrackerData(wa);
+    btn.addEventListener("click", async () => {
+        const note = prompt("Udah journaling minggu ini? 📖✨\nTulis tema / judul spread-mu minggu ini (opsional):");
+        if (note === null) return; // batal
         const currMonthWeek = getMonthWeekObj(new Date());
-        
-        if (!data.records) data.records = {};
-        data.records[currMonthWeek.key] = {
-            timestamp: Date.now(),
-            note: note.trim()
-        };
-        saveJournalTrackerData(wa, data);
-
-        fireConfetti("quest");
-
-        const widget = $("journalTrackerWidget");
-        if (widget) {
-            widget.outerHTML = renderJournalTrackerHtml(wa);
-            initJournalTrackerListeners(wa);
+        btn.disabled = true; btn.textContent = "Menyimpan…";
+        try {
+            const r = await apiPost({ action: "memberCheckin", token: _profile.token, weekKey: currMonthWeek.key, note: note.trim() });
+            if (r.status === "success") {
+                _profile.journalRecords = r.journalRecords || _profile.journalRecords; // sinkron dari server
+                fireConfetti("quest");
+                const widget = $("journalTrackerWidget");
+                if (widget) {
+                    widget.outerHTML = renderJournalTrackerHtml(wa);
+                    initJournalTrackerListeners(wa);
+                }
+            } else {
+                btn.disabled = false; btn.textContent = "✍️ Absen Journaling Minggu Ini (+1 Streak)";
+                alert(r.message || "Gagal menyimpan absen.");
+            }
+        } catch (e) {
+            btn.disabled = false; btn.textContent = "✍️ Absen Journaling Minggu Ini (+1 Streak)";
+            alert("Gagal terhubung ke server. Coba lagi ya.");
         }
     });
 }
@@ -1134,4 +1150,65 @@ async function loadLoyalty() {
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
     }
+})();
+
+// ============================================================
+//  Mochi's Corner (maskot) — pat-pat Mochi
+// ============================================================
+(function initMochi() {
+    const wrap = $("mochiAvatar");
+    const bubble = $("mochiBubble");
+    const badge = $("mochiPatCount");
+    if (!wrap || !bubble || !badge) return;
+
+    const MOCHI_KEY = "ss_mochi_pat";
+    function today() { const d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+    function getPats() { try { const r = JSON.parse(localStorage.getItem(MOCHI_KEY) || "{}"); return r.date === today() ? (r.count || 0) : 0; } catch (e) { return 0; } }
+    function setPats(n) { try { localStorage.setItem(MOCHI_KEY, JSON.stringify({ date: today(), count: n })); } catch (e) {} }
+
+    const quotes = [
+        "Woof! Jangan lupa bikin spread minggu ini ya! 🎨",
+        "Mochi seneng banget kamu pat-pat! 🤎",
+        "Guk guk! Jangan takut salah gunting kertas ya!",
+        "Kamu keren udah konsisten journaling! 🔥",
+        "Mochi nemenin kamu crafting hari ini~ 🐾",
+        "Pelan-pelan aja, yang penting kamu mulai ✨",
+        "Kamu udah hebat cuma dengan hadir di sini 💙"
+    ];
+    const themes = [
+        "🎨 Mochi bilang: coba tema warna coklat warm + washi tape estetik!",
+        "🎨 Tema hari ini: 'hal kecil yang bikin kamu senyum minggu ini'",
+        "🎨 Coba collage dari struk/tiket yang kamu simpan!",
+        "🎨 Tema: palet pastel + satu quote favoritmu",
+        "🎨 Gratitude spread — tulis 3 hal yang kamu syukuri",
+        "🎨 Doodle mood harian pakai 1 warna aja"
+    ];
+
+    let patCount = getPats();
+    badge.textContent = patCount;
+    let timer = null;
+
+    wrap.addEventListener("click", () => {
+        patCount++; setPats(patCount); badge.textContent = patCount;
+
+        const h = document.createElement("span");
+        h.className = "mochi-heart";
+        h.textContent = Math.random() > 0.5 ? "💖" : "🐾";
+        h.style.left = (Math.random() * 34 + 12) + "px";
+        wrap.appendChild(h);
+        setTimeout(() => { if (h.parentNode) h.parentNode.removeChild(h); }, 800);
+
+        wrap.style.transform = "scale(1.15) rotate(6deg)";
+        setTimeout(() => { wrap.style.transform = ""; }, 150);
+
+        const isTheme = (patCount % 3 === 0);
+        const arr = isTheme ? themes : quotes;
+        bubble.textContent = arr[Math.floor(Math.random() * arr.length)];
+        bubble.classList.toggle("theme", isTheme);
+        bubble.classList.add("show");
+        if (typeof confetti === "function" && isTheme) confetti({ particleCount: 30, spread: 45, origin: { x: 0.12, y: 0.9 } });
+
+        clearTimeout(timer);
+        timer = setTimeout(() => bubble.classList.remove("show"), 4500);
+    });
 })();
