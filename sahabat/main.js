@@ -326,88 +326,125 @@ function recList_() {
 // ---------- Side Quest pane ----------
 let _questsLoaded = false;
 
+let _questChallenges = [];
+let _questSubmitted = [];
+
+function questImg(q) {
+    return q.image ? (/^https?:\/\//.test(q.image) ? q.image : "../" + q.image) : "../images/mochi_maskot_sm.png";
+}
+function questPoints(q) { return (q.points && q.points > 0) ? q.points : 50; }
+function questCaption(q) { return "Halo semuaa! 🎉 Ini spread challenge" + (q.title ? ' "' + q.title + '"' : "") + " journaling-ku ✨ #SemingguSatu"; }
+
 async function loadQuests() {
     if (_questsLoaded) return;
     _questsLoaded = true;
     const pane = $("pane-quest");
     pane.innerHTML = '<div class="spinner"><div class="ring"></div></div>';
-    let challenges = [], submitted = [];
     try {
         const [c, s] = await Promise.all([
             fetchJSONP(GS + "?page=challenges", "chl", 15000).catch(() => ({})),
             fetchJSONP(GS + "?page=memberQuests&wa=" + encodeURIComponent(_profile.wa), "mq", 15000).catch(() => ({}))
         ]);
-        challenges = (c && c.challenges) || [];
-        submitted = (s && s.submitted) || [];
-    } catch (e) {}
-    if (!challenges.length) {
-        pane.innerHTML = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada challenge</h3><p>Pantau terus ya, side quest baru bakal muncul di sini! 🌱</p></div>';
+        _questChallenges = (c && c.challenges) || [];
+        _questSubmitted = (s && s.submitted) || [];
+    } catch (e) { _questChallenges = []; _questSubmitted = []; }
+
+    if (!_questChallenges.length) {
+        pane.innerHTML = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada Quest</h3><p>Pantau terus ya, challenge baru bakal muncul di sini! 🌱</p></div>';
         return;
     }
-    // Yang BELUM diikuti tampil di atas, yang udah selesai ke bawah
-    challenges.sort((a, b) => (submitted.indexOf(a.id) >= 0 ? 1 : 0) - (submitted.indexOf(b.id) >= 0 ? 1 : 0));
-    let html = '<div class="section-lbl">🎯 Quest Board — selesaikan & kumpulin poin!</div>';
-    challenges.forEach(q => {
-        const done = submitted.indexOf(q.id) >= 0;
-        const img = q.image ? (/^https?:\/\//.test(q.image) ? q.image : "../" + q.image) : "../images/mochi_maskot_sm.png";
-        const points = (q.points && q.points > 0) ? q.points : 50;
-        html +=
-            '<div class="quest-game-card' + (done ? ' is-done' : '') + '" data-id="' + esc(q.id) + '">' +
-                '<div class="quest-banner-wrap">' +
-                    '<img class="quest-banner-img" src="' + esc(img) + '" alt="" loading="lazy">' +
-                    '<span class="quest-status-pill ' + (done ? 'done' : 'active') + '">' + (done ? '✓ CLEARED' : '⚡ QUEST OPEN') + '</span>' +
-                '</div>' +
-                '<div class="quest-content">' +
-                    '<div class="quest-meta-tags">' +
-                        (q.theme ? '<span class="q-tag theme">🎨 ' + esc(q.theme) + '</span>' : '') +
-                        '<span class="q-tag exp">🪙 +' + points + ' EXP</span>' +
-                    '</div>' +
-                    '<div class="quest-game-title">' + esc(q.title) + '</div>' +
-                    (q.description ? '<div class="quest-game-desc">' + esc(q.description) + '</div>' : '') +
-                    '<div class="quest-objective-box">' +
-                        '<div class="q-obj-header">Mission Objective</div>' +
-                        '<div class="q-obj-text"><span>📖</span> Bikin spread sesuai tema, terus kirim buktinya ke Grup WA.</div>' +
-                    '</div>' +
-                    '<div class="quest-action">' +
-                    (done ? '<div class="ev-done">🎉 QUEST COMPLETED! Poin udah masuk.</div>'
-                        : '<button class="btn-quest-start quest-join">⚔️ Ambil Quest & Kirim Spread →</button>') +
-                    '</div>' +
-                '</div>' +
-            '</div>';
-    });
-    pane.innerHTML = html;
-    pane.querySelectorAll(".quest-game-card").forEach(card => {
-        const btn = card.querySelector(".quest-join");
-        if (btn) btn.addEventListener("click", () => submitQuest(card));
+    // Belum selesai di atas
+    _questChallenges.sort((a, b) => (_questSubmitted.indexOf(a.id) >= 0 ? 1 : 0) - (_questSubmitted.indexOf(b.id) >= 0 ? 1 : 0));
+
+    pane.innerHTML =
+        '<div class="section-lbl">🎯 Quest Board — tap buat lihat detail & ikutan!</div>' +
+        '<div class="quest-grid" id="questGrid">' + _questChallenges.map(renderQuestCell).join("") + '</div>';
+
+    $("questGrid").querySelectorAll(".qg-cell").forEach(cell =>
+        cell.addEventListener("click", () => openQuestDetail(Number(cell.dataset.i))));
+}
+
+function renderQuestCell(q, i) {
+    const done = _questSubmitted.indexOf(q.id) >= 0;
+    return '<div class="qg-cell' + (done ? ' done' : '') + '" data-i="' + i + '">' +
+        '<div class="qg-imgwrap">' +
+            '<img class="qg-img" src="' + esc(questImg(q)) + '" alt="" loading="lazy" onerror="this.style.opacity=.25">' +
+            '<span class="qg-xp">🪙 +' + questPoints(q) + '</span>' +
+        '</div>' +
+        '<div class="qg-body">' +
+            '<div class="qg-title">' + esc(q.title) + '</div>' +
+            (q.theme ? '<div class="qg-theme">🎨 ' + esc(q.theme) + '</div>' : '') +
+        '</div>' +
+    '</div>';
+}
+
+// ---- Detail quest (modal ala postingan IG) ----
+function openQuestDetail(i) {
+    const q = _questChallenges[i];
+    if (!q) return;
+    const done = _questSubmitted.indexOf(q.id) >= 0;
+    const caption = questCaption(q);
+    const modal = $("questModal");
+    $("questModalBox").innerHTML =
+        '<button class="qm-close" id="qmClose" aria-label="Tutup">✕</button>' +
+        '<img class="qm-img" src="' + esc(questImg(q)) + '" alt="" onerror="this.style.opacity=.25">' +
+        '<div class="qm-body">' +
+            '<div class="quest-meta-tags">' +
+                (q.theme ? '<span class="q-tag theme">🎨 ' + esc(q.theme) + '</span>' : '') +
+                '<span class="q-tag exp">🪙 +' + questPoints(q) + ' XP</span>' +
+                (done ? '<span class="q-tag done">✓ Cleared</span>' : '') +
+            '</div>' +
+            '<div class="quest-game-title" style="margin-top:8px;">' + esc(q.title) + '</div>' +
+            (q.description ? '<div class="quest-game-desc">' + esc(q.description) + '</div>' : '') +
+            '<div class="quest-objective-box" style="margin-top:12px;">' +
+                '<div class="q-obj-header">Mission Objective</div>' +
+                '<div class="q-obj-text"><span>📖</span> Bikin spread sesuai tema, terus kirim buktinya ke Grup WA.</div>' +
+            '</div>' +
+            '<div class="quest-action" id="qmAction" style="margin-top:14px;"></div>' +
+        '</div>';
+    const action = $("qmAction");
+    if (done) {
+        renderQuestDone(action, caption);
+    } else {
+        action.innerHTML = '<button class="btn-quest-start" id="qmSubmit">🚀 Ambil Quest & Kirim Spread →</button>';
+        $("qmSubmit").addEventListener("click", () => submitQuest(q, i, action, caption));
+    }
+    modal.classList.add("show");
+    $("qmClose").addEventListener("click", () => modal.classList.remove("show"));
+}
+
+function renderQuestDone(action, caption) {
+    action.innerHTML =
+        '<div class="ev-done">✅ Kamu udah ikut challenge ini! 🎉</div>' +
+        '<div class="q-caption" style="margin-top:8px;">' + esc(caption) + '</div>' +
+        '<button class="btn-ghost2 quest-copy" style="margin-top:8px;">📋 Salin caption</button>' +
+        '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Buka Grup WA & kirim fotomu</a>' +
+        '<p style="font-size:0.78rem;color:var(--muted);text-align:center;margin-top:6px;">Kirim foto spread-mu di grup + paste caption-nya ya 💙</p>';
+    const copyBtn = action.querySelector(".quest-copy");
+    copyBtn.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; }
+        catch (e) { copyBtn.textContent = "Salin manual ya (blok teks di atas)"; }
     });
 }
 
 // Submit challenge = 1 tap (tanpa upload foto). Foto dikirim member sendiri ke grup WA.
-async function submitQuest(card) {
-    const titleEl = card.querySelector(".quest-game-title") || card.querySelector(".quest-title");
-    const qt = titleEl ? titleEl.textContent.trim() : "";
-    if (!confirm("Ambil quest" + (qt ? ' "' + qt + '"' : "") + "?\nHabis ini kirim foto spread-mu di grup WA ya 💙")) return;
-    const action = card.querySelector(".quest-action");
-    const btn = card.querySelector(".quest-join");
+async function submitQuest(q, i, action, caption) {
+    if (!confirm("Ambil quest" + (q.title ? ' "' + q.title + '"' : "") + "?\nHabis ini kirim foto spread-mu di grup WA ya 💙")) return;
+    const btn = action.querySelector("#qmSubmit");
     const origLabel = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Mengirim…"; }
     try {
-        const r = await apiPost({ action: "memberSubmitQuest", token: _profile.token, challengeId: card.dataset.id });
+        const r = await apiPost({ action: "memberSubmitQuest", token: _profile.token, challengeId: q.id });
         if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = origLabel; } alert(r.message || "Gagal."); return; }
         fireConfetti("quest");
-        const caption = "Halo semuaa! 🎉 Ini spread challenge" + (qt ? ' "' + qt + '"' : "") + " journaling-ku ✨ #SemingguSatu";
-        action.innerHTML =
-            '<div class="ev-done">✅ Kamu ikut challenge ini! 🎉</div>' +
-            '<div class="q-caption">' + esc(caption) + '</div>' +
-            '<button class="btn-ghost2 quest-copy" style="margin-top:8px;">📋 Salin caption</button>' +
-            '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Buka Grup WA & kirim fotomu</a>' +
-            '<p style="font-size:0.78rem;color:var(--muted);text-align:center;margin-top:6px;">Kirim foto spread-mu di grup + paste caption-nya ya 💙</p>';
+        // Tandai kartu ini CLEARED di grid
+        if (_questSubmitted.indexOf(q.id) < 0) _questSubmitted.push(q.id);
+        const grid = $("questGrid");
+        const cell = grid && grid.querySelector('.qg-cell[data-i="' + i + '"]');
+        if (cell) cell.classList.add("done");
+        renderQuestDone(action, caption);
         const copyBtn = action.querySelector(".quest-copy");
-        copyBtn.addEventListener("click", async () => {
-            try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; }
-            catch (e) { copyBtn.textContent = "Salin manual ya (blok teks di atas)"; }
-        });
-        try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; } catch (e) {}
+        try { await navigator.clipboard.writeText(caption); if (copyBtn) copyBtn.textContent = "✓ Caption tersalin"; } catch (e) {}
         try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) {}
     } catch (e) { if (btn) { btn.disabled = false; btn.textContent = origLabel; } alert("Gagal terhubung ke server."); }
 }
@@ -1211,4 +1248,10 @@ async function loadLoyalty() {
         clearTimeout(timer);
         timer = setTimeout(() => bubble.classList.remove("show"), 4500);
     });
+})();
+
+// Tutup modal quest detail kalau klik area gelap di luar box
+(function initModals() {
+    const modal = $("questModal");
+    if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("show"); });
 })();
