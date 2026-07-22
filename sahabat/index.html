@@ -11,6 +11,7 @@
     <script src="../workshop-config.js?v=2"></script>
     <script src="../recommendation-config.js?v=1"></script>
     <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -206,6 +207,7 @@
             cursor: pointer;
         }
 
+        /* ---- Desktop Tabs & Mobile Bottom Navigation Bar ---- */
         .tabs {
             display: flex;
             gap: 6px;
@@ -229,11 +231,170 @@
             padding: 9px 10px;
             border-radius: 10px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
         .tab.active {
             background: var(--blue);
             color: #fff;
+        }
+
+        /* Mobile Native Bottom Navigation Bar */
+        @media (max-width: 640px) {
+            .wrap {
+                padding-bottom: 95px !important;
+            }
+
+            .tabs {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: rgba(255, 255, 255, 0.92);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+                border: none;
+                border-top: 1px solid rgba(228, 233, 245, 0.85);
+                border-radius: 20px 20px 0 0;
+                padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+                margin-bottom: 0;
+                box-shadow: 0 -8px 24px rgba(16, 36, 94, 0.12);
+                justify-content: space-around;
+                gap: 4px;
+            }
+
+            .tab {
+                flex-direction: column;
+                gap: 2px;
+                padding: 6px 4px;
+                font-size: 0.68rem;
+                font-weight: 700;
+                border-radius: 12px;
+                color: var(--muted);
+                position: relative;
+            }
+
+            .tab .tab-icon {
+                font-size: 1.25rem;
+                line-height: 1;
+                transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            .tab.active {
+                background: rgba(0, 70, 255, 0.1);
+                color: var(--blue);
+            }
+
+            .tab.active .tab-icon {
+                transform: translateY(-2px) scale(1.15);
+            }
+
+            .tab.active::after {
+                content: '';
+                position: absolute;
+                bottom: 2px;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--blue);
+            }
+        }
+
+        /* ---- Floating Quick Action Button (FAB) ---- */
+        .fab-container {
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 640px) {
+            .fab-container {
+                bottom: calc(78px + env(safe-area-inset-bottom));
+                right: 16px;
+            }
+        }
+
+        .fab-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0046ff 0%, #0092ff 100%);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 8px 22px rgba(0, 70, 255, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s, background 0.2s;
+        }
+
+        .fab-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 10px 28px rgba(0, 70, 255, 0.5);
+        }
+
+        .fab-btn:active {
+            transform: scale(0.94);
+        }
+
+        .fab-btn.open {
+            transform: rotate(45deg);
+            background: #10245e;
+        }
+
+        .fab-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(12px) scale(0.95);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .fab-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+
+        .fab-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            color: var(--ink);
+            border: 1px solid var(--line);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(16, 36, 94, 0.15);
+            white-space: nowrap;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .fab-item:hover {
+            background: #f4f7ff;
+            transform: translateX(-2px);
+        }
+
+        .fab-item-icon {
+            font-size: 1rem;
         }
 
         .pane {
@@ -326,6 +487,19 @@
             margin-top: 2px;
         }
 
+        /* ---- Birthday Surprise ---- */
+        .bday { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 1.25rem; margin-bottom: 1rem; text-align: center; box-shadow: 0 8px 24px rgba(0, 60, 200, .1); }
+        .bday-emoji { font-size: 2rem; }
+        .bday-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.2rem; margin-top: 4px; }
+        .bday-sub { font-size: 0.85rem; color: var(--muted); margin: 4px 0 14px; }
+        .bday-note { font-size: 0.76rem; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+        .voucher { background: linear-gradient(150deg, #0043f5 0%, #7a3cff 55%, #ff007f 120%); color: #fff; border-radius: 18px; padding: 22px 20px; position: relative; overflow: hidden; box-shadow: 0 14px 34px rgba(120, 0, 160, .3); }
+        .voucher .v-orb { position: absolute; width: 150px; height: 150px; border-radius: 50%; top: -50px; right: -40px; background: radial-gradient(circle, rgba(255, 230, 0, .5) 0%, transparent 70%); pointer-events: none; }
+        .voucher .v-off { font-family: 'Outfit', sans-serif; font-size: 60px; font-weight: 800; line-height: 1; color: #ffe600; text-shadow: 0 3px 0 rgba(0, 20, 90, .25); position: relative; z-index: 1; }
+        .voucher .v-lbl { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 8px; position: relative; z-index: 1; }
+        .voucher .v-desc { font-size: 13px; opacity: .96; margin-top: 8px; position: relative; z-index: 1; }
+        .voucher .v-brand { font-size: 11px; font-weight: 800; color: #ffe600; margin-top: 14px; position: relative; z-index: 1; }
+
         .stamps {
             display: flex;
             flex-wrap: wrap;
@@ -375,6 +549,186 @@
             font-size: 0.85rem;
             font-weight: 700;
             text-align: center;
+        }
+
+        /* ---- Tracker Mingguan Journaling ---- */
+        .journal-tracker-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+            border: 1px solid #dce4f7;
+            border-radius: 20px;
+            padding: 1.2rem 1.25rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 10px 25px rgba(16, 36, 94, 0.06);
+        }
+
+        .jt-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 0.85rem;
+        }
+
+        .jt-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .jt-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .jt-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--ink);
+            line-height: 1.25;
+        }
+
+        .jt-sub {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .jt-streak-pill {
+            background: linear-gradient(135deg, #ff4e00 0%, #ff8e00 100%);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 999px;
+            box-shadow: 0 4px 12px rgba(255, 78, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            line-height: 1;
+            align-self: center;
+        }
+
+        .jt-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 0.85rem 0;
+        }
+
+        .jt-week-box {
+            background: #ffffff;
+            border: 1.5px solid var(--line);
+            border-radius: 14px;
+            padding: 10px 4px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+            min-height: 64px;
+        }
+
+        .jt-week-box.done {
+            background: #e9fbf0;
+            border-color: #b6f0cd;
+            color: #0a7a3d;
+        }
+
+        .jt-week-box.current {
+            background: #fff9e6;
+            border-color: #ffe066;
+            box-shadow: 0 4px 12px rgba(255, 230, 0, 0.25);
+        }
+
+        .jt-week-box.neutral {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .jt-week-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--muted);
+        }
+
+        .jt-week-box.done .jt-week-label {
+            color: #0a7a3d;
+        }
+
+        .jt-week-box.current .jt-week-label {
+            color: #b45309;
+        }
+
+        .jt-week-box.neutral .jt-week-label {
+            color: #94a3b8;
+        }
+
+        .jt-week-status {
+            font-size: 1.15rem;
+            line-height: 1;
+        }
+
+        .jt-action-btn {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #0046ff 0%, #0092ff 100%);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(0, 70, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .jt-action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(0, 70, 255, 0.4);
+        }
+
+        .jt-action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .jt-action-btn.done {
+            background: #e9fbf0;
+            border: 1px solid #b6f0cd;
+            color: #0a7a3d;
+            box-shadow: none;
+            cursor: default;
+        }
+
+        .jt-note-tag {
+            margin-top: 0.6rem;
+            font-size: 0.78rem;
+            color: var(--muted);
+            text-align: center;
+            font-weight: 600;
+            background: rgba(0, 70, 255, 0.05);
+            border-radius: 10px;
+            padding: 7px 10px;
+        }
+
+        .jt-note-tag b {
+            color: var(--blue);
         }
 
         .btn-primary {
@@ -784,6 +1138,304 @@
         .dp-btn-confirm:hover {
             background: #003cd6;
         }
+
+        /* ---- 3D Holographic Member Card ---- */
+        .member-card-wrapper {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 1.25rem;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .member-card-3d {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1.586;
+            border-radius: 20px;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+            box-shadow: 0 16px 36px rgba(0, 30, 100, 0.28), 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .member-card-wrapper:hover .member-card-3d {
+            box-shadow: 0 22px 48px rgba(0, 40, 150, 0.38), 0 8px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .member-card-3d.is-flipped {
+            transform: rotateY(180deg) !important;
+        }
+
+        .card-face {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            overflow: hidden;
+            padding: 1.2rem 1.35rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45);
+        }
+
+        .card-face.front {
+            background: linear-gradient(135deg, #091738 0%, #10245e 42%, #0046ff 78%, #0092ff 100%);
+            color: #ffffff;
+        }
+
+        .card-face.back {
+            background: linear-gradient(135deg, #0d1222 0%, #151d38 50%, #0c266e 100%);
+            color: #ffffff;
+            transform: rotateY(180deg);
+        }
+
+        .card-bg-pattern {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 85% 15%, rgba(255, 230, 0, 0.28) 0%, transparent 45%),
+                radial-gradient(circle at 15% 85%, rgba(0, 212, 255, 0.22) 0%, transparent 45%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 2px, transparent 0, transparent 8px);
+            z-index: 1;
+        }
+
+        .holo-sheen {
+            position: absolute;
+            inset: -60%;
+            width: 220%;
+            height: 220%;
+            pointer-events: none;
+            z-index: 2;
+            mix-blend-mode: color-dodge;
+            opacity: var(--shine-opacity, 0.35);
+            transition: opacity 0.3s ease;
+            background: 
+                radial-gradient(circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(255, 255, 255, 0.85) 0%, rgba(255, 225, 120, 0.5) 18%, rgba(255, 0, 180, 0.35) 36%, rgba(0, 230, 255, 0.35) 55%, transparent 75%),
+                linear-gradient(calc(var(--rx, 0deg) * 6 + 135deg), rgba(255, 255, 255, 0.35) 0%, rgba(255, 215, 0, 0.4) 20%, rgba(255, 0, 128, 0.4) 40%, rgba(0, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0.35) 100%);
+        }
+
+        .card-layer {
+            position: relative;
+            z-index: 3;
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-chip {
+            width: 40px;
+            height: 29px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #ffe57f 0%, #ffc107 50%, #ff9800 100%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 5px rgba(0,0,0,0.25);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-chip::after {
+            content: '';
+            position: absolute;
+            width: 70%;
+            height: 60%;
+            border: 1px solid rgba(120, 70, 0, 0.5);
+            border-radius: 3px;
+        }
+
+        .card-logo {
+            text-align: right;
+        }
+
+        .card-logo-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 0.82rem;
+            letter-spacing: 1.5px;
+            color: #ffe600;
+            text-transform: uppercase;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-logo-sub {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            color: rgba(255, 255, 255, 0.85);
+            text-transform: uppercase;
+        }
+
+        .card-mid {
+            margin: 0.4rem 0;
+        }
+
+        .card-tier-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(255, 230, 0, 0.95) 0%, rgba(255, 190, 0, 0.95) 100%);
+            color: #10245e;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(255, 230, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .card-number {
+            font-family: 'Outfit', monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.95);
+            margin-top: 0.45rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-bot {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+
+        .card-holder {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-label {
+            font-size: 0.56rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .card-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            text-transform: uppercase;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 220px;
+        }
+
+        .card-flip-hint {
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.2s;
+        }
+
+        .card-flip-hint:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .card-magstripe {
+            position: absolute;
+            top: 18px;
+            left: 0;
+            right: 0;
+            height: 36px;
+            background: linear-gradient(90deg, #111 0%, #222 50%, #111 100%);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .card-back-body {
+            margin-top: 42px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 42px);
+            justify-content: space-between;
+        }
+
+        .card-sig-line {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .card-sig-line b {
+            color: #ffe600;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .card-back-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 6px 0;
+        }
+
+        .card-stat-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        .card-stat-box .val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #ffe600;
+            line-height: 1;
+        }
+
+        .card-stat-box .lbl {
+            font-size: 0.58rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 2px;
+        }
+
+        .card-back-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
     </style>
 </head>
 
@@ -881,12 +1533,48 @@
                 <button class="logout-btn" id="logoutBtn">Keluar</button>
             </div>
 
-            <div class="tabs">
-                <button class="tab active" data-pane="loyalty">🎁 Loyalty</button>
-                <button class="tab" data-pane="events">📅 Event</button>
-                <button class="tab" data-pane="quest">⚡ Side Quest</button>
-                <button class="tab" data-pane="rank">🏆 Ranking</button>
-                <button class="tab" data-pane="rec">🛍️ Rekomendasi</button>
+            <div class="tabs" id="mainNavTabs">
+                <button class="tab active" data-pane="loyalty">
+                    <span class="tab-icon">🎁</span>
+                    <span class="tab-label">Loyalty</span>
+                </button>
+                <button class="tab" data-pane="events">
+                    <span class="tab-icon">📅</span>
+                    <span class="tab-label">Event</span>
+                </button>
+                <button class="tab" data-pane="quest">
+                    <span class="tab-icon">⚡</span>
+                    <span class="tab-label">Quest</span>
+                </button>
+                <button class="tab" data-pane="rank">
+                    <span class="tab-icon">🏆</span>
+                    <span class="tab-label">Ranking</span>
+                </button>
+                <button class="tab" data-pane="rec">
+                    <span class="tab-icon">🛍️</span>
+                    <span class="tab-label">Rekomendasi</span>
+                </button>
+            </div>
+
+            <!-- Floating Quick Action Button (FAB) -->
+            <div class="fab-container" id="fabContainer">
+                <div class="fab-menu" id="fabMenu">
+                    <button class="fab-item" id="fabActionQuest">
+                        <span class="fab-item-icon">⚡</span>
+                        <span class="fab-item-label">Side Quest</span>
+                    </button>
+                    <button class="fab-item" id="fabActionShare">
+                        <span class="fab-item-icon">🏆</span>
+                        <span class="fab-item-label">Ranking Poin</span>
+                    </button>
+                    <button class="fab-item" id="fabActionTop">
+                        <span class="fab-item-icon">🔝</span>
+                        <span class="fab-item-label">Ke Atas</span>
+                    </button>
+                </div>
+                <button class="fab-btn" id="fabMainBtn" title="Aksi Cepat">
+                    <span class="fab-icon">⚡</span>
+                </button>
             </div>
 
             <div class="pane active" id="pane-loyalty">

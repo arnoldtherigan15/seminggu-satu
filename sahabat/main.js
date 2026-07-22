@@ -4,6 +4,7 @@
 const GS = (typeof GOOGLE_SCRIPT_URL !== "undefined") ? GOOGLE_SCRIPT_URL : "";
 const TOKEN_KEY = "ss_member_token";
 const QUEST_WA_GROUP = "https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?s=cl&p=i&ilr=0&amv=0"; // grup WA buat kirim spread challenge
+const ADMIN_WA = "6281214574782"; // WA Arnold buat claim voucher ulang tahun
 let _wa = "";        // wa (normalized) yang lagi diproses
 let _profile = null; // { token, nickname, birthDate, wa }
 let _loyaltyLoaded = false;
@@ -120,10 +121,23 @@ async function doSetup() {
     finally { btn.disabled = false; }
 }
 
+// ---------- Confetti Helper ----------
+function fireConfetti(preset) {
+    if (typeof confetti !== "function") return;
+    if (preset === "login") {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    } else if (preset === "quest") {
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.55 }, colors: ['#0046ff', '#ffe600', '#00b4ff', '#ff007f'] });
+    } else if (preset === "reward") {
+        confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 }, colors: ['#ffe600', '#ffffff', '#0046ff'] });
+    }
+}
+
 function onAuthSuccess(r) {
     _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa };
     try { localStorage.setItem(TOKEN_KEY, r.token); } catch (e) {}
     showDashboard();
+    fireConfetti("login");
 }
 
 function logout() {
@@ -362,6 +376,7 @@ async function submitQuest(card) {
     try {
         const r = await apiPost({ action: "memberSubmitQuest", token: _profile.token, challengeId: card.dataset.id });
         if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = "Ikut Challenge →"; } alert(r.message || "Gagal."); return; }
+        fireConfetti("quest");
         const caption = "Halo semuaa! 🎉 Ini spread challenge" + (qt ? ' "' + qt + '"' : "") + " journaling-ku ✨ #SemingguSatu";
         action.innerHTML =
             '<div class="ev-done">✅ Kamu ikut challenge ini! 🎉</div>' +
@@ -465,6 +480,308 @@ function persona(count) {
     return { title, tag, emoji };
 }
 
+function formatCardNumber(wa) {
+    const raw = String(wa || "").replace(/\D/g, "");
+    if (!raw) return "SS · 2026 · 0000 · 8888";
+    const p1 = raw.slice(0, 4) || "0800";
+    const p2 = raw.slice(4, 8) || "0000";
+    const p3 = raw.slice(8, 12) || "0000";
+    return "SS · " + p1 + " · " + p2 + " · " + p3;
+}
+
+function init3DCardListeners() {
+    const wrap = $("memberCardWrap");
+    const card = $("memberCard3D");
+    if (!wrap || !card) return;
+
+    let isFlipped = false;
+
+    wrap.addEventListener("click", () => {
+        isFlipped = !isFlipped;
+        card.classList.toggle("is-flipped", isFlipped);
+    });
+
+    wrap.addEventListener("mousemove", (e) => {
+        if (isFlipped) return;
+        const rect = wrap.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const percentX = (x / rect.width) * 100;
+        const percentY = (y / rect.height) * 100;
+
+        const rotX = -((y - centerY) / centerY) * 14;
+        const rotY = ((x - centerX) / centerX) * 14;
+
+        card.style.transform = "rotateX(" + rotX.toFixed(2) + "deg) rotateY(" + rotY.toFixed(2) + "deg)";
+        card.style.setProperty("--rx", rotX.toFixed(2) + "deg");
+        card.style.setProperty("--ry", rotY.toFixed(2) + "deg");
+        card.style.setProperty("--shine-x", percentX.toFixed(1) + "%");
+        card.style.setProperty("--shine-y", percentY.toFixed(1) + "%");
+        card.style.setProperty("--shine-opacity", "0.6");
+    });
+
+    wrap.addEventListener("mouseleave", () => {
+        if (isFlipped) return;
+        card.style.transform = "rotateX(0deg) rotateY(0deg)";
+        card.style.setProperty("--rx", "0deg");
+        card.style.setProperty("--ry", "0deg");
+        card.style.setProperty("--shine-x", "50%");
+        card.style.setProperty("--shine-y", "50%");
+        card.style.setProperty("--shine-opacity", "0.35");
+    });
+
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener("deviceorientation", (e) => {
+            if (isFlipped) return;
+            const gamma = e.gamma;
+            const beta = e.beta;
+            if (gamma == null || beta == null) return;
+
+            const rotY = Math.max(-18, Math.min(18, gamma / 2.5));
+            const rotX = Math.max(-18, Math.min(18, (beta - 45) / 2.5));
+
+            const shineX = Math.max(10, Math.min(90, 50 + gamma * 1.2));
+            const shineY = Math.max(10, Math.min(90, 50 + (beta - 45) * 1.2));
+
+            card.style.transform = "rotateX(" + rotX.toFixed(2) + "deg) rotateY(" + rotY.toFixed(2) + "deg)";
+            card.style.setProperty("--rx", rotX.toFixed(2) + "deg");
+            card.style.setProperty("--ry", rotY.toFixed(2) + "deg");
+            card.style.setProperty("--shine-x", shineX.toFixed(1) + "%");
+            card.style.setProperty("--shine-y", shineY.toFixed(1) + "%");
+            card.style.setProperty("--shine-opacity", "0.65");
+        }, true);
+    }
+}
+
+// ---------- Tracker Journaling Mingguan (Monthly 4-Week Grid) ----------
+const MONTH_NAMES_INDO = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+function getMonthWeekObj(d) {
+    const date = d ? new Date(d) : new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    let weekNo = Math.min(4, Math.ceil(day / 7));
+    const monthStr = String(month + 1).padStart(2, "0");
+    return {
+        year: year,
+        month: month,
+        monthName: MONTH_NAMES_INDO[month],
+        week: weekNo,
+        key: year + "-" + monthStr + "-W" + weekNo
+    };
+}
+
+function getJournalTrackerData(wa) {
+    const key = "ss_journal_tracker_" + (wa || "default");
+    try {
+        const raw = localStorage.getItem(key);
+        if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return { records: {} };
+}
+
+function saveJournalTrackerData(wa, data) {
+    const key = "ss_journal_tracker_" + (wa || "default");
+    try {
+        localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {}
+}
+
+function calculateJournalStreak(records) {
+    let streak = 0;
+    const now = new Date();
+    let checkDate = new Date(now);
+    
+    let currWeek = getMonthWeekObj(checkDate);
+    if (records[currWeek.key]) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 7);
+    } else {
+        checkDate.setDate(checkDate.getDate() - 7);
+        const lastWeek = getMonthWeekObj(checkDate);
+        if (!records[lastWeek.key]) return 0;
+    }
+
+    for (let i = 0; i < 52; i++) {
+        const wObj = getMonthWeekObj(checkDate);
+        if (records[wObj.key]) {
+            if (wObj.key !== currWeek.key) streak++;
+            checkDate.setDate(checkDate.getDate() - 7);
+        } else {
+            break;
+        }
+    }
+    return streak;
+}
+
+function renderJournalTrackerHtml(wa) {
+    const data = getJournalTrackerData(wa);
+    const records = data.records || {};
+    const currMonthWeek = getMonthWeekObj(new Date());
+    const currentWeekNum = currMonthWeek.week;
+    const isCurrentChecked = !!records[currMonthWeek.key];
+    const streak = calculateJournalStreak(records);
+
+    const year = currMonthWeek.year;
+    const monthStr = String(currMonthWeek.month + 1).padStart(2, "0");
+    
+    let gridHtml = "";
+    for (let w = 1; w <= 4; w++) {
+        const key = year + "-" + monthStr + "-W" + w;
+        const isDone = !!records[key];
+        const isCurrent = (w === currentWeekNum);
+        const isPastUntracked = (w < currentWeekNum && !isDone);
+        
+        let boxClass = "jt-week-box";
+        let statusIcon = "🔒";
+        let labelText = "Minggu " + w;
+
+        if (isDone) {
+            boxClass += " done";
+            statusIcon = "✅";
+        } else if (isCurrent) {
+            boxClass += " current";
+            statusIcon = "✍️";
+            labelText = "Minggu Ini";
+        } else if (isPastUntracked) {
+            boxClass += " neutral";
+            statusIcon = "—";
+        }
+
+        gridHtml +=
+            '<div class="' + boxClass + '">' +
+                '<span class="jt-week-label">' + esc(labelText) + '</span>' +
+                '<span class="jt-week-status">' + statusIcon + '</span>' +
+            '</div>';
+    }
+
+    let actionBtnHtml = "";
+    if (isCurrentChecked) {
+        actionBtnHtml = '<button type="button" class="jt-action-btn done" disabled>✅ Kamu Sudah Absen Journaling Minggu Ini!</button>';
+    } else {
+        actionBtnHtml = '<button type="button" class="jt-action-btn" id="jtCheckInBtn">✍️ Absen Journaling Minggu Ini (+1 Streak)</button>';
+    }
+
+    const currentNote = records[currMonthWeek.key] ? records[currMonthWeek.key].note : "";
+    const noteHtml = currentNote ? '<div class="jt-note-tag">Catatan minggu ini: <b>"' + esc(currentNote) + '"</b> ✨</div>' : '';
+
+    return (
+        '<div class="journal-tracker-card" id="journalTrackerWidget">' +
+            '<div class="jt-head">' +
+                '<div class="jt-title-group">' +
+                    '<span class="jt-icon">📖</span>' +
+                    '<div>' +
+                        '<div class="jt-title">Tracker Journaling Mingguan</div>' +
+                        '<div class="jt-sub">Bulan ' + esc(currMonthWeek.monthName) + ' ' + currMonthWeek.year + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="jt-streak-pill">🔥 ' + streak + ' Minggu</div>' +
+            '</div>' +
+            '<div class="jt-grid">' + gridHtml + '</div>' +
+            actionBtnHtml +
+            noteHtml +
+        '</div>'
+    );
+}
+
+function initJournalTrackerListeners(wa) {
+    const btn = $("jtCheckInBtn");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+        const note = prompt("Udah journaling minggu ini? 📖✨\nTulis tema / judul spread-mu minggu ini (opsional):") || "";
+        const data = getJournalTrackerData(wa);
+        const currMonthWeek = getMonthWeekObj(new Date());
+        
+        if (!data.records) data.records = {};
+        data.records[currMonthWeek.key] = {
+            timestamp: Date.now(),
+            note: note.trim()
+        };
+        saveJournalTrackerData(wa, data);
+
+        fireConfetti("quest");
+
+        const widget = $("journalTrackerWidget");
+        if (widget) {
+            widget.outerHTML = renderJournalTrackerHtml(wa);
+            initJournalTrackerListeners(wa);
+        }
+    });
+}
+
+// ---------- Birthday Surprise ----------
+// Voucher = umur% (mis. 27 th -> 27%), tampil sepanjang BULAN ulang tahun.
+// ⚠️ TESTING: paksa voucher ultah selalu muncul. Balikin ke false kalau udah selesai tes.
+const TEST_BIRTHDAY = true;
+function birthdayInfo() {
+    const bd = _profile && _profile.birthDate ? String(_profile.birthDate) : "";
+    const m = bd.match(/(\d{4})-(\d{2})-(\d{2})/);
+    const now = new Date();
+    if (TEST_BIRTHDAY) {
+        const age = m ? (now.getFullYear() - parseInt(m[1], 10)) : 27;
+        return { age: (age > 0 && age <= 120) ? age : 27 };
+    }
+    if (!m) return null;
+    if ((now.getMonth() + 1) !== parseInt(m[2], 10)) return null; // bukan bulan ultah
+    const age = now.getFullYear() - parseInt(m[1], 10);
+    if (age <= 0 || age > 120) return null;
+    return { age: age };
+}
+
+function buildBirthdayHtml(b) {
+    const nm = _profile.nickname || "Sahabat";
+    return '<div class="bday">' +
+        '<div class="bday-emoji">🎂🎉</div>' +
+        '<div class="bday-title">Selamat Ulang Tahun, ' + esc(nm) + '!</div>' +
+        '<div class="bday-sub">Ada kejutan spesial buat kamu bulan ini ✨</div>' +
+        '<div class="voucher" id="voucherCard">' +
+            '<div class="v-orb"></div>' +
+            '<div class="v-off">' + b.age + '%</div>' +
+            '<div class="v-lbl">Voucher Ulang Tahun 🎂</div>' +
+            '<div class="v-desc">Diskon ' + b.age + '% buat event journaling apa aja 💙</div>' +
+            '<div class="v-brand">@seminggu_satu · buat ' + esc(nm) + '</div>' +
+        '</div>' +
+        '<button class="btn-primary bday-claim" style="margin-top:12px;">📲 Claim Voucher via WhatsApp</button>' +
+        '<button class="btn-ghost2 bday-share" style="margin-top:8px;">🎁 Kirim gambar voucher ke admin</button>' +
+        '<p class="bday-note">Berlaku sepanjang bulan ini. Klik claim → chat admin (pesan udah siap) 💙</p>' +
+        '</div>';
+}
+
+function wireBirthday(b) {
+    const nm = _profile.nickname || "Sahabat";
+    const claim = document.querySelector(".bday-claim");
+    const share = document.querySelector(".bday-share");
+    if (claim) claim.addEventListener("click", () => {
+        const msg = "Halo kak Arnold! 🎂 Aku mau claim *Voucher Ulang Tahun " + b.age + "% OFF* dari Member Hub buat event journaling.\n\nNama: " + nm + "\nWA: " + _profile.wa + "\n\nMakasih! 💙";
+        window.open("https://wa.me/" + ADMIN_WA + "?text=" + encodeURIComponent(msg), "_blank");
+    });
+    if (share) share.addEventListener("click", shareVoucher);
+}
+
+async function shareVoucher() {
+    const card = document.getElementById("voucherCard");
+    if (!card) return;
+    const btn = document.querySelector(".bday-share");
+    const label = btn.textContent; btn.disabled = true; btn.textContent = "Menyiapkan…";
+    try {
+        const canvas = await html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true });
+        const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
+        const file = new File([blob], "voucher-ultah-seminggu-satu.png", { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], text: "Voucher ulang tahunku dari Seminggu Satu! 🎂 @seminggu_satu" });
+        } else {
+            const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "voucher-ultah.png"; a.click(); URL.revokeObjectURL(a.href);
+            alert("Voucher ke-download 📥 — kirim ke admin buat claim ya!");
+        }
+    } catch (e) { if (!(e && e.name === "AbortError")) alert("Gagal bikin gambar, coba lagi ya."); }
+    finally { btn.disabled = false; btn.textContent = label; }
+}
+
 async function loadLoyalty() {
     if (_loyaltyLoaded) return;
     _loyaltyLoaded = true;
@@ -486,7 +803,70 @@ async function loadLoyalty() {
             ? '<div class="eligible">🎉 Kamu dapat HADIAH GRATIS! Tunjukkin ke admin ya.</div>'
             : '<div class="togo">' + (count === 0 ? '' : '<b>' + toGo + ' event lagi</b> buat hadiah gratis 🎁') + '</div>';
 
+        const cardNum = formatCardNumber(_profile.wa);
+
+        const cardHtml =
+            '<div class="member-card-wrapper" id="memberCardWrap">' +
+                '<div class="member-card-3d" id="memberCard3D">' +
+                    '<div class="card-face front">' +
+                        '<div class="card-bg-pattern"></div>' +
+                        '<div class="holo-sheen" id="cardSheen"></div>' +
+                        '<div class="card-layer card-top">' +
+                            '<div class="card-chip"></div>' +
+                            '<div class="card-logo">' +
+                                '<div class="card-logo-title">SEMINGGU SATU</div>' +
+                                '<div class="card-logo-sub">DIGITAL MEMBER</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="card-layer card-mid">' +
+                            '<div class="card-tier-badge">' + p.emoji + ' ' + esc(p.title) + '</div>' +
+                            '<div class="card-number">' + esc(cardNum) + '</div>' +
+                        '</div>' +
+                        '<div class="card-layer card-bot">' +
+                            '<div class="card-holder">' +
+                                '<span class="card-label">Nama Member</span>' +
+                                '<span class="card-name">' + esc(_profile.nickname || "Sahabat") + '</span>' +
+                            '</div>' +
+                            '<div class="card-flip-hint"><span>Putar</span> 🔄</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="card-face back">' +
+                        '<div class="card-bg-pattern"></div>' +
+                        '<div class="card-magstripe"></div>' +
+                        '<div class="card-layer card-back-body">' +
+                            '<div class="card-sig-line">' +
+                                '<span>MEMBER HUB <b>#SEMINGGUSATU</b></span>' +
+                                '<span>VERIFIED</span>' +
+                            '</div>' +
+                            '<div class="card-back-stats">' +
+                                '<div class="card-stat-box">' +
+                                    '<div class="val">' + count + '</div>' +
+                                    '<div class="lbl">Kali Kumpul</div>' +
+                                '</div>' +
+                                '<div class="card-stat-box">' +
+                                    '<div class="val">' + (d.questCount || 0) + '</div>' +
+                                    '<div class="lbl">Side Quest</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div style="font-size:0.7rem; opacity:0.9; text-align:center; margin: 2px 0;">' + esc(p.tag) + '</div>' +
+                            '<div class="card-back-foot">' +
+                                '<span>STATUS: AKTIF</span>' +
+                                '<div class="card-flip-hint"><span>Depan</span> 🔄</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+
+        const trackerHtml = renderJournalTrackerHtml(_profile.wa);
+
+        const bday = birthdayInfo();
+        const birthdayHtml = bday ? buildBirthdayHtml(bday) : "";
+
         content.innerHTML =
+            birthdayHtml +
+            trackerHtml +
+            cardHtml +
             '<div class="stat-cards">' +
                 '<div class="scard"><b>' + count + '</b><span>Kali Kumpul</span></div>' +
                 '<div class="scard"><b>' + (d.questCount || 0) + '</b><span>⚡ Side Quest</span></div>' +
@@ -494,6 +874,11 @@ async function loadLoyalty() {
             '<div class="tier"><div class="em">' + p.emoji + '</div><div><div class="t">' + esc(p.title) + '</div><div class="d">' + esc(p.tag) + '</div></div></div>' +
             '<div class="card"><div class="section-lbl">Kartu Loyalty 🎁</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>' +
             '<a class="btn-primary" href="../loyalty/?wa=' + encodeURIComponent(_profile.wa) + '&from=member">Buka Passport Lengkap →</a>';
+
+        init3DCardListeners();
+        initJournalTrackerListeners(_profile.wa);
+        if (bday) { wireBirthday(bday); fireConfetti("reward"); }
+        else if (d.eligible) { fireConfetti("reward"); }
     } catch (e) {
         loading.style.display = "none";
         content.innerHTML = '<div class="placeholder"><div class="em">📡</div><h3>Gagal memuat</h3><p>Cek internetmu lalu coba lagi.</p></div>';
@@ -699,4 +1084,57 @@ async function loadLoyalty() {
         dpValue.classList.remove("dp-placeholder");
         closeModal();
     });
+})();
+
+// ---------- FAB Controller ----------
+(function initFabController() {
+    const mainBtn = $("fabMainBtn");
+    const menu = $("fabMenu");
+    const container = $("fabContainer");
+    if (!mainBtn || !menu) return;
+
+    let isOpen = false;
+
+    function toggleMenu(show) {
+        isOpen = (show !== undefined) ? show : !isOpen;
+        mainBtn.classList.toggle("open", isOpen);
+        menu.classList.toggle("open", isOpen);
+    }
+
+    mainBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleMenu();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (isOpen && container && !container.contains(e.target)) {
+            toggleMenu(false);
+        }
+    });
+
+    const actionQuest = $("fabActionQuest");
+    if (actionQuest) {
+        actionQuest.addEventListener("click", () => {
+            toggleMenu(false);
+            try { location.hash = "quest"; } catch (e) {}
+            activateTab("quest");
+        });
+    }
+
+    const actionShare = $("fabActionShare");
+    if (actionShare) {
+        actionShare.addEventListener("click", () => {
+            toggleMenu(false);
+            try { location.hash = "rank"; } catch (e) {}
+            activateTab("rank");
+        });
+    }
+
+    const actionTop = $("fabActionTop");
+    if (actionTop) {
+        actionTop.addEventListener("click", () => {
+            toggleMenu(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    }
 })();
