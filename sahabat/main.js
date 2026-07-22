@@ -833,17 +833,19 @@ async function loadLoyalty() {
                                 '<span>MEMBER HUB <b>#SEMINGGUSATU</b></span>' +
                                 '<span>VERIFIED</span>' +
                             '</div>' +
-                            '<div class="card-back-stats">' +
-                                '<div class="card-stat-box">' +
-                                    '<div class="val">' + count + '</div>' +
-                                    '<div class="lbl">Kali Kumpul</div>' +
+                            '<div class="card-back-mid">' +
+                                '<div class="card-back-stats">' +
+                                    '<div class="card-stat-box">' +
+                                        '<div class="val">' + count + '</div>' +
+                                        '<div class="lbl">Kali Kumpul</div>' +
+                                    '</div>' +
+                                    '<div class="card-stat-box">' +
+                                        '<div class="val">' + (d.questCount || 0) + '</div>' +
+                                        '<div class="lbl">Side Quest</div>' +
+                                    '</div>' +
                                 '</div>' +
-                                '<div class="card-stat-box">' +
-                                    '<div class="val">' + (d.questCount || 0) + '</div>' +
-                                    '<div class="lbl">Side Quest</div>' +
-                                '</div>' +
+                                '<div class="card-back-tag">' + esc(p.tag) + '</div>' +
                             '</div>' +
-                            '<div style="font-size:0.7rem; opacity:0.9; text-align:center; margin: 2px 0;">' + esc(p.tag) + '</div>' +
                             '<div class="card-back-foot">' +
                                 '<span>STATUS: AKTIF</span>' +
                                 '<div class="card-flip-hint"><span>Depan</span> 🔄</div>' +
