@@ -378,6 +378,32 @@ function renderQuestCell(q, i) {
     '</div>';
 }
 
+// ---- Kunci scroll background pas modal kebuka (aman iOS Safari) ----
+let _scrollLockY = 0;
+function lockScroll() {
+    _scrollLockY = window.scrollY || window.pageYOffset || 0;
+    const b = document.body;
+    b.style.position = "fixed";
+    b.style.top = "-" + _scrollLockY + "px";
+    b.style.left = "0";
+    b.style.right = "0";
+    b.style.width = "100%";
+}
+function unlockScroll() {
+    const b = document.body;
+    b.style.position = "";
+    b.style.top = "";
+    b.style.left = "";
+    b.style.right = "";
+    b.style.width = "";
+    window.scrollTo(0, _scrollLockY);
+}
+function closeQuestModal() {
+    const modal = $("questModal");
+    if (modal) modal.classList.remove("show");
+    unlockScroll();
+}
+
 // ---- Detail quest (modal ala postingan IG) ----
 function openQuestDetail(i) {
     const q = _questChallenges[i];
@@ -410,7 +436,8 @@ function openQuestDetail(i) {
         $("qmSubmit").addEventListener("click", () => submitQuest(q, i, action, caption));
     }
     modal.classList.add("show");
-    $("qmClose").addEventListener("click", () => modal.classList.remove("show"));
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
 }
 
 function renderQuestDone(action, caption) {
@@ -1253,5 +1280,5 @@ async function loadLoyalty() {
 // Tutup modal quest detail kalau klik area gelap di luar box
 (function initModals() {
     const modal = $("questModal");
-    if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("show"); });
+    if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) closeQuestModal(); });
 })();
