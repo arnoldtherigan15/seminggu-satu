@@ -498,6 +498,7 @@ function init3DCardListeners() {
 
     wrap.addEventListener("click", () => {
         isFlipped = !isFlipped;
+        card.style.transform = ""; // buang tilt inline biar flip (class) nggak konflik
         card.classList.toggle("is-flipped", isFlipped);
     });
 

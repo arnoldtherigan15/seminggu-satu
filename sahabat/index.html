@@ -1196,6 +1196,13 @@
             transform: rotateY(180deg);
         }
 
+        /* Fallback iOS: backface-visibility kadang gagal (efek glass) -> paksa
+           sembunyiin sisi yang nggak aktif pakai opacity, jadi nggak nembus/kebalik */
+        .card-face { transition: opacity 0.2s ease 0.18s; }
+        .member-card-3d .card-face.back { opacity: 0; }
+        .member-card-3d.is-flipped .card-face.front { opacity: 0; }
+        .member-card-3d.is-flipped .card-face.back { opacity: 1; }
+
         .card-bg-pattern {
             position: absolute;
             inset: 0;
