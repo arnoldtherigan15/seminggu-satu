@@ -204,6 +204,7 @@ function activateTab(pane) {
     document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.pane === pane));
     document.querySelectorAll(".pane").forEach(x => x.classList.remove("active"));
     const el = $("pane-" + pane); if (el) el.classList.add("active");
+    window.scrollTo(0, 0); // pindah tab = mulai dari atas, jangan bawa posisi scroll tab sebelumnya
     const dt = $("dashTop"); if (dt) dt.style.display = (pane === "loyalty") ? "" : "none";
     if (pane === "loyalty") loadLoyalty();
     if (pane === "events") loadEvents();
