@@ -2967,7 +2967,7 @@
             <span class="nav-icon">✍️</span> Content
           </button>
           <button class="nav-btn" data-view="quest">
-            <span class="nav-icon">⚡</span> Side Quest
+            <span class="nav-icon">⚡</span> Challenge
           </button>
         </nav>
         <div class="sidebar-footer">
@@ -3205,7 +3205,7 @@
           <div style="font-weight:800;margin:18px 0 10px;">Daftar Challenge</div>
           <div id="questList"></div>
 
-          <div style="font-weight:800;margin:22px 0 10px;">🏆 Leaderboard Side Quest</div>
+          <div style="font-weight:800;margin:22px 0 10px;">🏆 Leaderboard Challenge</div>
           <div id="adminLbList"></div>
         </div>
 
@@ -4612,7 +4612,7 @@
     function memWaMsg(type, nm) {
       const base = "https://seminggusatu.com/sahabat";
       if (type === "bday") return "Hai " + nm + "! 🎂✨ Selamat ulang tahun yaa dari keluarga Seminggu Satu 💙 Semoga makin kreatif & bahagia! Ada kejutan voucher ultah buat kamu di Member Hub: " + base;
-      if (type === "nudge") return "Hai " + nm + "! 👋 Kamu sekarang bisa akses *Member Hub* Seminggu Satu — cek loyalty, event, side quest & kejutan ultah kamu di sini ya: " + base + " 💙";
+      if (type === "nudge") return "Hai " + nm + "! 👋 Kamu sekarang bisa akses *Member Hub* Seminggu Satu — cek loyalty, event, challenge & kejutan ultah kamu di sini ya: " + base + " 💙";
       return "Hai " + nm + "! 👋";
     }
 
@@ -4710,7 +4710,7 @@
         const r = await api("getLeaderboard", { token: getToken() });
         if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
         const top = (r.leaderboard && r.leaderboard.top) || [];
-        if (!top.length) { el.innerHTML = '<p class="hint">Belum ada yang ngumpulin poin side quest.</p>'; return; }
+        if (!top.length) { el.innerHTML = '<p class="hint">Belum ada yang ngumpulin poin challenge.</p>'; return; }
         el.innerHTML = top.map(x =>
           `<div class="loy-card"><div class="loy-top">
              <div><div class="loy-name">#${x.rank} ${escapeHtml(x.nickname)}</div>

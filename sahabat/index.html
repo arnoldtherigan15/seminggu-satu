@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Hub — Seminggu Satu by Arnold</title>
-    <meta name="description" content="Portal khusus member Seminggu Satu: loyalty, event, rekomendasi & side quest.">
+    <meta name="description" content="Portal khusus member Seminggu Satu: loyalty, event, challenge & gallery.">
 
     <script src="../env.js"></script>
     <script src="../workshop-config.js?v=2"></script>
@@ -83,8 +83,14 @@
         :root[data-theme="dark"] .dp-close:hover,
         :root[data-theme="dark"] .dp-nav-btn:hover,
         :root[data-theme="dark"] .dp-day:hover:not(.empty):not(.disabled) { background: #2b3a5c; }
-        :root[data-theme="dark"] .ig-grid-item { background: #202c47; }
         :root[data-theme="dark"] .journal-tracker-card { background: linear-gradient(145deg, #172035 0%, #131c2f 100%); border-color: var(--line); }
+        :root[data-theme="dark"] .jt-week-box { border-color: #3a4666; }
+        :root[data-theme="dark"] .jt-week-box.done { background: rgba(34, 197, 94, .12); border-color: #22c55e; }
+        :root[data-theme="dark"] .jt-week-box.current { background: rgba(255, 230, 0, .1); border-color: rgba(255, 230, 0, .45); }
+        :root[data-theme="dark"] .jt-week-status.empty { color: #4a5878; }
+        :root[data-theme="dark"] .jt-status-banner { background: rgba(16, 185, 129, .12); border-color: rgba(16, 185, 129, .35); color: #6ee7b7; }
+        :root[data-theme="dark"] .jt-note-tag { background: #202c47; }
+        :root[data-theme="dark"] .washi-tape-header { background: rgba(255, 230, 0, .3); border-color: rgba(255, 255, 255, .2); }
         /* tier card tetap kuning -> teks harus gelap biar kebaca */
         :root[data-theme="dark"] .tier { color: #10245e; }
         @media (max-width: 640px) {
@@ -297,6 +303,14 @@
             color: #fff;
         }
 
+        /* ikon SVG tab & FAB (stroke currentColor -> ikut warna aktif/dark mode) */
+        .tab-icon { display: inline-flex; align-items: center; }
+        .tab-icon svg { width: 17px; height: 17px; }
+        .fab-item-icon { display: inline-flex; align-items: center; }
+        .fab-item-icon svg { width: 17px; height: 17px; }
+        .fab-icon { display: flex; align-items: center; justify-content: center; }
+        .fab-icon svg { width: 22px; height: 22px; }
+
         /* Mobile Native Bottom Navigation Bar */
         @media (max-width: 640px) {
             .wrap {
@@ -339,6 +353,11 @@
                 transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             }
 
+            .tab .tab-icon svg {
+                width: 22px;
+                height: 22px;
+            }
+
             .tab.active {
                 background: rgba(0, 70, 255, 0.1);
                 color: var(--blue);
@@ -348,15 +367,6 @@
                 transform: translateY(-2px) scale(1.15);
             }
 
-            .tab.active::after {
-                content: '';
-                position: absolute;
-                bottom: 2px;
-                width: 5px;
-                height: 5px;
-                border-radius: 50%;
-                background: var(--blue);
-            }
         }
 
         /* ---- Floating Quick Action Button (FAB) ---- */
@@ -517,6 +527,20 @@
             margin-top: 0.3rem;
         }
 
+        /* ikon SVG di stat card (konsisten sama ikon tab) */
+        .scard .scard-ic {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue);
+            margin: 0 0 6px;
+        }
+
+        .scard .scard-ic svg {
+            width: 18px;
+            height: 18px;
+        }
+
         .tier {
             background: var(--yellow);
             color: var(--ink);
@@ -612,10 +636,26 @@
         .journal-tracker-card {
             background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
             border: 1px solid #dce4f7;
-            border-radius: 20px;
-            padding: 1.2rem 1.25rem;
+            border-radius: 22px;
+            padding: 1.3rem 1.25rem 1.2rem;
             margin-bottom: 1.25rem;
             box-shadow: 0 10px 25px rgba(16, 36, 94, 0.06);
+            position: relative;
+        }
+
+        /* washi tape hiasan di atas card */
+        .washi-tape-header {
+            position: absolute;
+            top: -7px;
+            left: 50%;
+            transform: translateX(-50%) rotate(.8deg);
+            width: 90px;
+            height: 16px;
+            background: rgba(255, 230, 0, .68);
+            border: 1px dashed rgba(16, 36, 94, .18);
+            backdrop-filter: blur(2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .05);
+            z-index: 2;
         }
 
         .jt-head {
@@ -623,7 +663,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            margin-bottom: 0.85rem;
+            margin: 4px 0 0.85rem;
         }
 
         .jt-title-group {
@@ -632,11 +672,6 @@
             gap: 8px;
             flex: 1;
             min-width: 0;
-        }
-
-        .jt-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
         }
 
         .jt-title {
@@ -654,14 +689,14 @@
         }
 
         .jt-streak-pill {
-            background: linear-gradient(135deg, #ff4e00 0%, #ff8e00 100%);
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
             color: #ffffff;
             font-family: 'Outfit', sans-serif;
-            font-size: 0.8rem;
+            font-size: 0.76rem;
             font-weight: 800;
-            padding: 6px 14px;
+            padding: 6px 13px;
             border-radius: 999px;
-            box-shadow: 0 4px 12px rgba(255, 78, 0, 0.3);
+            box-shadow: 0 4px 10px rgba(255, 126, 95, 0.3);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -670,6 +705,7 @@
             flex-shrink: 0;
             line-height: 1;
             align-self: center;
+            transform: rotate(-1.5deg);
         }
 
         .jt-grid {
@@ -680,8 +716,8 @@
         }
 
         .jt-week-box {
-            background: #ffffff;
-            border: 1.5px solid var(--line);
+            background: #f8fafc;
+            border: 1.5px dashed #cbd5e1;
             border-radius: 14px;
             padding: 10px 4px;
             text-align: center;
@@ -689,21 +725,26 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 6px;
             transition: all 0.2s ease;
             min-height: 64px;
         }
 
+        /* completed = stiker/stempel miring */
         .jt-week-box.done {
-            background: #e9fbf0;
-            border-color: #b6f0cd;
+            background: #f0fdf4;
+            border: 2px solid #4ade80;
             color: #0a7a3d;
+            transform: scale(1.03) rotate(-1.5deg);
+            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.18);
         }
 
+        /* minggu ini = sticky note kuning */
         .jt-week-box.current {
             background: #fff9e6;
-            border-color: #ffe066;
+            border: 1.5px solid #ffe066;
             box-shadow: 0 4px 12px rgba(255, 230, 0, 0.25);
+            transform: rotate(1deg);
         }
 
         .jt-week-box.neutral {
@@ -737,6 +778,32 @@
             line-height: 1;
         }
 
+        .jt-week-status.empty {
+            color: #cbd5e1;
+            font-weight: 700;
+        }
+
+        /* stempel centang custom (bukan emoji) */
+        .jt-stamp {
+            width: 26px;
+            height: 26px;
+            background: #22c55e;
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(34, 197, 94, 0.35);
+            transform: rotate(-6deg);
+        }
+
+        .jt-pencil {
+            color: #b45309;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .jt-action-btn {
             width: 100%;
             padding: 0.85rem;
@@ -765,27 +832,44 @@
             transform: scale(0.98);
         }
 
-        .jt-action-btn.done {
-            background: #e9fbf0;
-            border: 1px solid #b6f0cd;
-            color: #0a7a3d;
-            box-shadow: none;
-            cursor: default;
+        /* banner status udah check-in */
+        .jt-status-banner {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
+        /* note ala kertas memo */
         .jt-note-tag {
             margin-top: 0.6rem;
             font-size: 0.78rem;
             color: var(--muted);
-            text-align: center;
             font-weight: 600;
-            background: rgba(0, 70, 255, 0.05);
+            background: #f8fafc;
             border-radius: 10px;
-            padding: 7px 10px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
-        .jt-note-tag b {
+        .jt-note-tag .note-label {
+            font-weight: 800;
             color: var(--blue);
+        }
+
+        .jt-note-tag .note-text {
+            font-style: italic;
+            color: var(--ink);
         }
 
         .btn-primary {
@@ -865,31 +949,43 @@
         .btn-quest-start:active { transform: scale(.98); }
         .btn-quest-start:disabled { opacity: .6; }
 
-        /* ---- Quest Grid (ala IG) ---- */
-        .quest-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 4px; }
-        .qg-cell { border-radius: 16px; overflow: hidden; border: 1.5px solid var(--line); background: var(--card); cursor: pointer; box-shadow: 0 4px 14px rgba(16, 36, 94, .06); transition: transform .15s ease, box-shadow .15s ease; display: flex; flex-direction: column; }
-        .qg-cell:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0, 70, 255, .16); }
-        .qg-cell:active { transform: scale(.97); }
-        .qg-imgwrap { position: relative; aspect-ratio: 1 / 1; background: #eef2fb; }
+        /* ---- Quest Grid: kartu scrapbook playful ---- */
+        .quest-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 8px; }
+        .qg-cell { position: relative; border-radius: 14px; border: 1px solid var(--line); background: var(--card); padding: 8px 8px 10px; cursor: pointer; box-shadow: 0 6px 16px rgba(16, 36, 94, .07); transition: transform .25s cubic-bezier(.175, .885, .32, 1.275), box-shadow .25s ease; display: flex; flex-direction: column; }
+        .qg-cell:nth-child(odd) { transform: rotate(-.6deg); }
+        .qg-cell:nth-child(even) { transform: rotate(.6deg); }
+        .qg-cell:hover { transform: translateY(-4px) rotate(0deg); box-shadow: 0 12px 26px rgba(0, 70, 255, .15); }
+        .qg-cell:active { transform: scale(.96); }
+        .qg-imgwrap { position: relative; aspect-ratio: 1 / 1; background: #eef2fb; border-radius: 8px; overflow: hidden; }
         .qg-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .qg-xp { position: absolute; top: 8px; right: 8px; background: rgba(16, 36, 94, .82); color: #ffe600; font-size: .66rem; font-weight: 800; padding: 3px 9px; border-radius: 999px; backdrop-filter: blur(2px); }
-        .qg-cell.done .qg-imgwrap::after { content: '✓ CLEARED'; position: absolute; inset: 0; background: rgba(16, 185, 129, .8); color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .9rem; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; }
-        .qg-body { padding: 9px 11px 11px; }
+        /* XP jadi sticker kuning miring */
+        .qg-xp { position: absolute; top: 6px; right: 6px; background: rgba(255, 230, 0, .92); color: #10245e; font-size: .64rem; font-weight: 800; padding: 3px 9px; border-radius: 7px; border: 1px dashed rgba(16, 36, 94, .3); transform: rotate(3deg); z-index: 2; }
+        /* CLEARED jadi stempel karet miring */
+        .qg-cell.done .qg-img { filter: grayscale(.35); opacity: .85; }
+        .qg-cell.done .qg-imgwrap::before { content: ''; position: absolute; inset: 0; background: rgba(255, 255, 255, .35); z-index: 1; }
+        .qg-cell.done .qg-imgwrap::after { content: '✓ CLEARED'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-8deg); border: 2.5px solid #10b981; color: #0a7a3d; background: rgba(255, 255, 255, .88); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .78rem; letter-spacing: 1.5px; padding: 5px 12px; border-radius: 8px; z-index: 2; white-space: nowrap; }
+        .qg-body { padding: 8px 3px 2px; }
         .qg-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .82rem; color: var(--ink); line-height: 1.18; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .qg-theme { font-size: .66rem; color: var(--muted); margin-top: 3px; }
+        :root[data-theme="dark"] .qg-cell.done .qg-imgwrap::before { background: rgba(13, 21, 38, .45); }
+        :root[data-theme="dark"] .qg-cell.done .qg-imgwrap::after { background: rgba(23, 32, 53, .92); color: #34d399; }
 
-        /* ---- Quest List mode (judul + deskripsi, tanpa foto) ---- */
-        .quest-list { display: flex; flex-direction: column; gap: 10px; }
-        .quest-row { display: flex; align-items: flex-start; gap: 12px; background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 36, 94, .05); transition: transform .15s ease, box-shadow .15s ease; }
-        .quest-row:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 70, 255, .14); }
-        .quest-row:active { transform: scale(.99); }
-        .quest-row.done { opacity: .7; }
+        /* ---- Quest List: catatan jurnal (stitched note + washi tape) ---- */
+        .quest-list { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+        .quest-row { position: relative; display: flex; align-items: flex-start; gap: 12px; background: var(--card); border: 2px dashed var(--line); border-radius: 16px; padding: 15px 14px 13px; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 36, 94, .05); transition: transform .25s cubic-bezier(.175, .885, .32, 1.275), box-shadow .25s ease; }
+        .quest-row::before { content: ''; position: absolute; top: -7px; left: 18px; width: 46px; height: 14px; background: rgba(255, 230, 0, .62); border: 1px dashed rgba(16, 36, 94, .2); transform: rotate(-4deg); backdrop-filter: blur(2px); box-shadow: 0 2px 4px rgba(0, 0, 0, .05); }
+        .quest-row:hover { transform: translateY(-3px) rotate(.3deg); box-shadow: 0 10px 22px rgba(0, 70, 255, .13); }
+        .quest-row:active { transform: scale(.98); }
+        .quest-row.done { opacity: .78; }
         .qr-main { flex: 1; min-width: 0; }
         .qr-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: var(--ink); line-height: 1.25; }
-        .qr-done { font-size: .68rem; color: #10b981; font-weight: 800; }
+        .qr-done { display: inline-block; font-size: .6rem; font-weight: 800; color: #0a7a3d; border: 1.5px solid #10b981; background: rgba(16, 185, 129, .1); padding: 1px 7px; border-radius: 6px; letter-spacing: .6px; transform: rotate(-2deg); margin-left: 4px; }
         .qr-desc { font-size: .78rem; color: var(--muted); margin-top: 3px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .qr-theme { font-size: .68rem; color: var(--muted); margin-top: 4px; font-weight: 600; }
-        .qr-xp { flex: 0 0 auto; font-size: .72rem; font-weight: 800; color: var(--blue); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+        /* XP jadi sticker kuning miring (senada grid) */
+        .qr-xp { flex: 0 0 auto; font-size: .7rem; font-weight: 800; color: #10245e; background: rgba(255, 230, 0, .9); border: 1px dashed rgba(16, 36, 94, .3); border-radius: 8px; padding: 4px 10px; transform: rotate(2deg); }
+        :root[data-theme="dark"] .quest-row::before { background: rgba(255, 230, 0, .3); border-color: rgba(255, 255, 255, .2); }
+        :root[data-theme="dark"] .qr-done { color: #34d399; background: rgba(16, 185, 129, .14); }
 
         /* ---- Quest Detail Modal (ala postingan IG) ---- */
         .quest-modal { position: fixed; inset: 0; background: rgba(16, 36, 94, .6); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 1200; padding: 16px; }
@@ -910,9 +1006,24 @@
         .qm-preview img { width: 100%; border-radius: 12px; display: block; }
         .qm-cap-input { width: 100%; margin-top: 8px; border: 1.5px solid var(--line); border-radius: 12px; padding: .7rem; font-family: inherit; font-size: .88rem; color: var(--ink); background: var(--card); resize: vertical; min-height: 58px; }
         .qm-cap-input:focus { outline: none; border-color: var(--blue); }
-        .qm-myphoto { margin-top: 10px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--bg); }
-        .qm-myphoto img { width: 100%; display: block; }
-        .qm-mycap { padding: 10px 12px; font-size: .85rem; color: var(--ink); line-height: 1.4; }
+        /* ---- Karya kamu (view mode) + edit mode di modal quest ---- */
+        .qm-work-lbl { font-size: .68rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 14px 0 8px; }
+        .qm-polaroid { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px; box-shadow: 0 6px 16px rgba(16, 36, 94, .08); transform: rotate(-.5deg); }
+        .qm-polaroid-imgwrap { border-radius: 8px; overflow: hidden; background: #eef2fb; }
+        .qm-polaroid-imgwrap img { width: 100%; display: block; }
+        .qm-edit-fab { position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; border-radius: 50%; border: 2px solid #fff; background: var(--blue); color: #fff; font-size: .95rem; cursor: pointer; box-shadow: 0 6px 14px rgba(0, 70, 255, .4); z-index: 4; display: flex; align-items: center; justify-content: center; transition: transform .15s ease; }
+        .qm-edit-fab:hover { transform: scale(1.08); }
+        .qm-edit-fab:active { transform: scale(.9); }
+        .qm-add-photo { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 1.2rem 1rem; border: 2px dashed var(--blue); border-radius: 14px; background: rgba(0, 70, 255, .05); color: var(--ink); cursor: pointer; font-family: inherit; margin-top: 12px; transition: background .2s ease, transform .15s ease; }
+        .qm-add-photo:hover { background: rgba(0, 70, 255, .1); }
+        .qm-add-photo:active { transform: scale(.98); }
+        .qm-add-photo .qm-add-icon { font-size: 1.8rem; line-height: 1; }
+        .qm-add-photo b { font-family: 'Outfit', sans-serif; font-size: .92rem; }
+        .qm-add-photo span:last-child { font-size: .76rem; color: var(--muted); }
+        .qm-editpanel { border: 2px dashed var(--line); border-radius: 14px; padding: 12px; margin-top: 12px; background: var(--bg); }
+        .qm-edit-head { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; color: var(--ink); margin-bottom: 8px; }
+        :root[data-theme="dark"] .qm-add-photo { background: rgba(91, 140, 255, .1); }
+        :root[data-theme="dark"] .qm-polaroid-imgwrap { background: #202c47; }
 
         /* ---- Galeri toolbar (filter + switch feed/grid) ---- */
         .gallery-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 1rem; }
@@ -945,28 +1056,104 @@
         .ig-cap { padding: 4px 14px 14px; font-size: .86rem; color: var(--ink); line-height: 1.45; }
         .ig-cap b { font-weight: 800; }
 
-        /* ---- Galeri grid (explore ala IG) ---- */
-        .ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; border-radius: 14px; overflow: hidden; }
-        .ig-grid-item { position: relative; aspect-ratio: 1 / 1; background: #eef2fb; cursor: pointer; }
-        .ig-grid-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .ig-grid-badge { position: absolute; top: 6px; right: 6px; background: rgba(16, 36, 94, .75); color: #fff; font-size: .64rem; font-weight: 700; padding: 2px 6px; border-radius: 6px; backdrop-filter: blur(2px); }
+        /* ---- Feed card ala journal note (List View) ---- */
+        .feed-card { padding: 14px; overflow: visible; }
+        .feed-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+        .user-meta { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .user-info { min-width: 0; }
+        .user-info .username { display: block; font-weight: 800; font-size: .88rem; color: var(--ink); line-height: 1.2; }
+        .user-info .post-time { font-size: .68rem; color: var(--muted); font-weight: 600; }
+        /* quest tag ala sticker/label pita */
+        .quest-badge-sticker { flex: 0 0 auto; max-width: 45%; background: #eff6ff; color: #2563eb; border: 1.5px dashed #bfdbfe; padding: 4px 10px; border-radius: 8px; font-size: .68rem; font-weight: 700; transform: rotate(1.5deg); line-height: 1.25; text-align: center; }
+        /* bingkai foto polaroid + washi tape tengah atas */
+        .feed-photo-frame { position: relative; background: var(--bg); padding: 8px; border-radius: 14px; border: 1px solid var(--line); }
+        .washi-tape-top { position: absolute; top: -8px; left: 50%; transform: translateX(-50%) rotate(-1.5deg); width: 62px; height: 16px; background: rgba(255, 230, 0, .68); backdrop-filter: blur(2px); border: 1px dashed rgba(16, 36, 94, .18); z-index: 5; box-shadow: 0 2px 4px rgba(0, 0, 0, .06); }
+        .feed-photo-wrap { border-radius: 10px; aspect-ratio: 4 / 5; }
+        /* action bar capsule */
+        .feed-actions { display: flex; align-items: center; gap: 10px; padding: 12px 2px 6px; }
+        .action-btn { background: var(--bg); border: 1.5px solid var(--line); padding: 6px 14px; border-radius: 999px; display: flex; align-items: center; gap: 6px; font-family: inherit; font-size: .8rem; font-weight: 700; color: var(--muted); cursor: pointer; transition: all .2s ease; }
+        .action-btn .li-icon { font-size: 1.05rem; }
+        .action-btn.active { background: #fef2f2; border-color: #fecaca; color: #ef4444; }
+        /* caption ala kertas memo */
+        .feed-caption-box { background: var(--bg); border-left: 3px solid var(--blue); padding: 10px 12px; border-radius: 0 10px 10px 0; margin-top: 4px; }
+        .caption-text { font-size: .85rem; line-height: 1.45; color: var(--ink); margin: 0; }
+        .caption-text b { font-weight: 800; margin-right: 4px; }
+        /* dark mode */
+        :root[data-theme="dark"] .quest-badge-sticker { background: rgba(91, 140, 255, .14); color: #8fb0ff; border-color: rgba(91, 140, 255, .4); }
+        :root[data-theme="dark"] .action-btn.active { background: rgba(239, 68, 68, .16); border-color: rgba(239, 68, 68, .4); color: #ff8a8a; }
+        :root[data-theme="dark"] .washi-tape-top { background: rgba(255, 230, 0, .32); border-color: rgba(255, 255, 255, .2); }
+
+        /* ---- Galeri grid: masonry scrapbook ala Pinterest ---- */
+        .ig-grid { column-count: 2; column-gap: 12px; padding-top: 4px; }
+        @media (min-width: 640px) { .ig-grid { column-count: 3; } }
+        .jcard { break-inside: avoid; margin-bottom: 14px; position: relative; cursor: pointer; transition: transform .25s cubic-bezier(.175, .885, .32, 1.275), box-shadow .25s ease; }
+        .jcard:hover { transform: translateY(-4px) rotate(.5deg); box-shadow: 0 12px 26px rgba(0, 70, 255, .14); }
+        .jcard:active { transform: scale(.97); }
+        /* A. bingkai polaroid / instax */
+        .jcard.frame-polaroid { background: var(--card); padding: 8px 8px 12px; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 8px 20px rgba(16, 36, 94, .07); }
+        .jcard.frame-polaroid .jcard-imgwrap { border-radius: 6px; }
+        /* B. bingkai stitched paper (jahitan) */
+        .jcard.frame-stitched { background: #faf8f5; padding: 10px; border-radius: 16px; border: 2px dashed #d1c7bd; box-shadow: 0 4px 12px rgba(16, 36, 94, .05); }
+        .jcard.frame-stitched .jcard-imgwrap { border-radius: 10px; }
+        /* C. washi tape hiasan */
+        .jtape { position: absolute; width: 50px; height: 16px; background: rgba(255, 230, 0, .55); backdrop-filter: blur(2px); border: 1px dashed rgba(16, 36, 94, .25); z-index: 3; box-shadow: 0 2px 4px rgba(0, 0, 0, .06); }
+        .jtape.tr { top: -6px; right: 12px; transform: rotate(8deg); }
+        .jtape.tl { top: -6px; left: 12px; transform: rotate(-12deg); }
+        /* foto: rasio variatif biar masonry-nya organik */
+        .jcard-imgwrap { position: relative; width: 100%; overflow: hidden; background: #eef2fb; }
+        .jcard-imgwrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ratio-45 { aspect-ratio: 4 / 5; }
+        .ratio-34 { aspect-ratio: 3 / 4; }
+        .ratio-11 { aspect-ratio: 1 / 1; }
+        /* body kartu */
+        .jcard-body { padding: 8px 2px 2px; }
+        .jcard-author { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+        .jcard-ava { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #0046ff, #0092ff); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .62rem; font-weight: 800; font-family: 'Outfit', sans-serif; flex-shrink: 0; }
+        .jcard-nick { font-size: .72rem; font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .jcard-likes { margin-left: auto; font-size: .66rem; font-weight: 800; color: var(--muted); flex-shrink: 0; }
+        .jcard-cap { font-size: .74rem; color: var(--muted); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        /* dark mode: kertas cream -> permukaan gelap */
+        :root[data-theme="dark"] .jcard.frame-stitched { background: #131c2f; border-color: #3a4666; }
+        :root[data-theme="dark"] .jcard-imgwrap { background: #202c47; }
+        :root[data-theme="dark"] .jtape { background: rgba(255, 230, 0, .32); border-color: rgba(255, 255, 255, .2); }
 
         /* ---- Leaderboard ---- */
-        .lb-card { background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%); color: #fff; border-radius: 22px; padding: 26px 22px; position: relative; overflow: hidden; box-shadow: 0 18px 45px rgba(0, 60, 200, .3); }
-        .lb-head { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #ffe600; border-bottom: 2px dashed rgba(255, 255, 255, .35); padding-bottom: 12px; }
-        .lb-title { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; margin-top: 14px; line-height: 1.15; }
-        .lb-sub { font-size: 12px; opacity: .9; margin-top: 2px; }
-        .lb-rows { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
-        .lb-row { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, .15); border: 1px solid rgba(255, 255, 255, .28); border-radius: 14px; padding: 10px 14px; }
-        .lb-row .n { font-size: 18px; font-weight: 800; width: 28px; text-align: center; flex-shrink: 0; }
-        .lb-row .nm { flex: 1; min-width: 0; font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .lb-row .pt { font-size: 13px; font-weight: 800; color: #ffe600; flex-shrink: 0; }
-        .lb-row.top { background: #ffe600; color: #10245e; }
-        .lb-row.top .pt { color: #0046ff; }
-        .lb-row.me { outline: 2px solid #ffe600; outline-offset: 1px; }
+        /* ---- Leaderboard: scrapbook "Challenge Champions" ---- */
+        .lb-card { background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%); color: #fff; border-radius: 26px; padding: 26px 20px 16px; position: relative; overflow: hidden; box-shadow: 0 18px 45px rgba(0, 60, 200, .3); }
+        /* hiasan washi tape + paperclip */
+        .lb-tape { position: absolute; top: -6px; left: 20px; width: 70px; height: 18px; background: rgba(255, 230, 0, .85); transform: rotate(-6deg); border: 1px dashed rgba(0, 0, 0, .15); backdrop-filter: blur(2px); z-index: 2; }
+        .lb-clip { position: absolute; top: 12px; right: 18px; font-size: 1.35rem; transform: rotate(15deg); opacity: .85; }
+        .lb-header { text-align: center; margin-bottom: 18px; }
+        .lb-badge { display: inline-block; background: rgba(255, 255, 255, .2); border: 1px dashed rgba(255, 255, 255, .5); color: #fef08a; font-size: .66rem; font-weight: 800; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 12px; margin-bottom: 8px; }
+        .lb-header h2 { font-family: 'Outfit', sans-serif; font-size: 1.35rem; font-weight: 800; margin: 0; letter-spacing: -.3px; }
+        .lb-header p { color: #bfdbfe; font-size: .78rem; margin-top: 4px; }
+        .lb-list { display: flex; flex-direction: column; gap: 10px; }
+        .rank-item { display: flex; align-items: center; padding: 10px 14px; border-radius: 16px; position: relative; }
+        /* juara 1 = kartu stiker emas miring */
+        .rank-item.top1 { background: #fde047; color: #1e293b; border: 2px solid #fff; box-shadow: 0 6px 16px rgba(0, 0, 0, .12); transform: rotate(-1deg) scale(1.02); margin-bottom: 4px; }
+        .rank-crown { font-size: 1.3rem; margin-right: 8px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .15)); }
+        .rank-ava { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #0046ff, #0092ff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Outfit', sans-serif; border: 2px solid #fff; margin-right: 10px; flex-shrink: 0; font-size: .85rem; }
+        .rank-info { min-width: 0; }
+        .rank-name { display: block; font-weight: 800; font-size: .92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .top1 .rank-name { color: #0f172a; font-size: .95rem; }
+        .rank-tag { display: block; font-size: .62rem; font-weight: 800; color: #854d0e; text-transform: uppercase; letter-spacing: .5px; }
+        .rank-pts { margin-left: auto; font-weight: 700; font-size: .85rem; white-space: nowrap; flex-shrink: 0; }
+        .rank-pts b { font-weight: 800; }
+        .top1 .rank-pts { background: #fff; padding: 4px 12px; border-radius: 12px; color: #0f172a; box-shadow: 0 2px 4px rgba(0, 0, 0, .05); }
+        /* rank 2+ = kaca frosted */
+        .rank-item.glass { background: rgba(255, 255, 255, .15); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, .25); color: #fff; }
+        .rank-item.me { outline: 2px dashed #ffe600; outline-offset: 1px; }
+        .rank-num { width: 26px; height: 26px; border-radius: 50%; background: rgba(255, 255, 255, .2); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .8rem; margin-right: 12px; flex-shrink: 0; }
+        .rank-num.silver { background: #e2e8f0; color: #334155; }
+        .rank-num.bronze { background: #fdba74; color: #7c2d12; }
         .lb-me { margin-top: 14px; background: rgba(255, 255, 255, .18); border: 1px dashed rgba(255, 255, 255, .45); border-radius: 14px; padding: 12px 14px; font-weight: 800; text-align: center; font-size: 14px; }
-        .lb-foot { margin-top: 16px; text-align: right; color: #ffe600; font-weight: 800; font-size: 12px; border-top: 2px dashed rgba(255, 255, 255, .35); padding-top: 12px; }
+        .lb-foot { margin-top: 14px; text-align: right; color: rgba(255, 255, 255, .65); font-weight: 700; font-size: .7rem; }
         .lb-card.export { padding: 70px 26px 110px; }
+        /* tombol share IG */
+        .share-ig-btn { width: 100%; margin-top: 14px; background: var(--card); color: var(--blue); border: 2px solid var(--blue); padding: 12px; border-radius: 16px; font-family: inherit; font-size: .9rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 70, 255, .15); transition: transform .2s ease; }
+        .share-ig-btn:hover { transform: translateY(-2px); }
+        .share-ig-btn:active { transform: scale(.98); }
+        .share-ig-btn svg { width: 17px; height: 17px; }
 
         .placeholder {
             text-align: center;
@@ -1348,18 +1535,19 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45);
+            border: 1.5px solid rgba(16, 36, 94, 0.12);
+            box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.8);
         }
 
+        /* kertas journal cream (bukan kartu bank) */
         .card-face.front {
-            background: linear-gradient(135deg, #091738 0%, #10245e 42%, #0046ff 78%, #0092ff 100%);
-            color: #ffffff;
+            background: #fdf8ee;
+            color: var(--ink);
         }
 
         .card-face.back {
-            background: linear-gradient(135deg, #0d1222 0%, #151d38 50%, #0c266e 100%);
-            color: #ffffff;
+            background: #fdf8ee;
+            color: var(--ink);
             transform: rotateY(180deg);
         }
 
@@ -1370,14 +1558,16 @@
         .member-card-3d.is-flipped .card-face.front { opacity: 0; }
         .member-card-3d.is-flipped .card-face.back { opacity: 1; }
 
+        /* dot-grid ala halaman journal + blob warna lembut di pojok */
         .card-bg-pattern {
             position: absolute;
             inset: 0;
             pointer-events: none;
-            background: 
-                radial-gradient(circle at 85% 15%, rgba(255, 230, 0, 0.28) 0%, transparent 45%),
-                radial-gradient(circle at 15% 85%, rgba(0, 212, 255, 0.22) 0%, transparent 45%),
-                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 2px, transparent 0, transparent 8px);
+            background:
+                radial-gradient(circle at 88% 12%, rgba(255, 230, 0, 0.22) 0%, transparent 40%),
+                radial-gradient(circle at 10% 90%, rgba(0, 146, 255, 0.14) 0%, transparent 40%),
+                radial-gradient(rgba(16, 36, 94, 0.13) 1px, transparent 1.5px);
+            background-size: auto, auto, 14px 14px;
             z-index: 1;
         }
 
@@ -1388,13 +1578,27 @@
             height: 220%;
             pointer-events: none;
             z-index: 2;
-            mix-blend-mode: color-dodge;
-            opacity: var(--shine-opacity, 0.35);
+            mix-blend-mode: soft-light;
+            opacity: var(--shine-opacity, 0.25);
             transition: opacity 0.3s ease;
-            background: 
-                radial-gradient(circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(255, 255, 255, 0.85) 0%, rgba(255, 225, 120, 0.5) 18%, rgba(255, 0, 180, 0.35) 36%, rgba(0, 230, 255, 0.35) 55%, transparent 75%),
-                linear-gradient(calc(var(--rx, 0deg) * 6 + 135deg), rgba(255, 255, 255, 0.35) 0%, rgba(255, 215, 0, 0.4) 20%, rgba(255, 0, 128, 0.4) 40%, rgba(0, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0.35) 100%);
+            background:
+                radial-gradient(circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(255, 255, 255, 0.7) 0%, rgba(255, 225, 120, 0.3) 18%, rgba(255, 0, 180, 0.14) 36%, rgba(0, 230, 255, 0.14) 55%, transparent 75%),
+                linear-gradient(calc(var(--rx, 0deg) * 6 + 135deg), rgba(255, 255, 255, 0.18) 0%, rgba(255, 215, 0, 0.15) 20%, rgba(255, 0, 128, 0.12) 40%, rgba(0, 255, 255, 0.12) 60%, rgba(255, 255, 255, 0.18) 100%);
         }
+
+        /* washi tape di kartu */
+        .card-tape {
+            position: absolute;
+            width: 64px;
+            height: 18px;
+            z-index: 4;
+            border: 1px dashed rgba(16, 36, 94, 0.18);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            pointer-events: none;
+        }
+
+        .card-tape.a { top: -8px; left: 28px; background: rgba(255, 230, 0, 0.7); transform: rotate(-5deg); }
+        .card-tape.b { bottom: -8px; right: 32px; background: rgba(0, 146, 255, 0.3); transform: rotate(4deg); }
 
         .card-layer {
             position: relative;
@@ -1407,27 +1611,22 @@
             justify-content: space-between;
         }
 
-        .card-chip {
-            width: 40px;
-            height: 29px;
-            border-radius: 6px;
-            background: linear-gradient(135deg, #ffe57f 0%, #ffc107 50%, #ff9800 100%);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 5px rgba(0,0,0,0.25);
-            position: relative;
-            overflow: hidden;
+        /* sticker "SS" (pengganti chip bank) */
+        .card-sticker {
+            width: 42px;
+            height: 42px;
+            background: #ffffff;
+            border: 1.5px solid rgba(16, 36, 94, 0.15);
+            border-radius: 11px;
+            transform: rotate(-4deg);
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .card-chip::after {
-            content: '';
-            position: absolute;
-            width: 70%;
-            height: 60%;
-            border: 1px solid rgba(120, 70, 0, 0.5);
-            border-radius: 3px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--blue);
+            box-shadow: 0 3px 8px rgba(16, 36, 94, 0.12);
         }
 
         .card-logo {
@@ -1439,16 +1638,15 @@
             font-weight: 800;
             font-size: 0.82rem;
             letter-spacing: 1.5px;
-            color: #ffe600;
+            color: #0046ff;
             text-transform: uppercase;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
         }
 
         .card-logo-sub {
             font-size: 0.58rem;
             font-weight: 700;
             letter-spacing: 1.2px;
-            color: rgba(255, 255, 255, 0.85);
+            color: #6b7794;
             text-transform: uppercase;
         }
 
@@ -1456,6 +1654,7 @@
             margin: 0.4rem 0;
         }
 
+        /* tier = sticker miring border putus-putus */
         .card-tier-badge {
             display: inline-flex;
             align-items: center;
@@ -1463,23 +1662,29 @@
             background: linear-gradient(135deg, rgba(255, 230, 0, 0.95) 0%, rgba(255, 190, 0, 0.95) 100%);
             color: #10245e;
             padding: 4px 12px;
-            border-radius: 999px;
+            border-radius: 9px;
             font-family: 'Outfit', sans-serif;
             font-size: 0.76rem;
             font-weight: 800;
             letter-spacing: 0.5px;
             box-shadow: 0 4px 12px rgba(255, 230, 0, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            border: 1.5px dashed rgba(16, 36, 94, 0.3);
+            transform: rotate(-1.5deg);
         }
 
+        /* nomor member di strip masking tape */
         .card-number {
+            display: inline-block;
             font-family: 'Outfit', monospace;
-            font-size: 1.05rem;
+            font-size: 1.02rem;
             font-weight: 700;
             letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.95);
-            margin-top: 0.45rem;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            color: var(--ink);
+            margin-top: 0.5rem;
+            background: rgba(255, 230, 0, 0.35);
+            border: 1px dashed rgba(16, 36, 94, 0.18);
+            padding: 3px 10px;
+            transform: rotate(-0.6deg);
         }
 
         .card-bot {
@@ -1498,7 +1703,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.7);
+            color: #8a93ad;
         }
 
         .card-name {
@@ -1506,9 +1711,8 @@
             font-size: 1rem;
             font-weight: 800;
             letter-spacing: 0.5px;
-            color: #ffffff;
+            color: var(--ink);
             text-transform: uppercase;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1518,31 +1722,34 @@
         .card-flip-hint {
             font-size: 0.65rem;
             font-weight: 700;
-            background: rgba(255, 255, 255, 0.18);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            padding: 4px 9px;
+            background: #ffffff;
+            padding: 4px 10px;
             border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: rgba(255, 255, 255, 0.95);
+            border: 1.5px solid rgba(16, 36, 94, 0.2);
+            color: var(--ink);
             display: flex;
             align-items: center;
             gap: 4px;
             transition: background 0.2s;
+            box-shadow: 0 2px 6px rgba(16, 36, 94, 0.1);
         }
 
         .card-flip-hint:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #f4f7ff;
         }
 
-        .card-magstripe {
+        /* strip washi tape lebar (pengganti magstripe bank) */
+        .card-tape-strip {
             position: absolute;
-            top: 18px;
-            left: 0;
-            right: 0;
-            height: 36px;
-            background: linear-gradient(90deg, #111 0%, #222 50%, #111 100%);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+            top: 16px;
+            left: -8px;
+            right: -8px;
+            height: 26px;
+            background: rgba(0, 146, 255, 0.25);
+            border-top: 1px dashed rgba(16, 36, 94, 0.2);
+            border-bottom: 1px dashed rgba(16, 36, 94, 0.2);
+            transform: rotate(-0.8deg);
+            z-index: 3;
         }
 
         .card-back-body {
@@ -1557,21 +1764,35 @@
         }
 
         .card-sig-line {
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px dashed rgba(255, 255, 255, 0.3);
+            background: #ffffff;
+            border: 1.5px dashed rgba(16, 36, 94, 0.25);
             border-radius: 8px;
             padding: 6px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-size: 0.72rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
+            font-weight: 700;
+            color: var(--ink);
         }
 
         .card-sig-line b {
-            color: #ffe600;
+            color: #0046ff;
             font-family: 'Outfit', sans-serif;
+        }
+
+        /* stempel karet hijau (VERIFIED / STATUS) */
+        .card-stamp {
+            display: inline-block;
+            border: 2px solid #10b981;
+            color: #0a7a3d;
+            background: rgba(16, 185, 129, 0.08);
+            font-weight: 800;
+            font-size: 0.58rem;
+            letter-spacing: 1px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            transform: rotate(-3deg);
         }
 
         .card-back-mid {
@@ -1582,29 +1803,39 @@
 
         .card-back-tag {
             font-size: 0.72rem;
-            opacity: 0.92;
+            color: #4c5a7d;
+            font-style: italic;
             text-align: center;
         }
 
         .card-back-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 10px;
         }
 
+        /* stat = sticky notes miring */
         .card-stat-box {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 10px;
-            padding: 6px 8px;
+            background: #fff6c9;
+            border: 1px solid rgba(16, 36, 94, 0.12);
+            border-radius: 4px 4px 12px 4px;
+            padding: 7px 8px;
             text-align: center;
+            transform: rotate(-1.3deg);
+            box-shadow: 0 3px 8px rgba(16, 36, 94, 0.09);
+        }
+
+        .card-stat-box:last-child {
+            background: #e3f0ff;
+            transform: rotate(1.3deg);
+            border-radius: 4px 4px 4px 12px;
         }
 
         .card-stat-box .val {
             font-family: 'Outfit', sans-serif;
             font-size: 1.1rem;
             font-weight: 800;
-            color: #ffe600;
+            color: #0046ff;
             line-height: 1;
         }
 
@@ -1613,7 +1844,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            color: rgba(255, 255, 255, 0.75);
+            color: #6b7794;
             margin-top: 2px;
         }
 
@@ -1622,8 +1853,33 @@
             align-items: center;
             justify-content: space-between;
             font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.7);
+            color: #6b7794;
         }
+
+        /* ---- Dark mode kartu member (kertas gelap) ---- */
+        :root[data-theme="dark"] .card-face.front,
+        :root[data-theme="dark"] .card-face.back { background: #1b2440; border-color: rgba(255, 255, 255, 0.1); box-shadow: none; }
+        :root[data-theme="dark"] .card-bg-pattern { background: radial-gradient(circle at 88% 12%, rgba(255, 230, 0, 0.12) 0%, transparent 40%), radial-gradient(circle at 10% 90%, rgba(0, 146, 255, 0.1) 0%, transparent 40%), radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1.5px); background-size: auto, auto, 14px 14px; }
+        :root[data-theme="dark"] .card-sticker { background: #232e4f; color: #8fb0ff; border-color: rgba(255, 255, 255, 0.14); }
+        :root[data-theme="dark"] .card-logo-title { color: #ffe600; }
+        :root[data-theme="dark"] .card-logo-sub { color: rgba(255, 255, 255, 0.65); }
+        :root[data-theme="dark"] .card-number { background: rgba(255, 230, 0, 0.16); border-color: rgba(255, 255, 255, 0.18); }
+        :root[data-theme="dark"] .card-label { color: rgba(255, 255, 255, 0.55); }
+        :root[data-theme="dark"] .card-flip-hint { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.25); color: #fff; box-shadow: none; }
+        :root[data-theme="dark"] .card-flip-hint:hover { background: rgba(255, 255, 255, 0.18); }
+        :root[data-theme="dark"] .card-tape { border-color: rgba(255, 255, 255, 0.18); }
+        :root[data-theme="dark"] .card-tape.a { background: rgba(255, 230, 0, 0.35); }
+        :root[data-theme="dark"] .card-tape.b { background: rgba(0, 146, 255, 0.25); }
+        :root[data-theme="dark"] .card-tape-strip { background: rgba(0, 146, 255, 0.18); border-color: rgba(255, 255, 255, 0.15); }
+        :root[data-theme="dark"] .card-sig-line { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.25); color: var(--ink); }
+        :root[data-theme="dark"] .card-sig-line b { color: #8fb0ff; }
+        :root[data-theme="dark"] .card-stamp { color: #34d399; background: rgba(16, 185, 129, 0.14); }
+        :root[data-theme="dark"] .card-stat-box { background: rgba(255, 230, 0, 0.12); border-color: rgba(255, 255, 255, 0.12); }
+        :root[data-theme="dark"] .card-stat-box:last-child { background: rgba(0, 146, 255, 0.15); }
+        :root[data-theme="dark"] .card-stat-box .val { color: #8fb0ff; }
+        :root[data-theme="dark"] .card-stat-box .lbl { color: rgba(255, 255, 255, 0.6); }
+        :root[data-theme="dark"] .card-back-tag { color: rgba(255, 255, 255, 0.7); }
+        :root[data-theme="dark"] .card-back-foot { color: rgba(255, 255, 255, 0.55); }
         /* ---- Mochi's Corner (maskot) ---- */
         .mochi-widget { position: fixed; bottom: 24px; left: 20px; z-index: 900; display: none; flex-direction: column; align-items: flex-start; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
         .mochi-widget.show { display: flex; }
@@ -1754,28 +2010,28 @@
 
             <div class="tabs" id="mainNavTabs">
                 <button class="tab active" data-pane="loyalty">
-                    <span class="tab-icon">🎁</span>
+                    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>
                     <span class="tab-label">Loyalty</span>
                 </button>
                 <button class="tab" data-pane="events">
-                    <span class="tab-icon">📅</span>
+                    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
                     <span class="tab-label">Event</span>
                 </button>
                 <button class="tab" data-pane="quest">
-                    <span class="tab-icon">⚡</span>
-                    <span class="tab-label">Quest</span>
+                    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span>
+                    <span class="tab-label">Challenge</span>
                 </button>
                 <button class="tab" data-pane="rank">
-                    <span class="tab-icon">🏆</span>
+                    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9.25" y="4" width="5.5" height="16.5" rx="1.2"/><rect x="2.75" y="10" width="5.5" height="10.5" rx="1.2"/><rect x="15.75" y="13" width="5.5" height="7.5" rx="1.2"/></svg></span>
                     <span class="tab-label">Ranking</span>
                 </button>
                 <button class="tab" data-pane="gallery">
-                    <span class="tab-icon">📸</span>
-                    <span class="tab-label">Galeri</span>
+                    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
+                    <span class="tab-label">Gallery</span>
                 </button>
                 <button class="tab" data-pane="rec">
-                    <span class="tab-icon">🛍️</span>
-                    <span class="tab-label">Rekomendasi</span>
+                    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+                    <span class="tab-label">Favs</span>
                 </button>
             </div>
 
@@ -1783,32 +2039,32 @@
             <div class="fab-container" id="fabContainer">
                 <div class="fab-menu" id="fabMenu">
                     <button class="fab-item" id="fabActionInstall" style="display:none;">
-                        <span class="fab-item-icon">📲</span>
-                        <span class="fab-item-label">Install Aplikasi</span>
+                        <span class="fab-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
+                        <span class="fab-item-label">Install App</span>
                     </button>
                     <button class="fab-item" id="fabActionTheme">
-                        <span class="fab-item-icon" id="fabThemeIcon">🌙</span>
-                        <span class="fab-item-label" id="fabThemeLabel">Mode Gelap</span>
+                        <span class="fab-item-icon" id="fabThemeIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+                        <span class="fab-item-label" id="fabThemeLabel">Dark Mode</span>
                     </button>
                     <button class="fab-item" id="fabActionQuest">
-                        <span class="fab-item-icon">⚡</span>
-                        <span class="fab-item-label">Side Quest</span>
+                        <span class="fab-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span>
+                        <span class="fab-item-label">Challenge</span>
                     </button>
                     <button class="fab-item" id="fabActionShare">
-                        <span class="fab-item-icon">🏆</span>
-                        <span class="fab-item-label">Ranking Poin</span>
+                        <span class="fab-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9.25" y="4" width="5.5" height="16.5" rx="1.2"/><rect x="2.75" y="10" width="5.5" height="10.5" rx="1.2"/><rect x="15.75" y="13" width="5.5" height="7.5" rx="1.2"/></svg></span>
+                        <span class="fab-item-label">Ranking</span>
                     </button>
                     <button class="fab-item" id="fabActionTop">
-                        <span class="fab-item-icon">🔝</span>
-                        <span class="fab-item-label">Ke Atas</span>
+                        <span class="fab-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
+                        <span class="fab-item-label">Back to Top</span>
                     </button>
                     <button class="fab-item" id="logoutBtn">
-                        <span class="fab-item-icon">🚪</span>
+                        <span class="fab-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
                         <span class="fab-item-label">Logout</span>
                     </button>
                 </div>
                 <button class="fab-btn" id="fabMainBtn" title="Aksi Cepat">
-                    <span class="fab-icon">⚡</span>
+                    <span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
                 </button>
             </div>
 
@@ -1833,7 +2089,7 @@
             <div class="pane" id="pane-quest">
                 <div class="placeholder">
                     <div class="em">⚡</div>
-                    <h3>Side Quest</h3>
+                    <h3>Challenge</h3>
                     <p>Segera hadir — challenge journaling bertema, kumpulin poin!</p>
                 </div>
             </div>
@@ -1844,7 +2100,7 @@
             <div class="pane" id="pane-gallery">
                 <div class="placeholder">
                     <div class="em">📸</div>
-                    <h3>Galeri Challenge</h3>
+                    <h3>Challenge Gallery</h3>
                     <p>Foto spread challenge dari kamu & sahabat lain bakal muncul di sini ✨</p>
                 </div>
             </div>

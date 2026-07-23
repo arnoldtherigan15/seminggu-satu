@@ -456,6 +456,31 @@
             margin-top: 0.6rem;
         }
 
+        /* tombol share IG (samain sama halaman sahabat) */
+        .share-ig-btn {
+            width: 100%;
+            background: var(--card);
+            color: var(--blue);
+            border: 2px solid var(--blue);
+            padding: 12px;
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: .9rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 70, 255, .15);
+            transition: transform .2s ease;
+        }
+
+        .share-ig-btn:hover { transform: translateY(-2px); }
+        .share-ig-btn:active { transform: scale(.98); }
+        .share-ig-btn:disabled { opacity: .6; }
+        .share-ig-btn svg { width: 17px; height: 17px; }
+
         /* Not found / error */
         .msg-card {
             background: var(--card);
@@ -555,6 +580,46 @@
             background: radial-gradient(circle, rgba(255, 255, 255, .35) 0%, transparent 70%);
         }
 
+        /* hiasan scrapbook: washi tape + paperclip (senada leaderboard) */
+        .rs-tape {
+            position: absolute;
+            top: -6px;
+            left: 22px;
+            width: 70px;
+            height: 18px;
+            background: rgba(255, 230, 0, .85);
+            transform: rotate(-6deg);
+            border: 1px dashed rgba(0, 0, 0, .15);
+            backdrop-filter: blur(2px);
+            z-index: 2;
+        }
+
+        .rs-clip {
+            position: absolute;
+            top: 34px;
+            right: 18px;
+            font-size: 1.3rem;
+            transform: rotate(15deg);
+            opacity: .85;
+            z-index: 2;
+        }
+
+        .rs-badge {
+            display: inline-block;
+            align-self: flex-start;
+            background: rgba(255, 255, 255, .2);
+            border: 1px dashed rgba(255, 255, 255, .5);
+            color: #fef08a;
+            font-size: .64rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-top: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
         .rs-head {
             display: flex;
             align-items: center;
@@ -577,17 +642,6 @@
             background: #ffe600;
             display: inline-block;
             margin-right: 6px;
-        }
-
-        .rs-period {
-            margin-top: 20px;
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: #ffe600;
-            position: relative;
-            z-index: 1;
         }
 
         .rs-title {
@@ -658,6 +712,10 @@
             padding: 12px 14px;
         }
 
+        /* stat miring selang-seling ala stiker ditempel tangan */
+        .rs-grid .rs-stat:nth-child(odd) { transform: rotate(-1.2deg); }
+        .rs-grid .rs-stat:nth-child(even) { transform: rotate(1.2deg); }
+
         .rs-stat b {
             display: block;
             font-size: 26px;
@@ -716,7 +774,7 @@
 
         .rs-spot.hi {
             background: #ffe600;
-            border-color: #ffe600;
+            border: 1.5px dashed rgba(16, 36, 94, .35);
             color: #10245e;
             transform: rotate(-1.5deg);
             box-shadow: 0 10px 24px rgba(0, 30, 120, .3);
@@ -764,8 +822,16 @@
             padding: 72px 26px 110px;
         }
 
-        .recap-story.export .rs-period {
+        .recap-story.export .rs-badge {
             margin-top: 12px;
+        }
+
+        .recap-story.export .rs-tape {
+            top: 46px;
+        }
+
+        .recap-story.export .rs-clip {
+            top: 82px;
         }
 
         .recap-story.export .rs-title {
@@ -807,7 +873,7 @@
             <form class="lookup" id="lookupForm">
                 <input type="tel" id="waInput" inputmode="numeric" placeholder="cth: 0812xxxxxxx" autocomplete="tel"
                     required>
-                <button type="submit" id="lookupBtn">Lihat Perjalananku ✨</button>
+                <button type="submit" id="lookupBtn">See My Journey ✨</button>
             </form>
         </div>
         <p class="hint">Pakai nomor WhatsApp yang sama waktu kamu daftar event ya 🙌</p>
@@ -823,9 +889,17 @@
     <script>
         var GS = (typeof GOOGLE_SCRIPT_URL !== "undefined") ? GOOGLE_SCRIPT_URL : "";
         var lastData = null;
-        // Datang dari portal member -> logo & tombol balik ke portal (bukan home publik)
+        // Datang dari portal member -> logo & tombol balik ke portal (bukan home publik),
+        // dan input WA disembunyiin (nomornya udah kebawa dari sesi member)
         var FROM_MEMBER = new URLSearchParams(location.search).get("from") === "member";
-        if (FROM_MEMBER) { var _bl = document.getElementById("brandLink"); if (_bl) _bl.href = "../sahabat/"; }
+        if (FROM_MEMBER) {
+            var _bl = document.getElementById("brandLink"); if (_bl) _bl.href = "../sahabat/";
+            var _lc = document.getElementById("lookupCard"); if (_lc) _lc.style.display = "none";
+            var _ht = document.querySelector(".hint"); if (_ht) _ht.style.display = "none";
+        }
+
+        // Ikon kamera (share) — SVG biar clean, samain sama halaman sahabat
+        var ICON_CAMERA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
 
         function esc(s) {
             return String(s == null ? "" : s)
@@ -898,7 +972,7 @@
                     '<div class="em">🔍</div>' +
                     '<h3>Belum nemu jejakmu nih</h3>' +
                     '<p>Nomor ini belum kedaftar di event kami, atau salah ketik. Pastikan pakai nomor yang sama waktu daftar ya. Belum pernah ikut? Yuk mulai! 🌱</p>' +
-                    '<a class="btn-primary" href="../index.html">Lihat Event Terdekat →</a>' +
+                    '<a class="btn-primary" href="../index.html">See Upcoming Events →</a>' +
                     '</div>';
                 return;
             }
@@ -935,25 +1009,25 @@
                 '<div class="greet">Hai, ' + esc(name) + '! 👋</div>' +
 
                 '<div class="stat-cards">' +
-                '<div class="scard"><b>' + count + '</b><span>Kali Kumpul Bareng</span></div>' +
-                '<div class="scard"><b>' + (since || "🌱") + '</b><span>Sahabat Sejak</span></div>' +
+                '<div class="scard"><b>' + count + '</b><span>Events Joined</span></div>' +
+                '<div class="scard"><b>' + (since || "🌱") + '</b><span>Member Since</span></div>' +
                 '</div>' +
 
                 '<div class="tier"><div class="em">' + p.emoji + '</div><div><div class="t">' + esc(p.title) + '</div><div class="d">' + esc(p.tag) + '</div></div></div>' +
 
                 '<div class="reward">' +
-                '<div class="rtop"><b>Kartu Loyalty 🎁</b><span>' + progress + '/' + target + ' stamp</span></div>' +
+                '<div class="rtop"><b>Loyalty Card 🎁</b><span>' + progress + '/' + target + ' stamps</span></div>' +
                 '<div class="stamps">' + stampsHtml + '</div>' +
                 rewardBox +
                 '</div>' +
 
-                (tl ? ('<div class="section-title">Jejak Journaling-mu</div><div class="timeline">' + tl + '</div>') : '') +
+                (tl ? ('<div class="section-title">Your Journaling Journey</div><div class="timeline">' + tl + '</div>') : '') +
 
-                '<div class="section-title">Passport Kamu</div>' +
+                '<div class="section-title">Your Passport</div>' +
                 '<div id="passportCard" class="recap-story"></div>' +
                 '<div class="pp-actions">' +
-                '<button class="btn-primary" id="ppShare">📲 Bagikan ke IG Story</button>' +
-                '<a class="btn-ghost" href="' + (FROM_MEMBER ? "../sahabat/#events" : "../index.html") + '">Lihat Event Berikutnya →</a>' +
+                '<button class="share-ig-btn" id="ppShare">' + ICON_CAMERA + ' Share to IG Story</button>' +
+                '<a class="btn-ghost" href="' + (FROM_MEMBER ? "../sahabat/#events" : "../index.html") + '">See Upcoming Events →</a>' +
                 '</div>' +
                 '<p class="share-note">Pencet tombol → pilih <b>Instagram → Story</b>. Jangan lupa tag <b>@seminggu_satu</b> ya! 💙</p>';
 
@@ -970,22 +1044,24 @@
 
             document.getElementById("passportCard").innerHTML =
                 '<div class="rs-orb a"></div><div class="rs-orb b"></div>' +
+                '<div class="rs-tape"></div>' +
+                '<div class="rs-clip">📎</div>' +
                 '<div class="rs-head"><span><span class="rs-dot"></span>Seminggu Satu</span><span>Passport</span></div>' +
-                '<div class="rs-period">Journaling Passport</div>' +
+                '<div class="rs-badge">JOURNALING PASSPORT</div>' +
                 '<div class="rs-title">' + esc(name) + '</div>' +
-                '<div class="rs-hero"><b>' + d.count + '</b><span>Kali kumpul bareng kita</span></div>' +
+                '<div class="rs-hero"><b>' + d.count + '</b><span>Events joined</span></div>' +
                 '<div class="rs-stamps">' + stampStr + more + '</div>' +
                 '<div class="rs-grid" style="grid-template-columns:repeat(3,1fr);">' +
-                '<div class="rs-stat"><b>' + (since || "🌱") + '</b><span>Sahabat sejak</span></div>' +
-                '<div class="rs-stat"><b>' + (d.questCount || 0) + '</b><span>⚡ Quest</span></div>' +
-                '<div class="rs-stat"><b>' + (d.claimed || 0) + '</b><span>🎁 Hadiah</span></div>' +
+                '<div class="rs-stat"><b>' + (since || "🌱") + '</b><span>Member since</span></div>' +
+                '<div class="rs-stat"><b>' + (d.questCount || 0) + '</b><span>Challenges</span></div>' +
+                '<div class="rs-stat"><b>' + (d.claimed || 0) + '</b><span>Rewards</span></div>' +
                 '</div>' +
                 '<div class="rs-spot hi"><div class="rs-emoji">🎖️</div><div>' +
                 '<div class="rs-lbl">' + esc(p.title) + '</div>' +
                 '<div class="rs-val">' + esc(p.trait) + '</div>' +
                 '<div class="rs-meta">' + esc(p.tag) + '</div>' +
                 '</div></div>' +
-                '<div class="rs-foot"><span>Bercerita & didengar ✨</span><span class="rs-brand">@seminggu_satu</span></div>';
+                '<div class="rs-foot"><span>Journaling together ✨</span><span class="rs-brand">@seminggu_satu</span></div>';
         }
 
         // Render passport jadi PNG (1080x1920, safe zone IG Story)
@@ -1017,9 +1093,9 @@
         // Kalau nggak didukung (mis. desktop) -> download + instruksi.
         async function sharePassport() {
             var btn = document.getElementById("ppShare");
-            var label = btn.textContent;
+            var label = btn.innerHTML; // ada SVG di dalamnya
             var nm = (lastData && lastData.nickname ? lastData.nickname : "peserta").trim().replace(/\s+/g, "-").toLowerCase() || "peserta";
-            btn.disabled = true; btn.textContent = "Menyiapkan…";
+            btn.disabled = true; btn.textContent = "Preparing…";
             try {
                 var blob = await renderPassportPng();
                 if (!blob) throw new Error("no blob");
@@ -1049,7 +1125,7 @@
             } catch (e) {
                 alert("Gagal menyiapkan gambar. Coba lagi ya.");
             } finally {
-                btn.disabled = false; btn.textContent = label;
+                btn.disabled = false; btn.innerHTML = label;
             }
         }
 
@@ -1076,7 +1152,7 @@
                     '<div class="msg-card"><div class="em">📡</div>' +
                     '<h3>Gagal terhubung</h3>' +
                     '<p>Koneksi ke server bermasalah. Cek internetmu lalu coba lagi ya.</p>' +
-                    '<button class="btn-primary" onclick="location.reload()">Coba Lagi</button></div>';
+                    '<button class="btn-primary" onclick="location.reload()">Try Again</button></div>';
             } finally {
                 spinner.style.display = "none";
                 btn.disabled = false;

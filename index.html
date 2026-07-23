@@ -617,7 +617,10 @@
         (function () {
             const btn = document.getElementById('themeToggle');
             if (!btn) return;
-            function sync() { btn.textContent = window.ssIsDark && window.ssIsDark() ? '☀️' : '🌙'; }
+            function sync() {
+                const dark = window.ssIsDark && window.ssIsDark();
+                btn.innerHTML = dark ? (window.SS_ICON_SUN || '☀️') : (window.SS_ICON_MOON || '🌙');
+            }
             sync();
             btn.addEventListener('click', function () {
                 if (window.ssToggleTheme) window.ssToggleTheme();
