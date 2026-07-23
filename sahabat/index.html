@@ -878,6 +878,19 @@
         .qg-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .82rem; color: var(--ink); line-height: 1.18; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .qg-theme { font-size: .66rem; color: var(--muted); margin-top: 3px; }
 
+        /* ---- Quest List mode (judul + deskripsi, tanpa foto) ---- */
+        .quest-list { display: flex; flex-direction: column; gap: 10px; }
+        .quest-row { display: flex; align-items: flex-start; gap: 12px; background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 36, 94, .05); transition: transform .15s ease, box-shadow .15s ease; }
+        .quest-row:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 70, 255, .14); }
+        .quest-row:active { transform: scale(.99); }
+        .quest-row.done { opacity: .7; }
+        .qr-main { flex: 1; min-width: 0; }
+        .qr-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: var(--ink); line-height: 1.25; }
+        .qr-done { font-size: .68rem; color: #10b981; font-weight: 800; }
+        .qr-desc { font-size: .78rem; color: var(--muted); margin-top: 3px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .qr-theme { font-size: .68rem; color: var(--muted); margin-top: 4px; font-weight: 600; }
+        .qr-xp { flex: 0 0 auto; font-size: .72rem; font-weight: 800; color: var(--blue); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+
         /* ---- Quest Detail Modal (ala postingan IG) ---- */
         .quest-modal { position: fixed; inset: 0; background: rgba(16, 36, 94, .6); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 1200; padding: 16px; }
         .quest-modal.show { display: flex; }
@@ -1735,9 +1748,8 @@
 
         <!-- ===== DASHBOARD ===== -->
         <div id="dashView" style="display:none;">
-            <div class="dash-top">
+            <div class="dash-top" id="dashTop">
                 <div class="dash-hi" id="dashHi">Hai! 👋</div>
-                <button class="logout-btn" id="logoutBtn">Keluar</button>
             </div>
 
             <div class="tabs" id="mainNavTabs">
@@ -1789,6 +1801,10 @@
                     <button class="fab-item" id="fabActionTop">
                         <span class="fab-item-icon">🔝</span>
                         <span class="fab-item-label">Ke Atas</span>
+                    </button>
+                    <button class="fab-item" id="logoutBtn">
+                        <span class="fab-item-icon">🚪</span>
+                        <span class="fab-item-label">Logout</span>
                     </button>
                 </div>
                 <button class="fab-btn" id="fabMainBtn" title="Aksi Cepat">

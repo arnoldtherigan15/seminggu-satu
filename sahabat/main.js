@@ -130,6 +130,8 @@ function fireConfetti(preset) {
         confetti({ particleCount: 100, spread: 80, origin: { y: 0.55 }, colors: ['#0046ff', '#ffe600', '#00b4ff', '#ff007f'] });
     } else if (preset === "reward") {
         confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 }, colors: ['#ffe600', '#ffffff', '#0046ff'] });
+    } else if (preset === "love") {
+        confetti({ particleCount: 45, spread: 55, scalar: 0.9, startVelocity: 32, origin: { y: 0.7 }, colors: ['#ff2d55', '#ff6b8a', '#ffb3c1', '#ffe600'] });
     }
 }
 
@@ -174,6 +176,7 @@ function activateTab(pane) {
     document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.pane === pane));
     document.querySelectorAll(".pane").forEach(x => x.classList.remove("active"));
     const el = $("pane-" + pane); if (el) el.classList.add("active");
+    const dt = $("dashTop"); if (dt) dt.style.display = (pane === "loyalty") ? "" : "none";
     if (pane === "loyalty") loadLoyalty();
     if (pane === "events") loadEvents();
     if (pane === "rec") loadRec();
@@ -331,6 +334,7 @@ let _questChallenges = [];
 let _questSubmitted = [];
 let _questPhotos = {};      // { challengeId: photoUrl } — foto yg udah diupload member
 let _questCaptions = {};    // { challengeId: caption }
+let _questView = "grid";    // "grid" | "list"
 
 function questImg(q) {
     return q.image ? (/^https?:\/\//.test(q.image) ? q.image : "../" + q.image) : "../images/mochi_maskot_sm.png";
@@ -382,13 +386,40 @@ async function loadQuests() {
     }
     // Belum selesai di atas
     _questChallenges.sort((a, b) => (_questSubmitted.indexOf(a.id) >= 0 ? 1 : 0) - (_questSubmitted.indexOf(b.id) >= 0 ? 1 : 0));
+    renderQuestBoard();
+}
 
-    pane.innerHTML =
-        '<div class="section-lbl">🎯 Quest Board — tap buat lihat detail & ikutan!</div>' +
-        '<div class="quest-grid" id="questGrid">' + _questChallenges.map(renderQuestCell).join("") + '</div>';
+function renderQuestBoard() {
+    const pane = $("pane-quest");
+    const toolbar =
+        '<div class="gallery-toolbar">' +
+            '<div class="section-lbl" style="margin:0;">🎯 Quest Board</div>' +
+            '<div class="view-toggle">' +
+                '<button class="vbtn' + (_questView === "grid" ? " active" : "") + '" id="qViewGrid" title="Mode Grid" aria-label="Mode Grid">' + ICON_GRID + '</button>' +
+                '<button class="vbtn' + (_questView === "list" ? " active" : "") + '" id="qViewList" title="Mode List" aria-label="Mode List">' + ICON_FEED + '</button>' +
+            '</div>' +
+        '</div>';
+    const body = (_questView === "list")
+        ? '<div class="quest-list" id="questGrid">' + _questChallenges.map(renderQuestRow).join("") + '</div>'
+        : '<div class="quest-grid" id="questGrid">' + _questChallenges.map(renderQuestCell).join("") + '</div>';
+    pane.innerHTML = toolbar + body;
 
-    $("questGrid").querySelectorAll(".qg-cell").forEach(cell =>
+    $("questGrid").querySelectorAll("[data-i]").forEach(cell =>
         cell.addEventListener("click", () => openQuestDetail(Number(cell.dataset.i))));
+    $("qViewGrid").addEventListener("click", () => { _questView = "grid"; renderQuestBoard(); });
+    $("qViewList").addEventListener("click", () => { _questView = "list"; renderQuestBoard(); });
+}
+
+function renderQuestRow(q, i) {
+    const done = _questSubmitted.indexOf(q.id) >= 0;
+    return '<div class="quest-row' + (done ? " done" : "") + '" data-i="' + i + '">' +
+        '<div class="qr-main">' +
+            '<div class="qr-title">' + esc(q.title) + (done ? ' <span class="qr-done">✓ Cleared</span>' : '') + '</div>' +
+            (q.description ? '<div class="qr-desc">' + esc(q.description) + '</div>' : '') +
+            (q.theme ? '<div class="qr-theme">🎨 ' + esc(q.theme) + '</div>' : '') +
+        '</div>' +
+        '<div class="qr-xp">🪙 +' + questPoints(q) + '</div>' +
+    '</div>';
 }
 
 function renderQuestCell(q, i) {
@@ -556,7 +587,7 @@ async function submitQuest(q, i, action) {
         if (_questSubmitted.indexOf(q.id) < 0) _questSubmitted.push(q.id);
         if (photo) _questPhotos[q.id] = photo.dataUrl;   // preview lokal sampai reload
         if (caption) _questCaptions[q.id] = caption;
-        const cell = $("questGrid") && $("questGrid").querySelector('.qg-cell[data-i="' + i + '"]');
+        const cell = $("questGrid") && $("questGrid").querySelector('[data-i="' + i + '"]');
         if (cell) cell.classList.add("done");
         _galleryLoaded = false;
         renderQuestAction(q, i);
@@ -1622,6 +1653,7 @@ async function toggleLike(id) {
     if (!it) return;
     const prevLiked = it.liked, prevLikes = it.likes || 0;
     it.liked = !prevLiked; it.likes = Math.max(0, prevLikes + (it.liked ? 1 : -1));
+    if (it.liked) fireConfetti("love");
     updateLikeDom(id, it);
     try {
         const r = await apiPost({ action: "memberToggleLike", token: _profile.token, submissionId: id });
