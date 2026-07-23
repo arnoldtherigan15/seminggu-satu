@@ -83,6 +83,7 @@
         :root[data-theme="dark"] .dp-close:hover,
         :root[data-theme="dark"] .dp-nav-btn:hover,
         :root[data-theme="dark"] .dp-day:hover:not(.empty):not(.disabled) { background: #2b3a5c; }
+        :root[data-theme="dark"] .ig-imgwrap { background: #202c47; }
         :root[data-theme="dark"] .journal-tracker-card { background: linear-gradient(145deg, #172035 0%, #131c2f 100%); border-color: var(--line); }
         /* tier card tetap kuning -> teks harus gelap biar kebaca */
         :root[data-theme="dark"] .tier { color: #10245e; }
@@ -885,6 +886,34 @@
         .qm-close { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(16, 36, 94, .58); color: #fff; font-size: 1rem; cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
         .qm-body { padding: 16px 18px 20px; }
         .q-tag.done { background: #e9fbf0; color: #0a7a3d; }
+
+        /* ---- Photo picker + caption (di modal quest) ---- */
+        .qm-picker { margin-top: 6px; }
+        .qm-file { display: flex; align-items: center; justify-content: center; gap: 8px; padding: .7rem; border: 1.5px dashed var(--line); border-radius: 12px; background: var(--bg); color: var(--blue); font-weight: 700; font-size: .86rem; cursor: pointer; text-align: center; }
+        .qm-file:active { transform: scale(.98); }
+        .qm-preview { margin-top: 8px; }
+        .qm-preview img { width: 100%; border-radius: 12px; display: block; }
+        .qm-cap-input { width: 100%; margin-top: 8px; border: 1.5px solid var(--line); border-radius: 12px; padding: .7rem; font-family: inherit; font-size: .88rem; color: var(--ink); background: var(--card); resize: vertical; min-height: 58px; }
+        .qm-cap-input:focus { outline: none; border-color: var(--blue); }
+        .qm-myphoto { margin-top: 10px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--bg); }
+        .qm-myphoto img { width: 100%; display: block; }
+        .qm-mycap { padding: 10px 12px; font-size: .85rem; color: var(--ink); line-height: 1.4; }
+
+        /* ---- Galeri (feed ala IG) ---- */
+        .gfilters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px; -webkit-overflow-scrolling: touch; }
+        .gchip { flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--card); color: var(--muted); border-radius: 999px; padding: 6px 14px; font-family: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .gchip.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+        .ig-feed { display: flex; flex-direction: column; gap: 16px; }
+        .ig-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: 0 6px 20px rgba(16, 36, 94, .06); cursor: pointer; }
+        .ig-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+        .ig-ava { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #0046ff, #0092ff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Outfit', sans-serif; flex-shrink: 0; }
+        .ig-user { font-weight: 800; font-size: .85rem; color: var(--ink); line-height: 1.25; }
+        .ig-me { font-size: .64rem; background: var(--yellow); color: #10245e; padding: 1px 6px; border-radius: 999px; font-weight: 800; }
+        .ig-chal { font-size: .7rem; color: var(--muted); font-weight: 600; }
+        .ig-imgwrap { width: 100%; aspect-ratio: 1 / 1; background: #eef2fb; }
+        .ig-imgwrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ig-cap { padding: 10px 12px; font-size: .85rem; color: var(--ink); line-height: 1.4; }
+        .ig-cap b { font-weight: 800; }
 
         /* ---- Leaderboard ---- */
         .lb-card { background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%); color: #fff; border-radius: 22px; padding: 26px 22px; position: relative; overflow: hidden; box-shadow: 0 18px 45px rgba(0, 60, 200, .3); }
@@ -1705,6 +1734,10 @@
                     <span class="tab-icon">🏆</span>
                     <span class="tab-label">Ranking</span>
                 </button>
+                <button class="tab" data-pane="gallery">
+                    <span class="tab-icon">📸</span>
+                    <span class="tab-label">Galeri</span>
+                </button>
                 <button class="tab" data-pane="rec">
                     <span class="tab-icon">🛍️</span>
                     <span class="tab-label">Rekomendasi</span>
@@ -1768,6 +1801,13 @@
             <div class="pane" id="pane-rank">
                 <div class="spinner" id="lbLoading"><div class="ring"></div></div>
                 <div id="lbContent"></div>
+            </div>
+            <div class="pane" id="pane-gallery">
+                <div class="placeholder">
+                    <div class="em">📸</div>
+                    <h3>Galeri Challenge</h3>
+                    <p>Foto spread challenge dari kamu & sahabat lain bakal muncul di sini ✨</p>
+                </div>
             </div>
         </div>
     </div>

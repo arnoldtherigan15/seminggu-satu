@@ -168,7 +168,7 @@ function showDashboard() {
     activateTab((location.hash || "").replace("#", "") || "loyalty");
 }
 
-const VALID_TABS = ["loyalty", "events", "rec", "quest", "rank"];
+const VALID_TABS = ["loyalty", "events", "rec", "quest", "rank", "gallery"];
 function activateTab(pane) {
     if (VALID_TABS.indexOf(pane) < 0) pane = "loyalty";
     document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.pane === pane));
@@ -179,6 +179,7 @@ function activateTab(pane) {
     if (pane === "rec") loadRec();
     if (pane === "quest") loadQuests();
     if (pane === "rank") loadLeaderboard();
+    if (pane === "gallery") loadGallery();
 }
 document.querySelectorAll(".tab").forEach(t => {
     t.addEventListener("click", () => {
@@ -328,12 +329,36 @@ let _questsLoaded = false;
 
 let _questChallenges = [];
 let _questSubmitted = [];
+let _questPhotos = {};      // { challengeId: photoUrl } — foto yg udah diupload member
+let _questCaptions = {};    // { challengeId: caption }
 
 function questImg(q) {
     return q.image ? (/^https?:\/\//.test(q.image) ? q.image : "../" + q.image) : "../images/mochi_maskot_sm.png";
 }
 function questPoints(q) { return (q.points && q.points > 0) ? q.points : 50; }
 function questCaption(q) { return "Halo semuaa! 🎉 Ini spread challenge" + (q.title ? ' "' + q.title + '"' : "") + " journaling-ku ✨ #SemingguSatu"; }
+
+// Kompres foto di HP dulu (resize + JPEG) biar hemat storage Drive.
+function compressImage(file, maxDim, quality) {
+    return new Promise((resolve, reject) => {
+        if (!file || !/^image\//.test(file.type)) { reject(new Error("File bukan gambar")); return; }
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            let w = img.naturalWidth, h = img.naturalHeight;
+            const m = maxDim || 1280;
+            if (w > h && w > m) { h = Math.round(h * m / w); w = m; }
+            else if (h >= w && h > m) { w = Math.round(w * m / h); h = m; }
+            const c = document.createElement("canvas"); c.width = w; c.height = h;
+            c.getContext("2d").drawImage(img, 0, 0, w, h);
+            const dataUrl = c.toDataURL("image/jpeg", quality || 0.75);
+            resolve({ base64: dataUrl.split(",")[1], dataUrl: dataUrl });
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Gagal baca gambar")); };
+        img.src = url;
+    });
+}
 
 async function loadQuests() {
     if (_questsLoaded) return;
@@ -347,7 +372,9 @@ async function loadQuests() {
         ]);
         _questChallenges = (c && c.challenges) || [];
         _questSubmitted = (s && s.submitted) || [];
-    } catch (e) { _questChallenges = []; _questSubmitted = []; }
+        _questPhotos = (s && s.photos) || {};
+        _questCaptions = (s && s.captions) || {};
+    } catch (e) { _questChallenges = []; _questSubmitted = []; _questPhotos = {}; _questCaptions = {}; }
 
     if (!_questChallenges.length) {
         pane.innerHTML = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada Quest</h3><p>Pantau terus ya, challenge baru bakal muncul di sini! 🌱</p></div>';
@@ -409,7 +436,6 @@ function openQuestDetail(i) {
     const q = _questChallenges[i];
     if (!q) return;
     const done = _questSubmitted.indexOf(q.id) >= 0;
-    const caption = questCaption(q);
     const modal = $("questModal");
     $("questModalBox").innerHTML =
         '<button class="qm-close" id="qmClose" aria-label="Tutup">✕</button>' +
@@ -424,56 +450,134 @@ function openQuestDetail(i) {
             (q.description ? '<div class="quest-game-desc">' + esc(q.description) + '</div>' : '') +
             '<div class="quest-objective-box" style="margin-top:12px;">' +
                 '<div class="q-obj-header">Mission Objective</div>' +
-                '<div class="q-obj-text"><span>📖</span> Bikin spread sesuai tema, terus kirim buktinya ke Grup WA.</div>' +
+                '<div class="q-obj-text"><span>📖</span> Bikin spread sesuai tema, kirim buktinya ke Grup WA + upload foto buat galeri.</div>' +
             '</div>' +
             '<div class="quest-action" id="qmAction" style="margin-top:14px;"></div>' +
         '</div>';
-    const action = $("qmAction");
-    if (done) {
-        renderQuestDone(action, caption);
-    } else {
-        action.innerHTML = '<button class="btn-quest-start" id="qmSubmit">🚀 Ambil Quest & Kirim Spread →</button>';
-        $("qmSubmit").addEventListener("click", () => submitQuest(q, i, action, caption));
-    }
+    renderQuestAction(q, i);
     modal.classList.add("show");
     lockScroll();
     $("qmClose").addEventListener("click", closeQuestModal);
 }
 
-function renderQuestDone(action, caption) {
-    action.innerHTML =
-        '<div class="ev-done">✅ Kamu udah ikut challenge ini! 🎉</div>' +
-        '<div class="q-caption" style="margin-top:8px;">' + esc(caption) + '</div>' +
-        '<button class="btn-ghost2 quest-copy" style="margin-top:8px;">📋 Salin caption</button>' +
-        '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Buka Grup WA & kirim fotomu</a>' +
-        '<p style="font-size:0.78rem;color:var(--muted);text-align:center;margin-top:6px;">Kirim foto spread-mu di grup + paste caption-nya ya 💙</p>';
-    const copyBtn = action.querySelector(".quest-copy");
-    copyBtn.addEventListener("click", async () => {
-        try { await navigator.clipboard.writeText(caption); copyBtn.textContent = "✓ Caption tersalin"; }
-        catch (e) { copyBtn.textContent = "Salin manual ya (blok teks di atas)"; }
+// Form pilih foto + caption (dipakai saat submit & edit)
+function photoPickerHtml(labelText) {
+    return '<div class="qm-picker">' +
+        '<label class="qm-file"><span>📷 ' + esc(labelText) + '</span>' +
+            '<input type="file" class="qm-file-input" accept="image/*" hidden>' +
+        '</label>' +
+        '<div class="qm-preview" style="display:none;"><img alt=""></div>' +
+        '<textarea class="qm-cap-input" maxlength="280" placeholder="Tulis caption buat galeri… ✨ (opsional)"></textarea>' +
+    '</div>';
+}
+function wirePhotoPicker(scope) {
+    if (!scope) return;
+    const input = scope.querySelector(".qm-file-input");
+    const prev = scope.querySelector(".qm-preview");
+    const label = scope.querySelector(".qm-file span");
+    if (!input) return;
+    input.addEventListener("change", async () => {
+        const f = input.files && input.files[0];
+        if (!f) return;
+        try {
+            const r = await compressImage(f, 1280, 0.75);
+            input._photo = r;
+            if (prev) { prev.style.display = "block"; prev.querySelector("img").src = r.dataUrl; }
+            if (label) label.textContent = "✓ Foto siap (ketuk buat ganti)";
+        } catch (e) { alert("Gagal proses foto: " + (e.message || "")); }
     });
 }
 
-// Submit challenge = 1 tap (tanpa upload foto). Foto dikirim member sendiri ke grup WA.
-async function submitQuest(q, i, action, caption) {
-    if (!confirm("Ambil quest" + (q.title ? ' "' + q.title + '"' : "") + "?\nHabis ini kirim foto spread-mu di grup WA ya 💙")) return;
+function renderQuestAction(q, i) {
+    const action = $("qmAction");
+    const done = _questSubmitted.indexOf(q.id) >= 0;
+    const waCap = questCaption(q);
+    if (!done) {
+        action.innerHTML =
+            photoPickerHtml("Tambah foto spread (opsional)") +
+            '<button class="btn-quest-start" id="qmSubmit" style="margin-top:10px;">🚀 Ambil Quest →</button>';
+        wirePhotoPicker(action);
+        $("qmSubmit").addEventListener("click", () => submitQuest(q, i, action));
+        return;
+    }
+    // ---- Sudah ikut ----
+    const photo = _questPhotos[q.id];
+    const cap = _questCaptions[q.id] || "";
+    let html = '<div class="ev-done">✅ Kamu udah ikut challenge ini! 🎉</div>';
+    if (photo) {
+        html += '<div class="qm-myphoto"><img src="' + esc(photo) + '" alt="">' +
+            '<div class="qm-mycap">' + (cap ? esc(cap) : '<span style="color:var(--muted)">(belum ada caption)</span>') + '</div></div>';
+    }
+    html += '<button class="btn-ghost2" id="qmEditToggle" style="margin-top:10px;">📷 ' + (photo ? "Ganti foto / caption" : "Upload foto & caption") + '</button>' +
+        '<div id="qmEditBox" style="display:none;margin-top:10px;">' + photoPickerHtml("Pilih foto") +
+            '<button class="btn-primary" id="qmEditSave" style="margin-top:8px;">💾 Simpan</button></div>' +
+        '<div class="q-caption" style="margin-top:14px;">' + esc(waCap) + '</div>' +
+        '<button class="btn-ghost2 quest-copy" style="margin-top:8px;">📋 Salin caption WA</button>' +
+        '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Buka Grup WA</a>';
+    action.innerHTML = html;
+
+    const copyBtn = action.querySelector(".quest-copy");
+    if (copyBtn) copyBtn.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(waCap); copyBtn.textContent = "✓ Caption tersalin"; }
+        catch (e) { copyBtn.textContent = "Salin manual ya"; }
+    });
+    const editBox = $("qmEditBox");
+    const editToggle = $("qmEditToggle");
+    if (editToggle) editToggle.addEventListener("click", () => {
+        const showing = editBox.style.display !== "none";
+        editBox.style.display = showing ? "none" : "block";
+        if (!showing) { const ci = editBox.querySelector(".qm-cap-input"); if (ci && !ci.value) ci.value = cap; }
+    });
+    wirePhotoPicker(editBox);
+    const saveBtn = $("qmEditSave");
+    if (saveBtn) saveBtn.addEventListener("click", () => editQuestPhoto(q, i, editBox));
+}
+
+async function submitQuest(q, i, action) {
     const btn = action.querySelector("#qmSubmit");
-    const origLabel = btn ? btn.textContent : "";
+    const input = action.querySelector(".qm-file-input");
+    const capInput = action.querySelector(".qm-cap-input");
+    const photo = input && input._photo;
+    const caption = capInput ? capInput.value.trim() : "";
+    if (!confirm("Ambil quest" + (q.title ? ' "' + q.title + '"' : "") + "?")) return;
+    const orig = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Mengirim…"; }
     try {
-        const r = await apiPost({ action: "memberSubmitQuest", token: _profile.token, challengeId: q.id });
-        if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = origLabel; } alert(r.message || "Gagal."); return; }
+        const payload = { action: "memberSubmitQuest", token: _profile.token, challengeId: q.id, caption: caption };
+        if (photo) payload.photoBase64 = photo.base64;
+        const r = await apiPost(payload);
+        if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = orig; } alert(r.message || "Gagal."); return; }
         fireConfetti("quest");
-        // Tandai kartu ini CLEARED di grid
         if (_questSubmitted.indexOf(q.id) < 0) _questSubmitted.push(q.id);
-        const grid = $("questGrid");
-        const cell = grid && grid.querySelector('.qg-cell[data-i="' + i + '"]');
+        if (photo) _questPhotos[q.id] = photo.dataUrl;   // preview lokal sampai reload
+        if (caption) _questCaptions[q.id] = caption;
+        const cell = $("questGrid") && $("questGrid").querySelector('.qg-cell[data-i="' + i + '"]');
         if (cell) cell.classList.add("done");
-        renderQuestDone(action, caption);
-        const copyBtn = action.querySelector(".quest-copy");
-        try { await navigator.clipboard.writeText(caption); if (copyBtn) copyBtn.textContent = "✓ Caption tersalin"; } catch (e) {}
+        _galleryLoaded = false;
+        renderQuestAction(q, i);
+        try { await navigator.clipboard.writeText(questCaption(q)); } catch (e) {}
         try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) {}
-    } catch (e) { if (btn) { btn.disabled = false; btn.textContent = origLabel; } alert("Gagal terhubung ke server."); }
+    } catch (e) { if (btn) { btn.disabled = false; btn.textContent = orig; } alert("Gagal terhubung ke server."); }
+}
+
+async function editQuestPhoto(q, i, box) {
+    const input = box.querySelector(".qm-file-input");
+    const capInput = box.querySelector(".qm-cap-input");
+    const photo = input && input._photo;
+    const caption = capInput ? capInput.value.trim() : "";
+    if (!photo) { alert("Pilih fotonya dulu ya 📷"); return; }
+    const btn = $("qmEditSave");
+    const orig = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = "Menyimpan…"; }
+    try {
+        const r = await apiPost({ action: "memberEditQuest", token: _profile.token, challengeId: q.id, photoBase64: photo.base64, caption: caption });
+        if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = orig; } alert(r.message || "Gagal."); return; }
+        _questPhotos[q.id] = photo.dataUrl;
+        _questCaptions[q.id] = caption;
+        _galleryLoaded = false;
+        fireConfetti("quest");
+        renderQuestAction(q, i);
+    } catch (e) { if (btn) { btn.disabled = false; btn.textContent = orig; } alert("Gagal terhubung ke server."); }
 }
 
 // ---------- Leaderboard pane ----------
@@ -1361,6 +1465,83 @@ async function loadLoyalty() {
     const modal = $("questModal");
     if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) closeQuestModal(); });
 })();
+
+// ---------- Galeri (foto challenge semua member, ala IG) ----------
+let _galleryLoaded = false;
+let _galleryItems = [];
+let _galleryFilter = "all"; // "all" | "mine" | challengeId
+
+async function loadGallery() {
+    if (_galleryLoaded) return;
+    _galleryLoaded = true;
+    const pane = $("pane-gallery");
+    pane.innerHTML = '<div class="spinner"><div class="ring"></div></div>';
+    try {
+        const g = await fetchJSONP(GS + "?page=questGallery&wa=" + encodeURIComponent(_profile.wa), "gal", 20000);
+        _galleryItems = (g && g.items) || [];
+    } catch (e) { _galleryItems = []; }
+    renderGallery();
+}
+
+function renderGallery() {
+    const pane = $("pane-gallery");
+    if (!_galleryItems.length) {
+        pane.innerHTML = '<div class="placeholder"><div class="em">📸</div><h3>Galeri masih kosong</h3><p>Ikut side quest & upload foto spread-mu — nanti muncul di sini! ✨</p></div>';
+        return;
+    }
+    // chips filter: Semua, Punyaku, + tiap challenge yang ada fotonya
+    const challengeSet = [];
+    _galleryItems.forEach(it => { if (challengeSet.indexOf(it.title) < 0) challengeSet.push(it.title); });
+    let chips = '<button class="gchip' + (_galleryFilter === "all" ? " active" : "") + '" data-f="all">Semua</button>' +
+        '<button class="gchip' + (_galleryFilter === "mine" ? " active" : "") + '" data-f="mine">📌 Punyaku</button>';
+    challengeSet.forEach(t => {
+        chips += '<button class="gchip' + (_galleryFilter === ("t:" + t) ? " active" : "") + '" data-f="t:' + esc(t) + '">' + esc(t) + '</button>';
+    });
+
+    let items = _galleryItems.slice();
+    if (_galleryFilter === "mine") items = items.filter(x => x.mine);
+    else if (_galleryFilter.indexOf("t:") === 0) { const t = _galleryFilter.slice(2); items = items.filter(x => x.title === t); }
+
+    let cards = "";
+    items.forEach((it, idx) => {
+        cards += '<div class="ig-card" data-idx="' + idx + '">' +
+            '<div class="ig-head"><div class="ig-ava">' + esc((it.nickname || "S").charAt(0).toUpperCase()) + '</div>' +
+                '<div class="ig-user">' + esc(it.nickname || "Sahabat") + (it.mine ? ' <span class="ig-me">kamu</span>' : '') +
+                '<div class="ig-chal">🎨 ' + esc(it.title) + '</div></div></div>' +
+            '<div class="ig-imgwrap"><img src="' + esc(it.photo) + '" alt="" loading="lazy" onerror="this.style.opacity=.25"></div>' +
+            (it.caption ? '<div class="ig-cap"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</div>' : '') +
+        '</div>';
+    });
+    pane.innerHTML =
+        '<div class="section-lbl">📸 Galeri Challenge</div>' +
+        '<div class="gfilters">' + chips + '</div>' +
+        (items.length ? '<div class="ig-feed">' + cards + '</div>'
+            : '<div class="placeholder" style="padding:2rem 1rem;"><div class="em">🍃</div><p>Belum ada foto di filter ini.</p></div>');
+
+    pane.querySelectorAll(".gchip").forEach(c => c.addEventListener("click", () => {
+        _galleryFilter = c.dataset.f; renderGallery();
+    }));
+    pane.querySelectorAll(".ig-card").forEach(card => card.addEventListener("click", () => {
+        const it = items[Number(card.dataset.idx)];
+        if (it) openGalleryLightbox(it);
+    }));
+}
+
+function openGalleryLightbox(it) {
+    const modal = $("questModal");
+    $("questModalBox").innerHTML =
+        '<button class="qm-close" id="qmClose" aria-label="Tutup">✕</button>' +
+        '<img class="qm-img" style="aspect-ratio:1/1" src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25">' +
+        '<div class="qm-body">' +
+            '<div class="ig-head"><div class="ig-ava">' + esc((it.nickname || "S").charAt(0).toUpperCase()) + '</div>' +
+                '<div class="ig-user">' + esc(it.nickname || "Sahabat") + (it.mine ? ' <span class="ig-me">kamu</span>' : '') +
+                '<div class="ig-chal">🎨 ' + esc(it.title) + '</div></div></div>' +
+            (it.caption ? '<div class="ig-cap" style="margin-top:10px;"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</div>' : '') +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+}
 
 // ---------- Pull to refresh (tarik dari atas -> reload) ----------
 (function initPullRefresh() {
