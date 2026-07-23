@@ -1145,13 +1145,13 @@ function openCheckinModal(wa) {
     $("questModalBox").innerHTML =
         '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
         '<div class="qm-body">' +
-            '<div class="quest-game-title">✍️ Weekly Check-In</div>' +
-            '<div class="quest-game-desc">Udah journaling minggu ini? Simpan jejaknya — foto karya + refleksi singkat. Fotonya bakal nongol di Gallery 💙</div>' +
-            photoPickerHtml("Add this week's journal photo (optional)", "Refleksi singkat minggu ini… ✨ (opsional)") +
-            '<div style="display:flex;gap:8px;margin-top:12px;">' +
-                '<button class="btn-ghost2" id="ciCancel" style="flex:0 0 auto;width:auto;">Batal</button>' +
-                '<button class="btn-primary" id="ciSave" style="flex:1;width:auto;min-width:0;">✓ Check In (+1 Streak)</button>' +
-            '</div>' +
+        '<div class="quest-game-title">✍️ Weekly Check-In</div>' +
+        '<div class="quest-game-desc">Udah journaling minggu ini? Simpan memorinya — foto spreadnya + refleksi singkat. Fotonya bakal ada di Gallery 💙</div>' +
+        photoPickerHtml("Add this week's journal photo (optional)", "Refleksi singkat minggu ini… ✨ (opsional)") +
+        '<div style="display:flex;gap:8px;margin-top:12px;">' +
+        '<button class="btn-ghost2" id="ciCancel" style="flex:0 0 auto;width:auto;">Batal</button>' +
+        '<button class="btn-primary" id="ciSave" style="flex:1;width:auto;min-width:0;">✓ Check In (+1 Streak)</button>' +
+        '</div>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();
