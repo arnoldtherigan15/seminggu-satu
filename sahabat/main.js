@@ -521,6 +521,32 @@ async function loadLeaderboard() {
     $("lbShare").addEventListener("click", shareLeaderboard);
 }
 
+// Render elemen -> PNG blob, anti-hang (guard html2canvas + timeout 15 dtk + cek blob null)
+function renderCardToBlob(el, opts) {
+    if (typeof html2canvas === "undefined") {
+        return Promise.reject(new Error("html2canvas belum siap — cek koneksi internet"));
+    }
+    const render = html2canvas(el, Object.assign({ scale: 3, backgroundColor: null, useCORS: true }, opts || {}))
+        .then(canvas => new Promise((res, rej) => {
+            try { canvas.toBlob(b => b ? res(b) : rej(new Error("gagal render gambar")), "image/png"); }
+            catch (e) { rej(e); }
+        }));
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error("kelamaan (timeout)")), 15000));
+    return Promise.race([render, timeout]);
+}
+
+async function shareOrDownloadImage(blob, filename, shareText, downloadNote) {
+    const file = new File([blob], filename, { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: shareText });
+    } else {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        if (downloadNote) alert(downloadNote);
+    }
+}
+
 async function shareLeaderboard() {
     const card = $("lbCard");
     const btn = $("lbShare");
@@ -533,19 +559,13 @@ async function shareLeaderboard() {
     clone.style.position = "fixed"; clone.style.left = "-10000px"; clone.style.top = "0";
     document.body.appendChild(clone);
     try {
-        const canvas = await html2canvas(clone, { scale: 3, backgroundColor: null, useCORS: true, width: 360, height: 640, windowWidth: 360, windowHeight: 640 });
-        const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
-        const file = new File([blob], "leaderboard-seminggu-satu.png", { type: "image/png" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: "Leaderboard Seminggu Satu", text: "Papan peringkat side quest Seminggu Satu! 🏆 @seminggu_satu" });
-        } else {
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob); a.download = "leaderboard-seminggu-satu.png"; a.click();
-            URL.revokeObjectURL(a.href);
-            alert("Gambar leaderboard ke-download 📥 — upload ke IG Story ya!");
-        }
-    } catch (e) { if (!(e && e.name === "AbortError")) alert("Gagal bikin gambar, coba lagi ya."); }
-    finally {
+        const blob = await renderCardToBlob(clone, { width: 360, height: 640, windowWidth: 360, windowHeight: 640 });
+        await shareOrDownloadImage(blob, "leaderboard-seminggu-satu.png",
+            "Papan peringkat side quest Seminggu Satu! 🏆 @seminggu_satu",
+            "Gambar leaderboard ke-download 📥 — upload ke IG Story ya!");
+    } catch (e) {
+        if (!(e && e.name === "AbortError")) alert("Gagal bikin gambar" + (e && e.message ? " (" + e.message + ")" : "") + ". Coba lagi ya.");
+    } finally {
         if (clone.parentNode) clone.parentNode.removeChild(clone);
         btn.disabled = false; btn.textContent = label;
     }
@@ -844,16 +864,11 @@ async function shareVoucher() {
     const btn = document.querySelector(".bday-share");
     const label = btn.textContent; btn.disabled = true; btn.textContent = "Menyiapkan…";
     try {
-        const canvas = await html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true });
-        const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
-        const file = new File([blob], "voucher-ultah-seminggu-satu.png", { type: "image/png" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], text: "Voucher ulang tahunku dari Seminggu Satu! 🎂 @seminggu_satu" });
-        } else {
-            const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "voucher-ultah.png"; a.click(); URL.revokeObjectURL(a.href);
-            alert("Voucher ke-download 📥 — kirim ke admin buat claim ya!");
-        }
-    } catch (e) { if (!(e && e.name === "AbortError")) alert("Gagal bikin gambar, coba lagi ya."); }
+        const blob = await renderCardToBlob(card);
+        await shareOrDownloadImage(blob, "voucher-ultah-seminggu-satu.png",
+            "Voucher ulang tahunku dari Seminggu Satu! 🎂 @seminggu_satu",
+            "Voucher ke-download 📥 — kirim ke admin buat claim ya!");
+    } catch (e) { if (!(e && e.name === "AbortError")) alert("Gagal bikin gambar" + (e && e.message ? " (" + e.message + ")" : "") + ". Coba lagi ya."); }
     finally { btn.disabled = false; btn.textContent = label; }
 }
 
