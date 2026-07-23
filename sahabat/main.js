@@ -1780,7 +1780,10 @@ function renderGallery() {
         pane.innerHTML = '<div class="placeholder"><div class="em">📸</div><h3>Galeri masih kosong</h3><p>Ikut challenge & upload foto spread-mu — nanti muncul di sini! ✨</p></div>';
         return;
     }
+    // Urutan chip WAJIB: All, Mine, Workshop, Reka-Rekat, baru sisanya (challenge/weekly, dst)
+    const PRIORITY_TITLES = ["Workshop", "Reka-Rekat"];
     const challengeSet = [];
+    PRIORITY_TITLES.forEach(t => { if (_galleryItems.some(it => it.title === t)) challengeSet.push(t); });
     _galleryItems.forEach(it => { if (challengeSet.indexOf(it.title) < 0) challengeSet.push(it.title); });
     let chips = '<button class="gchip' + (_galleryFilter === "all" ? " active" : "") + '" data-f="all">🌍 All</button>' +
         '<button class="gchip' + (_galleryFilter === "mine" ? " active" : "") + '" data-f="mine">📌 Mine</button>';
