@@ -3207,6 +3207,30 @@
 
           <div style="font-weight:800;margin:22px 0 10px;">🏆 Leaderboard Challenge</div>
           <div id="adminLbList"></div>
+
+          <div style="font-weight:800;margin:22px 0 10px;">📸 Galeri Event — foto momen (tampil di Gallery member)</div>
+          <div class="fin-card">
+            <div class="konten-field">
+              <label>Tag (nentuin gaya kartu di galeri member)</label>
+              <select id="epTag">
+                <option value="workshop">🎪 Workshop</option>
+                <option value="reka-rekat">✂️ Reka-Rekat</option>
+              </select>
+            </div>
+            <div class="konten-field">
+              <label>Tanggal event (tampil di galeri member, mis. 11 Jul 2026)</label>
+              <input type="date" id="epDate">
+            </div>
+            <div class="konten-field">
+              <label>Foto</label>
+              <input type="file" id="epFile" accept="image/*">
+              <div id="epPreview" style="margin-top:8px;"></div>
+            </div>
+            <div class="konten-field"><label>Caption</label><input type="text" id="epCaption" maxlength="280" placeholder="mis. Keseruan Workshop 3D Journaling vol.2 ✨"></div>
+            <button class="btn" id="epAddBtn">➕ Tambah ke Galeri</button>
+            <div class="msg" id="epMsg"></div>
+          </div>
+          <div id="epList" style="margin-top:10px;"></div>
         </div>
 
         <!-- ===== VIEW: MEMBER (akun /sahabat, ultah, aktif) ===== -->
@@ -4693,14 +4717,74 @@
     async function ensureQuest() {
       if (!questInit) {
         document.getElementById("questNewBtn").addEventListener("click", newChallengeForm);
-        document.getElementById("questReloadBtn").addEventListener("click", () => { loadChallenges(); loadAdminLeaderboard(); });
+        document.getElementById("questReloadBtn").addEventListener("click", () => { loadChallenges(); loadAdminLeaderboard(); loadEventPhotos(); });
         document.getElementById("qSaveBtn").addEventListener("click", saveChallenge);
         document.getElementById("qDeleteBtn").addEventListener("click", deleteChallenge);
         document.getElementById("qImageFile").addEventListener("change", onQuestImagePick);
+        document.getElementById("epFile").addEventListener("change", onEventPhotoPick);
+        document.getElementById("epAddBtn").addEventListener("click", addEventPhoto);
         questInit = true;
         await loadChallenges();
         loadAdminLeaderboard();
+        loadEventPhotos();
       }
+    }
+
+    // ---- Galeri Event (foto momen workshop / reka-rekat) ----
+    let _epBase64 = "";
+
+    async function onEventPhotoPick(e) {
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 5 * 1024 * 1024) { alert("Ukuran gambar maks 5MB ya."); e.target.value = ""; return; }
+      try {
+        const dataUrl = await qCompress(f, 1400, 0.8);
+        _epBase64 = dataUrl.split(",")[1];
+        document.getElementById("epPreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:320px;border-radius:12px;">';
+      } catch (err) { alert("Gagal baca gambar" + (err && err.message ? " (" + err.message + ")" : "") + ". Coba format JPG/PNG ya."); }
+    }
+
+    async function addEventPhoto() {
+      if (!_epBase64) { alert("Pilih fotonya dulu ya."); return; }
+      const btn = document.getElementById("epAddBtn");
+      const msg = document.getElementById("epMsg");
+      btn.disabled = true; btn.textContent = "Mengunggah…";
+      const r = await api("addEventPhoto", {
+        token: getToken(),
+        tag: document.getElementById("epTag").value,
+        eventDate: document.getElementById("epDate").value,
+        caption: document.getElementById("epCaption").value.trim(),
+        photoBase64: _epBase64
+      });
+      btn.disabled = false; btn.textContent = "➕ Tambah ke Galeri";
+      msg.textContent = (r && r.message) || "Selesai.";
+      if (r && r.status === "success") {
+        _epBase64 = "";
+        document.getElementById("epFile").value = "";
+        document.getElementById("epPreview").innerHTML = "";
+        document.getElementById("epCaption").value = "";
+        document.getElementById("epDate").value = "";
+        loadEventPhotos();
+      }
+    }
+
+    async function loadEventPhotos() {
+      const el = document.getElementById("epList");
+      el.innerHTML = '<p class="hint">Memuat foto event…</p>';
+      const r = await api("getEventPhotos", { token: getToken() });
+      const list = (r && r.photos) || [];
+      if (!list.length) { el.innerHTML = '<p class="hint">Belum ada foto event. Tambahin momen workshop / reka-rekat di atas ya 📸</p>'; return; }
+      el.innerHTML = list.map(p =>
+        '<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">' +
+          '<img src="' + p.photo + '" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;" loading="lazy">' +
+          '<div style="flex:1;min-width:0;"><b>' + (p.tag === "reka-rekat" ? "✂️ Reka-Rekat" : "🎪 Workshop") + '</b>' + (p.eventDate ? ' <span style="font-size:.75rem;color:#6b7280;">🗓 ' + p.eventDate + '</span>' : '') +
+            '<div style="font-size:.8rem;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (p.caption ? String(p.caption).replace(/</g, "&lt;") : "(tanpa caption)") + '</div></div>' +
+          '<button class="btn btn-sm" data-epdel="' + p.id + '" style="background:#fee2e2;color:var(--err);flex-shrink:0;">🗑️</button>' +
+        '</div>').join("");
+      el.querySelectorAll("[data-epdel]").forEach(b => b.addEventListener("click", async () => {
+        if (!confirm("Hapus foto ini dari galeri member?")) return;
+        await api("deleteEventPhoto", { token: getToken(), id: b.dataset.epdel });
+        loadEventPhotos();
+      }));
     }
 
     async function loadAdminLeaderboard() {
@@ -4721,7 +4805,26 @@
       } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
     }
 
-    function qCompress(file, maxSize, quality) {
+    // HEIC (foto iPhone) nggak bisa didecode browser -> konversi dulu ke JPEG
+    // pakai heic2any (dimuat on-demand dari CDN, cuma pas ketemu file HEIC).
+    function isHeic_(f) {
+      return /heic|heif/i.test(f.type || "") || /\.(heic|heif)$/i.test(f.name || "");
+    }
+    async function heicToJpeg_(file) {
+      if (!window.heic2any) {
+        await new Promise((res, rej) => {
+          const s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js";
+          s.onload = res; s.onerror = () => rej(new Error("gagal load konverter HEIC"));
+          document.head.appendChild(s);
+        });
+      }
+      const out = await window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
+      return Array.isArray(out) ? out[0] : out;
+    }
+
+    async function qCompress(file, maxSize, quality) {
+      if (isHeic_(file)) file = await heicToJpeg_(file); // iPhone .HEIC -> JPEG dulu
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = ev => {

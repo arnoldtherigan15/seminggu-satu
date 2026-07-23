@@ -341,7 +341,7 @@ function renderRecCards() {
     list.forEach(it => {
         const img = it.image ? (/^https?:\/\//.test(it.image) ? it.image : "../" + it.image) : "";
         html += '<div class="rec">' +
-            (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" onerror="this.style.opacity=0.3">' : '') +
+            (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=0.3">' : '') +
             '<div class="rec-body">' +
             '<div class="rec-title">' + esc(it.title) + '</div>' +
             // deskripsi = HTML (boleh <strong> dll) dari config statis terpercaya
@@ -370,8 +370,27 @@ function questImg(q) {
 function questPoints(q) { return (q.points && q.points > 0) ? q.points : 50; }
 function questCaption(q) { return "Halo semuaa! 🎉 Ini spread challenge" + (q.title ? ' "' + q.title + '"' : "") + " journaling-ku ✨ #SemingguSatu"; }
 
-// Kompres foto di HP dulu (resize + JPEG) biar hemat storage Drive.
-function compressImage(file, maxDim, quality) {
+// HEIC (foto iPhone) nggak bisa didecode browser -> konversi ke JPEG dulu
+// (heic2any dimuat on-demand dari CDN, cuma pas ketemu file HEIC)
+function isHeicFile(f) {
+    return /heic|heif/i.test((f && f.type) || "") || /\.(heic|heif)$/i.test((f && f.name) || "");
+}
+async function heicToJpeg(file) {
+    if (!window.heic2any) {
+        await new Promise((res, rej) => {
+            const s = document.createElement("script");
+            s.src = "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js";
+            s.onload = res; s.onerror = () => rej(new Error("gagal load konverter HEIC"));
+            document.head.appendChild(s);
+        });
+    }
+    const out = await window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
+    return Array.isArray(out) ? out[0] : out;
+}
+
+// Kompres foto di HP dulu (resize + WebP/JPEG) biar hemat storage Drive.
+async function compressImage(file, maxDim, quality) {
+    if (isHeicFile(file)) file = await heicToJpeg(file);
     return new Promise((resolve, reject) => {
         if (!file || !/^image\//.test(file.type)) { reject(new Error("File bukan gambar")); return; }
         const img = new Image();
@@ -384,8 +403,14 @@ function compressImage(file, maxDim, quality) {
             else if (h >= w && h > m) { w = Math.round(w * m / h); h = m; }
             const c = document.createElement("canvas"); c.width = w; c.height = h;
             c.getContext("2d").drawImage(img, 0, 0, w, h);
-            const dataUrl = c.toDataURL("image/jpeg", quality || 0.75);
-            resolve({ base64: dataUrl.split(",")[1], dataUrl: dataUrl });
+            // WebP lebih hemat ~30%; browser yang belum support (Safari lama) otomatis fallback JPEG
+            let mime = "image/webp";
+            let dataUrl = c.toDataURL(mime, quality || 0.75);
+            if (dataUrl.indexOf("data:image/webp") !== 0) {
+                mime = "image/jpeg";
+                dataUrl = c.toDataURL(mime, quality || 0.75);
+            }
+            resolve({ base64: dataUrl.split(",")[1], dataUrl: dataUrl, mime: mime });
         };
         img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Gagal baca gambar")); };
         img.src = url;
@@ -460,7 +485,7 @@ function renderQuestCell(q, i) {
     return '<div class="qg-cell' + (done ? ' done' : '') + '" data-i="' + i + '">' +
         tape +
         '<div class="qg-imgwrap">' +
-        '<img class="qg-img" src="' + esc(questImg(q)) + '" alt="" loading="lazy" onerror="this.style.opacity=.25">' +
+        '<img class="qg-img" src="' + esc(questImg(q)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25">' +
         '<span class="qg-xp">🪙 +' + questPoints(q) + '</span>' +
         '</div>' +
         '<div class="qg-body">' +
@@ -526,13 +551,13 @@ function openQuestDetail(i) {
 }
 
 // Form pilih foto + caption (dipakai saat submit & edit)
-function photoPickerHtml(labelText) {
+function photoPickerHtml(labelText, capPlaceholder) {
     return '<div class="qm-picker">' +
         '<label class="qm-file"><span>📷 ' + esc(labelText) + '</span>' +
         '<input type="file" class="qm-file-input" accept="image/*" hidden>' +
         '</label>' +
         '<div class="qm-preview" style="display:none;"><img alt=""></div>' +
-        '<textarea class="qm-cap-input" maxlength="280" placeholder="Tulis caption buat galeri… ✨ (opsional)"></textarea>' +
+        '<textarea class="qm-cap-input" maxlength="280" placeholder="' + esc(capPlaceholder || "Tulis caption buat galeri… ✨ (opsional)") + '"></textarea>' +
         '</div>';
 }
 function wirePhotoPicker(scope) {
@@ -635,7 +660,7 @@ async function submitQuest(q, i, action) {
     if (btn) { btn.disabled = true; btn.textContent = "Mengirim…"; }
     try {
         const payload = { action: "memberSubmitQuest", token: _profile.token, challengeId: q.id, caption: caption };
-        if (photo) payload.photoBase64 = photo.base64;
+        if (photo) { payload.photoBase64 = photo.base64; payload.photoMime = photo.mime; }
         const r = await apiPost(payload);
         if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = orig; } alert(r.message || "Gagal."); return; }
         fireConfetti("quest");
@@ -661,7 +686,7 @@ async function editQuestPhoto(q, i, box) {
     const orig = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Menyimpan…"; }
     try {
-        const r = await apiPost({ action: "memberEditQuest", token: _profile.token, challengeId: q.id, photoBase64: photo.base64, caption: caption });
+        const r = await apiPost({ action: "memberEditQuest", token: _profile.token, challengeId: q.id, photoBase64: photo.base64, photoMime: photo.mime, caption: caption });
         if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = orig; } alert(r.message || "Gagal."); return; }
         _questPhotos[q.id] = photo.dataUrl;
         _questCaptions[q.id] = caption;
@@ -690,48 +715,134 @@ async function loadLeaderboard() {
     loading.style.display = "none";
     const top = (data && data.top) || [];
     const me = (data && data.me) || null;
-    if (!top.length) {
+    const topEvents = (data && data.topEvents) || [];
+    if (!top.length && !topEvents.length) {
         content.innerHTML = '<div class="placeholder"><div class="em">🏆</div><h3>Belum ada peringkat</h3><p>Ikut challenge buat ngumpulin poin & masuk papan peringkat! ⚡</p></div>';
         return;
     }
-    const top5 = top.slice(0, 5);
-    let rows = "";
-    top5.forEach(x => {
-        const isMe = me && x.rank === me.rank && x.nickname === me.nickname;
-        const pts = '<div class="rank-pts"><b>' + x.poin + '</b> pts</div>';
-        if (x.rank === 1) {
-            // Juara 1 = kartu stiker emas + crown
-            rows += '<div class="rank-item top1' + (isMe ? ' me' : '') + '">' +
-                '<span class="rank-crown">👑</span>' +
-                '<span class="rank-ava">' + esc((x.nickname || "S").charAt(0).toUpperCase()) + '</span>' +
-                '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span>' +
-                '<span class="rank-tag">Top Crafter</span></div>' + pts + '</div>';
-        } else {
-            const numCls = x.rank === 2 ? " silver" : (x.rank === 3 ? " bronze" : "");
-            rows += '<div class="rank-item glass' + (isMe ? ' me' : '') + '">' +
-                '<span class="rank-num' + numCls + '">' + x.rank + '</span>' +
-                '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span></div>' + pts + '</div>';
-        }
-    });
-    const meBox = (me && me.rank > 5)
-        ? '<div class="lb-me">Your rank: #' + me.rank + ' of ' + me.total + ' · ' + me.poin + ' pts ⚡</div>'
-        : '';
+
+    // ---- Board 1: Challenge Champions (biru) ----
+    let chHtml;
+    if (!top.length) {
+        chHtml = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada poin challenge</h3><p>Ikut challenge buat masuk papan peringkat!</p></div>';
+    } else {
+        const top5 = top.slice(0, 5);
+        let rows = "";
+        top5.forEach(x => {
+            const isMe = me && x.rank === me.rank && x.nickname === me.nickname;
+            const pts = '<div class="rank-pts"><b>' + x.poin + '</b> pts</div>';
+            if (x.rank === 1) {
+                // Juara 1 = kartu stiker emas + crown
+                rows += '<div class="rank-item top1' + (isMe ? ' me' : '') + '">' +
+                    '<span class="rank-crown">👑</span>' +
+                    '<span class="rank-ava">' + esc((x.nickname || "S").charAt(0).toUpperCase()) + '</span>' +
+                    '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span>' +
+                    '<span class="rank-tag">Top Crafter</span></div>' + pts + '</div>';
+            } else {
+                const numCls = x.rank === 2 ? " silver" : (x.rank === 3 ? " bronze" : "");
+                rows += '<div class="rank-item glass' + (isMe ? ' me' : '') + '">' +
+                    '<span class="rank-num' + numCls + '">' + x.rank + '</span>' +
+                    '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span></div>' + pts + '</div>';
+            }
+        });
+        const meBox = (me && me.rank > 5)
+            ? '<div class="lb-me">Your rank: #' + me.rank + ' of ' + me.total + ' · ' + me.poin + ' pts ⚡</div>'
+            : '';
+        chHtml =
+            '<div class="lb-card" id="lbCard">' +
+            '<div class="lb-tape"></div>' +
+            '<div class="lb-clip">📎</div>' +
+            '<header class="lb-header">' +
+            '<div class="lb-badge">LEADERBOARD</div>' +
+            '<h2>Challenge Champions</h2>' +
+            '<p>Points from journaling challenge ⚡</p>' +
+            '</header>' +
+            '<div class="lb-list">' + rows + '</div>' +
+            meBox +
+            '<div class="lb-foot">@seminggu_satu</div>' +
+            '</div>' +
+            '<button class="share-ig-btn" id="lbShare">' + ICON_CAMERA + ' Share to IG Story</button>';
+    }
+
+    // ---- Board 2: Top 5 Teman Jurnal (kuning dominan, aksen biru) ----
+    let tjHtml;
+    if (!topEvents.length) {
+        tjHtml = '<div class="placeholder"><div class="em">💛</div><h3>Belum ada data</h3><p>Ikut event buat masuk Top 5 Teman Jurnal!</p></div>';
+    } else {
+        let tjRows = "";
+        topEvents.forEach(x => {
+            const cnt = '<div class="rank-pts"><b>' + x.events + '</b>×</div>';
+            if (x.rank === 1) {
+                tjRows += '<div class="rank-item tj1' + (x.me ? ' me' : '') + '">' +
+                    '<span class="rank-crown">👑</span>' +
+                    '<span class="rank-ava tj-ava">' + esc((x.nickname || "S").charAt(0).toUpperCase()) + '</span>' +
+                    '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span>' +
+                    '<span class="rank-tag tj-tag">Paling Setia</span></div>' + cnt + '</div>';
+            } else {
+                const numCls = x.rank === 2 ? " silver" : (x.rank === 3 ? " bronze" : "");
+                tjRows += '<div class="rank-item tjrow' + (x.me ? ' me' : '') + '">' +
+                    '<span class="rank-num' + numCls + '">' + x.rank + '</span>' +
+                    '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span></div>' + cnt + '</div>';
+            }
+        });
+        tjHtml =
+            '<div class="tj-card" id="tjCard">' +
+            '<div class="lb-tape tj-tape"></div>' +
+            '<div class="lb-clip">✂️</div>' +
+            '<header class="lb-header tj-header">' +
+            '<div class="lb-badge tj-badge">TOP 5</div>' +
+            '<h2>Teman Jurnal</h2>' +
+            '<p>Paling sering journaling bareng kita ✨</p>' +
+            '</header>' +
+            '<div class="lb-list">' + tjRows + '</div>' +
+            '<div class="lb-foot tj-foot">@seminggu_satu</div>' +
+            '</div>' +
+            '<button class="share-ig-btn" id="tjShare">' + ICON_CAMERA + ' Share to IG Story</button>';
+    }
 
     content.innerHTML =
-        '<div class="lb-card" id="lbCard">' +
-        '<div class="lb-tape"></div>' +
-        '<div class="lb-clip">📎</div>' +
-        '<header class="lb-header">' +
-        '<div class="lb-badge">LEADERBOARD</div>' +
-        '<h2>Challenge Champions</h2>' +
-        '<p>Points from journaling challenge ⚡</p>' +
-        '</header>' +
-        '<div class="lb-list">' + rows + '</div>' +
-        meBox +
-        '<div class="lb-foot">@seminggu_satu</div>' +
+        '<div class="lb-switch">' +
+        '<button class="gchip active" data-board="ch">🏆 Challenge</button>' +
+        '<button class="gchip" data-board="tj">💛 Teman Jurnal</button>' +
         '</div>' +
-        '<button class="share-ig-btn" id="lbShare">' + ICON_CAMERA + ' Share to IG Story</button>';
-    $("lbShare").addEventListener("click", shareLeaderboard);
+        '<div id="boardCh">' + chHtml + '</div>' +
+        '<div id="boardTj" style="display:none;">' + tjHtml + '</div>';
+
+    // Switch board (default: Challenge) -> cuma satu tombol share yang tampil
+    content.querySelectorAll(".lb-switch .gchip").forEach(c => c.addEventListener("click", () => {
+        content.querySelectorAll(".lb-switch .gchip").forEach(x => x.classList.remove("active"));
+        c.classList.add("active");
+        $("boardCh").style.display = (c.dataset.board === "ch") ? "" : "none";
+        $("boardTj").style.display = (c.dataset.board === "tj") ? "" : "none";
+    }));
+    const shareBtn = $("lbShare");
+    if (shareBtn) shareBtn.addEventListener("click", shareLeaderboard);
+    const tjBtn = $("tjShare");
+    if (tjBtn) tjBtn.addEventListener("click", shareTopJurnal);
+}
+
+async function shareTopJurnal() {
+    const card = $("tjCard");
+    const btn = $("tjShare");
+    if (!card) return;
+    const label = btn.innerHTML; // ada SVG di dalamnya
+    btn.disabled = true; btn.textContent = "Preparing…";
+    const clone = card.cloneNode(true);
+    clone.classList.add("export");
+    clone.style.width = "360px"; clone.style.height = "640px"; clone.style.maxWidth = "none";
+    clone.style.position = "fixed"; clone.style.left = "-10000px"; clone.style.top = "0";
+    document.body.appendChild(clone);
+    try {
+        const blob = await renderCardToBlob(clone, { width: 360, height: 640, windowWidth: 360, windowHeight: 640 });
+        await shareOrDownloadImage(blob, "teman-jurnal-seminggu-satu.png",
+            "Top 5 Teman Jurnal Seminggu Satu! 💛 @seminggu_satu",
+            "Gambar Top 5 ke-download 📥 — upload ke IG Story ya!");
+    } catch (e) {
+        if (!(e && e.name === "AbortError")) alert("Gagal bikin gambar" + (e && e.message ? " (" + e.message + ")" : "") + ". Coba lagi ya.");
+    } finally {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        btn.disabled = false; btn.innerHTML = label;
+    }
 }
 
 // Render elemen -> PNG blob, anti-hang (guard html2canvas + timeout 15 dtk + cek blob null)
@@ -993,8 +1104,11 @@ function renderJournalTrackerHtml(wa) {
         actionBtnHtml = '<button type="button" class="jt-action-btn" id="jtCheckInBtn">' + SVG_PENCIL + ' Check In This Week (+1 Streak)</button>';
     }
 
-    const currentNote = records[currMonthWeek.key] ? records[currMonthWeek.key].note : "";
+    const currRec = records[currMonthWeek.key] || {};
+    const currentNote = currRec.note || "";
     const noteHtml = currentNote ? '<div class="jt-note-tag"><span class="note-label">Note:</span> <span class="note-text">"' + esc(currentNote) + '"</span> ✨</div>' : '';
+    // foto karya minggu ini (kalau ada) -> polaroid mini
+    const photoHtml = currRec.photo ? '<div class="jt-photo"><img src="' + esc(currRec.photo) + '" alt="" loading="lazy" decoding="async"></div>' : '';
 
     return (
         '<div class="journal-tracker-card" id="journalTrackerWidget">' +
@@ -1010,6 +1124,7 @@ function renderJournalTrackerHtml(wa) {
         '</div>' +
         '<div class="jt-grid">' + gridHtml + '</div>' +
         actionBtnHtml +
+        photoHtml +
         noteHtml +
         '</div>'
     );
@@ -1019,28 +1134,54 @@ function initJournalTrackerListeners(wa) {
     const btn = $("jtCheckInBtn");
     if (!btn) return;
 
-    btn.addEventListener("click", async () => {
-        const note = prompt("Udah journaling minggu ini? ✨\nTulis tema / judul spread-mu minggu ini (opsional):");
-        if (note === null) return; // batal
-        const currMonthWeek = getMonthWeekObj(new Date());
-        const origLabel = btn.innerHTML; // ada SVG di dalamnya
+    btn.addEventListener("click", () => openCheckinModal(wa));
+}
+
+// Modal check-in mingguan: foto karya (opsional, masuk galeri) + refleksi singkat
+function openCheckinModal(wa) {
+    const modal = $("questModal");
+    const cw = getMonthWeekObj(new Date());
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="qm-body">' +
+            '<div class="quest-game-title">✍️ Weekly Check-In</div>' +
+            '<div class="quest-game-desc">Udah journaling minggu ini? Simpan jejaknya — foto karya + refleksi singkat. Fotonya bakal nongol di Gallery 💙</div>' +
+            photoPickerHtml("Add this week's journal photo (optional)", "Refleksi singkat minggu ini… ✨ (opsional)") +
+            '<div style="display:flex;gap:8px;margin-top:12px;">' +
+                '<button class="btn-ghost2" id="ciCancel" style="flex:0 0 auto;">Batal</button>' +
+                '<button class="btn-primary" id="ciSave" style="flex:1;">✓ Check In (+1 Streak)</button>' +
+            '</div>' +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+    $("ciCancel").addEventListener("click", closeQuestModal);
+    wirePhotoPicker($("questModalBox"));
+    $("ciSave").addEventListener("click", async () => {
+        const box = $("questModalBox");
+        const input = box.querySelector(".qm-file-input");
+        const capInput = box.querySelector(".qm-cap-input");
+        const photo = input && input._photo;
+        const note = capInput ? capInput.value.trim() : "";
+        const btn = $("ciSave");
+        const orig = btn.textContent;
         btn.disabled = true; btn.textContent = "Menyimpan…";
         try {
-            const r = await apiPost({ action: "memberCheckin", token: _profile.token, weekKey: currMonthWeek.key, note: note.trim() });
-            if (r.status === "success") {
-                _profile.journalRecords = r.journalRecords || _profile.journalRecords; // sinkron dari server
-                fireConfetti("quest");
-                const widget = $("journalTrackerWidget");
-                if (widget) {
-                    widget.outerHTML = renderJournalTrackerHtml(wa);
-                    initJournalTrackerListeners(wa);
-                }
-            } else {
-                btn.disabled = false; btn.innerHTML = origLabel;
-                alert(r.message || "Gagal menyimpan absen.");
+            const payload = { action: "memberCheckin", token: _profile.token, weekKey: cw.key, note: note };
+            if (photo) { payload.photoBase64 = photo.base64; payload.photoMime = photo.mime; }
+            const r = await apiPost(payload);
+            if (r.status !== "success") { btn.disabled = false; btn.textContent = orig; alert(r.message || "Gagal menyimpan absen."); return; }
+            _profile.journalRecords = r.journalRecords || _profile.journalRecords; // sinkron dari server
+            if (photo) _galleryLoaded = false; // biar galeri refetch (foto weekly ikut tampil)
+            fireConfetti("quest");
+            closeQuestModal();
+            const widget = $("journalTrackerWidget");
+            if (widget) {
+                widget.outerHTML = renderJournalTrackerHtml(wa);
+                initJournalTrackerListeners(wa);
             }
         } catch (e) {
-            btn.disabled = false; btn.innerHTML = origLabel;
+            btn.disabled = false; btn.textContent = orig;
             alert("Gagal terhubung ke server. Coba lagi ya.");
         }
     });
@@ -1600,7 +1741,7 @@ async function loadLoyalty() {
 let _galleryLoaded = false;
 let _galleryItems = [];
 let _galleryFilter = "all";   // "all" | "mine" | "t:<judul>"
-let _galleryView = "feed";    // "feed" | "grid"
+let _galleryView = "grid";    // "grid" | "feed" (default grid, samain sama tab Challenge)
 
 // Ikon toggle view (SVG currentColor -> otomatis ikut light/dark mode)
 const ICON_FEED = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.8"/><rect x="4" y="14" width="16" height="6" rx="1.8"/></svg>';
@@ -1651,8 +1792,8 @@ function renderGallery() {
         '<div class="gallery-toolbar">' +
         '<div class="gfilters" id="galFilters">' + chips + '</div>' +
         '<div class="view-toggle">' +
-        '<button class="vbtn' + (_galleryView === "feed" ? " active" : "") + '" id="btnViewFeed" title="Mode Feed" aria-label="Mode Feed">' + ICON_FEED + '</button>' +
         '<button class="vbtn' + (_galleryView === "grid" ? " active" : "") + '" id="btnViewGrid" title="Mode Grid" aria-label="Mode Grid">' + ICON_GRID + '</button>' +
+        '<button class="vbtn' + (_galleryView === "feed" ? " active" : "") + '" id="btnViewFeed" title="Mode Feed" aria-label="Mode Feed">' + ICON_FEED + '</button>' +
         '</div>' +
         '</div>' +
         '<div class="ig-feed" id="igFeed"' + (_galleryView === "feed" ? "" : ' style="display:none"') + '></div>' +
@@ -1677,6 +1818,14 @@ function renderGallery() {
     $("btnViewGrid").addEventListener("click", () => { _galleryView = "grid"; renderGallery(); });
 }
 
+// "2026-07-11" -> "11 Jul 2026" (buat tanggal event di galeri)
+function fmtEventDate(s) {
+    const m = String(s || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return "";
+    const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return parseInt(m[3], 10) + " " + MON[parseInt(m[2], 10) - 1] + " " + m[1];
+}
+
 // "2 jam lalu" dari timestamp submission
 function timeAgo(ts) {
     if (!ts) return "";
@@ -1691,18 +1840,28 @@ function timeAgo(ts) {
 
 function galFeedCard(it) {
     const initial = esc((it.nickname || "S").charAt(0).toUpperCase());
-    const when = timeAgo(it.ts);
-    return '<article class="ig-card feed-card" data-id="' + esc(it.id) + '">' +
+    const isEvent = (it.kind === "workshop" || it.kind === "reka-rekat");
+    // event pakai tanggal event ("11 Jul 2026"), post member pakai time-ago
+    const when = isEvent ? (it.eventDate ? "🗓 " + fmtEventDate(it.eventDate) : "") : timeAgo(it.ts);
+    const evCls = it.kind === "workshop" ? " ev-ws" : (it.kind === "reka-rekat" ? " ev-rr" : "");
+    const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "weekly" ? "📖" : "🎯"));
+    const ava = isEvent ? '<div class="ig-ava official">SS</div>' : '<div class="ig-ava">' + initial + '</div>';
+    // dekorasi bingkai foto per jenis
+    let frameDeco = '<div class="washi-tape-top"></div>';
+    if (it.kind === "workshop") frameDeco = '<span class="ev-stamp">WORKSHOP</span>';
+    else if (it.kind === "reka-rekat") frameDeco = '<span class="rr-heart">♥</span>';
+    return '<article class="ig-card feed-card' + evCls + '" data-id="' + esc(it.id) + '">' +
         '<header class="feed-header">' +
-        '<div class="user-meta"><div class="ig-ava">' + initial + '</div>' +
+        '<div class="user-meta">' + ava +
         '<div class="user-info"><span class="username">' + esc(it.nickname || "Sahabat") +
-        (it.mine ? ' <span class="ig-me">KAMU</span>' : '') + '</span>' +
+        (it.mine ? ' <span class="ig-me">KAMU</span>' : '') +
+        (isEvent ? ' <span class="ig-me official-tag">OFFICIAL</span>' : '') + '</span>' +
         (when ? '<span class="post-time">' + when + '</span>' : '') + '</div></div>' +
-        '<div class="quest-badge-sticker">🎯 ' + esc(it.title) + '</div>' +
+        '<div class="quest-badge-sticker">' + bIcon + ' ' + esc(it.title) + '</div>' +
         '</header>' +
         '<div class="feed-photo-frame">' +
-        '<div class="washi-tape-top"></div>' +
-        '<div class="ig-imgwrap feed-photo-wrap" data-tap="' + esc(it.id) + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
+        frameDeco +
+        '<div class="ig-imgwrap feed-photo-wrap" data-tap="' + esc(it.id) + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
         '</div>' +
         '<div class="feed-actions"><button class="action-btn ig-btn-like' + (it.liked ? " active" : "") + '" data-like="' + esc(it.id) + '"><span class="li-icon">' + (it.liked ? "❤️" : "🤍") + '</span> <span class="li-count">' + (it.likes || 0) + '</span> Likes</button></div>' +
         (it.caption ? '<div class="feed-caption-box"><p class="caption-text"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</p></div>' : '') +
@@ -1710,18 +1869,33 @@ function galFeedCard(it) {
 }
 
 function galGridItem(it, i) {
-    // Bingkai & rasio selang-seling biar masonry-nya organik ala scrapbook
-    const frame = (i % 2 === 0) ? "frame-polaroid" : "frame-stitched";
+    // Bingkai per jenis: workshop = album kraft + photo corners + stempel,
+    // reka-rekat = kertas pink sobek + hati, sisanya polaroid/stitched selang-seling
     const ratio = ["ratio-45", "ratio-11", "ratio-34"][i % 3];
-    const tape = (i % 2 === 0) ? '<div class="jtape ' + (i % 4 === 0 ? "tr" : "tl") + '"></div>' : "";
     const initial = esc((it.nickname || "S").charAt(0).toUpperCase());
+    let frame, deco = "", stampIn = "";
+    if (it.kind === "workshop") {
+        frame = "frame-workshop";
+        stampIn = '<span class="ev-stamp">WORKSHOP</span>';
+    } else if (it.kind === "reka-rekat") {
+        frame = "frame-rekarekat";
+        deco = '<span class="rr-heart">♥</span>';
+        stampIn = '<span class="ev-stamp rr">REKA-REKAT</span>';
+    } else {
+        frame = (i % 2 === 0) ? "frame-polaroid" : "frame-stitched";
+        deco = (i % 2 === 0) ? '<div class="jtape ' + (i % 4 === 0 ? "tr" : "tl") + '"></div>' : "";
+    }
+    const ava = (it.kind === "workshop" || it.kind === "reka-rekat")
+        ? '<span class="jcard-ava official">SS</span>'
+        : '<span class="jcard-ava">' + initial + '</span>';
     return '<div class="jcard ' + frame + '" data-id="' + esc(it.id) + '">' +
-        tape +
-        '<div class="jcard-imgwrap ' + ratio + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" onerror="this.style.opacity=.25"></div>' +
+        deco +
+        '<div class="jcard-imgwrap ' + ratio + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25">' + stampIn + '</div>' +
         '<div class="jcard-body">' +
-        '<div class="jcard-author"><span class="jcard-ava">' + initial + '</span>' +
+        '<div class="jcard-author">' + ava +
         '<span class="jcard-nick">' + esc(it.nickname || "Sahabat") + (it.mine ? " · kamu" : "") + '</span>' +
         '<span class="jcard-likes">❤️ ' + (it.likes || 0) + '</span></div>' +
+        (it.eventDate ? '<div class="jcard-date">🗓 ' + esc(fmtEventDate(it.eventDate)) + '</div>' : '') +
         (it.caption ? '<div class="jcard-cap">' + esc(it.caption) + '</div>' : '') +
         '</div>' +
         '</div>';
@@ -1753,14 +1927,18 @@ function wireGallery(feed, grid) {
 function openGalleryLightbox(it) {
     const modal = $("questModal");
     const initial = esc((it.nickname || "S").charAt(0).toUpperCase());
+    const isEvent = (it.kind === "workshop" || it.kind === "reka-rekat");
+    const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "weekly" ? "📖" : "🎯"));
+    const ava = isEvent ? '<div class="ig-ava official">SS</div>' : '<div class="ig-ava">' + initial + '</div>';
     $("questModalBox").innerHTML =
         '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
         '<div class="ig-imgwrap" id="lbImg" style="aspect-ratio:1/1"><img src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
         '<div class="qm-body">' +
-        '<div class="ig-head" style="padding-left:0;padding-right:0;"><div class="ig-ava">' + initial + '</div>' +
+        '<div class="ig-head" style="padding-left:0;padding-right:0;">' + ava +
         '<div class="ig-user-info"><div class="ig-user-row"><span class="ig-user">' + esc(it.nickname || "Sahabat") + '</span>' +
-        (it.mine ? '<span class="ig-me">KAMU</span>' : '') + '</div>' +
-        '<div class="ig-chal">🎯 ' + esc(it.title) + '</div></div></div>' +
+        (it.mine ? '<span class="ig-me">KAMU</span>' : '') +
+        (isEvent ? '<span class="ig-me official-tag">OFFICIAL</span>' : '') + '</div>' +
+        '<div class="ig-chal">' + bIcon + ' ' + esc(it.title) + (it.eventDate ? ' · 🗓 ' + esc(fmtEventDate(it.eventDate)) : '') + '</div></div></div>' +
         '<div class="ig-actions" style="padding-left:0;padding-right:0;"><button class="ig-btn-like" data-like="' + esc(it.id) + '"><span class="li-icon">' + (it.liked ? "❤️" : "🤍") + '</span> <span class="li-count">' + (it.likes || 0) + '</span> Likes</button></div>' +
         (it.caption ? '<div class="ig-cap" style="padding-left:0;padding-right:0;"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</div>' : '') +
         '</div>';
