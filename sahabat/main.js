@@ -617,8 +617,8 @@ function renderQuestAction(q, i) {
         '<div class="qm-edit-head">✏️ ' + (photo ? "Edit karya kamu" : "Upload karya kamu") + '</div>' +
         photoPickerHtml(photo ? "Ganti foto" : "Pilih foto") +
         '<div style="display:flex;gap:8px;margin-top:10px;">' +
-        '<button class="btn-ghost2" id="qmEditCancel" style="flex:0 0 auto;">Batal</button>' +
-        '<button class="btn-primary" id="qmEditSave" style="flex:1;">💾 Simpan</button>' +
+        '<button class="btn-ghost2" id="qmEditCancel" style="flex:0 0 auto;width:auto;">Batal</button>' +
+        '<button class="btn-primary" id="qmEditSave" style="flex:1;width:auto;min-width:0;">💾 Simpan</button>' +
         '</div></div>' +
         '<div class="qm-work-lbl" style="margin-top:16px;">📲 Share ke grup</div>' +
         '<div class="q-caption">' + esc(waCap) + '</div>' +
@@ -1149,8 +1149,8 @@ function openCheckinModal(wa) {
             '<div class="quest-game-desc">Udah journaling minggu ini? Simpan jejaknya — foto karya + refleksi singkat. Fotonya bakal nongol di Gallery 💙</div>' +
             photoPickerHtml("Add this week's journal photo (optional)", "Refleksi singkat minggu ini… ✨ (opsional)") +
             '<div style="display:flex;gap:8px;margin-top:12px;">' +
-                '<button class="btn-ghost2" id="ciCancel" style="flex:0 0 auto;">Batal</button>' +
-                '<button class="btn-primary" id="ciSave" style="flex:1;">✓ Check In (+1 Streak)</button>' +
+                '<button class="btn-ghost2" id="ciCancel" style="flex:0 0 auto;width:auto;">Batal</button>' +
+                '<button class="btn-primary" id="ciSave" style="flex:1;width:auto;min-width:0;">✓ Check In (+1 Streak)</button>' +
             '</div>' +
         '</div>';
     modal.classList.add("show");
