@@ -122,16 +122,19 @@ async function doSetup() {
 }
 
 // ---------- Confetti Helper ----------
+// canvas-confetti default zIndex cuma 100 -> ketutup modal (quest-modal = 1200).
+// Paksa selalu di atas semua overlay/modal di app ini.
+const CONFETTI_Z = 99999;
 function fireConfetti(preset) {
     if (typeof confetti !== "function") return;
     if (preset === "login") {
-        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 }, zIndex: CONFETTI_Z });
     } else if (preset === "quest") {
-        confetti({ particleCount: 100, spread: 80, origin: { y: 0.55 }, colors: ['#0046ff', '#ffe600', '#00b4ff', '#ff007f'] });
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.55 }, colors: ['#0046ff', '#ffe600', '#00b4ff', '#ff007f'], zIndex: CONFETTI_Z });
     } else if (preset === "reward") {
-        confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 }, colors: ['#ffe600', '#ffffff', '#0046ff'] });
+        confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 }, colors: ['#ffe600', '#ffffff', '#0046ff'], zIndex: CONFETTI_Z });
     } else if (preset === "love") {
-        confetti({ particleCount: 45, spread: 55, scalar: 0.9, startVelocity: 32, origin: { y: 0.7 }, colors: ['#ff2d55', '#ff6b8a', '#ffb3c1', '#ffe600'] });
+        confetti({ particleCount: 45, spread: 55, scalar: 0.9, startVelocity: 32, origin: { y: 0.7 }, colors: ['#ff2d55', '#ff6b8a', '#ffb3c1', '#ffe600'], zIndex: CONFETTI_Z });
     }
 }
 
@@ -297,7 +300,6 @@ async function loadEvents() {
 
 // ---------- Rekomendasi pane (dari recommendation-config.js, sama kayak /recommendation) ----------
 let _recLoaded = false;
-const REC_CAT_LABEL = { tools: "🛠️ Alat", material: "🎨 Bahan", paper: "📄 Kertas" };
 function loadRec() {
     if (_recLoaded) return;
     _recLoaded = true;
@@ -1725,7 +1727,7 @@ async function loadLoyalty() {
         bubble.textContent = arr[Math.floor(Math.random() * arr.length)];
         bubble.classList.toggle("theme", isTheme);
         bubble.classList.add("show");
-        if (typeof confetti === "function" && isTheme) confetti({ particleCount: 30, spread: 45, origin: { x: 0.12, y: 0.9 } });
+        if (typeof confetti === "function" && isTheme) confetti({ particleCount: 30, spread: 45, origin: { x: 0.12, y: 0.9 }, zIndex: CONFETTI_Z });
 
         clearTimeout(timer);
         timer = setTimeout(() => bubble.classList.remove("show"), 4500);
@@ -1847,13 +1849,14 @@ function galFeedCard(it) {
     const isEvent = (it.kind === "workshop" || it.kind === "reka-rekat");
     // event pakai tanggal event ("11 Jul 2026"), post member pakai time-ago
     const when = isEvent ? (it.eventDate ? "🗓 " + fmtEventDate(it.eventDate) : "") : timeAgo(it.ts);
-    const evCls = it.kind === "workshop" ? " ev-ws" : (it.kind === "reka-rekat" ? " ev-rr" : "");
+    const evCls = it.kind === "workshop" ? " ev-ws" : (it.kind === "reka-rekat" ? " ev-rr" : (it.kind === "weekly" ? " ev-wj" : ""));
     const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "weekly" ? "📖" : "🎯"));
     const ava = isEvent ? '<div class="ig-ava official">SS</div>' : '<div class="ig-ava">' + initial + '</div>';
     // dekorasi bingkai foto per jenis
     let frameDeco = '<div class="washi-tape-top"></div>';
     if (it.kind === "workshop") frameDeco = '<span class="ev-stamp">WORKSHOP</span>';
     else if (it.kind === "reka-rekat") frameDeco = '<span class="rr-heart">♥</span>';
+    else if (it.kind === "weekly") frameDeco = '<span class="wj-check">✓</span>';
     return '<article class="ig-card feed-card' + evCls + '" data-id="' + esc(it.id) + '">' +
         '<header class="feed-header">' +
         '<div class="user-meta">' + ava +
@@ -1885,6 +1888,9 @@ function galGridItem(it, i) {
         frame = "frame-rekarekat";
         deco = '<span class="rr-heart">♥</span>';
         stampIn = '<span class="ev-stamp rr">REKA-REKAT</span>';
+    } else if (it.kind === "weekly") {
+        frame = "frame-weekly";
+        deco = '<span class="wj-check">✓</span>';
     } else {
         frame = (i % 2 === 0) ? "frame-polaroid" : "frame-stitched";
         deco = (i % 2 === 0) ? '<div class="jtape ' + (i % 4 === 0 ? "tr" : "tl") + '"></div>' : "";

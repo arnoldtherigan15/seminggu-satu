@@ -165,9 +165,9 @@ var RECOMMENDATIONS = [
 //  CATEGORY LABELS — Ubah label tampilan kategori di sini
 // ============================================================
 const RECOMMENDATION_CATEGORIES = {
-    "tools": "🛠️ Alat",
-    "material": "🎨 Bahan",
-    "paper": "📄 Kertas"
+    "tools": "🛠️ Tools",
+    "material": "🎨 Materials",
+    "paper": "📄 Paper"
 };
 
 // ============================================================

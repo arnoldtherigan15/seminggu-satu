@@ -504,8 +504,9 @@
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 16px;
-            padding: 1rem;
+            padding: 1.4rem 1rem 1rem;
             text-align: center;
+            position: relative;
         }
 
         .scard b {
@@ -527,18 +528,29 @@
             margin-top: 0.3rem;
         }
 
-        /* ikon SVG di stat card (konsisten sama ikon tab) */
+        /* ikon SVG jadi badge kecil di pojok atas (mirror: kartu kiri = pojok kiri, kartu kanan = pojok kanan) */
         .scard .scard-ic {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: rgba(0, 70, 255, .1);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--blue);
-            margin: 0 0 6px;
+        }
+
+        .stat-cards .scard:last-child .scard-ic {
+            left: auto;
+            right: 10px;
         }
 
         .scard .scard-ic svg {
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
         }
 
         .tier {
@@ -1201,6 +1213,15 @@
         .jcard.frame-rekarekat .jcard-cap { color: #a5487c; }
         .jcard.frame-rekarekat .jcard-likes { color: #d67ba4; }
         .rr-heart { position: absolute; top: -9px; right: 14px; z-index: 4; width: 24px; height: 24px; background: #ff5c8a; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: .8rem; line-height: 1; transform: rotate(10deg); box-shadow: 0 3px 8px rgba(233, 80, 140, .4); border: 2px solid #fff; }
+
+        /* ---- Kartu MEMBER: Weekly Journal = mirip Reka-Rekat (kertas sobek) tapi hijau + checklist ---- */
+        .jcard.frame-weekly { background: #eafbf0; border: 1.5px dashed #a7e8c4; border-bottom: none; border-radius: 14px 14px 2px 2px; padding: 10px 10px 14px; box-shadow: 0 6px 16px rgba(16, 185, 129, .15); }
+        .jcard.frame-weekly .jcard-imgwrap { border: 3px solid #fff; border-radius: 10px; }
+        .jcard.frame-weekly::after { content: ''; position: absolute; bottom: -7px; left: 4px; right: 4px; height: 10px; background: radial-gradient(circle at 7px -2px, transparent 7px, #eafbf0 7.5px); background-size: 15px 12px; background-repeat: repeat-x; }
+        .jcard.frame-weekly .jcard-nick { color: #0a7a3d; }
+        .jcard.frame-weekly .jcard-cap { color: #2f855a; }
+        .jcard.frame-weekly .jcard-likes { color: #4fa876; }
+        .wj-check { position: absolute; top: -9px; right: 14px; z-index: 4; width: 24px; height: 24px; background: #22c55e; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: .85rem; font-weight: 800; line-height: 1; transform: rotate(10deg); box-shadow: 0 3px 8px rgba(34, 197, 94, .4); border: 2px solid #fff; }
         /* avatar official (post Seminggu Satu) */
         .jcard-ava.official, .ig-ava.official { background: linear-gradient(135deg, #ffe600, #ffb700); color: #10245e; }
         .ig-me.official-tag { background: #10245e; color: #ffe600; }
@@ -1223,6 +1244,14 @@
         .feed-card.ev-rr .action-btn { background: rgba(255, 255, 255, .6); border-color: #f5aac6; color: #b0336a; }
         .feed-card.ev-rr .rr-heart { top: -10px; left: 18px; right: auto; transform: rotate(-10deg); }
         .feed-card.ev-ws .ev-stamp { top: -8px; left: 16px; right: auto; transform: rotate(-5deg); z-index: 6; }
+        .feed-card.ev-wj { background: #eafbf0; border: 1.5px dashed #a7e8c4; position: relative; }
+        .feed-card.ev-wj .feed-photo-frame { background: #fff; border-color: #bdf0d3; }
+        .feed-card.ev-wj .username, .feed-card.ev-wj .caption-text { color: #0a7a3d; }
+        .feed-card.ev-wj .post-time { color: #4fa876; }
+        .feed-card.ev-wj .quest-badge-sticker { background: #dcfce7; color: #15803d; border-color: #a7e8c4; }
+        .feed-card.ev-wj .feed-caption-box { background: rgba(255, 255, 255, .65); border-left-color: #22c55e; }
+        .feed-card.ev-wj .action-btn { background: rgba(255, 255, 255, .6); border-color: #a7e8c4; color: #227a4f; }
+        .feed-card.ev-wj .wj-check { top: -10px; left: 18px; right: auto; transform: rotate(-10deg); }
 
         /* dark mode: kertas cream -> permukaan gelap */
         :root[data-theme="dark"] .jcard.frame-stitched { background: #131c2f; border-color: #3a4666; }
