@@ -438,7 +438,7 @@ function openQuestDetail(i) {
     const done = _questSubmitted.indexOf(q.id) >= 0;
     const modal = $("questModal");
     $("questModalBox").innerHTML =
-        '<button class="qm-close" id="qmClose" aria-label="Tutup">✕</button>' +
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
         '<img class="qm-img" src="' + esc(questImg(q)) + '" alt="" onerror="this.style.opacity=.25">' +
         '<div class="qm-body">' +
             '<div class="quest-meta-tags">' +
@@ -510,7 +510,10 @@ function renderQuestAction(q, i) {
     }
     html += '<button class="btn-ghost2" id="qmEditToggle" style="margin-top:10px;">📷 ' + (photo ? "Ganti foto / caption" : "Upload foto & caption") + '</button>' +
         '<div id="qmEditBox" style="display:none;margin-top:10px;">' + photoPickerHtml("Pilih foto") +
-            '<button class="btn-primary" id="qmEditSave" style="margin-top:8px;">💾 Simpan</button></div>' +
+            '<div style="display:flex;gap:8px;margin-top:8px;">' +
+                '<button class="btn-ghost2" id="qmEditCancel" style="flex:0 0 auto;">Batal</button>' +
+                '<button class="btn-primary" id="qmEditSave" style="flex:1;">💾 Simpan</button>' +
+            '</div></div>' +
         '<div class="q-caption" style="margin-top:14px;">' + esc(waCap) + '</div>' +
         '<button class="btn-ghost2 quest-copy" style="margin-top:8px;">📋 Salin caption WA</button>' +
         '<a class="btn-primary" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener" style="margin-top:8px;">📲 Buka Grup WA</a>';
@@ -529,6 +532,8 @@ function renderQuestAction(q, i) {
         if (!showing) { const ci = editBox.querySelector(".qm-cap-input"); if (ci && !ci.value) ci.value = cap; }
     });
     wirePhotoPicker(editBox);
+    const cancelBtn = $("qmEditCancel");
+    if (cancelBtn) cancelBtn.addEventListener("click", () => { editBox.style.display = "none"; });
     const saveBtn = $("qmEditSave");
     if (saveBtn) saveBtn.addEventListener("click", () => editQuestPhoto(q, i, editBox));
 }
@@ -1466,10 +1471,15 @@ async function loadLoyalty() {
     if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) closeQuestModal(); });
 })();
 
-// ---------- Galeri (foto challenge semua member, ala IG) ----------
+// ---------- Galeri (feed foto challenge semua member, ala IG) ----------
 let _galleryLoaded = false;
 let _galleryItems = [];
-let _galleryFilter = "all"; // "all" | "mine" | challengeId
+let _galleryFilter = "all";   // "all" | "mine" | "t:<judul>"
+let _galleryView = "feed";    // "feed" | "grid"
+
+// Ikon toggle view (SVG currentColor -> otomatis ikut light/dark mode)
+const ICON_FEED = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.8"/><rect x="4" y="14" width="16" height="6" rx="1.8"/></svg>';
+const ICON_GRID = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>';
 
 async function loadGallery() {
     if (_galleryLoaded) return;
@@ -1483,64 +1493,155 @@ async function loadGallery() {
     renderGallery();
 }
 
+function galFiltered() {
+    let items = _galleryItems.slice();
+    if (_galleryFilter === "mine") items = items.filter(x => x.mine);
+    else if (_galleryFilter.indexOf("t:") === 0) { const t = _galleryFilter.slice(2); items = items.filter(x => x.title === t); }
+    return items;
+}
+
 function renderGallery() {
     const pane = $("pane-gallery");
     if (!_galleryItems.length) {
         pane.innerHTML = '<div class="placeholder"><div class="em">📸</div><h3>Galeri masih kosong</h3><p>Ikut side quest & upload foto spread-mu — nanti muncul di sini! ✨</p></div>';
         return;
     }
-    // chips filter: Semua, Punyaku, + tiap challenge yang ada fotonya
     const challengeSet = [];
     _galleryItems.forEach(it => { if (challengeSet.indexOf(it.title) < 0) challengeSet.push(it.title); });
-    let chips = '<button class="gchip' + (_galleryFilter === "all" ? " active" : "") + '" data-f="all">Semua</button>' +
+    let chips = '<button class="gchip' + (_galleryFilter === "all" ? " active" : "") + '" data-f="all">🌍 Semua</button>' +
         '<button class="gchip' + (_galleryFilter === "mine" ? " active" : "") + '" data-f="mine">📌 Punyaku</button>';
     challengeSet.forEach(t => {
         chips += '<button class="gchip' + (_galleryFilter === ("t:" + t) ? " active" : "") + '" data-f="t:' + esc(t) + '">' + esc(t) + '</button>';
     });
 
-    let items = _galleryItems.slice();
-    if (_galleryFilter === "mine") items = items.filter(x => x.mine);
-    else if (_galleryFilter.indexOf("t:") === 0) { const t = _galleryFilter.slice(2); items = items.filter(x => x.title === t); }
-
-    let cards = "";
-    items.forEach((it, idx) => {
-        cards += '<div class="ig-card" data-idx="' + idx + '">' +
-            '<div class="ig-head"><div class="ig-ava">' + esc((it.nickname || "S").charAt(0).toUpperCase()) + '</div>' +
-                '<div class="ig-user">' + esc(it.nickname || "Sahabat") + (it.mine ? ' <span class="ig-me">kamu</span>' : '') +
-                '<div class="ig-chal">🎨 ' + esc(it.title) + '</div></div></div>' +
-            '<div class="ig-imgwrap"><img src="' + esc(it.photo) + '" alt="" loading="lazy" onerror="this.style.opacity=.25"></div>' +
-            (it.caption ? '<div class="ig-cap"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</div>' : '') +
-        '</div>';
-    });
     pane.innerHTML =
-        '<div class="section-lbl">📸 Galeri Challenge</div>' +
-        '<div class="gfilters">' + chips + '</div>' +
-        (items.length ? '<div class="ig-feed">' + cards + '</div>'
-            : '<div class="placeholder" style="padding:2rem 1rem;"><div class="em">🍃</div><p>Belum ada foto di filter ini.</p></div>');
+        '<div class="gallery-toolbar">' +
+            '<div class="gfilters" id="galFilters">' + chips + '</div>' +
+            '<div class="view-toggle">' +
+                '<button class="vbtn' + (_galleryView === "feed" ? " active" : "") + '" id="btnViewFeed" title="Mode Feed" aria-label="Mode Feed">' + ICON_FEED + '</button>' +
+                '<button class="vbtn' + (_galleryView === "grid" ? " active" : "") + '" id="btnViewGrid" title="Mode Grid" aria-label="Mode Grid">' + ICON_GRID + '</button>' +
+            '</div>' +
+        '</div>' +
+        '<div class="ig-feed" id="igFeed"' + (_galleryView === "feed" ? "" : ' style="display:none"') + '></div>' +
+        '<div class="ig-grid" id="igGrid"' + (_galleryView === "grid" ? "" : ' style="display:none"') + '></div>';
 
-    pane.querySelectorAll(".gchip").forEach(c => c.addEventListener("click", () => {
-        _galleryFilter = c.dataset.f; renderGallery();
-    }));
-    pane.querySelectorAll(".ig-card").forEach(card => card.addEventListener("click", () => {
-        const it = items[Number(card.dataset.idx)];
+    const items = galFiltered();
+    const feed = $("igFeed"), grid = $("igGrid");
+    if (!items.length) {
+        const empty = '<div class="placeholder" style="grid-column:1/-1;padding:2rem 1rem;"><div class="em">🍃</div><p>Belum ada foto di filter ini.</p></div>';
+        feed.innerHTML = empty; grid.innerHTML = empty;
+    } else {
+        feed.innerHTML = items.map(galFeedCard).join("");
+        grid.innerHTML = items.map(galGridItem).join("");
+        wireGallery(feed, grid);
+    }
+
+    pane.querySelectorAll("#galFilters .gchip").forEach(c => c.addEventListener("click", () => { _galleryFilter = c.dataset.f; renderGallery(); }));
+    $("btnViewFeed").addEventListener("click", () => { _galleryView = "feed"; renderGallery(); });
+    $("btnViewGrid").addEventListener("click", () => { _galleryView = "grid"; renderGallery(); });
+}
+
+function galFeedCard(it) {
+    const initial = esc((it.nickname || "S").charAt(0).toUpperCase());
+    return '<div class="ig-card" data-id="' + esc(it.id) + '">' +
+        '<div class="ig-head"><div class="ig-ava">' + initial + '</div>' +
+            '<div class="ig-user-info"><div class="ig-user-row"><span class="ig-user">' + esc(it.nickname || "Sahabat") + '</span>' +
+            (it.mine ? '<span class="ig-me">KAMU</span>' : '') + '</div>' +
+            '<div class="ig-chal">🎯 ' + esc(it.title) + '</div></div></div>' +
+        '<div class="ig-imgwrap" data-tap="' + esc(it.id) + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
+        '<div class="ig-actions"><button class="ig-btn-like" data-like="' + esc(it.id) + '"><span class="li-icon">' + (it.liked ? "❤️" : "🤍") + '</span> <span class="li-count">' + (it.likes || 0) + '</span> Suka</button></div>' +
+        (it.caption ? '<div class="ig-cap"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</div>' : '') +
+    '</div>';
+}
+
+function galGridItem(it) {
+    return '<div class="ig-grid-item" data-id="' + esc(it.id) + '">' +
+        '<img src="' + esc(it.photo) + '" alt="" loading="lazy" onerror="this.style.opacity=.25">' +
+        (it.likes ? '<span class="ig-grid-badge">❤️ ' + it.likes + '</span>' : (it.mine ? '<span class="ig-grid-badge">Kamu</span>' : '')) +
+    '</div>';
+}
+
+function wireGallery(feed, grid) {
+    feed.querySelectorAll(".ig-btn-like").forEach(btn =>
+        btn.addEventListener("click", () => toggleLike(btn.dataset.like)));
+    const taps = {};
+    feed.querySelectorAll(".ig-imgwrap").forEach(wrap => {
+        wrap.addEventListener("click", () => {
+            const id = wrap.dataset.tap, now = Date.now();
+            if (taps[id] && now - taps[id] < 300) {
+                const it = _galleryItems.find(x => x.id === id);
+                if (it && !it.liked) toggleLike(id);
+                const ov = wrap.querySelector(".like-overlay");
+                if (ov) { ov.classList.add("pop"); setTimeout(() => ov.classList.remove("pop"), 800); }
+                taps[id] = 0;
+            } else taps[id] = now;
+        });
+    });
+    grid.querySelectorAll(".ig-grid-item").forEach(g => g.addEventListener("click", () => {
+        const it = _galleryItems.find(x => x.id === g.dataset.id);
         if (it) openGalleryLightbox(it);
     }));
 }
 
+// Lightbox: buka foto galeri gede + info + tombol love (dipakai dari grid)
 function openGalleryLightbox(it) {
     const modal = $("questModal");
+    const initial = esc((it.nickname || "S").charAt(0).toUpperCase());
     $("questModalBox").innerHTML =
-        '<button class="qm-close" id="qmClose" aria-label="Tutup">✕</button>' +
-        '<img class="qm-img" style="aspect-ratio:1/1" src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25">' +
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="ig-imgwrap" id="lbImg" style="aspect-ratio:1/1"><img src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
         '<div class="qm-body">' +
-            '<div class="ig-head"><div class="ig-ava">' + esc((it.nickname || "S").charAt(0).toUpperCase()) + '</div>' +
-                '<div class="ig-user">' + esc(it.nickname || "Sahabat") + (it.mine ? ' <span class="ig-me">kamu</span>' : '') +
-                '<div class="ig-chal">🎨 ' + esc(it.title) + '</div></div></div>' +
-            (it.caption ? '<div class="ig-cap" style="margin-top:10px;"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</div>' : '') +
+            '<div class="ig-head" style="padding-left:0;padding-right:0;"><div class="ig-ava">' + initial + '</div>' +
+                '<div class="ig-user-info"><div class="ig-user-row"><span class="ig-user">' + esc(it.nickname || "Sahabat") + '</span>' +
+                (it.mine ? '<span class="ig-me">KAMU</span>' : '') + '</div>' +
+                '<div class="ig-chal">🎯 ' + esc(it.title) + '</div></div></div>' +
+            '<div class="ig-actions" style="padding-left:0;padding-right:0;"><button class="ig-btn-like" data-like="' + esc(it.id) + '"><span class="li-icon">' + (it.liked ? "❤️" : "🤍") + '</span> <span class="li-count">' + (it.likes || 0) + '</span> Suka</button></div>' +
+            (it.caption ? '<div class="ig-cap" style="padding-left:0;padding-right:0;"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</div>' : '') +
         '</div>';
     modal.classList.add("show");
     lockScroll();
     $("qmClose").addEventListener("click", closeQuestModal);
+    const box = $("questModalBox");
+    const likeBtn = box.querySelector(".ig-btn-like");
+    if (likeBtn) likeBtn.addEventListener("click", () => toggleLike(it.id));
+    const wrap = $("lbImg");
+    let last = 0;
+    if (wrap) wrap.addEventListener("click", () => {
+        const now = Date.now();
+        if (last && now - last < 300) {
+            if (!it.liked) toggleLike(it.id);
+            const ov = wrap.querySelector(".like-overlay");
+            if (ov) { ov.classList.add("pop"); setTimeout(() => ov.classList.remove("pop"), 800); }
+            last = 0;
+        } else last = now;
+    });
+}
+
+async function toggleLike(id) {
+    const it = _galleryItems.find(x => x.id === id);
+    if (!it) return;
+    const prevLiked = it.liked, prevLikes = it.likes || 0;
+    it.liked = !prevLiked; it.likes = Math.max(0, prevLikes + (it.liked ? 1 : -1));
+    updateLikeDom(id, it);
+    try {
+        const r = await apiPost({ action: "memberToggleLike", token: _profile.token, submissionId: id });
+        if (r && r.status === "success") {
+            it.liked = !!r.liked;
+            it.likes = (typeof r.likes === "number") ? r.likes : it.likes;
+        } else { it.liked = prevLiked; it.likes = prevLikes; }
+    } catch (e) { it.liked = prevLiked; it.likes = prevLikes; }
+    updateLikeDom(id, it);
+}
+
+function updateLikeDom(id, it) {
+    document.querySelectorAll('.ig-btn-like[data-like="' + id + '"]').forEach(btn => {
+        const ic = btn.querySelector(".li-icon"), ct = btn.querySelector(".li-count");
+        if (ic) ic.textContent = it.liked ? "❤️" : "🤍";
+        if (ct) ct.textContent = it.likes || 0;
+    });
+    document.querySelectorAll('.ig-grid-item[data-id="' + id + '"] .ig-grid-badge').forEach(b => {
+        if (it.likes) b.textContent = "❤️ " + it.likes;
+    });
 }
 
 // ---------- Pull to refresh (tarik dari atas -> reload) ----------
