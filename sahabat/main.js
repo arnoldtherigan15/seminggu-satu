@@ -259,7 +259,7 @@ async function loadEvents() {
         return;
     }
 
-    let html = '<div class="section-lbl">Event yang bisa kamu ikuti</div>';
+    let html = '<div class="section-lbl">🎟️ Upcoming Events</div>';
     items.forEach(x => {
         const w = x.w;
         const max = w.maxQuota || 0;
@@ -269,21 +269,21 @@ async function loadEvents() {
         const isReg = !!registered[w.id];
         const dateTxt = w.workshopDate || (typeof formatDateIndo === "function" && w.eventDate ? formatDateIndo(w.eventDate) : "");
         let badge = x.status === "not-open-yet"
-            ? '<span class="ev-badge soon">Segera</span>'
-            : '<span class="ev-badge open">Buka</span>';
+            ? '<span class="ev-badge soon">SOON</span>'
+            : '<span class="ev-badge open">OPEN</span>';
 
         let action;
-        if (isReg) action = '<div class="ev-done">✅ Kamu udah daftar di event ini</div>';
-        else if (x.status === "not-open-yet") action = '<div class="ev-meta">Pendaftaran belum dibuka</div>';
-        else if (full) action = '<div class="ev-full">Slot penuh 😢</div>';
+        if (isReg) action = '<div class="ev-done">✅ You\'re in — see you there! 💙</div>';
+        else if (x.status === "not-open-yet") action = '<div class="ev-meta">Registration opens soon</div>';
+        else if (full) action = '<div class="ev-full">Fully booked 😢</div>';
         else {
             let href = "../" + (w.path || "");
             // Event member (journaling-date): bawa WA (nggak input ulang) + flag from=member (balik ke portal)
             if (w.id === "journaling-date") href += (href.indexOf("?") >= 0 ? "&" : "?") + "wa=" + encodeURIComponent(_profile.wa) + "&from=member";
-            action = '<a class="btn-primary" href="' + esc(href) + '">Daftar →</a>';
+            action = '<a class="btn-primary" href="' + esc(href) + '">Register →</a>';
         }
 
-        const meta = [dateTxt, (left != null && !full && !isReg ? ("Sisa " + left + " slot") : "")].filter(Boolean).join(" · ");
+        const meta = [dateTxt, (left != null && !full && !isReg ? (left + " slots left") : "")].filter(Boolean).join(" · ");
 
         html += '<div class="ev">' +
             '<div class="ev-top"><div class="ev-name">' + esc(w.name || w.id) + '</div>' + badge + '</div>' +
@@ -346,7 +346,7 @@ function renderRecCards() {
             '<div class="rec-title">' + esc(it.title) + '</div>' +
             // deskripsi = HTML (boleh <strong> dll) dari config statis terpercaya
             (it.description ? '<div class="rec-desc">' + it.description + '</div>' : '') +
-            (it.link ? '<a class="rec-link" href="' + esc(it.link) + '" target="_blank" rel="noopener">Lihat produk →</a>' : '') +
+            (it.link ? '<a class="rec-link" href="' + esc(it.link) + '" target="_blank" rel="noopener">View Product →</a>' : '') +
             '</div></div>';
     });
     wrap.innerHTML = html;
@@ -456,7 +456,7 @@ function renderQuestRow(q, i) {
 
 function renderQuestCell(q, i) {
     const done = _questSubmitted.indexOf(q.id) >= 0;
-    const tape = '<div class="jtape ' + (i % 2 === 0 ? "tl" : "tr") + '"></div>';
+    const tape = '<div class="jtape ' + (i % 2 === 0 ? "tl" : "tr blue") + '"></div>';
     return '<div class="qg-cell' + (done ? ' done' : '') + '" data-i="' + i + '">' +
         tape +
         '<div class="qg-imgwrap">' +
@@ -739,7 +739,11 @@ function renderCardToBlob(el, opts) {
     if (typeof html2canvas === "undefined") {
         return Promise.reject(new Error("html2canvas belum siap — cek koneksi internet"));
     }
-    const render = html2canvas(el, Object.assign({ scale: 3, backgroundColor: null, useCORS: true }, opts || {}))
+    // html2canvas nge-clone SELURUH dokumen (termasuk semua foto galeri yg udah
+    // ke-prefetch di pane lain) -> nge-load ulang semuanya & bikin timeout.
+    // Solusi: skip elemen yang bukan ancestor/descendant target (head/style tetap ikut).
+    const keep = (n) => n === el || n.contains(el) || el.contains(n) || !document.body.contains(n);
+    const render = html2canvas(el, Object.assign({ scale: 3, backgroundColor: null, useCORS: true, ignoreElements: (n) => !keep(n) }, opts || {}))
         .then(canvas => new Promise((res, rej) => {
             try { canvas.toBlob(b => b ? res(b) : rej(new Error("gagal render gambar")), "image/png"); }
             catch (e) { rej(e); }
@@ -1661,7 +1665,10 @@ function renderGallery() {
         feed.innerHTML = empty; grid.innerHTML = empty;
     } else {
         feed.innerHTML = items.map(galFeedCard).join("");
-        grid.innerHTML = items.map(galGridItem).join("");
+        // bagi ke 2 kolom flex (masonry manual, bebas bug paint css-columns)
+        const colA = [], colB = [];
+        items.forEach((it, i) => ((i % 2 === 0) ? colA : colB).push(galGridItem(it, i)));
+        grid.innerHTML = '<div class="ig-col">' + colA.join("") + '</div><div class="ig-col">' + colB.join("") + '</div>';
         wireGallery(feed, grid);
     }
 
