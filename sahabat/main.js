@@ -1346,3 +1346,61 @@ async function loadLoyalty() {
     const modal = $("questModal");
     if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) closeQuestModal(); });
 })();
+
+// ---------- Pull to refresh (tarik dari atas -> reload) ----------
+(function initPullRefresh() {
+    const ind = $("ptrIndicator");
+    if (!ind) return;
+    const TH = 68;        // jarak minimal buat trigger refresh
+    const MAX = 120;      // batas tarikan
+    let startY = 0, dist = 0, pulling = false, busy = false;
+
+    function atTop() { return (window.scrollY || document.documentElement.scrollTop || 0) <= 0; }
+    function modalOpen() {
+        const q = $("questModal");
+        return (q && q.classList.contains("show")) || document.body.style.position === "fixed";
+    }
+    function setInd(pull, ready) {
+        ind.style.opacity = Math.min(1, pull / TH).toFixed(2);
+        ind.style.transform = "translate(-50%, " + (Math.min(pull, MAX) - 50) + "px) rotate(" + (pull * 2.2) + "deg)";
+        ind.querySelector(".ptr-ic").textContent = ready ? "⟳" : "↓";
+    }
+    function reset(animate) {
+        ind.classList.remove("spin");
+        ind.style.transition = animate ? "transform .25s ease, opacity .25s ease" : "none";
+        ind.style.opacity = 0;
+        ind.style.transform = "translate(-50%, -50px)";
+        if (animate) setTimeout(() => { ind.style.transition = "none"; }, 260);
+    }
+
+    window.addEventListener("touchstart", (e) => {
+        if (busy || !atTop() || modalOpen()) { pulling = false; return; }
+        startY = e.touches[0].clientY; dist = 0; pulling = true;
+        ind.style.transition = "none";
+    }, { passive: true });
+
+    window.addEventListener("touchmove", (e) => {
+        if (!pulling) return;
+        dist = e.touches[0].clientY - startY;
+        if (dist <= 0 || !atTop()) { setInd(0, false); return; }
+        const pull = dist * 0.5;                 // resistance
+        if (e.cancelable) e.preventDefault();    // tahan overscroll bawaan
+        setInd(pull, pull >= TH);
+    }, { passive: false });
+
+    window.addEventListener("touchend", () => {
+        if (!pulling) return;
+        pulling = false;
+        const pull = Math.max(0, dist) * 0.5;
+        if (pull >= TH) {
+            busy = true;
+            ind.classList.add("spin");
+            ind.style.opacity = 1;
+            ind.style.transform = "translate(-50%, 16px)";
+            ind.querySelector(".ptr-ic").textContent = "⟳";
+            setTimeout(() => location.reload(), 400);
+        } else {
+            reset(true);
+        }
+    }, { passive: true });
+})();
