@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <script src="theme.js"></script>
     <title>Pendaftaran Ditutup — Seminggu Satu by Arnold</title>
     <meta name="description" content="Pendaftaran workshop sedang tidak tersedia. Follow Instagram kami untuk info workshop selanjutnya.">
 
@@ -30,6 +32,17 @@
             --error-color: #ef4444;
             --warning-color: #f59e0b;
         }
+
+        /* ---- Dark mode ---- */
+        :root[data-theme="dark"] {
+            --bg-color: #0d1526;
+            --text-primary: #eaeffc;
+            --text-secondary: #9fabc9;
+            --border-color: #2a3550;
+        }
+        :root[data-theme="dark"] .card,
+        :root[data-theme="dark"] .date-info,
+        :root[data-theme="dark"] .social-btn { background: #172035; color: var(--text-primary); }
 
         * {
             margin: 0;

@@ -19,6 +19,26 @@
         href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
         rel="stylesheet">
 
+    <!-- PWA: install ke home screen -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#0046ff">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Sahabat SS">
+    <script>
+        // Terapkan tema sedini mungkin biar ga "flash" putih pas buka
+        (function () {
+            try { if (localStorage.getItem("ss_theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) { }
+        })();
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+                navigator.serviceWorker.register("sw.js").catch(function () { });
+            });
+        }
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -35,6 +55,39 @@
             --card: #fff;
             --line: #e4e9f5;
             --muted: #6b7794;
+        }
+
+        /* ---- Dark mode (remap token + surface hardcoded) ---- */
+        :root[data-theme="dark"] {
+            --blue: #5b8cff;
+            --blue-2: #47a6ff;
+            --ink: #eaeffc;
+            --bg: #0d1526;
+            --card: #172035;
+            --line: #2a3550;
+            --muted: #9fabc9;
+        }
+        :root[data-theme="dark"] .fab-item,
+        :root[data-theme="dark"] .jt-week-box,
+        :root[data-theme="dark"] .dp-trigger,
+        :root[data-theme="dark"] .dp-dialog,
+        :root[data-theme="dark"] .mochi-bubble,
+        :root[data-theme="dark"] .mochi-bubble::after { background: var(--card); }
+        :root[data-theme="dark"] .jt-week-box.neutral,
+        :root[data-theme="dark"] .dp-close,
+        :root[data-theme="dark"] .dp-nav-btn,
+        :root[data-theme="dark"] .dp-select,
+        :root[data-theme="dark"] .dp-btn-clear,
+        :root[data-theme="dark"] .qg-imgwrap,
+        :root[data-theme="dark"] .qm-img { background: #202c47; color: var(--ink); }
+        :root[data-theme="dark"] .dp-close:hover,
+        :root[data-theme="dark"] .dp-nav-btn:hover,
+        :root[data-theme="dark"] .dp-day:hover:not(.empty):not(.disabled) { background: #2b3a5c; }
+        :root[data-theme="dark"] .journal-tracker-card { background: linear-gradient(145deg, #172035 0%, #131c2f 100%); border-color: var(--line); }
+        /* tier card tetap kuning -> teks harus gelap biar kebaca */
+        :root[data-theme="dark"] .tier { color: #10245e; }
+        @media (max-width: 640px) {
+            :root[data-theme="dark"] .tabs { background: rgba(23, 32, 53, 0.92); border-top-color: rgba(42, 53, 80, 0.85); }
         }
 
         body {
@@ -1642,6 +1695,14 @@
             <!-- Floating Quick Action Button (FAB) -->
             <div class="fab-container" id="fabContainer">
                 <div class="fab-menu" id="fabMenu">
+                    <button class="fab-item" id="fabActionInstall" style="display:none;">
+                        <span class="fab-item-icon">📲</span>
+                        <span class="fab-item-label">Install Aplikasi</span>
+                    </button>
+                    <button class="fab-item" id="fabActionTheme">
+                        <span class="fab-item-icon" id="fabThemeIcon">🌙</span>
+                        <span class="fab-item-label" id="fabThemeLabel">Mode Gelap</span>
+                    </button>
                     <button class="fab-item" id="fabActionQuest">
                         <span class="fab-item-icon">⚡</span>
                         <span class="fab-item-label">Side Quest</span>

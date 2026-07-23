@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loyalty & Passport — Seminggu Satu by Arnold</title>
     <meta name="description" content="Cek berapa kali kamu ikut event Seminggu Satu & bikin Journaling Passport-mu!">
+    <meta name="theme-color" content="#0046ff" data-light="#0046ff" data-dark="#0d1526">
 
+    <script src="../theme.js"></script>
     <script src="../env.js"></script>
     <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
@@ -33,6 +35,20 @@
             --line: #e4e9f5;
             --muted: #6b7794;
         }
+
+        /* ---- Dark mode ---- */
+        :root[data-theme="dark"] {
+            --blue: #5b8cff;
+            --blue-2: #47a6ff;
+            --ink: #eaeffc;
+            --bg: #0d1526;
+            --card: #172035;
+            --line: #2a3550;
+            --muted: #9fabc9;
+        }
+        /* elemen ber-background kuning -> teks tetap gelap biar kebaca */
+        :root[data-theme="dark"] .lookup button,
+        :root[data-theme="dark"] .tier { color: #10245e; }
 
         body {
             font-family: 'Open Sans', sans-serif;

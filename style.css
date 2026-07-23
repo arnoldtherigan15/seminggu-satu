@@ -1055,3 +1055,35 @@ footer {
     opacity: 0.85;
     transform: translateY(-1px);
 }
+/* ============================================================
+   DARK MODE — remap token + darken chrome (ilustrasi jurnal --j-* dibiarkan)
+   Aktif kalau <html data-theme="dark"> (di-set theme.js dari localStorage)
+   ============================================================ */
+:root[data-theme="dark"] {
+    --bg-color: #0d1526;
+    --text-primary: #eaeffc;
+    --text-secondary: #9fabc9;
+    --secondary-color: #202c47;
+    --border-color: #2a3550;
+    --primary-color: #5b8cff;
+}
+:root[data-theme="dark"] .hero {
+    background: linear-gradient(to bottom, #172035, #0d1526);
+}
+:root[data-theme="dark"] .workshop-details,
+:root[data-theme="dark"] .bank-card,
+:root[data-theme="dark"] .social-btn,
+:root[data-theme="dark"] .preview-img,
+:root[data-theme="dark"] .upload-area {
+    background: #172035;
+    color: var(--text-primary);
+}
+:root[data-theme="dark"] .input-wrapper input,
+:root[data-theme="dark"] .input-wrapper select {
+    background-color: #172035;
+    color: var(--text-primary);
+}
+:root[data-theme="dark"] .social-btn:hover,
+:root[data-theme="dark"] .upload-area:hover {
+    background: #202c47;
+}

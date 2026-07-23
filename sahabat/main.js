@@ -1214,6 +1214,70 @@ async function loadLoyalty() {
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
     }
+
+    // ---- Install PWA ke home screen ----
+    const installBtn = $("fabActionInstall");
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    let deferredPrompt = null;
+
+    if (installBtn && !isStandalone) {
+        // Android/Chrome: tangkap prompt native browser
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = "";
+        });
+        // iOS Safari ga support prompt native -> tetap tampil, pakai instruksi manual
+        if (isIOS) installBtn.style.display = "";
+
+        installBtn.addEventListener("click", async () => {
+            toggleMenu(false);
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                try { await deferredPrompt.userChoice; } catch (e) {}
+                deferredPrompt = null;
+                installBtn.style.display = "none";
+            } else if (isIOS) {
+                alert("Cara install di iPhone:\n\n1. Tap tombol Share (kotak + panah ke atas) di bawah\n2. Pilih \"Add to Home Screen\" / \"Tambah ke Layar Utama\"\n3. Tap \"Add\" / \"Tambah\"\n\nMochi bakal nangkring di home screen kamu! 🐾");
+            } else {
+                alert("Buat install: buka menu browser (⋮) terus pilih \"Install app\" / \"Add to Home screen\" ya 📲");
+            }
+        });
+
+        // udah keinstall -> sembunyiin tombolnya
+        window.addEventListener("appinstalled", () => {
+            installBtn.style.display = "none";
+            deferredPrompt = null;
+        });
+    }
+
+    // ---- Toggle Dark Mode ----
+    const actionTheme = $("fabActionTheme");
+    if (actionTheme) {
+        const icon = $("fabThemeIcon");
+        const label = $("fabThemeLabel");
+        const meta = document.querySelector('meta[name="theme-color"]');
+        function syncTheme() {
+            const dark = document.documentElement.getAttribute("data-theme") === "dark";
+            if (icon) icon.textContent = dark ? "☀️" : "🌙";
+            if (label) label.textContent = dark ? "Mode Terang" : "Mode Gelap";
+            if (meta) meta.setAttribute("content", dark ? "#0d1526" : "#0046ff");
+        }
+        syncTheme();
+        actionTheme.addEventListener("click", () => {
+            toggleMenu(false);
+            const dark = document.documentElement.getAttribute("data-theme") === "dark";
+            if (dark) {
+                document.documentElement.removeAttribute("data-theme");
+                try { localStorage.setItem("ss_theme", "light"); } catch (e) {}
+            } else {
+                document.documentElement.setAttribute("data-theme", "dark");
+                try { localStorage.setItem("ss_theme", "dark"); } catch (e) {}
+            }
+            syncTheme();
+        });
+    }
 })();
 
 // ============================================================

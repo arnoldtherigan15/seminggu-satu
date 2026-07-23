@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seminggu Satu by Arnold — Creative Workshop & Journaling</title>
     <meta name="description" content="Komunitas workshop kreatif journaling oleh Arnold. Ikuti workshop paper journal, 3D frame, dan lainnya.">
+    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+
+    <script src="theme.js"></script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,6 +46,33 @@
             --shadow-md: 0 8px 30px rgba(0,0,0,0.06);
             --shadow-lg: 0 20px 50px rgba(0,0,0,0.08);
         }
+
+        /* ---- Dark mode ---- */
+        :root[data-theme="dark"] {
+            --bg: #0d1526;
+            --bg-card: #172035;
+            --text-1: #eaeffc;
+            --text-2: #9fabc9;
+            --text-3: #7c88a6;
+            --border: #2a3550;
+            --accent: #5b8cff;        /* aksen jadi biru: teks putih di tombol tetap kebaca */
+            --accent-light: #202c47;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+            --shadow-md: 0 8px 30px rgba(0,0,0,0.5);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        /* Tombol toggle tema (pojok kanan atas) */
+        .theme-toggle {
+            position: fixed; top: 14px; right: 14px; z-index: 999;
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 1px solid var(--border); background: var(--bg-card); color: var(--text-1);
+            font-size: 1.1rem; cursor: pointer; box-shadow: var(--shadow-md);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform .15s ease, background .2s ease;
+        }
+        .theme-toggle:hover { transform: scale(1.08); }
+        .theme-toggle:active { transform: scale(.94); }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -513,6 +543,7 @@
 </head>
 
 <body>
+    <button class="theme-toggle" id="themeToggle" title="Ganti tema" aria-label="Ganti tema gelap/terang">🌙</button>
     <div class="page">
 
         <!-- Profile Header -->
@@ -582,6 +613,18 @@
     <script src="env.js"></script>
 
     <script>
+        // --- Dark mode toggle (tema disimpan & kebawa antar halaman via theme.js) ---
+        (function () {
+            const btn = document.getElementById('themeToggle');
+            if (!btn) return;
+            function sync() { btn.textContent = window.ssIsDark && window.ssIsDark() ? '☀️' : '🌙'; }
+            sync();
+            btn.addEventListener('click', function () {
+                if (window.ssToggleTheme) window.ssToggleTheme();
+                sync();
+            });
+        })();
+
         const listEl = document.getElementById('workshopList');
         // GOOGLE_SCRIPT_URL is loaded from env.js
 

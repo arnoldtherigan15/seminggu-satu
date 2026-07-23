@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <script src="theme.js"></script>
     <title>Kuota Habis - Seminggu Satu by Arnold</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,6 +21,17 @@
             --border-color: #e5e7eb;
             --error-color: #ef4444;
         }
+
+        /* ---- Dark mode ---- */
+        :root[data-theme="dark"] {
+            --bg-color: #0d1526;
+            --text-primary: #eaeffc;
+            --text-secondary: #9fabc9;
+            --border-color: #2a3550;
+        }
+        :root[data-theme="dark"] body { background: #0d1526; }
+        :root[data-theme="dark"] .card,
+        :root[data-theme="dark"] .social-btn { background: #172035; color: var(--text-primary); }
 
         * {
             margin: 0;
