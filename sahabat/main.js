@@ -1751,10 +1751,14 @@ function launchBalloons() {
     setTimeout(() => { if (c.parentNode) c.parentNode.removeChild(c); }, 16000); // beres terbang -> bersihin
 }
 
-// Banner "lagi ada yg ultah" di paling atas tab Loyalty (tab default, pasti ke-notice)
+// Banner "lagi ada yg ultah" di paling atas tab Loyalty (tab default, pasti ke-notice).
+// Khusus buat MEMBER LAIN — yang lagi ultah nggak perlu dikabarin soal dirinya sendiri
+// (dia udah dapet sapaan + voucher + surat spesial).
 function bdayFriendsBannerHtml() {
-    if (!BDAY_TODAY.length) return "";
-    const who = BDAY_TODAY.map(b => b.nickname).join(" & ");
+    const myNick = (_profile && _profile.nickname) || "";
+    const others = BDAY_TODAY.filter(b => b.nickname !== myNick);
+    if (!others.length) return "";
+    const who = others.map(b => b.nickname).join(" & ");
     return '<a class="bday-banner" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener">' +
         '<span class="bb-tape"></span>' +
         '<span class="bb-balloon a">🎈</span><span class="bb-balloon b">🎈</span>' +
