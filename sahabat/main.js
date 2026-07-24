@@ -563,7 +563,7 @@ function qbRightHtml(i) {
     }
     return '<div class="qb-pola">' +
         '<span class="qb-tape pola"></span>' +
-        '<div class="qb-pola-img"><img src="' + esc(myPhoto || questImg(q)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25"></div>' +
+        '<div class="qb-pola-img"><img src="' + esc(myPhoto || questImg(q)) + '" alt="" onerror="this.style.opacity=.25"></div>' +
         '<div class="qb-pola-cap">' + (myPhoto ? "karya kamu ✨" : "inspirasi spread 💡") + '</div>' +
         '</div>' +
         friends +
@@ -639,14 +639,21 @@ function renderQuestBook(host) {
         requestAnimationFrame(() => requestAnimationFrame(() => {
             setLeaf(dir === 1 ? -180 : 0, true);
             setTimeout(() => {
-                // Halaman final di-render DULU di bawah leaf dan ditunggu ke-paint
-                // (double rAF), baru leaf disembunyiin. Kalau kebalik, halaman kanan
-                // sempat repaint dari kosong sekejap pas back (kelihatan zoom out-in).
-                setPages(j);
-                requestAnimationFrame(() => requestAnimationFrame(() => {
-                    leaf.style.display = "none";
-                    anim = false;
-                }));
+                // JANGAN rebuild innerHTML di akhir flip — <img> baru harus decode
+                // ulang, bikin area foto kedip (kelihatan membesar-mengecil pas back).
+                // Pindahin node dari muka leaf ke halaman statis: elemen & gambar
+                // yang sama persis, udah ke-paint, jadi seamless.
+                _qbCur = j;
+                const srcFace = dir === 1 ? back : front;
+                const target = dir === 1 ? leftP : rightP;
+                target.innerHTML = "";
+                while (srcFace.firstChild) target.appendChild(srcFace.firstChild);
+                $("qbCount").textContent = (j + 1) + " / " + N;
+                $("qbPrev").style.opacity = j === 0 ? ".35" : "1";
+                $("qbNext").style.opacity = j === N - 1 ? ".35" : "1";
+                wireCta();
+                leaf.style.display = "none";
+                anim = false;
             }, 680);
         }));
     }
