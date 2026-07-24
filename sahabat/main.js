@@ -185,6 +185,7 @@ function showDashboard() {
     $("dashView").style.display = "block";
     $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
     const mw = $("mochiWidget"); if (mw) mw.classList.add("show");
+    launchBalloons(); // ada sahabat ultah? balon-balon terbang 🎈
     // Teaser sekali per sesi: kabarin ada surat prompt harian dari Mochi
     const mb = $("mochiBubble");
     if (mb && !mb._teased) {
@@ -1682,6 +1683,46 @@ function openCheckinModal(wa) {
     });
 }
 
+// ---------- Birthday Sahabat (ultah member lain) ----------
+// SEMENTARA HARDCODE buat testing — kosongin array ini buat matiin semua
+// (balon, banner, story ultah). TODO: nanti diganti data dari server.
+const BDAY_TODAY = [
+    { nickname: "Sasha" }
+];
+
+// Balon-balon terbang sekali pas dashboard kebuka (kalau ada yg ultah)
+function launchBalloons() {
+    if (!BDAY_TODAY.length || $("bdayBalloons")) return;
+    const c = document.createElement("div");
+    c.id = "bdayBalloons";
+    c.className = "bday-balloons";
+    c.setAttribute("aria-hidden", "true");
+    let html = "";
+    for (let i = 0; i < 10; i++) {
+        const left = 4 + Math.random() * 88;
+        const dur = (6 + Math.random() * 5).toFixed(1);
+        const delay = (Math.random() * 4).toFixed(1);
+        const size = (1 + Math.random() * 1.5).toFixed(2);
+        const hue = Math.floor(Math.random() * 360);
+        html += '<span style="left:' + left.toFixed(0) + '%;animation-duration:' + dur + 's;animation-delay:' + delay + 's;font-size:' + size + 'rem;filter:hue-rotate(' + hue + 'deg) drop-shadow(0 4px 6px rgba(0,0,0,.15));">🎈</span>';
+    }
+    c.innerHTML = html;
+    document.body.appendChild(c);
+    setTimeout(() => { if (c.parentNode) c.parentNode.removeChild(c); }, 16000); // beres terbang -> bersihin
+}
+
+// Banner "lagi ada yg ultah" di paling atas tab Loyalty (tab default, pasti ke-notice)
+function bdayFriendsBannerHtml() {
+    if (!BDAY_TODAY.length) return "";
+    const who = BDAY_TODAY.map(b => b.nickname).join(" & ");
+    return '<a class="bday-banner" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener">' +
+        '<span class="bb-balloon a">🎈</span><span class="bb-balloon b">🎈</span>' +
+        '<span class="bb-emoji">🎂</span>' +
+        '<span class="bb-txt"><b>' + esc(who) + ' lagi ultah hari ini! 🎉</b>' +
+        '<span>Kirim ucapan manis di grup yuk 💙</span></span>' +
+        '</a>';
+}
+
 // ---------- Birthday Surprise ----------
 // Voucher = umur% (mis. 27 th -> 27%), tampil sepanjang BULAN ulang tahun.
 function birthdayInfo() {
@@ -1835,6 +1876,7 @@ async function loadLoyalty() {
         const birthdayHtml = bday ? buildBirthdayHtml(bday) : "";
 
         content.innerHTML =
+            bdayFriendsBannerHtml() +
             birthdayHtml +
             trackerHtml +
             cardHtml +
@@ -2602,6 +2644,14 @@ function buildStoryGroups() {
         const j = Math.floor(Math.random() * (i + 1));
         const t = order[i]; order[i] = order[j]; order[j] = t;
     }
+    // Ada yg ultah? Selipin story ultah di paling depan (ala iklan di story IG, tapi manis)
+    if (BDAY_TODAY.length) {
+        order.unshift({
+            key: "__bday__", bday: true, official: false, mine: false,
+            nickname: "Ultah Hari Ini",
+            items: BDAY_TODAY.map(b => ({ bday: true, nickname: b.nickname }))
+        });
+    }
     return order;
 }
 
@@ -2614,13 +2664,15 @@ function renderStoryBar() {
     _storyGroups.forEach((g, idx) => {
         const rot = ["st-r1", "st-r2", "st-r3"][idx % 3];
         const latest = g.items[g.items.length - 1];
-        const ava = g.official
-            ? '<span class="story-ava official">SS</span>'
-            : '<span class="story-ava"><img src="' + esc(latest.photo) + '" alt="" loading="lazy" decoding="async"></span>';
+        const ava = g.bday
+            ? '<span class="story-ava bday-face">🎂</span>'
+            : (g.official
+                ? '<span class="story-ava official">SS</span>'
+                : '<span class="story-ava"><img src="' + esc(latest.photo) + '" alt="" loading="lazy" decoding="async"></span>');
         html += '<button class="story-item ' + rot + '" data-g="' + idx + '">' +
             '<span class="story-tape"></span>' +
-            '<span class="story-ring">' + ava + '</span>' +
-            '<span class="story-sticker">' + storyKindIcon(latest.kind) + '</span>' +
+            '<span class="story-ring' + (g.bday ? " bday" : "") + '">' + ava + '</span>' +
+            '<span class="story-sticker">' + (g.bday ? "🎈" : storyKindIcon(latest.kind)) + '</span>' +
             '<span class="story-count">' + g.items.length + '</span>' +
             '<span class="story-name">' + esc(g.nickname) + (g.mine ? " · kamu" : "") + '</span>' +
             '</button>';
@@ -2663,6 +2715,28 @@ function storyBoxHtml(gIdx, sIdx, active) {
         bars += '<div class="sbar' + (i < sIdx ? " done" : (i === sIdx && active ? " run" : "")) + '"><i></i></div>';
     }
     bars += '</div>';
+    // Story ultah: kartu ucapan festive, bukan foto
+    if (it.bday) {
+        return '<div class="story-box">' +
+            '<span class="story-tape-tl"></span><span class="story-tape-br"></span>' +
+            bars +
+            '<div class="story-head">' +
+            '<div class="story-who"><div class="ig-ava bday-ava">🎂</div>' +
+            '<div><div class="story-who-name">Ultah Hari Ini</div>' +
+            '<div class="story-who-sub">spesial buat sahabat kita 💙</div></div></div>' +
+            (active ? '<button class="story-close" id="storyClose" aria-label="Tutup">✕</button>' : '<span class="story-close">✕</span>') +
+            '</div>' +
+            '<div class="story-bday">' +
+            '<span class="sb-balloon x1">🎈</span><span class="sb-balloon x2">🎈</span><span class="sb-balloon x3">🎈</span>' +
+            '<img class="wr-imgstk" src="../images/sticker/str-7.png" style="width:74px;bottom:10px;right:8px;transform:rotate(9deg);" alt="">' +
+            '<div class="sb-cake">🎂</div>' +
+            '<div class="sb-title">Happy Birthday,<br>' + esc(it.nickname) + '! 🎉</div>' +
+            '<div class="sb-sub">Panjang umur, makin rajin journaling ya ✨</div>' +
+            (active ? '<a class="sb-btn" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener">💌 Kirim Ucapan di Grup</a>' : '') +
+            (active ? '<div class="story-nav"><button id="storyPrev" aria-label="Story sebelumnya"></button><button id="storyNext" aria-label="Story selanjutnya"></button></div>' : '') +
+            '</div>' +
+            '</div>';
+    }
     const ava = g.official
         ? '<div class="ig-ava official">SS</div>'
         : '<div class="ig-ava">' + esc((g.nickname || "S").charAt(0).toUpperCase()) + '</div>';

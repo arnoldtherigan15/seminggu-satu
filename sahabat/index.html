@@ -1407,6 +1407,46 @@
         .story-nav button:last-child { flex: 1; }
         /* lagi ditahan -> progress bar (dan auto-next) ikut pause */
         .story-box.hold .sbar.run i { animation-play-state: paused; }
+
+        /* ---- Birthday Sahabat: balon terbang + banner + story ultah ---- */
+        .bday-balloons { position: fixed; inset: 0; pointer-events: none; z-index: 950; overflow: hidden; }
+        .bday-balloons span { position: absolute; bottom: -70px; animation: balloonUp linear forwards; }
+        @keyframes balloonUp {
+            0% { transform: translateY(0) rotate(-4deg); opacity: 0; }
+            8% { opacity: 1; }
+            50% { transform: translateY(-58vh) translateX(16px) rotate(6deg); }
+            100% { transform: translateY(-120vh) translateX(-12px) rotate(-6deg); opacity: .9; }
+        }
+        .bday-banner { position: relative; display: flex; align-items: center; gap: 12px; background: linear-gradient(120deg, #fff6d8, #ffe9f2 55%, #e8f1ff); border: 1.5px dashed rgba(16, 36, 94, .28); border-radius: 16px; padding: .9rem 1rem; margin-bottom: 14px; text-decoration: none; color: var(--ink); overflow: hidden; box-shadow: 0 8px 20px rgba(0, 30, 120, .1); transition: transform .15s ease; }
+        .bday-banner:active { transform: scale(.98); }
+        :root[data-theme="dark"] .bday-banner { background: linear-gradient(120deg, #2a2438, #22283f 55%, #1b2438); }
+        .bb-emoji { font-size: 1.9rem; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .15)); }
+        .bb-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .bb-txt b { font-family: 'Outfit', sans-serif; font-size: .92rem; }
+        .bb-txt span { font-size: .78rem; color: var(--muted); }
+        .bb-balloon { position: absolute; font-size: 1rem; animation: bbFloat 3s ease-in-out infinite; pointer-events: none; }
+        .bb-balloon.a { right: 12px; top: 6px; }
+        .bb-balloon.b { right: 34px; bottom: 4px; animation-delay: 1.2s; filter: hue-rotate(140deg); }
+        @keyframes bbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        /* bulatan story ultah */
+        .story-ring.bday { background: linear-gradient(135deg, #ff5c8a, #ffe600 45%, #ff9ec0, #ff5c8a); }
+        .story-ava.bday-face { font-size: 1.5rem; }
+        .ig-ava.bday-ava { background: linear-gradient(135deg, #ffe9f2, #fff6d8); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        /* kartu ucapan di story viewer */
+        .story-bday { position: relative; border-radius: 12px; overflow: hidden; background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%); min-height: 380px; padding: 44px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; box-shadow: 0 10px 26px rgba(0, 30, 120, .16); }
+        .sb-cake { font-size: 3.2rem; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .25)); animation: bbFloat 2.6s ease-in-out infinite; }
+        .sb-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.6rem; line-height: 1.2; margin-top: 10px; }
+        .sb-sub { font-size: .85rem; opacity: .92; margin-top: 10px; line-height: 1.55; max-width: 250px; }
+        .sb-btn { position: relative; z-index: 3; display: inline-block; margin-top: 16px; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .85rem; padding: .7rem 1.4rem; border-radius: 999px; text-decoration: none; box-shadow: 0 8px 18px rgba(0, 20, 90, .3); }
+        .sb-balloon { position: absolute; font-size: 1.6rem; bottom: -16px; animation: sbRise 5.5s ease-in-out infinite; opacity: 0; pointer-events: none; }
+        .sb-balloon.x1 { left: 10%; }
+        .sb-balloon.x2 { left: 48%; animation-delay: 1.8s; filter: hue-rotate(140deg); }
+        .sb-balloon.x3 { right: 12%; animation-delay: 3.4s; filter: hue-rotate(260deg); }
+        @keyframes sbRise {
+            0% { transform: translateY(0); opacity: 0; }
+            12% { opacity: .95; }
+            100% { transform: translateY(-430px); opacity: 0; }
+        }
         .story-badge { display: inline-block; margin: 12px 0 0 2px; background: var(--yellow); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; padding: 4px 12px; border-radius: 8px; border: 1.5px dashed rgba(16, 36, 94, .3); transform: rotate(-2deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .1); }
         .story-note { margin-top: 10px; background: var(--card); border: 1.5px dashed var(--line); border-radius: 12px; padding: .7rem .85rem; font-size: .85rem; color: var(--ink); transform: rotate(.6deg); box-shadow: 0 4px 10px rgba(0, 30, 120, .07); }
 
