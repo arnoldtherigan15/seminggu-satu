@@ -968,10 +968,10 @@ async function loadLeaderboard() {
             if (x.rank === 1) {
                 // Juara 1 = kartu stiker emas + crown
                 rows += '<div class="rank-item top1' + (isMe ? ' me' : '') + '">' +
-                    '<span class="rank-crown">👑</span>' +
-                    '<span class="rank-ava">' + esc((x.nickname || "S").charAt(0).toUpperCase()) + '</span>' +
+                    '<span class="rank-num gold">1</span>' +
                     '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span>' +
-                    '<span class="rank-tag">Top Crafter</span></div>' + pts + '</div>';
+                    '<span class="rank-tag">Top Crafter</span></div>' +
+                    '<span class="rank-crown">👑</span>' + pts + '</div>';
             } else {
                 const numCls = x.rank === 2 ? " silver" : (x.rank === 3 ? " bronze" : "");
                 rows += '<div class="rank-item glass' + (isMe ? ' me' : '') + '">' +
@@ -1009,10 +1009,10 @@ async function loadLeaderboard() {
             const cnt = '<div class="rank-pts"><b>' + x.events + '</b>×</div>';
             if (x.rank === 1) {
                 tjRows += '<div class="rank-item tj1' + (x.me ? ' me' : '') + '">' +
-                    '<span class="rank-crown">👑</span>' +
-                    '<span class="rank-ava tj-ava">' + esc((x.nickname || "S").charAt(0).toUpperCase()) + '</span>' +
+                    '<span class="rank-num gold">1</span>' +
                     '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span>' +
-                    '<span class="rank-tag tj-tag">Paling Setia</span></div>' + cnt + '</div>';
+                    '<span class="rank-tag tj-tag">Paling Setia</span></div>' +
+                    '<span class="rank-crown">👑</span>' + cnt + '</div>';
             } else {
                 const numCls = x.rank === 2 ? " silver" : (x.rank === 3 ? " bronze" : "");
                 tjRows += '<div class="rank-item tjrow' + (x.me ? ' me' : '') + '">' +

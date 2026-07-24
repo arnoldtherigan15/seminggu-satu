@@ -1364,7 +1364,9 @@
         .rank-item { display: flex; align-items: center; padding: 10px 14px; border-radius: 16px; position: relative; }
         /* juara 1 = kartu stiker emas miring */
         .rank-item.top1 { background: #fde047; color: #1e293b; border: 2px solid #fff; box-shadow: 0 6px 16px rgba(0, 0, 0, .12); transform: rotate(-1deg) scale(1.02); margin-bottom: 4px; }
-        .rank-crown { font-size: 1.3rem; margin-right: 8px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .15)); }
+        /* mahkota nempel di kanan nama + tag, center vertical (flex row udah align-center) */
+        .rank-crown { font-size: 1.3rem; margin-left: 10px; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .15)); }
+        .rank-num.gold { background: #fff; color: #b45309; box-shadow: 0 2px 5px rgba(0, 0, 0, .12); }
         .rank-ava { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #0046ff, #0092ff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Outfit', sans-serif; border: 2px solid #fff; margin-right: 10px; flex-shrink: 0; font-size: .85rem; }
         .rank-info { min-width: 0; }
         .rank-name { display: block; font-weight: 800; font-size: .92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
