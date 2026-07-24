@@ -1316,11 +1316,16 @@
         /* ---- Story viewer: polaroid gede di kertas dot-grid + washi tape (scrapbook) ---- */
         .story-modal { position: fixed; inset: 0; background: rgba(16, 36, 94, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
         .story-modal.show { display: flex; }
+        /* panggung kubus 3D buat drag antar-orang ala IG */
+        .story-stage { position: relative; width: 100%; max-width: 390px; perspective: 1300px; }
+        .story-cube { position: relative; transform-style: preserve-3d; }
+        .story-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .story-face:not(.cur) { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
         .story-box { position: relative; width: 100%; max-width: 390px; max-height: 92vh; overflow-y: auto; background-color: #fffdf6; border-radius: 18px; padding: 12px 12px 16px; box-shadow: 0 24px 60px rgba(0, 10, 60, .45); background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 14px 14px; }
         :root[data-theme="dark"] .story-box { background-color: #1b2438; background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px); }
-        .story-tape-tl, .story-tape-tr { position: absolute; top: 6px; width: 64px; height: 18px; background: rgba(255, 230, 0, .72); border: 1px dashed rgba(16, 36, 94, .22); z-index: 6; pointer-events: none; box-shadow: 0 2px 4px rgba(0, 0, 0, .08); }
-        .story-tape-tl { left: -12px; transform: rotate(-38deg); }
-        .story-tape-tr { right: -12px; transform: rotate(38deg); }
+        .story-tape-tl, .story-tape-br { position: absolute; width: 64px; height: 18px; background: rgba(255, 230, 0, .72); border: 1px dashed rgba(16, 36, 94, .22); z-index: 6; pointer-events: none; box-shadow: 0 2px 4px rgba(0, 0, 0, .08); }
+        .story-tape-tl { top: 6px; left: -12px; transform: rotate(-38deg); }
+        .story-tape-br { bottom: 6px; right: -12px; transform: rotate(-38deg); }
         .story-bars { display: flex; gap: 5px; padding: 6px 2px 0; }
         .sbar { flex: 1; height: 4px; border-radius: 99px; background: rgba(16, 36, 94, .14); overflow: hidden; }
         :root[data-theme="dark"] .sbar { background: rgba(255, 255, 255, .16); }
@@ -1373,6 +1378,79 @@
         .share-ig-btn { width: 100%; margin-top: 14px; background: var(--card); color: var(--blue); border: 2px solid var(--blue); padding: 12px; border-radius: 16px; font-family: inherit; font-size: .9rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 70, 255, .15); transition: transform .2s ease; }
         .share-ig-btn:hover { transform: translateY(-2px); }
         .share-ig-btn:active { transform: scale(.98); }
+
+        /* ---- Tombol My Summary (di atas tombol share IG) ---- */
+        .wrapped-btn { position: relative; width: 100%; margin-top: 14px; background: var(--yellow); color: var(--ink); border: none; padding: 13px; border-radius: 16px; font-family: 'Outfit', sans-serif; font-size: .95rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 6px 18px rgba(255, 214, 0, .4); transition: transform .2s ease, box-shadow .2s ease; }
+        .wrapped-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255, 214, 0, .5); }
+        .wrapped-btn:active { transform: scale(.98); }
+        .wr-btn-tape { position: absolute; top: -7px; left: 18px; width: 44px; height: 13px; background: rgba(0, 70, 255, .25); border: 1px dashed rgba(16, 36, 94, .3); transform: rotate(-6deg); pointer-events: none; }
+
+        /* ---- My Summary: Journal Wrapped (slider fullscreen ala Spotify Wrapped) ---- */
+        .wrapped-modal { position: fixed; inset: 0; z-index: 1400; background: #0a1233; display: none; }
+        .wrapped-modal.show { display: block; }
+        .wr-top { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: calc(12px + env(safe-area-inset-top)) 14px 10px; z-index: 5; }
+        .wr-dots { flex: 1; display: flex; gap: 5px; }
+        .wr-dot { flex: 1; height: 4px; border-radius: 99px; background: rgba(255, 255, 255, .28); transition: background .25s ease; }
+        .wr-dot.on { background: var(--yellow); }
+        .wr-close { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255, 255, 255, .22); color: #fff; font-size: .95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .wr-track { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .wr-track::-webkit-scrollbar { display: none; }
+        .wr-slide { flex: 0 0 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 70px 28px 44px; position: relative; overflow: hidden; text-align: center; }
+        .wr-zone { position: absolute; top: 64px; bottom: 0; width: 16%; border: none; background: transparent; padding: 0; cursor: pointer; z-index: 4; -webkit-tap-highlight-color: transparent; }
+        .wr-zone.left { left: 0; }
+        .wr-zone.right { right: 0; }
+
+        /* tema slide */
+        .wr-slide.wr-blue { background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%); color: #fff; }
+        .wr-slide.wr-paper { background-color: #fffdf6; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 14px 14px; color: #10245e; }
+        .wr-slide.wr-yellow { background-color: #ffe600; background-image: radial-gradient(rgba(16, 36, 94, .1) 1px, transparent 1.2px); background-size: 14px 14px; color: #10245e; }
+        .wr-slide.wr-pink { background-color: #ffe9f2; background-image: radial-gradient(rgba(190, 24, 93, .1) 1px, transparent 1.2px); background-size: 14px 14px; color: #10245e; }
+
+        /* elemen konten */
+        .wr-kicker { font-family: 'Outfit', sans-serif; font-size: .7rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; opacity: .75; }
+        .wr-big { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(72px, 26vw, 120px); line-height: 1; margin-top: 8px; color: var(--blue); }
+        .wr-blue .wr-big { color: var(--yellow); text-shadow: 0 4px 0 rgba(0, 20, 90, .25); }
+        .wr-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.3rem; margin-top: 8px; }
+        .wr-hero { font-size: 2.1rem; line-height: 1.15; margin-top: 10px; }
+        .wr-sub { font-size: .9rem; opacity: .85; margin-top: 10px; max-width: 300px; }
+        .wr-hint { margin-top: 30px; font-size: .8rem; opacity: .85; animation: wrNudge 1.6s ease-in-out infinite; }
+        @keyframes wrNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
+        .wr-foot { margin-top: 16px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .78rem; letter-spacing: 1px; color: var(--yellow); }
+        .wr-done { margin-top: 20px; background: var(--yellow); color: var(--ink); border: none; border-radius: 13px; padding: .85rem 2.2rem; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 20, 90, .3); transition: transform .15s ease; }
+        .wr-done:active { transform: scale(.96); }
+
+        /* dekorasi scrapbook */
+        .wr-tape { position: absolute; width: 76px; height: 20px; background: rgba(255, 230, 0, .75); border: 1px dashed rgba(16, 36, 94, .25); box-shadow: 0 2px 4px rgba(0, 0, 0, .1); pointer-events: none; z-index: 1; }
+        .wr-tape.w { background: rgba(255, 255, 255, .55); }
+        .wr-stk { position: absolute; font-size: 1.7rem; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .18)); pointer-events: none; z-index: 1; }
+
+        /* sticker chips judul challenge */
+        .wr-chips { margin-top: 14px; max-width: 320px; }
+        .wr-chip { display: inline-block; background: #fff; color: var(--ink); border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 999px; padding: 5px 13px; font-weight: 700; font-size: .78rem; margin: 3px; transform: rotate(-1.5deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .08); }
+        .wr-chip:nth-child(even) { transform: rotate(1.5deg); }
+
+        /* polaroid mini karya */
+        .wr-polas { display: flex; gap: 12px; justify-content: center; margin-top: 18px; }
+        .wr-pola { background: #fff; padding: 6px 6px 16px; border-radius: 6px; box-shadow: 0 8px 18px rgba(0, 30, 120, .18); transform: rotate(-4deg); }
+        .wr-pola:nth-child(even) { transform: rotate(3deg); }
+        .wr-pola img { width: 74px; height: 92px; object-fit: cover; border-radius: 4px; display: block; }
+
+        /* rank & stamp */
+        .wr-rankbox { margin-top: 14px; background: #fff; border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 12px; padding: .6rem 1.1rem; font-size: .88rem; color: var(--ink); transform: rotate(-1deg); box-shadow: 0 4px 10px rgba(0, 0, 0, .08); }
+        .wr-rankbox b { font-family: 'Outfit', sans-serif; color: var(--blue); }
+        .wr-stamp5 { margin-top: 14px; border: 3px solid #b91c1c; color: #b91c1c; background: rgba(255, 255, 255, .88); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; letter-spacing: 2px; padding: 6px 16px; border-radius: 8px; transform: rotate(-6deg); }
+        .wr-stamps { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px; max-width: 200px; }
+        .wr-stamp { width: 36px; height: 36px; border-radius: 10px; border: 2px dashed rgba(16, 36, 94, .3); display: flex; align-items: center; justify-content: center; background: #fff; font-weight: 800; color: #0a7a3d; transform: rotate(-2deg); }
+        .wr-stamp:nth-child(even) { transform: rotate(2deg); }
+        .wr-stamp.on { background: #e9fbf0; border-color: #22c55e; border-style: solid; }
+
+        /* badge tier persona */
+        .wr-tier { margin-top: 16px; background: #fff; color: var(--ink); border: 2px dashed rgba(16, 36, 94, .3); border-radius: 14px; padding: 10px 20px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; transform: rotate(-2deg); box-shadow: 0 6px 14px rgba(0, 0, 0, .1); }
+
+        /* animasi pop-in per slide (jalan tiap slide jadi aktif) */
+        .wr-anim { opacity: 0; }
+        .wr-slide.live .wr-anim { animation: wrPop .55s cubic-bezier(.2, .8, .3, 1.18) forwards; animation-delay: var(--d, 0s); }
+        @keyframes wrPop { from { opacity: 0; transform: translateY(16px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .share-ig-btn svg { width: 17px; height: 17px; }
 
         .placeholder {

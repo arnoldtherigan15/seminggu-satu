@@ -163,7 +163,7 @@ function onAuthSuccess(r) {
 
 function logout() {
     try { localStorage.removeItem(TOKEN_KEY); } catch (e) { }
-    _profile = null; _loyaltyLoaded = false; _eventsLoaded = false; _recLoaded = false; _questsLoaded = false; _lbLoaded = false;
+    _profile = null; _loyaltyLoaded = false; _eventsLoaded = false; _recLoaded = false; _questsLoaded = false; _lbLoaded = false; _lbData = null; _loyaltyStats = null;
     showAuth();
     $("loginPass").value = ""; $("setupPass").value = "";
     resetToWa();
@@ -723,6 +723,7 @@ async function editQuestPhoto(q, i, box) {
 
 // ---------- Leaderboard pane ----------
 let _lbLoaded = false;
+let _lbData = null;      // { top, me, topEvents } — dipakai juga buat My Summary (wrapped)
 async function loadLeaderboard() {
     if (_lbLoaded) return;
     _lbLoaded = true;
@@ -738,6 +739,7 @@ async function loadLeaderboard() {
         return;
     }
     loading.style.display = "none";
+    _lbData = data;
     const top = (data && data.top) || [];
     const me = (data && data.me) || null;
     const topEvents = (data && data.topEvents) || [];
@@ -786,6 +788,7 @@ async function loadLeaderboard() {
             meBox +
             '<div class="lb-foot">@seminggu_satu</div>' +
             '</div>' +
+            '<button class="wrapped-btn" id="lbWrapped"><span class="wr-btn-tape"></span>🎁 My Summary ✨</button>' +
             '<button class="share-ig-btn" id="lbShare">' + ICON_CAMERA + ' Share to IG Story</button>';
     }
 
@@ -844,6 +847,8 @@ async function loadLeaderboard() {
     if (shareBtn) shareBtn.addEventListener("click", shareLeaderboard);
     const tjBtn = $("tjShare");
     if (tjBtn) tjBtn.addEventListener("click", shareTopJurnal);
+    const wrBtn = $("lbWrapped");
+    if (wrBtn) wrBtn.addEventListener("click", openWrapped);
 }
 
 async function shareTopJurnal() {
@@ -925,6 +930,172 @@ async function shareLeaderboard() {
 }
 
 // ---------- Loyalty pane ----------
+// ---------- My Summary: "Journal Wrapped" ala Spotify, versi scrapbook ----------
+// Slider fullscreen (scroll-snap) berisi perjalanan member: challenge, poin+rank,
+// streak mingguan, event, ditutup outro. Data diambil dari state yg udah ke-load
+// (leaderboard, quests, journalRecords, loyalty) — slide yg datanya nggak ada di-skip.
+let _loyaltyStats = null; // { count, tier, tierEmoji } — diisi loadLoyalty
+
+function wrappedData() {
+    const me = (_lbData && _lbData.me) || null;
+    const topEvents = (_lbData && _lbData.topEvents) || [];
+    const evMe = topEvents.find ? topEvents.find(x => x.me) : null;
+    const records = getJournalTrackerData(_profile.wa).records || {};
+    const doneIds = _questSubmitted || [];
+    const titles = (_questChallenges || []).filter(q => doneIds.indexOf(q.id) >= 0).map(q => q.title);
+    const photos = doneIds.map(id => _questPhotos[id]).filter(Boolean).slice(0, 3);
+    const evCount = _loyaltyStats ? _loyaltyStats.count : (evMe ? evMe.events : null);
+    const p = persona(evCount || 0);
+    return {
+        nickname: _profile.nickname || "Sahabat",
+        questDone: doneIds.length,
+        questTotal: (_questChallenges || []).length,
+        questTitles: titles,
+        questPhotos: photos,
+        poin: me ? me.poin : null,
+        rank: me ? me.rank : null,
+        rankTotal: me ? me.total : null,
+        streak: calculateJournalStreak(records),
+        checkins: Object.keys(records).length,
+        events: evCount,
+        tier: p.title,
+        tierEmoji: p.emoji
+    };
+}
+
+function buildWrappedSlides(d) {
+    const slides = [];
+    // 1) Cover
+    slides.push('<div class="wr-slide wr-blue">' +
+        '<span class="wr-tape" style="top:52px;left:20px;transform:rotate(-14deg);"></span>' +
+        '<span class="wr-tape w" style="bottom:76px;right:16px;transform:rotate(9deg);"></span>' +
+        '<span class="wr-stk" style="top:15%;right:11%;">✂️</span>' +
+        '<span class="wr-stk" style="bottom:24%;left:9%;">📎</span>' +
+        '<span class="wr-stk" style="top:27%;left:13%;">🌟</span>' +
+        '<div class="wr-anim wr-kicker">SEMINGGU SATU PRESENTS</div>' +
+        '<div class="wr-anim wr-title wr-hero" style="--d:.08s;">My Journal<br>Wrapped ✨</div>' +
+        '<div class="wr-anim wr-sub" style="--d:.16s;">Perjalanan journaling-mu bareng kita, ' + esc(d.nickname) + ' 💙</div>' +
+        '<div class="wr-anim wr-hint" style="--d:.3s;">geser ke kiri buat mulai →</div>' +
+        '</div>');
+    // 2) Challenge quest
+    let chips = "";
+    d.questTitles.slice(0, 4).forEach(t => { chips += '<span class="wr-chip">' + esc(t) + '</span>'; });
+    if (d.questTitles.length > 4) chips += '<span class="wr-chip">+' + (d.questTitles.length - 4) + ' lagi ✨</span>';
+    let polas = "";
+    d.questPhotos.forEach(ph => { polas += '<span class="wr-pola"><img src="' + esc(ph) + '" alt="" loading="lazy" decoding="async"></span>'; });
+    slides.push('<div class="wr-slide wr-paper">' +
+        '<span class="wr-tape" style="top:56px;right:22px;transform:rotate(12deg);"></span>' +
+        '<span class="wr-stk" style="top:13%;left:10%;">🎯</span>' +
+        '<span class="wr-stk" style="bottom:14%;right:9%;">✏️</span>' +
+        '<div class="wr-anim wr-kicker">CHALLENGE QUEST</div>' +
+        '<div class="wr-anim wr-big" style="--d:.08s;">' + d.questDone + '</div>' +
+        '<div class="wr-anim wr-title" style="--d:.14s;">challenge kamu selesain 🎯</div>' +
+        (d.questTotal ? '<div class="wr-anim wr-sub" style="--d:.2s;">dari ' + d.questTotal + ' quest yang ada</div>' : '') +
+        (chips ? '<div class="wr-anim wr-chips" style="--d:.26s;">' + chips + '</div>' : '') +
+        (polas ? '<div class="wr-anim wr-polas" style="--d:.34s;">' + polas + '</div>'
+            : (!d.questDone ? '<div class="wr-anim wr-sub" style="--d:.3s;">Belum ada quest — yuk mulai minggu ini! 🚀</div>' : '')) +
+        '</div>');
+    // 3) Poin + rank (cuma kalau ada di leaderboard)
+    if (d.poin != null) {
+        const top5 = d.rank && d.rank <= 5;
+        const beat = (d.rank && d.rankTotal) ? Math.round(((d.rankTotal - d.rank) / d.rankTotal) * 100) : null;
+        slides.push('<div class="wr-slide wr-yellow">' +
+            '<span class="wr-tape w" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
+            '<span class="wr-stk" style="top:16%;right:12%;">⚡</span>' +
+            '<span class="wr-stk" style="bottom:18%;left:10%;">🏆</span>' +
+            '<div class="wr-anim wr-kicker">POIN CHALLENGE</div>' +
+            '<div class="wr-anim wr-big" style="--d:.08s;">' + d.poin + '</div>' +
+            '<div class="wr-anim wr-title" style="--d:.14s;">poin terkumpul ⚡</div>' +
+            (d.rank ? '<div class="wr-anim wr-rankbox" style="--d:.22s;">Peringkat <b>#' + d.rank + '</b> dari ' + d.rankTotal + ' sahabat</div>' : '') +
+            (top5 ? '<div class="wr-anim wr-stamp5" style="--d:.3s;">TOP 5! 👑</div>'
+                : (beat ? '<div class="wr-anim wr-sub" style="--d:.3s;">Kamu ngalahin ' + beat + '% sahabat lain 🔥</div>' : '')) +
+            '</div>');
+    }
+    // 4) Streak mingguan
+    let stamps = "";
+    const on = Math.min(d.checkins, 8);
+    for (let i = 0; i < 8; i++) stamps += '<span class="wr-stamp' + (i < on ? " on" : "") + '">' + (i < on ? "✓" : "") + '</span>';
+    slides.push('<div class="wr-slide wr-paper">' +
+        '<span class="wr-tape" style="top:58px;left:24px;transform:rotate(-12deg);"></span>' +
+        '<span class="wr-stk" style="top:14%;right:10%;">🔥</span>' +
+        '<span class="wr-stk" style="bottom:15%;left:11%;">📖</span>' +
+        '<div class="wr-anim wr-kicker">WEEKLY JOURNAL</div>' +
+        '<div class="wr-anim wr-big" style="--d:.08s;">' + d.streak + '</div>' +
+        '<div class="wr-anim wr-title" style="--d:.14s;">minggu streak beruntun 🔥</div>' +
+        '<div class="wr-anim wr-sub" style="--d:.2s;">' + d.checkins + ' minggu journaling tercatat 💪</div>' +
+        '<div class="wr-anim wr-stamps" style="--d:.28s;">' + stamps + '</div>' +
+        '</div>');
+    // 5) Event (cuma kalau datanya ada)
+    if (d.events != null) {
+        slides.push('<div class="wr-slide wr-pink">' +
+            '<span class="wr-tape" style="top:54px;right:24px;transform:rotate(10deg);"></span>' +
+            '<span class="wr-stk" style="top:15%;left:11%;">🎪</span>' +
+            '<span class="wr-stk" style="bottom:17%;right:10%;">💌</span>' +
+            '<div class="wr-anim wr-kicker">EVENT JOURNALING</div>' +
+            '<div class="wr-anim wr-big" style="--d:.08s;">' + d.events + '</div>' +
+            '<div class="wr-anim wr-title" style="--d:.14s;">event kamu datengin 🎪</div>' +
+            '<div class="wr-anim wr-tier" style="--d:.24s;">' + d.tierEmoji + ' ' + esc(d.tier) + '</div>' +
+            '</div>');
+    }
+    // 6) Outro
+    slides.push('<div class="wr-slide wr-blue">' +
+        '<span class="wr-tape w" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
+        '<span class="wr-stk" style="top:16%;left:12%;">💌</span>' +
+        '<span class="wr-stk" style="bottom:24%;right:11%;">🧷</span>' +
+        '<span class="wr-stk" style="top:24%;right:16%;">🌈</span>' +
+        '<div class="wr-anim wr-title wr-hero">Keep journaling,<br>' + esc(d.nickname) + '! 💙</div>' +
+        '<div class="wr-anim wr-sub" style="--d:.12s;">Cerita kecil tiap minggu bakal jadi kenangan besar. Sampai jumpa di challenge berikutnya! ✨</div>' +
+        '<div class="wr-anim wr-foot" style="--d:.22s;">@seminggu_satu</div>' +
+        '<button class="wr-anim wr-done" id="wrDone" style="--d:.32s;">Tutup ✨</button>' +
+        '</div>');
+    return slides;
+}
+
+function openWrapped() {
+    const d = wrappedData();
+    let modal = $("wrappedModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "wrappedModal";
+        modal.className = "wrapped-modal";
+        document.body.appendChild(modal);
+    }
+    const slides = buildWrappedSlides(d);
+    let dots = "";
+    slides.forEach((_, i) => { dots += '<span class="wr-dot' + (i === 0 ? " on" : "") + '"></span>'; });
+    modal.innerHTML =
+        '<div class="wr-top"><div class="wr-dots">' + dots + '</div><button class="wr-close" id="wrClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="wr-track" id="wrTrack">' + slides.join("") + '</div>' +
+        '<button class="wr-zone left" id="wrPrev" aria-label="Sebelumnya"></button>' +
+        '<button class="wr-zone right" id="wrNext" aria-label="Lanjut"></button>';
+    modal.classList.add("show");
+    lockScroll();
+    const track = $("wrTrack");
+    const slideEls = track.querySelectorAll(".wr-slide");
+    const dotEls = modal.querySelectorAll(".wr-dot");
+    let cur = -1, burst = false;
+    function setLive() {
+        const i = Math.max(0, Math.min(slideEls.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
+        if (i === cur) return;
+        cur = i;
+        slideEls.forEach((s, k) => s.classList.toggle("live", k === i));
+        dotEls.forEach((dt, k) => dt.classList.toggle("on", k <= i));
+        if (i === slideEls.length - 1 && !burst) { burst = true; fireConfetti("reward"); }
+    }
+    setLive();
+    track.addEventListener("scroll", setLive, { passive: true });
+    $("wrClose").addEventListener("click", closeWrapped);
+    $("wrDone").addEventListener("click", closeWrapped);
+    $("wrPrev").addEventListener("click", () => track.scrollBy({ left: -track.clientWidth, behavior: "smooth" }));
+    $("wrNext").addEventListener("click", () => track.scrollBy({ left: track.clientWidth, behavior: "smooth" }));
+}
+
+function closeWrapped() {
+    const modal = $("wrappedModal");
+    if (modal) modal.classList.remove("show");
+    unlockScroll();
+}
+
 function persona(count) {
     let title, tag, emoji;
     if (count >= 10) { title = "DEWA JOURNALING"; tag = "Warga kehormatan Seminggu Satu 👑"; emoji = "👑"; }
@@ -1284,6 +1455,7 @@ async function loadLoyalty() {
         }
         const count = d.count || 0, target = d.target || 6, progress = d.progress || 0;
         const p = persona(count);
+        _loyaltyStats = { count: count, tier: p.title, tierEmoji: p.emoji }; // buat My Summary (wrapped)
         const toGo = Math.max(0, target - progress);
         let stamps = "";
         for (let i = 0; i < target; i++) stamps += '<div class="stamp' + (i < progress ? ' on' : '') + '">' + (i < progress ? '★' : '') + '</div>';
@@ -2079,23 +2251,23 @@ function closeStory() {
     unlockScroll();
 }
 
-function renderStoryViewer() {
-    const modal = $("storyModal");
-    const g = _storyGroups[_storyGIdx];
-    const it = g && g.items[_storySIdx];
-    if (!modal || !it) { closeStory(); return; }
+// HTML satu kartu story. active=false dipakai buat muka kubus tetangga pas drag
+// (tanpa id + tanpa progress jalan, biar nggak dobel listener/animasi).
+function storyBoxHtml(gIdx, sIdx, active) {
+    const g = _storyGroups[gIdx];
+    const it = g && g.items[sIdx];
+    if (!it) return "";
     let bars = '<div class="story-bars">';
     for (let i = 0; i < g.items.length; i++) {
-        bars += '<div class="sbar' + (i < _storySIdx ? " done" : (i === _storySIdx ? " run" : "")) + '"><i></i></div>';
+        bars += '<div class="sbar' + (i < sIdx ? " done" : (i === sIdx && active ? " run" : "")) + '"><i></i></div>';
     }
     bars += '</div>';
     const ava = g.official
         ? '<div class="ig-ava official">SS</div>'
         : '<div class="ig-ava">' + esc((g.nickname || "S").charAt(0).toUpperCase()) + '</div>';
     const icon = storyKindIcon(it.kind);
-    modal.innerHTML =
-        '<div class="story-box">' +
-        '<span class="story-tape-tl"></span><span class="story-tape-tr"></span>' +
+    return '<div class="story-box">' +
+        '<span class="story-tape-tl"></span><span class="story-tape-br"></span>' +
         bars +
         '<div class="story-head">' +
         '<div class="story-who">' + ava +
@@ -2103,45 +2275,155 @@ function renderStoryViewer() {
         (it.mine ? ' <span class="ig-me">KAMU</span>' : '') +
         (g.official ? ' <span class="ig-me official-tag">OFFICIAL</span>' : '') + '</div>' +
         '<div class="story-who-sub">' + (it.eventDate ? "🗓 " + esc(fmtEventDate(it.eventDate)) : esc(timeAgo(it.ts))) + '</div></div></div>' +
-        '<button class="story-close" id="storyClose" aria-label="Tutup">✕</button>' +
+        (active ? '<button class="story-close" id="storyClose" aria-label="Tutup">✕</button>' : '<span class="story-close">✕</span>') +
         '</div>' +
         '<div class="story-photo">' +
         '<img src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25">' +
         '<span class="story-stamp">' + icon + '</span>' +
-        '<div class="story-nav"><button id="storyPrev" aria-label="Story sebelumnya"></button><button id="storyNext" aria-label="Story selanjutnya"></button></div>' +
+        (active ? '<div class="story-nav"><button id="storyPrev" aria-label="Story sebelumnya"></button><button id="storyNext" aria-label="Story selanjutnya"></button></div>' : '') +
         '</div>' +
         '<div class="story-badge">' + icon + ' ' + esc(it.title || "Challenge") + '</div>' +
         (it.caption ? '<div class="story-note">' + esc(it.caption) + '</div>' : '') +
         '</div>';
+}
+
+// Grup (orang) sebelah buat swipe kubus. dir: +1 = orang berikutnya, -1 = sebelumnya.
+function storyGroupNeighbor(dir) {
+    const gi = _storyGIdx + dir;
+    if (gi < 0 || gi >= _storyGroups.length) return null;
+    return { g: gi, s: 0 };
+}
+
+function renderStoryViewer() {
+    const modal = $("storyModal");
+    const g = _storyGroups[_storyGIdx];
+    if (!modal || !g || !g.items[_storySIdx]) { closeStory(); return; }
+    modal.innerHTML =
+        '<div class="story-stage" id="storyStage">' +
+        '<div class="story-cube" id="storyCube">' +
+        '<div class="story-face cur">' + storyBoxHtml(_storyGIdx, _storySIdx, true) + '</div>' +
+        '</div></div>';
+    let held = false; // habis drag/long-press, click bawaan di-swallow biar nggak dobel navigasi
     $("storyClose").addEventListener("click", closeStory);
-    let held = false; // habis long-press/swipe, click bawaan di-swallow biar nggak dobel navigasi
     $("storyPrev").addEventListener("click", () => { if (!held) prevStory(); });
     $("storyNext").addEventListener("click", () => { if (!held) nextStory(); });
     const runBar = modal.querySelector(".sbar.run i");
     if (runBar) runBar.addEventListener("animationend", nextStory);
-    // Gesture ala IG: tahan = pause, swipe kiri/kanan = next/prev, swipe ke bawah = tutup
-    const box = modal.querySelector(".story-box");
-    let sx = 0, sy = 0, st = 0;
-    box.addEventListener("touchstart", (e) => {
-        sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
-        held = false;
-        box.classList.add("hold");
+
+    // ---- Gesture ala IG ----
+    // Tap kiri/kanan = pindah foto orang yg sama. DRAG horizontal = kubus 3D muter
+    // ngikutin jari -> loncat ke story ORANG sebelah. Drag bawah = tutup. Tahan = pause.
+    const stage = $("storyStage");
+    const cube = $("storyCube");
+    const curFace = cube.querySelector(".story-face.cur");
+    const curBox = curFace.querySelector(".story-box");
+    let sx = 0, sy = 0, st = 0, axis = "", animating = false;
+    let W = 0, half = 0, faceL = null, faceR = null;
+
+    function setCube(angle, animate) {
+        cube.style.transition = animate ? "transform .3s ease" : "none";
+        cube.style.transform = "translateZ(" + (-half) + "px) rotateY(" + angle + "deg)";
+    }
+    function makeFace(n, side) { // side: 1 = kanan (orang berikutnya), -1 = kiri
+        if (!n) return null;
+        const f = document.createElement("div");
+        f.className = "story-face";
+        f.style.transform = "rotateY(" + (side * 90) + "deg) translateZ(" + half + "px)";
+        f.innerHTML = storyBoxHtml(n.g, n.s, false);
+        cube.appendChild(f);
+        return f;
+    }
+    function flattenCube() { // balikin ke tampilan datar (nggak ada transform 3D nganggur)
+        if (faceL) { faceL.remove(); faceL = null; }
+        if (faceR) { faceR.remove(); faceR = null; }
+        cube.style.transition = "none";
+        cube.style.transform = "";
+        curFace.style.transform = "";
+    }
+    function afterCube(fn) { // transitionend + fallback timer (kalau transform nggak berubah, event nggak ke-fire)
+        let done = false;
+        const go = () => { if (!done) { done = true; fn(); } };
+        cube.addEventListener("transitionend", go, { once: true });
+        setTimeout(go, 340);
+    }
+
+    stage.addEventListener("touchstart", (e) => {
+        if (animating) return;
+        const t = e.touches[0];
+        sx = t.clientX; sy = t.clientY; st = Date.now();
+        axis = ""; held = false;
+        W = stage.offsetWidth || 1; half = W / 2;
+        curBox.classList.add("hold"); // pause progress selama disentuh
     }, { passive: true });
-    box.addEventListener("touchend", (e) => {
-        box.classList.remove("hold");
-        const t = e.changedTouches[0];
+
+    stage.addEventListener("touchmove", (e) => {
+        if (animating) return;
+        const t = e.touches[0];
         const dx = t.clientX - sx, dy = t.clientY - sy;
-        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) {
+        if (!axis && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
+            axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+            if (axis === "x") { // rakit muka kubus orang sebelah, sekali di awal drag
+                curFace.style.transform = "translateZ(" + half + "px)";
+                faceL = makeFace(storyGroupNeighbor(-1), -1);
+                faceR = makeFace(storyGroupNeighbor(1), 1);
+            }
+        }
+        if (axis === "x") {
             held = true;
-            if (dx < 0) nextStory(); else prevStory();
-        } else if (dy > 80 && Math.abs(dy) > Math.abs(dx)) {
+            let p = Math.max(-1, Math.min(1, dx / W));
+            if ((p > 0 && !faceL) || (p < 0 && !faceR)) p *= 0.25; // mentok: rubber band
+            setCube(p * 90, false);
+        } else if (axis === "y" && dy > 0) {
             held = true;
-            closeStory();
-        } else if (Date.now() - st > 350) {
-            held = true; // cuma nahan buat pause -> lepas jangan pindah story
+            stage.style.transition = "none";
+            stage.style.transform = "translateY(" + (dy * 0.6) + "px)";
         }
     }, { passive: true });
-    box.addEventListener("touchcancel", () => box.classList.remove("hold"), { passive: true });
+
+    stage.addEventListener("touchend", (e) => {
+        if (animating) { axis = ""; return; }
+        const t = e.changedTouches[0];
+        const dx = t.clientX - sx, dy = t.clientY - sy, dt = Date.now() - st;
+        if (axis === "x") {
+            const commit = Math.abs(dx) > W * 0.3 || (dt < 250 && Math.abs(dx) > 30);
+            const dir = dx < 0 ? 1 : -1;
+            const n = storyGroupNeighbor(dir);
+            if (commit && n) {
+                // progress tetap paused (class hold nggak dilepas) sampai re-render,
+                // biar animationend nggak nyelonong pindah foto pas kubus lagi muter
+                animating = true;
+                setCube(dir * -90, true);
+                afterCube(() => { _storyGIdx = n.g; _storySIdx = n.s; renderStoryViewer(); });
+            } else if (commit && dir === 1) {
+                closeStory(); flattenCube(); // orang terakhir di-swipe next -> tutup
+            } else {
+                curBox.classList.remove("hold");
+                animating = true;
+                setCube(0, true);
+                afterCube(() => { animating = false; flattenCube(); });
+            }
+        } else if (axis === "y") {
+            curBox.classList.remove("hold");
+            if (dy > 90) closeStory();
+            stage.style.transition = "transform .25s ease";
+            stage.style.transform = "";
+        } else {
+            curBox.classList.remove("hold");
+            if (dt > 350) held = true; // long-press: pause doang, lepas jangan navigasi
+        }
+        axis = "";
+    }, { passive: true });
+
+    stage.addEventListener("touchcancel", () => {
+        curBox.classList.remove("hold");
+        if (!animating && (faceL || faceR)) {
+            animating = true;
+            setCube(0, true);
+            afterCube(() => { animating = false; flattenCube(); });
+        }
+        stage.style.transform = "";
+        axis = "";
+    }, { passive: true });
 }
 
 function nextStory() {
