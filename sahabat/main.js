@@ -342,7 +342,7 @@ async function loadEvents() {
             action = '<a class="btn-primary" href="' + esc(href) + '">Register →</a>';
         }
 
-        const meta = [dateTxt, (left != null && !full && !isReg ? (left + " slots left") : "")].filter(Boolean).join(" · ");
+        const meta = [dateTxt, (left != null && !full && !isReg ? (left + " seats left") : "")].filter(Boolean).join(" · ");
 
         html += '<div class="ev">' +
             '<div class="ev-top"><div class="ev-name">' + esc(w.name || w.id) + '</div>' + badge + '</div>' +
