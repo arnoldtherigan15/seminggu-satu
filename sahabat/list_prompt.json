@@ -1,0 +1,2502 @@
+[
+    {
+        "id": 1,
+        "category": "Pengenalan Diri",
+        "prompt": "Hal apa yang paling kamu sukai dari kepribadianmu saat ini, dan bagaimana hal itu berkembang?"
+    },
+    {
+        "id": 2,
+        "category": "Pengenalan Diri",
+        "prompt": "Apa tiga nilai hidup (core values) yang paling tidak bisa kamu kompromikan?"
+    },
+    {
+        "id": 3,
+        "category": "Pengenalan Diri",
+        "prompt": "Jika kamu harus mendeskripsikan dirimu dalam satu kalimat tanpa menyebutkan pekerjaanmu, apa kalimat itu?"
+    },
+    {
+        "id": 4,
+        "category": "Pengenalan Diri",
+        "prompt": "Apa pencapaian terkecilmu minggu ini yang sebenarnya patut dirayakan?"
+    },
+    {
+        "id": 5,
+        "category": "Pengenalan Diri",
+        "prompt": "Hal apa yang dulu sangat kamu takuti, tapi sekarang terasa biasa saja?"
+    },
+    {
+        "id": 6,
+        "category": "Pengenalan Diri",
+        "prompt": "Bagaimana caramu mengisi 'baterai' energi ketika sedang benar-benar lelah?"
+    },
+    {
+        "id": 7,
+        "category": "Pengenalan Diri",
+        "prompt": "Apa pujian paling bermakna yang pernah kamu terima dan masih kamu ingat sampai sekarang?"
+    },
+    {
+        "id": 8,
+        "category": "Pengenalan Diri",
+        "prompt": "Karakter fiksi mana yang merasa paling mirip dengan jalan hidupmu saat ini?"
+    },
+    {
+        "id": 9,
+        "category": "Pengenalan Diri",
+        "prompt": "Apa satu kebiasaan kecil yang paling mengubah hidupmu secara positif tahun ini?"
+    },
+    {
+        "id": 10,
+        "category": "Pengenalan Diri",
+        "prompt": "Hal apa yang paling sering membuatmu lupa waktu saat melakukannya?"
+    },
+    {
+        "id": 11,
+        "category": "Pengenalan Diri",
+        "prompt": "Sifat apa dari orang lain yang paling kamu kagumi dan ingin kamu miliki?"
+    },
+    {
+        "id": 12,
+        "category": "Pengenalan Diri",
+        "prompt": "Bagaimana gaya bahasamu saat berbicara dengan diri sendiri di dalam pikiran (self-talk)?"
+    },
+    {
+        "id": 13,
+        "category": "Pengenalan Diri",
+        "prompt": "Apa kebohongan kecil yang dulu sering kamu percayai tentang dirimu sendiri?"
+    },
+    {
+        "id": 14,
+        "category": "Pengenalan Diri",
+        "prompt": "Jika ada buku tentang perjalanan hidupmu, apa judul bab yang sedang kamu jalani sekarang?"
+    },
+    {
+        "id": 15,
+        "category": "Pengenalan Diri",
+        "prompt": "Hal apa yang membuatmu merasa paling menjadi 'dirimu sendiri'?"
+    },
+    {
+        "id": 16,
+        "category": "Pengenalan Diri",
+        "prompt": "Apa warna yang paling mewakili suasana hatimu bulan ini, dan kenapa?"
+    },
+    {
+        "id": 17,
+        "category": "Pengenalan Diri",
+        "prompt": "Sebutkan 3 hal yang selalu berhasil membuatmu tersenyum bahkan di hari terburuk."
+    },
+    {
+        "id": 18,
+        "category": "Pengenalan Diri",
+        "prompt": "Apa batasan (boundary) terpenting yang berhasil kamu buat demi kesehatan mentalmu?"
+    },
+    {
+        "id": 19,
+        "category": "Pengenalan Diri",
+        "prompt": "Jika kamu bisa memberi label pada gaya hidupmu saat ini, label apa yang cocok?"
+    },
+    {
+        "id": 20,
+        "category": "Pengenalan Diri",
+        "prompt": "Apa satu hal yang ingin kamu pelajari atau kuasai hanya demi kesenangan pribadi?"
+    },
+    {
+        "id": 21,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Apa aroma atau wewangian tertentu yang langsung membawamu kembali ke masa kecil?"
+    },
+    {
+        "id": 22,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Tuliskan kenangan dari satu hari biasa di masa lalu yang entah kenapa sangat membekas."
+    },
+    {
+        "id": 23,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Apa lagu yang kalau kamu dengarkan sekarang, langsung teringat pada seseorang atau momen tertentu?"
+    },
+    {
+        "id": 24,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Siapa sosok guru atau mentor masa lalu yang paling membentuk caramu berpikir saat ini?"
+    },
+    {
+        "id": 25,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Ceritakan tentang mainan, benda, atau aksesori favoritmu saat kecil."
+    },
+    {
+        "id": 26,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Apa jajanan atau makanan favoritmu saat sekolah dulu yang paling kamu rindukan?"
+    },
+    {
+        "id": 27,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Bagaimana caramu merayakan ulang tahun yang paling berkesan sepanjang hidupmu?"
+    },
+    {
+        "id": 28,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Apa tempat teraman atau favoritmu untuk bersembunyi atau menyendiri waktu kecil?"
+    },
+    {
+        "id": 29,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Pelajaran hidup paling berharga apa yang kamu dapatkan dari kakek atau nenekmu?"
+    },
+    {
+        "id": 30,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Foto lama mana yang paling kamu suka, dan apa cerita di balik foto tersebut?"
+    },
+    {
+        "id": 31,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Apa tren masa lalu yang dulu kamu ikuti habis-habisan, tapi sekarang bikin kamu tertawa?"
+    },
+    {
+        "id": 32,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Ceritakan pengalaman liburan atau perjalanan pertama yang paling tidak bisa kamu lupakan."
+    },
+    {
+        "id": 33,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Siapa sahabat pertama dalam hidupmu, dan apa hal paling seru yang pernah kalian lakukan?"
+    },
+    {
+        "id": 34,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Apa acara TV, film, atau kartun yang dulu wajib kamu tonton setiap akhir pekan?"
+    },
+    {
+        "id": 35,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Sebutkan satu surat, pesan, atau chat lama yang masih sering kamu baca ulang."
+    },
+    {
+        "id": 36,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Apa nasihat terbaik dari orang tua yang baru kamu sadari kebenarannya setelah dewasa?"
+    },
+    {
+        "id": 37,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Ceritakan momen pertama kali kamu merasa benar-benar independen dan mandiri."
+    },
+    {
+        "id": 38,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Koleksi apa yang pernah kamu kumpulkan saat kecil atau remaja?"
+    },
+    {
+        "id": 39,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Apa mimpi/cita-citamu saat umur 10 tahun, dan bagaimana kamu melihatnya sekarang?"
+    },
+    {
+        "id": 40,
+        "category": "Kenangan & Nostalgia",
+        "prompt": "Momen kegagalan masa lalu mana yang ternyata malah membawamu ke hal baik hari ini?"
+    },
+    {
+        "id": 41,
+        "category": "Hubungan Sosial",
+        "prompt": "Siapa orang pertama yang ingin kamu kabari ketika ada berita bahagia atau menyedihkan?"
+    },
+    {
+        "id": 42,
+        "category": "Hubungan Sosial",
+        "prompt": "Kualitas apa yang paling kamu cari dan hargai dalam sebuah hubungan persahabatan?"
+    },
+    {
+        "id": 43,
+        "category": "Hubungan Sosial",
+        "prompt": "Apa tindakan kebaikan kecil dari orang asing yang masih kamu ingat sampai hari ini?"
+    },
+    {
+        "id": 44,
+        "category": "Hubungan Sosial",
+        "prompt": "Bagaimana caramu biasanya menunjukkan rasa sayang kepada orang-orang terdekat?"
+    },
+    {
+        "id": 45,
+        "category": "Hubungan Sosial",
+        "prompt": "Siapa orang dalam hidupmu yang perilakunya belakangan ini membuatmu terinspirasi?"
+    },
+    {
+        "id": 46,
+        "category": "Hubungan Sosial",
+        "prompt": "Apa percakapan paling mendalam (deep talk) yang pernah kamu lakukan baru-baru ini?"
+    },
+    {
+        "id": 47,
+        "category": "Hubungan Sosial",
+        "prompt": "Hal apa yang membuatmu merasa paling dihargai dan didengarkan oleh seseorang?"
+    },
+    {
+        "id": 48,
+        "category": "Hubungan Sosial",
+        "prompt": "Jika kamu bisa makan malam dan ngobrol dengan siapa saja (hidup/mati), siapa yang kamu pilih?"
+    },
+    {
+        "id": 49,
+        "category": "Hubungan Sosial",
+        "prompt": "Permintaan maaf apa yang paling ingin kamu sampaikan atau ingin kamu dengar dari seseorang?"
+    },
+    {
+        "id": 50,
+        "category": "Hubungan Sosial",
+        "prompt": "Bagaimana kamu membedakan antara orang yang sekadar kenal dan kawan sejati?"
+    },
+    {
+        "id": 51,
+        "category": "Hubungan Sosial",
+        "prompt": "Apa hal terseru yang pernah kamu lakukan bersama teman-teman terdekatmu?"
+    },
+    {
+        "id": 52,
+        "category": "Hubungan Sosial",
+        "prompt": "Siapa sosok yang paling ingin kamu ucapkan terima kasih minggu ini, dan kenapa?"
+    },
+    {
+        "id": 53,
+        "category": "Hubungan Sosial",
+        "prompt": "Bagaimana respons terbaikmu saat berada di sekitar orang yang berbeda pendapat denganimu?"
+    },
+    {
+        "id": 54,
+        "category": "Hubungan Sosial",
+        "prompt": "Apa pelajaran terbesar dari hubungan masa lalu yang paling membentuk caramu mencintai sekarang?"
+    },
+    {
+        "id": 55,
+        "category": "Hubungan Sosial",
+        "prompt": "Siapa orang yang paling sering membuatmu tertawa lepas tanpa beban?"
+    },
+    {
+        "id": 56,
+        "category": "Hubungan Sosial",
+        "prompt": "Hal kecil apa yang sering kamu lakukan untuk membuat hari orang lain jadi lebih baik?"
+    },
+    {
+        "id": 57,
+        "category": "Hubungan Sosial",
+        "prompt": "Apa ekspektasi sosial yang belakangan ini mulai kamu lepaskan?"
+    },
+    {
+        "id": 58,
+        "category": "Hubungan Sosial",
+        "prompt": "Bagaimana caramu menjaga jarak (space) dari toxic environment?"
+    },
+    {
+        "id": 59,
+        "category": "Hubungan Sosial",
+        "prompt": "Siapa orang baru yang belakangan ini masuk ke hidupmu dan memberikan dampak positif?"
+    },
+    {
+        "id": 60,
+        "category": "Hubungan Sosial",
+        "prompt": "Apa jenis dukungan yang paling kamu butuhkan dari orang terdekatmu saat ini?"
+    },
+    {
+        "id": 61,
+        "category": "Refleksi Emosi",
+        "prompt": "Emosi apa yang paling sering kamu rasakan minggu ini, dan apa pemicu utamanya?"
+    },
+    {
+        "id": 62,
+        "category": "Refleksi Emosi",
+        "prompt": "Jika kecemasanmu bisa berbicara, pesan apa sebenarnya yang sedang ingin disampaikan?"
+    },
+    {
+        "id": 63,
+        "category": "Refleksi Emosi",
+        "prompt": "Apa satu kekhawatiran terbesar yang sedang membebani pikiranmu, dan bisakah kamu mengontrolnya?"
+    },
+    {
+        "id": 64,
+        "category": "Refleksi Emosi",
+        "prompt": "Bagaimana caramu memaafkan diri sendiri saat melakukan kesalahan yang tidak disengaja?"
+    },
+    {
+        "id": 65,
+        "category": "Refleksi Emosi",
+        "prompt": "Hal apa yang belakangan ini paling sering menyita energi pikiranmu secara berlebihan?"
+    },
+    {
+        "id": 66,
+        "category": "Refleksi Emosi",
+        "prompt": "Apa arti 'kedamaian' bagimu saat ini, dan bagaimana caramu mencapainya?"
+    },
+    {
+        "id": 67,
+        "category": "Refleksi Emosi",
+        "prompt": "Tuliskan 5 hal fisik di sekitarmu saat ini yang sangat kamu syukuri keberadaannya."
+    },
+    {
+        "id": 68,
+        "category": "Refleksi Emosi",
+        "prompt": "Kapan terakhir kali kamu merasa sangat bangga pada dirimu sendiri, dan karena apa?"
+    },
+    {
+        "id": 69,
+        "category": "Refleksi Emosi",
+        "prompt": "Apa perbedaan terbesar antara caramu menyikapi masalah sekarang dibanding 3 tahun lalu?"
+    },
+    {
+        "id": 70,
+        "category": "Refleksi Emosi",
+        "prompt": "Jika kamu bisa melepas satu beban emosional hari ini, emosi apa yang ingin kamu lepaskan?"
+    },
+    {
+        "id": 71,
+        "category": "Refleksi Emosi",
+        "prompt": "Bagaimana respons tubuhmu ketika sedang merasa stres atau kewalahan?"
+    },
+    {
+        "id": 72,
+        "category": "Refleksi Emosi",
+        "prompt": "Apa sesuatu yang dulu membuatmu sangat cemas, tapi ternyata tidak terjadi sama sekali?"
+    },
+    {
+        "id": 73,
+        "category": "Refleksi Emosi",
+        "prompt": "Siapa atau apa yang menjadi 'tempat berlabuh' amanmu di saat situasi terasa kacau?"
+    },
+    {
+        "id": 74,
+        "category": "Refleksi Emosi",
+        "prompt": "Gaya hidup atau kebiasaan buruk apa yang paling ingin kamu kurangi secara bertahap?"
+    },
+    {
+        "id": 75,
+        "category": "Refleksi Emosi",
+        "prompt": "Apa arti kesuksesan yang sebenarnya bagi versi dirimu yang sekarang?"
+    },
+    {
+        "id": 76,
+        "category": "Refleksi Emosi",
+        "prompt": "Hal sederhana apa di hari ini yang membuatmu merasa sangat tenang?"
+    },
+    {
+        "id": 77,
+        "category": "Refleksi Emosi",
+        "prompt": "Bagaimana caramu merespons kritik: apakah langsung tersinggung, atau mengendapkannya dulu?"
+    },
+    {
+        "id": 78,
+        "category": "Refleksi Emosi",
+        "prompt": "Apa ekspektasi terhadap diri sendiri yang sebenarnya terlalu tinggi dan perlu kamu turunkan?"
+    },
+    {
+        "id": 79,
+        "category": "Refleksi Emosi",
+        "prompt": "Seberapa sering kamu mendengarkan intuisi atau kata hati-mu dibanding logika?"
+    },
+    {
+        "id": 80,
+        "category": "Refleksi Emosi",
+        "prompt": "Tuliskan satu kata afirmatif (katamu hari ini) yang ingin kamu pegang sampai akhir minggu."
+    },
+    {
+        "id": 81,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Bagaimana bentuk 'hari ideal' impianmu dari bangun tidur sampai malam hari?"
+    },
+    {
+        "id": 82,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Jika uang dan waktu bukan masalah, proyek kreatif atau bisnis apa yang ingin kamu bangun?"
+    },
+    {
+        "id": 83,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Apa satu tempat di dunia ini yang paling ingin kamu kunjungi sendirian, dan kenapa?"
+    },
+    {
+        "id": 84,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Skill atau keahlian baru apa yang ingin kamu kuasai dalam 6 bulan ke depan?"
+    },
+    {
+        "id": 85,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Bagaimana kamu membayangkan kehidupanmu 5 tahun dari sekarang?"
+    },
+    {
+        "id": 86,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Apa eksperimen hidup kecil yang ingin kamu coba jalankan dalam minggu ini?"
+    },
+    {
+        "id": 87,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Jika kamu bisa menulis surat untuk dirimu 10 tahun ke depan, apa pertanyaan utamamu?"
+    },
+    {
+        "id": 88,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Karya seni, buku, atau film apa yang baru-baru ini memberi sudut pandang baru padamu?"
+    },
+    {
+        "id": 89,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Apa satu hal berani yang ingin kamu lakukan kalau kamu tahu kamu tidak akan gagal?"
+    },
+    {
+        "id": 90,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Tradisi baru apa yang ingin kamu ciptakan untuk dirimu sendiri atau keluarga masa depan?"
+    },
+    {
+        "id": 91,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Jika rumah impianmu bisa didesain bebas, suasana dan ruangan seperti apa yang wajib ada?"
+    },
+    {
+        "id": 92,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Apa pencapaian hidup yang tidak terlihat di media sosial tapi sangat bermakna bagimu?"
+    },
+    {
+        "id": 93,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Petualangan kecil apa yang bisa kamu lakukan akhir pekan ini di sekitar kota tempat tinggalmu?"
+    },
+    {
+        "id": 94,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Gaya atau estetika visual apa yang belakangan ini paling menarik perhatianmu?"
+    },
+    {
+        "id": 95,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Jika kamu diberi waktu luang 1 bulan penuh tanpa gangguan, apa yang akan kamu lakukan?"
+    },
+    {
+        "id": 96,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Buku atau topik bacaan apa yang akhir-akhir ini bikin kamu penasaran ingin tahu lebih dalam?"
+    },
+    {
+        "id": 97,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Apa pesan penting yang ingin kamu sampaikan pada versi dirimu di masa lalu?"
+    },
+    {
+        "id": 98,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Bagaimana caramu ingin diingat oleh orang-orang terdekatmu suatu hari nanti?"
+    },
+    {
+        "id": 99,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Apa barang impian yang sedang kamu tabung saat ini, dan apa maknanya bagimu?"
+    },
+    {
+        "id": 100,
+        "category": "Masa Depan & Kreatif",
+        "prompt": "Jika kamu bisa menambahkan satu aturan baru di dunia ini, aturan apa yang akan kamu buat?"
+    },
+    {
+        "id": 101,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Deskripsikan tekstur, warna, dan suasana dari benda favorit yang paling sering kamu sentuh hari ini."
+    },
+    {
+        "id": 102,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Suara atau bunyi latar belakang apa yang paling sering kamu dengar akhir-akhir ini dan apa rasanya?"
+    },
+    {
+        "id": 103,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Kombinasi warna apa yang belakangan ini paling memanjakan matamu saat dilihat?"
+    },
+    {
+        "id": 104,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Tuliskan deskripsi lengkap dari minuman atau makanan hangat favoritmu seolah kamu baru merasakannya pertama kali."
+    },
+    {
+        "id": 105,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Bagaimana cahaya matahari di sore hari mengubah suasana hatimu saat melihatnya dari jendela?"
+    },
+    {
+        "id": 106,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Apa tekstur kertas, kain, atau bahan crafting yang paling memuaskan untuk kamu pegang?"
+    },
+    {
+        "id": 107,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Jika rasa nyaman (*comfort*) punya bentuk visual dan warna, seperti apa penampilannya?"
+    },
+    {
+        "id": 108,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Suara alam mana yang paling cepat menenangkan pikiranmu saat kamu merasa kewalahan?"
+    },
+    {
+        "id": 109,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Pakaian atau bahan baju apa yang membuatmu merasa paling rileks saat mengenakannya?"
+    },
+    {
+        "id": 110,
+        "category": "Eksplorasi Rasa & Sensorik",
+        "prompt": "Apa elemen dekorasi atau sudut ruangan yang paling memberikan rasa estetis di tempat tinggalmu?"
+    },
+    {
+        "id": 111,
+        "category": "Thought Experiments",
+        "prompt": "Jika kamu diberi mesin waktu yang hanya bisa digunakan sekali, masa lalu atau masa depan yang ingin kamu datangi?"
+    },
+    {
+        "id": 112,
+        "category": "Thought Experiments",
+        "prompt": "Andai kamu bisa bertukar kehidupan selama 24 jam dengan seseorang, siapakah orang itu?"
+    },
+    {
+        "id": 113,
+        "category": "Thought Experiments",
+        "prompt": "Jika kamu harus tinggal di sebuah era/dekade masa lalu selama satu tahun penuh, era mana yang kamu pilih?"
+    },
+    {
+        "id": 114,
+        "category": "Thought Experiments",
+        "prompt": "Seandainya kamu membuka museum pribadi tentang hidupmu, 3 benda apa yang wajib dipajang di pameran utama?"
+    },
+    {
+        "id": 115,
+        "category": "Thought Experiments",
+        "prompt": "Jika kamu bisa menghapus satu kata dari kamus bahasa manusia, kata apa yang ingin kamu hilangkan?"
+    },
+    {
+        "id": 116,
+        "category": "Thought Experiments",
+        "prompt": "Andai kamu diminta membuat sebuah mini-documentary tentang satu hal acak yang kamu sukai, apa topiknya?"
+    },
+    {
+        "id": 117,
+        "category": "Thought Experiments",
+        "prompt": "Jika kamu bisa mengajukan satu pertanyaan yang pasti dijawab dengan jujur oleh semesta, apa pertanyaanmu?"
+    },
+    {
+        "id": 118,
+        "category": "Thought Experiments",
+        "prompt": "Seandainya kamu punya toko kecil milik sendiri, barang unik atau pengalaman apa yang ingin kamu jual?"
+    },
+    {
+        "id": 119,
+        "category": "Thought Experiments",
+        "prompt": "Jika hidupmu adalah sebuah lagu, instrumen musik apa yang paling menonjol melodi utamanya?"
+    },
+    {
+        "id": 120,
+        "category": "Thought Experiments",
+        "prompt": "Andai kamu bisa mengundang 3 tokoh fiksi untuk minum kopi bersama, siapa saja mereka?"
+    },
+    {
+        "id": 121,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Tuliskan cerita singkat di balik potongan kertas, tiket, atau struk belanja terdekat yang ada di sekitarmu."
+    },
+    {
+        "id": 122,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Jika kamu harus menggambarkan minggu ini hanya memakai 3 simbol sederhana, gambar/ikon apa yang kamu pilih?"
+    },
+    {
+        "id": 123,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Apa palet warna (*color palette*) yang menurutmu paling cocok menggambarkan perjalanan hidupmu tahun ini?"
+    },
+    {
+        "id": 124,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Gambarkan atau tuliskan konsep halaman majalah/zines yang ingin kamu buat jika diberi kebebasan penuh."
+    },
+    {
+        "id": 125,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Apa elemen barang bekas (upcycled material) yang menurutmu punya potensi estetika paling menarik?"
+    },
+    {
+        "id": 126,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Jika kamu harus mendesain cover buku autobiografimu, foto atau objek apa yang berada di tengahnya?"
+    },
+    {
+        "id": 127,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Estetika era mana (misal: 70s vintage, 90s grunge, Y2K, neon cyberpunk) yang paling sering menginspirasimu?"
+    },
+    {
+        "id": 128,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Kumpulkan 3 kata yang acak hari ini dan buatlah satu kalimat puitis atau bermakna dari ketiganya."
+    },
+    {
+        "id": 129,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Apa proyek kerajinan tangan atau karya seni paling berkesan yang pernah kamu selesaikan sendiri?"
+    },
+    {
+        "id": 130,
+        "category": "Kreativitas & Ekspresi Visual",
+        "prompt": "Jika ide-ide di dalam kepalamu bisa divisualisasikan, bentuk atau pola seperti apa yang mendominasi?"
+    },
+    {
+        "id": 131,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Rutinitas pagi atau malam mana yang paling membantumu menjaga kewarasan pikiran?"
+    },
+    {
+        "id": 132,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Kebiasaan kecil apa yang belakangan ini paling ingin kamu mulai tanpa menunggu momen 'senin depan'?"
+    },
+    {
+        "id": 133,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Apa aktivitas *unplugged* (tanpa layar gadget) yang paling membuatmu merasa tenang?"
+    },
+    {
+        "id": 134,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Bagaimana caramu memanfaatkan waktu luang 15 menit di tengah-tengah hari yang sibuk?"
+    },
+    {
+        "id": 135,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Apa hal yang paling sering mengganggu fokusmu, dan bagaimana caramu kembali berproses?"
+    },
+    {
+        "id": 136,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Ritual kecil apa yang selalu kamu lakukan sebelum memulai suatu proyek atau pekerjaan penting?"
+    },
+    {
+        "id": 137,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Apa kebiasaan baik masa kecil yang entah kenapa mulai hilang saat kamu dewasa dan ingin kamu hidupkan lagi?"
+    },
+    {
+        "id": 138,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Bagaimana caramu menata ruang kerja atau ruang berkreasi agar produktivitas dan idemu mengalir?"
+    },
+    {
+        "id": 139,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Kebiasaan konsumsi media (sosmed, berita, tontonan) seperti apa yang ingin kamu batasi demi ketenangan?"
+    },
+    {
+        "id": 140,
+        "category": "Kebiasaan & Rutinitas",
+        "prompt": "Apa satu barang kecil yang selalu harus ada di dalam tas atau mejamu setiap hari?"
+    },
+    {
+        "id": 141,
+        "category": "Refleksi Mendalam",
+        "prompt": "Apa kebenaran pahit tentang kehidupan yang belakangan ini baru bisa kamu terima dengan lapang dada?"
+    },
+    {
+        "id": 142,
+        "category": "Refleksi Mendalam",
+        "prompt": "Seberapa sering kamu membiarkan dirimu merenung tanpa melakukan apa-apa atau merasa bersalah?"
+    },
+    {
+        "id": 143,
+        "category": "Refleksi Mendalam",
+        "prompt": "Bagaimana pandanganmu tentang arti 'kebahagiaan' berubah dalam kurun waktu 5 tahun terakhir?"
+    },
+    {
+        "id": 144,
+        "category": "Refleksi Mendalam",
+        "prompt": "Apa hal tersulit yang pernah kamu lewati, yang membuktikan bahwa kamu sebenarnya jauh lebih kuat dari dugaanmu?"
+    },
+    {
+        "id": 145,
+        "category": "Refleksi Mendalam",
+        "prompt": "Pesan atau pembelajaran apa yang sedang coba disampaikan oleh fase hidupmu yang sekarang?"
+    },
+    {
+        "id": 146,
+        "category": "Refleksi Mendalam",
+        "prompt": "Apa bentuk penghargaan atau bentuk 'cinta pada diri sendiri' yang paling realistis bagimu saat ini?"
+    },
+    {
+        "id": 147,
+        "category": "Refleksi Mendalam",
+        "prompt": "Hal apa yang paling ingin kamu katakan kepada seseorang tapi belum menemukan keberanian untuk menyampaikannya?"
+    },
+    {
+        "id": 148,
+        "category": "Refleksi Mendalam",
+        "prompt": "Bagaimana caramu membedakan antara kebutuhan nyata dan sekadar keinginan berlebih?"
+    },
+    {
+        "id": 149,
+        "category": "Refleksi Mendalam",
+        "prompt": "Siapa versi dirimu di masa lalu yang paling ingin kamu peluk dan katakan 'semuanya akan baik-baik saja'?"
+    },
+    {
+        "id": 150,
+        "category": "Refleksi Mendalam",
+        "prompt": "Apa definisi tempat yang bisa kamu sebut sebagai 'rumah' yang sejati?"
+    },
+    {
+        "id": 151,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Tuliskan refleksi singkat dari sudut pandang hewan peliharaan atau benda mati di kamarmu saat melihatmu hari ini."
+    },
+    {
+        "id": 152,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Jika harimu diibaratkan sebagai cuaca, bagaimana prakiraan cuaca dari pagi hingga malam hari ini?"
+    },
+    {
+        "id": 153,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Apa topik acak atau unik yang bisa kamu jelaskan secara detail selama 10 menit tanpa persiapan?"
+    },
+    {
+        "id": 154,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Jika pikiranmu saat ini adalah sebuah lemari, barang-barang apa saja yang perlu dirapikan atau dibuang?"
+    },
+    {
+        "id": 155,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Bayangkan kamu sedang menulis ulasan bintang 5 (*5-star review*) untuk satu momen bahagia minggu ini."
+    },
+    {
+        "id": 156,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Apa hal paling absurd atau lucu yang pernah kamu pikirkan atau alami belakangan ini?"
+    },
+    {
+        "id": 157,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Jika ada plakat penghargaan untuk hal sepele yang kamu lakukan hari ini, penghargaan apa itu?"
+    },
+    {
+        "id": 158,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Tuliskan resep rahasia (*recipe*) untuk membuat harimu menjadi hari yang sempurna."
+    },
+    {
+        "id": 159,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Jika perasaan rileks bisa dikemas dalam sebuah tempat, tempat seperti apa yang kamu bayangkan?"
+    },
+    {
+        "id": 160,
+        "category": "Sudut Pandang Unik",
+        "prompt": "Sebutkan satu 'misteri kecil' dalam hidupmu yang sampai sekarang belum pernah kamu temukan jawabannya."
+    },
+    {
+        "id": 161,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Apa kenyamanan modern atau teknologi sederhana yang paling sering kamu lupakan untuk disyukuri?"
+    },
+    {
+        "id": 162,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Sebutkan 3 bagian tubuhmu yang paling bekerja keras hari ini dan ucapkan terima kasih padanya."
+    },
+    {
+        "id": 163,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Apa satu fasilitas publik atau tempat umum di kotamu yang selalu kamu nikmati keberadaannya?"
+    },
+    {
+        "id": 164,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Tuliskan kenikmatan dari satu cangkir kopi, teh, atau minuman favorit yang kamu minum minggu ini."
+    },
+    {
+        "id": 165,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Siapa sosok pekerja keras di sekitarmu yang pelayanannya sering kali tidak disadari tapi sangat membantu?"
+    },
+    {
+        "id": 166,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Hal kecil apa dalam alam (seperti daun, angin, langit) yang sempat mencuri perhatianmu hari ini?"
+    },
+    {
+        "id": 167,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Apa barang berharga terjangkau (di bawah 100 ribu) yang pernah kamu beli dan sangat berguna sampai sekarang?"
+    },
+    {
+        "id": 168,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Tuliskan apresiasi untuk rasa aman yang kamu rasakan di tempat tinggalmu saat ini."
+    },
+    {
+        "id": 169,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Apa momen tenang paling berkualitas yang berhasil kamu dapatkan minggu ini?"
+    },
+    {
+        "id": 170,
+        "category": "Apresiasi & Rasa Syukur",
+        "prompt": "Sebutkan satu keterampilan dasar yang kamu miliki dan sangat memudahkan hidupmu sehari-hari."
+    },
+    {
+        "id": 171,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Sudut kota mana yang paling sering memberimu rasa nostalgia atau ketenangan saat melewatinya?"
+    },
+    {
+        "id": 172,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Ceritakan pengalaman saat kamu tersesat atau salah jalan yang malah berujung pada penemuan tempat seru."
+    },
+    {
+        "id": 173,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Bagaimana pemandangan ideal dari balik jendela kamar impianmu?"
+    },
+    {
+        "id": 174,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Apa jenis transportasi yang paling kamu nikmati untuk perjalanan jauh sambil melamun?"
+    },
+    {
+        "id": 175,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Jika kamu bisa berpindah tempat secara instan saat ini juga, tempat spesifik mana yang ingin kamu tuju?"
+    },
+    {
+        "id": 176,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Ceritakan tentang kafe, perpustakaan, atau tempat tersembunyi (*hidden gem*) favoritmu."
+    },
+    {
+        "id": 177,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Suasana perjalanan malam atau perjalanan pagi: mana yang lebih menginspirasi pikiranmu?"
+    },
+    {
+        "id": 178,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Apa oleh-oleh atau cenderamata paling unik yang pernah kamu bawa pulang dari sebuah tempat?"
+    },
+    {
+        "id": 179,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Bagaimana caramu mengamati orang-orang di tempat umum (*people watching*) dan apa yang sering kamu pelajari?"
+    },
+    {
+        "id": 180,
+        "category": "Perjalanan & Lingkungan",
+        "prompt": "Negara atau kebudayaan mana yang paling ingin kamu pelajari tradisi dan karya seninya?"
+    },
+    {
+        "id": 181,
+        "category": "Pengembangan Diri",
+        "prompt": "Apa satu keahlian non-teknis (*soft skill*) yang paling ingin kamu asah dalam beberapa bulan ke depan?"
+    },
+    {
+        "id": 182,
+        "category": "Pengembangan Diri",
+        "prompt": "Bagaimana caramu bangkit dan menata pikiran setelah mengalami perasaan kecewa?"
+    },
+    {
+        "id": 183,
+        "category": "Pengembangan Diri",
+        "prompt": "Apa nasihat terbaik tentang produktivitas yang benar-benar cocok dan bekerja untukmu?"
+    },
+    {
+        "id": 184,
+        "category": "Pengembangan Diri",
+        "prompt": "Seberapa nyaman kamu dengan ketidakpastian, dan bagaimana caramu melatih keberanian itu?"
+    },
+    {
+        "id": 185,
+        "category": "Pengembangan Diri",
+        "prompt": "Pola pikir (*mindset*) lama apa yang secara perlahan mulai kamu ganti dengan pola pikir baru yang lebih sehat?"
+    },
+    {
+        "id": 186,
+        "category": "Pengembangan Diri",
+        "prompt": "Apa arti kata 'fokus' untukmu saat ini di tengah maraknya gangguan informasi?"
+    },
+    {
+        "id": 187,
+        "category": "Pengembangan Diri",
+        "prompt": "Bagaimana caramu mengapresiasi proses belajar saat hasil akhirnya belum terlihat?"
+    },
+    {
+        "id": 188,
+        "category": "Pengembangan Diri",
+        "prompt": "Apa area dalam hidupmu yang saat ini paling membutuhkan rasa sabar yang ekstra?"
+    },
+    {
+        "id": 189,
+        "category": "Pengembangan Diri",
+        "prompt": "Sebutkan satu kata kunci yang ingin kamu jadikan kompas utama untuk pengambilan keputusanmu."
+    },
+    {
+        "id": 190,
+        "category": "Pengembangan Diri",
+        "prompt": "Bagaimana caramu merayakan pencapaian-pencapaian kecil agar tidak berlalu begitu saja?"
+    },
+    {
+        "id": 191,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Buku, film, atau album musik apa yang paling membentuk selera estetikamu saat ini?"
+    },
+    {
+        "id": 192,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Apa hobi atau kegiatan yang selalu membuatmu bersemangat bahkan saat kamu sedang lelah?"
+    },
+    {
+        "id": 193,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Ceritakan tentang koleksi personal yang paling kamu rawat dan berharga bagimu."
+    },
+    {
+        "id": 194,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Jika kamu bisa mempelajari instrumen musik atau cabang seni baru secara instan, seni apa yang kamu pilih?"
+    },
+    {
+        "id": 195,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Karakter fiksi mana yang paling ingin kamu ajak diskusi tentang topik kehidupan?"
+    },
+    {
+        "id": 196,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Apa permainan, puzzle, atau aktivitas kreatif yang paling sering membuat pikiranmu rileks?"
+    },
+    {
+        "id": 197,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Sebutkan podcast, video, atau konten yang belakangan ini paling banyak memberimu wawasan baru."
+    },
+    {
+        "id": 198,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Apa genre musik yang paling sering mendampingimu saat sedang berkreasi atau menjurnal?"
+    },
+    {
+        "id": 199,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Jika kamu bisa membuat satu barang buatan tangan (*handmade*) untuk diberikan ke seseorang, barang apa itu?"
+    },
+    {
+        "id": 200,
+        "category": "Eksplorasi Hobi & Hiburan",
+        "prompt": "Tuliskan refleksi penutup: Apa hal terpenting yang baru saja kamu pelajari tentang dirimu hari ini?"
+    },
+    {
+        "id": 201,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Benda apa di mejamu saat ini yang paling punya cerita historis tersendiri?"
+    },
+    {
+        "id": 202,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Jika kamarmu bisa berbicara, apa tanggapannya tentang caramu beristirahat belakangan ini?"
+    },
+    {
+        "id": 203,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Bagaimana pencahayaan ideal (terang/temaram/warm/cool) yang paling membuatmu merasa tenang di malam hari?"
+    },
+    {
+        "id": 204,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Apa satu barang rumah tangga sederhana yang membuat hidupmu jauh lebih praktis setiap hari?"
+    },
+    {
+        "id": 205,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Ceritakan tentang sudut rumah atau area favorit yang selalu jadi tempat pelarianmu saat butuh sendiri."
+    },
+    {
+        "id": 206,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Jika kamu bisa mengganti satu pemandangan dari balik jendela kamarmu, pemandangan apa yang ingin kamu lihat?"
+    },
+    {
+        "id": 207,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Suasana ruangan seperti apa yang paling efektif membuat fokus serta idemu mengalir lancar?"
+    },
+    {
+        "id": 208,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Apa tanaman, bunga, atau elemen alam yang paling ingin kamu taruh di dalam ruang kerjamu?"
+    },
+    {
+        "id": 209,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Bagaimana caramu menata benda-benda kesayangan agar ruanganmu terasa personal dan bernyawa?"
+    },
+    {
+        "id": 210,
+        "category": "Ruang Personal & Lingkungan",
+        "prompt": "Jika ada satu area di tempat tinggalmu yang butuh dirapikan (*declutter*), area mana itu dan kenapa?"
+    },
+    {
+        "id": 211,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Topik acak apa yang baru-baru ini secara tidak sengaja kamu baca dan bikin kamu penasaran setengah mati?"
+    },
+    {
+        "id": 212,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Jika kamu diberi kesempatan mengikuti satu kelas masterclass gratis, bidang apa yang ingin kamu pelajari?"
+    },
+    {
+        "id": 213,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Apa fakta sains, sejarah, atau kebudayaan yang paling sering membuatmu kagum saat mengingatnya?"
+    },
+    {
+        "id": 214,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Kosakata baru apa (bahasa Indonesia/daerah/asing) yang belakangan ini baru kamu tahu artinya dan kamu suka maknanya?"
+    },
+    {
+        "id": 215,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Apa mitos atau kesalahpahaman umum yang dulu pernah kamu percaya sebelum tahu fakta sebenarnya?"
+    },
+    {
+        "id": 216,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Sebutkan satu pertanyaan sederhana tentang fenomena alam/kehidupan yang sampai sekarang masih membuatmu penasaran."
+    },
+    {
+        "id": 217,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Jika kamu bisa menguasai satu bahasa asing baru secara ajaib dalam semalam, bahasa apa yang kamu pilih?"
+    },
+    {
+        "id": 218,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Buku non-fiksi atau dokumenter apa yang paling mengubah sudut pandangmu tentang cara kerja dunia?"
+    },
+    {
+        "id": 219,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Apa keahlian manual (*craftsmanship*) tradisional yang menurutmu sangat keren dan bernilai tinggi?"
+    },
+    {
+        "id": 220,
+        "category": "Rasa Ingin Tahu & Pembelajaran",
+        "prompt": "Bagaimana caramu biasanya mengumpulkan inspirasi ketika pikiran terasa stagnan atau buntu?"
+    },
+    {
+        "id": 221,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Pembelian barang terbaik apa yang kamu lakukan tahun ini, dan bagaimana barang itu bermanfaat bagimu?"
+    },
+    {
+        "id": 222,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Apa barang berharga yang pernah hilang atau rusak, tapi mengajarkanmu tentang rasa ikhlas?"
+    },
+    {
+        "id": 223,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Bagaimana hubunganmu dengan uang berubah sejak pertama kali kamu menghasilkan pendapatan sendiri?"
+    },
+    {
+        "id": 224,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Apa satu barang gratis atau pemberian seseorang yang nilainya terasa jauh lebih mahal dari harganya?"
+    },
+    {
+        "id": 225,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Sebutkan barang yang pernah sangat kamu inginkan, tapi setelah memilikinya ternyata rasanya biasa saja."
+    },
+    {
+        "id": 226,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Jika kamu harus menyederhanakan barang bawaanmu menjadi satu tas kecil saja, apa barang yang wajib masuk?"
+    },
+    {
+        "id": 227,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Apa benda sentimental paling tua yang masih kamu simpan dengan rapi sampai hari ini?"
+    },
+    {
+        "id": 228,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Pengalaman atau kegiatan apa yang menurutmu jauh lebih bernilai untuk dibeli dibanding barang fisik?"
+    },
+    {
+        "id": 229,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Bagaimana pendapatmu tentang konsep minimalism vs maximalism dalam gaya hidupmu?"
+    },
+    {
+        "id": 230,
+        "category": "Refleksi Benda & Nilai",
+        "prompt": "Hadiah terbaik apa yang pernah kamu siapkan dan berikan untuk orang lain sampai mereka tersentuh?"
+    },
+    {
+        "id": 231,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Apa cuaca ideal yang paling membangkitkan gairah kreativitas dan keinginanmu untuk berkarya?"
+    },
+    {
+        "id": 232,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Ceritakan aroma khas tanah basah tersiram hujan (*petrichor*) dan kenangan apa yang dipanggilnya."
+    },
+    {
+        "id": 233,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Bagaimana caramu menikmati hari Minggu yang mendung tanpa merasa bersalah karena bersantai?"
+    },
+    {
+        "id": 234,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Sebutkan daftar lagu (*playlist*) atau jenis musik yang cocok mendampingi sore harimu saat ini."
+    },
+    {
+        "id": 235,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Apa aktivitas favoritmu yang cuma terasa nikmat kalau dilakukan saat malam hari?"
+    },
+    {
+        "id": 236,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Bagaimana perubahan warna langit menjelang matahari terbenam memengaruhi suasana hatimu hari ini?"
+    },
+    {
+        "id": 237,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Jika harimu punya lagu tema (*soundtrack*), lagu apa yang akan mulai berbunyi saat kamu melangkah keluar?"
+    },
+    {
+        "id": 238,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Apa minuman dingin atau hangat yang paling pas merangkum suasana harimu saat ini?"
+    },
+    {
+        "id": 239,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Bagaimana caramu menciptakan suasana hangat (*cozy vibe*) di dalam kamar saat di luar sedang hujan deras?"
+    },
+    {
+        "id": 240,
+        "category": "Eksplorasi Musim & Suasana",
+        "prompt": "Ceritakan momen pagi hari terbaik yang pernah kamu alami baru-baru ini."
+    },
+    {
+        "id": 241,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Tuliskan deskripsi sebuah toko misterius di sudut jalan yang hanya menjual hal-hal tak berwujud."
+    },
+    {
+        "id": 242,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Bayangkan cangkir minumu punya ingatan. Apa cerita yang paling sering dia saksikan saat bersamamu?"
+    },
+    {
+        "id": 243,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Buat paragraf pembuka untuk sebuah novel fiksi ilmiah yang berlatar di kotamu pada tahun 2090."
+    },
+    {
+        "id": 244,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Gambarkan perasaan 'lega' menggunakan analogi bentuk, rasa, warna, dan gerakan."
+    },
+    {
+        "id": 245,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Tuliskan sepucuk surat fiktif dari seorang penjelajah waktu yang tertahan di era sekarang."
+    },
+    {
+        "id": 246,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Bayangkan kamu menemukan koper tua yang terkunci di loteng. Apa isinya ketika kamu berhasil membukanya?"
+    },
+    {
+        "id": 247,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Tuliskan dialog singkat antara pikiran logismu dan perasaa emosionalmu saat menghadapi masalah."
+    },
+    {
+        "id": 248,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Gambarkan pemandangan pasar atau tempat keramaian menggunakan kelima indramu secara lengkap."
+    },
+    {
+        "id": 249,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Jika kamu bisa mengawetkan satu perasaan dalam sebuah botol kaca, perasaan apa yang ingin kamu simpan?"
+    },
+    {
+        "id": 250,
+        "category": "Latihan Menulis Kreatif",
+        "prompt": "Tuliskan puisi singkat 4 baris tentang benda acak yang ada tepat di sebelah kirimu."
+    },
+    {
+        "id": 251,
+        "category": "Energi & Tubuh",
+        "prompt": "Bagaimana sinyal yang diberikan tubuhmu saat kamu mulai melampaui batas kemampuan fisikmu?"
+    },
+    {
+        "id": 252,
+        "category": "Energi & Tubuh",
+        "prompt": "Apa makanan atau minuman yang paling cepat membuat tubuhmu terasa segar dan berenergi kembali?"
+    },
+    {
+        "id": 253,
+        "category": "Energi & Tubuh",
+        "prompt": "Kapan waktu dalam sehari di mana level fokus dan kreativitasmu berada di titik paling puncak?"
+    },
+    {
+        "id": 254,
+        "category": "Energi & Tubuh",
+        "prompt": "Gerakan atau olahraga ringan apa yang belakangan ini paling membuat tubuhmu terasa lebih nyaman?"
+    },
+    {
+        "id": 255,
+        "category": "Energi & Tubuh",
+        "prompt": "Seberapa baik kualitas tidurmu belakangan ini, dan apa yang perlu kamu perbaiki dari jam tidurmu?"
+    },
+    {
+        "id": 256,
+        "category": "Energi & Tubuh",
+        "prompt": "Apa hal terbaik yang sudah dilakukan tubuhmu untuk mendampingi aktivitasmu sepanjang hari ini?"
+    },
+    {
+        "id": 257,
+        "category": "Energi & Tubuh",
+        "prompt": "Bagaimana caramu merawat diri (*self-care*) saat fisik dan mental sama-sama terasa drop?"
+    },
+    {
+        "id": 258,
+        "category": "Energi & Tubuh",
+        "prompt": "Sensasi fisik apa (seperti angin dingin, air hangat, sinar matahari) yang paling kamu nikmati hari ini?"
+    },
+    {
+        "id": 259,
+        "category": "Energi & Tubuh",
+        "prompt": "Apa postur tubuh atau kebiasaan fisik yang belakangan ini paling ingin kamu perbaiki?"
+    },
+    {
+        "id": 260,
+        "category": "Energi & Tubuh",
+        "prompt": "Bagaimana caramu memberi jeda istirahat pada matamu yang lelah setelah seharian melihat layar?"
+    },
+    {
+        "id": 261,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Apa kata atau frasa favorit yang belakangan ini paling sering kamu ucapkan dalam percakapan sehari-hari?"
+    },
+    {
+        "id": 262,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Seberapa nyaman kamu menyampaikan rasa tidak setuju secara sopan kepada orang lain?"
+    },
+    {
+        "id": 263,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Apa tipe gaya komunikasi orang lain yang paling cepat membuatmu merasa nyaman dan terbuka?"
+    },
+    {
+        "id": 264,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Pesan singkat (*text message*) paling berkesan apa yang kamu terima minggu ini?"
+    },
+    {
+        "id": 265,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Bagaimana caramu biasanya mengatasi situasi canggung dalam sebuah percakapan?"
+    },
+    {
+        "id": 266,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Apakah kamu lebih suka menyampaikan ide secara lisan (berbicara) atau tulisan? Kenapa?"
+    },
+    {
+        "id": 267,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Apa pujian yang ingin kamu berikan pada seseorang hari ini tapi belum sempat kamu katakan?"
+    },
+    {
+        "id": 268,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Bagaimana caramu menjadi pendengar yang baik saat temanmu sedang berkeluh kesah?"
+    },
+    {
+        "id": 269,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Apa topik pembicaraan yang menurutmu selalu berhasil mencairkan suasana (*icebreaker*)?"
+    },
+    {
+        "id": 270,
+        "category": "Komunikasi & Bahasa",
+        "prompt": "Ungkapan atau ucapan syukur apa yang ingin kamu gaungkan lebih sering dalam hidup sehari-hari?"
+    },
+    {
+        "id": 271,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Alat tulis, kuas, atau media crafting apa yang paling membuatmu bersemangat saat memegangnya?"
+    },
+    {
+        "id": 272,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Apa proyek seni atau kerajinan tangan yang paling bikin kamu bangga ketika berhasil menyelesaikannya?"
+    },
+    {
+        "id": 273,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Jika kamu bisa membuat sebuah jurnal bertema khusus (*themed journal*), tema unik apa yang akan kamu pilih?"
+    },
+    {
+        "id": 274,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Seniman, kreator, atau pembuat karya mana yang paling konsisten memberi dampak positif pada idemu?"
+    },
+    {
+        "id": 275,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Bagaimana perasaanmu ketika sebuah karya atau proyek yang kamu buat tidak sesuai dengan bayangan awal?"
+    },
+    {
+        "id": 276,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Apa kombinasi warna kontras yang menurutmu sangat berani tapi menghasilkan visual yang memukau?"
+    },
+    {
+        "id": 277,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Teknik berkarya baru apa yang belakangan ini ingin kamu pelajari atau eksperimentasikan?"
+    },
+    {
+        "id": 278,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Jika karya seni atau tulisanmu bisa menyampaikan satu pesan universal, pesan apa itu?"
+    },
+    {
+        "id": 279,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Apa yang biasanya kamu lakukan dengan sisa-sisa bahan, kertas, atau potongan ide dari proyek sebelumnya?"
+    },
+    {
+        "id": 280,
+        "category": "Penciptaan Karya & Seni",
+        "prompt": "Bagaimana caramu tahu bahwa suatu karya atau tulisan sudah 'selesai' dan siap dinikmati?"
+    },
+    {
+        "id": 281,
+        "category": "Persepsi Waktu",
+        "prompt": "Kapan terakhir kali kamu merasa waktu berjalan sangat lambat, dan apa yang sedang kamu lakukan saat itu?"
+    },
+    {
+        "id": 282,
+        "category": "Persepsi Waktu",
+        "prompt": "Momen mana di bulan ini yang rasanya berlalu begitu cepat hingga kamu ingin mengulangnya?"
+    },
+    {
+        "id": 283,
+        "category": "Persepsi Waktu",
+        "prompt": "Bagaimana caramu memaknai kata 'menunggu'—apakah sesuatu yang membosankan atau kesempatan beristirahat?"
+    },
+    {
+        "id": 284,
+        "category": "Persepsi Waktu",
+        "prompt": "Jika kamu bisa membekukan waktu selama 1 jam setiap hari, jam berapa yang ingin kamu bekukan?"
+    },
+    {
+        "id": 285,
+        "category": "Persepsi Waktu",
+        "prompt": "Apa tradisi atau ritual tahunan yang selalu membuatmu sadar betapa cepatnya waktu berganti?"
+    },
+    {
+        "id": 286,
+        "category": "Persepsi Waktu",
+        "prompt": "Bagaimana hubunganmu dengan 'tenggat waktu' (*deadline*)—apakah memicu adrenalin atau stres?"
+    },
+    {
+        "id": 287,
+        "category": "Persepsi Waktu",
+        "prompt": "Apa satu hal yang ingin kamu lakukan lebih lambat (*slow down*) dalam rutinitas harianmu?"
+    },
+    {
+        "id": 288,
+        "category": "Persepsi Waktu",
+        "prompt": "Jika masa lalumu adalah perpustakaan, buku tahun berapa yang paling ingin kamu buka dan baca ulang?"
+    },
+    {
+        "id": 289,
+        "category": "Persepsi Waktu",
+        "prompt": "Apa keputusan berani dalam hidupmu yang hasilnya baru terasa manfaatnya setelah bertahun-tahun kemudian?"
+    },
+    {
+        "id": 290,
+        "category": "Persepsi Waktu",
+        "prompt": "Bagaimana caramu mengabadikan momen berharga agar tidak terlupakan oleh waktu?"
+    },
+    {
+        "id": 291,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Hal apa yang belakangan ini membuat hidupmu terasa agak timpang, dan bagaimana caramu menyelaraskannya?"
+    },
+    {
+        "id": 292,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Apa arti 'bercukup' bagimu di tengah dunia yang selalu menuntut lebih banyak?"
+    },
+    {
+        "id": 293,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Bagaimana caramu memisahkan antara urusan pekerjaan/kewajiban dan waktu pribadi/kreatif?"
+    },
+    {
+        "id": 294,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Siapa sosok yang paling membantumu untuk tetap membumi (*grounded*) saat hidup terasa terlalu riuh?"
+    },
+    {
+        "id": 295,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Apa bentuk hiburan paling murah meriah yang selalu sukses bikin pikiranmu segar kembali?"
+    },
+    {
+        "id": 296,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Bagaimana caramu berkata 'tidak' pada ajakan atau pekerjaan tanpa merugikan kesehatan mentalmu?"
+    },
+    {
+        "id": 297,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Apa satu penyesalan kecil yang belakangan ini mengajarimu untuk lebih bijak dalam bertindak?"
+    },
+    {
+        "id": 298,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Hal menyenangkan apa yang terakhir kali kamu lakukan murni hanya untuk bersenang-senang tanpa tujuan produktivitas?"
+    },
+    {
+        "id": 299,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Jika kamu bisa memberikan gelar (*badge*) penghargaan untuk dirimu hari ini, gelar apa yang paling layak?"
+    },
+    {
+        "id": 300,
+        "category": "Keseimbangan Hidup",
+        "prompt": "Tuliskan satu doa, harapan, atau niat baik yang ingin kamu titipkan untuk harimu besok."
+    },
+    {
+        "id": 301,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Gaya arsitektur atau bentuk bangunan seperti apa yang paling sering membuat mata dan pikiranmu terpesona?"
+    },
+    {
+        "id": 302,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Bayangkan sebuah jembatan yang menghubungkan masa lalumu dan masa depanmu. Terbuat dari bahan apa jembatan itu?"
+    },
+    {
+        "id": 303,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Jika hatimu saat ini dibayangkan sebagai sebuah ruangan, bagaimana tata letak pintu, jendela, dan perabotannya?"
+    },
+    {
+        "id": 304,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Sebutkan satu bentuk geometris atau pola abstrak yang paling sering kamu corat-coret (*doodle*) saat melamun."
+    },
+    {
+        "id": 305,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Bagaimana struktur bangunan tempat tinggalmu memengaruhi perasaan nyamanmu setiap kali pulang ke rumah?"
+    },
+    {
+        "id": 306,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Jika kamu bisa merancang sebuah tangga menuju tempat rahasia, seperti apa penampakan tangga dan tujuannya?"
+    },
+    {
+        "id": 307,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Apa material bangunan (kayu, kaca, beton, batu bata, kertas) yang terasa paling hangat dan manusiawi bagimu?"
+    },
+    {
+        "id": 308,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Ceritakan tentang struktur, lorong, atau ruangan paling unik yang pernah kamu jelajahi secara langsung."
+    },
+    {
+        "id": 309,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Jika ide-ide kreatifmu butuh sebuah wadah berbentuk fisik, wadah seperti apa yang sanggup menampungnya?"
+    },
+    {
+        "id": 310,
+        "category": "Arsitektur & Bentuk",
+        "prompt": "Bagaimana batas (*wall/boundary*) yang kamu bangun untuk melindungi ruang pribadi dan kesehatan mentalmu?"
+    },
+    {
+        "id": 311,
+        "category": "Metafora Alam",
+        "prompt": "Jika emosimu minggu ini diibaratkan sebagai bentang alam (gunung, laut, gurun, hutan), seperti apa lanskapnya?"
+    },
+    {
+        "id": 312,
+        "category": "Metafora Alam",
+        "prompt": "Bagaimana caramu membiarkan dirimu 'berganti daun' atau melepaskan hal lama seperti pohon di musim gugur?"
+    },
+    {
+        "id": 313,
+        "category": "Metafora Alam",
+        "prompt": "Sifat air mana (mengalir, tenang, atau menyesuaikan wadah) yang paling menggambarkan caramu menghadapi masalah?"
+    },
+    {
+        "id": 314,
+        "category": "Metafora Alam",
+        "prompt": "Jika proses bertumbuhmu diibaratkan seperti sebuah tanaman, di fase mana kamu berada: benih, tunas, atau berbuah?"
+    },
+    {
+        "id": 315,
+        "category": "Metafora Alam",
+        "prompt": "Fenomena langit apa (pelangi, gerhana, kilat, fajar) yang paling mewakili momen kebangkitan dalam hidupmu?"
+    },
+    {
+        "id": 316,
+        "category": "Metafora Alam",
+        "prompt": "Bagaimana caramu menemukan 'akar' yang kuat agar tidak mudah tumbang saat diterpa angin kencang kehidupan?"
+    },
+    {
+        "id": 317,
+        "category": "Metafora Alam",
+        "prompt": "Jika kamu adalah sebuah batu di dasar sungai, cerita apa yang dibawa oleh arus air yang melewatinya?"
+    },
+    {
+        "id": 318,
+        "category": "Metafora Alam",
+        "prompt": "Bagaimana caramu menyikapi 'musim kering' dalam ide dan inspirasi tanpa merasa panik?"
+    },
+    {
+        "id": 319,
+        "category": "Metafora Alam",
+        "prompt": "Apa hal berharga yang bisa kamu pelajari dari ketenangan sebuah danau yang tidak terganggu oleh sekitar?"
+    },
+    {
+        "id": 320,
+        "category": "Metafora Alam",
+        "prompt": "Jika hari esok adalah sebuah lanskap alam yang baru, lanskap seperti apa yang ingin kamu jelajahi?"
+    },
+    {
+        "id": 321,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Apa jejak fisik (seperti bekas tinta, guntingan kertas, atau stiker) di buku jurnalmu yang paling kamu suka?"
+    },
+    {
+        "id": 322,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Ceritakan kenangan saat kamu pertama kali menggunakan alat potong atau perekat unik untuk membuat sesuatu."
+    },
+    {
+        "id": 323,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Bagaimana rasanya memotong lembaran kertas baru: apakah ada kepuasan tersendiri yang sulit dijelaskan?"
+    },
+    {
+        "id": 324,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Sebutkan jenis stempel, stiker, atau hiasan jurnal yang selalu berhasil membuat tulisanmu terasa hidup."
+    },
+    {
+        "id": 325,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Apa tekstur kertas (vintage, tebal, bertekstur, licin) yang paling membuat penamu menari dengan nyaman?"
+    },
+    {
+        "id": 326,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Ceritakan momen ketika sebuah kesalahan saat membuat kerajinan justru menghasilkan bentuk yang tidak terduga dan menarik."
+    },
+    {
+        "id": 327,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Benda daur ulang (*upcycled material*) apa yang paling sering kamu selamatkan untuk dijadikan elemen dekorasi?"
+    },
+    {
+        "id": 328,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Bagaimana caramu menyusun lapisan (*layering*) warna dan kertas agar jurnalmu punya kedalaman visual?"
+    },
+    {
+        "id": 329,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Apa warna tinta pena yang paling mencerminkan kepribadian tulisan tanganmu saat ini?"
+    },
+    {
+        "id": 330,
+        "category": "Tactile & Crafting Memories",
+        "prompt": "Jika karya kerajinan tanganmu bisa berbicara, kisah tentang ketelitian apa yang akan dia bagikan?"
+    },
+    {
+        "id": 331,
+        "category": "Filosofi Keseharian",
+        "prompt": "Apa arti kata 'cukup' saat kamu melihat piring makanan, meja kerja, dan isi pikiranmu hari ini?"
+    },
+    {
+        "id": 332,
+        "category": "Filosofi Keseharian",
+        "prompt": "Bagaimana caramu membedakan antara kesibukan yang berarti (*meaningful activity*) dan sekadar kepanikan?"
+    },
+    {
+        "id": 333,
+        "category": "Filosofi Keseharian",
+        "prompt": "Seberapa penting kehadiran kejujuran pada diri sendiri saat kamu sedang menulis di dalam jurnal pribadi?"
+    },
+    {
+        "id": 334,
+        "category": "Filosofi Keseharian",
+        "prompt": "Apa nilai dari sebuah ketidaksempurnaan (*wabi-sabi*) yang belakangan ini mulai kamu apresiasi dalam hidup?"
+    },
+    {
+        "id": 335,
+        "category": "Filosofi Keseharian",
+        "prompt": "Bagaimana caramu merawat hal-hal kecil agar tidak rusak oleh rasa bosan atau rutinitas yang monoton?"
+    },
+    {
+        "id": 336,
+        "category": "Filosofi Keseharian",
+        "prompt": "Apa makna keberanian bagimu ketika harus mengambil langkah kecil tanpa ada jaminan kepastian?"
+    },
+    {
+        "id": 337,
+        "category": "Filosofi Keseharian",
+        "prompt": "Bagaimana pandanganmu tentang keseimbangan antara merencanakan masa depan dan menikmati momen presens hari ini?"
+    },
+    {
+        "id": 338,
+        "category": "Filosofi Keseharian",
+        "prompt": "Apa hal paling berharga yang pernah kamu dapatkan murni dari hasil bersabar menunggu waktu yang tepat?"
+    },
+    {
+        "id": 339,
+        "category": "Filosofi Keseharian",
+        "prompt": "Seberapa sering kamu memberi ruang bagi keheningan tanpa perlu diisi oleh tontonan atau suara?"
+    },
+    {
+        "id": 340,
+        "category": "Filosofi Keseharian",
+        "prompt": "Jika hidup adalah sebuah kanvas, siapa atau apa yang memegang kuas utama dalam pengambilan keputusanmu?"
+    },
+    {
+        "id": 341,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Ceritakan harimu hari ini menggunakan tepat 5 kalimat saja, tidak kurang dan tidak lebih."
+    },
+    {
+        "id": 342,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Tuliskan refleksi perasaanmu saat ini tanpa menggunakan huruf 'A' sama sekali dalam satu paragraf."
+    },
+    {
+        "id": 343,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Deskripsikan sebuah emosi kompleks menggunakan nama-nama warna dan kata sifat visual saja."
+    },
+    {
+        "id": 344,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Tuliskan sebuah pesan singkat berupa telegram masa lalu (pendek, padat, tegas) untuk dirimu besok."
+    },
+    {
+        "id": 345,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Buatlah daftar 10 hal yang membuatmu bersyukur, tapi masing-masing hanya boleh terdiri dari 2 kata."
+    },
+    {
+        "id": 346,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Ceritakan satu peristiwa bahagia minggu ini dari sudut pandang cermin yang menyaksikannya."
+    },
+    {
+        "id": 347,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Tuliskan haiku (5-7-5 suku kata) tentang suasana hatimu saat membuka halaman jurnal ini."
+    },
+    {
+        "id": 348,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Gambarkan rasa lelahmu sebagai sebuah monster lucu yang sebenarnya hanya butuh istirahat."
+    },
+    {
+        "id": 349,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Tuliskan instruksi langkah demi langkah (*manual guide*) tentang cara membuat dirimu tertawa."
+    },
+    {
+        "id": 350,
+        "category": "Tantangan Ekspresi Tulisan",
+        "prompt": "Deskripsikan momen favoritmu hari ini hanya menggunakan istilah-istilah musik atau sinematografi."
+    },
+    {
+        "id": 351,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Amati benda terkecil di sekitarmu saat ini dan tuliskan 3 hal unik yang belum pernah kamu sadari sebelumnya."
+    },
+    {
+        "id": 352,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Bagaimana pola gerakan bayangan di ruanganmu saat matahari mulai bergerak turun?"
+    },
+    {
+        "id": 353,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Catat 3 kombinasi suara berbeda yang terjadi secara bersamaan di sekitarmu dalam 30 detik terakhir."
+    },
+    {
+        "id": 354,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Gambarkan secara rinci bentuk jejak atau guratan yang ada di telapak tanganmu."
+    },
+    {
+        "id": 355,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Apa detail terkecil dari pakaian atau aksesori yang kamu kenakan hari ini yang punya fungsi penting?"
+    },
+    {
+        "id": 356,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Bagaimana aroma kertas atau buku di sekitarmu memicu suasana fokus di pikiranmu?"
+    },
+    {
+        "id": 357,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Sebutkan satu perubahan mikro yang terjadi di ruanganmu dibanding kondisi satu bulan yang lalu."
+    },
+    {
+        "id": 358,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Amati cara air atau minuman di gelasmu memantulkan cahaya dari lampu atau jendela."
+    },
+    {
+        "id": 359,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Tuliskan deskripsi ringkas tentang ekspresi wajah seseorang yang sempat kamu lihat sepintas hari ini."
+    },
+    {
+        "id": 360,
+        "category": "Aktivitas Mikro & Observasi",
+        "prompt": "Apa benda mati yang paling sering berpindah posisi di mejamu sepanjang hari ini?"
+    },
+    {
+        "id": 361,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Suasana seperti apa yang paling kamu harapkan ketika berkumpul dalam sebuah lingkaran komunitas?"
+    },
+    {
+        "id": 362,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Apa cerita atau karya yang paling ingin kamu bagikan kepada orang lain tanpa merasa dihakimi?"
+    },
+    {
+        "id": 363,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Bagaimana caramu menciptakan ruang aman (*safe space*) bagi teman yang ingin bercerita padamu?"
+    },
+    {
+        "id": 364,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Kolaborasi atau proyek bersama seperti apa yang paling membuatmu bersemangat jika direalisasikan?"
+    },
+    {
+        "id": 365,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Apa satu keterampilan atau pengetahuan kecil yang sangat ingin kamu ajarkan kepada orang lain?"
+    },
+    {
+        "id": 366,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Sebutkan momen ketika kamu merasa sangat terhubung (*connected*) dengan sekumpulan orang."
+    },
+    {
+        "id": 367,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Bentuk energi positif seperti apa yang paling suka kamu bawa ketika memasuki sebuah ruangan?"
+    },
+    {
+        "id": 368,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Bagaimana caramu merayakan keberhasilan teman atau anggota komunitas tanpa membandingkan diri?"
+    },
+    {
+        "id": 369,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Tradisi berbagi atau saling berkirim karya apa yang menurutmu paling berkesan dan hangat?"
+    },
+    {
+        "id": 370,
+        "category": "Ritme Komunitas & Berbagi",
+        "prompt": "Apa arti 'tumbuh bersama' bagi versi dirimu dan orang-orang di sekelilingmu saat ini?"
+    },
+    {
+        "id": 371,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Perangkat analog mana (seperti kamera film, buku cetak, jam jarum) yang keberadaannya tidak tergantikan bagimu?"
+    },
+    {
+        "id": 372,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Bagaimana perbandingan perasaanmu saat mengetik di layar digital dibanding menggoreskan pena di kertas?"
+    },
+    {
+        "id": 373,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Aplikasi atau fitur digital apa yang paling membantu mewujudkan ide-ide kreatifmu menjadi nyata?"
+    },
+    {
+        "id": 374,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Ceritakan momen 'detox digital' terbaik yang pernah kamu lakukan dan apa dampaknya pada pikiranmu."
+    },
+    {
+        "id": 375,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Jika kamu harus menyimpan kenangan berharga, apakah kamu lebih memilih album foto fisik atau folder digital?"
+    },
+    {
+        "id": 376,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Apa batasan paling sehat yang berhasil kamu terapkan saat berinteraksi dengan media sosial?"
+    },
+    {
+        "id": 377,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Bagaimana caramu memadukan estetika klasik/vintage dengan kemudahan teknologi masa kini?"
+    },
+    {
+        "id": 378,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Sebutkan satu dokumen atau berkas digital lama yang saat kamu buka kembali membawa nostalgia manis."
+    },
+    {
+        "id": 379,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Sensasi fisik apa dari benda analog yang paling kamu rindukan di tengah dunia yang makin serba digital?"
+    },
+    {
+        "id": 380,
+        "category": "Gaya Hidup Analog & Digital",
+        "prompt": "Jika kamu bisa menciptakan sebuah gawai (*gadget*) khusus untuk kebutuhan menjurnal, fitur apa yang ada di dalamnya?"
+    },
+    {
+        "id": 381,
+        "category": "Irama Musik & Suara",
+        "prompt": "Instrumen musik apa yang paling cepat menyentuh emosimu saat mendengarkannya sendirian?"
+    },
+    {
+        "id": 382,
+        "category": "Irama Musik & Suara",
+        "prompt": "Ceritakan tentang satu konser, pertunjukan, atau sesi musik live yang paling tidak bisa kamu lupakan."
+    },
+    {
+        "id": 383,
+        "category": "Irama Musik & Suara",
+        "prompt": "Lirik lagu mana yang belakangan ini terasa sangat cocok dengan jalan pikiran atau situasi hidupmu?"
+    },
+    {
+        "id": 384,
+        "category": "Irama Musik & Suara",
+        "prompt": "Bagaimana musik membantu mengalihkan atau memproses emosi ketakutan dan kecemasanmu?"
+    },
+    {
+        "id": 385,
+        "category": "Irama Musik & Suara",
+        "prompt": "Jika harimu harus ditutup dengan satu irama musik, irama lambat atau cepat yang kamu pilih?"
+    },
+    {
+        "id": 386,
+        "category": "Irama Musik & Suara",
+        "prompt": "Suara tawa siapa yang paling sering membawa rasa bahagia saat kamu mendengarnya?"
+    },
+    {
+        "id": 387,
+        "category": "Irama Musik & Suara",
+        "prompt": "Genre musik apa yang paling jarang kamu dengarkan, tapi ternyata memberi ide unik saat dicoba?"
+    },
+    {
+        "id": 388,
+        "category": "Irama Musik & Suara",
+        "prompt": "Bagaimana keheningan total (*absolute silence*) memengaruhi konsentrasi dan imajinasimu?"
+    },
+    {
+        "id": 389,
+        "category": "Irama Musik & Suara",
+        "prompt": "Sebutkan lagu yang selalu berhasil membuat jari-jarimu mengetuk atau tubuhmu bergerak mengikuti irama."
+    },
+    {
+        "id": 390,
+        "category": "Irama Musik & Suara",
+        "prompt": "Jika kamu bisa merekam satu album berisi suara-suara favorit dari hidupmu, suara apa saja yang masuk?"
+    },
+    {
+        "id": 391,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Apa hal kecil di masa depan yang paling kamu nantikan kedatangannya minggu depan?"
+    },
+    {
+        "id": 392,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Sebutkan satu titik terang (*silver lining*) yang kamu temukan dari situasi rumit baru-baru ini."
+    },
+    {
+        "id": 393,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Siapa sosok yang menjadi pengingat utama bagimu bahwa dunia ini masih penuh dengan kebaikan?"
+    },
+    {
+        "id": 394,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Apa proyek atau mimpi kecil yang saat ini pelan-pelan sedang kamu susun fondasinya?"
+    },
+    {
+        "id": 395,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Bagaimana caramu menjaga nyala semangat kreativitas saat orang lain tidak melihat prosesmu?"
+    },
+    {
+        "id": 396,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Apa kata-kata penyemangat paling ampuh yang selalu berhasil membangkitkan senyummu kembali?"
+    },
+    {
+        "id": 397,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Jika ada satu doa singkat yang bisa kamu panjatkan untuk perjalanan bisnismu/karyamu, apa isinya?"
+    },
+    {
+        "id": 398,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Bagaimana kamu membayangkan rasa lega dan bahagianya dirimu saat berhasil menyelesaikan target besarmu?"
+    },
+    {
+        "id": 399,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Apa bentuk kejutan manis yang paling ingin kamu dapatkan di tengah rutinitasmu?"
+    },
+    {
+        "id": 400,
+        "category": "Harapan & Titik Terang",
+        "prompt": "Tuliskan satu janji jujur kepada dirimu sendiri untuk terus melangkah dan menghargai setiap prosesnya."
+    },
+    {
+        "id": 401,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Sentuhan material apa (seperti kertas linen, kulit buku, kain beludru, atau permukaan kayu) yang paling instan memberikan rasa tenang saat kamu pegang?"
+    },
+    {
+        "id": 402,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Jika emosi dominanmu hari ini wujudnya adalah selembar kain atau kertas, bagaimana tekstur, ketebalan, dan kerapuhannya?"
+    },
+    {
+        "id": 403,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Ceritakan kenanganmu dengan satu benda kerajinan buatan tangan yang permukaannya terasa sangat unik saat diraba."
+    },
+    {
+        "id": 404,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Bagaimana perbedaan sensasi jemarimu saat menggoreskan pena di kertas halus licin dibanding kertas bertekstur kasar (*rough paper*)?"
+    },
+    {
+        "id": 405,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Sebutkan satu material alam (batu, serat pohon, daun kering, tanah liat) yang paling ingin kamu olah menjadi sebuah elemen karya."
+    },
+    {
+        "id": 406,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Apa efek visual dari teknik tumpukan material (*collage/layering*) yang paling bikin kamu puas saat melihat hasilnya?"
+    },
+    {
+        "id": 407,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Jika ide-ide kreatifmu bisa diraba, apakah sifatnya lentur, keras, padat, atau mudah robek?"
+    },
+    {
+        "id": 408,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Bagaimana warna dan tekstur dari benda-benda tua/vintage memberi rasa nostalgia tersendiri di dalam jurnalmu?"
+    },
+    {
+        "id": 409,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Ceritakan kepuasan fisik yang kamu rasakan saat menyobek kertas, menggunting, atau menempel perekat secara presisi."
+    },
+    {
+        "id": 410,
+        "category": "Eksplorasi Tekstur & Material",
+        "prompt": "Benda fisik apa yang paling kamu sayangi hanya karena tekstur dan sensasi genggamannya yang begitu nyaman?"
+    },
+    {
+        "id": 411,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Suasana pencahayaan seperti apa (temaram lampu hangat, sinar matahari sore, atau pijar lilin) yang paling memicu kreativitas tulisanmu?"
+    },
+    {
+        "id": 412,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Bagaimana aroma ruangan (kopi, kayu, hujan, atau kertas tua) mengubah fokus dan kedamaian pikiranmu saat berkarya?"
+    },
+    {
+        "id": 413,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Bayangkan sudut ruangan ideal untuk menjurnal: sudut seperti apa yang ingin kamu bangun untuk dirimu sendiri?"
+    },
+    {
+        "id": 414,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Apa satu tempat umum (kafe, taman, perpustakaan) yang atmosfernya selalu sukses membuat ide-idemu mengalir deras?"
+    },
+    {
+        "id": 415,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Bagaimana kondisi meja kerjamu saat ini memantulkan kondisi isi pikiranmu minggu ini?"
+    },
+    {
+        "id": 416,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Jika kamu bisa memindahkan meja tulismu ke mana saja di dunia ini selama satu hari, ke mana kamu akan menaruhnya?"
+    },
+    {
+        "id": 417,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Detail dekorasi kecil apa di ruanganmu yang paling sering membuatmu tersenyum saat pandangan matamu tak sengaja menemukannya?"
+    },
+    {
+        "id": 418,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Bagaimana suara latar belakang (*ambient sound*) favoritmu membentuk ritme tulisan di dalam buku harianmu?"
+    },
+    {
+        "id": 419,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Apa perbedaan suasana hati yang kamu rasakan saat menjurnal di pagi hari yang sunyi dibanding malam hari yang tenang?"
+    },
+    {
+        "id": 420,
+        "category": "Ruang & Suasana (*Atmosphere*)",
+        "prompt": "Bagaimana caramu menetralisir energi atau suasana ruangan yang terasa sumpek agar pikiranmu kembali segar?"
+    },
+    {
+        "id": 421,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Apa aroma atau bau spesifik dari masa kecilmu yang hingga hari ini bisa mendadak membawamu kembali ke masa lalu?"
+    },
+    {
+        "id": 422,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Tuliskan kenangan tentang satu barang koleksi pertama yang pernah kamu kumpulkan dengan penuh rasa bangga."
+    },
+    {
+        "id": 423,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Sebutkan satu pesan atau ucapan sederhana dari seseorang di masa lalu yang masih sering kamu ingat sampai sekarang."
+    },
+    {
+        "id": 424,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Foto lama mana yang paling sering membuatmu termenung dan mengagumi betapa jauhnya kamu sudah melangkah?"
+    },
+    {
+        "id": 425,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Ceritakan suasana akhir pekan atau hari libur favoritmu ketika kamu masih berusia belasan tahun."
+    },
+    {
+        "id": 426,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Apa mainan atau kerajinan tangan paling sederhana yang dulu pernah kamu buat dan membawakan kebahagiaan luar biasa?"
+    },
+    {
+        "id": 427,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Siapa sosok teman lama yang sudah jarang tersapa, namun jejak kebaikannya tetap mengendap di hatimu?"
+    },
+    {
+        "id": 428,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Gambarkan rasa makanan atau minuman nostalgia yang selalu berhasil memulihkan suasana hatimu yang sedang muram."
+    },
+    {
+        "id": 429,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Apa kebiasaan kecil dari orang tuamu yang tanpa kamu sadari kini ikut kamu lakukan sehari-hari?"
+    },
+    {
+        "id": 430,
+        "category": "Nostalgia & Jejak Memori",
+        "prompt": "Jika kamu bisa mengirimkan selembar surat ke dirimu 5 tahun yang lalu, kutipan penting apa yang ingin kamu tuliskan?"
+    },
+    {
+        "id": 431,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Apa bagian paling menantang sekaligus paling memuaskan saat kamu mengubah ide mentah di kepala menjadi bentuk fisik?"
+    },
+    {
+        "id": 432,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Bagaimana caramu berdamai dengan rasa ragu atau rasa 'kurang bagus' ketika sebuah karya baru separuh selesai?"
+    },
+    {
+        "id": 433,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Siapa atau apa pemicu (*spark*) terbesar yang biasanya mampu mengembalikan stamina kreativitasmu saat mengalami kemacetan?"
+    },
+    {
+        "id": 434,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Seberapa penting kepuasan pribadi bagimu dibandingkan dengan penilaian atau apresiasi dari orang luar terhadap karyamu?"
+    },
+    {
+        "id": 435,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Ceritakan momen ketika sebuah kebetulan tak sengaja (*happy accident*) membuat hasil karya fisikmu jauh lebih keren."
+    },
+    {
+        "id": 436,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Apa ritual atau kebiasaan kecil wajib yang selalu kamu lakukan tepat sebelum memulai proses membuat sesuatu?"
+    },
+    {
+        "id": 437,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Bagaimana kamu tahu bahwa sebuah karya atau halaman jurnalmu sudah 'selesai' dan tidak perlu ditambah apa-apa lagi?"
+    },
+    {
+        "id": 438,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Gaya atau estetika baru apa yang belakangan ini sangat ingin kamu pelajari dan eksperimenkan?"
+    },
+    {
+        "id": 439,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Bagaimana caramu menyimpan dan merawat alat-alat kerjamu agar selalu siap menemanimu berkarya?"
+    },
+    {
+        "id": 440,
+        "category": "Proses Kreatif & Karya",
+        "prompt": "Apa pujian atau tanggapan tentang karyamu yang paling berkesan dan menguatkan niatmu untuk terus berkreasi?"
+    },
+    {
+        "id": 441,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Kualitas karakter apa dari seorang sahabat yang membuatmu merasa sangat aman untuk menjadi diri sendiri sepenuhnya?"
+    },
+    {
+        "id": 442,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Bagaimana bentuk perhatian atau rasa sayang tanpa kata-kata (*non-verbal*) yang paling kamu apresiasi dari orang terdekat?"
+    },
+    {
+        "id": 443,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Ceritakan satu percakapan mendalam (*deep talk*) baru-baru ini yang mengubah caramu memandang sesuatu."
+    },
+    {
+        "id": 444,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Apa hal sederhana yang suka kamu lakukan untuk mengejutkan atau membuat orang tersayang merasa dihargai?"
+    },
+    {
+        "id": 445,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Bagaimana caramu mengomunikasikan batasan (*boundaries*) secara lembut namun tegas kepada lingkungan sekitarmu?"
+    },
+    {
+        "id": 446,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Siapa sosok yang paling pertama ingin kamu kabari saat kamu mendapatkan berita gembira?"
+    },
+    {
+        "id": 447,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Sebutkan satu kebiasaan unik dari orang terdekatmu yang selalu berhasil membawa tawa di hari-harimu."
+    },
+    {
+        "id": 448,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Bagaimana caramu menyikapi perbedaan pendapat dengan seseorang tanpa perlu mengorbankan ikatan baik yang ada?"
+    },
+    {
+        "id": 449,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Apa momen kebersamaan paling tenang yang pernah kamu lewati bersama seseorang tanpa perlu banyak bicara?"
+    },
+    {
+        "id": 450,
+        "category": "Koneksi & Relasi Teman Jiwa",
+        "prompt": "Jika kamu bisa mempersembahkan sebuah halaman jurnal khusus untuk seseorang, kepada siapa halaman itu ditujukan dan apa warnanya?"
+    },
+    {
+        "id": 451,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Sinyal fisik apa yang biasanya diberikan tubuhmu saat kamu mulai melampaui batas lelah dan butuh istirahat?"
+    },
+    {
+        "id": 452,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Bagaimana perasaanmu setelah melakukan aktivitas fisik atau bergerak luar ruangan di pagi/sore hari?"
+    },
+    {
+        "id": 453,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Bentuk istirahat seperti apa (selain tidur) yang paling ampuh menyegarkan kembali daya pikir dan energimu?"
+    },
+    {
+        "id": 454,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Bagaimana caramu menyayangi dan menerima kekurangan dari bentuk fisik tubuhmu hari ini?"
+    },
+    {
+        "id": 455,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Apa makanan atau hidangan hangat yang selalu sukses memberikan rasa nyaman (*comfort food*) di perut dan jiwamu?"
+    },
+    {
+        "id": 456,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Seberapa serasi irama langkah kakimu saat berjalan santai dengan ketenangan pikiran yang sedang kamu cari?"
+    },
+    {
+        "id": 457,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Apa teknik napas atau cara menenangkan diri yang paling efektif saat kamu merasa dikejar oleh waktu?"
+    },
+    {
+        "id": 458,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Bagaimana tidur berkualitas memengaruhi kejernihan ide dan emosimu di keesokan harinya?"
+    },
+    {
+        "id": 459,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Sebutkan satu kebiasaan sehat baru yang mulai terasa manfaat nyatanya pada kebugaran tubuhmu."
+    },
+    {
+        "id": 460,
+        "category": "Pikiran, Tubuh & Keseimbangan",
+        "prompt": "Jika tubuhmu bisa meminta satu hal spesifik dari dirimu malam ini, apa permintaan paling tulusnya?"
+    },
+    {
+        "id": 461,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Jika jurnalmu adalah sebuah peta harta karun, tanda bintang (*X mark*) ditaruh di atas destinasi seperti apa?"
+    },
+    {
+        "id": 462,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Gambarkan tampilan visual dari rumah atau studio impian yang ingin kamu bangun di masa depan."
+    },
+    {
+        "id": 463,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Negara atau kota mana yang estetika jalanannya paling ingin kamu abadikan langsung dalam lembaran buatanmu?"
+    },
+    {
+        "id": 464,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Jika kamu diberi kesempatan mendesain kover buku tentang perjalanan hidupmu, gambar atau warna apa yang mendominasi?"
+    },
+    {
+        "id": 465,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Apa satu proyek impian berskala besar yang selalu membuat matamu berbinar setiap kali membayangkannya?"
+    },
+    {
+        "id": 466,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Karakter atau tokoh rekaan seperti apa yang ingin kamu ciptakan untuk mewakili sisi imajinatifmu?"
+    },
+    {
+        "id": 467,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Bagaimana wujud visual dari impianmu jika digambarkan menggunakan potongan gambar (*moodboard/collage*)?"
+    },
+    {
+        "id": 468,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Pameran atau museum jenis apa yang paling ingin kamu kunjungi untuk menyerap inspirasi visual baru?"
+    },
+    {
+        "id": 469,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Jika kamu bisa merekam mimpi semalam menjadi sebuah ilustrasi, adegan mana yang paling dramatis?"
+    },
+    {
+        "id": 470,
+        "category": "Impian & Eksplorasi Visual",
+        "prompt": "Sebutkan satu pencapaian visual atau estetika karya yang ingin kamu kuasai sepenuhnya dalam setahun ke depan."
+    },
+    {
+        "id": 471,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Bayangkan kamu adalah sebuah kacamata. Karakter orang seperti apa yang paling kamu sukai saat memakaimu?"
+    },
+    {
+        "id": 472,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Jika masalah hidupmu saat ini bisa dikecilkan menjadi ukuran serangga, bagaimana kamu akan menyelesaikannya?"
+    },
+    {
+        "id": 473,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Tuliskan percakapan imajiner antara pena favoritmu dan lembaran kertas kosong di buku harianmu."
+    },
+    {
+        "id": 474,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Jika setiap hari dalam seminggu memiliki kepribadian sendiri, hari apa yang paling ramah dan hari apa yang paling pemalu?"
+    },
+    {
+        "id": 475,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Bagaimana sudut pandang seekor burung yang sedang terbang di atas kotamu melihat kesibukan manusia di bawahnya?"
+    },
+    {
+        "id": 476,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Jika kamu bisa menukar kemampuan kreatifmu dengan satu bakat ajaib selama 24 jam, bakat apa yang kamu pilih?"
+    },
+    {
+        "id": 477,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Bayangkan emosi sedih adalah hujan dan gembira adalah sinar matahari. Cuaca jenis apa yang sedang menaungimu?"
+    },
+    {
+        "id": 478,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Jika kehidupan sehari-harimu dibuatkan film dokumenter, apa judul utama dan genre dari film tersebut?"
+    },
+    {
+        "id": 479,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Apa yang akan dikatakannya jika meja kerjamu bisa memberi tanggapan atas caramu bekerja selama ini?"
+    },
+    {
+        "id": 480,
+        "category": "Perspektif Unik & Permainan Pikiran",
+        "prompt": "Jika masa depanmu adalah sebuah lorong waktu, pintu mana yang paling ingin kamu buka terlebih dahulu?"
+    },
+    {
+        "id": 481,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Pelajaran berharga apa yang baru kamu sadari setelah melewati salah satu hari tersulitmu belakangan ini?"
+    },
+    {
+        "id": 482,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Bagaimana caramu memaafkan diri sendiri saat rencana yang kamu susun rapi ternyata tidak berjalan sesuai harapan?"
+    },
+    {
+        "id": 483,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Sebutkan satu 'kegagalan' di masa lalu yang kini kamu syukuri karena membawamu ke arah yang lebih baik."
+    },
+    {
+        "id": 484,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Bagaimana caramu mengendalikan rasa panik atau frustrasi saat menghadapi kendala teknis dalam bekerja?"
+    },
+    {
+        "id": 485,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Apa kata-kata bijak terbaik yang pernah kamu berikan kepada dirimu sendiri saat merasa ingin menyerah?"
+    },
+    {
+        "id": 486,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Seberapa fleksibel dirimu dalam mengubah haluan (*pivoting*) saat menyadari jalan awalmu kurang tepat?"
+    },
+    {
+        "id": 487,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Siapa sosok pengkritik paling keras di dalam kepalamu, dan bagaimana caramu menjilakkannya?"
+    },
+    {
+        "id": 488,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Apa hal yang paling menguras energimu belakangan ini dan bagaimana rencana konkritmu untuk menguranginya?"
+    },
+    {
+        "id": 489,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Bagaimana caramu membangun kembali rasa percaya diri setelah mengalami penolakan atau kekecewaan?"
+    },
+    {
+        "id": 490,
+        "category": "Pelajaran dari Kesalahan & Hambatan",
+        "prompt": "Apa bukti nyata bahwa kamu sebenarnya jauh lebih tangguh dari apa yang sering kamu bayangkan?"
+    },
+    {
+        "id": 491,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Apa artinya merasa 'pulang' ke dalam diri sendiri tanpa perlu berpura-pura menjadi orang lain?"
+    },
+    {
+        "id": 492,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Bagaimana caramu menikmati momen jeda tanpa merasa bersalah karena tidak sedang bersikap produktif?"
+    },
+    {
+        "id": 493,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Sebutkan 3 sifat unik dalam dirimu yang dulu sering kamu sembunyikan, tapi kini mulai kamu rangkul dengan bangga."
+    },
+    {
+        "id": 494,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Bagaimana rasanya membiarkan perasaanmu mengalir jujur di atas kertas tanpa ada keinginan untuk mengeditnya?"
+    },
+    {
+        "id": 495,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Apa hal paling sederhana hari ini yang berhasil membuatmu menghela napas lega dan berkata 'semua akan baik-baik saja'?"
+    },
+    {
+        "id": 496,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Seberapa utuh rasa syukurmu saat menyadari bahwa keberadaanmu membawa arti positif bagi orang-orang sekitar?"
+    },
+    {
+        "id": 497,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Jika hari ini adalah satu bab dalam bukumu, kalimat penutup seperti apa yang ingin kamu sematkan di lembar ini?"
+    },
+    {
+        "id": 498,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Apa bentuk apresiasi atau 'hadiah' terbaik yang ingin kamu berikan kepada dirimu sendiri minggu ini?"
+    },
+    {
+        "id": 499,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Bagaimana caramu menjaga kehangatan dan rasa manis dalam hidup di tengah dunia yang kadang terasa terburu-buru?"
+    },
+    {
+        "id": 500,
+        "category": "Penerimaan & Keberadaan (*Being*)",
+        "prompt": "Tuliskan satu kata kunci yang ingin kamu jadikan pegangan dan kompas dalam melangkah ke depan."
+    }
+]

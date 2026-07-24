@@ -185,6 +185,13 @@ function showDashboard() {
     $("dashView").style.display = "block";
     $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
     const mw = $("mochiWidget"); if (mw) mw.classList.add("show");
+    // Teaser sekali per sesi: kabarin ada surat prompt harian dari Mochi
+    const mb = $("mochiBubble");
+    if (mb && !mb._teased) {
+        mb._teased = true;
+        mb.classList.add("show");
+        setTimeout(() => mb.classList.remove("show"), 5000);
+    }
     // Ikutin tab dari hash (biar refresh nggak balik ke tab pertama)
     activateTab((location.hash || "").replace("#", "") || "loyalty");
     // Prefetch tab lain di background pas browser idle (non-blocking) biar pindah tab instan
@@ -969,8 +976,8 @@ function buildWrappedSlides(d) {
     slides.push('<div class="wr-slide wr-blue">' +
         '<span class="wr-tape" style="top:52px;left:20px;transform:rotate(-14deg);"></span>' +
         '<span class="wr-tape w" style="bottom:76px;right:16px;transform:rotate(9deg);"></span>' +
-        '<span class="wr-stk" style="top:15%;right:11%;">✂️</span>' +
-        '<span class="wr-stk" style="bottom:24%;left:9%;">📎</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-1.png" style="width:86px;top:9%;right:6%;transform:rotate(10deg);" alt="">' +
+        '<img class="wr-imgstk" src="../images/sticker/str-5.png" style="width:76px;bottom:11%;left:5%;transform:rotate(-12deg);" alt="">' +
         '<span class="wr-stk" style="top:27%;left:13%;">🌟</span>' +
         '<div class="wr-anim wr-kicker">SEMINGGU SATU PRESENTS</div>' +
         '<div class="wr-anim wr-title wr-hero" style="--d:.08s;">My Journal<br>Wrapped ✨</div>' +
@@ -986,7 +993,7 @@ function buildWrappedSlides(d) {
     slides.push('<div class="wr-slide wr-paper">' +
         '<span class="wr-tape" style="top:56px;right:22px;transform:rotate(12deg);"></span>' +
         '<span class="wr-stk" style="top:13%;left:10%;">🎯</span>' +
-        '<span class="wr-stk" style="bottom:14%;right:9%;">✏️</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-2.png" style="width:84px;bottom:9%;right:5%;transform:rotate(9deg);" alt="">' +
         '<div class="wr-anim wr-kicker">CHALLENGE QUEST</div>' +
         '<div class="wr-anim wr-big" style="--d:.08s;">' + d.questDone + '</div>' +
         '<div class="wr-anim wr-title" style="--d:.14s;">challenge kamu selesain 🎯</div>' +
@@ -1002,7 +1009,7 @@ function buildWrappedSlides(d) {
         slides.push('<div class="wr-slide wr-yellow">' +
             '<span class="wr-tape w" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
             '<span class="wr-stk" style="top:16%;right:12%;">⚡</span>' +
-            '<span class="wr-stk" style="bottom:18%;left:10%;">🏆</span>' +
+            '<img class="wr-imgstk" src="../images/sticker/str-4.png" style="width:72px;bottom:12%;left:6%;transform:rotate(-10deg);" alt="">' +
             '<div class="wr-anim wr-kicker">POIN CHALLENGE</div>' +
             '<div class="wr-anim wr-big" style="--d:.08s;">' + d.poin + '</div>' +
             '<div class="wr-anim wr-title" style="--d:.14s;">poin terkumpul ⚡</div>' +
@@ -1018,7 +1025,7 @@ function buildWrappedSlides(d) {
     slides.push('<div class="wr-slide wr-paper">' +
         '<span class="wr-tape" style="top:58px;left:24px;transform:rotate(-12deg);"></span>' +
         '<span class="wr-stk" style="top:14%;right:10%;">🔥</span>' +
-        '<span class="wr-stk" style="bottom:15%;left:11%;">📖</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-6.png" style="width:86px;bottom:9%;left:5%;transform:rotate(-7deg);" alt="">' +
         '<div class="wr-anim wr-kicker">WEEKLY JOURNAL</div>' +
         '<div class="wr-anim wr-big" style="--d:.08s;">' + d.streak + '</div>' +
         '<div class="wr-anim wr-title" style="--d:.14s;">minggu streak beruntun 🔥</div>' +
@@ -1030,7 +1037,7 @@ function buildWrappedSlides(d) {
         slides.push('<div class="wr-slide wr-pink">' +
             '<span class="wr-tape" style="top:54px;right:24px;transform:rotate(10deg);"></span>' +
             '<span class="wr-stk" style="top:15%;left:11%;">🎪</span>' +
-            '<span class="wr-stk" style="bottom:17%;right:10%;">💌</span>' +
+            '<img class="wr-imgstk" src="../images/sticker/str-3.png" style="width:80px;bottom:10%;right:5%;transform:rotate(8deg);" alt="">' +
             '<div class="wr-anim wr-kicker">EVENT JOURNALING</div>' +
             '<div class="wr-anim wr-big" style="--d:.08s;">' + d.events + '</div>' +
             '<div class="wr-anim wr-title" style="--d:.14s;">event kamu datengin 🎪</div>' +
@@ -1041,7 +1048,7 @@ function buildWrappedSlides(d) {
     slides.push('<div class="wr-slide wr-blue">' +
         '<span class="wr-tape w" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
         '<span class="wr-stk" style="top:16%;left:12%;">💌</span>' +
-        '<span class="wr-stk" style="bottom:24%;right:11%;">🧷</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-3.png" style="width:88px;bottom:16%;right:6%;transform:rotate(8deg);" alt="">' +
         '<span class="wr-stk" style="top:24%;right:16%;">🌈</span>' +
         '<div class="wr-anim wr-title wr-hero">Keep journaling,<br>' + esc(d.nickname) + '! 💙</div>' +
         '<div class="wr-anim wr-sub" style="--d:.12s;">Cerita kecil tiap minggu bakal jadi kenangan besar. Sampai jumpa di challenge berikutnya! ✨</div>' +
@@ -1159,7 +1166,7 @@ function buildPassportSlides(s) {
         '<span class="wr-tape" style="top:52px;left:20px;transform:rotate(-14deg);"></span>' +
         '<span class="wr-tape w" style="bottom:76px;right:16px;transform:rotate(9deg);"></span>' +
         '<span class="wr-stk" style="top:15%;right:11%;">🛂</span>' +
-        '<span class="wr-stk" style="bottom:24%;left:9%;">✈️</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-6.png" style="width:88px;bottom:14%;left:5%;transform:rotate(-8deg);" alt="">' +
         '<span class="wr-stk" style="top:27%;left:13%;">📖</span>' +
         '<div class="wr-anim wr-kicker">SEMINGGU SATU PRESENTS</div>' +
         '<div class="wr-anim wr-title wr-hero" style="--d:.08s;">My Journaling<br>Passport ✨</div>' +
@@ -1170,7 +1177,7 @@ function buildPassportSlides(s) {
     slides.push('<div class="wr-slide wr-paper">' +
         '<span class="wr-tape" style="top:56px;right:22px;transform:rotate(12deg);"></span>' +
         '<span class="wr-stk" style="top:13%;left:10%;">🎪</span>' +
-        '<span class="wr-stk" style="bottom:14%;right:9%;">🧷</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-1.png" style="width:80px;bottom:9%;right:5%;transform:rotate(9deg);" alt="">' +
         '<div class="wr-anim wr-kicker">EVENTS JOINED</div>' +
         '<div class="wr-anim wr-big" style="--d:.08s;">' + s.count + '</div>' +
         '<div class="wr-anim wr-title" style="--d:.14s;">event journaling kamu datengin 🎪</div>' +
@@ -1181,7 +1188,7 @@ function buildPassportSlides(s) {
     slides.push('<div class="wr-slide wr-yellow">' +
         '<span class="wr-tape w" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
         '<span class="wr-stk" style="top:16%;right:12%;">🏅</span>' +
-        '<span class="wr-stk" style="bottom:18%;left:10%;">🌟</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-3.png" style="width:76px;bottom:11%;left:5%;transform:rotate(-9deg);" alt="">' +
         '<div class="wr-anim wr-kicker">YOUR TITLE</div>' +
         '<div class="wr-anim wr-big" style="--d:.08s;">' + s.tierEmoji + '</div>' +
         '<div class="wr-anim wr-tier" style="--d:.16s;">' + esc(s.tier) + '</div>' +
@@ -1206,7 +1213,7 @@ function buildPassportSlides(s) {
         slides.push('<div class="wr-slide wr-pink">' +
             '<span class="wr-tape" style="top:54px;' + (sl % 2 ? 'left:24px;transform:rotate(-10deg);' : 'right:24px;transform:rotate(10deg);') + '"></span>' +
             '<span class="wr-stk" style="top:13%;left:9%;">🚩</span>' +
-            '<span class="wr-stk" style="bottom:13%;right:9%;">👣</span>' +
+            '<img class="wr-imgstk" src="../images/sticker/str-5.png" style="width:72px;bottom:8%;right:4%;transform:rotate(10deg);" alt="">' +
             '<div class="wr-anim wr-kicker">YOUR JOURNALING JOURNEY' + (evs.length > PER ? " " + (sl + 1) : "") + '</div>' +
             '<div class="wr-anim wr-journey" style="--d:.12s;">' + rows + '</div>' +
             leftover +
@@ -1218,7 +1225,7 @@ function buildPassportSlides(s) {
     slides.push('<div class="wr-slide wr-paper">' +
         '<span class="wr-tape" style="top:58px;left:24px;transform:rotate(-12deg);"></span>' +
         '<span class="wr-stk" style="top:14%;right:10%;">🎁</span>' +
-        '<span class="wr-stk" style="bottom:15%;left:11%;">⭐</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-2.png" style="width:78px;bottom:9%;left:5%;transform:rotate(-8deg);" alt="">' +
         '<div class="wr-anim wr-kicker">LOYALTY CARD</div>' +
         '<div class="wr-anim wr-big" style="--d:.08s;">' + s.progress + '<span class="wr-big-sm">/' + s.target + '</span></div>' +
         '<div class="wr-anim wr-title" style="--d:.14s;">stamp terkumpul 🎁</div>' +
@@ -1231,7 +1238,7 @@ function buildPassportSlides(s) {
     slides.push('<div class="wr-slide wr-blue">' +
         '<span class="wr-tape w" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
         '<span class="wr-stk" style="top:16%;left:12%;">💌</span>' +
-        '<span class="wr-stk" style="bottom:24%;right:11%;">🧷</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-6.png" style="width:90px;bottom:15%;right:6%;transform:rotate(7deg);" alt="">' +
         '<span class="wr-stk" style="top:24%;right:16%;">🌈</span>' +
         '<div class="wr-anim wr-title wr-hero">See you at the<br>next event, ' + esc(nick) + '! 💙</div>' +
         '<div class="wr-anim wr-sub" style="--d:.12s;">Tiap halaman passport ini kita isi bareng-bareng. Sampai jumpa lagi! ✨</div>' +
@@ -2024,65 +2031,146 @@ async function loadLoyalty() {
 })();
 
 // ============================================================
-//  Mochi's Corner (maskot) — pat-pat Mochi
+//  Mochi's Corner (maskot) — pembawa surat prompt harian
 // ============================================================
 (function initMochi() {
     const wrap = $("mochiAvatar");
-    const bubble = $("mochiBubble");
-    const badge = $("mochiPatCount");
-    if (!wrap || !bubble || !badge) return;
-
-    const MOCHI_KEY = "ss_mochi_pat";
-    function today() { const d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
-    function getPats() { try { const r = JSON.parse(localStorage.getItem(MOCHI_KEY) || "{}"); return r.date === today() ? (r.count || 0) : 0; } catch (e) { return 0; } }
-    function setPats(n) { try { localStorage.setItem(MOCHI_KEY, JSON.stringify({ date: today(), count: n })); } catch (e) { } }
-
-    const quotes = [
-        "Woof! Jangan lupa bikin spread minggu ini ya! 🎨",
-        "Mochi seneng banget kamu pat-pat! 🤎",
-        "Guk guk! Jangan takut salah gunting kertas ya!",
-        "Kamu keren udah konsisten journaling! 🔥",
-        "Mochi nemenin kamu crafting hari ini~ 🐾",
-        "Pelan-pelan aja, yang penting kamu mulai ✨",
-        "Kamu udah hebat cuma dengan hadir di sini 💙"
-    ];
-    const themes = [
-        "🎨 Mochi bilang: coba tema warna coklat warm + washi tape estetik!",
-        "🎨 Tema hari ini: 'hal kecil yang bikin kamu senyum minggu ini'",
-        "🎨 Coba collage dari struk/tiket yang kamu simpan!",
-        "🎨 Tema: palet pastel + satu quote favoritmu",
-        "🎨 Gratitude spread — tulis 3 hal yang kamu syukuri",
-        "🎨 Doodle mood harian pakai 1 warna aja"
-    ];
-
-    let patCount = getPats();
-    badge.textContent = patCount;
-    let timer = null;
-
+    if (!wrap) return;
     wrap.addEventListener("click", () => {
-        patCount++; setPats(patCount); badge.textContent = patCount;
-
         const h = document.createElement("span");
         h.className = "mochi-heart";
-        h.textContent = Math.random() > 0.5 ? "💖" : "🐾";
+        h.textContent = "💌";
         h.style.left = (Math.random() * 34 + 12) + "px";
         wrap.appendChild(h);
         setTimeout(() => { if (h.parentNode) h.parentNode.removeChild(h); }, 800);
-
         wrap.style.transform = "scale(1.15) rotate(6deg)";
         setTimeout(() => { wrap.style.transform = ""; }, 150);
-
-        const isTheme = (patCount % 3 === 0);
-        const arr = isTheme ? themes : quotes;
-        bubble.textContent = arr[Math.floor(Math.random() * arr.length)];
-        bubble.classList.toggle("theme", isTheme);
-        bubble.classList.add("show");
-        if (typeof confetti === "function" && isTheme) confetti({ particleCount: 30, spread: 45, origin: { x: 0.12, y: 0.9 }, zIndex: CONFETTI_Z });
-
-        clearTimeout(timer);
-        timer = setTimeout(() => bubble.classList.remove("show"), 4500);
+        openMochiPrompt();
     });
 })();
+
+// ---------- Journaling Prompt (mystery envelope gacha, data: list_prompt.json) ----------
+let _prompts = null;
+let _mpLastId = 0;
+
+async function loadPrompts() {
+    if (_prompts) return _prompts;
+    const res = await fetch("list_prompt.json");
+    const list = await res.json();
+    if (!Array.isArray(list) || !list.length) throw new Error("daftar prompt kosong");
+    _prompts = list;
+    return list;
+}
+
+// Prompt harian: deterministik per tanggal (sehari sama terus, besok ganti — vibe gacha harian)
+function dailyPrompt(list) {
+    const d = new Date();
+    let seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    seed = (seed * 9301 + 49297) % 233280;
+    return list[seed % list.length];
+}
+
+function randomPrompt(list) {
+    const it = list[Math.floor(Math.random() * list.length)];
+    if (list.length > 1 && it.id === _mpLastId) return randomPrompt(list); // jangan dobel berturut-turut
+    return it;
+}
+
+async function openMochiPrompt() {
+    showBusy("Mochi lagi nyiapin surat…");
+    let list;
+    try { list = await loadPrompts(); }
+    catch (e) { hideBusy(); alert("Gagal ngambil daftar prompt 😢 Coba lagi ya."); return; }
+    hideBusy();
+
+    let modal = $("mochiModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "mochiModal";
+        modal.className = "mochi-modal";
+        document.body.appendChild(modal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closeMochiPrompt(); });
+    }
+    modal.innerHTML =
+        '<div class="mochi-box">' +
+        '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
+        '<img class="mp-imgstk" src="../images/sticker/str-4.png" style="width:56px;top:6px;left:8px;transform:rotate(-14deg);" alt="">' +
+        '<img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:64px;bottom:8px;left:6px;transform:rotate(-8deg);" alt="">' +
+        '<img class="mp-imgstk" src="../images/sticker/str-5.png" style="width:54px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">' +
+        '<div class="mp-head">💌 Surat dari Mochi</div>' +
+        '<div class="mp-sub">Ada prompt journaling harian buat kamu~</div>' +
+        '<div class="env-scene" id="envScene">' +
+        '<div class="envelope" id="envelope" role="button" aria-label="Buka amplop">' +
+        '<div class="env-back"></div>' +
+        '<div class="env-letter"></div>' +
+        '<div class="env-front"></div>' +
+        '<div class="env-addr">Untuk: ' + esc((_profile && _profile.nickname) || "Sahabat") + ' ✍️</div>' +
+        '<div class="env-postage"><img src="../images/mochi_maskot_sm.png" alt=""></div>' +
+        '<div class="env-flap"></div>' +
+        '<img class="env-seal" src="seal-paw.png" alt="">' +
+        '<span class="env-tape a"></span><span class="env-tape b"></span>' +
+        '<span class="env-stk s1">✂️</span><span class="env-stk s2">🌟</span><span class="env-stk s3">📎</span><span class="env-stk s4">🌈</span><span class="env-stk s5">🐾</span>' +
+        '</div>' +
+        '<div class="env-hint">ketuk amplopnya buat buka 💌</div>' +
+        '</div>' +
+        '<div class="mp-card" id="mpCard" style="display:none;">' +
+        '<img class="mp-mochi" src="../images/mochi_maskot_sm.png" alt="">' +
+        '<div class="mp-kicker" id="mpKicker"></div>' +
+        '<div><span class="mp-cat" id="mpCat"></span></div>' +
+        '<div class="mp-text" id="mpText"></div>' +
+        '<div class="mp-actions">' +
+        '<button class="mp-btn ghost" id="mpCopy">📋 Salin</button>' +
+        '<button class="mp-btn" id="mpRandom">🎲 Prompt acak lainnya</button>' +
+        '</div>' +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("mpClose").addEventListener("click", closeMochiPrompt);
+
+    const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const now = new Date();
+    function showPrompt(it, isDaily) {
+        _mpLastId = it.id;
+        $("mpKicker").textContent = isDaily
+            ? "DAILY PROMPT · " + now.getDate() + " " + MON[now.getMonth()] + " " + now.getFullYear()
+            : "RANDOM PROMPT 🎲";
+        $("mpCat").textContent = "🏷️ " + (it.category || "Journaling");
+        $("mpText").textContent = "“" + it.prompt + "”";
+        const card = $("mpCard");
+        card.classList.remove("pop");
+        void card.offsetWidth; // restart animasi pop
+        card.classList.add("pop");
+    }
+
+    // ketuk amplop -> seal copot, flap kebuka, surat naik, baru kartu prompt muncul
+    const env = $("envelope");
+    let opened = false;
+    env.addEventListener("click", () => {
+        if (opened) return;
+        opened = true;
+        env.classList.add("open");
+        if (typeof confetti === "function") setTimeout(() => confetti({ particleCount: 45, spread: 65, origin: { y: .6 }, zIndex: CONFETTI_Z }), 500);
+        setTimeout(() => {
+            $("envScene").style.display = "none";
+            $("mpCard").style.display = "block";
+            showPrompt(dailyPrompt(list), true);
+        }, 1000);
+    });
+
+    $("mpRandom").addEventListener("click", () => showPrompt(randomPrompt(list), false));
+    $("mpCopy").addEventListener("click", async () => {
+        const btn = $("mpCopy");
+        try { await navigator.clipboard.writeText($("mpText").textContent.replace(/[“”]/g, "")); btn.textContent = "✓ Tersalin"; }
+        catch (e) { btn.textContent = "Salin manual ya"; }
+        setTimeout(() => { btn.textContent = "📋 Salin"; }, 1800);
+    });
+}
+
+function closeMochiPrompt() {
+    const modal = $("mochiModal");
+    if (modal) modal.classList.remove("show");
+    unlockScroll();
+}
 
 // Tutup modal quest detail kalau klik area gelap di luar box
 (function initModals() {

@@ -1421,6 +1421,8 @@
         .wr-tape { position: absolute; width: 76px; height: 20px; background: rgba(255, 230, 0, .75); border: 1px dashed rgba(16, 36, 94, .25); box-shadow: 0 2px 4px rgba(0, 0, 0, .1); pointer-events: none; z-index: 1; }
         .wr-tape.w { background: rgba(255, 255, 255, .55); }
         .wr-stk { position: absolute; font-size: 1.7rem; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .18)); pointer-events: none; z-index: 1; }
+        /* sticker gambar (die-cut art dari images/sticker) */
+        .wr-imgstk, .mp-imgstk { position: absolute; pointer-events: none; z-index: 1; filter: drop-shadow(0 4px 7px rgba(0, 0, 0, .2)); }
 
         /* sticker chips judul challenge */
         .wr-chips { margin-top: 14px; max-width: 320px; }
@@ -2217,6 +2219,60 @@
         .mochi-bubble { max-width: 220px; background: #fff; border: 2px solid var(--ink); border-radius: 16px; padding: 10px 12px; margin-bottom: 10px; box-shadow: 0 10px 25px rgba(16, 36, 94, .18); font-size: .82rem; color: var(--ink); line-height: 1.35; font-weight: 700; display: none; position: relative; }
         .mochi-bubble.show { display: block; animation: mochiPop .25s cubic-bezier(.175, .885, .32, 1.275); }
         .mochi-bubble.theme { background: var(--yellow); }
+
+        /* ---- Mochi's Daily Prompt: modal amplop misteri (gacha surat) ---- */
+        .mochi-modal { position: fixed; inset: 0; z-index: 1300; background: rgba(16, 36, 94, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 18px 16px; }
+        .mochi-modal.show { display: flex; }
+        .mochi-box { position: relative; width: 100%; max-width: 380px; max-height: 92vh; overflow-y: auto; overflow-x: hidden; background-color: #fffdf6; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 14px 14px; border-radius: 22px; padding: 20px 18px 24px; box-shadow: 0 24px 60px rgba(0, 10, 60, .45); }
+        :root[data-theme="dark"] .mochi-box { background-color: #1b2438; background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px); }
+        .mp-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(16, 36, 94, .12); color: var(--ink); font-size: .95rem; cursor: pointer; z-index: 9; display: flex; align-items: center; justify-content: center; }
+        :root[data-theme="dark"] .mp-close { background: rgba(255, 255, 255, .14); color: #fff; }
+        .mp-head { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.25rem; color: var(--ink); text-align: center; }
+        .mp-sub { font-size: .82rem; color: var(--muted); text-align: center; margin-top: 2px; }
+
+        /* amplop kuning bersegel wax paw */
+        .env-scene { padding: 30px 0 8px; }
+        .envelope { position: relative; width: 280px; height: 186px; margin: 0 auto; cursor: pointer; filter: drop-shadow(0 16px 26px rgba(0, 30, 120, .22)); transition: transform .15s ease; }
+        .envelope:active { transform: scale(.96) rotate(-1deg); }
+        .env-back { position: absolute; inset: 0; background: #f5d800; border-radius: 12px; }
+        .env-letter { position: absolute; left: 14px; right: 14px; top: 8px; bottom: 0; background: #fffdf6; border: 1px solid #eadfbb; border-radius: 8px 8px 0 0; z-index: 2; transition: transform .8s cubic-bezier(.2, .7, .2, 1) .25s; background-image: repeating-linear-gradient(transparent, transparent 15px, rgba(16, 36, 94, .12) 16px); background-position: 0 26px; }
+        .envelope.open .env-letter { transform: translateY(-72%); }
+        .env-front { position: absolute; inset: 0; background: linear-gradient(180deg, #ffee55 0%, #ffe600 55%, #f7d800 100%); clip-path: polygon(0 30%, 50% 62%, 100% 30%, 100% 100%, 0 100%); border-radius: 12px; z-index: 3; }
+        .env-addr { position: absolute; bottom: 26px; left: 14px; right: 70px; text-align: center; z-index: 4; font-size: .78rem; font-weight: 700; font-style: italic; color: rgba(16, 36, 94, .75); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .env-postage { position: absolute; bottom: 12px; right: 14px; z-index: 4; width: 44px; height: 52px; background: #fff; border: 2px dashed rgba(16, 36, 94, .35); border-radius: 4px; padding: 3px; transform: rotate(4deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .12); }
+        .env-postage img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; border-radius: 2px; display: block; }
+        .env-flap { position: absolute; left: 0; right: 0; top: 0; height: 60%; background: linear-gradient(180deg, #ffdf00, #f2cf00); clip-path: polygon(0 0, 100% 0, 50% 100%); border-radius: 12px 12px 0 0; transform-origin: top center; z-index: 5; transition: transform .5s ease .12s; backface-visibility: hidden; }
+        .envelope.open .env-flap { transform: rotateX(180deg); z-index: 1; }
+        .env-seal { position: absolute; left: 50%; top: 56%; width: 84px; transform: translate(-50%, -50%) rotate(-4deg); z-index: 6; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .25)); }
+        .envelope.open .env-seal { animation: sealPop .75s ease forwards; }
+        @keyframes sealPop {
+            0% { transform: translate(-50%, -50%) rotate(-4deg); opacity: 1; }
+            35% { transform: translate(-50%, -72%) rotate(-14deg) scale(1.12); opacity: 1; }
+            100% { transform: translate(-30%, 90px) rotate(32deg) scale(.85); opacity: 0; }
+        }
+        .env-tape { position: absolute; width: 64px; height: 17px; border: 1px dashed rgba(16, 36, 94, .25); box-shadow: 0 2px 4px rgba(0, 0, 0, .1); z-index: 7; pointer-events: none; }
+        .env-tape.a { top: -8px; left: -14px; transform: rotate(-32deg); background: rgba(0, 70, 255, .3); }
+        .env-tape.b { bottom: -7px; left: 34%; transform: rotate(6deg); background: rgba(255, 92, 138, .42); }
+        .env-stk { position: absolute; font-size: 1.45rem; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .2)); pointer-events: none; z-index: 7; }
+        .env-stk.s1 { top: -14px; right: 22px; transform: rotate(14deg); }
+        .env-stk.s2 { top: 38%; left: -16px; transform: rotate(-12deg); }
+        .env-stk.s3 { bottom: -12px; right: -10px; transform: rotate(10deg); }
+        .env-stk.s4 { top: 30%; right: -15px; transform: rotate(8deg); }
+        .env-stk.s5 { bottom: -14px; left: 16px; transform: rotate(-8deg); }
+        .env-hint { text-align: center; margin-top: 20px; font-size: .82rem; font-weight: 700; color: var(--muted); animation: envBounce 1.4s ease-in-out infinite; }
+        @keyframes envBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+        /* kartu prompt (isi surat) */
+        .mp-card { position: relative; margin-top: 20px; background: var(--card); border: 1.5px dashed var(--line); border-radius: 16px; padding: 20px 16px 16px; transform: rotate(-.5deg); box-shadow: 0 10px 26px rgba(0, 30, 120, .12); text-align: center; }
+        .mp-card.pop { animation: wrPop .5s cubic-bezier(.2, .8, .3, 1.18); }
+        .mp-kicker { font-family: 'Outfit', sans-serif; font-size: .66rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+        .mp-cat { display: inline-block; margin-top: 10px; background: var(--yellow); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; padding: 4px 12px; border-radius: 8px; border: 1.5px dashed rgba(16, 36, 94, .3); transform: rotate(-2deg); }
+        .mp-text { margin-top: 14px; font-size: 1.02rem; font-weight: 600; line-height: 1.6; color: var(--ink); }
+        .mp-actions { display: flex; gap: 8px; margin-top: 18px; }
+        .mp-btn { flex: 1; border: none; border-radius: 12px; padding: .75rem; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .85rem; cursor: pointer; background: var(--yellow); color: var(--ink); box-shadow: 0 4px 12px rgba(255, 214, 0, .4); transition: transform .15s ease; }
+        .mp-btn:active { transform: scale(.96); }
+        .mp-btn.ghost { background: var(--bg); border: 1.5px solid var(--line); color: var(--ink); box-shadow: none; flex: 0 0 auto; padding: .75rem 1rem; }
+        .mp-mochi { position: absolute; top: -24px; right: 10px; width: 46px; height: 46px; object-fit: cover; object-position: center 20%; border-radius: 50%; border: 2.5px solid var(--yellow); transform: rotate(8deg); box-shadow: 0 6px 14px rgba(16, 36, 94, .25); background: #fff; }
         .mochi-bubble::after { content: ''; position: absolute; bottom: -7px; left: 22px; width: 12px; height: 12px; background: #fff; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg); }
         .mochi-bubble.theme::after { background: var(--yellow); }
         .mochi-heart { position: absolute; pointer-events: none; font-size: 1.2rem; animation: floatHeart .8s ease-out forwards; }
@@ -2437,12 +2493,12 @@
         </div>
     </div>
 
-    <!-- Mochi's Corner (maskot) -->
+    <!-- Mochi's Corner (maskot) — pembawa surat prompt harian -->
     <div class="mochi-widget" id="mochiWidget">
-        <div class="mochi-bubble" id="mochiBubble">🐾 Woof! Hai Sahabat Seminggu Satu!</div>
+        <div class="mochi-bubble" id="mochiBubble">💌 Ada surat prompt dari Mochi — ketuk aku!</div>
         <div class="mochi-avatar-wrap" id="mochiAvatar">
             <img class="mochi-img" src="../images/mochi_maskot_sm.png" alt="Mochi">
-            <span class="mochi-badge" id="mochiPatCount">0</span>
+            <span class="mochi-badge">💌</span>
         </div>
     </div>
 
