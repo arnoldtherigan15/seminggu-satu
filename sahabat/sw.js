@@ -2,7 +2,7 @@
 // Strategi: network-first (kode & data selalu fresh), fallback ke cache saat offline.
 // Scope = folder /sahabat/, jadi TIDAK mengintervensi request ke Apps Script (beda origin).
 
-const CACHE = "ss-sahabat-v3";
+const CACHE = "ss-sahabat-v4";
 const CORE = [
   "./index.html",
   "./main.js",
@@ -11,7 +11,7 @@ const CORE = [
   "./icon-512.png",
   "./apple-touch-icon.png",
   "./seal-paw.png",
-  "./list_prompt.json"
+  "./list_prompt.js"
 ];
 
 self.addEventListener("install", (e) => {

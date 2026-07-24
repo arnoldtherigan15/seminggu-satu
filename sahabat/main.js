@@ -2053,22 +2053,23 @@ async function loadLoyalty() {
 let _prompts = null;
 let _mpLastId = 0;
 
-async function loadPrompts() {
-    if (_prompts) return _prompts;
-    // percobaan pertama bisa kena cache basi (SW/CDN) -> retry pakai cache-buster
-    let list = null;
-    for (const url of ["list_prompt.json", "list_prompt.json?v=" + Date.now()]) {
-        try {
-            const res = await fetch(url, url.indexOf("?") >= 0 ? { cache: "reload" } : undefined);
-            if (!res.ok) continue;
-            list = await res.json();
-            if (Array.isArray(list) && list.length) break;
-            list = null;
-        } catch (e) { /* coba url berikutnya */ }
+// Prompt dimuat via <script> injection (bukan fetch) biar jalan juga di file:// lokal.
+function loadPrompts() {
+    if (_prompts) return Promise.resolve(_prompts);
+    if (Array.isArray(window.SS_PROMPTS) && window.SS_PROMPTS.length) {
+        _prompts = window.SS_PROMPTS;
+        return Promise.resolve(_prompts);
     }
-    if (!list) throw new Error("daftar prompt gagal dimuat");
-    _prompts = list;
-    return list;
+    return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "list_prompt.js";
+        s.onload = () => {
+            if (Array.isArray(window.SS_PROMPTS) && window.SS_PROMPTS.length) { _prompts = window.SS_PROMPTS; resolve(_prompts); }
+            else reject(new Error("daftar prompt kosong"));
+        };
+        s.onerror = () => reject(new Error("gagal load daftar prompt"));
+        document.body.appendChild(s);
+    });
 }
 
 // Prompt harian: deterministik per tanggal (sehari sama terus, besok ganti — vibe gacha harian)
