@@ -516,8 +516,7 @@ function qbLeftHtml(i) {
     const q = _questChallenges[i];
     const done = _questSubmitted.indexOf(q.id) >= 0;
     const stk = "str-" + ((i % 11) + 1) + ".png"; // sticker beda tiap halaman
-    return '<span class="qb-tape tl"></span>' +
-        '<span class="qb-xp">🪙 +' + questPoints(q) + ' XP</span>' +
+    return '<span class="qb-xp">🪙 +' + questPoints(q) + ' XP</span>' +
         '<div class="qb-title">' + esc(q.title) + '</div>' +
         (q.theme ? '<div class="qb-theme">🎨 ' + esc(q.theme) + '</div>' : '') +
         (q.description ? '<div class="qb-desc">' + esc(q.description) + '</div>' : '') +
@@ -538,8 +537,8 @@ function qbRightHtml(i) {
     } else {
         friends = '<div class="qb-friends empty">Jadilah yang pertama upload ✨</div>';
     }
-    return '<span class="qb-tape tr"></span>' +
-        '<div class="qb-pola">' +
+    return '<div class="qb-pola">' +
+        '<span class="qb-tape pola"></span>' +
         '<div class="qb-pola-img"><img src="' + esc(myPhoto || questImg(q)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25"></div>' +
         '<div class="qb-pola-cap">' + (myPhoto ? "karya kamu ✨" : "inspirasi spread 💡") + '</div>' +
         '</div>' +
