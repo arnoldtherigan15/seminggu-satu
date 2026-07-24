@@ -328,7 +328,7 @@ async function loadEvents() {
             const eb = (typeof isEarlyBird === "function") && isEarlyBird(w) && w.normalPrice > cur;
             badge = (cur > 0)
                 ? '<span class="ev-badge price">' + (eb ? '<s>' + kIDR(w.normalPrice) + '</s> ' : '') + kIDR(cur) + ' IDR</span>'
-                : '<span class="ev-badge open">OPEN</span>';
+                : '<span class="ev-badge open">FREE 🎉</span>';
         }
 
         let action;
