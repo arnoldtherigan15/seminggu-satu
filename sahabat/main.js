@@ -1046,7 +1046,6 @@ function buildWrappedSlides(d) {
         '<div class="wr-anim wr-title wr-hero">Keep journaling,<br>' + esc(d.nickname) + '! 💙</div>' +
         '<div class="wr-anim wr-sub" style="--d:.12s;">Cerita kecil tiap minggu bakal jadi kenangan besar. Sampai jumpa di challenge berikutnya! ✨</div>' +
         '<div class="wr-anim wr-foot" style="--d:.22s;">@seminggu_satu</div>' +
-        '<button class="wr-anim wr-done" id="wrDone" style="--d:.32s;">Tutup ✨</button>' +
         '</div>');
     return slides;
 }
@@ -1073,7 +1072,14 @@ function openWrapped() {
     const track = $("wrTrack");
     const slideEls = track.querySelectorAll(".wr-slide");
     const dotEls = modal.querySelectorAll(".wr-dot");
+    const WR_MS = 5000; // auto-next per slide; pause selama disentuh, stop di slide terakhir
     let cur = -1, burst = false;
+    function arm() {
+        clearTimeout(modal._wrTimer);
+        if (cur < slideEls.length - 1) {
+            modal._wrTimer = setTimeout(() => track.scrollBy({ left: track.clientWidth, behavior: "smooth" }), WR_MS);
+        }
+    }
     function setLive() {
         const i = Math.max(0, Math.min(slideEls.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
         if (i === cur) return;
@@ -1081,18 +1087,23 @@ function openWrapped() {
         slideEls.forEach((s, k) => s.classList.toggle("live", k === i));
         dotEls.forEach((dt, k) => dt.classList.toggle("on", k <= i));
         if (i === slideEls.length - 1 && !burst) { burst = true; fireConfetti("reward"); }
+        arm();
     }
     setLive();
     track.addEventListener("scroll", setLive, { passive: true });
+    track.addEventListener("touchstart", () => clearTimeout(modal._wrTimer), { passive: true });
+    track.addEventListener("touchend", arm, { passive: true });
     $("wrClose").addEventListener("click", closeWrapped);
-    $("wrDone").addEventListener("click", closeWrapped);
     $("wrPrev").addEventListener("click", () => track.scrollBy({ left: -track.clientWidth, behavior: "smooth" }));
     $("wrNext").addEventListener("click", () => track.scrollBy({ left: track.clientWidth, behavior: "smooth" }));
 }
 
 function closeWrapped() {
     const modal = $("wrappedModal");
-    if (modal) modal.classList.remove("show");
+    if (modal) {
+        clearTimeout(modal._wrTimer);
+        modal.classList.remove("show");
+    }
     unlockScroll();
 }
 
