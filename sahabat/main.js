@@ -579,7 +579,10 @@ function openQuestDetail(i) {
 // Form pilih foto + caption (dipakai saat submit & edit)
 function photoPickerHtml(labelText, capPlaceholder) {
     return '<div class="qm-picker">' +
-        '<label class="qm-file"><span>📷 ' + esc(labelText) + '</span>' +
+        '<label class="qm-file">' +
+        '<span class="qm-file-ic">📷</span>' +
+        '<b class="qm-file-lbl">' + esc(labelText) + '</b>' +
+        '<span class="qm-file-sub">Ketuk buat pilih foto dari galeri 🖼️</span>' +
         '<input type="file" class="qm-file-input" accept="image/*" hidden>' +
         '</label>' +
         '<div class="qm-preview" style="display:none;"><img alt=""></div>' +
@@ -590,7 +593,10 @@ function wirePhotoPicker(scope) {
     if (!scope) return;
     const input = scope.querySelector(".qm-file-input");
     const prev = scope.querySelector(".qm-preview");
-    const label = scope.querySelector(".qm-file span");
+    const file = scope.querySelector(".qm-file");
+    const ic = scope.querySelector(".qm-file-ic");
+    const lbl = scope.querySelector(".qm-file-lbl");
+    const sub = scope.querySelector(".qm-file-sub");
     if (!input) return;
     input.addEventListener("change", async () => {
         const f = input.files && input.files[0];
@@ -600,7 +606,11 @@ function wirePhotoPicker(scope) {
             const r = await compressImage(f, 1280, 0.75);
             input._photo = r;
             if (prev) { prev.style.display = "block"; prev.querySelector("img").src = r.dataUrl; }
-            if (label) label.textContent = "✓ Foto siap (ketuk buat ganti)";
+            // state sukses yang jelas: kotak jadi hijau + copy berubah
+            if (file) file.classList.add("ok");
+            if (ic) ic.textContent = "✅";
+            if (lbl) lbl.textContent = "Foto siap!";
+            if (sub) sub.textContent = "Ketuk lagi kalau mau ganti foto";
         } catch (e) { alert("Gagal proses foto: " + (e.message || "")); }
         finally { hideBusy(); }
     });
@@ -1494,15 +1504,11 @@ function openCheckinModal(wa) {
         '<div class="quest-game-title">✍️ Weekly Check-In</div>' +
         '<div class="quest-game-desc">Udah journaling minggu ini? Simpan memorinya — foto spreadnya + refleksi singkat. Fotonya bakal ada di Gallery 💙</div>' +
         photoPickerHtml("Add this week's journal photo (optional)", "Refleksi singkat minggu ini… ✨ (opsional)") +
-        '<div style="display:flex;gap:8px;margin-top:12px;">' +
-        '<button class="btn-ghost2" id="ciCancel" style="flex:0 0 auto;width:auto;">Batal</button>' +
-        '<button class="btn-primary" id="ciSave" style="flex:1;width:auto;min-width:0;">✓ Check In (+1 Streak)</button>' +
-        '</div>' +
+        '<button class="btn-primary" id="ciSave" style="margin-top:12px;">✓ Check In (+1 Streak)</button>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();
     $("qmClose").addEventListener("click", closeQuestModal);
-    $("ciCancel").addEventListener("click", closeQuestModal);
     wirePhotoPicker($("questModalBox"));
     $("ciSave").addEventListener("click", async () => {
         const box = $("questModalBox");
@@ -1632,6 +1638,7 @@ async function loadLoyalty() {
             '<div class="card-face front"><div class="card-tape a"></div><div class="card-tape b"></div>' +
             '<div class="card-bg-pattern"></div>' +
             '<div class="holo-sheen" id="cardSheen"></div>' +
+            '<img class="card-stk" src="../images/sticker/str-6.png" alt="">' +
             '<div class="card-layer card-top">' +
             '<div class="card-sticker">SS</div>' +
             '<div class="card-logo">' +
@@ -1696,7 +1703,7 @@ async function loadLoyalty() {
             '</div>' +
             '<div class="tier"><div class="em">' + p.emoji + '</div><div><div class="t">' + esc(p.title) + '</div><div class="d">' + esc(p.tag) + '</div></div></div>' +
             '<div class="card"><div class="section-lbl">Loyalty Card 🎁</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>' +
-            '<button class="btn-primary" id="btnPassport">🛂 Open Full Passport →</button>';
+            '<button class="btn-primary" id="btnPassport">Open Full Passport</button>';
 
         $("btnPassport").addEventListener("click", openPassport);
         init3DCardListeners();

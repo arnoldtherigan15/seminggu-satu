@@ -1072,7 +1072,18 @@
 
         /* ---- Photo picker + caption (di modal quest) ---- */
         .qm-picker { margin-top: 6px; }
-        .qm-file { display: flex; align-items: center; justify-content: center; gap: 8px; padding: .7rem; border: 1.5px dashed var(--line); border-radius: 12px; background: var(--bg); color: var(--blue); font-weight: 700; font-size: .86rem; cursor: pointer; text-align: center; }
+        /* Dropzone foto: harus kebaca "bisa diketuk" — border dashed biru, tint biru,
+           ikon gede + label aksi tebal + sub-teks perintah, dan state sukses hijau */
+        .qm-file { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 1.1rem 1rem; border: 2px dashed var(--blue); border-radius: 14px; background: rgba(0, 70, 255, .05); color: var(--ink); cursor: pointer; text-align: center; transition: background .2s ease, transform .15s ease, border-color .2s ease; }
+        .qm-file:hover { background: rgba(0, 70, 255, .1); }
+        .qm-file:active { transform: scale(.98); }
+        .qm-file-ic { font-size: 1.8rem; line-height: 1; }
+        .qm-file-lbl { font-family: 'Outfit', sans-serif; font-size: .92rem; color: var(--blue); }
+        .qm-file-sub { font-size: .76rem; color: var(--muted); }
+        .qm-file.ok { border-color: #22c55e; border-style: solid; background: rgba(34, 197, 94, .08); }
+        .qm-file.ok .qm-file-lbl { color: #0a7a3d; }
+        :root[data-theme="dark"] .qm-file { background: rgba(91, 140, 255, .1); }
+        :root[data-theme="dark"] .qm-file.ok { background: rgba(34, 197, 94, .14); }
         .qm-file:active { transform: scale(.98); }
         .qm-preview { margin-top: 8px; }
         .qm-preview img { width: 100%; border-radius: 12px; display: block; }
@@ -1883,6 +1894,8 @@
         /* Fallback iOS: backface-visibility kadang gagal (efek glass) -> paksa
            sembunyiin sisi yang nggak aktif pakai opacity, jadi nggak nembus/kebalik */
         .card-face { transition: opacity 0.2s ease 0.18s; }
+        /* sticker anjing-lebah nempel di kanan kartu (agak ke tengah) */
+        .card-stk { position: absolute; right: 10px; top: 38%; width: 62px; transform: rotate(12deg); z-index: 3; pointer-events: none; filter: drop-shadow(0 4px 7px rgba(16, 36, 94, .28)); }
         .member-card-3d .card-face.back { opacity: 0; }
         .member-card-3d.is-flipped .card-face.front { opacity: 0; }
         .member-card-3d.is-flipped .card-face.back { opacity: 1; }
