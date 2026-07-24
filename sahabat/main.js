@@ -609,7 +609,8 @@ function renderQuestBook(host) {
 
     function setLeaf(deg, animate) {
         leaf.style.transition = animate ? "transform .65s cubic-bezier(.35,.1,.25,1)" : "none";
-        leaf.style.transform = "rotateY(" + deg + "deg)";
+        // translateZ tipis: leaf selalu sedikit di depan halaman statis, nggak z-fighting pas sejajar
+        leaf.style.transform = "translateZ(.5px) rotateY(" + deg + "deg)";
     }
     function flip(dir) { // 1 = maju, -1 = mundur
         if (anim) return;
@@ -620,27 +621,29 @@ function renderQuestBook(host) {
             return;
         }
         anim = true;
-        leaf.style.display = "block";
         if (dir === 1) {
             front.innerHTML = qbRightHtml(_qbCur); // muka depan leaf = halaman kanan sekarang
             back.innerHTML = qbLeftHtml(j);        // baliknya = halaman kiri berikutnya
             rightP.innerHTML = qbRightHtml(j);     // di bawah leaf udah nunggu halaman baru
-            setLeaf(0, false);
-            void leaf.offsetWidth;
-            setLeaf(-180, true);
         } else {
             front.innerHTML = qbRightHtml(j);
             back.innerHTML = qbLeftHtml(_qbCur);
             leftP.innerHTML = qbLeftHtml(j);
-            setLeaf(-180, false);
-            void leaf.offsetWidth;
-            setLeaf(0, true);
         }
-        setTimeout(() => {
-            leaf.style.display = "none";
-            setPages(j);
-            anim = false;
-        }, 680);
+        // Posisi awal dipasang SELAGI leaf masih hidden, di-commit dulu (reflow +
+        // double rAF), baru transisi jalan — kalau nggak, pas back leaf sempat
+        // ke-paint di posisi depan (0°) sekejap sebelum lompat ke -180°.
+        setLeaf(dir === 1 ? 0 : -180, false);
+        leaf.style.display = "block";
+        void leaf.offsetWidth;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            setLeaf(dir === 1 ? -180 : 0, true);
+            setTimeout(() => {
+                leaf.style.display = "none";
+                setPages(j);
+                anim = false;
+            }, 680);
+        }));
     }
 
     setPages(_qbCur);
