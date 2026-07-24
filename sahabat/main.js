@@ -288,12 +288,24 @@ function activateTab(pane) {
     const el = $("pane-" + pane); if (el) el.classList.add("active");
     window.scrollTo(0, 0); // pindah tab = mulai dari atas, jangan bawa posisi scroll tab sebelumnya
     const dt = $("dashTop"); if (dt) dt.style.display = (pane === "loyalty") ? "" : "none";
+    // Sesi belum keverifikasi (_profile kosong)? Loader butuh profil -> tampilkan
+    // skeleton dulu; nanti showDashboard() manggil activateTab lagi pas sesi valid.
+    if (!_profile) { renderPaneSkeleton(pane); return; }
     if (pane === "loyalty") loadLoyalty();
     if (pane === "events") loadEvents();
     if (pane === "rec") loadRec();
     if (pane === "quest") loadQuests();
     if (pane === "rank") loadLeaderboard();
     if (pane === "gallery") loadGallery();
+}
+
+function renderPaneSkeleton(pane) {
+    if (pane === "loyalty") { const l = $("loyaltyLoading"); if (l) l.style.display = "none"; $("loyaltyContent").innerHTML = skeletonLoyalty(); }
+    else if (pane === "events") $("pane-events").innerHTML = skeletonEvents();
+    else if (pane === "quest") $("pane-quest").innerHTML = skeletonQuest();
+    else if (pane === "rank") { const l = $("lbLoading"); if (l) l.style.display = "none"; $("lbContent").innerHTML = skeletonRank(); }
+    else if (pane === "gallery") $("pane-gallery").innerHTML = skeletonGallery();
+    else if (pane === "rec") loadRec(); // rekomendasi dari config lokal, nggak butuh profil
 }
 document.querySelectorAll(".tab").forEach(t => {
     t.addEventListener("click", () => {
@@ -2063,7 +2075,13 @@ async function loadLoyalty() {
     let token = "";
     try { token = localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { }
     if (!token || !GS) { showAuth(); return; }   // nggak ada sesi -> langsung form login
-    // Ada token -> boot loader tetap tampil sampai verifikasi selesai
+    // Ada token -> optimis: langsung tampilkan shell dashboard (menu + skeleton),
+    // verifikasi sesi jalan di belakang — nggak ada blocker "cek sesi" lagi
+    hideBoot();
+    $("authView").style.display = "none";
+    $("dashView").style.display = "block";
+    $("dashHi").textContent = "Hai! 👋";
+    activateTab((location.hash || "").replace("#", "") || "loyalty"); // _profile masih kosong -> skeleton
     try {
         const r = await apiPost({ action: "memberSession", token: token });
         if (r.status === "success") { onAuthSuccess(r); }
