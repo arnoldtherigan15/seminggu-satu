@@ -1051,7 +1051,15 @@ function buildWrappedSlides(d) {
 }
 
 function openWrapped() {
-    const d = wrappedData();
+    showWrapped(buildWrappedSlides(wrappedData()), {
+        filename: "my-summary-seminggu-satu.png",
+        text: "My Journal Wrapped ✨ @seminggu_satu"
+    });
+}
+
+// Engine slider wrapped (dipakai My Summary & Passport): scroll-snap + dots +
+// auto-next + tombol share IG per slide.
+function showWrapped(slides, shareMeta) {
     let modal = $("wrappedModal");
     if (!modal) {
         modal = document.createElement("div");
@@ -1059,7 +1067,9 @@ function openWrapped() {
         modal.className = "wrapped-modal";
         document.body.appendChild(modal);
     }
-    const slides = buildWrappedSlides(d);
+    // selipin tombol share di akhir tiap slide
+    const SHARE_BTN = '<button class="wr-share wr-anim" style="--d:.45s;" data-wrshare>📸 Share to IG Story</button>';
+    slides = slides.map(s => s.replace(/<\/div>$/, SHARE_BTN + "</div>"));
     let dots = "";
     slides.forEach((_, i) => { dots += '<span class="wr-dot' + (i === 0 ? " on" : "") + '"></span>'; });
     modal.innerHTML =
@@ -1096,6 +1106,31 @@ function openWrapped() {
     $("wrClose").addEventListener("click", closeWrapped);
     $("wrPrev").addEventListener("click", () => track.scrollBy({ left: -track.clientWidth, behavior: "smooth" }));
     $("wrNext").addEventListener("click", () => track.scrollBy({ left: track.clientWidth, behavior: "smooth" }));
+    modal.querySelectorAll("[data-wrshare]").forEach((b, i) =>
+        b.addEventListener("click", () => shareWrappedSlide(slideEls[i], i, shareMeta || {})));
+}
+
+// Share satu slide wrapped -> PNG 1080x1920 (clone 360x640 di-render scale 3)
+async function shareWrappedSlide(slideEl, idx, meta) {
+    const modal = $("wrappedModal");
+    if (modal) clearTimeout(modal._wrTimer); // jangan auto-next pas lagi nge-share
+    showBusy("Menyiapkan gambar…");
+    const clone = slideEl.cloneNode(true);
+    clone.classList.add("export", "live");
+    clone.style.position = "fixed"; clone.style.left = "-10000px"; clone.style.top = "0";
+    document.body.appendChild(clone);
+    try {
+        const blob = await renderCardToBlob(clone, { width: 360, height: 640, windowWidth: 360, windowHeight: 640 });
+        const fname = String(meta.filename || "wrapped-seminggu-satu.png").replace(".png", "-" + (idx + 1) + ".png");
+        await shareOrDownloadImage(blob, fname,
+            meta.text || "Journal Wrapped ✨ @seminggu_satu",
+            "Gambar ke-download 📥 — upload ke IG Story ya!");
+    } catch (e) {
+        if (!(e && e.name === "AbortError")) alert("Gagal bikin gambar" + (e && e.message ? " (" + e.message + ")" : "") + ". Coba lagi ya.");
+    } finally {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        hideBusy();
+    }
 }
 
 function closeWrapped() {
@@ -1105,6 +1140,104 @@ function closeWrapped() {
         modal.classList.remove("show");
     }
     unlockScroll();
+}
+
+// ---------- Passport Wrapped (pengganti halaman /loyalty dari Member Hub) ----------
+function openPassport() {
+    if (!_loyaltyStats) return; // tombolnya cuma ada setelah loadLoyalty sukses
+    showWrapped(buildPassportSlides(_loyaltyStats), {
+        filename: "passport-seminggu-satu.png",
+        text: "My Journaling Passport ✨ @seminggu_satu"
+    });
+}
+
+function buildPassportSlides(s) {
+    const nick = _profile.nickname || "Sahabat";
+    const slides = [];
+    // 1) Cover
+    slides.push('<div class="wr-slide wr-blue">' +
+        '<span class="wr-tape" style="top:52px;left:20px;transform:rotate(-14deg);"></span>' +
+        '<span class="wr-tape w" style="bottom:76px;right:16px;transform:rotate(9deg);"></span>' +
+        '<span class="wr-stk" style="top:15%;right:11%;">🛂</span>' +
+        '<span class="wr-stk" style="bottom:24%;left:9%;">✈️</span>' +
+        '<span class="wr-stk" style="top:27%;left:13%;">📖</span>' +
+        '<div class="wr-anim wr-kicker">SEMINGGU SATU PRESENTS</div>' +
+        '<div class="wr-anim wr-title wr-hero" style="--d:.08s;">My Journaling<br>Passport ✨</div>' +
+        '<div class="wr-anim wr-sub" style="--d:.16s;">Jejak petualangan journaling-mu, ' + esc(nick) + ' 💙</div>' +
+        '<div class="wr-anim wr-hint" style="--d:.3s;">geser ke kiri buat mulai →</div>' +
+        '</div>');
+    // 2) Events joined
+    slides.push('<div class="wr-slide wr-paper">' +
+        '<span class="wr-tape" style="top:56px;right:22px;transform:rotate(12deg);"></span>' +
+        '<span class="wr-stk" style="top:13%;left:10%;">🎪</span>' +
+        '<span class="wr-stk" style="bottom:14%;right:9%;">🧷</span>' +
+        '<div class="wr-anim wr-kicker">EVENTS JOINED</div>' +
+        '<div class="wr-anim wr-big" style="--d:.08s;">' + s.count + '</div>' +
+        '<div class="wr-anim wr-title" style="--d:.14s;">event journaling kamu datengin 🎪</div>' +
+        (s.since ? '<div class="wr-anim wr-sub" style="--d:.2s;">member sejak <b>' + s.since + '</b> 🌱</div>' : '') +
+        (s.uniqueWs > 1 ? '<div class="wr-anim wr-chips" style="--d:.28s;"><span class="wr-chip">' + s.uniqueWs + ' tema beda dijelajahi 🗺️</span></div>' : '') +
+        '</div>');
+    // 3) Tier persona
+    slides.push('<div class="wr-slide wr-yellow">' +
+        '<span class="wr-tape w" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
+        '<span class="wr-stk" style="top:16%;right:12%;">🏅</span>' +
+        '<span class="wr-stk" style="bottom:18%;left:10%;">🌟</span>' +
+        '<div class="wr-anim wr-kicker">YOUR TITLE</div>' +
+        '<div class="wr-anim wr-big" style="--d:.08s;">' + s.tierEmoji + '</div>' +
+        '<div class="wr-anim wr-tier" style="--d:.16s;">' + esc(s.tier) + '</div>' +
+        '<div class="wr-anim wr-sub" style="--d:.24s;">' + esc(s.tierTag) + '</div>' +
+        '<div class="wr-anim wr-chips" style="--d:.32s;"><span class="wr-chip">🎖️ ' + esc(s.trait) + '</span></div>' +
+        '</div>');
+    // 4+) Your Journaling Journey: 6 event per slide, max 2 slide (12), sisanya dirangkum
+    const evs = s.events || [];
+    const PER = 6, MAXSLIDE = 2;
+    for (let sl = 0; sl < Math.min(MAXSLIDE, Math.ceil(evs.length / PER)); sl++) {
+        const chunk = evs.slice(sl * PER, sl * PER + PER);
+        let rows = "";
+        chunk.forEach((e, k) => {
+            const when = e.eventDate || e.label || e.date || "";
+            rows += '<div class="wr-jrow"><span class="n">' + (sl * PER + k + 1) + '</span>' +
+                '<span class="nm">' + esc(e.name) + '</span>' +
+                (when ? '<span class="dt">' + esc(when) + '</span>' : '') + '</div>';
+        });
+        const leftover = (sl === MAXSLIDE - 1 && evs.length > MAXSLIDE * PER)
+            ? '<div class="wr-anim wr-chips" style="--d:.4s;"><span class="wr-chip">+' + (evs.length - MAXSLIDE * PER) + ' event lainnya ✨</span></div>'
+            : '';
+        slides.push('<div class="wr-slide wr-pink">' +
+            '<span class="wr-tape" style="top:54px;' + (sl % 2 ? 'left:24px;transform:rotate(-10deg);' : 'right:24px;transform:rotate(10deg);') + '"></span>' +
+            '<span class="wr-stk" style="top:13%;left:9%;">🚩</span>' +
+            '<span class="wr-stk" style="bottom:13%;right:9%;">👣</span>' +
+            '<div class="wr-anim wr-kicker">YOUR JOURNALING JOURNEY' + (evs.length > PER ? " " + (sl + 1) : "") + '</div>' +
+            '<div class="wr-anim wr-journey" style="--d:.12s;">' + rows + '</div>' +
+            leftover +
+            '</div>');
+    }
+    // 5) Loyalty card stamps
+    let st = "";
+    for (let i = 0; i < s.target; i++) st += '<span class="wr-stamp star' + (i < s.progress ? " on" : "") + '">' + (i < s.progress ? "★" : "") + '</span>';
+    slides.push('<div class="wr-slide wr-paper">' +
+        '<span class="wr-tape" style="top:58px;left:24px;transform:rotate(-12deg);"></span>' +
+        '<span class="wr-stk" style="top:14%;right:10%;">🎁</span>' +
+        '<span class="wr-stk" style="bottom:15%;left:11%;">⭐</span>' +
+        '<div class="wr-anim wr-kicker">LOYALTY CARD</div>' +
+        '<div class="wr-anim wr-big" style="--d:.08s;">' + s.progress + '<span class="wr-big-sm">/' + s.target + '</span></div>' +
+        '<div class="wr-anim wr-title" style="--d:.14s;">stamp terkumpul 🎁</div>' +
+        '<div class="wr-anim wr-stamps" style="--d:.22s;">' + st + '</div>' +
+        (s.eligible
+            ? '<div class="wr-anim wr-stamp5" style="--d:.32s;">HADIAH GRATIS! 🎉</div>'
+            : (s.count ? '<div class="wr-anim wr-sub" style="--d:.32s;"><b>' + Math.max(0, s.target - s.progress) + ' event lagi</b> buat hadiah gratis 🎁</div>' : '')) +
+        '</div>');
+    // 6) Outro
+    slides.push('<div class="wr-slide wr-blue">' +
+        '<span class="wr-tape w" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
+        '<span class="wr-stk" style="top:16%;left:12%;">💌</span>' +
+        '<span class="wr-stk" style="bottom:24%;right:11%;">🧷</span>' +
+        '<span class="wr-stk" style="top:24%;right:16%;">🌈</span>' +
+        '<div class="wr-anim wr-title wr-hero">See you at the<br>next event, ' + esc(nick) + '! 💙</div>' +
+        '<div class="wr-anim wr-sub" style="--d:.12s;">Tiap halaman passport ini kita isi bareng-bareng. Sampai jumpa lagi! ✨</div>' +
+        '<div class="wr-anim wr-foot" style="--d:.22s;">@seminggu_satu</div>' +
+        '</div>');
+    return slides;
 }
 
 function persona(count) {
@@ -1466,7 +1599,17 @@ async function loadLoyalty() {
         }
         const count = d.count || 0, target = d.target || 6, progress = d.progress || 0;
         const p = persona(count);
-        _loyaltyStats = { count: count, tier: p.title, tierEmoji: p.emoji }; // buat My Summary (wrapped)
+        // buat My Summary + Passport Wrapped
+        const evList = d.events || [];
+        const uniqueWs = (function () { const s = {}; evList.forEach(e => { s[e.name] = 1; }); return Object.keys(s).length; })();
+        const years = evList.map(e => { const m = String(e.date || "").match(/(\d{4})$/); return m ? Number(m[1]) : null; }).filter(Boolean);
+        _loyaltyStats = {
+            count: count, target: target, progress: progress, eligible: !!d.eligible,
+            tier: p.title, tierEmoji: p.emoji, tierTag: p.tag,
+            trait: uniqueWs >= 3 ? "Sang Penjelajah" : (count >= 3 ? "Si Paling Setia" : "Pencari Inspirasi"),
+            events: evList, uniqueWs: uniqueWs,
+            since: years.length ? Math.min.apply(null, years) : null
+        };
         const toGo = Math.max(0, target - progress);
         let stamps = "";
         for (let i = 0; i < target; i++) stamps += '<div class="stamp' + (i < progress ? ' on' : '') + '">' + (i < progress ? '★' : '') + '</div>';
@@ -1546,8 +1689,9 @@ async function loadLoyalty() {
             '</div>' +
             '<div class="tier"><div class="em">' + p.emoji + '</div><div><div class="t">' + esc(p.title) + '</div><div class="d">' + esc(p.tag) + '</div></div></div>' +
             '<div class="card"><div class="section-lbl">Loyalty Card 🎁</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>' +
-            '<a class="btn-primary" href="../loyalty/?wa=' + encodeURIComponent(_profile.wa) + '&from=member">Open Full Passport →</a>';
+            '<button class="btn-primary" id="btnPassport">🛂 Open Full Passport →</button>';
 
+        $("btnPassport").addEventListener("click", openPassport);
         init3DCardListeners();
         initJournalTrackerListeners(_profile.wa);
         if (bday) { wireBirthday(bday); fireConfetti("reward"); }
