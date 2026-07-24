@@ -1048,7 +1048,7 @@ function buildWrappedSlides(d) {
     slides.push('<div class="wr-slide wr-blue">' +
         '<span class="wr-tape w" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
         '<span class="wr-stk" style="top:16%;left:12%;">💌</span>' +
-        '<img class="wr-imgstk" src="../images/sticker/str-3.png" style="width:88px;bottom:16%;right:6%;transform:rotate(8deg);" alt="">' +
+        '<img class="wr-imgstk" src="../images/sticker/str-7.png" style="width:88px;bottom:16%;right:6%;transform:rotate(8deg);" alt="">' +
         '<span class="wr-stk" style="top:24%;right:16%;">🌈</span>' +
         '<div class="wr-anim wr-title wr-hero">Keep journaling,<br>' + esc(d.nickname) + '! 💙</div>' +
         '<div class="wr-anim wr-sub" style="--d:.12s;">Cerita kecil tiap minggu bakal jadi kenangan besar. Sampai jumpa di challenge berikutnya! ✨</div>' +
@@ -1238,7 +1238,7 @@ function buildPassportSlides(s) {
     slides.push('<div class="wr-slide wr-blue">' +
         '<span class="wr-tape w" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
         '<span class="wr-stk" style="top:16%;left:12%;">💌</span>' +
-        '<img class="wr-imgstk" src="../images/sticker/str-6.png" style="width:90px;bottom:15%;right:6%;transform:rotate(7deg);" alt="">' +
+        '<img class="wr-imgstk" src="../images/sticker/str-8.png" style="width:90px;bottom:15%;right:6%;transform:rotate(7deg);" alt="">' +
         '<span class="wr-stk" style="top:24%;right:16%;">🌈</span>' +
         '<div class="wr-anim wr-title wr-hero">See you at the<br>next event, ' + esc(nick) + '! 💙</div>' +
         '<div class="wr-anim wr-sub" style="--d:.12s;">Tiap halaman passport ini kita isi bareng-bareng. Sampai jumpa lagi! ✨</div>' +
@@ -2104,9 +2104,9 @@ async function openMochiPrompt() {
     modal.innerHTML =
         '<div class="mochi-box">' +
         '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
-        '<img class="mp-imgstk" src="../images/sticker/str-4.png" style="width:56px;top:6px;left:8px;transform:rotate(-14deg);" alt="">' +
-        '<img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:64px;bottom:8px;left:6px;transform:rotate(-8deg);" alt="">' +
-        '<img class="mp-imgstk" src="../images/sticker/str-5.png" style="width:54px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">' +
+        '<img class="mp-imgstk" src="../images/sticker/str-9.png" style="width:62px;top:6px;left:8px;transform:rotate(-14deg);" alt="">' +
+        '<img class="mp-imgstk" src="../images/sticker/str-10.png" style="width:62px;bottom:8px;left:6px;transform:rotate(-8deg);" alt="">' +
+        '<img class="mp-imgstk" src="../images/sticker/str-11.png" style="width:58px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">' +
         '<div class="mp-head">💌 Surat dari Mochi</div>' +
         '<div class="mp-sub">Ada prompt journaling harian buat kamu~</div>' +
         '<div class="env-scene" id="envScene">' +
