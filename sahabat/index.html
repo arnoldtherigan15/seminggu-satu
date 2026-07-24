@@ -99,11 +99,16 @@
 
         body {
             font-family: 'Open Sans', sans-serif;
-            background: var(--bg);
+            /* kertas bullet journal: dot-grid halus di seluruh halaman */
+            background-color: var(--bg);
+            background-image: radial-gradient(rgba(16, 36, 94, .055) 1px, transparent 1.2px);
+            background-size: 18px 18px;
             color: var(--ink);
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
+
+        :root[data-theme="dark"] body { background-image: radial-gradient(rgba(255, 255, 255, .045) 1px, transparent 1.2px); }
 
         .wrap {
             max-width: 480px;
@@ -486,12 +491,17 @@
         }
 
         .card {
-            background: var(--card);
+            /* kartu = kertas dotted lembut (tekstur super tipis, nggak ganggu teks) */
+            background-color: var(--card);
+            background-image: radial-gradient(rgba(16, 36, 94, .05) 1px, transparent 1.2px);
+            background-size: 13px 13px;
             border: 1px solid var(--line);
             border-radius: 16px;
             padding: 1.25rem;
             margin-bottom: 1rem;
         }
+
+        :root[data-theme="dark"] .card { background-image: radial-gradient(rgba(255, 255, 255, .04) 1px, transparent 1.2px); }
 
         .stat-cards {
             display: grid;
@@ -942,12 +952,15 @@
 
         /* ---- Event item ---- */
         /* ---- Events: tiket event ala scrapbook ---- */
-        .ev { position: relative; background: var(--card); border: 1.5px dashed var(--line); border-radius: 16px; padding: 1.15rem 1.2rem 1rem; margin-bottom: 1.15rem; transition: transform .25s cubic-bezier(.175, .885, .32, 1.275), box-shadow .25s ease; }
+        /* Kartu event = sobekan kertas (torn paper): tanpa border lurus, tepi atas-bawah
+           digunting acak via clip-path, shadow pakai drop-shadow biar ngikutin sobekannya */
+        .ev { position: relative; background-color: var(--card); background-image: radial-gradient(rgba(16, 36, 94, .05) 1px, transparent 1.2px); background-size: 13px 13px; border: none; padding: 1.4rem 1.2rem 1.25rem; margin-bottom: 1.15rem; transition: transform .25s cubic-bezier(.175, .885, .32, 1.275), filter .25s ease; filter: drop-shadow(0 5px 10px rgba(0, 30, 120, .1)); clip-path: polygon(0 7px, 6% 3px, 12% 8px, 19% 2px, 26% 6px, 33% 1px, 40% 7px, 47% 3px, 54% 8px, 61% 2px, 68% 6px, 75% 1px, 82% 7px, 89% 3px, 96% 8px, 100% 4px, 100% calc(100% - 6px), 94% calc(100% - 2px), 87% calc(100% - 8px), 80% calc(100% - 3px), 73% calc(100% - 7px), 66% calc(100% - 1px), 59% calc(100% - 6px), 52% calc(100% - 2px), 45% calc(100% - 8px), 38% calc(100% - 3px), 31% calc(100% - 7px), 24% calc(100% - 2px), 17% calc(100% - 6px), 10% calc(100% - 3px), 4% calc(100% - 8px), 0 calc(100% - 4px)); }
+        :root[data-theme="dark"] .ev { background-image: radial-gradient(rgba(255, 255, 255, .04) 1px, transparent 1.2px); }
         .ev:nth-child(odd) { transform: rotate(-.4deg); }
         .ev:nth-child(even) { transform: rotate(.4deg); }
-        .ev:hover { transform: translateY(-3px) rotate(0deg); box-shadow: 0 10px 22px rgba(0, 70, 255, .12); }
-        /* washi tape kecil selang-seling */
-        .ev::before { content: ''; position: absolute; top: -7px; width: 44px; height: 13px; background: rgba(255, 230, 0, .62); border: 1px dashed rgba(16, 36, 94, .2); box-shadow: 0 2px 4px rgba(0, 0, 0, .05); }
+        .ev:hover { transform: translateY(-3px) rotate(0deg); filter: drop-shadow(0 12px 18px rgba(0, 70, 255, .16)); }
+        /* washi tape kecil selang-seling (di dalam tepi sobekan) */
+        .ev::before { content: ''; position: absolute; top: 8px; width: 44px; height: 13px; background: rgba(255, 230, 0, .62); border: 1px dashed rgba(16, 36, 94, .2); box-shadow: 0 2px 4px rgba(0, 0, 0, .05); }
         .ev:nth-child(odd)::before { left: 16px; transform: rotate(-4deg); }
         .ev:nth-child(even)::before { right: 16px; transform: rotate(4deg); background: rgba(0, 146, 255, .3); }
         .ev-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
@@ -1633,9 +1646,19 @@
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--muted);
+            color: var(--ink);
             margin: 0.2rem 0 0.7rem;
+            /* coretan stabilo kuning miring di belakang judul, khas journal */
+            width: fit-content;
+            padding: 0 8px;
+            transform: rotate(-.6deg);
+            background-image: linear-gradient(100deg, transparent 2%, rgba(255, 230, 0, .55) 7%, rgba(255, 230, 0, .55) 93%, transparent 98%);
+            background-size: 100% .72em;
+            background-repeat: no-repeat;
+            background-position: 0 68%;
         }
+
+        :root[data-theme="dark"] .section-lbl { background-image: linear-gradient(100deg, transparent 2%, rgba(255, 230, 0, .26) 7%, rgba(255, 230, 0, .26) 93%, transparent 98%); }
 
         .spinner {
             text-align: center;
