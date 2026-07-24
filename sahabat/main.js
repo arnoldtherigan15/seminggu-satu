@@ -51,6 +51,48 @@ function hideBusy() {
     if (o) o.classList.remove("show");
 }
 
+// ---------- Skeleton shimmer per section (pengganti spinner bulat) ----------
+// Bentuknya ngikutin layout kontennya biar transisi loading -> isi kerasa mulus.
+function skEl(style) { return '<div class="sk" style="' + style + '"></div>'; }
+
+function skeletonEvents() {
+    const card = '<div class="sk-card">' +
+        skEl("width:60%;height:16px;") +
+        skEl("width:42%;height:12px;margin-top:10px;") +
+        skEl("width:100%;height:44px;margin-top:14px;border-radius:13px;") +
+        '</div>';
+    return skEl("width:150px;height:16px;margin-bottom:14px;") + card + card + card;
+}
+
+function skeletonLoyalty() {
+    return '<div class="sk-card">' + skEl("width:55%;height:16px;") +
+        '<div style="display:flex;gap:8px;margin-top:14px;">' + skEl("flex:1;height:64px;") + skEl("flex:1;height:64px;") + skEl("flex:1;height:64px;") + skEl("flex:1;height:64px;") + '</div>' +
+        skEl("width:100%;height:44px;margin-top:14px;border-radius:13px;") + '</div>' +
+        skEl("width:100%;height:210px;border-radius:22px;margin-bottom:14px;") +
+        '<div style="display:flex;gap:10px;margin-bottom:14px;">' + skEl("flex:1;height:90px;border-radius:16px;") + skEl("flex:1;height:90px;border-radius:16px;") + '</div>' +
+        '<div class="sk-card">' + skEl("width:40%;height:14px;") + skEl("width:100%;height:40px;margin-top:12px;") + '</div>';
+}
+
+function skeletonRank() {
+    const row = skEl("width:100%;height:46px;border-radius:14px;margin-top:10px;");
+    return '<div style="display:flex;gap:8px;margin-bottom:12px;">' + skEl("width:110px;height:34px;border-radius:999px;") + skEl("width:130px;height:34px;border-radius:999px;") + '</div>' +
+        '<div class="sk-card">' + skEl("width:50%;height:18px;margin:0 auto;") + row + row + row + row + row + '</div>';
+}
+
+function skeletonGallery() {
+    const ava = skEl("width:64px;height:64px;border-radius:50%;flex:0 0 auto;");
+    const col = (a, b, c) => '<div style="flex:1;display:flex;flex-direction:column;gap:12px;">' + skEl("height:" + a + "px;border-radius:14px;") + skEl("height:" + b + "px;border-radius:14px;") + skEl("height:" + c + "px;border-radius:14px;") + '</div>';
+    return '<div style="display:flex;gap:14px;margin-bottom:16px;overflow:hidden;">' + ava + ava + ava + ava + ava + '</div>' +
+        '<div style="display:flex;gap:8px;margin-bottom:14px;">' + skEl("width:70px;height:32px;border-radius:999px;") + skEl("width:84px;height:32px;border-radius:999px;") + skEl("width:104px;height:32px;border-radius:999px;") + '</div>' +
+        '<div style="display:flex;gap:12px;">' + col(190, 150, 170) + col(150, 190, 140) + '</div>';
+}
+
+function skeletonQuest() {
+    return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' + skEl("width:130px;height:18px;") + skEl("width:110px;height:34px;border-radius:12px;") + '</div>' +
+        skEl("width:100%;height:336px;border-radius:16px;") +
+        '<div style="display:flex;gap:14px;justify-content:center;margin-top:16px;">' + skEl("width:38px;height:38px;border-radius:50%;") + skEl("width:52px;height:20px;align-self:center;") + skEl("width:38px;height:38px;border-radius:50%;") + '</div>';
+}
+
 function setMsg(text, isErr) {
     const m = $("authMsg");
     m.className = "auth-msg" + (isErr ? " err" : "");
@@ -273,7 +315,7 @@ async function loadEvents() {
     const _ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
     // Config belum masuk -> tunggu event, render ulang sekali
     if (!_ws.length) {
-        pane.innerHTML = '<div class="spinner"><div class="ring"></div></div>';
+        pane.innerHTML = skeletonEvents();
         window.addEventListener("workshops:updated", function once() {
             window.removeEventListener("workshops:updated", once);
             loadEvents();
@@ -281,7 +323,7 @@ async function loadEvents() {
         return;
     }
     _eventsLoaded = true;
-    pane.innerHTML = '<div class="spinner"><div class="ring"></div></div>';
+    pane.innerHTML = skeletonEvents();
     let counts = {}, registered = {};
     try {
         const [c, r] = await Promise.all([
@@ -482,7 +524,7 @@ async function loadQuests() {
     if (_questsLoaded) return;
     _questsLoaded = true;
     const pane = $("pane-quest");
-    pane.innerHTML = '<div class="spinner"><div class="ring"></div></div>';
+    pane.innerHTML = skeletonQuest();
     try {
         const [c, s] = await Promise.all([
             fetchJSONP(GS + "?page=challenges", "chl", 15000),
@@ -935,7 +977,7 @@ async function loadLeaderboard() {
     if (_lbLoaded) return;
     _lbLoaded = true;
     const loading = $("lbLoading"), content = $("lbContent");
-    loading.style.display = "block"; content.innerHTML = "";
+    loading.style.display = "none"; content.innerHTML = skeletonRank();
     let data = { top: [], me: null };
     try {
         data = await fetchJSONP(GS + "?page=leaderboard&wa=" + encodeURIComponent(_profile.wa), "lb", 20000);
@@ -1873,7 +1915,7 @@ async function loadLoyalty() {
     if (_loyaltyLoaded) return;
     _loyaltyLoaded = true;
     const loading = $("loyaltyLoading"), content = $("loyaltyContent");
-    loading.style.display = "block"; content.innerHTML = "";
+    loading.style.display = "none"; content.innerHTML = skeletonLoyalty();
     try {
         const d = await fetchJSONP(GS + "?page=loyalty&wa=" + encodeURIComponent(_profile.wa), "loy", 20000);
         loading.style.display = "none";
@@ -2565,7 +2607,7 @@ async function loadGallery() {
     if (_galleryLoaded) return;
     _galleryLoaded = true;
     const pane = $("pane-gallery");
-    pane.innerHTML = '<div class="spinner"><div class="ring"></div></div>';
+    pane.innerHTML = skeletonGallery();
     try {
         const g = await fetchJSONP(GS + "?page=questGallery&wa=" + encodeURIComponent(_profile.wa), "gal", 20000);
         _galleryItems = (g && g.items) || [];
