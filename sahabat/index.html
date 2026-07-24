@@ -1294,6 +1294,56 @@
         /* switch antar leaderboard */
         .lb-switch { display: flex; gap: 8px; margin-bottom: 14px; }
 
+        /* ---- Sahabat Stories: bulatan sticker scrapbook di atas Gallery ---- */
+        .story-bar { margin-bottom: 4px; }
+        .story-lbl { font-size: .68rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 2px 2px 6px; }
+        .story-track { display: flex; gap: 12px; overflow-x: auto; padding: 10px 2px 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .story-track::-webkit-scrollbar { display: none; }
+        .story-item { position: relative; flex: 0 0 auto; width: 72px; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: transform .15s ease; }
+        .story-item:active { transform: scale(.93); }
+        .st-r1 { transform: rotate(-2deg); }
+        .st-r2 { transform: rotate(1.5deg); }
+        .st-r3 { transform: rotate(-1deg); }
+        .story-tape { position: absolute; top: 4px; left: 50%; transform: translateX(-50%) rotate(-6deg); width: 34px; height: 11px; background: rgba(255, 230, 0, .7); border: 1px dashed rgba(16, 36, 94, .2); z-index: 3; pointer-events: none; }
+        .story-ring { display: block; width: 64px; height: 64px; border-radius: 50%; padding: 3px; background: linear-gradient(135deg, var(--blue), #00b4ff 40%, var(--yellow) 70%, #ff5c8a); box-shadow: 0 5px 12px rgba(0, 30, 120, .18); }
+        .story-ava { width: 100%; height: 100%; border-radius: 50%; border: 2.5px solid var(--card); overflow: hidden; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+        .story-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .story-ava.official { background: linear-gradient(155deg, #0043f5, #00b4ff); color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; }
+        .story-sticker { position: absolute; top: 46px; left: -3px; font-size: 1rem; transform: rotate(-10deg); filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .18)); z-index: 3; pointer-events: none; }
+        .story-count { position: absolute; top: 2px; right: 0; background: var(--yellow); color: var(--ink); font-family: 'Outfit', sans-serif; font-size: .62rem; font-weight: 800; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; border: 2px solid var(--card); display: flex; align-items: center; justify-content: center; z-index: 3; box-shadow: 0 2px 5px rgba(0, 0, 0, .15); }
+        .story-name { max-width: 72px; font-size: .68rem; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* ---- Story viewer: polaroid gede di kertas dot-grid + washi tape (scrapbook) ---- */
+        .story-modal { position: fixed; inset: 0; background: rgba(16, 36, 94, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
+        .story-modal.show { display: flex; }
+        .story-box { position: relative; width: 100%; max-width: 390px; max-height: 92vh; overflow-y: auto; background-color: #fffdf6; border-radius: 18px; padding: 12px 12px 16px; box-shadow: 0 24px 60px rgba(0, 10, 60, .45); background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 14px 14px; }
+        :root[data-theme="dark"] .story-box { background-color: #1b2438; background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px); }
+        .story-tape-tl, .story-tape-tr { position: absolute; top: 6px; width: 64px; height: 18px; background: rgba(255, 230, 0, .72); border: 1px dashed rgba(16, 36, 94, .22); z-index: 6; pointer-events: none; box-shadow: 0 2px 4px rgba(0, 0, 0, .08); }
+        .story-tape-tl { left: -12px; transform: rotate(-38deg); }
+        .story-tape-tr { right: -12px; transform: rotate(38deg); }
+        .story-bars { display: flex; gap: 5px; padding: 6px 2px 0; }
+        .sbar { flex: 1; height: 4px; border-radius: 99px; background: rgba(16, 36, 94, .14); overflow: hidden; }
+        :root[data-theme="dark"] .sbar { background: rgba(255, 255, 255, .16); }
+        .sbar i { display: block; height: 100%; width: 0; background: var(--blue); border-radius: 99px; }
+        .sbar.done i { width: 100%; }
+        .sbar.run i { animation: storyRun 3.5s linear forwards; }
+        @keyframes storyRun { from { width: 0; } to { width: 100%; } }
+        .story-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 2px; }
+        .story-who { display: flex; align-items: center; gap: 9px; min-width: 0; }
+        .story-who-name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .story-who-sub { font-size: .72rem; color: var(--muted); }
+        .story-close { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(16, 36, 94, .12); color: var(--ink); font-size: .95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        :root[data-theme="dark"] .story-close { background: rgba(255, 255, 255, .14); color: #fff; }
+        .story-photo { position: relative; border-radius: 12px; overflow: hidden; background: #fff; border: 5px solid #fff; box-shadow: 0 10px 26px rgba(0, 30, 120, .16); }
+        :root[data-theme="dark"] .story-photo { background: #0f1626; border-color: #0f1626; }
+        .story-photo img { width: 100%; max-height: 56vh; object-fit: cover; display: block; aspect-ratio: 4 / 5; }
+        .story-stamp { position: absolute; bottom: 10px; right: 10px; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, .92); border: 2px dashed rgba(16, 36, 94, .25); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; transform: rotate(8deg); z-index: 3; pointer-events: none; box-shadow: 0 4px 10px rgba(0, 0, 0, .15); }
+        .story-nav { position: absolute; inset: 0; display: flex; z-index: 2; }
+        .story-nav div:first-child { width: 35%; }
+        .story-nav div:last-child { flex: 1; }
+        .story-badge { display: inline-block; margin: 12px 0 0 2px; background: var(--yellow); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; padding: 4px 12px; border-radius: 8px; border: 1.5px dashed rgba(16, 36, 94, .3); transform: rotate(-2deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .1); }
+        .story-note { margin-top: 10px; background: var(--card); border: 1.5px dashed var(--line); border-radius: 12px; padding: .7rem .85rem; font-size: .85rem; color: var(--ink); transform: rotate(.6deg); box-shadow: 0 4px 10px rgba(0, 30, 120, .07); }
+
         /* ---- Top 5 Teman Jurnal: kuning dominan, aksen biru ---- */
         .tj-card { background: linear-gradient(155deg, #ffe600 0%, #ffd900 55%, #ffc400 100%); color: #10245e; border-radius: 26px; padding: 26px 20px 16px; position: relative; overflow: hidden; box-shadow: 0 18px 45px rgba(255, 196, 0, .45); }
         .tj-tape { background: rgba(0, 70, 255, .3) !important; border-color: rgba(16, 36, 94, .25) !important; }

@@ -1818,6 +1818,7 @@ function renderGallery() {
     });
 
     pane.innerHTML =
+        '<div class="story-bar" id="storyBar"></div>' +
         '<div class="gallery-toolbar">' +
         '<div class="gfilters" id="galFilters">' + chips + '</div>' +
         '<div class="view-toggle">' +
@@ -1827,6 +1828,8 @@ function renderGallery() {
         '</div>' +
         '<div class="ig-feed" id="igFeed"' + (_galleryView === "feed" ? "" : ' style="display:none"') + '></div>' +
         '<div class="ig-grid" id="igGrid"' + (_galleryView === "grid" ? "" : ' style="display:none"') + '></div>';
+
+    renderStoryBar(); // bar story selalu di atas, nggak kepengaruh filter/view
 
     const items = galFiltered();
     const feed = $("igFeed"), grid = $("igGrid");
@@ -1992,6 +1995,147 @@ function openGalleryLightbox(it) {
             last = 0;
         } else last = now;
     });
+}
+
+// ---------- Sahabat Stories (bar di atas Gallery, ala scrapbook) ----------
+// Foto galeri digroup per orang -> bulatan story. Official (Workshop/Reka-Rekat)
+// digabung jadi satu story "Seminggu Satu". Urutan bulatan diacak tiap render.
+let _storyGroups = [];
+let _storyGIdx = 0;
+let _storySIdx = 0;
+let _storyTimer = null;
+const STORY_MS = 3500; // auto-next halus per foto (sinkron sama @keyframes storyRun di CSS)
+
+function storyKindIcon(kind) {
+    return kind === "workshop" ? "🎪" : (kind === "reka-rekat" ? "✂️" : (kind === "weekly" ? "📖" : "🎯"));
+}
+
+function buildStoryGroups() {
+    const map = {};
+    const order = [];
+    _galleryItems.forEach(it => {
+        if (!it.photo) return;
+        const official = (it.kind === "workshop" || it.kind === "reka-rekat");
+        const key = official ? "__official__" : ("u:" + (it.nickname || "Sahabat"));
+        if (!map[key]) {
+            map[key] = { key: key, official: official, nickname: official ? "Seminggu Satu" : (it.nickname || "Sahabat"), mine: false, items: [] };
+            order.push(map[key]);
+        }
+        if (it.mine) map[key].mine = true;
+        map[key].items.push(it);
+    });
+    order.forEach(g => g.items.sort((a, b) => (a.ts || 0) - (b.ts || 0))); // lama -> baru, kayak story beneran
+    for (let i = order.length - 1; i > 0; i--) { // shuffle Fisher-Yates
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = order[i]; order[i] = order[j]; order[j] = t;
+    }
+    return order;
+}
+
+function renderStoryBar() {
+    const wrap = $("storyBar");
+    if (!wrap) return;
+    _storyGroups = buildStoryGroups();
+    if (!_storyGroups.length) { wrap.innerHTML = ""; return; }
+    let html = '<div class="story-lbl">✨ Sahabat Stories</div><div class="story-track">';
+    _storyGroups.forEach((g, idx) => {
+        const rot = ["st-r1", "st-r2", "st-r3"][idx % 3];
+        const latest = g.items[g.items.length - 1];
+        const ava = g.official
+            ? '<span class="story-ava official">SS</span>'
+            : '<span class="story-ava"><img src="' + esc(latest.photo) + '" alt="" loading="lazy" decoding="async"></span>';
+        html += '<button class="story-item ' + rot + '" data-g="' + idx + '">' +
+            '<span class="story-tape"></span>' +
+            '<span class="story-ring">' + ava + '</span>' +
+            '<span class="story-sticker">' + storyKindIcon(latest.kind) + '</span>' +
+            '<span class="story-count">' + g.items.length + '</span>' +
+            '<span class="story-name">' + esc(g.nickname) + (g.mine ? " · kamu" : "") + '</span>' +
+            '</button>';
+    });
+    html += '</div>';
+    wrap.innerHTML = html;
+    wrap.querySelectorAll(".story-item").forEach(el =>
+        el.addEventListener("click", () => openStory(Number(el.dataset.g), 0)));
+}
+
+function openStory(gIdx, sIdx) {
+    let modal = $("storyModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "storyModal";
+        modal.className = "story-modal";
+        document.body.appendChild(modal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closeStory(); });
+    }
+    _storyGIdx = gIdx; _storySIdx = sIdx;
+    modal.classList.add("show");
+    lockScroll();
+    renderStoryViewer();
+}
+
+function closeStory() {
+    clearTimeout(_storyTimer);
+    _storyTimer = null;
+    const modal = $("storyModal");
+    if (modal) modal.classList.remove("show");
+    unlockScroll();
+}
+
+function renderStoryViewer() {
+    const modal = $("storyModal");
+    const g = _storyGroups[_storyGIdx];
+    const it = g && g.items[_storySIdx];
+    if (!modal || !it) { closeStory(); return; }
+    let bars = '<div class="story-bars">';
+    for (let i = 0; i < g.items.length; i++) {
+        bars += '<div class="sbar' + (i < _storySIdx ? " done" : (i === _storySIdx ? " run" : "")) + '"><i></i></div>';
+    }
+    bars += '</div>';
+    const ava = g.official
+        ? '<div class="ig-ava official">SS</div>'
+        : '<div class="ig-ava">' + esc((g.nickname || "S").charAt(0).toUpperCase()) + '</div>';
+    const icon = storyKindIcon(it.kind);
+    modal.innerHTML =
+        '<div class="story-box">' +
+        '<span class="story-tape-tl"></span><span class="story-tape-tr"></span>' +
+        bars +
+        '<div class="story-head">' +
+        '<div class="story-who">' + ava +
+        '<div><div class="story-who-name">' + esc(g.nickname) +
+        (it.mine ? ' <span class="ig-me">KAMU</span>' : '') +
+        (g.official ? ' <span class="ig-me official-tag">OFFICIAL</span>' : '') + '</div>' +
+        '<div class="story-who-sub">' + (it.eventDate ? "🗓 " + esc(fmtEventDate(it.eventDate)) : esc(timeAgo(it.ts))) + '</div></div></div>' +
+        '<button class="story-close" id="storyClose" aria-label="Tutup">✕</button>' +
+        '</div>' +
+        '<div class="story-photo">' +
+        '<img src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25">' +
+        '<span class="story-stamp">' + icon + '</span>' +
+        '<div class="story-nav"><div id="storyPrev"></div><div id="storyNext"></div></div>' +
+        '</div>' +
+        '<div class="story-badge">' + icon + ' ' + esc(it.title || "Challenge") + '</div>' +
+        (it.caption ? '<div class="story-note">' + esc(it.caption) + '</div>' : '') +
+        '</div>';
+    $("storyClose").addEventListener("click", closeStory);
+    $("storyPrev").addEventListener("click", prevStory);
+    $("storyNext").addEventListener("click", nextStory);
+    clearTimeout(_storyTimer);
+    _storyTimer = setTimeout(nextStory, STORY_MS);
+}
+
+function nextStory() {
+    clearTimeout(_storyTimer);
+    const g = _storyGroups[_storyGIdx];
+    if (!g) { closeStory(); return; }
+    if (_storySIdx < g.items.length - 1) { _storySIdx++; renderStoryViewer(); }
+    else if (_storyGIdx < _storyGroups.length - 1) { _storyGIdx++; _storySIdx = 0; renderStoryViewer(); }
+    else closeStory(); // semua story habis
+}
+
+function prevStory() {
+    clearTimeout(_storyTimer);
+    if (_storySIdx > 0) { _storySIdx--; renderStoryViewer(); }
+    else if (_storyGIdx > 0) { _storyGIdx--; _storySIdx = _storyGroups[_storyGIdx].items.length - 1; renderStoryViewer(); }
+    else renderStoryViewer(); // udah paling awal: restart foto pertama
 }
 
 async function toggleLike(id) {
