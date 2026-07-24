@@ -388,7 +388,8 @@ let _questChallenges = [];
 let _questSubmitted = [];
 let _questPhotos = {};      // { challengeId: photoUrl } — foto yg udah diupload member
 let _questCaptions = {};    // { challengeId: caption }
-let _questView = "grid";    // "grid" | "list"
+let _questView = "book";    // "book" | "grid" | "list"
+let _qbRefresh = null;      // refresh halaman buku yg lagi kebuka (diisi renderQuestBook)
 
 function questImg(q) {
     return q.image ? (/^https?:\/\//.test(q.image) ? q.image : "../" + q.image) : "../images/mochi_maskot_sm.png";
@@ -478,19 +479,158 @@ function renderQuestBoard() {
         '<div class="gallery-toolbar">' +
         '<div class="section-lbl" style="margin:0;">🎯 Quest Board</div>' +
         '<div class="view-toggle">' +
+        '<button class="vbtn' + (_questView === "book" ? " active" : "") + '" id="qViewBook" title="Mode Buku" aria-label="Mode Buku">' + ICON_BOOK + '</button>' +
         '<button class="vbtn' + (_questView === "grid" ? " active" : "") + '" id="qViewGrid" title="Mode Grid" aria-label="Mode Grid">' + ICON_GRID + '</button>' +
         '<button class="vbtn' + (_questView === "list" ? " active" : "") + '" id="qViewList" title="Mode List" aria-label="Mode List">' + ICON_FEED + '</button>' +
         '</div>' +
         '</div>';
-    const body = (_questView === "list")
-        ? '<div class="quest-list" id="questGrid">' + _questChallenges.map(renderQuestRow).join("") + '</div>'
-        : '<div class="quest-grid" id="questGrid">' + _questChallenges.map(renderQuestCell).join("") + '</div>';
-    pane.innerHTML = toolbar + body;
-
-    $("questGrid").querySelectorAll("[data-i]").forEach(cell =>
-        cell.addEventListener("click", () => openQuestDetail(Number(cell.dataset.i))));
+    _qbRefresh = null;
+    if (_questView === "book") {
+        pane.innerHTML = toolbar + '<div id="questGrid"></div>';
+        renderQuestBook($("questGrid"));
+    } else {
+        const body = (_questView === "list")
+            ? '<div class="quest-list" id="questGrid">' + _questChallenges.map(renderQuestRow).join("") + '</div>'
+            : '<div class="quest-grid" id="questGrid">' + _questChallenges.map(renderQuestCell).join("") + '</div>';
+        pane.innerHTML = toolbar + body;
+        $("questGrid").querySelectorAll("[data-i]").forEach(cell =>
+            cell.addEventListener("click", () => openQuestDetail(Number(cell.dataset.i))));
+    }
+    $("qViewBook").addEventListener("click", () => { _questView = "book"; renderQuestBoard(); });
     $("qViewGrid").addEventListener("click", () => { _questView = "grid"; renderQuestBoard(); });
     $("qViewList").addEventListener("click", () => { _questView = "list"; renderQuestBoard(); });
+}
+
+// ---------- Quest Book: buku harian terbuka + flip halaman 3D ----------
+// Halaman kiri = prompt/deskripsi challenge (kertas dot-grid), halaman kanan =
+// aksi (polaroid contoh/karya, teman yg udah ikut, tombol upload) di kertas garis.
+// Swipe / panah = flip: selembar "leaf" muter di spine (depan = halaman kanan
+// sekarang, belakang = halaman kiri challenge berikutnya) kayak buku beneran.
+let _qbCur = 0;
+
+function questWorks(q) { // karya di galeri buat challenge ini (kalau galeri udah ke-load)
+    return (_galleryItems || []).filter(x => x && x.photo && x.title === q.title);
+}
+
+function qbLeftHtml(i) {
+    const q = _questChallenges[i];
+    const done = _questSubmitted.indexOf(q.id) >= 0;
+    const stk = "str-" + ((i % 11) + 1) + ".png"; // sticker beda tiap halaman
+    return '<span class="qb-tape tl"></span>' +
+        '<span class="qb-xp">🪙 +' + questPoints(q) + ' XP</span>' +
+        '<div class="qb-title">' + esc(q.title) + '</div>' +
+        (q.theme ? '<div class="qb-theme">🎨 ' + esc(q.theme) + '</div>' : '') +
+        (q.description ? '<div class="qb-desc">' + esc(q.description) + '</div>' : '') +
+        '<img class="qb-stk" src="../images/sticker/' + stk + '" alt="">' +
+        (done ? '<span class="qb-stamp">✓ CLEARED</span>' : '');
+}
+
+function qbRightHtml(i) {
+    const q = _questChallenges[i];
+    const done = _questSubmitted.indexOf(q.id) >= 0;
+    const myPhoto = _questPhotos[q.id];
+    const works = questWorks(q);
+    let friends;
+    if (works.length) {
+        friends = '<div class="qb-friends">' +
+            works.slice(0, 3).map(w => '<img src="' + esc(w.photo) + '" alt="">').join("") +
+            '<span>' + works.length + ' karya teman 💙</span></div>';
+    } else {
+        friends = '<div class="qb-friends empty">Jadilah yang pertama upload ✨</div>';
+    }
+    return '<span class="qb-tape tr"></span>' +
+        '<div class="qb-pola">' +
+        '<div class="qb-pola-img"><img src="' + esc(myPhoto || questImg(q)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25"></div>' +
+        '<div class="qb-pola-cap">' + (myPhoto ? "karya kamu ✨" : "inspirasi spread 💡") + '</div>' +
+        '</div>' +
+        friends +
+        '<button class="qb-cta' + (done ? " done" : "") + '" data-open="' + i + '">' + (done ? "✏️ Lihat / Edit Karya" : "🚀 Ikut Challenge") + '</button>';
+}
+
+function renderQuestBook(host) {
+    const N = _questChallenges.length;
+    if (_qbCur >= N) _qbCur = 0;
+    host.innerHTML =
+        '<div class="qbook-wrap">' +
+        '<div class="qbook" id="qbook">' +
+        '<div class="qb-page qb-left" id="qbLeft"></div>' +
+        '<div class="qb-page qb-right" id="qbRight"></div>' +
+        '<div class="qb-leaf" id="qbLeaf"><div class="qb-face qb-front" id="qbFront"></div><div class="qb-face qb-back" id="qbBack"></div></div>' +
+        '<div class="qb-rings">' + "<span></span>".repeat(7) + '</div>' +
+        '</div>' +
+        '<div class="qbook-nav">' +
+        '<button class="qb-arrow" id="qbPrev" aria-label="Challenge sebelumnya">‹</button>' +
+        '<div class="qb-count" id="qbCount"></div>' +
+        '<button class="qb-arrow" id="qbNext" aria-label="Challenge berikutnya">›</button>' +
+        '</div>' +
+        '</div>';
+
+    const book = $("qbook"), leftP = $("qbLeft"), rightP = $("qbRight");
+    const leaf = $("qbLeaf"), front = $("qbFront"), back = $("qbBack");
+    let anim = false;
+
+    function wireCta() {
+        rightP.querySelectorAll("[data-open]").forEach(b =>
+            b.addEventListener("click", () => openQuestDetail(Number(b.dataset.open))));
+    }
+    function setPages(i) {
+        _qbCur = i;
+        leftP.innerHTML = qbLeftHtml(i);
+        rightP.innerHTML = qbRightHtml(i);
+        $("qbCount").textContent = (i + 1) + " / " + N;
+        $("qbPrev").style.opacity = i === 0 ? ".35" : "1";
+        $("qbNext").style.opacity = i === N - 1 ? ".35" : "1";
+        wireCta();
+    }
+    _qbRefresh = () => setPages(_qbCur);
+
+    function setLeaf(deg, animate) {
+        leaf.style.transition = animate ? "transform .65s cubic-bezier(.35,.1,.25,1)" : "none";
+        leaf.style.transform = "rotateY(" + deg + "deg)";
+    }
+    function flip(dir) { // 1 = maju, -1 = mundur
+        if (anim) return;
+        const j = _qbCur + dir;
+        if (j < 0 || j >= N) { // mentok: goyang dikit
+            book.classList.add("nudge");
+            setTimeout(() => book.classList.remove("nudge"), 320);
+            return;
+        }
+        anim = true;
+        leaf.style.display = "block";
+        if (dir === 1) {
+            front.innerHTML = qbRightHtml(_qbCur); // muka depan leaf = halaman kanan sekarang
+            back.innerHTML = qbLeftHtml(j);        // baliknya = halaman kiri berikutnya
+            rightP.innerHTML = qbRightHtml(j);     // di bawah leaf udah nunggu halaman baru
+            setLeaf(0, false);
+            void leaf.offsetWidth;
+            setLeaf(-180, true);
+        } else {
+            front.innerHTML = qbRightHtml(j);
+            back.innerHTML = qbLeftHtml(_qbCur);
+            leftP.innerHTML = qbLeftHtml(j);
+            setLeaf(-180, false);
+            void leaf.offsetWidth;
+            setLeaf(0, true);
+        }
+        setTimeout(() => {
+            leaf.style.display = "none";
+            setPages(j);
+            anim = false;
+        }, 680);
+    }
+
+    setPages(_qbCur);
+    $("qbPrev").addEventListener("click", () => flip(-1));
+    $("qbNext").addEventListener("click", () => flip(1));
+    // swipe kiri/kanan di atas buku = flip
+    let sx = 0, sy = 0;
+    book.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    book.addEventListener("touchend", (e) => {
+        const t = e.changedTouches[0];
+        const dx = t.clientX - sx, dy = t.clientY - sy;
+        if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) flip(dx < 0 ? 1 : -1);
+    }, { passive: true });
 }
 
 function renderQuestRow(q, i) {
@@ -565,8 +705,8 @@ function openQuestDetail(i) {
         '<div class="quest-game-title" style="margin-top:8px;">' + esc(q.title) + '</div>' +
         (q.description ? '<div class="quest-game-desc">' + esc(q.description) + '</div>' : '') +
         '<div class="quest-objective-box" style="margin-top:12px;">' +
-        '<div class="q-obj-header">Mission Objective</div>' +
-        '<div class="q-obj-text"><span>📖</span> Bikin spread sesuai tema, kirim buktinya ke Grup WA + upload foto buat galeri.</div>' +
+        '<div class="q-obj-header"><span>📖</span> Mission Objective</div>' +
+        '<div class="q-obj-text">Bikin spread sesuai tema, kirim buktinya ke Grup WA + upload foto buat galeri.</div>' +
         '</div>' +
         '<div class="quest-action" id="qmAction" style="margin-top:14px;"></div>' +
         '</div>';
@@ -709,6 +849,7 @@ async function submitQuest(q, i, action) {
         const cell = $("questGrid") && $("questGrid").querySelector('[data-i="' + i + '"]');
         if (cell) cell.classList.add("done");
         _galleryLoaded = false;
+        if (typeof _qbRefresh === "function") _qbRefresh(); // sinkron halaman Quest Book
         renderQuestAction(q, i);
         try { await navigator.clipboard.writeText(questCaption(q)); } catch (e) { }
         try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) { }
@@ -732,6 +873,7 @@ async function editQuestPhoto(q, i, box) {
         _questPhotos[q.id] = photo.dataUrl;
         _questCaptions[q.id] = caption;
         _galleryLoaded = false;
+        if (typeof _qbRefresh === "function") _qbRefresh(); // sinkron halaman Quest Book
         fireConfetti("quest");
         renderQuestAction(q, i);
     } catch (e) { if (btn) { btn.disabled = false; btn.textContent = orig; } alert("Gagal terhubung ke server."); }
@@ -2202,6 +2344,7 @@ let _galleryView = "grid";    // "grid" | "feed" (default grid, samain sama tab 
 
 // Ikon toggle view (SVG currentColor -> otomatis ikut light/dark mode)
 const ICON_FEED = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.8"/><rect x="4" y="14" width="16" height="6" rx="1.8"/></svg>';
+const ICON_BOOK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6.5A3.5 3.5 0 0 1 12 7.5V20a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-6.5A3.5 3.5 0 0 0 12 7.5V20a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>';
 const ICON_GRID = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>';
 // Ikon shared (sama kayak ikon tab -> konsisten se-app)
 const ICON_TARGET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>';
