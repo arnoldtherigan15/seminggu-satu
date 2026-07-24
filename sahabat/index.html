@@ -331,9 +331,10 @@
             /* Favs / rekomendasi: dua kolom */
             #recList { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; align-items: start; }
 
-            /* Challenge: buku dibatasi biar proporsional, grid jadi 3 kolom */
-            .qbook-wrap { max-width: 640px; margin-left: auto; margin-right: auto; }
-            .qbook { height: 380px; }
+            /* Challenge: buku proporsi potret kayak buku beneran (tinggi > pendek-lebar) */
+            .qbook-wrap { max-width: 560px; margin-left: auto; margin-right: auto; }
+            .qbook { height: 480px; }
+            .qb-desc { -webkit-line-clamp: 12; line-clamp: 12; }
             .quest-grid { grid-template-columns: repeat(3, 1fr); }
 
             /* Ranking & feed galeri: dibatasi + di tengah biar nggak melar aneh */
