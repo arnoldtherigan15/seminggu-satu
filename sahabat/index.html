@@ -1426,6 +1426,13 @@
             50% { transform: translateY(-58vh) translateX(16px) rotate(6deg); }
             100% { transform: translateY(-120vh) translateX(-12px) rotate(-6deg); opacity: .9; }
         }
+        /* sticky note diskon ultah di tab Event (kayak ditempel washi biru) */
+        .ev-bday-note { position: relative; display: block; width: calc(100% - 8px); margin: 4px auto 18px; background: #fff8c4; border: 1.5px dashed rgba(16, 36, 94, .25); border-radius: 12px; padding: .85rem 1rem; font-family: inherit; font-size: .85rem; line-height: 1.5; color: var(--ink); text-align: left; transform: rotate(-1deg); cursor: pointer; box-shadow: 0 8px 18px rgba(0, 30, 120, .12); transition: transform .15s ease; }
+        .ev-bday-note:active { transform: rotate(-1deg) scale(.98); }
+        .ev-bday-note b { font-family: 'Outfit', sans-serif; color: var(--blue); }
+        :root[data-theme="dark"] .ev-bday-note { background: #33301a; }
+        .ebn-tape { position: absolute; top: -8px; left: 50%; transform: translateX(-50%) rotate(3deg); width: 56px; height: 15px; background: rgba(0, 70, 255, .28); border: 1px dashed rgba(16, 36, 94, .25); box-shadow: 0 2px 4px rgba(0, 0, 0, .1); pointer-events: none; z-index: 3; }
+
         /* banner ultah: senada sama kupon voucher (kertas dot-grid + dashed biru + aksen kuning) */
         .bday-banner { position: relative; display: flex; align-items: center; gap: 12px; background-color: #fffdf6; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 12px 12px; border: 2px dashed var(--blue); border-radius: 16px; padding: 1rem; margin-bottom: 14px; text-decoration: none; color: var(--ink); box-shadow: 0 8px 20px rgba(0, 30, 120, .12); transition: transform .15s ease; }
         .bday-banner:active { transform: scale(.98); }

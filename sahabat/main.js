@@ -301,6 +301,14 @@ async function loadEvents() {
     }
 
     let html = '<div class="section-lbl">🎟️ Upcoming Events</div>';
+    // Bulan ultah? Tempelin catatan diskon voucher di atas daftar event
+    const bd = birthdayInfo();
+    if (bd) {
+        html += '<button class="ev-bday-note" id="evBdayNote">' +
+            '<span class="ebn-tape"></span>' +
+            '🎂 Bulan ultahmu! Semua event <b>diskon ' + bd.age + '%</b> buat kamu — ketuk buat cek vouchernya 🎁' +
+            '</button>';
+    }
     items.forEach(x => {
         const w = x.w;
         const max = w.maxQuota || 0;
@@ -333,6 +341,8 @@ async function loadEvents() {
             '</div>';
     });
     pane.innerHTML = html;
+    const ebn = $("evBdayNote");
+    if (ebn) ebn.addEventListener("click", () => activateTab("loyalty"));
 }
 
 // ---------- Rekomendasi pane (dari recommendation-config.js, sama kayak /recommendation) ----------
