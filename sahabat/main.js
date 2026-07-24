@@ -1964,6 +1964,33 @@ async function loadLoyalty() {
     }
 }
 
+// ---------- Shimmer placeholder buat semua gambar konten ----------
+// Gambar yang belum ke-load dikasih animasi shimmer (bukan blank putih).
+// Otomatis buat SEMUA <img> di halaman — termasuk yang di-render belakangan
+// (pindah tab, modal, story) via MutationObserver. Gambar dekoratif transparan
+// (sticker, maskot, logo, seal) di-skip biar nggak ada kotak shimmer aneh.
+(function initImgShimmer() {
+    const SKIP_SRC = /images\/sticker\/|mochi|logo|seal-paw/i;
+    function watch(img) {
+        if (img._shim) return;
+        img._shim = true;
+        if (SKIP_SRC.test(img.src || "") || img.classList.contains("wr-imgstk") || img.classList.contains("mp-imgstk")) return;
+        if (img.complete) return; // udah ke-load (atau udah error) -> nggak perlu
+        img.classList.add("img-shimmer");
+        const done = () => img.classList.remove("img-shimmer");
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+    }
+    function scan(root) {
+        if (root.tagName === "IMG") watch(root);
+        else if (root.querySelectorAll) root.querySelectorAll("img").forEach(watch);
+    }
+    scan(document.body);
+    new MutationObserver(muts => muts.forEach(m => m.addedNodes.forEach(n => {
+        if (n.nodeType === 1) scan(n);
+    }))).observe(document.body, { childList: true, subtree: true });
+})();
+
 // ---------- Auto-login ----------
 (async function init() {
     let token = "";
