@@ -263,10 +263,14 @@ function schedulePrefetch() {
 
 // Panggil semua loader (idempotent via guard _xxxLoaded) tanpa nunggu -> render ke pane masing2.
 // Kalau ada yg gagal, loader-nya reset guard sendiri -> nanti pas tab dibuka bakal retry live.
-function prefetchTabs() {
-    [loadLoyalty, loadEvents, loadRec, loadQuests, loadLeaderboard, loadGallery].forEach(fn => {
-        try { fn(); } catch (e) { }
-    });
+// Prefetch BERURUTAN, bukan barengan — tiap user cuma megang 1-2 eksekusi
+// Apps Script pada satu waktu (jaga limit simultaneous executions project).
+async function prefetchTabs() {
+    const fns = [loadLoyalty, loadEvents, loadRec, loadQuests, loadLeaderboard, loadGallery];
+    for (const fn of fns) {
+        try { await fn(); } catch (e) { }
+        await new Promise(r => setTimeout(r, 350)); // kasih napas antar request
+    }
 }
 
 // Error state + tombol "Coba lagi" (dipakai loader biar gagal fetch nggak "meracuni" tab)
