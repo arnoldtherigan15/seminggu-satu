@@ -595,7 +595,6 @@
         .voucher .v-notch.r { right: -11px; }
         .voucher .v-tape { position: absolute; width: 54px; height: 15px; border: 1px dashed rgba(16, 36, 94, .25); box-shadow: 0 2px 4px rgba(0, 0, 0, .1); pointer-events: none; z-index: 2; }
         .voucher .v-tape.a { top: 8px; left: 10px; transform: rotate(-8deg); background: rgba(255, 230, 0, .72); }
-        .voucher .v-tape.b { bottom: 10px; right: 64px; transform: rotate(6deg); background: rgba(0, 70, 255, .25); }
         .voucher .v-stk { position: absolute; bottom: 8px; right: 6px; width: 58px; transform: rotate(9deg); filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .18)); z-index: 2; pointer-events: none; }
         .voucher .v-off { display: inline-block; font-family: 'Outfit', sans-serif; font-size: 56px; font-weight: 800; line-height: 1.1; color: var(--blue); padding: 0 12px; transform: rotate(-2deg); background: linear-gradient(transparent 58%, rgba(255, 230, 0, .85) 58%); }
         .voucher .v-off small { font-size: .55em; }
@@ -1427,12 +1426,14 @@
             50% { transform: translateY(-58vh) translateX(16px) rotate(6deg); }
             100% { transform: translateY(-120vh) translateX(-12px) rotate(-6deg); opacity: .9; }
         }
-        .bday-banner { position: relative; display: flex; align-items: center; gap: 12px; background: linear-gradient(120deg, #fff6d8, #ffe9f2 55%, #e8f1ff); border: 1.5px dashed rgba(16, 36, 94, .28); border-radius: 16px; padding: .9rem 1rem; margin-bottom: 14px; text-decoration: none; color: var(--ink); overflow: hidden; box-shadow: 0 8px 20px rgba(0, 30, 120, .1); transition: transform .15s ease; }
+        /* banner ultah: senada sama kupon voucher (kertas dot-grid + dashed biru + aksen kuning) */
+        .bday-banner { position: relative; display: flex; align-items: center; gap: 12px; background-color: #fffdf6; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 12px 12px; border: 2px dashed var(--blue); border-radius: 16px; padding: 1rem; margin-bottom: 14px; text-decoration: none; color: var(--ink); overflow: hidden; box-shadow: 0 8px 20px rgba(0, 30, 120, .12); transition: transform .15s ease; }
         .bday-banner:active { transform: scale(.98); }
-        :root[data-theme="dark"] .bday-banner { background: linear-gradient(120deg, #2a2438, #22283f 55%, #1b2438); }
+        :root[data-theme="dark"] .bday-banner { background-color: #1b2438; background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px); }
+        .bb-tape { position: absolute; top: -6px; left: 16px; width: 52px; height: 15px; background: rgba(255, 230, 0, .75); border: 1px dashed rgba(16, 36, 94, .25); transform: rotate(-6deg); box-shadow: 0 2px 4px rgba(0, 0, 0, .1); pointer-events: none; }
         .bb-emoji { font-size: 1.9rem; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .15)); }
         .bb-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-        .bb-txt b { font-family: 'Outfit', sans-serif; font-size: .92rem; }
+        .bb-txt b { font-family: 'Outfit', sans-serif; font-size: .92rem; color: var(--blue); }
         .bb-txt span { font-size: .78rem; color: var(--muted); }
         .bb-balloon { position: absolute; font-size: 1rem; animation: bbFloat 3s ease-in-out infinite; pointer-events: none; }
         .bb-balloon.a { right: 12px; top: 6px; }

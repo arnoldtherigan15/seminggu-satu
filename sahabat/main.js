@@ -1746,6 +1746,7 @@ function bdayFriendsBannerHtml() {
     if (!BDAY_TODAY.length) return "";
     const who = BDAY_TODAY.map(b => b.nickname).join(" & ");
     return '<a class="bday-banner" href="' + QUEST_WA_GROUP + '" target="_blank" rel="noopener">' +
+        '<span class="bb-tape"></span>' +
         '<span class="bb-balloon a">🎈</span><span class="bb-balloon b">🎈</span>' +
         '<span class="bb-emoji">🎂</span>' +
         '<span class="bb-txt"><b>' + esc(who) + ' lagi ultah hari ini! 🎉</b>' +
@@ -1773,7 +1774,7 @@ function buildBirthdayHtml(b) {
         '<div class="bday-title">Selamat Ulang Tahun, ' + esc(nm) + '!</div>' +
         '<div class="bday-sub">Ada kejutan spesial buat kamu bulan ini ✨</div>' +
         '<div class="voucher" id="voucherCard">' +
-        '<span class="v-tape a"></span><span class="v-tape b"></span>' +
+        '<span class="v-tape a"></span>' +
         '<span class="v-cut">✂️</span>' +
         '<span class="v-notch l"></span><span class="v-notch r"></span>' +
         '<img class="v-stk" src="../images/sticker/str-8.png" alt="">' +
