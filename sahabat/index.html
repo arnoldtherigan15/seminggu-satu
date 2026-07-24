@@ -868,6 +868,14 @@
             gap: 8px;
         }
 
+        /* toggle accordion foto karya minggu ini */
+        .jt-photo-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding: .65rem .85rem; border: 1.5px dashed var(--line); border-radius: 12px; background: var(--bg); color: var(--ink); font-family: inherit; font-weight: 700; font-size: .82rem; cursor: pointer; transition: background .2s ease, transform .15s ease; }
+        .jt-photo-toggle:active { transform: scale(.98); }
+        .jt-chev { color: var(--muted); transition: transform .25s ease; }
+        .jt-photo-toggle.open .jt-chev { transform: rotate(180deg); }
+        .jt-photo-wrap { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+        .jt-photo-wrap.open { max-height: 600px; }
+
         /* foto karya minggu ini = polaroid mini */
         .jt-photo {
             margin-top: 0.7rem;

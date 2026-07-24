@@ -1644,8 +1644,12 @@ function renderJournalTrackerHtml(wa) {
     const currRec = records[currMonthWeek.key] || {};
     const currentNote = currRec.note || "";
     const noteHtml = currentNote ? '<div class="jt-note-tag"><span class="note-label">Note:</span> <span class="note-text">"' + esc(currentNote) + '"</span> ✨</div>' : '';
-    // foto karya minggu ini (kalau ada) -> polaroid mini
-    const photoHtml = currRec.photo ? '<div class="jt-photo"><img src="' + esc(currRec.photo) + '" alt="" loading="lazy" decoding="async"></div>' : '';
+    // foto karya minggu ini (kalau ada) -> accordion buka-tutup, default ketutup biar kartu ringkas
+    const photoHtml = currRec.photo
+        ? '<button type="button" class="jt-photo-toggle" id="jtPhotoToggle" aria-expanded="false">' +
+          '<span>📸 Foto karya minggu ini</span><span class="jt-chev">▾</span></button>' +
+          '<div class="jt-photo-wrap" id="jtPhotoWrap"><div class="jt-photo"><img src="' + esc(currRec.photo) + '" alt="" loading="lazy" decoding="async"></div></div>'
+        : '';
 
     return (
         '<div class="journal-tracker-card" id="journalTrackerWidget">' +
@@ -1669,9 +1673,16 @@ function renderJournalTrackerHtml(wa) {
 
 function initJournalTrackerListeners(wa) {
     const btn = $("jtCheckInBtn");
-    if (!btn) return;
+    if (btn) btn.addEventListener("click", () => openCheckinModal(wa));
 
-    btn.addEventListener("click", () => openCheckinModal(wa));
+    // accordion foto karya minggu ini
+    const pt = $("jtPhotoToggle");
+    if (pt) pt.addEventListener("click", () => {
+        const w = $("jtPhotoWrap");
+        const open = w.classList.toggle("open");
+        pt.classList.toggle("open", open);
+        pt.setAttribute("aria-expanded", open ? "true" : "false");
+    });
 }
 
 // Modal check-in mingguan: foto karya (opsional, masuk galeri) + refleksi singkat
