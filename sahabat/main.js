@@ -639,9 +639,14 @@ function renderQuestBook(host) {
         requestAnimationFrame(() => requestAnimationFrame(() => {
             setLeaf(dir === 1 ? -180 : 0, true);
             setTimeout(() => {
-                leaf.style.display = "none";
+                // Halaman final di-render DULU di bawah leaf dan ditunggu ke-paint
+                // (double rAF), baru leaf disembunyiin. Kalau kebalik, halaman kanan
+                // sempat repaint dari kosong sekejap pas back (kelihatan zoom out-in).
                 setPages(j);
-                anim = false;
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    leaf.style.display = "none";
+                    anim = false;
+                }));
             }, 680);
         }));
     }
