@@ -1126,7 +1126,7 @@ function buildWrappedSlides(d) {
     // 1) Cover
     slides.push('<div class="wr-slide wr-blue">' +
         '<span class="wr-tape" style="top:52px;left:20px;transform:rotate(-14deg);"></span>' +
-        '<span class="wr-tape w" style="bottom:76px;right:16px;transform:rotate(9deg);"></span>' +
+        '<span class="wr-tape" style="bottom:76px;right:16px;transform:rotate(9deg);"></span>' +
         '<img class="wr-imgstk" src="../images/sticker/str-1.png" style="width:86px;top:9%;right:6%;transform:rotate(10deg);" alt="">' +
         '<img class="wr-imgstk" src="../images/sticker/str-5.png" style="width:76px;bottom:11%;left:5%;transform:rotate(-12deg);" alt="">' +
         '<span class="wr-stk" style="top:27%;left:13%;">🌟</span>' +
@@ -1158,7 +1158,7 @@ function buildWrappedSlides(d) {
         const top5 = d.rank && d.rank <= 5;
         const beat = (d.rank && d.rankTotal) ? Math.round(((d.rankTotal - d.rank) / d.rankTotal) * 100) : null;
         slides.push('<div class="wr-slide wr-yellow">' +
-            '<span class="wr-tape w" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
+            '<span class="wr-tape b" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
             '<span class="wr-stk" style="top:16%;right:12%;">⚡</span>' +
             '<img class="wr-imgstk" src="../images/sticker/str-4.png" style="width:72px;bottom:12%;left:6%;transform:rotate(-10deg);" alt="">' +
             '<div class="wr-anim wr-kicker">POIN CHALLENGE</div>' +
@@ -1197,7 +1197,7 @@ function buildWrappedSlides(d) {
     }
     // 6) Outro
     slides.push('<div class="wr-slide wr-blue">' +
-        '<span class="wr-tape w" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
+        '<span class="wr-tape" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
         '<span class="wr-stk" style="top:16%;left:12%;">💌</span>' +
         '<img class="wr-imgstk" src="../images/sticker/str-7.png" style="width:88px;bottom:16%;right:6%;transform:rotate(8deg);" alt="">' +
         '<span class="wr-stk" style="top:24%;right:16%;">🌈</span>' +
@@ -1315,7 +1315,7 @@ function buildPassportSlides(s) {
     // 1) Cover
     slides.push('<div class="wr-slide wr-blue">' +
         '<span class="wr-tape" style="top:52px;left:20px;transform:rotate(-14deg);"></span>' +
-        '<span class="wr-tape w" style="bottom:76px;right:16px;transform:rotate(9deg);"></span>' +
+        '<span class="wr-tape" style="bottom:76px;right:16px;transform:rotate(9deg);"></span>' +
         '<span class="wr-stk" style="top:15%;right:11%;">🛂</span>' +
         '<img class="wr-imgstk" src="../images/sticker/str-6.png" style="width:88px;bottom:14%;left:5%;transform:rotate(-8deg);" alt="">' +
         '<span class="wr-stk" style="top:27%;left:13%;">📖</span>' +
@@ -1337,7 +1337,7 @@ function buildPassportSlides(s) {
         '</div>');
     // 3) Tier persona
     slides.push('<div class="wr-slide wr-yellow">' +
-        '<span class="wr-tape w" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
+        '<span class="wr-tape b" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
         '<span class="wr-stk" style="top:16%;right:12%;">🏅</span>' +
         '<img class="wr-imgstk" src="../images/sticker/str-3.png" style="width:76px;bottom:11%;left:5%;transform:rotate(-9deg);" alt="">' +
         '<div class="wr-anim wr-kicker">YOUR TITLE</div>' +
@@ -1387,7 +1387,7 @@ function buildPassportSlides(s) {
         '</div>');
     // 6) Outro
     slides.push('<div class="wr-slide wr-blue">' +
-        '<span class="wr-tape w" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
+        '<span class="wr-tape" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
         '<span class="wr-stk" style="top:16%;left:12%;">💌</span>' +
         '<img class="wr-imgstk" src="../images/sticker/str-8.png" style="width:90px;bottom:15%;right:6%;transform:rotate(7deg);" alt="">' +
         '<span class="wr-stk" style="top:24%;right:16%;">🌈</span>' +
