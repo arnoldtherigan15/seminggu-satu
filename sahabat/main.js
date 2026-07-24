@@ -156,6 +156,7 @@ function fireConfetti(preset) {
 
 function onAuthSuccess(r) {
     _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}" };
+    BDAY_TODAY = Array.isArray(r.birthdays) ? r.birthdays.filter(b => b && b.nickname) : [];
     try { localStorage.setItem(TOKEN_KEY, r.token); } catch (e) { }
     showDashboard();
     fireConfetti("login");
@@ -1684,11 +1685,10 @@ function openCheckinModal(wa) {
 }
 
 // ---------- Birthday Sahabat (ultah member lain) ----------
-// SEMENTARA HARDCODE buat testing — kosongin array ini buat matiin semua
-// (balon, banner, story ultah). TODO: nanti diganti data dari server.
-const BDAY_TODAY = [
-    { nickname: "Sasha" }
-];
+// Diisi dari server pas login/session (field birthdays di profil response):
+// daftar { nickname } member yang ultah HARI INI. Kosong = semua fitur
+// ultah (balon, banner, story) nggak muncul.
+let BDAY_TODAY = [];
 
 // Balon-balon terbang sekali pas dashboard kebuka (kalau ada yg ultah)
 function launchBalloons() {
