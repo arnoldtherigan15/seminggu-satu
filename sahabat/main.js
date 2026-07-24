@@ -1068,7 +1068,7 @@ function showWrapped(slides, shareMeta) {
         document.body.appendChild(modal);
     }
     // selipin tombol share di akhir tiap slide
-    const SHARE_BTN = '<button class="wr-share wr-anim" style="--d:.45s;" data-wrshare>📸 Share to IG Story</button>';
+    const SHARE_BTN = '<button class="wr-share wr-anim" style="--d:.45s;" data-wrshare title="Share to IG Story">📸 Share</button>';
     slides = slides.map(s => s.replace(/<\/div>$/, SHARE_BTN + "</div>"));
     let dots = "";
     slides.forEach((_, i) => { dots += '<span class="wr-dot' + (i === 0 ? " on" : "") + '"></span>'; });

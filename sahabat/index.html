@@ -1450,8 +1450,8 @@
         .wr-slide.live .wr-anim { animation: wrPop .55s cubic-bezier(.2, .8, .3, 1.18) forwards; animation-delay: var(--d, 0s); }
         @keyframes wrPop { from { opacity: 0; transform: translateY(16px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        /* tombol share per slide */
-        .wr-share { margin-top: 22px; border: none; background: rgba(255, 255, 255, .94); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem; padding: 10px 18px; border-radius: 999px; cursor: pointer; box-shadow: 0 6px 16px rgba(0, 0, 0, .18); display: inline-flex; align-items: center; gap: 6px; transition: transform .15s ease; }
+        /* tombol share per slide: nempel di pojok kanan bawah (di atas wr-zone biar tetap ke-klik) */
+        .wr-share { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px; z-index: 5; border: none; background: rgba(255, 255, 255, .94); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .78rem; padding: 10px 16px; border-radius: 999px; cursor: pointer; box-shadow: 0 6px 16px rgba(0, 0, 0, .18); display: inline-flex; align-items: center; gap: 6px; transition: transform .15s ease; }
         .wr-share:active { transform: scale(.95); }
 
         /* Your Journaling Journey: daftar event ala tiket tempel */
