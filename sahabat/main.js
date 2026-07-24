@@ -2111,7 +2111,6 @@ async function openMochiPrompt() {
     modal.innerHTML =
         '<div class="mochi-box">' +
         '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
-        '<img class="mp-imgstk" src="../images/sticker/str-9.png" style="width:62px;top:6px;left:8px;transform:rotate(-14deg);" alt="">' +
         '<img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:62px;bottom:8px;left:6px;transform:rotate(-8deg);" alt="">' +
         '<img class="mp-imgstk" src="../images/sticker/str-11.png" style="width:58px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">' +
         '<div class="mp-head">💌 Surat dari Mochi</div>' +
