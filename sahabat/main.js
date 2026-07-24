@@ -186,11 +186,23 @@ function showDashboard() {
     $("dashView").style.display = "block";
     $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
     const mw = $("mochiWidget"); if (mw) mw.classList.add("show");
-    launchBalloons(); // ada sahabat ultah? balon-balon terbang 🎈
-    // Teaser sekali per sesi: kabarin ada surat prompt harian dari Mochi
+    // Yang lagi ultah dapet perlakuan spesial: sapaan, topi ultah di Mochi, confetti
+    if (isMyBirthdayToday()) {
+        $("dashHi").textContent = "Happy Birthday, " + (_profile.nickname || "Sahabat") + "! 🎂🥳";
+        const av = $("mochiAvatar");
+        if (av && !av.querySelector(".mochi-hat")) {
+            const hat = document.createElement("span");
+            hat.className = "mochi-hat";
+            av.appendChild(hat);
+        }
+        fireConfetti("reward");
+    }
+    launchBalloons(); // ada sahabat ultah (atau kamu sendiri)? balon-balon terbang 🎈
+    // Teaser sekali per sesi: kabarin ada surat dari Mochi
     const mb = $("mochiBubble");
     if (mb && !mb._teased) {
         mb._teased = true;
+        if (isMyBirthdayToday()) mb.textContent = "🎂 Ada surat spesial buat kamu — tap aku!";
         mb.classList.add("show");
         setTimeout(() => mb.classList.remove("show"), 5000);
     }
@@ -1690,9 +1702,27 @@ function openCheckinModal(wa) {
 // ultah (balon, banner, story) nggak muncul.
 let BDAY_TODAY = [];
 
-// Balon-balon terbang sekali pas dashboard kebuka (kalau ada yg ultah)
+// Ultah-nya SI USER sendiri hari ini? (beda sama BDAY_TODAY yg buat semua orang).
+// Testing: tinggal ubah birthDate akun di sheet members ke bulan-tanggal hari ini.
+function isMyBirthdayToday() {
+    if (!_profile) return false;
+    const m = String(_profile.birthDate || "").match(/\d{4}-(\d{2})-(\d{2})/);
+    if (!m) return false;
+    const now = new Date();
+    return parseInt(m[1], 10) === (now.getMonth() + 1) && parseInt(m[2], 10) === now.getDate();
+}
+
+// Isi surat ultah dari Mochi (dipilih acak tiap buka)
+const BDAY_WISHES = [
+    "Selamat ulang tahun! 🎂 Semoga tahun ini penuh halaman-halaman baru yang warnanya secerah spread favoritmu. Mochi sayang kamu! 🐾💙",
+    "Happy birthday, sahabat! 🎉 Semoga makin bahagia, makin sehat, dan makin rajin nulisin cerita-cerita kecil yang bikin senyum lebar. Peluk hangat dari Mochi! 🤗",
+    "Yeay, kamu naik level hari ini! ✨ Semoga semua wish yang pernah kamu tulis di journal pelan-pelan jadi kenyataan ya. Woof woof! 🎈",
+    "Di hari spesialmu, Mochi cuma mau bilang: makasih udah jadi bagian keluarga Seminggu Satu 💙 Semoga harimu semanis washi tape favoritmu! 🎂✨"
+];
+
+// Balon-balon terbang sekali pas dashboard kebuka (kalau ada yg ultah — termasuk user sendiri)
 function launchBalloons() {
-    if (!BDAY_TODAY.length || $("bdayBalloons")) return;
+    if ((!BDAY_TODAY.length && !isMyBirthdayToday()) || $("bdayBalloons")) return;
     const c = document.createElement("div");
     c.id = "bdayBalloons";
     c.className = "bday-balloons";
@@ -2291,48 +2321,76 @@ async function openMochiPrompt() {
         document.body.appendChild(modal);
         modal.addEventListener("click", (e) => { if (e.target === modal) closeMochiPrompt(); });
     }
+    // Lagi ultah? Ada DUA surat — pilih dulu. Hari biasa langsung surat prompt.
+    if (isMyBirthdayToday()) renderMochiChooser(modal, list);
+    else renderMochiEnvelope(modal, list, "prompt");
+    modal.classList.add("show");
+    lockScroll();
+}
+
+// Layar pilihan dua surat (khusus pas ultah)
+function renderMochiChooser(modal, list) {
+    modal.innerHTML =
+        '<div class="mochi-box">' +
+        '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
+        '<img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:62px;bottom:8px;left:6px;transform:rotate(-8deg);" alt="">' +
+        '<img class="mp-imgstk" src="../images/sticker/str-7.png" style="width:58px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">' +
+        '<div class="mp-head">🎂 Dua surat buat kamu!</div>' +
+        '<div class="mp-sub">Hari spesial = surat spesial. Mau buka yang mana dulu?</div>' +
+        '<div class="mp-choose">' +
+        '<button class="mp-choice bday" id="mcBday"><span class="mc-em">🎂</span><b>Surat Ultah</b><span>spesial hari ini ✨</span></button>' +
+        '<button class="mp-choice" id="mcPrompt"><span class="mc-em">✍️</span><b>Prompt Harian</b><span>ide journaling</span></button>' +
+        '</div>' +
+        '</div>';
+    $("mpClose").addEventListener("click", closeMochiPrompt);
+    $("mcBday").addEventListener("click", () => renderMochiEnvelope(modal, list, "bday"));
+    $("mcPrompt").addEventListener("click", () => renderMochiEnvelope(modal, list, "prompt"));
+}
+
+// Amplop + isi surat. mode: "prompt" (kuning, prompt harian) | "bday" (pink, ucapan ultah)
+function renderMochiEnvelope(modal, list, mode) {
+    const bday = mode === "bday";
+    const nick = (_profile && _profile.nickname) || "Sahabat";
     modal.innerHTML =
         '<div class="mochi-box">' +
         '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
         '<img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:62px;bottom:8px;left:6px;transform:rotate(-8deg);" alt="">' +
         '<img class="mp-imgstk" src="../images/sticker/str-11.png" style="width:58px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">' +
-        '<div class="mp-head">💌 Surat dari Mochi</div>' +
-        '<div class="mp-sub">Ada prompt journaling harian buat kamu~</div>' +
+        '<div class="mp-head">' + (bday ? "🎂 Surat Ultah dari Mochi" : "💌 Surat dari Mochi") + '</div>' +
+        '<div class="mp-sub">' + (bday ? "Ada ucapan spesial di hari spesialmu~" : "Ada prompt journaling harian buat kamu~") + '</div>' +
         '<div class="env-scene" id="envScene">' +
-        '<div class="envelope" id="envelope" role="button" aria-label="Buka amplop">' +
+        '<div class="envelope' + (bday ? " bday" : "") + '" id="envelope" role="button" aria-label="Buka amplop">' +
         '<div class="env-back"></div>' +
         '<div class="env-letter"></div>' +
         '<div class="env-front"></div>' +
-        '<div class="env-addr">Untuk: ' + esc((_profile && _profile.nickname) || "Sahabat") + ' ✍️</div>' +
+        '<div class="env-addr">Untuk: ' + esc(nick) + (bday ? ' 🎂' : ' ✍️') + '</div>' +
         '<div class="env-postage"><img src="../images/mochi_maskot_sm.png" alt=""></div>' +
         '<div class="env-flap"></div>' +
         '<img class="env-seal" src="seal-paw.png" alt="">' +
         '<span class="env-tape a"></span><span class="env-tape b"></span>' +
-        '<span class="env-stk s1">✂️</span><span class="env-stk s2">🌟</span><span class="env-stk s3">📎</span><span class="env-stk s4">🌈</span><span class="env-stk s5">🐾</span>' +
+        (bday
+            ? '<span class="env-stk s1">🎈</span><span class="env-stk s2">🎉</span><span class="env-stk s3">🎁</span><span class="env-stk s4">🌈</span><span class="env-stk s5">🐾</span>'
+            : '<span class="env-stk s1">✂️</span><span class="env-stk s2">🌟</span><span class="env-stk s3">📎</span><span class="env-stk s4">🌈</span><span class="env-stk s5">🐾</span>') +
         '</div>' +
-        '<div class="env-hint">ketuk amplopnya buat buka 💌</div>' +
+        '<div class="env-hint">ketuk amplopnya buat buka ' + (bday ? '🎂' : '💌') + '</div>' +
         '</div>' +
         '<div class="mp-card" id="mpCard" style="display:none;">' +
         '<img class="mp-mochi" src="../images/mochi_maskot_sm.png" alt="">' +
         '<div class="mp-kicker" id="mpKicker"></div>' +
         '<div><span class="mp-cat" id="mpCat"></span></div>' +
         '<div class="mp-text" id="mpText"></div>' +
-        '<div class="mp-actions">' +
-        '<button class="mp-btn ghost" id="mpCopy">📋 Salin</button>' +
-        '<button class="mp-btn" id="mpRandom">🎲 Prompt acak lainnya</button>' +
+        '<div class="mp-actions" id="mpActions"></div>' +
         '</div>' +
         '</div>';
-    modal.classList.add("show");
-    lockScroll();
     $("mpClose").addEventListener("click", closeMochiPrompt);
 
     const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const now = new Date();
+    const dateStr = now.getDate() + " " + MON[now.getMonth()] + " " + now.getFullYear();
+
     function showPrompt(it, isDaily) {
         _mpLastId = it.id;
-        $("mpKicker").textContent = isDaily
-            ? "DAILY PROMPT · " + now.getDate() + " " + MON[now.getMonth()] + " " + now.getFullYear()
-            : "RANDOM PROMPT 🎲";
+        $("mpKicker").textContent = isDaily ? "DAILY PROMPT · " + dateStr : "RANDOM PROMPT 🎲";
         $("mpCat").textContent = "🏷️ " + (it.category || "Journaling");
         $("mpText").textContent = "“" + it.prompt + "”";
         const card = $("mpCard");
@@ -2341,27 +2399,52 @@ async function openMochiPrompt() {
         card.classList.add("pop");
     }
 
-    // ketuk amplop -> seal copot, flap kebuka, surat naik, baru kartu prompt muncul
+    function fillActions() {
+        const switchable = isMyBirthdayToday(); // bisa bolak-balik dua surat
+        $("mpActions").innerHTML = bday
+            ? '<button class="mp-btn ghost" id="mpVoucher">🎁 Voucher Ultah</button>' +
+              (switchable ? '<button class="mp-btn" id="mpSwitch">✍️ Baca Prompt Harian</button>' : '')
+            : '<button class="mp-btn ghost" id="mpCopy">📋 Salin</button>' +
+              '<button class="mp-btn" id="mpRandom">🎲 Prompt acak lainnya</button>' +
+              (switchable ? '<button class="mp-btn bday-btn" id="mpSwitch" style="flex:1 1 100%;">🎂 Baca Surat Ultah</button>' : '');
+        const sw = $("mpSwitch");
+        if (sw) sw.addEventListener("click", () => renderMochiEnvelope(modal, list, bday ? "prompt" : "bday"));
+        const vc = $("mpVoucher");
+        if (vc) vc.addEventListener("click", () => { closeMochiPrompt(); activateTab("loyalty"); });
+        const rd = $("mpRandom");
+        if (rd) rd.addEventListener("click", () => showPrompt(randomPrompt(list), false));
+        const cp = $("mpCopy");
+        if (cp) cp.addEventListener("click", async () => {
+            try { await navigator.clipboard.writeText($("mpText").textContent.replace(/[“”]/g, "")); cp.textContent = "✓ Tersalin"; }
+            catch (e) { cp.textContent = "Salin manual ya"; }
+            setTimeout(() => { cp.textContent = "📋 Salin"; }, 1800);
+        });
+    }
+
+    // ketuk amplop -> seal copot, flap kebuka, surat naik, baru kartunya muncul
     const env = $("envelope");
     let opened = false;
     env.addEventListener("click", () => {
         if (opened) return;
         opened = true;
         env.classList.add("open");
-        if (typeof confetti === "function") setTimeout(() => confetti({ particleCount: 45, spread: 65, origin: { y: .6 }, zIndex: CONFETTI_Z }), 500);
+        if (typeof confetti === "function") setTimeout(() => fireConfetti(bday ? "reward" : "quest"), 500);
         setTimeout(() => {
             $("envScene").style.display = "none";
             $("mpCard").style.display = "block";
-            showPrompt(dailyPrompt(list), true);
+            if (bday) {
+                $("mpKicker").textContent = "HAPPY BIRTHDAY · " + dateStr;
+                $("mpCat").textContent = "🎂 Untuk " + nick;
+                $("mpText").textContent = BDAY_WISHES[Math.floor(Math.random() * BDAY_WISHES.length)];
+                const card = $("mpCard");
+                card.classList.remove("pop");
+                void card.offsetWidth;
+                card.classList.add("pop");
+            } else {
+                showPrompt(dailyPrompt(list), true);
+            }
+            fillActions();
         }, 1000);
-    });
-
-    $("mpRandom").addEventListener("click", () => showPrompt(randomPrompt(list), false));
-    $("mpCopy").addEventListener("click", async () => {
-        const btn = $("mpCopy");
-        try { await navigator.clipboard.writeText($("mpText").textContent.replace(/[“”]/g, "")); btn.textContent = "✓ Tersalin"; }
-        catch (e) { btn.textContent = "Salin manual ya"; }
-        setTimeout(() => { btn.textContent = "📋 Salin"; }, 1800);
     });
 }
 
