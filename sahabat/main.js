@@ -2825,7 +2825,6 @@ function renderStoryBar() {
                 ? '<span class="story-ava official">SS</span>'
                 : '<span class="story-ava"><img src="' + esc(latest.photo) + '" alt="" loading="lazy" decoding="async"></span>');
         html += '<button class="story-item ' + rot + '" data-g="' + idx + '">' +
-            '<span class="story-tape"></span>' +
             '<span class="story-ring' + (g.bday ? " bday" : "") + '">' + ava + '</span>' +
             '<span class="story-sticker">' + (g.bday ? "🎈" : storyKindIcon(latest.kind)) + '</span>' +
             '<span class="story-count">' + g.items.length + '</span>' +
