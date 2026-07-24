@@ -320,9 +320,11 @@
         @media (min-width: 820px) {
             .wrap { max-width: 900px; }
 
-            /* Loyalty & konten panjang lain: dua kolom masonry (CSS columns) */
-            #loyaltyContent { columns: 2; column-gap: 18px; }
-            #loyaltyContent > * { break-inside: avoid; }
+            /* Loyalty dua kolom pakai GRID, bukan CSS columns — multicol rebalancing
+               bikin konten loncat pas accordion kebuka + ada bug hit-test WebKit
+               di elemen 3D (kartu member ke-flip pas tap area kosong) */
+            #loyaltyContent { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; align-items: start; }
+            #loyaltyContent > .bday-banner, #loyaltyContent > .bday { grid-column: 1 / -1; }
 
             /* Event: kartu dua kolom, label & sticky note ultah tetap full-width */
             #pane-events.active { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; align-items: start; }
