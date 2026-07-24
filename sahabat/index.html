@@ -343,6 +343,12 @@
 
             /* story bar & judul tetap kiri, tapi avatar lebih lega */
             .story-track { gap: 18px; }
+
+            /* Wrapped (Summary/Passport): jangan fullscreen — frame seukuran HP
+               di tengah dengan backdrop blur, kayak story viewer */
+            .wrapped-modal { background: rgba(10, 18, 51, .78); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+            .wrapped-modal.show { display: flex; align-items: center; justify-content: center; }
+            .wr-phone { width: 420px; height: min(880px, 92vh); border-radius: 26px; overflow: hidden; background: #0a1233; box-shadow: 0 30px 80px rgba(0, 0, 0, .5); }
         }
 
         /* Mobile Native Bottom Navigation Bar */
@@ -1558,6 +1564,8 @@
         /* ---- My Summary: Journal Wrapped (slider fullscreen ala Spotify Wrapped) ---- */
         .wrapped-modal { position: fixed; inset: 0; z-index: 1400; background: #0a1233; display: none; }
         .wrapped-modal.show { display: block; }
+        /* frame konten wrapped: di HP fullscreen, di layar gede jadi "layar HP" di tengah */
+        .wr-phone { position: relative; width: 100%; height: 100%; }
         .wr-top { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: calc(12px + env(safe-area-inset-top)) 14px 10px; z-index: 5; }
         .wr-dots { flex: 1; display: flex; gap: 5px; }
         .wr-dot { flex: 1; height: 4px; border-radius: 99px; background: rgba(255, 255, 255, .28); transition: background .25s ease; }

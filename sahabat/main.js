@@ -1273,17 +1273,21 @@ function showWrapped(slides, shareMeta) {
         modal.id = "wrappedModal";
         modal.className = "wrapped-modal";
         document.body.appendChild(modal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closeWrapped(); }); // klik backdrop (layar gede) = tutup
     }
     // selipin tombol share di akhir tiap slide
     const SHARE_BTN = '<button class="wr-share wr-anim" style="--d:.45s;" data-wrshare title="Share to IG Story">📸 Share</button>';
     slides = slides.map(s => s.replace(/<\/div>$/, SHARE_BTN + "</div>"));
     let dots = "";
     slides.forEach((_, i) => { dots += '<span class="wr-dot' + (i === 0 ? " on" : "") + '"></span>'; });
+    // .wr-phone: di HP = fullscreen, di layar gede = frame seukuran HP di tengah (kayak story)
     modal.innerHTML =
+        '<div class="wr-phone">' +
         '<div class="wr-top"><div class="wr-dots">' + dots + '</div><button class="wr-close" id="wrClose" aria-label="Tutup">✕</button></div>' +
         '<div class="wr-track" id="wrTrack">' + slides.join("") + '</div>' +
         '<button class="wr-zone left" id="wrPrev" aria-label="Sebelumnya"></button>' +
-        '<button class="wr-zone right" id="wrNext" aria-label="Lanjut"></button>';
+        '<button class="wr-zone right" id="wrNext" aria-label="Lanjut"></button>' +
+        '</div>';
     modal.classList.add("show");
     lockScroll();
     const track = $("wrTrack");
