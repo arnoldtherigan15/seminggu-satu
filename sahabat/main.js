@@ -38,6 +38,19 @@ async function apiPost(payload) {
     return await res.json();
 }
 
+// Blocker loader full-screen: tampil tiap kirim data biar user nggak bisa klik-klik lain
+function showBusy(text) {
+    const o = $("busyOverlay");
+    if (!o) return;
+    const t = $("busyText");
+    if (t) t.textContent = text || "Mengirim…";
+    o.classList.add("show");
+}
+function hideBusy() {
+    const o = $("busyOverlay");
+    if (o) o.classList.remove("show");
+}
+
 function setMsg(text, isErr) {
     const m = $("authMsg");
     m.className = "auth-msg" + (isErr ? " err" : "");
@@ -72,6 +85,7 @@ async function stepCheckWa() {
     if (!GS) { setMsg("Konfigurasi belum siap, refresh dulu ya.", true); return; }
     _wa = wa;
     const btn = $("nextBtn"); btn.disabled = true; setMsg("Mengecek…");
+    showBusy("Mengecek nomor kamu…");
     try {
         const r = await fetchJSONP(GS + "?page=memberStatus&wa=" + encodeURIComponent(wa), "ms", 20000);
         if (!r || !r.isMember) {
@@ -92,19 +106,20 @@ async function stepCheckWa() {
         }
     } catch (e) {
         setMsg("Gagal terhubung ke server. Coba lagi ya.", true);
-    } finally { btn.disabled = false; }
+    } finally { btn.disabled = false; hideBusy(); }
 }
 
 async function doLogin() {
     const pass = $("loginPass").value;
     if (!pass) { setMsg("Password-nya diisi dulu ya.", true); return; }
     const btn = $("loginBtn"); btn.disabled = true; setMsg("Masuk…");
+    showBusy("Masuk…");
     try {
         const r = await apiPost({ action: "memberLogin", wa: _wa, password: pass });
         if (r.status === "success") { onAuthSuccess(r); }
         else { setMsg(r.message || "Gagal masuk.", true); }
     } catch (e) { setMsg("Gagal terhubung ke server.", true); }
-    finally { btn.disabled = false; }
+    finally { btn.disabled = false; hideBusy(); }
 }
 
 async function doSetup() {
@@ -113,12 +128,13 @@ async function doSetup() {
     if (pass.length < 4) { setMsg("Password minimal 4 karakter.", true); return; }
     if (!birth) { setMsg("Tanggal lahir diisi dulu ya 🎂", true); return; }
     const btn = $("setupBtn"); btn.disabled = true; setMsg("Membuat akun…");
+    showBusy("Membuat akun…");
     try {
         const r = await apiPost({ action: "memberSetup", wa: _wa, password: pass, birthDate: birth });
         if (r.status === "success") { onAuthSuccess(r); }
         else { setMsg(r.message || "Gagal membuat akun.", true); }
     } catch (e) { setMsg("Gagal terhubung ke server.", true); }
-    finally { btn.disabled = false; }
+    finally { btn.disabled = false; hideBusy(); }
 }
 
 // ---------- Confetti Helper ----------
@@ -572,12 +588,14 @@ function wirePhotoPicker(scope) {
     input.addEventListener("change", async () => {
         const f = input.files && input.files[0];
         if (!f) return;
+        showBusy("Memproses foto…");
         try {
             const r = await compressImage(f, 1280, 0.75);
             input._photo = r;
             if (prev) { prev.style.display = "block"; prev.querySelector("img").src = r.dataUrl; }
             if (label) label.textContent = "✓ Foto siap (ketuk buat ganti)";
         } catch (e) { alert("Gagal proses foto: " + (e.message || "")); }
+        finally { hideBusy(); }
     });
 }
 
@@ -661,6 +679,7 @@ async function submitQuest(q, i, action) {
     if (!confirm("Ambil quest" + (q.title ? ' "' + q.title + '"' : "") + "?")) return;
     const orig = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Mengirim…"; }
+    showBusy(photo ? "Mengirim karya kamu…" : "Mengirim…");
     try {
         const payload = { action: "memberSubmitQuest", token: _profile.token, challengeId: q.id, caption: caption };
         if (photo) { payload.photoBase64 = photo.base64; payload.photoMime = photo.mime; }
@@ -677,6 +696,7 @@ async function submitQuest(q, i, action) {
         try { await navigator.clipboard.writeText(questCaption(q)); } catch (e) { }
         try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) { }
     } catch (e) { if (btn) { btn.disabled = false; btn.textContent = orig; } alert("Gagal terhubung ke server."); }
+    finally { hideBusy(); }
 }
 
 async function editQuestPhoto(q, i, box) {
@@ -688,6 +708,7 @@ async function editQuestPhoto(q, i, box) {
     const btn = $("qmEditSave");
     const orig = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Menyimpan…"; }
+    showBusy("Menyimpan karya kamu…");
     try {
         const r = await apiPost({ action: "memberEditQuest", token: _profile.token, challengeId: q.id, photoBase64: photo.base64, photoMime: photo.mime, caption: caption });
         if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = orig; } alert(r.message || "Gagal."); return; }
@@ -697,6 +718,7 @@ async function editQuestPhoto(q, i, box) {
         fireConfetti("quest");
         renderQuestAction(q, i);
     } catch (e) { if (btn) { btn.disabled = false; btn.textContent = orig; } alert("Gagal terhubung ke server."); }
+    finally { hideBusy(); }
 }
 
 // ---------- Leaderboard pane ----------
@@ -1169,6 +1191,7 @@ function openCheckinModal(wa) {
         const btn = $("ciSave");
         const orig = btn.textContent;
         btn.disabled = true; btn.textContent = "Menyimpan…";
+        showBusy(photo ? "Menyimpan check-in + foto…" : "Menyimpan check-in…");
         try {
             const payload = { action: "memberCheckin", token: _profile.token, weekKey: cw.key, note: note };
             if (photo) { payload.photoBase64 = photo.base64; payload.photoMime = photo.mime; }
@@ -1186,7 +1209,7 @@ function openCheckinModal(wa) {
         } catch (e) {
             btn.disabled = false; btn.textContent = orig;
             alert("Gagal terhubung ke server. Coba lagi ya.");
-        }
+        } finally { hideBusy(); }
     });
 }
 

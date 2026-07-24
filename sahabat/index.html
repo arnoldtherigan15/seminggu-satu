@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>Member Hub — Seminggu Satu by Arnold</title>
     <meta name="description" content="Portal khusus member Seminggu Satu: loyalty, event, challenge & gallery.">
 
@@ -1076,7 +1076,8 @@
         .qm-file:active { transform: scale(.98); }
         .qm-preview { margin-top: 8px; }
         .qm-preview img { width: 100%; border-radius: 12px; display: block; }
-        .qm-cap-input { width: 100%; margin-top: 8px; border: 1.5px solid var(--line); border-radius: 12px; padding: .7rem; font-family: inherit; font-size: .88rem; color: var(--ink); background: var(--card); resize: vertical; min-height: 58px; }
+        /* font-size 16px: di bawah itu iOS Safari auto-zoom pas fokus ke input */
+        .qm-cap-input { width: 100%; margin-top: 8px; border: 1.5px solid var(--line); border-radius: 12px; padding: .7rem; font-family: inherit; font-size: 16px; color: var(--ink); background: var(--card); resize: vertical; min-height: 58px; }
         .qm-cap-input:focus { outline: none; border-color: var(--blue); }
         /* ---- Karya kamu (view mode) + edit mode di modal quest ---- */
         .qm-work-lbl { font-size: .68rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 14px 0 8px; }
@@ -1372,6 +1373,13 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* ---- Busy overlay: blocker full-screen saat kirim data ---- */
+        .busy-overlay { position: fixed; inset: 0; z-index: 99998; display: none; align-items: center; justify-content: center; background: rgba(16, 36, 94, .55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+        .busy-overlay.show { display: flex; }
+        .busy-box { background: var(--card); border-radius: 18px; padding: 1.4rem 1.8rem; display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 190px; box-shadow: 0 18px 45px rgba(0, 60, 200, .28); }
+        .busy-box .ring { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
+        .busy-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .92rem; color: var(--ink); text-align: center; }
 
         /* ---- Custom Datepicker ---- */
         .custom-datepicker {
@@ -2288,6 +2296,14 @@
     <!-- Detail quest (ala postingan IG) -->
     <div class="quest-modal" id="questModal">
         <div class="quest-modal-box" id="questModalBox"></div>
+    </div>
+
+    <!-- Blocker loader saat kirim data (di atas semua modal, di bawah confetti) -->
+    <div class="busy-overlay" id="busyOverlay" aria-hidden="true">
+        <div class="busy-box">
+            <div class="ring"></div>
+            <div class="busy-text" id="busyText">Mengirim…</div>
+        </div>
     </div>
 
     <script src="main.js"></script>
