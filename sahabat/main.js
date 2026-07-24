@@ -1773,9 +1773,12 @@ function buildBirthdayHtml(b) {
         '<div class="bday-title">Selamat Ulang Tahun, ' + esc(nm) + '!</div>' +
         '<div class="bday-sub">Ada kejutan spesial buat kamu bulan ini ✨</div>' +
         '<div class="voucher" id="voucherCard">' +
-        '<div class="v-orb"></div>' +
-        '<div class="v-off">' + b.age + '%</div>' +
-        '<div class="v-lbl">Voucher Ulang Tahun 🎂</div>' +
+        '<span class="v-tape a"></span><span class="v-tape b"></span>' +
+        '<span class="v-cut">✂️</span>' +
+        '<span class="v-notch l"></span><span class="v-notch r"></span>' +
+        '<img class="v-stk" src="../images/sticker/str-8.png" alt="">' +
+        '<div class="v-off">' + b.age + '<small>%</small></div>' +
+        '<div><span class="v-lbl">🎂 Voucher Ulang Tahun</span></div>' +
         '<div class="v-desc">Diskon ' + b.age + '% buat event journaling apa aja 💙</div>' +
         '<div class="v-brand">@seminggu_satu · buat ' + esc(nm) + '</div>' +
         '</div>' +

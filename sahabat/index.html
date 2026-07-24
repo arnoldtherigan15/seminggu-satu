@@ -586,12 +586,22 @@
         .bday-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.2rem; margin-top: 4px; }
         .bday-sub { font-size: 0.85rem; color: var(--muted); margin: 4px 0 14px; }
         .bday-note { font-size: 0.76rem; color: var(--muted); margin-top: 8px; line-height: 1.4; }
-        .voucher { background: linear-gradient(150deg, #0043f5 0%, #7a3cff 55%, #ff007f 120%); color: #fff; border-radius: 18px; padding: 22px 20px; position: relative; overflow: hidden; box-shadow: 0 14px 34px rgba(120, 0, 160, .3); }
-        .voucher .v-orb { position: absolute; width: 150px; height: 150px; border-radius: 50%; top: -50px; right: -40px; background: radial-gradient(circle, rgba(255, 230, 0, .5) 0%, transparent 70%); pointer-events: none; }
-        .voucher .v-off { font-family: 'Outfit', sans-serif; font-size: 60px; font-weight: 800; line-height: 1; color: #ffe600; text-shadow: 0 3px 0 rgba(0, 20, 90, .25); position: relative; z-index: 1; }
-        .voucher .v-lbl { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 8px; position: relative; z-index: 1; }
-        .voucher .v-desc { font-size: 13px; opacity: .96; margin-top: 8px; position: relative; z-index: 1; }
-        .voucher .v-brand { font-size: 11px; font-weight: 800; color: #ffe600; margin-top: 14px; position: relative; z-index: 1; }
+        /* Kupon ala scrapbook: kertas dot-grid + garis gunting dashed + notch tiket */
+        .voucher { position: relative; background-color: #fffdf6; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 12px 12px; color: var(--ink); border: 2px dashed var(--blue); border-radius: 16px; padding: 22px 20px 16px; box-shadow: 0 12px 28px rgba(0, 30, 120, .15); }
+        :root[data-theme="dark"] .voucher { background-color: #1b2438; background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px); }
+        .voucher .v-cut { position: absolute; top: -12px; left: 50%; transform: translateX(-50%) scaleX(-1); font-size: .95rem; background: var(--card); padding: 0 7px; line-height: 1; }
+        .voucher .v-notch { position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%; background: var(--card); border: 2px dashed var(--blue); transform: translateY(-50%); }
+        .voucher .v-notch.l { left: -11px; }
+        .voucher .v-notch.r { right: -11px; }
+        .voucher .v-tape { position: absolute; width: 54px; height: 15px; border: 1px dashed rgba(16, 36, 94, .25); box-shadow: 0 2px 4px rgba(0, 0, 0, .1); pointer-events: none; z-index: 2; }
+        .voucher .v-tape.a { top: 8px; left: 10px; transform: rotate(-8deg); background: rgba(255, 230, 0, .72); }
+        .voucher .v-tape.b { bottom: 10px; right: 64px; transform: rotate(6deg); background: rgba(0, 70, 255, .25); }
+        .voucher .v-stk { position: absolute; bottom: 8px; right: 6px; width: 58px; transform: rotate(9deg); filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .18)); z-index: 2; pointer-events: none; }
+        .voucher .v-off { display: inline-block; font-family: 'Outfit', sans-serif; font-size: 56px; font-weight: 800; line-height: 1.1; color: var(--blue); padding: 0 12px; transform: rotate(-2deg); background: linear-gradient(transparent 58%, rgba(255, 230, 0, .85) 58%); }
+        .voucher .v-off small { font-size: .55em; }
+        .voucher .v-lbl { display: inline-block; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-size: .68rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 4px 12px; border-radius: 8px; border: 1.5px dashed rgba(16, 36, 94, .3); transform: rotate(-1.5deg); margin-top: 10px; }
+        .voucher .v-desc { font-size: .82rem; margin-top: 10px; }
+        .voucher .v-brand { font-family: 'Outfit', sans-serif; font-size: .68rem; font-weight: 800; letter-spacing: .5px; color: var(--blue); border-top: 1.5px dashed var(--line); padding-top: 10px; margin-top: 12px; }
 
         .stamps {
             display: flex;
