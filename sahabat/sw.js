@@ -2,7 +2,7 @@
 // Strategi: network-first (kode & data selalu fresh), fallback ke cache saat offline.
 // Scope = folder /sahabat/, jadi TIDAK mengintervensi request ke Apps Script (beda origin).
 
-const CACHE = "ss-sahabat-v2";
+const CACHE = "ss-sahabat-v3";
 const CORE = [
   "./index.html",
   "./main.js",
@@ -37,10 +37,14 @@ self.addEventListener("fetch", (e) => {
   e.respondWith(
     fetch(req)
       .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy));
+        // jangan cache response gagal (mis. 404 pas deploy) — bikin error "nempel"
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy));
+        }
         return res;
       })
-      .catch(() => caches.match(req).then((m) => m || caches.match("./index.html")))
+      // fallback index.html cuma buat navigasi halaman, jangan buat JSON/gambar
+      .catch(() => caches.match(req).then((m) => m || (req.mode === "navigate" ? caches.match("./index.html") : Response.error())))
   );
 });
