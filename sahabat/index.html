@@ -1339,8 +1339,11 @@
         .story-photo img { width: 100%; max-height: 56vh; object-fit: cover; display: block; aspect-ratio: 4 / 5; }
         .story-stamp { position: absolute; bottom: 10px; right: 10px; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, .92); border: 2px dashed rgba(16, 36, 94, .25); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; transform: rotate(8deg); z-index: 3; pointer-events: none; box-shadow: 0 4px 10px rgba(0, 0, 0, .15); }
         .story-nav { position: absolute; inset: 0; display: flex; z-index: 2; }
-        .story-nav div:first-child { width: 35%; }
-        .story-nav div:last-child { flex: 1; }
+        .story-nav button { border: none; background: transparent; padding: 0; margin: 0; cursor: pointer; height: 100%; -webkit-tap-highlight-color: transparent; }
+        .story-nav button:first-child { width: 35%; }
+        .story-nav button:last-child { flex: 1; }
+        /* lagi ditahan -> progress bar (dan auto-next) ikut pause */
+        .story-box.hold .sbar.run i { animation-play-state: paused; }
         .story-badge { display: inline-block; margin: 12px 0 0 2px; background: var(--yellow); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; padding: 4px 12px; border-radius: 8px; border: 1.5px dashed rgba(16, 36, 94, .3); transform: rotate(-2deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .1); }
         .story-note { margin-top: 10px; background: var(--card); border: 1.5px dashed var(--line); border-radius: 12px; padding: .7rem .85rem; font-size: .85rem; color: var(--ink); transform: rotate(.6deg); box-shadow: 0 4px 10px rgba(0, 30, 120, .07); }
 

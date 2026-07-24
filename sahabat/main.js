@@ -2003,8 +2003,8 @@ function openGalleryLightbox(it) {
 let _storyGroups = [];
 let _storyGIdx = 0;
 let _storySIdx = 0;
-let _storyTimer = null;
-const STORY_MS = 3500; // auto-next halus per foto (sinkron sama @keyframes storyRun di CSS)
+// Auto-next ngikutin animasi progress bar (storyRun 3.5s di CSS) via animationend,
+// jadi pas foto ditahan (pause) progress-nya ikut berhenti kayak IG.
 
 function storyKindIcon(kind) {
     return kind === "workshop" ? "🎪" : (kind === "reka-rekat" ? "✂️" : (kind === "weekly" ? "📖" : "🎯"));
@@ -2074,8 +2074,6 @@ function openStory(gIdx, sIdx) {
 }
 
 function closeStory() {
-    clearTimeout(_storyTimer);
-    _storyTimer = null;
     const modal = $("storyModal");
     if (modal) modal.classList.remove("show");
     unlockScroll();
@@ -2110,20 +2108,43 @@ function renderStoryViewer() {
         '<div class="story-photo">' +
         '<img src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25">' +
         '<span class="story-stamp">' + icon + '</span>' +
-        '<div class="story-nav"><div id="storyPrev"></div><div id="storyNext"></div></div>' +
+        '<div class="story-nav"><button id="storyPrev" aria-label="Story sebelumnya"></button><button id="storyNext" aria-label="Story selanjutnya"></button></div>' +
         '</div>' +
         '<div class="story-badge">' + icon + ' ' + esc(it.title || "Challenge") + '</div>' +
         (it.caption ? '<div class="story-note">' + esc(it.caption) + '</div>' : '') +
         '</div>';
     $("storyClose").addEventListener("click", closeStory);
-    $("storyPrev").addEventListener("click", prevStory);
-    $("storyNext").addEventListener("click", nextStory);
-    clearTimeout(_storyTimer);
-    _storyTimer = setTimeout(nextStory, STORY_MS);
+    let held = false; // habis long-press/swipe, click bawaan di-swallow biar nggak dobel navigasi
+    $("storyPrev").addEventListener("click", () => { if (!held) prevStory(); });
+    $("storyNext").addEventListener("click", () => { if (!held) nextStory(); });
+    const runBar = modal.querySelector(".sbar.run i");
+    if (runBar) runBar.addEventListener("animationend", nextStory);
+    // Gesture ala IG: tahan = pause, swipe kiri/kanan = next/prev, swipe ke bawah = tutup
+    const box = modal.querySelector(".story-box");
+    let sx = 0, sy = 0, st = 0;
+    box.addEventListener("touchstart", (e) => {
+        sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
+        held = false;
+        box.classList.add("hold");
+    }, { passive: true });
+    box.addEventListener("touchend", (e) => {
+        box.classList.remove("hold");
+        const t = e.changedTouches[0];
+        const dx = t.clientX - sx, dy = t.clientY - sy;
+        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) {
+            held = true;
+            if (dx < 0) nextStory(); else prevStory();
+        } else if (dy > 80 && Math.abs(dy) > Math.abs(dx)) {
+            held = true;
+            closeStory();
+        } else if (Date.now() - st > 350) {
+            held = true; // cuma nahan buat pause -> lepas jangan pindah story
+        }
+    }, { passive: true });
+    box.addEventListener("touchcancel", () => box.classList.remove("hold"), { passive: true });
 }
 
 function nextStory() {
-    clearTimeout(_storyTimer);
     const g = _storyGroups[_storyGIdx];
     if (!g) { closeStory(); return; }
     if (_storySIdx < g.items.length - 1) { _storySIdx++; renderStoryViewer(); }
@@ -2132,7 +2153,6 @@ function nextStory() {
 }
 
 function prevStory() {
-    clearTimeout(_storyTimer);
     if (_storySIdx > 0) { _storySIdx--; renderStoryViewer(); }
     else if (_storyGIdx > 0) { _storyGIdx--; _storySIdx = _storyGroups[_storyGIdx].items.length - 1; renderStoryViewer(); }
     else renderStoryViewer(); // udah paling awal: restart foto pertama
