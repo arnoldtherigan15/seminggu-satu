@@ -1730,9 +1730,10 @@ const BDAY_WISHES = [
     "Di hari spesialmu, Mochi cuma mau bilang: makasih udah jadi bagian keluarga Seminggu Satu 💙 Semoga harimu semanis washi tape favoritmu! 🎂✨"
 ];
 
-// Balon-balon terbang sekali pas dashboard kebuka (kalau ada yg ultah — termasuk user sendiri)
+// Balon-balon terbang sekali pas dashboard kebuka — KHUSUS buat yang lagi ultah sendiri
+// (member lain cukup lihat banner + story ultah, nggak perlu balon)
 function launchBalloons() {
-    if ((!BDAY_TODAY.length && !isMyBirthdayToday()) || $("bdayBalloons")) return;
+    if (!isMyBirthdayToday() || $("bdayBalloons")) return;
     const c = document.createElement("div");
     c.id = "bdayBalloons";
     c.className = "bday-balloons";
