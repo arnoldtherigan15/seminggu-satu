@@ -1064,6 +1064,9 @@
         /* leaf yang muter pas flip */
         .qb-leaf { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; transform-origin: left center; transform-style: preserve-3d; z-index: 5; display: none; }
         .qb-face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; padding: 18px 12px 14px; }
+        /* padding muka leaf HARUS identik sama halaman statisnya — beda 1px aja
+           bikin teks wrap beda pas konten dipindah di akhir flip */
+        .qb-face.qb-front { padding-left: 18px; }
         .qb-back { transform: rotateY(180deg); position: absolute; width: 100%; }
         /* isi halaman kiri */
         .qb-tape { position: absolute; width: 46px; height: 14px; background: rgba(255, 230, 0, .72); border: 1px dashed rgba(16, 36, 94, .22); pointer-events: none; z-index: 2; }
