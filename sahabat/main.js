@@ -317,9 +317,19 @@ async function loadEvents() {
         const full = max > 0 && used >= max;
         const isReg = !!registered[w.id];
         const dateTxt = w.workshopDate || (typeof formatDateIndo === "function" && w.eventDate ? formatDateIndo(w.eventDate) : "");
-        let badge = x.status === "not-open-yet"
-            ? '<span class="ev-badge soon">SOON</span>'
-            : '<span class="ev-badge open">OPEN</span>';
+        // Badge = harga dari config (ganti tag OPEN yang nggak informatif).
+        // Early bird aktif -> harga normal dicoret. Nggak ada harga -> fallback OPEN.
+        const kIDR = n => (n >= 1000 ? Math.round(n / 1000) : n); // 250000 -> 250
+        let badge;
+        if (x.status === "not-open-yet") {
+            badge = '<span class="ev-badge soon">SOON</span>';
+        } else {
+            const cur = (typeof getCurrentPrice === "function") ? getCurrentPrice(w) : w.normalPrice;
+            const eb = (typeof isEarlyBird === "function") && isEarlyBird(w) && w.normalPrice > cur;
+            badge = (cur > 0)
+                ? '<span class="ev-badge price">' + (eb ? '<s>' + kIDR(w.normalPrice) + '</s> ' : '') + kIDR(cur) + ' IDR</span>'
+                : '<span class="ev-badge open">OPEN</span>';
+        }
 
         let action;
         if (isReg) action = '<div class="ev-done">✅ You\'re in — see you there! 💙</div>';
