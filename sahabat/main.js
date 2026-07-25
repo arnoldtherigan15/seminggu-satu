@@ -2653,7 +2653,7 @@ function renderMochiChooser(modal, list) {
         '<div class="mp-head">' + (bday ? "🎂 Mochi bawa banyak hadiah!" : "🐾 Mochi bawa apa hari ini?") + '</div>' +
         '<div class="mp-sub">' + (bday ? "Hari spesial! Mau buka yang mana dulu?" : "Pilih satu — dua-duanya juga boleh 😉") + '</div>' +
         '<div class="mp-choose">' +
-        (bday ? '<button class="mp-choice bday" id="mcBday"><span class="mc-em">🎂</span><b>Surat Ultah</b><span>spesial hari ini ✨</span></button>' : '') +
+        (bday ? '<button class="mp-choice mc-bday" id="mcBday"><span class="mc-em">🎂</span><b>Surat Ultah</b><span>spesial hari ini ✨</span></button>' : '') +
         '<button class="mp-choice" id="mcPrompt"><span class="mc-em">✍️</span><b>Prompt Harian</b><span>ide journaling</span></button>' +
         '<button class="mp-choice cookie" id="mcCookie"><span class="mc-em">🥠</span><b>Fortune Cookie</b><span>pesan manis buatmu</span></button>' +
         '</div>' +
@@ -2751,7 +2751,7 @@ function renderMochiEnvelope(modal, list, mode) {
         '<div class="mp-head">' + (bday ? "🎂 Surat Ultah dari Mochi" : "💌 Surat dari Mochi") + '</div>' +
         '<div class="mp-sub">' + (bday ? "Ada ucapan spesial di hari spesialmu~" : "Ada prompt journaling harian buat kamu~") + '</div>' +
         '<div class="env-scene" id="envScene">' +
-        '<div class="envelope' + (bday ? " bday" : "") + '" id="envelope" role="button" aria-label="Buka amplop">' +
+        '<div class="envelope' + (bday ? " env-bday" : "") + '" id="envelope" role="button" aria-label="Buka amplop">' +
         '<div class="env-back"></div>' +
         '<div class="env-letter"></div>' +
         '<div class="env-front"></div>' +
@@ -3153,10 +3153,10 @@ function renderStoryBar() {
                 ? '<span class="story-ava official">SS</span>'
                 : '<span class="story-ava"><img src="' + esc(latest.photo) + '" alt="" loading="lazy" decoding="async"></span>');
         html += '<button class="story-item ' + rot + '" data-g="' + idx + '">' +
-            '<span class="story-ring' + (g.bday ? " bday" : "") + '">' + ava + '</span>' +
+            '<span class="story-ring' + (g.bday ? " ring-bday" : "") + '">' + ava + '</span>' +
             '<span class="story-sticker">' + (g.bday ? "🎈" : storyKindIcon(latest.kind)) + '</span>' +
             '<span class="story-count">' + g.items.length + '</span>' +
-            '<span class="story-name">' + esc(g.nickname) + (g.mine ? " · kamu" : "") + '</span>' +
+            '<span class="story-name">' + (g.bday ? "Ultah 🎈" : esc(g.nickname) + (g.mine ? " · kamu" : "")) + '</span>' +
             '</button>';
     });
     html += '</div>';

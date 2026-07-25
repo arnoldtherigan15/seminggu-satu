@@ -1542,7 +1542,7 @@
         .bb-balloon.b { right: 34px; bottom: 4px; animation-delay: 1.2s; filter: hue-rotate(140deg); }
         @keyframes bbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         /* bulatan story ultah */
-        .story-ring.bday { background: linear-gradient(135deg, #ff5c8a, #ffe600 45%, #ff9ec0, #ff5c8a); }
+        .story-ring.ring-bday { background: linear-gradient(135deg, #ff5c8a, #ffe600 45%, #ff9ec0, #ff5c8a); }
         .story-ava.bday-face { font-size: 1.5rem; }
         .ig-ava.bday-ava { background: linear-gradient(135deg, #ffe9f2, #fff6d8); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
         /* kartu ucapan di story viewer */
@@ -2527,8 +2527,8 @@
         .mp-choice { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 1.1rem .6rem; border-radius: 14px; border: 2px dashed var(--blue); background: rgba(0, 70, 255, .05); cursor: pointer; font-family: inherit; color: var(--ink); text-align: center; transition: transform .15s ease, background .2s ease; }
         .mp-choice:hover { background: rgba(0, 70, 255, .1); }
         .mp-choice:active { transform: scale(.95); }
-        .mp-choice.bday { border-color: #ff5c8a; background: rgba(255, 92, 138, .08); }
-        .mp-choice.bday:hover { background: rgba(255, 92, 138, .15); }
+        .mp-choice.mc-bday { border-color: #ff5c8a; background: rgba(255, 92, 138, .08); }
+        .mp-choice.mc-bday:hover { background: rgba(255, 92, 138, .15); }
         .mp-choice.cookie { border-color: #d97706; background: rgba(217, 119, 6, .07); }
         .mp-choice.cookie:hover { background: rgba(217, 119, 6, .14); }
         .mp-choice .mc-em { font-size: 1.7rem; line-height: 1; }
@@ -2556,12 +2556,12 @@
         .mp-actions { flex-wrap: wrap; }
         .mp-btn.bday-btn { background: #ff5c8a; color: #fff; box-shadow: 0 4px 12px rgba(255, 92, 138, .4); }
         /* amplop pink buat surat ultah */
-        .envelope.bday .env-back { background: #f27ba4; }
-        .envelope.bday .env-front { background: linear-gradient(180deg, #ffc9db 0%, #ffaac6 55%, #ff9abc 100%); }
-        .envelope.bday .env-flap { background: linear-gradient(180deg, #ffb6ce, #f795b5); }
-        .envelope.bday .env-addr { color: rgba(120, 20, 60, .8); }
-        .envelope.bday .env-tape.a { background: rgba(255, 230, 0, .65); }
-        .envelope.bday .env-tape.b { background: rgba(0, 70, 255, .28); }
+        .envelope.env-bday .env-back { background: #f27ba4; }
+        .envelope.env-bday .env-front { background: linear-gradient(180deg, #ffc9db 0%, #ffaac6 55%, #ff9abc 100%); }
+        .envelope.env-bday .env-flap { background: linear-gradient(180deg, #ffb6ce, #f795b5); }
+        .envelope.env-bday .env-addr { color: rgba(120, 20, 60, .8); }
+        .envelope.env-bday .env-tape.a { background: rgba(255, 230, 0, .65); }
+        .envelope.env-bday .env-tape.b { background: rgba(0, 70, 255, .28); }
         .mochi-bubble::after { content: ''; position: absolute; bottom: -7px; left: 22px; width: 12px; height: 12px; background: #fff; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg); }
         .mochi-bubble.theme::after { background: var(--yellow); }
         .mochi-heart { position: absolute; pointer-events: none; font-size: 1.2rem; animation: floatHeart .8s ease-out forwards; }
