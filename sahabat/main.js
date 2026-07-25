@@ -689,6 +689,7 @@ function renderQuestBook(host) {
             return;
         }
         anim = true;
+        playSfx("flip", 0.7);
         if (dir === 1) {
             front.innerHTML = qbRightHtml(_qbCur); // muka depan leaf = halaman kanan sekarang
             back.innerHTML = qbLeftHtml(j);        // baliknya = halaman kiri berikutnya
@@ -952,6 +953,7 @@ async function submitQuest(q, i, action) {
         if (photo) { payload.photoBase64 = photo.base64; payload.photoMime = photo.mime; }
         const r = await apiPost(payload);
         if (r.status !== "success") { if (btn) { btn.disabled = false; btn.textContent = orig; } alert(r.message || "Gagal."); return; }
+        playSfx("challenge-done");
         fireConfetti("quest");
         if (_questSubmitted.indexOf(q.id) < 0) _questSubmitted.push(q.id);
         if (photo) _questPhotos[q.id] = photo.dataUrl;   // preview lokal sampai reload
@@ -984,6 +986,7 @@ async function editQuestPhoto(q, i, box) {
         _questCaptions[q.id] = caption;
         _galleryLoaded = false;
         if (typeof _qbRefresh === "function") _qbRefresh(); // sinkron halaman Quest Book
+        playSfx("challenge-done");
         fireConfetti("quest");
         renderQuestAction(q, i);
     } catch (e) { if (btn) { btn.disabled = false; btn.textContent = orig; } alert("Gagal terhubung ke server."); }
@@ -1626,6 +1629,7 @@ function renderPassportBook(host) {
             return;
         }
         anim = true;
+        playSfx("flip", 0.7);
         // Muka leaf yang nampilin halaman SEKARANG diisi lewat adopsi node (bukan
         // rebuild innerHTML) — rebuild maksa <img> stiker decode ulang = kedip/zoom.
         if (dir === 1) {
@@ -1681,6 +1685,7 @@ function renderPassportBook(host) {
     function openBook() {
         if (opened) return;
         opened = true;
+        playSfx("flip", 0.7);
         leftP.style.visibility = "";
         // masuk mode 3D dulu di 0° (tanpa transisi), commit, baru swing 180°
         setLeaf(0, false);
@@ -2003,6 +2008,7 @@ function openCheckinModal(wa) {
             _profile.journalRecords = r.journalRecords || _profile.journalRecords; // sinkron dari server
             if (photo) _galleryLoaded = false; // biar galeri refetch (foto weekly ikut tampil)
             pushTagCheckin(cw.key); // jangan kirimi reminder mingguan lagi
+            playSfx("check-in");
             fireConfetti("quest");
             closeQuestModal();
             const widget = $("journalTrackerWidget");
@@ -3111,6 +3117,7 @@ function spawnMochi() {
     });
     el.addEventListener("click", () => {
         if (el.parentNode) el.parentNode.removeChild(el);
+        playSfx("catch-mochi");
         openStrayLetter();
         scheduleMochi();
     }, { once: true });
@@ -3367,6 +3374,7 @@ function renderFortuneScene(modal, list, again) {
     cookie.addEventListener("click", () => {
         if (cracked) return;
         cracked = true;
+        playSfx("open-cookie");
         cookie.classList.add("crack");
         if (typeof confetti === "function") setTimeout(() => fireConfetti("quest"), 450);
         setTimeout(() => {
@@ -3471,6 +3479,7 @@ function renderMochiEnvelope(modal, list, mode) {
     env.addEventListener("click", () => {
         if (opened) return;
         opened = true;
+        playSfx("open-mail");
         env.classList.add("open");
         if (typeof confetti === "function") setTimeout(() => fireConfetti(bday ? "reward" : "quest"), 500);
         setTimeout(() => {
@@ -3782,6 +3791,19 @@ function openGalleryLightbox(it) {
             last = 0;
         } else last = now;
     });
+}
+
+// ---------- Sound effects kecil (sekali bunyi) ----------
+// Audio di-cache per nama biar tap kedua langsung bunyi tanpa fetch ulang.
+const _sfxCache = {};
+function playSfx(name, vol) {
+    try {
+        let a = _sfxCache[name];
+        if (!a) { a = new Audio("../sound-effect/" + name + ".mp3"); _sfxCache[name] = a; }
+        a.volume = vol || 0.9;
+        a.currentTime = 0;
+        a.play().catch(() => { });
+    } catch (e) { }
 }
 
 // ---------- Kartu profil mini warga: rumahnya bio ----------
@@ -4443,7 +4465,7 @@ async function toggleLike(id) {
     if (!it) return;
     const prevLiked = it.liked, prevLikes = it.likes || 0;
     it.liked = !prevLiked; it.likes = Math.max(0, prevLikes + (it.liked ? 1 : -1));
-    if (it.liked) fireConfetti("love");
+    if (it.liked) { playSfx("love"); fireConfetti("love"); }
     updateLikeDom(id, it);
     try {
         const r = await apiPost({ action: "memberToggleLike", token: _profile.token, submissionId: id });
