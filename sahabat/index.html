@@ -1543,6 +1543,8 @@
         @keyframes bbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         /* bulatan story ultah */
         .story-ring.ring-bday { background: linear-gradient(135deg, #ff5c8a, #ffe600 45%, #ff9ec0, #ff5c8a); }
+        /* badge "BARU": ada foto <24 jam yang belum ditonton — sticker merah miring */
+        .story-new { position: absolute; top: 54px; left: 50%; transform: translateX(-50%) rotate(-4deg); background: #ff2d55; color: #fff; font-family: 'Outfit', sans-serif; font-size: .52rem; font-weight: 800; letter-spacing: .8px; padding: 2px 7px; border-radius: 6px; border: 1.5px solid #fff; box-shadow: 0 2px 6px rgba(255, 45, 85, .45); z-index: 4; pointer-events: none; animation: bbFloat 2.2s ease-in-out infinite; }
         /* story yang semua fotonya udah dilihat: ring redup abu + nama pudar (ala IG) */
         .story-item.seen .story-ring { background: #cdd6e8; box-shadow: none; }
         :root[data-theme="dark"] .story-item.seen .story-ring { background: #3a4666; }

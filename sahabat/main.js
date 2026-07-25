@@ -3141,11 +3141,16 @@ function markStorySeen(id) {
 // Update ring di bar tanpa re-render (re-render bakal reshuffle urutan, jarring)
 function updateStoryBarSeen() {
     const seen = storySeenSet();
+    const now = Date.now();
     document.querySelectorAll("#storyBar .story-item").forEach(el => {
         const g = _storyGroups[Number(el.dataset.g)];
         if (!g) return;
         const done = g.items.every(it => seen.has(it.id));
         el.classList.toggle("seen", done);
+        // badge BARU ikut hilang begitu foto barunya udah ditonton
+        const hasNew = g.items.some(it => it.ts && (now - it.ts) < 86400000 && !seen.has(it.id));
+        const nb = el.querySelector(".story-new");
+        if (nb && !hasNew) nb.remove();
     });
 }
 
@@ -3191,10 +3196,13 @@ function renderStoryBar() {
     _storyGroups = buildStoryGroups();
     if (!_storyGroups.length) { wrap.innerHTML = ""; return; }
     const seen = storySeenSet();
+    const now = Date.now();
     let html = '<div class="story-lbl">✨ Sahabat Stories</div><div class="story-track">';
     _storyGroups.forEach((g, idx) => {
         const rot = ["st-r1", "st-r2", "st-r3"][idx % 3];
         const isSeen = g.items.every(it => seen.has(it.id));
+        // "BARU" = ada foto <24 jam yang BELUM dilihat (udah ditonton -> badge hilang)
+        const hasNew = g.items.some(it => it.ts && (now - it.ts) < 86400000 && !seen.has(it.id));
         const latest = g.items[0]; // items udah diurut terbaru duluan
         const ava = g.bday
             ? '<span class="story-ava bday-face">🎂</span>'
@@ -3205,6 +3213,7 @@ function renderStoryBar() {
             '<span class="story-ring' + (g.bday ? " ring-bday" : "") + '">' + ava + '</span>' +
             '<span class="story-sticker">' + (g.bday ? "🎈" : storyKindIcon(latest.kind)) + '</span>' +
             '<span class="story-count">' + g.items.length + '</span>' +
+            (hasNew ? '<span class="story-new">BARU</span>' : '') +
             '<span class="story-name">' + (g.bday ? "Ultah 🎈" : esc(g.nickname) + (g.mine ? " · kamu" : "")) + '</span>' +
             '</button>';
     });
