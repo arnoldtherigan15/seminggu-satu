@@ -2683,6 +2683,8 @@ function openProfileEditor() {
         '<span class="qm-file-sub">Ketuk buat pilih foto dari galeri 🖼️</span>' +
         '<input type="file" id="peFile" accept="image/*" hidden>' +
         '</label>' +
+        '<div class="pe-field"><label>Nama panggilan 🏷️</label>' +
+        '<input type="text" id="peNick" maxlength="30" value="' + esc(_profile.nickname || "") + '" placeholder="Nama panggilanmu"></div>' +
         '<div class="pe-field"><label>Tanggal lahir 🎂</label>' +
         '<input type="date" id="peBirth" value="' + esc((String(_profile.birthDate || "").match(/\d{4}-\d{2}-\d{2}/) || [""])[0]) + '"></div>' +
         '<div class="pe-field"><label>Bio singkat ✨</label>' +
@@ -2707,22 +2709,28 @@ function openProfileEditor() {
 
     $("peSave").addEventListener("click", async () => {
         const btn = $("peSave");
+        const nick = $("peNick").value.trim();
+        if (!nick) { alert("Nama panggilan jangan kosong ya 😊"); return; }
         btn.disabled = true;
         showBusy("Menyimpan profil…");
         try {
             const payload = {
                 action: "memberUpdateProfile", token: _profile.token,
+                nickname: nick,
                 birthDate: $("peBirth").value.trim(),
                 bio: $("peBio").value.trim()
             };
             if (newPhoto) { payload.photoBase64 = newPhoto.base64; payload.photoMime = newPhoto.mime; }
             const r = await apiPost(payload);
             if (r.status !== "success") { btn.disabled = false; alert(r.message || "Gagal menyimpan."); return; }
+            _profile.nickname = r.nickname || _profile.nickname;
             _profile.birthDate = r.birthDate || _profile.birthDate;
             _profile.photoUrl = r.photoUrl || _profile.photoUrl;
             _profile.bio = r.bio !== undefined ? r.bio : _profile.bio;
             renderProfileAva();
-            _galleryLoaded = false; // avatar di galeri ikut berubah -> refetch nanti
+            $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
+            _galleryLoaded = false; // avatar & nickname di galeri ikut berubah -> refetch nanti
+            _lbLoaded = false; _lbData = null; // nama di leaderboard juga
             fireConfetti("login");
             closeQuestModal();
         } catch (e) { btn.disabled = false; alert("Gagal terhubung ke server. Coba lagi ya."); }
@@ -3384,7 +3392,7 @@ function galFeedCard(it) {
         '<header class="feed-header">' +
         '<div class="user-meta">' + ava +
         '<div class="user-info"><span class="username">' + esc(it.nickname || "Sahabat") +
-        (it.mine ? ' <span class="ig-me">KAMU</span>' : '') +
+        (it.mine ? ' <span class="me-star" title="Karya kamu">⭐</span>' : '') +
         (isEvent ? ' <span class="ig-me official-tag">OFFICIAL</span>' : '') + '</span>' +
         (when ? '<span class="post-time">' + when + '</span>' : '') + '</div></div>' +
         '<div class="quest-badge-sticker">' + bIcon + ' ' + esc(it.title) + '</div>' +
@@ -3432,7 +3440,7 @@ function galGridItem(it, i) {
         '<div class="jcard-imgwrap ' + ratio + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25">' + stampIn + (isNew ? '<span class="gal-new">BARU</span>' : '') + '</div>' +
         '<div class="jcard-body">' +
         '<div class="jcard-author">' + ava +
-        '<span class="jcard-nick">' + esc(it.nickname || "Sahabat") + (it.mine ? " · kamu" : "") + '</span>' +
+        '<span class="jcard-nick">' + esc(it.nickname || "Sahabat") + (it.mine ? ' <span class="me-star">⭐</span>' : "") + '</span>' +
         '<span class="jcard-likes">' + (it.liked ? "❤️" : "🤍") + ' ' + (it.likes || 0) + '</span></div>' +
         (it.eventDate ? '<div class="jcard-date">🗓 ' + esc(fmtEventDate(it.eventDate)) + '</div>' : '') +
         (it.caption ? '<div class="jcard-cap">' + esc(it.caption) + '</div>' : '') +
@@ -3502,7 +3510,7 @@ function openGalleryLightbox(it) {
         '<div class="qm-body">' +
         '<div class="ig-head" style="padding-left:0;padding-right:0;">' + ava +
         '<div class="ig-user-info"><div class="ig-user-row"><span class="ig-user">' + esc(it.nickname || "Sahabat") + '</span>' +
-        (it.mine ? '<span class="ig-me">KAMU</span>' : '') +
+        (it.mine ? '<span class="me-star" title="Karya kamu">⭐</span>' : '') +
         (isEvent ? '<span class="ig-me official-tag">OFFICIAL</span>' : '') + '</div>' +
         '<div class="ig-chal">' + bIcon + ' ' + esc(it.title) + (it.eventDate ? ' · 🗓 ' + esc(fmtEventDate(it.eventDate)) : '') + '</div></div></div>' +
         '<div class="ig-actions" style="padding-left:0;padding-right:0;"><button class="ig-btn-like" data-like="' + esc(it.id) + '"><span class="li-icon">' + (it.liked ? "❤️" : "🤍") + '</span> <span class="li-count">' + (it.likes || 0) + '</span> Likes</button></div>' +
@@ -3854,7 +3862,7 @@ function renderStoryBar() {
             '<span class="story-ring' + (g.bday ? " ring-bday" : "") + '">' + ava + '</span>' +
             '<span class="story-sticker">' + (g.bday ? "🎈" : storyKindIcon(latest.kind)) + '</span>' +
             '<span class="story-count">' + g.items.length + '</span>' +
-            '<span class="story-name">' + (g.bday ? "Ultah 🎈" : esc(g.nickname) + (g.mine ? " · kamu" : "")) + '</span>' +
+            '<span class="story-name">' + (g.bday ? "Ultah 🎈" : (g.mine ? "⭐ " : "") + esc(g.nickname)) + '</span>' +
             '</button>';
     });
     html += '</div>';
@@ -3928,7 +3936,7 @@ function storyBoxHtml(gIdx, sIdx, active) {
         '<div class="story-head">' +
         '<div class="story-who">' + ava +
         '<div><div class="story-who-name">' + esc(g.nickname) +
-        (it.mine ? ' <span class="ig-me">KAMU</span>' : '') +
+        (it.mine ? ' <span class="me-star" title="Karya kamu">⭐</span>' : '') +
         (g.official ? ' <span class="ig-me official-tag">OFFICIAL</span>' : '') + '</div>' +
         '<div class="story-who-sub">' + (it.eventDate ? "🗓 " + esc(fmtEventDate(it.eventDate)) : esc(timeAgo(it.ts))) + '</div></div></div>' +
         (active ? '<button class="story-close" id="storyClose" aria-label="Tutup">✕</button>' : '<span class="story-close">✕</span>') +
