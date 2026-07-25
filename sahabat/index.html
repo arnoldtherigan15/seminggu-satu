@@ -1743,8 +1743,12 @@
         .wr-phone { position: relative; width: 100%; height: 100%; }
         .wr-top { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: calc(12px + env(safe-area-inset-top)) 14px 10px; z-index: 5; }
         .wr-dots { flex: 1; display: flex; gap: 5px; }
-        .wr-dot { flex: 1; height: 4px; border-radius: 99px; background: rgba(255, 255, 255, .28); transition: background .25s ease; }
-        .wr-dot.on { background: var(--yellow); }
+        .wr-dot { flex: 1; height: 4px; border-radius: 99px; background: rgba(255, 255, 255, .28); overflow: hidden; }
+        .wr-dot i { display: block; height: 100%; width: 0; border-radius: 99px; background: var(--yellow); }
+        .wr-dot.on i { width: 100%; }
+        .wr-dot.run i { animation: wrFill 5s linear forwards; } /* durasi = WR_MS di main.js */
+        .wr-dot.hold i { animation-play-state: paused; }
+        @keyframes wrFill { from { width: 0; } to { width: 100%; } }
         .wr-close { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255, 255, 255, .22); color: #fff; font-size: .95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .wr-track { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         .wr-track::-webkit-scrollbar { display: none; }

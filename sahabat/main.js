@@ -1363,7 +1363,7 @@ function showWrapped(slides, shareMeta) {
     const SHARE_BTN = '<button class="wr-share wr-anim" style="--d:.45s;" data-wrshare title="Share to IG Story">📸 Share</button>';
     slides = slides.map(s => s.replace(/<\/div>$/, SHARE_BTN + "</div>"));
     let dots = "";
-    slides.forEach((_, i) => { dots += '<span class="wr-dot' + (i === 0 ? " on" : "") + '"></span>'; });
+    slides.forEach(() => { dots += '<span class="wr-dot"><i></i></span>'; });
     // .wr-phone: di HP = fullscreen, di layar gede = frame seukuran HP di tengah (kayak story)
     modal.innerHTML =
         '<div class="wr-phone">' +
@@ -1386,24 +1386,43 @@ function showWrapped(slides, shareMeta) {
             modal._wrTimer = setTimeout(() => track.scrollBy({ left: track.clientWidth, behavior: "smooth" }), WR_MS);
         }
     }
+    // bar aktif keisi 0->100% sinkron sama timer (kayak story); yang lewat full, sisanya kosong
+    function armAnim() {
+        dotEls.forEach((dt, k) => {
+            dt.classList.remove("run", "hold");
+            dt.classList.toggle("on", k < cur);
+        });
+        const cd = dotEls[cur];
+        if (!cd) return;
+        if (cur < slideEls.length - 1) { void cd.offsetWidth; cd.classList.add("run"); } // reflow = restart animasi dari 0
+        else cd.classList.add("on"); // slide terakhir nggak auto-next -> bar langsung penuh
+    }
     function setLive() {
         const i = Math.max(0, Math.min(slideEls.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
         if (i === cur) return;
         cur = i;
         slideEls.forEach((s, k) => s.classList.toggle("live", k === i));
-        dotEls.forEach((dt, k) => dt.classList.toggle("on", k <= i));
         if (i === slideEls.length - 1 && !burst) { burst = true; fireConfetti("reward"); }
         arm();
+        armAnim();
     }
     setLive();
     track.addEventListener("scroll", setLive, { passive: true });
-    track.addEventListener("touchstart", () => clearTimeout(modal._wrTimer), { passive: true });
-    track.addEventListener("touchend", arm, { passive: true });
+    track.addEventListener("touchstart", () => {
+        clearTimeout(modal._wrTimer);
+        const cd = dotEls[cur];
+        if (cd) cd.classList.add("hold"); // disentuh = timer pause, bar ikut berhenti
+    }, { passive: true });
+    track.addEventListener("touchend", () => { arm(); armAnim(); }, { passive: true }); // lepas = mulai ulang 5 dtk penuh
     $("wrClose").addEventListener("click", closeWrapped);
     $("wrPrev").addEventListener("click", () => track.scrollBy({ left: -track.clientWidth, behavior: "smooth" }));
     $("wrNext").addEventListener("click", () => track.scrollBy({ left: track.clientWidth, behavior: "smooth" }));
     modal.querySelectorAll("[data-wrshare]").forEach((b, i) =>
-        b.addEventListener("click", () => shareWrappedSlide(slideEls[i], i, shareMeta || {})));
+        b.addEventListener("click", () => {
+            const cd = dotEls[cur];
+            if (cd) cd.classList.add("hold"); // auto-next mati pas share -> bar ikut berhenti
+            shareWrappedSlide(slideEls[i], i, shareMeta || {});
+        }));
 }
 
 // Share satu slide wrapped -> PNG 1080x1920 (clone 360x640 di-render scale 3)
