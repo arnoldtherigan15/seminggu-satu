@@ -2288,10 +2288,17 @@ async function loadLoyalty() {
         const rc = $("recapCard");
         if (rc) rc.addEventListener("click", openMonthlyRecap);
         $("scardEvents").addEventListener("click", openEventLog);
-        $("scardQuests").addEventListener("click", () => {
-            _galleryFilter = "mine"; // loncat ke galeri, langsung ke-filter karya sendiri
-            activateTab("gallery");
-            if (_galleryLoaded && _galleryItems.length) renderGallery();
+        $("scardQuests").addEventListener("click", async () => {
+            // buka story karya sendiri (kayak nge-tap avatar sendiri di story bar)
+            if (!_galleryLoaded || !_galleryItems.length) {
+                showBusy("Ngambil karya kamu\u2026");
+                try { await loadGallery(); } finally { hideBusy(); }
+            }
+            if (!_storyGroups.length) _storyGroups = buildStoryGroups();
+            const mi = _storyGroups.findIndex(g => g.mine);
+            if (mi >= 0) { openStory(mi, 0); return; }
+            alert("Belum ada karya kamu di galeri \u2014 yuk mulai dari challenge pertama! \ud83c\udfaf");
+            activateTab("quest");
         });
         if (bday) { wireBirthday(bday); fireConfetti("reward"); }
         else if (d.eligible) { fireConfetti("reward"); }
