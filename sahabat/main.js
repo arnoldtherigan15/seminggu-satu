@@ -3004,7 +3004,7 @@ function galFeedCard(it) {
         '</header>' +
         '<div class="feed-photo-frame">' +
         frameDeco +
-        '<div class="ig-imgwrap feed-photo-wrap" data-tap="' + esc(it.id) + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
+        '<div class="ig-imgwrap feed-photo-wrap" data-tap="' + esc(it.id) + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div>' + ((it.ts && (Date.now() - it.ts) < 86400000) ? '<span class="gal-new">BARU</span>' : '') + '</div>' +
         '</div>' +
         '<div class="feed-actions"><button class="action-btn ig-btn-like' + (it.liked ? " active" : "") + '" data-like="' + esc(it.id) + '"><span class="li-icon">' + (it.liked ? "❤️" : "🤍") + '</span> <span class="li-count">' + (it.likes || 0) + '</span> Likes</button></div>' +
         (it.caption ? '<div class="feed-caption-box"><p class="caption-text"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</p></div>' : '') +
@@ -3019,6 +3019,7 @@ function galGridItem(it, i) {
     let frame, deco = "", stampIn = "";
     if (it.kind === "workshop") {
         frame = "frame-workshop";
+        deco = '<img class="tw-stk" src="../images/sticker/str-6.png" alt="">'; // anjing lebah pojok kanan atas
         stampIn = '<span class="ev-stamp">WORKSHOP</span>';
     } else if (it.kind === "reka-rekat") {
         frame = "frame-rekarekat";
@@ -3038,9 +3039,10 @@ function galGridItem(it, i) {
     const ava = (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga")
         ? '<span class="jcard-ava official">SS</span>'
         : '<span class="jcard-ava">' + initial + '</span>';
+    const isNew = it.ts && (Date.now() - it.ts) < 86400000; // <24 jam
     return '<div class="jcard ' + frame + '" data-id="' + esc(it.id) + '">' +
         deco +
-        '<div class="jcard-imgwrap ' + ratio + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25">' + stampIn + '</div>' +
+        '<div class="jcard-imgwrap ' + ratio + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25">' + stampIn + (isNew ? '<span class="gal-new">BARU</span>' : '') + '</div>' +
         '<div class="jcard-body">' +
         '<div class="jcard-author">' + ava +
         '<span class="jcard-nick">' + esc(it.nickname || "Sahabat") + (it.mine ? " · kamu" : "") + '</span>' +
@@ -3141,16 +3143,11 @@ function markStorySeen(id) {
 // Update ring di bar tanpa re-render (re-render bakal reshuffle urutan, jarring)
 function updateStoryBarSeen() {
     const seen = storySeenSet();
-    const now = Date.now();
     document.querySelectorAll("#storyBar .story-item").forEach(el => {
         const g = _storyGroups[Number(el.dataset.g)];
         if (!g) return;
         const done = g.items.every(it => seen.has(it.id));
         el.classList.toggle("seen", done);
-        // badge BARU ikut hilang begitu foto barunya udah ditonton
-        const hasNew = g.items.some(it => it.ts && (now - it.ts) < 86400000 && !seen.has(it.id));
-        const nb = el.querySelector(".story-new");
-        if (nb && !hasNew) nb.remove();
     });
 }
 
@@ -3169,10 +3166,8 @@ function buildStoryGroups() {
         map[key].items.push(it);
     });
     order.forEach(g => g.items.sort((a, b) => (b.ts || 0) - (a.ts || 0))); // TERBARU duluan
-    for (let i = order.length - 1; i > 0; i--) { // shuffle Fisher-Yates
-        const j = Math.floor(Math.random() * (i + 1));
-        const t = order[i]; order[i] = order[j]; order[j] = t;
-    }
+    // grup diurutkan dari yang postingan terbarunya paling baru (bukan random lagi)
+    order.sort((a, b) => ((b.items[0] && b.items[0].ts) || 0) - ((a.items[0] && a.items[0].ts) || 0));
     // Yang BELUM dilihat maju ke depan, yang udah kelar mundur (kayak IG)
     const seen = storySeenSet();
     const unseen = order.filter(g => !g.items.every(it => seen.has(it.id)));
@@ -3196,13 +3191,10 @@ function renderStoryBar() {
     _storyGroups = buildStoryGroups();
     if (!_storyGroups.length) { wrap.innerHTML = ""; return; }
     const seen = storySeenSet();
-    const now = Date.now();
     let html = '<div class="story-lbl">✨ Sahabat Stories</div><div class="story-track">';
     _storyGroups.forEach((g, idx) => {
         const rot = ["st-r1", "st-r2", "st-r3"][idx % 3];
         const isSeen = g.items.every(it => seen.has(it.id));
-        // "BARU" = ada foto <24 jam yang BELUM dilihat (udah ditonton -> badge hilang)
-        const hasNew = g.items.some(it => it.ts && (now - it.ts) < 86400000 && !seen.has(it.id));
         const latest = g.items[0]; // items udah diurut terbaru duluan
         const ava = g.bday
             ? '<span class="story-ava bday-face">🎂</span>'
@@ -3213,7 +3205,6 @@ function renderStoryBar() {
             '<span class="story-ring' + (g.bday ? " ring-bday" : "") + '">' + ava + '</span>' +
             '<span class="story-sticker">' + (g.bday ? "🎈" : storyKindIcon(latest.kind)) + '</span>' +
             '<span class="story-count">' + g.items.length + '</span>' +
-            (hasNew ? '<span class="story-new">BARU</span>' : '') +
             '<span class="story-name">' + (g.bday ? "Ultah 🎈" : esc(g.nickname) + (g.mine ? " · kamu" : "")) + '</span>' +
             '</button>';
     });
