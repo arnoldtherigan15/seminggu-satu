@@ -4223,7 +4223,7 @@ function storyBoxHtml(gIdx, sIdx, active) {
         '<span class="story-tape-tl"></span><span class="story-tape-br"></span>' +
         bars +
         '<div class="story-head">' +
-        '<div class="story-who">' + ava +
+        '<div class="story-who"' + (active && !g.official ? ' data-wcard="' + esc(it.id) + '" role="button"' : '') + '>' + ava +
         '<div><div class="story-who-name">' + esc(g.nickname) +
         (it.mine ? ' <span class="me-star" title="Karya kamu">⭐</span>' : '') +
         (g.official ? ' <span class="ig-me official-tag">OFFICIAL</span>' : '') + '</div>' +
@@ -4259,6 +4259,13 @@ function renderStoryViewer() {
         '</div></div>';
     let held = false; // habis drag/long-press, click bawaan di-swallow biar nggak dobel navigasi
     $("storyClose").addEventListener("click", closeStory);
+    // tap avatar/nama di header story -> kartu profil mini (story ditutup dulu,
+    // questModal z-nya di bawah story modal)
+    const swc = modal.querySelector("[data-wcard]");
+    if (swc) swc.addEventListener("click", () => {
+        const wit = _galleryItems.find(x => x.id === swc.dataset.wcard);
+        if (wit) { closeStory(); openWargaCard(wit); }
+    });
     $("storyPrev").addEventListener("click", () => { if (!held) prevStory(); });
     $("storyNext").addEventListener("click", () => { if (!held) nextStory(); });
     const runBar = modal.querySelector(".sbar.run i");
