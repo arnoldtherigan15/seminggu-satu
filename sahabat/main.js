@@ -2440,13 +2440,18 @@ async function loadLoyalty() {
             '<div id="evTicketSlot"></div>' +
             renderRecapCardHtml() +
             cardHtml +
+            '<button type="button" class="psp-cta" id="btnPassport">' +
+            '<span class="psp-cta-emblem">SS</span>' +
+            '<span class="psp-cta-body"><span class="psp-cta-t">Paspor Warga</span>' +
+            '<span class="psp-cta-s">Identitas + stempel event yang udah kamu datengin</span></span>' +
+            '<span class="psp-cta-go">buka 📖</span>' +
+            '</button>' +
             '<div class="stat-cards">' +
             '<button type="button" class="scard" id="scardEvents"><b>' + count + '</b><span>Events Joined</span><span class="scard-go">lihat \u2192</span></button>' +
             '<button type="button" class="scard" id="scardQuests"><b>' + (d.questCount || 0) + '</b><span>Challenges</span><span class="scard-go">karyaku \u2192</span></button>' +
             '</div>' +
             '<div class="tier"><div class="em">' + p.emoji + '</div><div><div class="t">' + esc(p.title) + '</div><div class="d">' + esc(p.tag) + '</div></div></div>' +
-            '<div class="card"><div class="section-lbl">Loyalty Card 🎁</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>' +
-            '<button class="btn-primary" id="btnPassport">Open Full Passport</button>';
+            '<div class="card"><div class="section-lbl">Loyalty Card 🎁</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>';
 
         $("btnPassport").addEventListener("click", openPassport);
         init3DCardListeners();
