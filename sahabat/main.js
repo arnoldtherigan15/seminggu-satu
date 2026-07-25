@@ -240,14 +240,7 @@ function showDashboard() {
         fireConfetti("reward");
     }
     launchBalloons(); // ada sahabat ultah (atau kamu sendiri)? balon-balon terbang 🎈
-    // Bubble pintar Mochi, sekali per sesi: pesan paling relevan sesuai kondisi member
-    const mb = $("mochiBubble");
-    if (mb && !mb._teased) {
-        mb._teased = true;
-        mb.textContent = mochiSmartBubble();
-        mb.classList.add("show");
-        setTimeout(() => mb.classList.remove("show"), 6500);
-    }
+    startMochiBubbles(); // bubble pintar Mochi: pesan-pesan relevan tampil bergiliran
     // Ikutin tab dari hash (biar refresh nggak balik ke tab pertama)
     activateTab((location.hash || "").replace("#", "") || "loyalty");
     // Prefetch tab lain di background pas browser idle (non-blocking) biar pindah tab instan
@@ -347,6 +340,7 @@ async function loadEvents() {
             fetchJSONP(GS + "?page=memberEvents&wa=" + encodeURIComponent(_profile.wa), "mev", 15000).catch(() => ({}))
         ]);
         counts = c || {}; registered = (r && r.registered) || {};
+        _evRegistered = registered; // simpan buat bubble pintar Mochi (skip event yg udah didaftar)
     } catch (e) { }
 
     const items = _ws
@@ -2407,27 +2401,30 @@ async function loadLoyalty() {
 // ============================================================
 //  Mochi's Corner (maskot) — pembawa surat prompt harian
 // ============================================================
-// Bubble pintar: Mochi jadi asisten kecil — pilih SATU pesan paling relevan
-// sesuai kondisi member, urut prioritas. Semua datanya udah ada di client.
-function mochiSmartBubble() {
+// Bubble pintar: Mochi jadi asisten kecil — kumpulin SEMUA pesan yang relevan
+// (urut prioritas), nanti ditampilkan bergiliran. Datanya dari state client.
+let _evRegistered = null; // peta event yg udah didaftar (diisi loadEvents)
+
+function mochiSmartMessages() {
+    const msgs = [];
     // 1) Ultah sendiri: surat spesial nunggu
-    if (isMyBirthdayToday()) return "🎂 Ada surat spesial buat kamu — tap aku!";
+    if (isMyBirthdayToday()) msgs.push("🎂 Ada surat spesial buat kamu — tap aku!");
     // 2) Ada teman ultah: ajak ngucapin
     const myNick = (_profile && _profile.nickname) || "";
     const bd = BDAY_TODAY.filter(b => b.nickname !== myNick);
-    if (bd.length) return "🎈 " + bd[0].nickname + " ultah hari ini — kirim ucapan yuk!";
+    if (bd.length) msgs.push("🎈 " + bd[0].nickname + " ultah hari ini — kirim ucapan yuk!");
     // 3) Belum check-in minggu ini: ingetin (bawa-bawa streak biar makin kepancing)
     try {
         const records = getJournalTrackerData(_profile.wa).records || {};
         const cw = getMonthWeekObj(new Date());
         if (!records[cw.key]) {
             const streak = calculateJournalStreak(records);
-            return streak > 0
+            msgs.push(streak > 0
                 ? "🔥 Streak " + streak + " minggu — check-in sekarang biar nggak putus!"
-                : "✍️ Belum check-in minggu ini — yuk mulai streak pertamamu!";
+                : "✍️ Belum check-in minggu ini — yuk mulai streak pertamamu!");
         }
     } catch (e) { }
-    // 4) Event yang lagi buka & tinggal <=7 hari lagi
+    // 4) Event yang lagi buka & tinggal <=7 hari — skip yg UDAH didaftar (kalau datanya udah ada)
     try {
         const ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
         const now = new Date();
@@ -2435,6 +2432,7 @@ function mochiSmartBubble() {
         let best = null;
         ws.forEach(w => {
             if (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open") return;
+            if (_evRegistered && _evRegistered[w.id]) return; // udah daftar -> nggak perlu diingetin
             const d = (typeof parseDate === "function") ? parseDate(w.eventDate) : null;
             if (!d) return;
             const days = Math.round((d - today) / 86400000);
@@ -2443,11 +2441,35 @@ function mochiSmartBubble() {
         });
         if (best) {
             const when = best.days === 0 ? "HARI INI" : (best.days === 1 ? "besok" : best.days + " hari lagi");
-            return "🎪 " + (best.w.name || "Event") + " " + when + " — udah daftar?";
+            msgs.push("🎪 " + (best.w.name || "Event") + " " + when + " — udah daftar?");
         }
     } catch (e) { }
-    // 5) Semua aman -> teaser surat harian
-    return "💌 Baca surat dari Mochi";
+    // 5) Penutup: teaser surat harian (selalu ada di ekor rotasi)
+    msgs.push("💌 Baca surat dari Mochi");
+    return msgs;
+}
+
+// Rotasi bubble: tampilkan pesan relevan bergiliran (~7 dtk per pesan), sekali per sesi.
+// List dibangun ulang tiap giliran biar data yang nyusul ke-load (mis. registrasi
+// event) langsung kepakai.
+function startMochiBubbles() {
+    const mb = $("mochiBubble");
+    if (!mb || mb._teased) return;
+    mb._teased = true;
+    const shown = [];
+    function next() {
+        const msg = mochiSmartMessages().find(m => shown.indexOf(m) < 0);
+        if (!msg) { mb.classList.remove("show"); return; }
+        shown.push(msg);
+        mb.textContent = msg;
+        mb.classList.add("show");
+        setTimeout(() => {
+            mb.classList.remove("show");
+            // jeda singkat antar pesan biar kerasa "ganti", bukan teks loncat
+            setTimeout(next, 900);
+        }, 6200);
+    }
+    next();
 }
 (function initMochi() {
     const wrap = $("mochiAvatar");
