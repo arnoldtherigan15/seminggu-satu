@@ -3304,7 +3304,6 @@ function renderBoard() {
         '</div>' +
         '<button class="wb-board wb-teaser" id="wbTeaser">' +
         '<div class="wb-track">' + notes + '</div>' +
-        '<span class="wb-more">📌 Buka Mading</span>' +
         '</button>';
     $("wbOpen").addEventListener("click", openMadingModal);
     $("wbTeaser").addEventListener("click", openMadingModal);
