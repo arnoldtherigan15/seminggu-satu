@@ -1332,6 +1332,20 @@
         /* stempel karet di atas foto */
         .ev-stamp { position: absolute; top: 8px; right: 8px; z-index: 3; border: 2px solid #b91c1c; color: #b91c1c; background: rgba(255, 255, 255, .85); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .55rem; letter-spacing: 1.2px; padding: 3px 8px; border-radius: 4px; transform: rotate(8deg); }
         .ev-stamp.rr { border-color: #d6336c; color: #d6336c; transform: rotate(-6deg); top: auto; bottom: 8px; right: 8px; }
+        .ev-stamp.tw { border-color: #0046ff; color: #0046ff; transform: rotate(-6deg); }
+        /* sticker anjing-lebah nempel di kartu Temu-Warga */
+        .tw-stk { position: absolute; z-index: 4; pointer-events: none; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .2)); }
+        .feed-photo-frame > .tw-stk { width: 48px; top: -16px; left: 12px; transform: rotate(-12deg); }
+        .jcard > .tw-stk { width: 38px; top: -13px; right: 10px; transform: rotate(12deg); }
+
+        /* ---- Kartu TEMU-WARGA (grid): kertas biru dot-grid + washi kuning + sticker ---- */
+        .jcard.frame-temuwarga { background-color: #e9f1ff; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 10px 10px; border: 1.5px dashed #a9c4f7; border-radius: 14px; padding: 10px 10px 12px; box-shadow: 0 6px 16px rgba(0, 70, 255, .14); }
+        .jcard.frame-temuwarga .jcard-imgwrap { border: 3px solid #fff; border-radius: 10px; }
+        .jcard.frame-temuwarga::before { content: ''; position: absolute; top: -7px; left: 14px; width: 44px; height: 13px; background: rgba(255, 230, 0, .78); border: 1px dashed rgba(16, 36, 94, .25); transform: rotate(-5deg); z-index: 3; box-shadow: 0 2px 4px rgba(0, 0, 0, .08); }
+        .jcard.frame-temuwarga .jcard-nick { color: #123a8f; }
+        .jcard.frame-temuwarga .jcard-cap { color: #3a5aa8; }
+        .jcard.frame-temuwarga .jcard-likes { color: #5b79c0; }
+        .jcard.frame-temuwarga .jcard-date { color: #5b79c0; }
 
         /* ---- Kartu EVENT: Reka-Rekat = kertas pink + tepi sobek scalloped + hati ---- */
         .jcard.frame-rekarekat { background: #ffeef3; border: 1.5px dashed #f5aac6; border-bottom: none; border-radius: 14px 14px 2px 2px; padding: 10px 10px 14px; box-shadow: 0 6px 16px rgba(233, 80, 140, .15); }
@@ -1364,6 +1378,18 @@
         .feed-card.ev-ws .quest-badge-sticker { background: #fdf3e0; color: #a16207; border-color: #e3c987; }
         .feed-card.ev-ws .feed-caption-box { background: rgba(255, 255, 255, .65); border-left-color: #a16207; }
         .feed-card.ev-ws .action-btn { background: rgba(255, 255, 255, .6); border-color: #e3d2ae; color: #7a6636; }
+        /* ---- Kartu TEMU-WARGA (feed): biru meriah — washi kuning + sticker + stamp biru ---- */
+        .feed-card.ev-tw { background-color: #e9f1ff; background-image: radial-gradient(rgba(16, 36, 94, .06) 1px, transparent 1.2px); background-size: 11px 11px; border: 1.5px dashed #a9c4f7; position: relative; }
+        .feed-card.ev-tw::after { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%) rotate(-4deg); width: 58px; height: 16px; background: rgba(255, 230, 0, .78); border: 1px dashed rgba(16, 36, 94, .25); z-index: 5; box-shadow: 0 2px 4px rgba(0, 0, 0, .08); }
+        .feed-card.ev-tw .feed-photo-frame { background: #fff; border-color: #bcd2fa; }
+        .feed-card.ev-tw .feed-photo-wrap { border: 4px solid #fff; }
+        .feed-card.ev-tw .username, .feed-card.ev-tw .caption-text { color: #123a8f; }
+        .feed-card.ev-tw .post-time { color: #5b79c0; }
+        .feed-card.ev-tw .quest-badge-sticker { background: #dbe7ff; color: #0046ff; border-color: #a9c4f7; }
+        .feed-card.ev-tw .feed-caption-box { background: rgba(255, 255, 255, .72); border-left-color: #0046ff; }
+        .feed-card.ev-tw .action-btn { background: rgba(255, 255, 255, .65); border-color: #a9c4f7; color: #3a5aa8; }
+        .feed-card.ev-tw .ev-stamp.tw { top: -8px; right: 16px; z-index: 6; }
+
         .feed-card.ev-rr { background: #ffeef3; border: 1.5px dashed #f5aac6; position: relative; }
         .feed-card.ev-rr .feed-photo-frame { background: #fff; border-color: #f9c8da; }
         .feed-card.ev-rr .username, .feed-card.ev-rr .caption-text { color: #8f2757; }

@@ -2720,16 +2720,17 @@ function timeAgo(ts) {
 
 function galFeedCard(it) {
     const initial = esc((it.nickname || "S").charAt(0).toUpperCase());
-    const isEvent = (it.kind === "workshop" || it.kind === "reka-rekat");
+    const isEvent = (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga");
     // event pakai tanggal event ("11 Jul 2026"), post member pakai time-ago
     const when = isEvent ? (it.eventDate ? "🗓 " + fmtEventDate(it.eventDate) : "") : timeAgo(it.ts);
-    const evCls = it.kind === "workshop" ? " ev-ws" : (it.kind === "reka-rekat" ? " ev-rr" : (it.kind === "weekly" ? " ev-wj" : ""));
-    const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "weekly" ? "📖" : "🎯"));
+    const evCls = it.kind === "workshop" ? " ev-ws" : (it.kind === "reka-rekat" ? " ev-rr" : (it.kind === "temu-warga" ? " ev-tw" : (it.kind === "weekly" ? " ev-wj" : "")));
+    const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "temu-warga" ? "🏘️" : (it.kind === "weekly" ? "📖" : "🎯")));
     const ava = isEvent ? '<div class="ig-ava official">SS</div>' : '<div class="ig-ava">' + initial + '</div>';
     // dekorasi bingkai foto per jenis
     let frameDeco = '<div class="washi-tape-top"></div>';
     if (it.kind === "workshop") frameDeco = '<span class="ev-stamp">WORKSHOP</span>';
     else if (it.kind === "reka-rekat") frameDeco = '<span class="rr-heart">♥</span>';
+    else if (it.kind === "temu-warga") frameDeco = '<span class="ev-stamp tw">TEMU-WARGA</span><img class="tw-stk" src="../images/sticker/str-6.png" alt="">';
     else if (it.kind === "weekly") frameDeco = '<span class="wj-check">✓</span>';
     return '<article class="ig-card feed-card' + evCls + '" data-id="' + esc(it.id) + '">' +
         '<header class="feed-header">' +
@@ -2762,6 +2763,10 @@ function galGridItem(it, i) {
         frame = "frame-rekarekat";
         deco = '<span class="rr-heart">♥</span>';
         stampIn = '<span class="ev-stamp rr">REKA-REKAT</span>';
+    } else if (it.kind === "temu-warga") {
+        frame = "frame-temuwarga";
+        deco = '<img class="tw-stk" src="../images/sticker/str-6.png" alt="">';
+        stampIn = '<span class="ev-stamp tw">TEMU-WARGA</span>';
     } else if (it.kind === "weekly") {
         frame = "frame-weekly";
         deco = '<span class="wj-check">✓</span>';
@@ -2769,7 +2774,7 @@ function galGridItem(it, i) {
         frame = (i % 2 === 0) ? "frame-polaroid" : "frame-stitched";
         deco = (i % 2 === 0) ? '<div class="jtape ' + (i % 4 === 0 ? "tr" : "tl") + '"></div>' : "";
     }
-    const ava = (it.kind === "workshop" || it.kind === "reka-rekat")
+    const ava = (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga")
         ? '<span class="jcard-ava official">SS</span>'
         : '<span class="jcard-ava">' + initial + '</span>';
     return '<div class="jcard ' + frame + '" data-id="' + esc(it.id) + '">' +
@@ -2811,8 +2816,8 @@ function wireGallery(feed, grid) {
 function openGalleryLightbox(it) {
     const modal = $("questModal");
     const initial = esc((it.nickname || "S").charAt(0).toUpperCase());
-    const isEvent = (it.kind === "workshop" || it.kind === "reka-rekat");
-    const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "weekly" ? "📖" : "🎯"));
+    const isEvent = (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga");
+    const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "temu-warga" ? "🏘️" : (it.kind === "weekly" ? "📖" : "🎯")));
     const ava = isEvent ? '<div class="ig-ava official">SS</div>' : '<div class="ig-ava">' + initial + '</div>';
     $("questModalBox").innerHTML =
         '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
@@ -2855,7 +2860,7 @@ let _storySIdx = 0;
 // jadi pas foto ditahan (pause) progress-nya ikut berhenti kayak IG.
 
 function storyKindIcon(kind) {
-    return kind === "workshop" ? "🎪" : (kind === "reka-rekat" ? "✂️" : (kind === "weekly" ? "📖" : "🎯"));
+    return kind === "workshop" ? "🎪" : (kind === "reka-rekat" ? "✂️" : (kind === "temu-warga" ? "🏘️" : (kind === "weekly" ? "📖" : "🎯")));
 }
 
 function buildStoryGroups() {
@@ -2863,7 +2868,7 @@ function buildStoryGroups() {
     const order = [];
     _galleryItems.forEach(it => {
         if (!it.photo) return;
-        const official = (it.kind === "workshop" || it.kind === "reka-rekat");
+        const official = (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga");
         const key = official ? "__official__" : ("u:" + (it.nickname || "Sahabat"));
         if (!map[key]) {
             map[key] = { key: key, official: official, nickname: official ? "Seminggu Satu" : (it.nickname || "Sahabat"), mine: false, items: [] };

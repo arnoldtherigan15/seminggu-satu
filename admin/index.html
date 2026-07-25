@@ -3215,6 +3215,7 @@
               <select id="epTag">
                 <option value="workshop">🎪 Workshop</option>
                 <option value="reka-rekat">✂️ Reka-Rekat</option>
+                <option value="temu-warga">🏘️ Temu-Warga</option>
               </select>
             </div>
             <div class="konten-field">
@@ -4776,7 +4777,7 @@
       el.innerHTML = list.map(p =>
         '<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">' +
           '<img src="' + p.photo + '" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;" loading="lazy">' +
-          '<div style="flex:1;min-width:0;"><b>' + (p.tag === "reka-rekat" ? "✂️ Reka-Rekat" : "🎪 Workshop") + '</b>' + (p.eventDate ? ' <span style="font-size:.75rem;color:#6b7280;">🗓 ' + p.eventDate + '</span>' : '') +
+          '<div style="flex:1;min-width:0;"><b>' + (p.tag === "reka-rekat" ? "✂️ Reka-Rekat" : (p.tag === "temu-warga" ? "🏘️ Temu-Warga" : "🎪 Workshop")) + '</b>' + (p.eventDate ? ' <span style="font-size:.75rem;color:#6b7280;">🗓 ' + p.eventDate + '</span>' : '') +
             '<div style="font-size:.8rem;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (p.caption ? String(p.caption).replace(/</g, "&lt;") : "(tanpa caption)") + '</div></div>' +
           '<button class="btn btn-sm" data-epdel="' + p.id + '" style="background:#fee2e2;color:var(--err);flex-shrink:0;">🗑️</button>' +
         '</div>').join("");
