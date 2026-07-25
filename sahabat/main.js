@@ -198,7 +198,7 @@ function fireConfetti(preset) {
 }
 
 function onAuthSuccess(r) {
-    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}" };
+    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "" };
     BDAY_TODAY = Array.isArray(r.birthdays) ? r.birthdays.filter(b => b && b.nickname) : [];
     try { localStorage.setItem(TOKEN_KEY, r.token); } catch (e) { }
     showDashboard();
@@ -229,6 +229,7 @@ function showDashboard() {
     $("dashView").style.display = "block";
     $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
     const mw = $("mochiWidget"); if (mw) mw.classList.add("show");
+    renderProfileAva();
     // Yang lagi ultah dapet perlakuan spesial: sapaan, topi ultah di Mochi, confetti
     if (isMyBirthdayToday()) {
         $("dashHi").textContent = "Happy Birthday, " + (_profile.nickname || "Sahabat") + "! 🎂🥳";
@@ -2464,6 +2465,87 @@ function pushTagCheckin(weekKey) {
 })();
 
 // ============================================================
+//  Profil warga: avatar sapaan + editor (foto, tanggal lahir, bio)
+// ============================================================
+function renderProfileAva() {
+    const el = $("profileAvaInner");
+    if (!el || !_profile) return;
+    el.parentNode.innerHTML = _profile.photoUrl
+        ? '<img src="' + esc(_profile.photoUrl) + '" alt="" id="profileAvaInner">'
+        : '<span id="profileAvaInner">' + esc((_profile.nickname || "S").charAt(0).toUpperCase()) + '</span>';
+}
+
+function openProfileEditor() {
+    if (!_profile) return;
+    const modal = $("questModal");
+    const avaHtml = _profile.photoUrl
+        ? '<img src="' + esc(_profile.photoUrl) + '" alt="">'
+        : esc((_profile.nickname || "S").charAt(0).toUpperCase());
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="qm-body" style="text-align:center;">' +
+        '<div class="quest-game-title">🪪 Profil Kamu</div>' +
+        '<div class="quest-game-desc">Hai ' + esc(_profile.nickname || "Sahabat") + '! Atur foto, tanggal lahir, dan bio kamu di sini.</div>' +
+        '<div class="pe-ava" id="peAva">' + avaHtml + '</div>' +
+        '<label class="qm-file" style="margin-top:4px;">' +
+        '<span class="qm-file-ic">📷</span>' +
+        '<b class="qm-file-lbl">Ganti foto profil</b>' +
+        '<span class="qm-file-sub">Ketuk buat pilih foto dari galeri 🖼️</span>' +
+        '<input type="file" id="peFile" accept="image/*" hidden>' +
+        '</label>' +
+        '<div class="pe-field"><label>Tanggal lahir 🎂</label>' +
+        '<input type="date" id="peBirth" value="' + esc((String(_profile.birthDate || "").match(/\d{4}-\d{2}-\d{2}/) || [""])[0]) + '"></div>' +
+        '<div class="pe-field"><label>Bio singkat ✨</label>' +
+        '<textarea id="peBio" maxlength="160" rows="3" placeholder="Ceritain dikit tentang kamu… (max 160)">' + esc(_profile.bio || "") + '</textarea></div>' +
+        '<button class="btn-primary" id="peSave" style="margin-top:14px;">💾 Simpan Profil</button>' +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+
+    let newPhoto = null;
+    $("peFile").addEventListener("change", async (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        showBusy("Memproses foto…");
+        try {
+            newPhoto = await compressImage(f, 512, 0.8);
+            $("peAva").innerHTML = '<img src="' + newPhoto.dataUrl + '" alt="">';
+        } catch (err) { alert("Gagal proses foto: " + (err.message || "")); }
+        finally { hideBusy(); }
+    });
+
+    $("peSave").addEventListener("click", async () => {
+        const btn = $("peSave");
+        btn.disabled = true;
+        showBusy("Menyimpan profil…");
+        try {
+            const payload = {
+                action: "memberUpdateProfile", token: _profile.token,
+                birthDate: $("peBirth").value.trim(),
+                bio: $("peBio").value.trim()
+            };
+            if (newPhoto) { payload.photoBase64 = newPhoto.base64; payload.photoMime = newPhoto.mime; }
+            const r = await apiPost(payload);
+            if (r.status !== "success") { btn.disabled = false; alert(r.message || "Gagal menyimpan."); return; }
+            _profile.birthDate = r.birthDate || _profile.birthDate;
+            _profile.photoUrl = r.photoUrl || _profile.photoUrl;
+            _profile.bio = r.bio !== undefined ? r.bio : _profile.bio;
+            renderProfileAva();
+            _galleryLoaded = false; // avatar di galeri ikut berubah -> refetch nanti
+            fireConfetti("login");
+            closeQuestModal();
+        } catch (e) { btn.disabled = false; alert("Gagal terhubung ke server. Coba lagi ya."); }
+        finally { hideBusy(); }
+    });
+}
+
+(function initProfileBtn() {
+    const b = $("profileBtn");
+    if (b) b.addEventListener("click", openProfileEditor);
+})();
+
+// ============================================================
 //  Mochi's Corner (maskot) — pembawa surat prompt harian
 // ============================================================
 // Bubble pintar: Mochi jadi asisten kecil — kumpulin SEMUA pesan yang relevan
@@ -3097,7 +3179,9 @@ function galFeedCard(it) {
     const when = isEvent ? (it.eventDate ? "🗓 " + fmtEventDate(it.eventDate) : "") : timeAgo(it.ts);
     const evCls = it.kind === "workshop" ? " ev-ws" : (it.kind === "reka-rekat" ? " ev-rr" : (it.kind === "temu-warga" ? " ev-tw" : (it.kind === "weekly" ? " ev-wj" : "")));
     const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "temu-warga" ? "🏘️" : (it.kind === "weekly" ? "📖" : "🎯")));
-    const ava = isEvent ? '<div class="ig-ava official">SS</div>' : '<div class="ig-ava">' + initial + '</div>';
+    const ava = isEvent
+        ? '<div class="ig-ava official">SS</div>'
+        : (it.avatar ? '<div class="ig-ava"><img src="' + esc(it.avatar) + '" alt="" loading="lazy"></div>' : '<div class="ig-ava">' + initial + '</div>');
     // dekorasi bingkai foto per jenis
     let frameDeco = '<div class="washi-tape-top"></div>';
     if (it.kind === "workshop") frameDeco = '<span class="ev-stamp">WORKSHOP</span>';
@@ -3149,7 +3233,7 @@ function galGridItem(it, i) {
     }
     const ava = (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga")
         ? '<span class="jcard-ava official">SS</span>'
-        : '<span class="jcard-ava">' + initial + '</span>';
+        : (it.avatar ? '<span class="jcard-ava"><img src="' + esc(it.avatar) + '" alt="" loading="lazy"></span>' : '<span class="jcard-ava">' + initial + '</span>');
     const isNew = it.ts && (Date.now() - it.ts) < 86400000; // <24 jam
     return '<div class="jcard ' + frame + '" data-id="' + esc(it.id) + '">' +
         deco +
@@ -3217,7 +3301,9 @@ function openGalleryLightbox(it) {
     const initial = esc((it.nickname || "S").charAt(0).toUpperCase());
     const isEvent = (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga");
     const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "temu-warga" ? "🏘️" : (it.kind === "weekly" ? "📖" : "🎯")));
-    const ava = isEvent ? '<div class="ig-ava official">SS</div>' : '<div class="ig-ava">' + initial + '</div>';
+    const ava = isEvent
+        ? '<div class="ig-ava official">SS</div>'
+        : (it.avatar ? '<div class="ig-ava"><img src="' + esc(it.avatar) + '" alt=""></div>' : '<div class="ig-ava">' + initial + '</div>');
     $("questModalBox").innerHTML =
         '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
         '<div class="ig-imgwrap" id="lbImg" style="aspect-ratio:1/1"><img src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
@@ -3592,9 +3678,10 @@ function storyBoxHtml(gIdx, sIdx, active) {
             '</div>' +
             '</div>';
     }
+    const avaP = (g.items.find(x => x.avatar) || {}).avatar;
     const ava = g.official
         ? '<div class="ig-ava official">SS</div>'
-        : '<div class="ig-ava">' + esc((g.nickname || "S").charAt(0).toUpperCase()) + '</div>';
+        : (avaP ? '<div class="ig-ava"><img src="' + esc(avaP) + '" alt=""></div>' : '<div class="ig-ava">' + esc((g.nickname || "S").charAt(0).toUpperCase()) + '</div>');
     const icon = storyKindIcon(it.kind);
     return '<div class="story-box">' +
         '<span class="story-tape-tl"></span><span class="story-tape-br"></span>' +

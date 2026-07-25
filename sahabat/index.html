@@ -2573,6 +2573,22 @@
             to { transform: scaleX(-1) translateY(-8px) rotate(4deg); }
         }
 
+        /* ---- Profil warga: avatar di sapaan + editor ---- */
+        .dash-hi-row { display: flex; align-items: center; gap: 10px; }
+        .profile-ava { position: relative; width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--yellow); background: var(--blue); color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; overflow: hidden; flex-shrink: 0; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0, 70, 255, .3); transition: transform .15s ease; }
+        .profile-ava:active { transform: scale(.92); }
+        .profile-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pe-ava { width: 92px; height: 92px; border-radius: 50%; border: 3px solid var(--yellow); background: var(--blue); color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; overflow: hidden; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 18px rgba(0, 70, 255, .3); }
+        .pe-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pe-field { margin-top: 12px; text-align: left; }
+        .pe-field label { display: block; font-size: .74rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px; }
+        .pe-field input[type="date"], .pe-field textarea { width: 100%; border: 1.5px solid var(--line); border-radius: 12px; padding: .7rem; font-family: inherit; font-size: 16px; color: var(--ink); background: var(--card); }
+        .pe-field textarea { resize: vertical; min-height: 64px; }
+        .pe-field input:focus, .pe-field textarea:focus { outline: none; border-color: var(--blue); }
+        /* avatar foto di kartu galeri */
+        .ig-ava img, .jcard-ava img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+        .ig-ava, .jcard-ava { overflow: hidden; }
+
         /* ---- Mochi's Daily Prompt: modal amplop misteri (gacha surat) ---- */
         .mochi-modal { position: fixed; inset: 0; z-index: 1300; background: rgba(16, 36, 94, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 18px 16px; }
         .mochi-modal.show { display: flex; }
@@ -2784,7 +2800,10 @@
         <!-- ===== DASHBOARD ===== -->
         <div id="dashView" style="display:none;">
             <div class="dash-top" id="dashTop">
-                <div class="dash-hi" id="dashHi">Hai! 👋</div>
+                <div class="dash-hi-row">
+                    <button class="profile-ava" id="profileBtn" aria-label="Edit profil kamu"><span id="profileAvaInner">🙂</span></button>
+                    <div class="dash-hi" id="dashHi">Hai! 👋</div>
+                </div>
             </div>
 
             <div class="tabs" id="mainNavTabs">
