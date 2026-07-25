@@ -2646,8 +2646,9 @@ async function openFortune(modal, list) {
     renderFortuneScene(modal, list);
 }
 
-// Scene fortune cookie: kue goyang-goyang -> diketuk -> pecah -> strip kertas keluar
-function renderFortuneScene(modal, list) {
+// Scene fortune cookie: kue goyang-goyang -> diketuk -> pecah -> strip kertas keluar.
+// again=true (dari tombol "Kue lagi"): ulang ritual dari awal, isinya fortune acak.
+function renderFortuneScene(modal, list, again) {
     modal.innerHTML =
         '<div class="mochi-box">' +
         '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
@@ -2693,12 +2694,14 @@ function renderFortuneScene(modal, list) {
         setTimeout(() => {
             $("fcScene").style.display = "none";
             $("mpCard").style.display = "block";
-            showFortune(dailyFortune(_fortunes), true);
+            if (again) showFortune(randomFortune(_fortunes), false);
+            else showFortune(dailyFortune(_fortunes), true);
             $("mpActions").innerHTML =
                 '<button class="mp-btn ghost" id="fcCopy">📋 Salin</button>' +
                 '<button class="mp-btn" id="fcAgain">🥠 Kue lagi</button>' +
                 '<button class="mp-btn ghost" id="fcPrompt" style="flex:1 1 100%;">✍️ Baca Prompt Harian</button>';
-            $("fcAgain").addEventListener("click", () => showFortune(randomFortune(_fortunes), false));
+            // "Kue lagi" = ulang ritualnya dari awal (kue muncul -> ketuk -> pecah)
+            $("fcAgain").addEventListener("click", () => renderFortuneScene(modal, list, true));
             $("fcPrompt").addEventListener("click", () => renderMochiEnvelope(modal, list, "prompt"));
             $("fcCopy").addEventListener("click", async () => {
                 const btn = $("fcCopy");
