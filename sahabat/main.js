@@ -1758,8 +1758,10 @@ function renderJournalTrackerHtml(wa) {
         const nextMs = MS.find(m => m > streak) || (Math.ceil((streak + 1) / 12) * 12);
         const prevMs = MS.filter(m => m <= streak).pop() || 0;
         const pct = Math.round(((streak - prevMs) / (nextMs - prevMs)) * 100);
+        // hati-hati kata "minggu": grid di atas juga nyebut Week 1-4 (minggu KALENDER),
+        // ini soal streak BERUNTUN lintas bulan \u2014 makanya diframe "X check-in lagi"
         msHtml = '<div class="jt-milestone">' +
-            '<div class="jt-ms-row"><span>\ud83c\udfc1 <b>' + (nextMs - streak) + ' minggu lagi</b> menuju streak ' + nextMs + ' \ud83d\udd25</span><span class="jt-ms-num">' + streak + '/' + nextMs + '</span></div>' +
+            '<div class="jt-ms-row"><span>\ud83c\udfc1 <b>' + (nextMs - streak) + '\u00d7 check-in lagi</b> tanpa bolong \u2192 badge streak ' + nextMs + ' \ud83d\udd25</span><span class="jt-ms-num">' + streak + '/' + nextMs + '</span></div>' +
             '<div class="jt-ms-bar"><span style="width:' + Math.max(6, Math.min(100, pct)) + '%"></span></div>' +
             '</div>';
     }
