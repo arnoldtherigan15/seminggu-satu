@@ -1911,12 +1911,18 @@ function renderJournalTrackerHtml(wa) {
 
     const currRec = records[currMonthWeek.key] || {};
     const currentNote = currRec.note || "";
-    const noteHtml = currentNote ? '<div class="jt-note-tag"><span class="note-label">Note:</span> <span class="note-text">"' + esc(currentNote) + '"</span> ✨</div>' : '';
-    // foto karya minggu ini (kalau ada) -> accordion buka-tutup, default ketutup biar kartu ringkas
+    // Ada foto -> foto + note digabung jadi SATU polaroid ditempel (note = caption
+    // tulisan tangan di bawah foto). Note doang tanpa foto -> tag note lama.
+    const noteHtml = (currentNote && !currRec.photo) ? '<div class="jt-note-tag"><span class="note-label">Note:</span> <span class="note-text">"' + esc(currentNote) + '"</span> ✨</div>' : '';
+    const polaCap = currentNote ? '"' + esc(currentNote) + '"' : 'Minggu ke-' + currentWeekNum + ' kelar ✍️';
     const photoHtml = currRec.photo
         ? '<button type="button" class="jt-photo-toggle" id="jtPhotoToggle" aria-expanded="false">' +
-          '<span>📸 Foto karya minggu ini</span><span class="jt-chev">▾</span></button>' +
-          '<div class="jt-photo-wrap" id="jtPhotoWrap"><div class="jt-photo"><img src="' + esc(currRec.photo) + '" alt="" loading="lazy" decoding="async"></div></div>'
+          '<span>📸 Memori minggu ini</span><span class="jt-chev">▾</span></button>' +
+          '<div class="jt-photo-wrap" id="jtPhotoWrap"><div class="jt-pola">' +
+          '<span class="jt-pola-tape"></span>' +
+          '<img src="' + esc(currRec.photo) + '" alt="" loading="lazy" decoding="async">' +
+          '<div class="jt-pola-cap">' + polaCap + '<span class="jt-pola-date">' + esc(currMonthWeek.monthName) + ' · Week ' + currentWeekNum + '</span></div>' +
+          '</div></div>'
         : '';
 
     return (

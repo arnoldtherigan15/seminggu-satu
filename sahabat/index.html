@@ -914,6 +914,13 @@
         }
 
         /* toggle accordion foto karya minggu ini */
+
+        /* memori mingguan: polaroid ditempel — foto + note jadi satu artefak */
+        .jt-pola { position: relative; background: #fff; border: 1px solid #e7e3d8; padding: 10px 10px 9px; margin: 6px 2px 2px; transform: rotate(-1.2deg); box-shadow: 0 6px 16px rgba(16, 36, 94, .14); }
+        .jt-pola img { width: 100%; display: block; border-radius: 2px; }
+        .jt-pola-tape { position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 74px; height: 18px; background: rgba(255, 230, 0, .82); border: 1px dashed rgba(16, 36, 94, .25); z-index: 2; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+        .jt-pola-cap { text-align: center; font-style: italic; font-weight: 600; font-size: .85rem; color: #10245e; padding-top: 9px; line-height: 1.45; }
+        .jt-pola-date { display: block; font-style: normal; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; color: #a8b1c9; margin-top: 3px; }
         .jt-photo-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding: .65rem .85rem; border: 1.5px dashed var(--line); border-radius: 12px; background: var(--bg); color: var(--ink); font-family: inherit; font-weight: 700; font-size: .82rem; cursor: pointer; transition: background .2s ease, transform .15s ease; }
         .jt-photo-toggle:active { transform: scale(.98); }
         .jt-chev { color: var(--muted); transition: transform .25s ease; }
