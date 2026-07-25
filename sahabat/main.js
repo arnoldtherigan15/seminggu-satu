@@ -2371,6 +2371,14 @@ function pushTagCheckin(weekKey) {
         }
     });
 
+    const actionProfile = $("fabActionProfile");
+    if (actionProfile) {
+        actionProfile.addEventListener("click", () => {
+            toggleMenu(false);
+            if (_profile) openProfileEditor();
+        });
+    }
+
     const actionQuest = $("fabActionQuest");
     if (actionQuest) {
         actionQuest.addEventListener("click", () => {
