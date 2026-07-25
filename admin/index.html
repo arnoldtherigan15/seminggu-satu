@@ -3202,8 +3202,10 @@
             </div>
             <div class="msg" id="qMsg"></div>
           </div>
-          <div style="font-weight:800;margin:18px 0 10px;">Daftar Challenge</div>
-          <div id="questList"></div>
+          <details id="questAccordion" style="margin:18px 0 10px;">
+            <summary style="font-weight:800;cursor:pointer;user-select:none;padding:10px 12px;background:#fff;border:1px solid var(--line,#e5e7eb);border-radius:12px;">Daftar Challenge <span id="questCount" style="font-weight:600;color:#6b7280;"></span></summary>
+            <div id="questList" style="margin-top:10px;"></div>
+          </details>
 
           <div style="font-weight:800;margin:22px 0 10px;">🏆 Leaderboard Challenge</div>
           <div id="adminLbList"></div>
@@ -4868,6 +4870,8 @@
 
     function renderQuestList() {
       const list = document.getElementById("questList");
+      const cnt = document.getElementById("questCount");
+      if (cnt) cnt.textContent = "(" + CHALLENGES.length + ")";
       if (!CHALLENGES.length) { list.innerHTML = '<p class="hint">Belum ada challenge. Klik "＋ Challenge Baru".</p>'; return; }
       list.innerHTML = CHALLENGES.map((c, i) =>
         `<div class="konten-item" style="cursor:pointer;" data-idx="${i}">
