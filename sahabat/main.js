@@ -3361,6 +3361,8 @@ function renderMadingModal() {
     if (!modal) return;
     const entries = boardEntries();
     const left = _boardData ? _boardData.left : 0;
+    const _whList = balaiWhispers();
+    const _mdInfoPick = _whList[Math.floor(Math.random() * _whList.length)];
     // dua kolom diisi selang-seling (bukan CSS columns yang numpuk kiri semua),
     // plus sticker die-cut nyelip tiap beberapa item biar papannya rame
     const colA = [], colB = [];
@@ -3394,6 +3396,12 @@ function renderMadingModal() {
         '<span class="wb-pin">📌</span>' +
         '<textarea id="mdInput" maxlength="140" rows="3" placeholder="Tulis pesan semangatmu… ✨ (max 140)"></textarea>' +
         '<button class="btn-primary" id="mdSend" style="margin-top:8px;">📌 Tempel</button>' +
+        '</div>' +
+        // kertas pengumuman: sorotan komunitas acak (reuse mesin bisik-bisik)
+        '<div class="md-info md-in" style="--d:0s">' +
+        '<span class="wb-pin" style="left:18%;">📌</span><span class="wb-pin" style="left:82%;">📌</span>' +
+        '<div class="md-info-k">📣 INFO BALAI</div>' +
+        '<div class="md-info-t">' + esc(_mdInfoPick) + '</div>' +
         '</div>' +
         boardHtml +
         '</div>';
