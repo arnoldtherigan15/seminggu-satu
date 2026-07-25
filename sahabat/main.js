@@ -3002,7 +3002,7 @@ function galGridItem(it, i) {
         '<div class="jcard-body">' +
         '<div class="jcard-author">' + ava +
         '<span class="jcard-nick">' + esc(it.nickname || "Sahabat") + (it.mine ? " · kamu" : "") + '</span>' +
-        '<span class="jcard-likes">❤️ ' + (it.likes || 0) + '</span></div>' +
+        '<span class="jcard-likes">' + (it.liked ? "❤️" : "🤍") + ' ' + (it.likes || 0) + '</span></div>' +
         (it.eventDate ? '<div class="jcard-date">🗓 ' + esc(fmtEventDate(it.eventDate)) + '</div>' : '') +
         (it.caption ? '<div class="jcard-cap">' + esc(it.caption) + '</div>' : '') +
         '</div>' +
@@ -3396,7 +3396,7 @@ function updateLikeDom(id, it) {
         if (ct) ct.textContent = it.likes || 0;
     });
     document.querySelectorAll('.jcard[data-id="' + id + '"] .jcard-likes').forEach(b => {
-        b.textContent = "❤️ " + (it.likes || 0);
+        b.textContent = (it.liked ? "❤️" : "🤍") + " " + (it.likes || 0);
     });
 }
 
