@@ -1246,7 +1246,7 @@
 
         /* ---- Galeri feed (post ala IG) ---- */
         .ig-feed { display: flex; flex-direction: column; gap: 1.25rem; }
-        .ig-card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(16, 36, 94, .06); }
+        .ig-card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; box-shadow: 0 1px 2px rgba(16, 36, 94, .08), 0 10px 26px rgba(16, 36, 94, .1); }
         .ig-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
         .ig-ava { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #0046ff, #0092ff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Outfit', sans-serif; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0, 70, 255, .3); }
         .ig-user-info { flex: 1; min-width: 0; }
@@ -1300,10 +1300,10 @@
         .jcard:hover { transform: translateY(-4px) rotate(.5deg); box-shadow: 0 12px 26px rgba(0, 70, 255, .14); }
         .jcard:active { transform: scale(.97); }
         /* A. bingkai polaroid / instax */
-        .jcard.frame-polaroid { background: var(--card); padding: 8px 8px 12px; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 8px 20px rgba(16, 36, 94, .07); }
+        .jcard.frame-polaroid { background: var(--card); padding: 8px 8px 12px; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16, 36, 94, .1), 0 10px 22px rgba(16, 36, 94, .12); }
         .jcard.frame-polaroid .jcard-imgwrap { border-radius: 6px; }
         /* B. bingkai stitched paper (jahitan) */
-        .jcard.frame-stitched { background: #faf8f5; padding: 10px; border-radius: 16px; border: 2px dashed #d1c7bd; box-shadow: 0 4px 12px rgba(16, 36, 94, .05); }
+        .jcard.frame-stitched { background: #faf8f5; padding: 10px; border-radius: 16px; border: 2px dashed #d1c7bd; box-shadow: 0 1px 2px rgba(16, 36, 94, .09), 0 8px 18px rgba(16, 36, 94, .1); }
         .jcard.frame-stitched .jcard-imgwrap { border-radius: 10px; }
         /* C. washi tape hiasan */
         .jtape { position: absolute; width: 50px; height: 16px; background: rgba(255, 230, 0, .55); backdrop-filter: blur(2px); border: 1px dashed rgba(16, 36, 94, .25); z-index: 3; box-shadow: 0 2px 4px rgba(0, 0, 0, .06); }
@@ -1327,7 +1327,7 @@
         .jcard.frame-workshop .jcard-date { color: #a1854f; }
         .jcard.frame-rekarekat .jcard-date { color: #d67ba4; }
         /* ---- Kartu EVENT: Workshop = album kraft + photo corners + stempel ---- */
-        .jcard.frame-workshop { background: #f6ecd9; border: 1.5px solid #e3d2ae; border-radius: 8px; padding: 12px 12px 10px; box-shadow: 0 8px 20px rgba(122, 90, 30, .18); }
+        .jcard.frame-workshop { background: #f6ecd9; border: 1.5px solid #e3d2ae; border-radius: 8px; padding: 12px 12px 10px; box-shadow: 0 1px 3px rgba(122, 90, 30, .2), 0 10px 22px rgba(122, 90, 30, .2); }
         .jcard.frame-workshop .jcard-imgwrap { border: 5px solid #fff; border-radius: 2px; box-shadow: 0 3px 10px rgba(122, 90, 30, .22); }
         /* segitiga photo-corner (kayak album foto jadul) */
         .jcard.frame-workshop .jcard-imgwrap::before,
@@ -1347,7 +1347,7 @@
         .jcard > .tw-stk { width: 38px; top: -13px; right: 10px; transform: rotate(12deg); }
 
         /* ---- Kartu TEMU-WARGA (grid): kertas biru dot-grid + washi kuning + sticker ---- */
-        .jcard.frame-temuwarga { background-color: #e9f1ff; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 10px 10px; border: 1.5px dashed #a9c4f7; border-radius: 14px; padding: 10px 10px 12px; box-shadow: 0 6px 16px rgba(0, 70, 255, .14); }
+        .jcard.frame-temuwarga { background-color: #e9f1ff; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 10px 10px; border: 1.5px dashed #a9c4f7; border-radius: 14px; padding: 10px 10px 12px; box-shadow: 0 1px 3px rgba(0, 70, 255, .16), 0 9px 20px rgba(0, 70, 255, .16); }
         .jcard.frame-temuwarga .jcard-imgwrap { border: 3px solid #fff; border-radius: 10px; }
         .jcard.frame-temuwarga::before { content: ''; position: absolute; top: -7px; left: 14px; width: 44px; height: 13px; background: rgba(255, 230, 0, .78); border: 1px dashed rgba(16, 36, 94, .25); transform: rotate(-5deg); z-index: 3; box-shadow: 0 2px 4px rgba(0, 0, 0, .08); }
         .jcard.frame-temuwarga .jcard-nick { color: #123a8f; }
@@ -1356,7 +1356,7 @@
         .jcard.frame-temuwarga .jcard-date { color: #5b79c0; }
 
         /* ---- Kartu EVENT: Reka-Rekat = kertas pink + tepi sobek scalloped + hati ---- */
-        .jcard.frame-rekarekat { background-color: #ffeef3; background-image: radial-gradient(rgba(214, 51, 108, .09) 1px, transparent 1.2px); background-size: 10px 10px; border: 1.5px dashed #f5aac6; border-radius: 14px; padding: 10px 10px 12px; box-shadow: 0 6px 16px rgba(233, 80, 140, .15); }
+        .jcard.frame-rekarekat { background-color: #ffeef3; background-image: radial-gradient(rgba(214, 51, 108, .09) 1px, transparent 1.2px); background-size: 10px 10px; border: 1.5px dashed #f5aac6; border-radius: 14px; padding: 10px 10px 12px; box-shadow: 0 1px 3px rgba(233, 80, 140, .18), 0 9px 20px rgba(233, 80, 140, .17); }
         .jcard.frame-rekarekat .jcard-imgwrap { border: 3px solid #fff; border-radius: 10px; }
         /* tepi bawah sobek (scalloped) */
         .jcard.frame-rekarekat .jcard-nick { color: #8f2757; }
@@ -1365,7 +1365,7 @@
         .rr-heart { position: absolute; top: -9px; right: 14px; z-index: 4; width: 24px; height: 24px; background: #ff5c8a; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: .8rem; line-height: 1; transform: rotate(10deg); box-shadow: 0 3px 8px rgba(233, 80, 140, .4); border: 2px solid #fff; }
 
         /* ---- Kartu MEMBER: Weekly Journal = mirip Reka-Rekat (kertas sobek) tapi hijau + checklist ---- */
-        .jcard.frame-weekly { background-color: #eafbf0; background-image: radial-gradient(rgba(10, 122, 61, .09) 1px, transparent 1.2px); background-size: 10px 10px; border: 1.5px dashed #a7e8c4; border-radius: 14px; padding: 10px 10px 12px; box-shadow: 0 6px 16px rgba(16, 185, 129, .15); }
+        .jcard.frame-weekly { background-color: #eafbf0; background-image: radial-gradient(rgba(10, 122, 61, .09) 1px, transparent 1.2px); background-size: 10px 10px; border: 1.5px dashed #a7e8c4; border-radius: 14px; padding: 10px 10px 12px; box-shadow: 0 1px 3px rgba(16, 185, 129, .18), 0 9px 20px rgba(16, 185, 129, .17); }
         .jcard.frame-weekly .jcard-imgwrap { border: 3px solid #fff; border-radius: 10px; }
         .jcard.frame-weekly .jcard-nick { color: #0a7a3d; }
         .jcard.frame-weekly .jcard-cap { color: #2f855a; }
