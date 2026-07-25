@@ -3413,7 +3413,7 @@ function boardFlyerHtml(w, left, i, mini) {
 }
 
 function boardPhotoHtml(it, i, mini) {
-    return '<div class="wb-photo f' + ((i % 3) + 1) + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '">' +
+    return '<div class="wb-photo f' + ((i % 4) + 1) + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '">' +
         boardAttach(i + 1) +
         '<img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async">' +
         '<div class="wb-meta">' + (it.kind === "weekly" ? "📖 " + esc(it.nickname) : storyKindIcon(it.kind) + " " + esc(it.title)) + '</div>' +
