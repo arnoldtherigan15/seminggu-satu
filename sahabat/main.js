@@ -1544,13 +1544,17 @@ function persona(count) {
     return { title, tag, emoji };
 }
 
+// Nomor kartu = hash dari WA, BUKAN nomor WA-nya (privat, jangan dipajang).
+// Deterministik: warga yang sama selalu dapet nomor yang sama.
 function formatCardNumber(wa) {
     const raw = String(wa || "").replace(/\D/g, "");
     if (!raw) return "SS · 2026 · 0000 · 8888";
-    const p1 = raw.slice(0, 4) || "0800";
-    const p2 = raw.slice(4, 8) || "0000";
-    const p3 = raw.slice(8, 12) || "0000";
-    return "SS · " + p1 + " · " + p2 + " · " + p3;
+    const seg = seed => {
+        let h = seed;
+        for (let i = 0; i < raw.length; i++) { h = (h * 31 + raw.charCodeAt(i)) >>> 0; }
+        return String(h % 10000).padStart(4, "0");
+    };
+    return "SS · " + seg(7) + " · " + seg(1337) + " · " + seg(2026);
 }
 
 function init3DCardListeners() {
