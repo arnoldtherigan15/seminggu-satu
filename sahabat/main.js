@@ -1508,9 +1508,25 @@ function pspBlankPageHtml() {
     return '<div class="psp-in psp-blank"><span class="psp-wm">SS</span></div>';
 }
 
-// Halaman visa: max 3 stempel imigrasi per halaman, tinta & kemiringan selang-seling
+// Halaman visa: max 3 stempel imigrasi per halaman, tinta & kemiringan selang-seling.
+// Tiap halaman dapet 2 stiker tempelan (deterministik dari nomor halaman, biar
+// nggak acak tiap render) + emoji kecil biar kerasa scrapbook.
+const PSP_STK = [
+    ['<img class="psp-vstk" src="../images/sticker/str-1.png" style="bottom:10px;right:6px;width:46px;transform:rotate(10deg);" alt="">',
+     '<span class="psp-vemo" style="top:34px;left:6px;transform:rotate(-12deg);">✨</span>'],
+    ['<img class="psp-vstk" src="../images/sticker/str-2.png" style="bottom:12px;left:6px;width:44px;transform:rotate(-9deg);" alt="">',
+     '<span class="psp-vemo" style="top:38px;right:8px;transform:rotate(10deg);">🌈</span>'],
+    ['<img class="psp-vstk" src="../images/sticker/str-4.png" style="bottom:10px;right:8px;width:44px;transform:rotate(8deg);" alt="">',
+     '<span class="psp-vemo" style="top:36px;left:8px;transform:rotate(-8deg);">🌱</span>'],
+    ['<img class="psp-vstk" src="../images/sticker/str-7.png" style="bottom:12px;left:8px;width:46px;transform:rotate(-7deg);" alt="">',
+     '<span class="psp-vemo" style="top:34px;right:6px;transform:rotate(12deg);">💌</span>'],
+    ['<img class="psp-vstk" src="../images/sticker/str-11.png" style="bottom:10px;right:6px;width:44px;transform:rotate(9deg);" alt="">',
+     '<span class="psp-vemo" style="top:38px;left:6px;transform:rotate(-10deg);">🎈</span>']
+];
+
 function pspVisaPageHtml(evs, start, pageNo) {
     const chunk = evs.slice(start, start + 3);
+    const stk = PSP_STK[(pageNo - 1) % PSP_STK.length].join("");
     let inner = '<div class="psp-kicker">VISA & STEMPEL · HAL. ' + pageNo + '</div>';
     if (!chunk.length) {
         inner += '<div class="psp-vempty">🎪<br>Halaman ini nunggu<br>stempel event berikutnya…</div>';
@@ -1525,7 +1541,7 @@ function pspVisaPageHtml(evs, start, pageNo) {
                 '</div>';
         });
     }
-    return '<div class="psp-in">' + inner + '</div>';
+    return '<div class="psp-in">' + inner + stk + '</div>';
 }
 
 function pspLoyaltyPageHtml() {
