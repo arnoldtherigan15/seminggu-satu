@@ -1573,7 +1573,7 @@ function renderPassportBook(host) {
     const SP = pspSpreads();
     let cur = 0;
     host.innerHTML =
-        '<div class="psp-book closed" id="pspBook">' +
+        '<div class="psp-book" id="pspBook">' +
         '<div class="psp-page psp-left" id="pspLeft"></div>' +
         '<div class="psp-page psp-right" id="pspRight"></div>' +
         '<div class="psp-leaf" id="pspLeaf"><div class="psp-face psp-front" id="pspFront"></div><div class="psp-face psp-back" id="pspBack"></div></div>' +
@@ -1639,29 +1639,41 @@ function renderPassportBook(host) {
 
     // ---- keadaan awal: buku TERTUTUP ----
     // leaf = cover navy (depan) / dalam-cover (belakang) nutupin halaman kanan;
-    // halaman kiri disembunyiin + buku digeser -25% biar cover keliatan di tengah.
+    // halaman kiri disembunyiin + buku digeser px BULAT biar cover pas di tengah.
+    // Penting: selama tertutup leaf TANPA transform 3D (transform none) — kombinasi
+    // translateZ + perspective + filter bikin cover ke-resample terus (blur).
     anim = true;
     front.innerHTML = pspCoverFaceHtml();
     back.innerHTML = SP[0][0];
     leftP.style.visibility = "hidden";
-    setLeaf(0, false);
+    book.style.transition = "none";
+    book.style.transform = "translateX(-" + Math.round(book.offsetWidth / 4) + "px)";
+    void book.offsetWidth;
+    book.style.transition = "";
+    leaf.style.transition = "none";
+    leaf.style.transform = "none"; // datar & tajam, nggak masuk konteks 3D
     leaf.style.display = "block";
     let opened = false;
     function openBook() {
         if (opened) return;
         opened = true;
         leftP.style.visibility = "";
-        book.classList.remove("closed"); // geser ke posisi spread (transisi CSS)
-        leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
-        leaf.style.transform = "translateZ(.5px) rotateY(-180deg)";
-        setTimeout(() => {
-            // adopsi node: muka belakang leaf (dalam cover) pindah ke halaman kiri statis
-            leftP.innerHTML = "";
-            while (back.firstChild) leftP.appendChild(back.firstChild);
-            leaf.style.display = "none";
-            $("pspNav").style.visibility = "";
-            anim = false;
-        }, 930);
+        // masuk mode 3D dulu di 0° (tanpa transisi), commit, baru swing 180°
+        setLeaf(0, false);
+        void leaf.offsetWidth;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            book.style.transform = "translateX(0)"; // geser ke posisi spread (transisi CSS)
+            leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
+            leaf.style.transform = "translateZ(.5px) rotateY(-180deg)";
+            setTimeout(() => {
+                // adopsi node: muka belakang leaf (dalam cover) pindah ke halaman kiri statis
+                leftP.innerHTML = "";
+                while (back.firstChild) leftP.appendChild(back.firstChild);
+                leaf.style.display = "none";
+                $("pspNav").style.visibility = "";
+                anim = false;
+            }, 930);
+        }));
     }
     leaf.addEventListener("click", openBook);
 
