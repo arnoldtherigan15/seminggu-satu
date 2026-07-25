@@ -1717,6 +1717,63 @@
       transform: scale(.97);
     }
 
+    /* Member Hub: tombol copy IG + highlight ultah */
+    .mem-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-end;
+      flex: none;
+    }
+
+    .mem-ig {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mem-ig:hover {
+      filter: brightness(.97);
+    }
+
+    .loy-card.bday-today {
+      border: 2px solid #f59e0b;
+      background: #fffbeb;
+    }
+
+    .bday-today-badge {
+      display: inline-block;
+      margin-left: 6px;
+      background: #f59e0b;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .3px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      vertical-align: 2px;
+      animation: bdayPulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes bdayPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .bday-when {
+      font-weight: 700;
+      color: #b45309;
+    }
+
     .loy-note-badge {
       font-size: 11px;
       background: #eef2ff;
@@ -3245,6 +3302,9 @@
             <button class="btn btn-sm btn-ghost" id="memReloadBtn">🔄 Muat Ulang</button>
           </div>
           <div id="memStats" class="loyalty-stats" style="margin-bottom:6px;"></div>
+          <div class="reg-tools" style="margin-top:12px;">
+            <input type="text" id="memSearch" placeholder="🔍 Cari nama / WA / username IG..." />
+          </div>
           <div style="font-weight:800;margin:18px 0 10px;" id="memBdayTitle">🎂 Ultah bulan ini</div>
           <div id="memBirthdays"></div>
           <div style="height:14px;"></div>
@@ -4618,9 +4678,11 @@
 
     // ---------- MEMBER (akun /sahabat, ultah, aktif) ----------
     let membersInit = false;
+    let MEM_DATA = null; // respons getMembers, disimpan biar search nggak refetch
     async function ensureMembers() {
       if (!membersInit) {
         document.getElementById("memReloadBtn").addEventListener("click", loadMembers);
+        document.getElementById("memSearch").addEventListener("input", renderMembers);
         ["accActive", "accInactive"].forEach(id => {
           const acc = document.getElementById(id);
           acc.querySelector(".acc-head").addEventListener("click", () => acc.classList.toggle("open"));
@@ -4630,12 +4692,52 @@
       loadMembers();
     }
 
-    function memRow(nickname, sub, wa, btnLabel, type) {
-      return `<div class="loy-card"><div class="loy-top">
-        <div style="min-width:0;"><div class="loy-name">${escapeHtml(nickname || "(tanpa nama)")}</div>
-        <div class="loy-wa">${escapeHtml(sub || "")}</div></div>
-        ${wa ? `<button class="mem-wa loy-send" data-memwa="${escapeHtml(wa)}" data-memname="${escapeHtml(nickname || "")}" data-memtype="${type}">${btnLabel}</button>` : ""}
+    // sub boleh HTML (potongan data di-escape satu-satu pas nyusun)
+    function memRow(nickname, sub, wa, btnLabel, type, ig, cls, badge) {
+      return `<div class="loy-card${cls ? " " + cls : ""}"><div class="loy-top">
+        <div style="min-width:0;"><div class="loy-name">${escapeHtml(nickname || "(tanpa nama)")}${badge || ""}</div>
+        <div class="loy-wa">${sub || ""}</div></div>
+        <div class="mem-btns">
+          ${wa ? `<button class="mem-wa loy-send" data-memwa="${escapeHtml(wa)}" data-memname="${escapeHtml(nickname || "")}" data-memtype="${type}">${btnLabel}</button>` : ""}
+          ${ig ? `<button class="mem-ig" data-ig="${escapeHtml(ig)}" title="Copy username IG">📋 ${escapeHtml(ig)}</button>` : ""}
+        </div>
       </div></div>`;
+    }
+
+    // "1990-07-26" -> umur sekarang (tahun); null kalau format nggak kebaca
+    function memAge(birthDate) {
+      const m = String(birthDate || "").match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (!m) return null;
+      const now = new Date();
+      let age = now.getFullYear() - parseInt(m[1], 10);
+      if ((now.getMonth() + 1) * 100 + now.getDate() < parseInt(m[2], 10) * 100 + parseInt(m[3], 10)) age--;
+      return age >= 0 && age < 120 ? age : null;
+    }
+
+    // "1990-07-26" -> "26 Jul" (buat sub-line kartu member)
+    function memBdayShort(birthDate) {
+      const m = String(birthDate || "").match(/\d{4}-(\d{2})-(\d{2})/);
+      if (!m) return "";
+      const MON = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+      return parseInt(m[2], 10) + " " + MON[parseInt(m[1], 10) - 1];
+    }
+
+    function copyIg(btn) {
+      const t = btn.dataset.ig || "";
+      const done = () => {
+        const o = btn.textContent;
+        btn.textContent = "✓ Kecopy!";
+        setTimeout(() => { btn.textContent = o; }, 1200);
+      };
+      const fallback = () => {
+        const ta = document.createElement("textarea");
+        ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch (e) { prompt("Copy manual:", t); }
+        document.body.removeChild(ta);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fallback);
+      else fallback();
     }
 
     function memWaMsg(type, nm) {
@@ -4646,41 +4748,75 @@
     }
 
     async function loadMembers() {
-      const stats = document.getElementById("memStats");
       const bd = document.getElementById("memBirthdays");
-      const act = document.getElementById("memActive");
-      const inact = document.getElementById("memInactive");
-      bd.innerHTML = skelLines(2); act.innerHTML = skelLines(3); inact.innerHTML = "";
+      bd.innerHTML = skelLines(2);
+      document.getElementById("memActive").innerHTML = skelLines(3);
+      document.getElementById("memInactive").innerHTML = "";
       try {
         const r = await api("getMembers", { token: getToken() });
         if (r.status !== "success") { handleAuthError(r); return; }
-        stats.innerHTML =
-          `<div class="stat"><div class="stat-n">${r.totalAccounts}</div><div class="stat-l">Aktif</div></div>` +
-          `<div class="stat"><div class="stat-n">${r.notRegistered.length}</div><div class="stat-l">Belum daftar</div></div>` +
-          `<div class="stat"><div class="stat-n">${r.birthdays.length}</div><div class="stat-l">🎂 Ultah ${escapeHtml(r.monthName)}</div></div>`;
-        document.getElementById("memBdayTitle").textContent = "🎂 Ultah bulan " + r.monthName;
-
-        bd.innerHTML = r.birthdays.length
-          ? r.birthdays.map(b => memRow(b.nickname, "🎂 " + b.day + " " + r.monthName, b.wa, "Ucapin 🎉", "bday")).join("")
-          : '<p class="hint">Nggak ada yang ultah bulan ini.</p>';
-
-        act.innerHTML = r.accounts.length
-          ? r.accounts.map(a => memRow(a.nickname, (a.birthDate ? "🎂 " + a.birthDate + " · " : "") + "login terakhir: " + (a.lastLogin || "-"), a.wa, "Chat", "chat")).join("")
-          : '<p class="hint">Belum ada yang daftar /sahabat.</p>';
-        document.getElementById("memActiveCount").textContent = r.accounts.length;
-
-        inact.innerHTML = r.notRegistered.length
-          ? r.notRegistered.map(m => memRow(m.nickname, m.count + " event · belum daftar /sahabat", m.wa, "Ajak daftar", "nudge")).join("")
-          : '<p class="hint">Semua member udah daftar 🎉</p>';
-        document.getElementById("memInactiveCount").textContent = r.notRegistered.length;
-
-        document.querySelectorAll(".mem-wa").forEach(b => b.addEventListener("click", () => {
-          const num = waNormalize(b.dataset.memwa);
-          if (!num) { alert("Nomor WA nggak valid."); return; }
-          const nm = (String(b.dataset.memname || "").trim().split(/\s+/)[0]) || "kak";
-          window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(memWaMsg(b.dataset.memtype, nm)), "_blank");
-        }));
+        MEM_DATA = r;
+        renderMembers();
       } catch (e) { bd.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+    }
+
+    function renderMembers() {
+      const r = MEM_DATA;
+      if (!r) return;
+      const q = (document.getElementById("memSearch").value || "").toLowerCase().trim();
+      const hit = x => !q || (String(x.nickname || "") + " " + String(x.wa || "") + " " + String(x.ig || "")).toLowerCase().indexOf(q) >= 0;
+
+      document.getElementById("memStats").innerHTML =
+        `<div class="stat"><div class="stat-n">${r.totalAccounts}</div><div class="stat-l">Aktif</div></div>` +
+        `<div class="stat"><div class="stat-n">${r.notRegistered.length}</div><div class="stat-l">Belum daftar</div></div>` +
+        `<div class="stat"><div class="stat-n">${r.birthdays.length}</div><div class="stat-l">🎂 Ultah ${escapeHtml(r.monthName)}</div></div>`;
+      document.getElementById("memBdayTitle").textContent = "🎂 Ultah bulan " + r.monthName;
+
+      // Ultah: HARI INI paling atas + highlight; sisanya urut tanggal, yg lewat di ekor
+      const today = new Date().getDate();
+      const bdSorted = r.birthdays.filter(hit).slice().sort((a, b) => {
+        const rank = x => x.day === today ? 0 : (x.day > today ? 1 : 2);
+        return rank(a) - rank(b) || a.day - b.day;
+      });
+      document.getElementById("memBirthdays").innerHTML = bdSorted.length
+        ? bdSorted.map(b => {
+          const m = String(b.birthDate).match(/^(\d{4})/);
+          const jadi = m ? (new Date().getFullYear() - parseInt(m[1], 10)) : null;
+          let when, cls = "", badge = "";
+          if (b.day === today) { when = '<span class="bday-when">HARI INI</span>'; cls = "bday-today"; badge = '<span class="bday-today-badge">🎂 HARI INI</span>'; }
+          else if (b.day === today + 1) when = '<span class="bday-when">besok</span>';
+          else if (b.day > today) when = (b.day - today) + " hari lagi";
+          else when = "udah lewat ✓";
+          return memRow(b.nickname, "🎂 " + b.day + " " + escapeHtml(r.monthName) + " · " + when + (jadi ? " · jadi " + jadi + " thn" : ""), b.wa, "Ucapin 🎉", "bday", b.ig, cls, badge);
+        }).join("")
+        : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Nggak ada yang ultah bulan ini.") + '</p>';
+
+      const accs = r.accounts.filter(hit);
+      document.getElementById("memActive").innerHTML = accs.length
+        ? accs.map(a => {
+          const age = memAge(a.birthDate);
+          const sub = (a.birthDate ? "🎂 " + escapeHtml(memBdayShort(a.birthDate)) + (age !== null ? " · <b>" + age + " thn</b>" : "") + " · " : "") + "login terakhir: " + escapeHtml(a.lastLogin || "-");
+          return memRow(a.nickname, sub, a.wa, "Chat", "chat", a.ig);
+        }).join("")
+        : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Belum ada yang daftar /sahabat.") + '</p>';
+      document.getElementById("memActiveCount").textContent = accs.length + (q ? "/" + r.accounts.length : "");
+
+      const inacts = r.notRegistered.filter(hit);
+      document.getElementById("memInactive").innerHTML = inacts.length
+        ? inacts.map(m => memRow(m.nickname, m.count + " event · belum daftar /sahabat", m.wa, "Ajak daftar", "nudge", m.ig)).join("")
+        : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Semua member udah daftar 🎉") + '</p>';
+      document.getElementById("memInactiveCount").textContent = inacts.length + (q ? "/" + r.notRegistered.length : "");
+
+      // lagi nyari? buka dua-duanya biar hasilnya langsung keliatan
+      if (q) ["accActive", "accInactive"].forEach(id => document.getElementById(id).classList.add("open"));
+
+      document.querySelectorAll(".mem-wa").forEach(b => b.addEventListener("click", () => {
+        const num = waNormalize(b.dataset.memwa);
+        if (!num) { alert("Nomor WA nggak valid."); return; }
+        const nm = (String(b.dataset.memname || "").trim().split(/\s+/)[0]) || "kak";
+        window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(memWaMsg(b.dataset.memtype, nm)), "_blank");
+      }));
+      document.querySelectorAll(".mem-ig").forEach(b => b.addEventListener("click", () => copyIg(b)));
     }
 
     // ---------- NOTIFIKASI / AKTIVITAS (admin) ----------
