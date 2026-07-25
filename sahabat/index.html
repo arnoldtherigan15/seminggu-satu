@@ -2346,7 +2346,8 @@
         .psp-page { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; }
         .psp-left { left: 0; border-radius: 12px 3px 3px 12px; border: 1px solid #e3d9c3; border-right: none; box-shadow: inset -14px 0 18px -14px rgba(16, 36, 94, .28), 0 16px 26px rgba(0, 10, 40, .35); }
         .psp-right { right: 0; border-radius: 3px 12px 12px 3px; border: 1px solid #e3d9c3; border-left: none; box-shadow: inset 14px 0 18px -14px rgba(16, 36, 94, .28), 0 16px 26px rgba(0, 10, 40, .35); }
-        .psp-leaf { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; transform-origin: left center; transform-style: preserve-3d; z-index: 5; display: none; }
+        /* will-change: layer 3D-nya dipertahanin GPU antar flip (iOS jank kalau dibikin ulang) */
+        .psp-leaf { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; transform-origin: left center; transform-style: preserve-3d; z-index: 5; display: none; will-change: transform; }
         .psp-face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 1px solid #e3d9c3; box-shadow: 0 16px 26px rgba(0, 10, 40, .35); }
         /* Bug iOS: child yang punya layer compositing sendiri (img/emoji ber-filter
            drop-shadow) NGGAK ikut backface-visibility induknya -> stiker "tembus"

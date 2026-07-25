@@ -1640,7 +1640,7 @@ function renderPassportBook(host) {
             leftP.innerHTML = SP[j][0];
         }
         setLeaf(dir === 1 ? 0 : -180, false);
-        leaf.style.display = "block";
+        leaf.style.visibility = "visible";
         void leaf.offsetWidth;
         requestAnimationFrame(() => requestAnimationFrame(() => {
             setLeaf(dir === 1 ? -180 : 0, true);
@@ -1653,7 +1653,7 @@ function renderPassportBook(host) {
                 $("pspCount").textContent = (j + 1) + " / " + SP.length;
                 $("pspPrev").style.opacity = j === 0 ? ".35" : "1";
                 $("pspNext").style.opacity = j === SP.length - 1 ? ".35" : "1";
-                leaf.style.display = "none";
+                leaf.style.visibility = "hidden"; // JANGAN display:none — iOS bongkar layer 3D-nya, flip berikutnya jank
                 anim = false;
             }, 680);
         }));
@@ -1675,7 +1675,8 @@ function renderPassportBook(host) {
     book.style.transition = "";
     leaf.style.transition = "none";
     leaf.style.transform = "none"; // datar & tajam, nggak masuk konteks 3D
-    leaf.style.display = "block";
+    leaf.style.display = "block";  // sekali doang; abis ini show/hide pakai visibility
+    leaf.style.visibility = "visible";
     let opened = false;
     function openBook() {
         if (opened) return;
@@ -1692,7 +1693,7 @@ function renderPassportBook(host) {
                 // adopsi node: muka belakang leaf (dalam cover) pindah ke halaman kiri statis
                 leftP.innerHTML = "";
                 while (back.firstChild) leftP.appendChild(back.firstChild);
-                leaf.style.display = "none";
+                leaf.style.visibility = "hidden";
                 $("pspNav").style.visibility = "";
                 anim = false;
             }, 930);
