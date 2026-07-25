@@ -243,6 +243,7 @@ function showDashboard() {
     launchBalloons(); // ada sahabat ultah (atau kamu sendiri)? balon-balon terbang 🎈
     startMochiBubbles(); // bubble pintar Mochi: pesan-pesan relevan tampil bergiliran
     initPush(); // daftar push notification (OneSignal) — no-op kalau belum dikonfigurasi
+    if (!_michiSched) { _michiSched = true; scheduleMichi(); } // Michi mulai patroli 🐩
     // Ikutin tab dari hash (biar refresh nggak balik ke tab pertama)
     activateTab((location.hash || "").replace("#", "") || "loyalty");
     // Prefetch tab lain di background pas browser idle (non-blocking) biar pindah tab instan
@@ -2555,6 +2556,86 @@ function startMochiBubbles() {
         openMochiPrompt();
     });
 })();
+
+// ---------- Michi si Penjaga Balai: pelari misterius pembawa Surat Nyasar ----------
+// Sesekali lari melintas layar bawa 💌 — ketangkep (di-tap) = prompt kejutan acak.
+// Max 3x per sesi, nggak muncul pas ada modal kebuka.
+let _michiRuns = 0;
+let _michiSched = false;
+
+function scheduleMichi() {
+    if (_michiRuns >= 3) return;
+    const delay = (_michiRuns === 0 ? 25000 : 150000) + Math.random() * 60000;
+    setTimeout(spawnMichi, delay);
+}
+
+function spawnMichi() {
+    if (_michiRuns >= 3) return;
+    // lagi ada modal kebuka / masih di halaman login? coba lagi nanti
+    if (document.body.style.position === "fixed" || $("dashView").style.display === "none") { scheduleMichi(); return; }
+    _michiRuns++;
+    const el = document.createElement("button");
+    el.className = "michi-run";
+    el.setAttribute("aria-label", "Michi bawa surat nyasar — tangkap!");
+    el.innerHTML = '<img src="../images/sticker/str-6.png" alt=""><span class="michi-mail">💌</span>';
+    document.body.appendChild(el);
+    el.addEventListener("animationend", () => {
+        if (el.parentNode) el.parentNode.removeChild(el); // lolos... balik lagi nanti
+        scheduleMichi();
+    });
+    el.addEventListener("click", () => {
+        if (el.parentNode) el.parentNode.removeChild(el);
+        openStrayLetter();
+        scheduleMichi();
+    }, { once: true });
+}
+
+// Surat Nyasar: prompt kejutan acak dari Michi
+async function openStrayLetter() {
+    showBusy("Michi nyerahin suratnya…");
+    let list;
+    try { list = await loadPrompts(); }
+    catch (e) { hideBusy(); alert("Suratnya kebawa angin 😢 Coba tangkap Michi lagi nanti ya."); return; }
+    hideBusy();
+    fireConfetti("love");
+    const it = randomPrompt(list);
+    let modal = $("mochiModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "mochiModal";
+        modal.className = "mochi-modal";
+        document.body.appendChild(modal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closeMochiPrompt(); });
+    }
+    modal.innerHTML =
+        '<div class="mochi-box">' +
+        '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
+        '<img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:64px;bottom:8px;right:8px;transform:rotate(10deg);" alt="">' +
+        '<div class="mp-head">💌 Surat Nyasar!</div>' +
+        '<div class="mp-sub">Kamu berhasil nangkep Michi si Penjaga Balai — ada prompt kejutan buat kamu~</div>' +
+        '<div class="mp-card fortune pop" id="mpCard" style="margin-top:16px;">' +
+        '<img class="mp-mochi" src="../images/mochi_maskot_sm.png" alt="">' +
+        '<div class="mp-kicker">SURAT NYASAR · SURPRISE ✨</div>' +
+        '<div><span class="mp-cat">🏷️ ' + esc(it.category || "Journaling") + '</span></div>' +
+        '<div class="mp-text" id="mpText">“' + esc(it.prompt) + '”</div>' +
+        '<div class="mp-actions">' +
+        '<button class="mp-btn ghost" id="slCopy">📋 Salin</button>' +
+        '<button class="mp-btn" id="slClose">Makasih, Michi! 🐾</button>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    _mpLastId = it.id;
+    $("mpClose").addEventListener("click", closeMochiPrompt);
+    $("slClose").addEventListener("click", closeMochiPrompt);
+    $("slCopy").addEventListener("click", async () => {
+        const btn = $("slCopy");
+        try { await navigator.clipboard.writeText($("mpText").textContent.replace(/[“”]/g, "")); btn.textContent = "✓ Tersalin"; }
+        catch (e) { btn.textContent = "Salin manual ya"; }
+        setTimeout(() => { btn.textContent = "📋 Salin"; }, 1800);
+    });
+}
 
 // ---------- Journaling Prompt (mystery envelope gacha, data: list_prompt.json) ----------
 let _prompts = null;

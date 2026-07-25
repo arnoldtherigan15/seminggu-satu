@@ -2533,6 +2533,19 @@
         }
         .mochi-bubble.theme { background: var(--yellow); }
 
+        /* ---- Michi si Penjaga Balai: lari melintas layar bawa surat nyasar ---- */
+        .michi-run { position: fixed; bottom: calc(88px + env(safe-area-inset-bottom)); left: 0; z-index: 1100; border: none; background: none; padding: 10px; cursor: pointer; animation: michiRun 7.5s linear forwards; -webkit-tap-highlight-color: transparent; }
+        .michi-run img { width: 62px; display: block; transform: scaleX(-1); animation: michiBob .32s ease-in-out infinite alternate; filter: drop-shadow(0 6px 8px rgba(16, 36, 94, .3)); }
+        .michi-mail { position: absolute; top: -4px; right: 4px; font-size: 1.1rem; animation: bbFloat 1s ease-in-out infinite; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .2)); }
+        @keyframes michiRun {
+            from { transform: translateX(-92px); }
+            to { transform: translateX(calc(100vw + 92px)); }
+        }
+        @keyframes michiBob {
+            from { transform: scaleX(-1) translateY(0) rotate(-4deg); }
+            to { transform: scaleX(-1) translateY(-8px) rotate(4deg); }
+        }
+
         /* ---- Mochi's Daily Prompt: modal amplop misteri (gacha surat) ---- */
         .mochi-modal { position: fixed; inset: 0; z-index: 1300; background: rgba(16, 36, 94, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 18px 16px; }
         .mochi-modal.show { display: flex; }
