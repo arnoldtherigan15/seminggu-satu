@@ -4042,7 +4042,7 @@ function renderMadingModal() {
         : '＋ Tempel Pesan' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '');
     modal.innerHTML =
         '<div class="md-wrap">' +
-        '<img class="md-deco" src="../images/sticker/str-8.png" alt="" style="top:52px;right:-6px;transform:rotate(14deg);">' +
+
         '<img class="md-deco" src="../images/sticker/str-2.png" alt="" style="bottom:10px;left:-8px;transform:rotate(-12deg);">' +
         '<div class="md-head">' +
         '<div class="md-title">📌 Mading Warga</div>' +
@@ -4058,6 +4058,7 @@ function renderMadingModal() {
         // kertas pengumuman: sorotan komunitas acak (reuse mesin bisik-bisik)
         '<div class="md-info md-in" style="--d:0s">' +
         '<span class="wb-tape2 wt-b" style="width:70px;"></span>' +
+        '<img class="md-info-stk" src="../images/sticker/str-8.png" alt="">' +
         '<div class="md-info-k">📣 INFO BALAI</div>' +
         '<div class="md-info-t">' + esc(_mdInfoPick) + '</div>' +
         '</div>' +
