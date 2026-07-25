@@ -241,6 +241,7 @@ function showDashboard() {
     }
     launchBalloons(); // ada sahabat ultah (atau kamu sendiri)? balon-balon terbang 🎈
     startMochiBubbles(); // bubble pintar Mochi: pesan-pesan relevan tampil bergiliran
+    initPush(); // daftar push notification (OneSignal) — no-op kalau belum dikonfigurasi
     // Ikutin tab dari hash (biar refresh nggak balik ke tab pertama)
     activateTab((location.hash || "").replace("#", "") || "loyalty");
     // Prefetch tab lain di background pas browser idle (non-blocking) biar pindah tab instan
@@ -2064,6 +2065,31 @@ async function loadLoyalty() {
         _loyaltyLoaded = false;           // biar bisa retry pas tab dibuka lagi
         renderError(content, loadLoyalty);
     }
+}
+
+// ---------- Push notification (OneSignal) ----------
+// Aktif cuma kalau ONESIGNAL_APP_ID keisi di env.js & halaman di-serve https.
+// SDK-nya nebeng service worker sw.js yang sama (importScripts di dalamnya).
+let _pushInit = false;
+function initPush() {
+    if (_pushInit) return;
+    if (typeof ONESIGNAL_APP_ID === "undefined" || !ONESIGNAL_APP_ID) return;
+    if (location.protocol !== "https:") return; // file:// lokal -> skip
+    _pushInit = true;
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push(async (OneSignal) => {
+        try {
+            await OneSignal.init({
+                appId: ONESIGNAL_APP_ID,
+                serviceWorkerPath: "/sahabat/sw.js",
+                serviceWorkerParam: { scope: "/sahabat/" }
+            });
+            // tag nomor WA -> server bisa exclude pengirim pas broadcast karya baru
+            if (_profile && _profile.wa) OneSignal.User.addTag("wa", String(_profile.wa).replace(/\D/g, ""));
+            // prompt izin ala slidedown (OneSignal atur frequency capping-nya)
+            OneSignal.Slidedown.promptPush();
+        } catch (e) { /* push gagal init = bukan masalah fatal */ }
+    });
 }
 
 // ---------- Shimmer placeholder buat semua gambar konten ----------

@@ -1,4 +1,7 @@
-// Service Worker — Sahabat (Member Hub) Seminggu Satu
+// Push notification (OneSignal) — nebeng di SW yang sama, aman bareng cache handler
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+
+// Service Worker — Sahabat (Balai Warga) Seminggu Satu
 // Strategi: network-first (kode & data selalu fresh), fallback ke cache saat offline.
 // Scope = folder /sahabat/, jadi TIDAK mengintervensi request ke Apps Script (beda origin).
 
