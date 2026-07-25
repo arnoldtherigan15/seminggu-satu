@@ -2550,6 +2550,51 @@ function randomPrompt(list) {
     return it;
 }
 
+// ---------- Fortune Cookie (data: list_fortune.js, pola sama kayak prompt) ----------
+let _fortunes = null;
+let _fcLastId = 0;
+
+function loadFortunes() {
+    if (_fortunes) return Promise.resolve(_fortunes);
+    if (Array.isArray(window.SS_FORTUNES) && window.SS_FORTUNES.length) {
+        _fortunes = window.SS_FORTUNES;
+        return Promise.resolve(_fortunes);
+    }
+    return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "list_fortune.js";
+        s.onload = () => {
+            if (Array.isArray(window.SS_FORTUNES) && window.SS_FORTUNES.length) { _fortunes = window.SS_FORTUNES; resolve(_fortunes); }
+            else reject(new Error("daftar fortune kosong"));
+        };
+        s.onerror = () => reject(new Error("gagal load daftar fortune"));
+        document.body.appendChild(s);
+    });
+}
+
+// Fortune harian deterministik (formula beda dari prompt biar nggak sejalan)
+function dailyFortune(list) {
+    const d = new Date();
+    let seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    seed = (seed * 7901 + 29573) % 233280;
+    return list[seed % list.length];
+}
+
+function randomFortune(list) {
+    const it = list[Math.floor(Math.random() * list.length)];
+    if (list.length > 1 && it.id === _fcLastId) return randomFortune(list);
+    return it;
+}
+
+function fortuneCatLabel(c) {
+    return {
+        mochi_hug: "🐾 Pelukan Mochi",
+        encouragement: "💪 Penyemangat",
+        self_love: "💗 Self-Love",
+        wisdom: "🦉 Kata Bijak"
+    }[c] || "🥠 Fortune";
+}
+
 async function openMochiPrompt() {
     showBusy("Mochi lagi nyiapin surat…");
     let list;
@@ -2565,30 +2610,104 @@ async function openMochiPrompt() {
         document.body.appendChild(modal);
         modal.addEventListener("click", (e) => { if (e.target === modal) closeMochiPrompt(); });
     }
-    // Lagi ultah? Ada DUA surat — pilih dulu. Hari biasa langsung surat prompt.
-    if (isMyBirthdayToday()) renderMochiChooser(modal, list);
-    else renderMochiEnvelope(modal, list, "prompt");
+    // Selalu tampil menu pilihan: Prompt Harian + Fortune Cookie (+ Surat Ultah pas ultah)
+    renderMochiChooser(modal, list);
     modal.classList.add("show");
     lockScroll();
 }
 
-// Layar pilihan dua surat (khusus pas ultah)
+// Menu hadiah Mochi: pilih mau dibawain apa hari ini
 function renderMochiChooser(modal, list) {
+    const bday = isMyBirthdayToday();
     modal.innerHTML =
         '<div class="mochi-box">' +
         '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
         '<img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:62px;bottom:8px;left:6px;transform:rotate(-8deg);" alt="">' +
         '<img class="mp-imgstk" src="../images/sticker/str-7.png" style="width:58px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">' +
-        '<div class="mp-head">🎂 Dua surat buat kamu!</div>' +
-        '<div class="mp-sub">Hari spesial = surat spesial. Mau buka yang mana dulu?</div>' +
+        '<div class="mp-head">' + (bday ? "🎂 Mochi bawa banyak hadiah!" : "🐾 Mochi bawa apa hari ini?") + '</div>' +
+        '<div class="mp-sub">' + (bday ? "Hari spesial! Mau buka yang mana dulu?" : "Pilih satu — dua-duanya juga boleh 😉") + '</div>' +
         '<div class="mp-choose">' +
-        '<button class="mp-choice bday" id="mcBday"><span class="mc-em">🎂</span><b>Surat Ultah</b><span>spesial hari ini ✨</span></button>' +
+        (bday ? '<button class="mp-choice bday" id="mcBday"><span class="mc-em">🎂</span><b>Surat Ultah</b><span>spesial hari ini ✨</span></button>' : '') +
         '<button class="mp-choice" id="mcPrompt"><span class="mc-em">✍️</span><b>Prompt Harian</b><span>ide journaling</span></button>' +
+        '<button class="mp-choice cookie" id="mcCookie"><span class="mc-em">🥠</span><b>Fortune Cookie</b><span>pesan manis buatmu</span></button>' +
         '</div>' +
         '</div>';
     $("mpClose").addEventListener("click", closeMochiPrompt);
-    $("mcBday").addEventListener("click", () => renderMochiEnvelope(modal, list, "bday"));
+    const mcB = $("mcBday");
+    if (mcB) mcB.addEventListener("click", () => renderMochiEnvelope(modal, list, "bday"));
     $("mcPrompt").addEventListener("click", () => renderMochiEnvelope(modal, list, "prompt"));
+    $("mcCookie").addEventListener("click", () => openFortune(modal, list));
+}
+
+async function openFortune(modal, list) {
+    showBusy("Mochi lagi ngambil kue…");
+    try { await loadFortunes(); } catch (e) { hideBusy(); alert("Gagal ngambil kue-nya 😢 Coba lagi ya."); return; }
+    hideBusy();
+    renderFortuneScene(modal, list);
+}
+
+// Scene fortune cookie: kue goyang-goyang -> diketuk -> pecah -> strip kertas keluar
+function renderFortuneScene(modal, list) {
+    modal.innerHTML =
+        '<div class="mochi-box">' +
+        '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
+        '<img class="mp-imgstk" src="../images/sticker/str-3.png" style="width:60px;bottom:8px;left:6px;transform:rotate(-10deg);" alt="">' +
+        '<img class="mp-imgstk" src="../images/sticker/str-11.png" style="width:56px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">' +
+        '<div class="mp-head">🥠 Fortune Cookie dari Mochi</div>' +
+        '<div class="mp-sub">Pecahin kuenya — ada pesan manis di dalamnya~</div>' +
+        '<div class="fc-scene" id="fcScene">' +
+        '<button class="fc-cookie" id="fcCookie" aria-label="Pecahin fortune cookie">🥠</button>' +
+        '<div class="env-hint">ketuk kue-nya buat mecahin 🥠</div>' +
+        '</div>' +
+        '<div class="mp-card fortune" id="mpCard" style="display:none;">' +
+        '<img class="mp-mochi" src="../images/mochi_maskot_sm.png" alt="">' +
+        '<div class="mp-kicker" id="mpKicker"></div>' +
+        '<div><span class="mp-cat" id="mpCat"></span></div>' +
+        '<div class="mp-text" id="mpText"></div>' +
+        '<div class="mp-actions" id="mpActions"></div>' +
+        '</div>' +
+        '</div>';
+    $("mpClose").addEventListener("click", closeMochiPrompt);
+
+    const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const now = new Date();
+    const dateStr = now.getDate() + " " + MON[now.getMonth()] + " " + now.getFullYear();
+    function showFortune(it, isDaily) {
+        _fcLastId = it.id;
+        $("mpKicker").textContent = (isDaily ? "FORTUNE HARI INI · " : "FORTUNE · ") + dateStr;
+        $("mpCat").textContent = fortuneCatLabel(it.category);
+        $("mpText").textContent = "“" + it.message + "”";
+        const card = $("mpCard");
+        card.classList.remove("pop");
+        void card.offsetWidth;
+        card.classList.add("pop");
+    }
+
+    const cookie = $("fcCookie");
+    let cracked = false;
+    cookie.addEventListener("click", () => {
+        if (cracked) return;
+        cracked = true;
+        cookie.classList.add("crack");
+        if (typeof confetti === "function") setTimeout(() => fireConfetti("quest"), 450);
+        setTimeout(() => {
+            $("fcScene").style.display = "none";
+            $("mpCard").style.display = "block";
+            showFortune(dailyFortune(_fortunes), true);
+            $("mpActions").innerHTML =
+                '<button class="mp-btn ghost" id="fcCopy">📋 Salin</button>' +
+                '<button class="mp-btn" id="fcAgain">🥠 Kue lagi</button>' +
+                '<button class="mp-btn ghost" id="fcPrompt" style="flex:1 1 100%;">✍️ Baca Prompt Harian</button>';
+            $("fcAgain").addEventListener("click", () => showFortune(randomFortune(_fortunes), false));
+            $("fcPrompt").addEventListener("click", () => renderMochiEnvelope(modal, list, "prompt"));
+            $("fcCopy").addEventListener("click", async () => {
+                const btn = $("fcCopy");
+                try { await navigator.clipboard.writeText($("mpText").textContent.replace(/[“”]/g, "")); btn.textContent = "✓ Tersalin"; }
+                catch (e) { btn.textContent = "Salin manual ya"; }
+                setTimeout(() => { btn.textContent = "📋 Salin"; }, 1800);
+            });
+        }, 780);
+    });
 }
 
 // Amplop + isi surat. mode: "prompt" (kuning, prompt harian) | "bday" (pink, ucapan ultah)

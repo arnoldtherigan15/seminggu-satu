@@ -2528,7 +2528,28 @@
         .mp-choice:active { transform: scale(.95); }
         .mp-choice.bday { border-color: #ff5c8a; background: rgba(255, 92, 138, .08); }
         .mp-choice.bday:hover { background: rgba(255, 92, 138, .15); }
+        .mp-choice.cookie { border-color: #d97706; background: rgba(217, 119, 6, .07); }
+        .mp-choice.cookie:hover { background: rgba(217, 119, 6, .14); }
         .mp-choice .mc-em { font-size: 1.7rem; line-height: 1; }
+
+        /* ---- Fortune cookie interaktif: kue goyang idle -> diketuk -> pecah ---- */
+        .fc-scene { padding: 30px 0 8px; text-align: center; }
+        .fc-cookie { border: none; background: none; padding: 8px; font-size: 5rem; line-height: 1; cursor: pointer; filter: drop-shadow(0 10px 16px rgba(140, 80, 20, .35)); animation: fcIdle 2.4s ease-in-out infinite; }
+        @keyframes fcIdle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(6deg) translateY(-5px); }
+        }
+        .fc-cookie.crack { animation: fcCrack .78s ease forwards; }
+        @keyframes fcCrack {
+            0% { transform: rotate(0) scale(1); }
+            15% { transform: rotate(-12deg) scale(1.04); }
+            30% { transform: rotate(11deg) scale(1.08); }
+            45% { transform: rotate(-9deg) scale(1.12); }
+            60% { transform: rotate(8deg) scale(1.2); opacity: 1; }
+            100% { transform: rotate(-3deg) scale(1.75); opacity: 0; }
+        }
+        /* strip kertas fortune: putih fix + teks navy fix (aman dark mode) */
+        .mp-card.fortune .mp-text { font-style: italic; background: #fff; color: #10245e; border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 8px; padding: 14px 16px; transform: rotate(-.6deg); box-shadow: 0 4px 10px rgba(0, 30, 120, .08); }
         .mp-choice b { font-family: 'Outfit', sans-serif; font-size: .88rem; }
         .mp-choice span:last-child { font-size: .68rem; color: var(--muted); }
         .mp-actions { flex-wrap: wrap; }
