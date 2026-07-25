@@ -2758,7 +2758,10 @@
         .pe-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .pe-field { margin-top: 12px; text-align: left; }
         .pe-field label { display: block; font-size: .74rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px; }
-        .pe-field input[type="text"], .pe-field input[type="date"], .pe-field textarea { width: 100%; border: 1.5px solid var(--line); border-radius: 12px; padding: .7rem; font-family: inherit; font-size: 16px; color: var(--ink); background: var(--card); }
+        .pe-field input[type="text"], .pe-field input[type="date"], .pe-field textarea { display: block; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; border: 1.5px solid var(--line); border-radius: 12px; padding: .7rem; font-family: inherit; font-size: 16px; color: var(--ink); background: var(--card); }
+        /* iOS: date input punya lebar intrinsik & appearance native -> overflow horizontal */
+        .pe-field input[type="date"] { -webkit-appearance: none; appearance: none; min-height: 48px; text-align: left; }
+        .pe-field input[type="date"]::-webkit-date-and-time-value { text-align: left; }
         .pe-field textarea { resize: vertical; min-height: 64px; }
         .pe-field input:focus, .pe-field textarea:focus { outline: none; border-color: var(--blue); }
         /* avatar foto di kartu galeri */
