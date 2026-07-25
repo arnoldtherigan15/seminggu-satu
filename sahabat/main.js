@@ -1437,101 +1437,204 @@ function closeWrapped() {
 }
 
 // ---------- Passport Wrapped (pengganti halaman /loyalty dari Member Hub) ----------
+// ---------- Paspor Warga: buku paspor beneran — cover, identitas, visa stamp per event ----------
 function openPassport() {
     if (!_loyaltyStats) return; // tombolnya cuma ada setelah loadLoyalty sukses
-    showWrapped(buildPassportSlides(_loyaltyStats), {
-        filename: "passport-seminggu-satu.png",
-        text: "My Journaling Passport ✨ @seminggu_satu"
+    const modal = $("questModal");
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="qm-body" style="text-align:center;">' +
+        '<button type="button" class="psp-cover" id="pspCover">' +
+        '<span class="psp-emblem">SS</span>' +
+        '<span class="psp-cover-t">PASSPORT</span>' +
+        '<span class="psp-cover-s">BALAI WARGA · SEMINGGU SATU</span>' +
+        '<img class="psp-cover-stk" src="../images/sticker/str-6.png" alt="">' +
+        '<span class="psp-cover-hint">ketuk buat buka 📖</span>' +
+        '</button>' +
+        '<div id="pspBookHost" style="display:none;"></div>' +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+    $("pspCover").addEventListener("click", () => {
+        $("pspCover").style.display = "none";
+        const host = $("pspBookHost");
+        host.style.display = "";
+        renderPassportBook(host);
     });
 }
 
-function buildPassportSlides(s) {
-    const nick = _profile.nickname || "Sahabat";
-    const slides = [];
-    // 1) Cover
-    slides.push('<div class="wr-slide wr-blue">' +
-        '<span class="wr-tape" style="top:52px;left:20px;transform:rotate(-14deg);"></span>' +
-        '<span class="wr-tape" style="bottom:76px;right:16px;transform:rotate(9deg);"></span>' +
-        '<span class="wr-stk" style="top:15%;right:11%;">🛂</span>' +
-        '<img class="wr-imgstk" src="../images/sticker/str-6.png" style="width:88px;bottom:14%;left:5%;transform:rotate(-8deg);" alt="">' +
-        '<span class="wr-stk" style="top:27%;left:13%;">📖</span>' +
-        '<div class="wr-anim wr-kicker">SEMINGGU SATU PRESENTS</div>' +
-        '<div class="wr-anim wr-title wr-hero" style="--d:.08s;">My Journaling<br>Passport ✨</div>' +
-        '<div class="wr-anim wr-sub" style="--d:.16s;">Jejak petualangan journaling-mu, ' + esc(nick) + ' 💙</div>' +
-        '<div class="wr-anim wr-hint" style="--d:.3s;">geser ke kiri buat mulai →</div>' +
-        '</div>');
-    // 2) Events joined
-    slides.push('<div class="wr-slide wr-paper">' +
-        '<span class="wr-tape" style="top:56px;right:22px;transform:rotate(12deg);"></span>' +
-        '<span class="wr-stk" style="top:13%;left:10%;">🎪</span>' +
-        '<img class="wr-imgstk" src="../images/sticker/str-1.png" style="width:80px;bottom:9%;right:5%;transform:rotate(9deg);" alt="">' +
-        '<div class="wr-anim wr-kicker">EVENTS JOINED</div>' +
-        '<div class="wr-anim wr-big" style="--d:.08s;">' + s.count + '</div>' +
-        '<div class="wr-anim wr-title" style="--d:.14s;">event journaling kamu datengin 🎪</div>' +
-        (s.since ? '<div class="wr-anim wr-sub" style="--d:.2s;">warga sejak <b>' + s.since + '</b> 🌱</div>' : '') +
-        (s.uniqueWs > 1 ? '<div class="wr-anim wr-chips" style="--d:.28s;"><span class="wr-chip">' + s.uniqueWs + ' tema beda dijelajahi 🗺️</span></div>' : '') +
-        '</div>');
-    // 3) Tier persona
-    slides.push('<div class="wr-slide wr-yellow">' +
-        '<span class="wr-tape b" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
-        '<span class="wr-stk" style="top:16%;right:12%;">🏅</span>' +
-        '<img class="wr-imgstk" src="../images/sticker/str-3.png" style="width:76px;bottom:11%;left:5%;transform:rotate(-9deg);" alt="">' +
-        '<div class="wr-anim wr-kicker">YOUR TITLE</div>' +
-        '<div class="wr-anim wr-big" style="--d:.08s;">' + s.tierEmoji + '</div>' +
-        '<div class="wr-anim wr-tier" style="--d:.16s;">' + esc(s.tier) + '</div>' +
-        '<div class="wr-anim wr-sub" style="--d:.24s;">' + esc(s.tierTag) + '</div>' +
-        '<div class="wr-anim wr-chips" style="--d:.32s;"><span class="wr-chip">🎖️ ' + esc(s.trait) + '</span></div>' +
-        '</div>');
-    // 4+) Your Journaling Journey: 6 event per slide, max 2 slide (12), sisanya dirangkum
-    const evs = s.events || [];
-    const PER = 6, MAXSLIDE = 2;
-    for (let sl = 0; sl < Math.min(MAXSLIDE, Math.ceil(evs.length / PER)); sl++) {
-        const chunk = evs.slice(sl * PER, sl * PER + PER);
-        let rows = "";
-        chunk.forEach((e, k) => {
-            const when = e.eventDate || e.label || e.date || "";
-            rows += '<div class="wr-jrow"><span class="n">' + (sl * PER + k + 1) + '</span>' +
-                '<span class="nm">' + esc(e.name) + '</span>' +
-                (when ? '<span class="dt">' + esc(when) + '</span>' : '') + '</div>';
+function pspWhen(e) {
+    return e.eventDate ? fmtEventDate(e.eventDate) : (e.label || e.date || "");
+}
+
+// Halaman identitas ala ID card: foto, data diri bergaris titik, ttd, stempel hijau
+function pspIdentityHtml() {
+    const s = _loyaltyStats;
+    const photo = _profile.photoUrl
+        ? '<img src="' + esc(_profile.photoUrl) + '" alt="">'
+        : '<span class="psp-photo-init">' + esc((_profile.nickname || "S").charAt(0).toUpperCase()) + '</span>';
+    const bd = (String(_profile.birthDate || "").match(/\d{4}-\d{2}-\d{2}/) || [""])[0];
+    const noPsp = formatCardNumber(_profile.wa).replace(/\s*·\s*/g, "-");
+    return '<div class="psp-in">' +
+        '<div class="psp-kicker">★ IDENTITAS WARGA ★</div>' +
+        '<div class="psp-photo">' + photo + '</div>' +
+        '<div class="psp-photo-cap">authorized journaler</div>' +
+        '<div class="psp-row"><span>Issued to</span><b>' + esc(_profile.nickname || "Sahabat") + '</b></div>' +
+        '<div class="psp-row"><span>No. paspor</span><b>' + esc(noPsp) + '</b></div>' +
+        (bd ? '<div class="psp-row"><span>Date of birth</span><b>' + esc(fmtEventDate(bd)) + '</b></div>' : '') +
+        (s.since ? '<div class="psp-row"><span>Warga sejak</span><b>' + s.since + '</b></div>' : '') +
+        '<div class="psp-row"><span>Tier</span><b>' + s.tierEmoji + ' ' + esc(s.tier) + '</b></div>' +
+        '<div class="psp-sign">' + esc(_profile.nickname || "Sahabat") + ' ♡</div>' +
+        '<div class="psp-photo-cap">signature of authorized journaler</div>' +
+        '<span class="psp-ok">WARGA AKTIF ✓</span>' +
+        '</div>';
+}
+
+function pspInsideCoverHtml() {
+    return '<div class="psp-in psp-incover">' +
+        '<span class="psp-emblem sm">SS</span>' +
+        '<div class="psp-ic-t">PASPOR<br>BALAI WARGA</div>' +
+        '<div class="psp-ic-note">Pemegang paspor ini adalah warga sah Seminggu Satu — berhak menjelajah, journaling, dan bersenang-senang tanpa batas waktu. 💙</div>' +
+        '<img class="psp-ic-stk" src="../images/sticker/str-5.png" alt="">' +
+        '</div>';
+}
+
+// Halaman visa: max 3 stempel imigrasi per halaman, tinta & kemiringan selang-seling
+function pspVisaPageHtml(evs, start, pageNo) {
+    const chunk = evs.slice(start, start + 3);
+    let inner = '<div class="psp-kicker">VISA & STEMPEL · HAL. ' + pageNo + '</div>';
+    if (!chunk.length) {
+        inner += '<div class="psp-vempty">🎪<br>Halaman ini nunggu<br>stempel event berikutnya…</div>';
+    } else {
+        chunk.forEach((e, i) => {
+            const n = start + i;
+            const when = pspWhen(e);
+            inner += '<div class="psp-vstamp ink' + (n % 3) + (n % 2 ? " r" : "") + '">' +
+                '<span class="pv-top">SEMINGGU SATU ★ ADMITTED</span>' +
+                '<b class="pv-name">' + esc(e.name) + '</b>' +
+                (when ? '<span class="pv-date">' + esc(when) + '</span>' : '') +
+                '</div>';
         });
-        const leftover = (sl === MAXSLIDE - 1 && evs.length > MAXSLIDE * PER)
-            ? '<div class="wr-anim wr-chips" style="--d:.4s;"><span class="wr-chip">+' + (evs.length - MAXSLIDE * PER) + ' event lainnya ✨</span></div>'
-            : '';
-        slides.push('<div class="wr-slide wr-pink">' +
-            '<span class="wr-tape" style="top:54px;' + (sl % 2 ? 'left:24px;transform:rotate(-10deg);' : 'right:24px;transform:rotate(10deg);') + '"></span>' +
-            '<span class="wr-stk" style="top:13%;left:9%;">🚩</span>' +
-            '<img class="wr-imgstk" src="../images/sticker/str-5.png" style="width:72px;bottom:8%;right:4%;transform:rotate(10deg);" alt="">' +
-            '<div class="wr-anim wr-kicker">YOUR JOURNALING JOURNEY' + (evs.length > PER ? " " + (sl + 1) : "") + '</div>' +
-            '<div class="wr-anim wr-journey" style="--d:.12s;">' + rows + '</div>' +
-            leftover +
-            '</div>');
     }
-    // 5) Loyalty card stamps
-    let st = "";
-    for (let i = 0; i < s.target; i++) st += '<span class="wr-stamp star' + (i < s.progress ? " on" : "") + '">' + (i < s.progress ? "★" : "") + '</span>';
-    slides.push('<div class="wr-slide wr-paper">' +
-        '<span class="wr-tape" style="top:58px;left:24px;transform:rotate(-12deg);"></span>' +
-        '<span class="wr-stk" style="top:14%;right:10%;">🎁</span>' +
-        '<img class="wr-imgstk" src="../images/sticker/str-2.png" style="width:78px;bottom:9%;left:5%;transform:rotate(-8deg);" alt="">' +
-        '<div class="wr-anim wr-kicker">LOYALTY CARD</div>' +
-        '<div class="wr-anim wr-big" style="--d:.08s;">' + s.progress + '<span class="wr-big-sm">/' + s.target + '</span></div>' +
-        '<div class="wr-anim wr-title" style="--d:.14s;">stamp terkumpul 🎁</div>' +
-        '<div class="wr-anim wr-stamps" style="--d:.22s;">' + st + '</div>' +
+    return '<div class="psp-in">' + inner + '</div>';
+}
+
+function pspLoyaltyPageHtml() {
+    const s = _loyaltyStats;
+    let dots = "";
+    for (let i = 0; i < s.target; i++) dots += '<span class="psp-loy-dot' + (i < s.progress ? " on" : "") + '">' + (i < s.progress ? "★" : "") + '</span>';
+    const toGo = Math.max(0, s.target - s.progress);
+    return '<div class="psp-in">' +
+        '<div class="psp-kicker">KUPON HADIAH</div>' +
+        '<div class="psp-loy-dots">' + dots + '</div>' +
         (s.eligible
-            ? '<div class="wr-anim wr-stamp5" style="--d:.32s;">HADIAH GRATIS! 🎉</div>'
-            : (s.count ? '<div class="wr-anim wr-sub" style="--d:.32s;"><b>' + Math.max(0, s.target - s.progress) + ' event lagi</b> buat hadiah gratis 🎁</div>' : '')) +
-        '</div>');
-    // 6) Outro
-    slides.push('<div class="wr-slide wr-blue">' +
-        '<span class="wr-tape" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
-        '<span class="wr-stk" style="top:16%;left:12%;">💌</span>' +
-        '<img class="wr-imgstk" src="../images/sticker/str-8.png" style="width:90px;bottom:15%;right:6%;transform:rotate(7deg);" alt="">' +
-        '<span class="wr-stk" style="top:24%;right:16%;">🌈</span>' +
-        '<div class="wr-anim wr-title wr-hero">See you at the<br>next event, ' + esc(nick) + '! 💙</div>' +
-        '<div class="wr-anim wr-sub" style="--d:.12s;">Tiap halaman passport ini kita isi bareng-bareng. Sampai jumpa lagi! ✨</div>' +
-        '<div class="wr-anim wr-foot" style="--d:.22s;">@seminggu_satu</div>' +
-        '</div>');
-    return slides;
+            ? '<div class="psp-vempty" style="color:#0a7a3d;">🎉 Hadiah gratis siap diklaim!<br>Tunjukkin ke admin ya.</div>'
+            : '<div class="psp-vempty">' + (toGo && s.progress ? '<b>' + toGo + ' event lagi</b><br>menuju hadiah gratis 🎁' : 'Yuk mulai kumpulin<br>stempel hadiah! 🎁') + '</div>') +
+        '</div>';
+}
+
+function pspOutroHtml() {
+    const s = _loyaltyStats;
+    return '<div class="psp-in psp-incover">' +
+        '<div class="psp-ic-t">KEEP<br>EXPLORING 🌍</div>' +
+        '<div class="psp-ic-note">' + s.count + ' event · ' + s.uniqueWs + ' jenis petualangan.<br>Trait kamu: <b>' + esc(s.trait) + '</b> ✨</div>' +
+        '<img class="psp-ic-stk" src="../images/sticker/str-7.png" alt="">' +
+        '<div class="psp-ic-foot">@seminggu_satu</div>' +
+        '</div>';
+}
+
+// Susunan spread: [dalam cover | identitas] -> halaman visa berpasangan -> [kupon | outro]
+function pspSpreads() {
+    const evs = (_loyaltyStats.events || []).slice();
+    const tv = e => { const m = String(e.eventDate || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Number(m[1] + m[2] + m[3]) : 0; };
+    evs.sort((a, b) => tv(a) - tv(b));
+    const spreads = [[pspInsideCoverHtml(), pspIdentityHtml()]];
+    const nPages = Math.max(1, Math.ceil(evs.length / 3));
+    for (let pg = 0; pg < nPages; pg += 2) {
+        spreads.push([pspVisaPageHtml(evs, pg * 3, pg + 1), pspVisaPageHtml(evs, (pg + 1) * 3, pg + 2)]);
+    }
+    spreads.push([pspLoyaltyPageHtml(), pspOutroHtml()]);
+    return spreads;
+}
+
+// Mesin flip sama persis kayak Quest Book (leaf 3D + adopsi node di akhir flip)
+function renderPassportBook(host) {
+    const SP = pspSpreads();
+    let cur = 0;
+    host.innerHTML =
+        '<div class="psp-book" id="pspBook">' +
+        '<div class="psp-page psp-left" id="pspLeft"></div>' +
+        '<div class="psp-page psp-right" id="pspRight"></div>' +
+        '<div class="psp-leaf" id="pspLeaf"><div class="psp-face psp-front" id="pspFront"></div><div class="psp-face psp-back" id="pspBack"></div></div>' +
+        '</div>' +
+        '<div class="qbook-nav">' +
+        '<button class="qb-arrow" id="pspPrev" aria-label="Halaman sebelumnya">‹</button>' +
+        '<div class="qb-count" id="pspCount"></div>' +
+        '<button class="qb-arrow" id="pspNext" aria-label="Halaman berikutnya">›</button>' +
+        '</div>';
+    const book = $("pspBook"), leftP = $("pspLeft"), rightP = $("pspRight");
+    const leaf = $("pspLeaf"), front = $("pspFront"), back = $("pspBack");
+    let anim = false;
+    function setPages(i) {
+        cur = i;
+        leftP.innerHTML = SP[i][0];
+        rightP.innerHTML = SP[i][1];
+        $("pspCount").textContent = (i + 1) + " / " + SP.length;
+        $("pspPrev").style.opacity = i === 0 ? ".35" : "1";
+        $("pspNext").style.opacity = i === SP.length - 1 ? ".35" : "1";
+    }
+    function setLeaf(deg, animate) {
+        leaf.style.transition = animate ? "transform .65s cubic-bezier(.35,.1,.25,1)" : "none";
+        leaf.style.transform = "translateZ(.5px) rotateY(" + deg + "deg)";
+    }
+    function flip(dir) {
+        if (anim) return;
+        const j = cur + dir;
+        if (j < 0 || j >= SP.length) {
+            book.classList.add("nudge");
+            setTimeout(() => book.classList.remove("nudge"), 320);
+            return;
+        }
+        anim = true;
+        if (dir === 1) {
+            front.innerHTML = SP[cur][1];
+            back.innerHTML = SP[j][0];
+            rightP.innerHTML = SP[j][1];
+        } else {
+            front.innerHTML = SP[j][1];
+            back.innerHTML = SP[cur][0];
+            leftP.innerHTML = SP[j][0];
+        }
+        setLeaf(dir === 1 ? 0 : -180, false);
+        leaf.style.display = "block";
+        void leaf.offsetWidth;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            setLeaf(dir === 1 ? -180 : 0, true);
+            setTimeout(() => {
+                cur = j;
+                const srcFace = dir === 1 ? back : front;
+                const target = dir === 1 ? leftP : rightP;
+                target.innerHTML = "";
+                while (srcFace.firstChild) target.appendChild(srcFace.firstChild);
+                $("pspCount").textContent = (j + 1) + " / " + SP.length;
+                $("pspPrev").style.opacity = j === 0 ? ".35" : "1";
+                $("pspNext").style.opacity = j === SP.length - 1 ? ".35" : "1";
+                leaf.style.display = "none";
+                anim = false;
+            }, 680);
+        }));
+    }
+    setPages(0);
+    $("pspPrev").addEventListener("click", () => flip(-1));
+    $("pspNext").addEventListener("click", () => flip(1));
+    let sx = 0, sy = 0;
+    book.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    book.addEventListener("touchend", (e) => {
+        const t = e.changedTouches[0];
+        const dx = t.clientX - sx, dy = t.clientY - sy;
+        if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) flip(dx < 0 ? 1 : -1);
+    }, { passive: true });
 }
 
 function persona(count) {

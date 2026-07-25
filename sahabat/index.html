@@ -340,6 +340,7 @@
             /* Challenge: buku proporsi potret kayak buku beneran (tinggi > pendek-lebar) */
             .qbook-wrap { max-width: 560px; margin-left: auto; margin-right: auto; }
             .qbook { height: 480px; }
+            .psp-book { height: 420px; }
             .qb-desc { -webkit-line-clamp: 12; line-clamp: 12; }
             .quest-grid { grid-template-columns: repeat(3, 1fr); }
 
@@ -1776,12 +1777,6 @@
         .wr-share:active { transform: scale(.95); }
 
         /* Your Journaling Journey: daftar event ala tiket tempel */
-        .wr-journey { margin-top: 14px; width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 9px; }
-        .wr-jrow { background: #fff; border: 1.5px dashed rgba(16, 36, 94, .28); border-radius: 12px; padding: .55rem .8rem; display: flex; align-items: center; gap: 10px; transform: rotate(-.8deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .06); text-align: left; }
-        .wr-jrow:nth-child(even) { transform: rotate(.8deg); }
-        .wr-jrow .n { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .68rem; display: flex; align-items: center; justify-content: center; }
-        .wr-jrow .nm { flex: 1; min-width: 0; font-weight: 700; font-size: .8rem; color: #10245e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .wr-jrow .dt { flex: 0 0 auto; font-size: .66rem; color: #6b7794; }
 
         /* angka kecil di sebelah angka gede (mis. 4/6 stamp) */
         .wr-big-sm { font-size: .38em; opacity: .55; }
@@ -2286,6 +2281,59 @@
         .rc-sub { display: block; font-size: .74rem; color: var(--muted); margin-top: 1px; }
         .rc-go { flex: none; font-weight: 800; font-size: .78rem; color: var(--blue); }
         :root[data-theme="dark"] .recap-card { background-color: rgba(244, 114, 182, .08); border-color: rgba(244, 114, 182, .4); }
+
+        /* ---------- Paspor Warga: cover navy + buku halaman kertas ---------- */
+        .psp-cover { position: relative; width: min(230px, 68vw); aspect-ratio: 3 / 4.2; margin: 12px auto 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(150deg, #16307c, #0d1f56); border: none; border-radius: 12px 18px 18px 12px; cursor: pointer; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 44px rgba(0, 0, 0, .35), 0 14px 30px rgba(13, 31, 86, .4); color: #ffe600; font-family: 'Outfit', sans-serif; animation: pspBreath 2.6s ease-in-out infinite; }
+        @keyframes pspBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        .psp-emblem { width: 54px; height: 54px; border-radius: 50%; border: 2.5px solid #ffe600; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.15rem; }
+        .psp-emblem.sm { width: 34px; height: 34px; font-size: .78rem; border-color: rgba(16, 36, 94, .45); color: rgba(16, 36, 94, .65); margin-bottom: 8px; }
+        .psp-cover-t { font-size: 1.12rem; font-weight: 900; letter-spacing: .32em; text-indent: .32em; }
+        .psp-cover-s { font-size: .55rem; font-weight: 700; letter-spacing: .14em; opacity: .85; }
+        .psp-cover-stk { width: 62px; transform: rotate(-8deg); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .3)); }
+        .psp-cover-hint { font-size: .62rem; font-weight: 700; color: rgba(255, 255, 255, .75); }
+
+        .psp-book { position: relative; width: 100%; height: 352px; perspective: 1600px; margin-top: 8px; filter: drop-shadow(0 16px 26px rgba(0, 30, 120, .22)); }
+        .psp-book.nudge { animation: qbNudge .3s ease; }
+        .psp-page, .psp-face { background-color: #fbf6ea; background-image: radial-gradient(rgba(16, 36, 94, .05) 1px, transparent 1.1px); background-size: 10px 10px; }
+        .psp-page { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; }
+        .psp-left { left: 0; border-radius: 12px 3px 3px 12px; border: 1px solid #e3d9c3; border-right: none; box-shadow: inset -14px 0 18px -14px rgba(16, 36, 94, .28); }
+        .psp-right { right: 0; border-radius: 3px 12px 12px 3px; border: 1px solid #e3d9c3; border-left: none; box-shadow: inset 14px 0 18px -14px rgba(16, 36, 94, .28); }
+        .psp-leaf { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; transform-origin: left center; transform-style: preserve-3d; z-index: 5; display: none; }
+        .psp-face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 1px solid #e3d9c3; }
+        .psp-front { border-radius: 3px 12px 12px 3px; }
+        .psp-back { transform: rotateY(180deg); border-radius: 12px 3px 3px 12px; }
+
+        .psp-in { position: relative; height: 100%; padding: 13px 10px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; overflow: hidden; }
+        .psp-kicker { font-size: .5rem; font-weight: 900; letter-spacing: .16em; color: #8a7a56; font-family: 'Outfit', sans-serif; margin-bottom: 8px; flex: none; }
+        .psp-photo { width: 62px; height: 74px; border: 2px solid #cbbfa2; background: #fff; padding: 3px; box-shadow: 0 2px 5px rgba(0, 0, 0, .12); transform: rotate(-2deg); overflow: hidden; flex: none; }
+        .psp-photo img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.85) contrast(1.05); }
+        .psp-photo-init { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; color: #10245e; background: #eef2ff; }
+        .psp-photo-cap { font-size: .44rem; letter-spacing: .06em; color: #a0906c; margin: 3px 0 5px; text-transform: uppercase; }
+        .psp-row { width: 100%; display: flex; flex-direction: column; align-items: flex-start; border-bottom: 1px dotted #cbbfa2; padding: 3px 0 2px; }
+        .psp-row span { font-size: .46rem; text-transform: uppercase; letter-spacing: .08em; color: #a0906c; }
+        .psp-row b { font-size: .68rem; color: #10245e; font-family: 'Outfit', sans-serif; text-align: left; word-break: break-word; }
+        .psp-sign { font-style: italic; font-weight: 700; font-size: .88rem; color: #10245e; margin-top: 7px; transform: rotate(-3deg); }
+        .psp-ok { position: absolute; right: 5px; top: 38%; transform: rotate(14deg); border: 2px solid #0a7a3d; color: #0a7a3d; font-size: .48rem; font-weight: 900; letter-spacing: .08em; padding: 3px 5px; border-radius: 6px; opacity: .75; }
+
+        .psp-incover { justify-content: center; gap: 8px; }
+        .psp-ic-t { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .92rem; letter-spacing: .1em; color: #10245e; line-height: 1.4; }
+        .psp-ic-note { font-size: .6rem; line-height: 1.55; color: #6b7794; max-width: 94%; }
+        .psp-ic-stk { width: 52px; transform: rotate(8deg); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .15)); }
+        .psp-ic-foot { font-size: .55rem; font-weight: 800; color: #a0906c; }
+
+        .psp-vstamp { position: relative; width: 94%; border: 3px double; border-radius: 10px; padding: 6px 8px 7px; margin-bottom: 10px; transform: rotate(-2.5deg); flex: none; }
+        .psp-vstamp.r { transform: rotate(2deg); align-self: flex-end; }
+        .psp-vstamp.ink0 { color: #1d4ed8; border-color: rgba(29, 78, 216, .55); }
+        .psp-vstamp.ink1 { color: #0a7a3d; border-color: rgba(10, 122, 61, .55); }
+        .psp-vstamp.ink2 { color: #b3305f; border-color: rgba(179, 48, 95, .5); }
+        .pv-top { display: block; font-size: .4rem; font-weight: 900; letter-spacing: .1em; opacity: .8; }
+        .pv-name { display: block; font-family: 'Outfit', sans-serif; font-size: .64rem; font-weight: 800; line-height: 1.25; margin: 2px 0; }
+        .pv-date { display: block; font-size: .5rem; font-weight: 700; opacity: .8; }
+        .psp-vempty { margin: auto; font-size: .64rem; line-height: 1.6; color: #a0906c; font-weight: 600; }
+
+        .psp-loy-dots { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin: 8px 0 4px; }
+        .psp-loy-dot { width: 26px; height: 26px; border-radius: 50%; border: 2px dashed #cbbfa2; display: flex; align-items: center; justify-content: center; color: #cbbfa2; font-size: .68rem; flex: none; }
+        .psp-loy-dot.on { background: var(--blue); border: 2px solid var(--blue); color: var(--yellow); }
 
         /* ---------- Log Event: timeline scrapbook bergaris nyambung ---------- */
         .elog { position: relative; text-align: left; margin-top: 14px; padding: 2px 2px 2px 0; }
