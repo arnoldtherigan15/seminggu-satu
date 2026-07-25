@@ -2439,13 +2439,13 @@ async function loadLoyalty() {
             trackerHtml +
             '<div id="evTicketSlot"></div>' +
             renderRecapCardHtml() +
-            cardHtml +
             '<button type="button" class="psp-cta" id="btnPassport">' +
             '<span class="psp-cta-emblem">SS</span>' +
             '<span class="psp-cta-body"><span class="psp-cta-t">Paspor Warga</span>' +
             '<span class="psp-cta-s">Identitas + stempel event yang udah kamu datengin</span></span>' +
             '<span class="psp-cta-go">buka 📖</span>' +
             '</button>' +
+            cardHtml +
             '<div class="stat-cards">' +
             '<button type="button" class="scard" id="scardEvents"><b>' + count + '</b><span>Events Joined</span><span class="scard-go">lihat \u2192</span></button>' +
             '<button type="button" class="scard" id="scardQuests"><b>' + (d.questCount || 0) + '</b><span>Challenges</span><span class="scard-go">karyaku \u2192</span></button>' +
