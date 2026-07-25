@@ -347,6 +347,7 @@ async function loadEvents() {
         _evRegistered = registered; // simpan buat bubble pintar Mochi (skip event yg udah didaftar)
         _evCounts = counts;         // simpan buat flyer event di Mading Warga
     } catch (e) { }
+    renderEventTicket(); // tiket countdown di Home baru bisa kerender setelah _evRegistered keisi
 
     const items = _ws
         .map(w => ({ w: w, status: (typeof getWorkshopStatus === "function") ? getWorkshopStatus(w) : "open" }))
@@ -1747,6 +1748,19 @@ function renderJournalTrackerHtml(wa) {
           '<div class="jt-photo-wrap" id="jtPhotoWrap"><div class="jt-photo"><img src="' + esc(currRec.photo) + '" alt="" loading="lazy" decoding="async"></div></div>'
         : '';
 
+    // milestone streak berikutnya: "X minggu lagi menuju streak N" + bar mini
+    let msHtml = "";
+    if (streak > 0) {
+        const MS = [4, 8, 12, 16, 24, 36, 52];
+        const nextMs = MS.find(m => m > streak) || (Math.ceil((streak + 1) / 12) * 12);
+        const prevMs = MS.filter(m => m <= streak).pop() || 0;
+        const pct = Math.round(((streak - prevMs) / (nextMs - prevMs)) * 100);
+        msHtml = '<div class="jt-milestone">' +
+            '<div class="jt-ms-row"><span>\ud83c\udfc1 <b>' + (nextMs - streak) + ' minggu lagi</b> menuju streak ' + nextMs + ' \ud83d\udd25</span><span class="jt-ms-num">' + streak + '/' + nextMs + '</span></div>' +
+            '<div class="jt-ms-bar"><span style="width:' + Math.max(6, Math.min(100, pct)) + '%"></span></div>' +
+            '</div>';
+    }
+
     return (
         '<div class="journal-tracker-card" id="journalTrackerWidget">' +
         '<div class="washi-tape-header"></div>' +
@@ -1760,6 +1774,7 @@ function renderJournalTrackerHtml(wa) {
         '<div class="jt-streak-pill">🔥 ' + streak + '-Week Streak</div>' +
         '</div>' +
         '<div class="jt-grid">' + gridHtml + '</div>' +
+        msHtml +
         actionBtnHtml +
         photoHtml +
         noteHtml +
@@ -1822,6 +1837,8 @@ function openCheckinModal(wa) {
                 widget.outerHTML = renderJournalTrackerHtml(wa);
                 initJournalTrackerListeners(wa);
             }
+            const wn = $("weekNowCard");
+            if (wn) { wn.outerHTML = renderWeekNowHtml(); initWeekNowListeners(); }
         } catch (e) {
             btn.disabled = false; btn.textContent = orig;
             alert("Gagal terhubung ke server. Coba lagi ya.");
@@ -1952,6 +1969,168 @@ async function shareVoucher() {
     finally { btn.disabled = false; btn.textContent = label; }
 }
 
+// ---------- Kartu "Minggu Ini": jawaban pertama pas buka app — udah check-in belum ----------
+function weekDaysLeft() {
+    const now = new Date();
+    const cw = getMonthWeekObj(now);
+    const lastDay = new Date(cw.year, cw.month + 1, 0).getDate();
+    const weekEnd = cw.week === 4 ? lastDay : cw.week * 7; // W4 molor sampai akhir bulan
+    return Math.max(1, weekEnd - now.getDate() + 1);
+}
+
+function renderWeekNowHtml() {
+    const records = getJournalTrackerData(_profile.wa).records || {};
+    const cw = getMonthWeekObj(new Date());
+    const streak = calculateJournalStreak(records);
+    if (records[cw.key]) {
+        return '<div class="wn-card done" id="weekNowCard"><span class="wn-tape"></span>' +
+            '<div class="wn-stamp-big">CHECKED-IN \u2713</div>' +
+            '<div class="wn-body"><div class="wn-title">Minggu ke-' + cw.week + ' aman! \ud83c\udf89</div>' +
+            '<div class="wn-sub">' + (streak > 1 ? 'Streak ' + streak + ' minggu \ud83d\udd25 sampai jumpa minggu depan!' : 'Streak pertamamu dimulai \ud83d\udd25 lanjut minggu depan!') + '</div></div>' +
+            '</div>';
+    }
+    const left = weekDaysLeft();
+    const leftTxt = left <= 1
+        ? '<b>Hari terakhir</b> minggu ke-' + cw.week + ' \u2014 jangan sampai bolong! \u23f0'
+        : '<b>' + left + ' hari lagi</b> sebelum minggu ke-' + cw.week + ' ditutup';
+    return '<div class="wn-card todo" id="weekNowCard"><span class="wn-tape"></span>' +
+        '<div class="wn-body"><div class="wn-title">Belum check-in minggu ini \u270d\ufe0f</div>' +
+        '<div class="wn-sub">' + leftTxt + (streak > 0 ? ' \u00b7 streak ' + streak + ' minggu taruhannya \ud83d\udd25' : '') + '</div></div>' +
+        '<button type="button" class="wn-btn" id="wnCheckinBtn">Check-In \u2192</button>' +
+        '</div>';
+}
+
+function initWeekNowListeners() {
+    const b = $("wnCheckinBtn");
+    if (b) b.addEventListener("click", () => openCheckinModal(_profile.wa));
+}
+
+// ---------- Tiket countdown: event terdaftar terdekat ----------
+function nearestRegisteredEvent() {
+    if (!_evRegistered) return null; // loadEvents belum jalan -> nanti dia manggil renderEventTicket lagi
+    const ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let best = null;
+    ws.forEach(w => {
+        if (!_evRegistered[w.id]) return;
+        const d = (typeof parseDate === "function") ? parseDate(w.eventDate) : null;
+        if (!d) return;
+        const days = Math.round((d - today) / 86400000);
+        if (days < 0) return; // udah lewat
+        if (!best || days < best.days) best = { w: w, days: days };
+    });
+    return best;
+}
+
+function renderEventTicket() {
+    const slot = $("evTicketSlot");
+    if (!slot) return; // Home belum kerender
+    const ev = nearestRegisteredEvent();
+    if (!ev) { slot.innerHTML = ""; return; }
+    const when = ev.days === 0 ? "HARI INI! \ud83c\udf89" : (ev.days === 1 ? "Besok!" : ev.days + " hari lagi");
+    const dateTxt = ev.w.workshopDate || (typeof formatDateIndo === "function" && ev.w.eventDate ? formatDateIndo(ev.w.eventDate) : "");
+    slot.innerHTML =
+        '<button type="button" class="evt-ticket" id="evTicketBtn">' +
+        '<span class="evt-left">\ud83c\udf9f\ufe0f</span>' +
+        '<span class="evt-mid"><span class="evt-name">' + esc(ev.w.name || "Event") + '</span>' +
+        (dateTxt ? '<span class="evt-date">' + esc(dateTxt) + ' \u00b7 kamu udah terdaftar \u2713</span>' : '<span class="evt-date">kamu udah terdaftar \u2713</span>') +
+        '</span>' +
+        '<span class="evt-count">' + esc(when) + '</span>' +
+        '</button>';
+    $("evTicketBtn").addEventListener("click", () => activateTab("events"));
+}
+
+// ---------- Recap bulanan: Wrapped mini bulan lalu (nongol tanggal 1-7) ----------
+const BULAN_ID = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+function prevMonthInfo() {
+    const now = new Date();
+    const y = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+    const m = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+    return { year: y, month: m, name: BULAN_ID[m], prefix: y + "-" + String(m + 1).padStart(2, "0") };
+}
+
+function renderRecapCardHtml() {
+    if (new Date().getDate() > 7) return ""; // cuma minggu pertama tiap bulan
+    const pm = prevMonthInfo();
+    const records = getJournalTrackerData(_profile.wa).records || {};
+    const checkins = Object.keys(records).filter(k => k.indexOf(pm.prefix) === 0).length;
+    if (!checkins) return ""; // bulan lalu kosong -> recap-nya bakal sedih, skip aja
+    return '<button type="button" class="recap-card" id="recapCard"><span class="rc-tape"></span>' +
+        '<span class="rc-ic">\ud83d\udcd6</span>' +
+        '<span class="rc-body"><span class="rc-title">Recap ' + pm.name + ' udah keluar! \u2728</span>' +
+        '<span class="rc-sub">Lihat perjalanan journaling-mu sebulan kemarin</span></span>' +
+        '<span class="rc-go">Buka \u2192</span>' +
+        '</button>';
+}
+
+function openMonthlyRecap() {
+    const pm = prevMonthInfo();
+    const records = getJournalTrackerData(_profile.wa).records || {};
+    const checkins = Object.keys(records).filter(k => k.indexOf(pm.prefix) === 0).length;
+    const streak = calculateJournalStreak(records);
+    const nick = esc(_profile.nickname || "Sahabat");
+    // karya bulan lalu dari galeri (null = galeri belum ke-load, slide-nya di-skip)
+    let works = null;
+    if (_galleryItems && _galleryItems.length) {
+        const from = new Date(pm.year, pm.month, 1).getTime();
+        const to = new Date(pm.year, pm.month + 1, 1).getTime();
+        works = _galleryItems.filter(it => it.mine && it.ts && it.ts >= from && it.ts < to);
+    }
+    const slides = [];
+    // 1) Cover
+    slides.push('<div class="wr-slide wr-blue">' +
+        '<span class="wr-tape" style="top:52px;left:20px;transform:rotate(-14deg);"></span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-3.png" style="width:82px;top:9%;right:6%;transform:rotate(10deg);" alt="">' +
+        '<img class="wr-imgstk" src="../images/sticker/str-5.png" style="width:74px;bottom:11%;left:5%;transform:rotate(-12deg);" alt="">' +
+        '<div class="wr-anim wr-kicker">RECAP BULANAN</div>' +
+        '<div class="wr-anim wr-title wr-hero" style="--d:.08s;">' + pm.name + '<br>Kamu \ud83d\udcd6</div>' +
+        '<div class="wr-anim wr-sub" style="--d:.16s;">Sebulan kemarin bareng Balai Warga, ' + nick + ' \ud83d\udc99</div>' +
+        '<div class="wr-anim wr-hint" style="--d:.3s;">geser ke kiri buat mulai \u2192</div>' +
+        '</div>');
+    // 2) Check-in mingguan
+    let stamps = "";
+    for (let i = 0; i < 4; i++) stamps += '<span class="wr-stamp' + (i < checkins ? " on" : "") + '">' + (i < checkins ? "\u2713" : "") + '</span>';
+    slides.push('<div class="wr-slide wr-paper">' +
+        '<span class="wr-tape" style="top:56px;right:22px;transform:rotate(12deg);"></span>' +
+        '<span class="wr-stk" style="top:13%;left:10%;">\u270d\ufe0f</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-6.png" style="width:84px;bottom:9%;right:5%;transform:rotate(9deg);" alt="">' +
+        '<div class="wr-anim wr-kicker">WEEKLY JOURNAL</div>' +
+        '<div class="wr-anim wr-big" style="--d:.08s;">' + checkins + '</div>' +
+        '<div class="wr-anim wr-title" style="--d:.14s;">minggu check-in di bulan ' + pm.name + ' \u270d\ufe0f</div>' +
+        (checkins >= 4 ? '<div class="wr-anim wr-stamp5" style="--d:.26s;">FULL MONTH! \ud83d\udc51</div>' : '<div class="wr-anim wr-sub" style="--d:.2s;">dari 4 minggu yang ada</div>') +
+        '<div class="wr-anim wr-stamps" style="--d:.32s;">' + stamps + '</div>' +
+        '</div>');
+    // 3) Karya (kalau data galeri ada)
+    if (works && works.length) {
+        let polas = "";
+        works.slice(0, 3).forEach(w => { polas += '<span class="wr-pola"><img src="' + esc(w.photo) + '" alt="" loading="lazy" decoding="async"></span>'; });
+        slides.push('<div class="wr-slide wr-yellow">' +
+            '<span class="wr-tape b" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
+            '<span class="wr-stk" style="top:15%;right:12%;">\ud83c\udfa8</span>' +
+            '<img class="wr-imgstk" src="../images/sticker/str-2.png" style="width:76px;bottom:10%;left:6%;transform:rotate(-9deg);" alt="">' +
+            '<div class="wr-anim wr-kicker">KARYA BULAN ' + pm.name.toUpperCase() + '</div>' +
+            '<div class="wr-anim wr-big" style="--d:.08s;">' + works.length + '</div>' +
+            '<div class="wr-anim wr-title" style="--d:.14s;">karya kamu pajang di galeri \ud83c\udfa8</div>' +
+            (polas ? '<div class="wr-anim wr-polas" style="--d:.26s;">' + polas + '</div>' : '') +
+            '</div>');
+    }
+    // 4) Outro + streak berjalan
+    slides.push('<div class="wr-slide wr-blue">' +
+        '<span class="wr-tape" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
+        '<span class="wr-stk" style="top:16%;left:12%;">\ud83c\udf31</span>' +
+        '<img class="wr-imgstk" src="../images/sticker/str-7.png" style="width:86px;bottom:16%;right:6%;transform:rotate(8deg);" alt="">' +
+        '<div class="wr-anim wr-title wr-hero">Bulan baru,<br>cerita baru \u2728</div>' +
+        (streak > 0 ? '<div class="wr-anim wr-sub" style="--d:.12s;">Streak-mu masih jalan ' + streak + ' minggu \ud83d\udd25 gas terus bulan ini, ' + nick + '!</div>'
+            : '<div class="wr-anim wr-sub" style="--d:.12s;">Mulai lagi pelan-pelan minggu ini ya, ' + nick + ' \ud83d\udc99</div>') +
+        '<div class="wr-anim wr-foot" style="--d:.22s;">@seminggu_satu</div>' +
+        '</div>');
+    showWrapped(slides, {
+        filename: "recap-" + pm.prefix + "-seminggu-satu.png",
+        text: "Recap " + pm.name + " \u2728 @seminggu_satu"
+    });
+}
+
 async function loadLoyalty() {
     if (_loyaltyLoaded) return;
     _loyaltyLoaded = true;
@@ -2048,13 +2227,16 @@ async function loadLoyalty() {
         const birthdayHtml = bday ? buildBirthdayHtml(bday) : "";
 
         content.innerHTML =
+            renderWeekNowHtml() +
             bdayFriendsBannerHtml() +
             birthdayHtml +
             trackerHtml +
+            '<div id="evTicketSlot"></div>' +
+            renderRecapCardHtml() +
             cardHtml +
             '<div class="stat-cards">' +
-            '<div class="scard"><span class="scard-ic">' + ICON_CAL + '</span><b>' + count + '</b><span>Events Joined</span></div>' +
-            '<div class="scard"><span class="scard-ic">' + ICON_TARGET + '</span><b>' + (d.questCount || 0) + '</b><span>Challenges</span></div>' +
+            '<button type="button" class="scard" id="scardEvents"><span class="scard-ic">' + ICON_CAL + '</span><b>' + count + '</b><span>Events Joined</span><span class="scard-go">lihat \u2192</span></button>' +
+            '<button type="button" class="scard" id="scardQuests"><span class="scard-ic">' + ICON_TARGET + '</span><b>' + (d.questCount || 0) + '</b><span>Challenges</span><span class="scard-go">karyaku \u2192</span></button>' +
             '</div>' +
             '<div class="tier"><div class="em">' + p.emoji + '</div><div><div class="t">' + esc(p.title) + '</div><div class="d">' + esc(p.tag) + '</div></div></div>' +
             '<div class="card"><div class="section-lbl">Loyalty Card 🎁</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>' +
@@ -2063,6 +2245,16 @@ async function loadLoyalty() {
         $("btnPassport").addEventListener("click", openPassport);
         init3DCardListeners();
         initJournalTrackerListeners(_profile.wa);
+        initWeekNowListeners();
+        renderEventTicket(); // kalau _evRegistered belum ada, loadEvents yang ngisi nanti
+        const rc = $("recapCard");
+        if (rc) rc.addEventListener("click", openMonthlyRecap);
+        $("scardEvents").addEventListener("click", openPassport);
+        $("scardQuests").addEventListener("click", () => {
+            _galleryFilter = "mine"; // loncat ke galeri, langsung ke-filter karya sendiri
+            activateTab("gallery");
+            if (_galleryLoaded && _galleryItems.length) renderGallery();
+        });
         if (bday) { wireBirthday(bday); fireConfetti("reward"); }
         else if (d.eligible) { fireConfetti("reward"); }
     } catch (e) {
