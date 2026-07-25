@@ -3260,11 +3260,19 @@ function boardPhotoHtml(it, i, mini) {
         '</div>';
 }
 
-// Gabungan isi papan: sticky notes + polaroid weekly minggu ini, urut terbaru
+// Gabungan isi papan: sticky notes + polaroid weekly DIJALIN selang-seling
+// (2 notes : 1 foto) biar kecampur kayak mading beneran, bukan blok-blokan
 function boardEntries() {
     const notes = ((_boardData && _boardData.items) || []).map(m => ({ t: "note", ts: m.ts || 0, m: m }));
-    const photos = weeklyPhotosThisWeek().map(p => ({ t: "photo", ts: p.ts || 0, p: p }));
-    return notes.concat(photos).sort((a, b) => b.ts - a.ts);
+    const photos = weeklyPhotosThisWeek().sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(p => ({ t: "photo", ts: p.ts || 0, p: p }));
+    const out = [];
+    let i = 0, j = 0;
+    while (i < notes.length || j < photos.length) {
+        if (i < notes.length) out.push(notes[i++]);
+        if (i < notes.length) out.push(notes[i++]);
+        if (j < photos.length) out.push(photos[j++]);
+    }
+    return out;
 }
 
 function boardEntryHtml(e, i, mini) {
