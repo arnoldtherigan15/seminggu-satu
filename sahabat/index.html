@@ -926,7 +926,9 @@
         /* toggle accordion foto karya minggu ini */
 
         /* memori mingguan: polaroid ditempel — foto + note jadi satu artefak */
-        .jt-pola { position: relative; background: #fff; border: 1px solid #e7e3d8; padding: 10px 10px 9px; margin: 6px 2px 2px; transform: rotate(-1.2deg); box-shadow: 0 6px 16px rgba(16, 36, 94, .14); }
+        /* margin lega: wrap-nya overflow hidden (animasi accordion) — tanpa ruang ini
+           washi tape (-9px di atas), bayangan, & sudut miringnya kepotong */
+        .jt-pola { position: relative; background: #fff; border: 1px solid #e7e3d8; padding: 10px 10px 9px; margin: 15px 6px 14px; transform: rotate(-1.2deg); box-shadow: 0 6px 16px rgba(16, 36, 94, .14); }
         .jt-pola img { width: 100%; display: block; border-radius: 2px; }
         .jt-pola-tape { position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 74px; height: 18px; background: rgba(255, 230, 0, .82); border: 1px dashed rgba(16, 36, 94, .25); z-index: 2; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
         .jt-pola-cap { text-align: center; font-style: italic; font-weight: 600; font-size: .85rem; color: #10245e; padding-top: 9px; line-height: 1.45; }
