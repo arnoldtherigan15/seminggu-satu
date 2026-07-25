@@ -3366,7 +3366,7 @@ function renderMadingModal() {
     const colA = [], colB = [];
     // tiap item dibungkus .md-in -> animasi "ketempel" satu-satu (delay bertingkat,
     // wrapper yang dianimasikan biar rotate miring notes-nya nggak ketiban)
-    const pinDelay = i => Math.min(i * 0.08, 1.2).toFixed(2);
+    const pinDelay = i => Math.min(i * 0.3, 3.6).toFixed(2); // beneran satu-satu, cap 3.6 dtk
     entries.forEach((e, i) => {
         ((i % 2 === 0) ? colA : colB).push('<div class="md-in" style="--d:' + pinDelay(i) + 's">' + boardEntryHtml(e, i, false) + '</div>');
         if (i % 3 === 2) {
