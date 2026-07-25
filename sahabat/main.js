@@ -1810,6 +1810,7 @@ function openCheckinModal(wa) {
             if (r.status !== "success") { btn.disabled = false; btn.textContent = orig; alert(r.message || "Gagal menyimpan absen."); return; }
             _profile.journalRecords = r.journalRecords || _profile.journalRecords; // sinkron dari server
             if (photo) _galleryLoaded = false; // biar galeri refetch (foto weekly ikut tampil)
+            pushTagCheckin(cw.key); // jangan kirimi reminder mingguan lagi
             fireConfetti("quest");
             closeQuestModal();
             const widget = $("journalTrackerWidget");
@@ -2086,10 +2087,25 @@ function initPush() {
             });
             // tag nomor WA -> server bisa exclude pengirim pas broadcast karya baru
             if (_profile && _profile.wa) OneSignal.User.addTag("wa", String(_profile.wa).replace(/\D/g, ""));
+            // udah check-in minggu ini? tandai biar nggak kena reminder mingguan
+            try {
+                const cw = getMonthWeekObj(new Date());
+                const records = getJournalTrackerData(_profile.wa).records || {};
+                if (records[cw.key]) OneSignal.User.addTag("ciw", cw.key);
+            } catch (e) { }
             // prompt izin ala slidedown (OneSignal atur frequency capping-nya)
             OneSignal.Slidedown.promptPush();
         } catch (e) { /* push gagal init = bukan masalah fatal */ }
     });
+}
+
+// Tandai "udah check-in minggu [weekKey]" ke OneSignal — dipakai filter
+// reminder mingguan biar yang udah check-in nggak diganggu
+function pushTagCheckin(weekKey) {
+    try {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        window.OneSignalDeferred.push((OneSignal) => { OneSignal.User.addTag("ciw", weekKey); });
+    } catch (e) { }
 }
 
 // ---------- Shimmer placeholder buat semua gambar konten ----------
