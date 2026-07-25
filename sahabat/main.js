@@ -1958,6 +1958,55 @@ async function shareVoucher() {
     finally { btn.disabled = false; btn.textContent = label; }
 }
 
+// ---------- Log Event: riwayat event yang pernah didatengin (timeline scrapbook) ----------
+function openEventLog() {
+    if (!_loyaltyStats) return;
+    const evs = (_loyaltyStats.events || []).slice();
+    // urut lama -> baru: dibaca sebagai perjalanan (yang tanggalnya nggak kebaca di depan)
+    const tval = e => { const m = String(e.eventDate || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Number(m[1] + m[2] + m[3]) : 0; };
+    evs.sort((a, b) => tval(a) - tval(b));
+
+    const modal = $("questModal");
+    let inner;
+    if (!evs.length) {
+        inner = '<div class="placeholder" style="padding:1.5rem 0;"><div class="em">\ud83c\udf31</div>' +
+            '<h3>Belum ada jejak event</h3><p>Yuk mulai petualangan pertamamu!</p></div>' +
+            '<button class="btn-primary" id="elogNext">Lihat event yang lagi buka \ud83c\udfaa</button>';
+    } else {
+        let rows = "";
+        evs.forEach((e, i) => {
+            const when = e.eventDate ? fmtEventDate(e.eventDate) : (e.label || e.date || "");
+            rows += '<div class="elog-item' + (i % 2 ? " alt" : "") + '">' +
+                '<span class="elog-dot">' + (i + 1) + '</span>' +
+                '<div class="elog-card"><span class="elog-tape' + (i % 2 ? " b" : "") + '"></span>' +
+                '<div class="elog-name">' + esc(e.name) + '</div>' +
+                (when ? '<div class="elog-date">\ud83d\uddd3 ' + esc(when) + '</div>' : '') +
+                (i === 0 ? '<span class="elog-first">event pertamamu! \ud83d\udc99</span>' : '') +
+                '</div></div>';
+        });
+        inner = '<div class="elog">' +
+            '<img class="elog-stk" src="../images/sticker/str-3.png" style="top:-14px;right:-4px;width:54px;transform:rotate(12deg);" alt="">' +
+            '<img class="elog-stk" src="../images/sticker/str-5.png" style="bottom:64px;left:-10px;width:48px;transform:rotate(-10deg);" alt="">' +
+            '<div class="elog-start">\ud83c\udf31 AWAL PERJALANAN</div>' +
+            rows +
+            '<div class="elog-item"><span class="elog-dot next">?</span>' +
+            '<button type="button" class="elog-next" id="elogNext">Petualangan berikutnya? Cek event yang lagi buka \ud83c\udfaa</button></div>' +
+            '</div>';
+    }
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">\u2715</button></div>' +
+        '<div class="qm-body">' +
+        '<div class="quest-game-title">\ud83c\udf9f\ufe0f Log Event Kamu</div>' +
+        '<div class="quest-game-desc">' + (evs.length ? evs.length + ' event udah kamu datengin bareng Balai Warga \ud83d\udc99' : 'Jejak event-mu bakal tercatat di sini \u2728') + '</div>' +
+        inner +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+    const nx = $("elogNext");
+    if (nx) nx.addEventListener("click", () => { closeQuestModal(); activateTab("events"); });
+}
+
 // ---------- Kartu "Minggu Ini": jawaban pertama pas buka app — udah check-in belum ----------
 function weekDaysLeft() {
     const now = new Date();
@@ -2224,8 +2273,8 @@ async function loadLoyalty() {
             renderRecapCardHtml() +
             cardHtml +
             '<div class="stat-cards">' +
-            '<button type="button" class="scard" id="scardEvents"><span class="scard-ic">' + ICON_CAL + '</span><b>' + count + '</b><span>Events Joined</span><span class="scard-go">lihat \u2192</span></button>' +
-            '<button type="button" class="scard" id="scardQuests"><span class="scard-ic">' + ICON_TARGET + '</span><b>' + (d.questCount || 0) + '</b><span>Challenges</span><span class="scard-go">karyaku \u2192</span></button>' +
+            '<button type="button" class="scard" id="scardEvents"><b>' + count + '</b><span>Events Joined</span><span class="scard-go">lihat \u2192</span></button>' +
+            '<button type="button" class="scard" id="scardQuests"><b>' + (d.questCount || 0) + '</b><span>Challenges</span><span class="scard-go">karyaku \u2192</span></button>' +
             '</div>' +
             '<div class="tier"><div class="em">' + p.emoji + '</div><div><div class="t">' + esc(p.title) + '</div><div class="d">' + esc(p.tag) + '</div></div></div>' +
             '<div class="card"><div class="section-lbl">Loyalty Card 🎁</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>' +
@@ -2238,7 +2287,7 @@ async function loadLoyalty() {
         renderEventTicket(); // kalau _evRegistered belum ada, loadEvents yang ngisi nanti
         const rc = $("recapCard");
         if (rc) rc.addEventListener("click", openMonthlyRecap);
-        $("scardEvents").addEventListener("click", openPassport);
+        $("scardEvents").addEventListener("click", openEventLog);
         $("scardQuests").addEventListener("click", () => {
             _galleryFilter = "mine"; // loncat ke galeri, langsung ke-filter karya sendiri
             activateTab("gallery");
@@ -3270,8 +3319,6 @@ const ICON_FEED = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" s
 const ICON_BOOK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6.5A3.5 3.5 0 0 1 12 7.5V20a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-6.5A3.5 3.5 0 0 0 12 7.5V20a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>';
 const ICON_GRID = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>';
 // Ikon shared (sama kayak ikon tab -> konsisten se-app)
-const ICON_TARGET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>';
-const ICON_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
 const ICON_CAMERA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
 
 async function loadGallery() {

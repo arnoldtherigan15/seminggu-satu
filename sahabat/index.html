@@ -555,7 +555,7 @@
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 16px;
-            padding: 1.4rem 1rem 1rem;
+            padding: 1.1rem 1rem 1rem;
             text-align: center;
             position: relative;
         }
@@ -577,31 +577,6 @@
             letter-spacing: .4px;
             display: block;
             margin-top: 0.3rem;
-        }
-
-        /* ikon SVG jadi badge kecil di pojok atas (mirror: kartu kiri = pojok kiri, kartu kanan = pojok kanan) */
-        .scard .scard-ic {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 26px;
-            height: 26px;
-            border-radius: 8px;
-            background: rgba(0, 70, 255, .1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--blue);
-        }
-
-        .stat-cards .scard:last-child .scard-ic {
-            left: auto;
-            right: 10px;
-        }
-
-        .scard .scard-ic svg {
-            width: 14px;
-            height: 14px;
         }
 
         .tier {
@@ -2311,6 +2286,29 @@
         .rc-sub { display: block; font-size: .74rem; color: var(--muted); margin-top: 1px; }
         .rc-go { flex: none; font-weight: 800; font-size: .78rem; color: var(--blue); }
         :root[data-theme="dark"] .recap-card { background-color: rgba(244, 114, 182, .08); border-color: rgba(244, 114, 182, .4); }
+
+        /* ---------- Log Event: timeline scrapbook bergaris nyambung ---------- */
+        .elog { position: relative; text-align: left; margin-top: 14px; padding: 2px 2px 2px 0; }
+        .elog-stk { position: absolute; z-index: 3; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .15)); }
+        .elog-start { display: inline-block; font-size: .62rem; font-weight: 900; letter-spacing: .08em; font-family: 'Outfit', sans-serif; color: #10245e; background: var(--yellow); padding: 3px 10px; border-radius: 999px; margin: 0 0 14px 2px; transform: rotate(-2deg); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+        .elog-item { position: relative; padding: 0 0 18px 44px; }
+        .elog-item::before { content: ''; position: absolute; left: 15px; top: 8px; bottom: -2px; border-left: 2.5px dashed #b8c4e8; }
+        .elog-item:last-child { padding-bottom: 2px; }
+        .elog-item:last-child::before { display: none; }
+        .elog-dot { position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 900; font-family: 'Outfit', sans-serif; font-size: .85rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 0 rgba(16, 36, 94, .3); z-index: 2; }
+        .elog-dot.next { background: var(--yellow); color: #10245e; border: 2px dashed #10245e; box-shadow: none; }
+        .elog-card { position: relative; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; transform: rotate(-.6deg); box-shadow: 0 2px 6px rgba(16, 36, 94, .06); }
+        .elog-item.alt .elog-card { transform: rotate(.6deg); }
+        .elog-tape { position: absolute; top: -8px; left: 14px; width: 42px; height: 13px; background: rgba(255, 230, 0, .85); border: 1px dashed rgba(16, 36, 94, .25); transform: rotate(-4deg); }
+        .elog-tape.b { background: rgba(0, 70, 255, .22); left: auto; right: 14px; transform: rotate(5deg); }
+        .elog-name { font-weight: 800; font-size: .9rem; color: var(--ink); font-family: 'Outfit', sans-serif; }
+        .elog-date { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+        .elog-first { display: inline-block; margin-top: 6px; font-size: .66rem; font-weight: 800; background: #fff0f6; color: #be185d; border: 1px dashed #f9a8d4; padding: 2px 8px; border-radius: 999px; transform: rotate(-1.5deg); }
+        .elog-next { display: block; width: 100%; text-align: left; border: 1.5px dashed var(--blue); background: rgba(0, 70, 255, .05); color: var(--blue); font-family: inherit; font-weight: 700; font-size: .8rem; border-radius: 12px; padding: 10px 12px; cursor: pointer; }
+        .elog-next:active { transform: scale(.98); }
+        :root[data-theme="dark"] .elog-item::before { border-color: #2a3550; }
+        :root[data-theme="dark"] .elog-first { background: rgba(244, 114, 182, .12); }
+        :root[data-theme="dark"] .elog-next { background: rgba(91, 140, 255, .08); }
 
         /* slot tiket kosong (belum ada event terdaftar) jangan makan tempat/sel grid */
         #evTicketSlot:empty { display: none; }
