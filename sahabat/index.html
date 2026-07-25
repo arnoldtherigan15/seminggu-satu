@@ -2840,7 +2840,8 @@
         .mp-card { position: relative; margin-top: 20px; background: var(--card); border: 1.5px dashed var(--line); border-radius: 16px; padding: 20px 16px 16px; transform: rotate(-.5deg); box-shadow: 0 10px 26px rgba(0, 30, 120, .12); text-align: center; }
         .mp-card.pop { animation: wrPop .5s cubic-bezier(.2, .8, .3, 1.18); }
         .mp-kicker { font-family: 'Outfit', sans-serif; font-size: .66rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
-        .mp-cat { display: inline-block; margin-top: 10px; background: var(--yellow); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; padding: 4px 12px; border-radius: 8px; border: 1.5px dashed rgba(16, 36, 94, .3); transform: rotate(-2deg); }
+        /* teks dikunci navy: bg-nya kuning tetap, --ink di dark mode jadi putih (nggak kebaca) */
+        .mp-cat { display: inline-block; margin-top: 10px; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; padding: 4px 12px; border-radius: 8px; border: 1.5px dashed rgba(16, 36, 94, .3); transform: rotate(-2deg); }
         .mp-text { margin-top: 14px; font-size: 1.02rem; font-weight: 600; line-height: 1.6; color: var(--ink); }
         .mp-actions { display: flex; gap: 8px; margin-top: 18px; }
         .mp-btn { flex: 1; border: none; border-radius: 12px; padding: .75rem; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .85rem; cursor: pointer; background: var(--yellow); color: #10245e; box-shadow: 0 4px 12px rgba(255, 214, 0, .4); transition: transform .15s ease; }
