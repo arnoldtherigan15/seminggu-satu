@@ -3358,6 +3358,9 @@ function buildStoryGroups() {
             items: BDAY_TODAY.map(b => ({ bday: true, nickname: b.nickname, id: "bd_" + b.nickname + "_" + dayKey }))
         });
     }
+    // Story punyamu SELALU paling depan (kayak IG), ultah nomor dua
+    const mi = sorted.findIndex(g => g.mine);
+    if (mi > 0) sorted.unshift(sorted.splice(mi, 1)[0]);
     return sorted;
 }
 
