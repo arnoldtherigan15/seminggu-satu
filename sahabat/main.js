@@ -240,13 +240,13 @@ function showDashboard() {
         fireConfetti("reward");
     }
     launchBalloons(); // ada sahabat ultah (atau kamu sendiri)? balon-balon terbang 🎈
-    // Teaser sekali per sesi: kabarin ada surat dari Mochi
+    // Bubble pintar Mochi, sekali per sesi: pesan paling relevan sesuai kondisi member
     const mb = $("mochiBubble");
     if (mb && !mb._teased) {
         mb._teased = true;
-        if (isMyBirthdayToday()) mb.textContent = "🎂 Ada surat spesial buat kamu — tap aku!";
+        mb.textContent = mochiSmartBubble();
         mb.classList.add("show");
-        setTimeout(() => mb.classList.remove("show"), 5000);
+        setTimeout(() => mb.classList.remove("show"), 6500);
     }
     // Ikutin tab dari hash (biar refresh nggak balik ke tab pertama)
     activateTab((location.hash || "").replace("#", "") || "loyalty");
@@ -2407,6 +2407,48 @@ async function loadLoyalty() {
 // ============================================================
 //  Mochi's Corner (maskot) — pembawa surat prompt harian
 // ============================================================
+// Bubble pintar: Mochi jadi asisten kecil — pilih SATU pesan paling relevan
+// sesuai kondisi member, urut prioritas. Semua datanya udah ada di client.
+function mochiSmartBubble() {
+    // 1) Ultah sendiri: surat spesial nunggu
+    if (isMyBirthdayToday()) return "🎂 Ada surat spesial buat kamu — tap aku!";
+    // 2) Ada teman ultah: ajak ngucapin
+    const myNick = (_profile && _profile.nickname) || "";
+    const bd = BDAY_TODAY.filter(b => b.nickname !== myNick);
+    if (bd.length) return "🎈 " + bd[0].nickname + " ultah hari ini — kirim ucapan yuk!";
+    // 3) Belum check-in minggu ini: ingetin (bawa-bawa streak biar makin kepancing)
+    try {
+        const records = getJournalTrackerData(_profile.wa).records || {};
+        const cw = getMonthWeekObj(new Date());
+        if (!records[cw.key]) {
+            const streak = calculateJournalStreak(records);
+            return streak > 0
+                ? "🔥 Streak " + streak + " minggu — check-in sekarang biar nggak putus!"
+                : "✍️ Belum check-in minggu ini — yuk mulai streak pertamamu!";
+        }
+    } catch (e) { }
+    // 4) Event yang lagi buka & tinggal <=7 hari lagi
+    try {
+        const ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let best = null;
+        ws.forEach(w => {
+            if (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open") return;
+            const d = (typeof parseDate === "function") ? parseDate(w.eventDate) : null;
+            if (!d) return;
+            const days = Math.round((d - today) / 86400000);
+            if (days < 0 || days > 7) return;
+            if (!best || days < best.days) best = { w: w, days: days };
+        });
+        if (best) {
+            const when = best.days === 0 ? "HARI INI" : (best.days === 1 ? "besok" : best.days + " hari lagi");
+            return "🎪 " + (best.w.name || "Event") + " " + when + " — udah daftar?";
+        }
+    } catch (e) { }
+    // 5) Semua aman -> teaser surat harian
+    return "💌 Baca surat dari Mochi";
+}
 (function initMochi() {
     const wrap = $("mochiAvatar");
     if (!wrap) return;
