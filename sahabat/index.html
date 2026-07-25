@@ -1543,6 +1543,13 @@
         @keyframes bbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         /* bulatan story ultah */
         .story-ring.ring-bday { background: linear-gradient(135deg, #ff5c8a, #ffe600 45%, #ff9ec0, #ff5c8a); }
+        /* lightbox: animasi geser antar foto + goyang pas mentok */
+        .quest-modal-box.lb-in-l { animation: lbInL .28s ease; }
+        .quest-modal-box.lb-in-r { animation: lbInR .28s ease; }
+        @keyframes lbInL { from { transform: translateX(44px); opacity: .5; } to { transform: none; opacity: 1; } }
+        @keyframes lbInR { from { transform: translateX(-44px); opacity: .5; } to { transform: none; opacity: 1; } }
+        .quest-modal-box.lb-nudge { animation: qbNudge .3s ease; }
+
         /* badge "BARU" di kartu galeri (grid & feed): foto berumur <24 jam */
         .gal-new { position: absolute; top: 6px; left: 6px; background: #ff2d55; color: #fff; font-family: 'Outfit', sans-serif; font-size: .55rem; font-weight: 800; letter-spacing: .8px; padding: 2px 8px; border-radius: 6px; border: 1.5px solid #fff; box-shadow: 0 2px 6px rgba(255, 45, 85, .45); transform: rotate(-4deg); z-index: 3; pointer-events: none; }
         /* story yang semua fotonya udah dilihat: ring redup abu + nama pudar (ala IG) */

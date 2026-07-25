@@ -3075,9 +3075,34 @@ function wireGallery(feed, grid) {
     }));
 }
 
-// Lightbox: buka foto galeri gede + info + tombol love (dipakai dari grid)
+// Lightbox: buka foto galeri gede + info + tombol love (dipakai dari grid).
+// Bisa swipe kiri/kanan buat pindah foto (ngikutin filter yang lagi aktif).
 function openGalleryLightbox(it) {
     const modal = $("questModal");
+    const box = $("questModalBox");
+    box._lbList = galFiltered();
+    box._lbIdx = Math.max(0, box._lbList.findIndex(x => x.id === it.id));
+    if (!box._lbWired) {
+        box._lbWired = true; // listener sekali aja — navigasi baca state _lbList/_lbIdx
+        let sx = 0, sy = 0;
+        box.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+        box.addEventListener("touchend", (e) => {
+            if (!$("lbImg")) return; // modal lagi dipake quest/check-in, bukan lightbox
+            const t = e.changedTouches[0];
+            const dx = t.clientX - sx, dy = t.clientY - sy;
+            if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
+            const j = box._lbIdx + (dx < 0 ? 1 : -1);
+            box.classList.remove("lb-in-l", "lb-in-r", "lb-nudge");
+            if (j < 0 || j >= box._lbList.length) { // mentok: goyang dikit
+                void box.offsetWidth;
+                box.classList.add("lb-nudge");
+                return;
+            }
+            openGalleryLightbox(box._lbList[j]);
+            void box.offsetWidth;
+            box.classList.add(dx < 0 ? "lb-in-l" : "lb-in-r");
+        }, { passive: true });
+    }
     const initial = esc((it.nickname || "S").charAt(0).toUpperCase());
     const isEvent = (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga");
     const bIcon = it.kind === "workshop" ? "🎪" : (it.kind === "reka-rekat" ? "✂️" : (it.kind === "temu-warga" ? "🏘️" : (it.kind === "weekly" ? "📖" : "🎯")));
@@ -3097,7 +3122,6 @@ function openGalleryLightbox(it) {
     modal.classList.add("show");
     lockScroll();
     $("qmClose").addEventListener("click", closeQuestModal);
-    const box = $("questModalBox");
     const likeBtn = box.querySelector(".ig-btn-like");
     if (likeBtn) likeBtn.addEventListener("click", () => toggleLike(it.id));
     const wrap = $("lbImg");
