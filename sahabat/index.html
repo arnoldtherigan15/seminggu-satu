@@ -2284,7 +2284,8 @@
 
         /* ---------- Paspor Warga: cover navy + buku halaman kertas ---------- */
         .psp-cover { position: relative; width: min(230px, 68vw); aspect-ratio: 3 / 4.2; margin: 12px auto 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(150deg, #16307c, #0d1f56); border: none; border-radius: 12px 18px 18px 12px; cursor: pointer; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 44px rgba(0, 0, 0, .35), 0 14px 30px rgba(13, 31, 86, .4); color: #ffe600; font-family: 'Outfit', sans-serif; animation: pspBreath 2.6s ease-in-out infinite; }
-        @keyframes pspBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        /* ngambang naik-turun, BUKAN scale — scale bikin teks cover blur (layer ke-resample) */
+        @keyframes pspBreath { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         .psp-emblem { width: 54px; height: 54px; border-radius: 50%; border: 2.5px solid #ffe600; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.15rem; }
         .psp-emblem.sm { width: 34px; height: 34px; font-size: .78rem; border-color: rgba(16, 36, 94, .45); color: rgba(16, 36, 94, .65); margin-bottom: 8px; }
         .psp-cover-t { font-size: 1.12rem; font-weight: 900; letter-spacing: .32em; text-indent: .32em; }
