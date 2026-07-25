@@ -2858,7 +2858,7 @@ function galGridItem(it, i) {
         stampIn = '<span class="ev-stamp">WORKSHOP</span>';
     } else if (it.kind === "reka-rekat") {
         frame = "frame-rekarekat";
-        deco = '<span class="rr-heart">♥</span>';
+        deco = '<span class="rr-heart">♥</span><img class="gal-stk" src="../images/sticker/str-2.png" alt="">';
         stampIn = '<span class="ev-stamp rr">REKA-REKAT</span>';
     } else if (it.kind === "temu-warga") {
         frame = "frame-temuwarga";
@@ -2866,7 +2866,7 @@ function galGridItem(it, i) {
         stampIn = '<span class="ev-stamp tw">TEMU-WARGA</span>';
     } else if (it.kind === "weekly") {
         frame = "frame-weekly";
-        deco = '<span class="wj-check">✓</span>';
+        deco = '<span class="wj-check">✓</span><img class="gal-stk" src="../images/sticker/str-1.png" alt="">';
     } else {
         frame = (i % 2 === 0) ? "frame-polaroid" : "frame-stitched";
         deco = (i % 2 === 0) ? '<div class="jtape ' + (i % 4 === 0 ? "tr" : "tl") + '"></div>' : "";
