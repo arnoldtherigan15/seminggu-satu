@@ -2893,6 +2893,7 @@ function pushTagCheckin(weekKey) {
         syncTheme();
         actionTheme.addEventListener("click", () => {
             toggleMenu(false);
+            playSfx("light", 0.8); // FAB ini toggle sendiri (nggak lewat ssToggleTheme), jadi bunyinya dipasang di sini
             const dark = document.documentElement.getAttribute("data-theme") === "dark";
             if (dark) {
                 document.documentElement.removeAttribute("data-theme");
