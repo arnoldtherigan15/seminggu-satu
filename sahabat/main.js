@@ -3246,14 +3246,27 @@ function renderMadingModal() {
     if (!modal) return;
     const entries = boardEntries();
     const left = _boardData ? _boardData.left : 0;
-    let notes = "";
-    entries.forEach((e, i) => { notes += boardEntryHtml(e, i, false); });
-    if (!notes) notes = '<div class="wb-empty">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
+    // dua kolom diisi selang-seling (bukan CSS columns yang numpuk kiri semua),
+    // plus sticker die-cut nyelip tiap beberapa item biar papannya rame
+    const colA = [], colB = [];
+    entries.forEach((e, i) => {
+        ((i % 2 === 0) ? colA : colB).push(boardEntryHtml(e, i, false));
+        if (i % 3 === 2) {
+            const n = ((i * 7) % 11) + 1;
+            const rot = (i % 2 ? -1 : 1) * (6 + (i % 9));
+            ((i % 2 === 0) ? colB : colA).push('<img class="md-stk" src="../images/sticker/str-' + n + '.png" alt="" style="transform:rotate(' + rot + 'deg);">');
+        }
+    });
+    const boardHtml = entries.length
+        ? '<div class="md-cols"><div class="md-col">' + colA.join("") + '</div><div class="md-col">' + colB.join("") + '</div></div>'
+        : '<div class="wb-empty" style="margin-top:14px;">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
     const addLabel = left <= 0
         ? '＋ Tempel Pesan <small>(kuota habis — besok lagi 🌙)</small>'
         : '＋ Tempel Pesan' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '');
     modal.innerHTML =
         '<div class="md-wrap">' +
+        '<img class="md-deco" src="../images/sticker/str-8.png" alt="" style="top:52px;right:-6px;transform:rotate(14deg);">' +
+        '<img class="md-deco" src="../images/sticker/str-2.png" alt="" style="bottom:10px;left:-8px;transform:rotate(-12deg);">' +
         '<div class="md-head">' +
         '<div class="md-title">📌 Mading Warga</div>' +
         '<button class="md-close" id="mdClose" aria-label="Tutup">✕</button>' +
@@ -3264,7 +3277,7 @@ function renderMadingModal() {
         '<textarea id="mdInput" maxlength="140" rows="3" placeholder="Tulis pesan semangatmu… ✨ (max 140)"></textarea>' +
         '<button class="btn-primary" id="mdSend" style="margin-top:8px;">📌 Tempel</button>' +
         '</div>' +
-        '<div class="md-grid">' + notes + '</div>' +
+        boardHtml +
         '</div>';
     $("mdClose").addEventListener("click", closeMading);
     $("mdAdd").addEventListener("click", () => {
