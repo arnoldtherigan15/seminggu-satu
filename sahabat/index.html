@@ -660,6 +660,7 @@
             margin-top: 0.7rem;
         }
 
+        /* slot kosong = cekungan die-cut (belum di-plong) */
         .stamp {
             width: 32px;
             height: 32px;
@@ -669,16 +670,21 @@
             justify-content: center;
             font-size: 0.95rem;
             font-weight: 800;
-            border: 2px dashed var(--line);
-            color: var(--line);
+            border: none;
+            color: transparent;
+            background: radial-gradient(circle at 35% 30%, #ffffff, #e7ecf8 65%);
+            box-shadow: inset 0 2px 4px rgba(16, 36, 94, .16), inset 0 -1px 2px rgba(255, 255, 255, .9);
         }
 
+        /* terisi = kertas ke-plong beneran: lubang gelap dalam + bibir kertas */
         .stamp.on {
-            background: var(--blue);
-            border-color: var(--blue);
+            background: radial-gradient(circle at 40% 32%, #2e3c5e, #0d1730 72%);
             color: var(--yellow);
-            border-style: solid;
+            box-shadow: inset 0 3px 6px rgba(0, 0, 0, .6), inset 0 -1px 2px rgba(255, 255, 255, .12), 0 1px 0 rgba(255, 255, 255, .75);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, .7);
         }
+        :root[data-theme="dark"] .stamp { background: radial-gradient(circle at 35% 30%, #212c47, #141d33 65%); box-shadow: inset 0 2px 4px rgba(0, 0, 0, .5), inset 0 -1px 2px rgba(255, 255, 255, .06); }
+        :root[data-theme="dark"] .stamp.on { box-shadow: inset 0 3px 6px rgba(0, 0, 0, .75), 0 1px 0 rgba(255, 255, 255, .12); }
 
         .togo {
             margin-top: 0.7rem;
@@ -802,14 +808,18 @@
             min-height: 64px;
         }
 
-        /* completed = stiker/stempel miring */
+        /* completed = potongan kertas ditempel washi + stempel karet */
         .jt-week-box.done {
-            background: #f0fdf4;
+            position: relative;
+            background-color: #f0fdf4;
+            background-image: radial-gradient(rgba(10, 122, 61, .1) 1px, transparent 1.2px);
+            background-size: 9px 9px;
             border: 2px solid #4ade80;
             color: #0a7a3d;
             transform: scale(1.03) rotate(-1.5deg);
-            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.18);
+            box-shadow: 0 1px 2px rgba(10, 122, 61, .12), 0 5px 12px rgba(74, 222, 128, 0.2);
         }
+        .jt-week-box.done::before { content: ''; position: absolute; top: -7px; left: 50%; transform: translateX(-50%) rotate(-6deg); width: 32px; height: 10px; background: rgba(255, 230, 0, .78); border: 1px dashed rgba(16, 36, 94, .25); z-index: 2; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
 
         /* minggu ini = sticky note kuning */
         .jt-week-box.current {
@@ -823,6 +833,14 @@
             background: #f8fafc;
             border-color: #e2e8f0;
             color: #94a3b8;
+        }
+
+        /* stempel karet: lingkaran tinta hijau miring, di-cap dengan animasi */
+        .jt-week-box.done .jt-stamp { border: 2.5px solid #0a7a3d; border-radius: 50%; background: rgba(255, 255, 255, .55); color: #0a7a3d; box-shadow: inset 0 0 0 1.5px rgba(10, 122, 61, .25); animation: stampIn .45s cubic-bezier(.2, .9, .3, 1.4) both; }
+        @keyframes stampIn {
+            0% { transform: scale(2.1) rotate(-32deg); opacity: 0; }
+            65% { transform: scale(.92) rotate(-8deg); opacity: 1; }
+            100% { transform: scale(1) rotate(-12deg); opacity: 1; }
         }
 
         .jt-week-label {
@@ -2248,6 +2266,11 @@
             background-size: auto, auto, 14px 14px;
             z-index: 1;
         }
+
+        /* layer sinematik: film grain halus + vignette hangat di kartu warga */
+        .card-bg-pattern::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 52%, rgba(60, 40, 5, .2) 100%); }
+        .card-bg-pattern::after { content: ''; position: absolute; inset: 0; opacity: .3; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.42'/></svg>"); mix-blend-mode: multiply; }
+        :root[data-theme="dark"] .card-bg-pattern::after { mix-blend-mode: screen; opacity: .14; }
 
         .holo-sheen {
             position: absolute;
