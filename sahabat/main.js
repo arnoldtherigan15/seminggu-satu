@@ -1501,13 +1501,11 @@ function pspIdentityHtml() {
         '</div>';
 }
 
-function pspInsideCoverHtml() {
-    return '<div class="psp-in psp-incover">' +
-        '<span class="psp-emblem sm">SS</span>' +
-        '<div class="psp-ic-t">PASPOR<br>BALAI WARGA</div>' +
-        '<div class="psp-ic-note">Pemegang paspor ini adalah warga sah Seminggu Satu — berhak menjelajah, journaling, dan bersenang-senang tanpa batas waktu. 💙</div>' +
-        '<img class="psp-ic-stk" src="../images/sticker/str-5.png" alt="">' +
-        '</div>';
+// Lembar kosong ber-watermark — jadi balik cover & halaman kiri pertama.
+// Sengaja kosong: kalau ada konten, pas animasi buka keliatan dobel sama
+// muka belakang leaf yang lagi muter.
+function pspBlankPageHtml() {
+    return '<div class="psp-in psp-blank"><span class="psp-wm">SS</span></div>';
 }
 
 // Halaman visa: max 3 stempel imigrasi per halaman, tinta & kemiringan selang-seling
@@ -1559,7 +1557,7 @@ function pspSpreads() {
     const evs = (_loyaltyStats.events || []).slice();
     const tv = e => { const m = String(e.eventDate || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Number(m[1] + m[2] + m[3]) : 0; };
     evs.sort((a, b) => tv(a) - tv(b));
-    const spreads = [[pspInsideCoverHtml(), pspIdentityHtml()]];
+    const spreads = [[pspBlankPageHtml(), pspIdentityHtml()]];
     const nPages = Math.max(1, Math.ceil(evs.length / 3));
     for (let pg = 0; pg < nPages; pg += 2) {
         spreads.push([pspVisaPageHtml(evs, pg * 3, pg + 1), pspVisaPageHtml(evs, (pg + 1) * 3, pg + 2)]);
