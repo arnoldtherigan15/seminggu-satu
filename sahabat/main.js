@@ -83,6 +83,7 @@ function skeletonGallery() {
     const ava = skEl("width:64px;height:64px;border-radius:50%;flex:0 0 auto;");
     const col = (a, b, c) => '<div style="flex:1;display:flex;flex-direction:column;gap:12px;">' + skEl("height:" + a + "px;border-radius:14px;") + skEl("height:" + b + "px;border-radius:14px;") + skEl("height:" + c + "px;border-radius:14px;") + '</div>';
     return '<div style="display:flex;gap:14px;margin-bottom:16px;overflow:hidden;">' + ava + ava + ava + ava + ava + '</div>' +
+        skEl("width:100%;height:118px;border-radius:14px;margin-bottom:16px;") + // mading warga
         '<div style="display:flex;gap:8px;margin-bottom:14px;">' + skEl("width:70px;height:32px;border-radius:999px;") + skEl("width:84px;height:32px;border-radius:999px;") + skEl("width:104px;height:32px;border-radius:999px;") + '</div>' +
         '<div style="display:flex;gap:12px;">' + col(190, 150, 170) + col(150, 190, 140) + '</div>';
 }
@@ -3148,6 +3149,12 @@ async function loadBoard(force) {
     const host = $("wargaBoard");
     if (!host) return;
     if (_boardData && !force) { renderBoard(); return; }
+    // skeleton dulu biar mading nggak nge-pop tiba-tiba (layout shift)
+    if (!_boardData) {
+        host.innerHTML =
+            '<div class="wb-head">' + skEl("width:130px;height:16px;") + skEl("width:118px;height:30px;border-radius:999px;") + '</div>' +
+            skEl("width:100%;height:118px;border-radius:14px;margin-bottom:16px;");
+    }
     try {
         _boardData = await fetchJSONP(GS + "?page=board&wa=" + encodeURIComponent(_profile.wa), "brd", 15000);
     } catch (e) { _boardData = null; }
