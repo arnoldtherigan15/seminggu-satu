@@ -1440,28 +1440,38 @@ function closeWrapped() {
 // ---------- Paspor Warga: buku paspor beneran — cover, identitas, visa stamp per event ----------
 function openPassport() {
     if (!_loyaltyStats) return; // tombolnya cuma ada setelah loadLoyalty sukses
-    const modal = $("questModal");
-    $("questModalBox").innerHTML =
-        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
-        '<div class="qm-body" style="text-align:center;">' +
-        '<button type="button" class="psp-cover" id="pspCover">' +
+    let modal = $("pspModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "pspModal";
+        modal.className = "psp-modal";
+        document.body.appendChild(modal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closePassport(); });
+    }
+    modal.innerHTML =
+        '<button class="psp-close" id="pspClose" aria-label="Tutup">✕</button>' +
+        '<div class="psp-stage" id="pspStage"></div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("pspClose").addEventListener("click", closePassport);
+    renderPassportBook($("pspStage"));
+}
+
+function closePassport() {
+    const m = $("pspModal");
+    if (m) m.classList.remove("show");
+    unlockScroll();
+}
+
+// Muka depan cover (jadi "leaf" pas buku tertutup; baliknya = halaman dalam cover)
+function pspCoverFaceHtml() {
+    return '<div class="psp-cvface">' +
         '<span class="psp-emblem">SS</span>' +
         '<span class="psp-cover-t">PASSPORT</span>' +
         '<span class="psp-cover-s">BALAI WARGA · SEMINGGU SATU</span>' +
         '<img class="psp-cover-stk" src="../images/sticker/str-6.png" alt="">' +
         '<span class="psp-cover-hint">ketuk buat buka 📖</span>' +
-        '</button>' +
-        '<div id="pspBookHost" style="display:none;"></div>' +
         '</div>';
-    modal.classList.add("show");
-    lockScroll();
-    $("qmClose").addEventListener("click", closeQuestModal);
-    $("pspCover").addEventListener("click", () => {
-        $("pspCover").style.display = "none";
-        const host = $("pspBookHost");
-        host.style.display = "";
-        renderPassportBook(host);
-    });
 }
 
 function pspWhen(e) {
@@ -1563,12 +1573,12 @@ function renderPassportBook(host) {
     const SP = pspSpreads();
     let cur = 0;
     host.innerHTML =
-        '<div class="psp-book" id="pspBook">' +
+        '<div class="psp-book closed" id="pspBook">' +
         '<div class="psp-page psp-left" id="pspLeft"></div>' +
         '<div class="psp-page psp-right" id="pspRight"></div>' +
         '<div class="psp-leaf" id="pspLeaf"><div class="psp-face psp-front" id="pspFront"></div><div class="psp-face psp-back" id="pspBack"></div></div>' +
         '</div>' +
-        '<div class="qbook-nav">' +
+        '<div class="qbook-nav" id="pspNav" style="visibility:hidden;">' +
         '<button class="qb-arrow" id="pspPrev" aria-label="Halaman sebelumnya">‹</button>' +
         '<div class="qb-count" id="pspCount"></div>' +
         '<button class="qb-arrow" id="pspNext" aria-label="Halaman berikutnya">›</button>' +
@@ -1626,6 +1636,35 @@ function renderPassportBook(host) {
         }));
     }
     setPages(0);
+
+    // ---- keadaan awal: buku TERTUTUP ----
+    // leaf = cover navy (depan) / dalam-cover (belakang) nutupin halaman kanan;
+    // halaman kiri disembunyiin + buku digeser -25% biar cover keliatan di tengah.
+    anim = true;
+    front.innerHTML = pspCoverFaceHtml();
+    back.innerHTML = SP[0][0];
+    leftP.style.visibility = "hidden";
+    setLeaf(0, false);
+    leaf.style.display = "block";
+    let opened = false;
+    function openBook() {
+        if (opened) return;
+        opened = true;
+        leftP.style.visibility = "";
+        book.classList.remove("closed"); // geser ke posisi spread (transisi CSS)
+        leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
+        leaf.style.transform = "translateZ(.5px) rotateY(-180deg)";
+        setTimeout(() => {
+            // adopsi node: muka belakang leaf (dalam cover) pindah ke halaman kiri statis
+            leftP.innerHTML = "";
+            while (back.firstChild) leftP.appendChild(back.firstChild);
+            leaf.style.display = "none";
+            $("pspNav").style.visibility = "";
+            anim = false;
+        }, 930);
+    }
+    leaf.addEventListener("click", openBook);
+
     $("pspPrev").addEventListener("click", () => flip(-1));
     $("pspNext").addEventListener("click", () => flip(1));
     let sx = 0, sy = 0;

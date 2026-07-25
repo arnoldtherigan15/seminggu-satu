@@ -2282,10 +2282,18 @@
         .rc-go { flex: none; font-weight: 800; font-size: .78rem; color: var(--blue); }
         :root[data-theme="dark"] .recap-card { background-color: rgba(244, 114, 182, .08); border-color: rgba(244, 114, 182, .4); }
 
-        /* ---------- Paspor Warga: cover navy + buku halaman kertas ---------- */
-        .psp-cover { position: relative; width: min(230px, 68vw); aspect-ratio: 3 / 4.2; margin: 12px auto 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(150deg, #16307c, #0d1f56); border: none; border-radius: 12px 18px 18px 12px; cursor: pointer; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 44px rgba(0, 0, 0, .35), 0 14px 30px rgba(13, 31, 86, .4); color: #ffe600; font-family: 'Outfit', sans-serif; animation: pspBreath 2.6s ease-in-out infinite; }
-        /* ngambang naik-turun, BUKAN scale — scale bikin teks cover blur (layer ke-resample) */
-        @keyframes pspBreath { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        /* ---------- Paspor Warga: modal fullscreen gelap + buku yang kebuka dari cover ---------- */
+        .psp-modal { position: fixed; inset: 0; background: rgba(10, 18, 51, .82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
+        .psp-modal.show { display: flex; }
+        .psp-close { position: absolute; top: 16px; right: 16px; width: 38px; height: 38px; border-radius: 50%; border: none; background: rgba(255, 255, 255, .14); color: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
+        .psp-stage { width: min(92vw, 400px); }
+        /* buku tertutup: digeser biar cover (separuh kanan) pas di tengah; kebuka -> geser balik */
+        .psp-book { transition: transform .9s cubic-bezier(.3, .1, .25, 1); }
+        .psp-book.closed { transform: translateX(-25%); }
+        .psp-cvface { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(150deg, #16307c, #0d1f56); box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 44px rgba(0, 0, 0, .35); color: #ffe600; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: inherit; }
+        /* nav di backdrop gelap */
+        .psp-modal .qb-arrow { border-color: transparent; background: rgba(255, 255, 255, .14); color: #fff; }
+        .psp-modal .qb-count { color: #cbd5f5; }
         .psp-emblem { width: 54px; height: 54px; border-radius: 50%; border: 2.5px solid #ffe600; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.15rem; }
         .psp-emblem.sm { width: 34px; height: 34px; font-size: .78rem; border-color: rgba(16, 36, 94, .45); color: rgba(16, 36, 94, .65); margin-bottom: 8px; }
         .psp-cover-t { font-size: 1.12rem; font-weight: 900; letter-spacing: .32em; text-indent: .32em; }
