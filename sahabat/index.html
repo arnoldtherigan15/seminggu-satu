@@ -329,6 +329,16 @@
                di elemen 3D (kartu member ke-flip pas tap area kosong) */
             #loyaltyContent { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; align-items: start; }
             #loyaltyContent > .bday-banner, #loyaltyContent > .bday, #loyaltyContent > .wn-card { grid-column: 1 / -1; }
+            /* pasangan baris disetel biar tinggi kolomnya seimbang: kartu tinggi
+               bareng kartu tinggi (tracker|kartu warga), strip bareng strip */
+            #loyaltyContent > .journal-tracker-card { order: 1; }
+            #loyaltyContent > .member-card-wrapper { order: 2; }
+            #loyaltyContent > #evTicketSlot { order: 3; }
+            #loyaltyContent > .psp-cta { order: 4; }
+            #loyaltyContent > .stat-cards { order: 5; }
+            #loyaltyContent > .card { order: 6; }
+            #loyaltyContent > .tier { order: 7; }
+            #loyaltyContent > .recap-card { order: 8; }
 
             /* Event: kartu dua kolom, label & sticky note ultah tetap full-width */
             #pane-events.active { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; align-items: start; }
