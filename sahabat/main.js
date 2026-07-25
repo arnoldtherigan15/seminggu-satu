@@ -1320,6 +1320,25 @@ function openWrapped() {
     });
 }
 
+// Musik latar wrapped: auto-play pas Summary/Passport dibuka (lolos kebijakan
+// autoplay karena dipicu klik tombol), loop, berhenti pas ditutup.
+// Lazy: file mp3 baru di-download pas pertama kali wrapped dibuka.
+let _wrAudio = null;
+function wrappedMusicPlay() {
+    try {
+        if (!_wrAudio) {
+            _wrAudio = new Audio("../bg-music-2.mp3");
+            _wrAudio.loop = true;
+            _wrAudio.volume = 0.55;
+        }
+        _wrAudio.currentTime = 0;
+        _wrAudio.play().catch(() => { }); // kalau browser nolak, ya udah tanpa musik
+    } catch (e) { }
+}
+function wrappedMusicStop() {
+    if (_wrAudio) { try { _wrAudio.pause(); } catch (e) { } }
+}
+
 // Engine slider wrapped (dipakai My Summary & Passport): scroll-snap + dots +
 // auto-next + tombol share IG per slide.
 function showWrapped(slides, shareMeta) {
@@ -1346,6 +1365,7 @@ function showWrapped(slides, shareMeta) {
         '</div>';
     modal.classList.add("show");
     lockScroll();
+    wrappedMusicPlay();
     const track = $("wrTrack");
     const slideEls = track.querySelectorAll(".wr-slide");
     const dotEls = modal.querySelectorAll(".wr-dot");
@@ -1406,6 +1426,7 @@ function closeWrapped() {
         clearTimeout(modal._wrTimer);
         modal.classList.remove("show");
     }
+    wrappedMusicStop();
     unlockScroll();
 }
 
