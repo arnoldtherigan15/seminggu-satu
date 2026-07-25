@@ -2684,7 +2684,7 @@ function spawnMochi() {
 
 // Bisik-bisik Balai: fakta seru komunitas, dirakit dari data yang UDAH ada di
 // client (galeri, leaderboard, mading, streak) — beda-beda tiap saat, nol request.
-function balaiWhispers() {
+function balaiWhispers(ctx) {
     const out = [];
     const now = Date.now();
     const WEEK = 7 * 86400000;
@@ -2708,7 +2708,8 @@ function balaiWhispers() {
         if (streak > 0) out.push("Streak journaling-mu " + streak + " minggu 🔥 Jangan sampe putus ya!");
     } catch (e) { }
     try {
-        if (_boardData && _boardData.items && _boardData.items.length) out.push(_boardData.items.length + " pesan semangat nempel di Mading Warga — udah mampir baca? 📌");
+        // nggak relevan kalau lagi DI mading (ya jelas dia lagi baca)
+        if (ctx !== "mading" && _boardData && _boardData.items && _boardData.items.length) out.push(_boardData.items.length + " pesan semangat nempel di Mading Warga — udah mampir baca? 📌");
     } catch (e) { }
     try {
         if (_questChallenges.length) {
@@ -3505,7 +3506,7 @@ function renderMadingModal() {
     if (!modal) return;
     const entries = boardEntries();
     const left = _boardData ? _boardData.left : 0;
-    const _whList = balaiWhispers();
+    const _whList = balaiWhispers("mading");
     const _mdInfoPick = _whList[Math.floor(Math.random() * _whList.length)];
     // dua kolom diisi selang-seling (bukan CSS columns yang numpuk kiri semua),
     // plus sticker die-cut nyelip tiap beberapa item biar papannya rame
