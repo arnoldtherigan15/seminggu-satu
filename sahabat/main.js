@@ -2590,15 +2590,48 @@ function spawnMochi() {
     }, { once: true });
 }
 
-// Surat Nyasar: prompt kejutan acak dari Mochi
-async function openStrayLetter() {
-    showBusy("Mochi nyerahin suratnya…");
-    let list;
-    try { list = await loadPrompts(); }
-    catch (e) { hideBusy(); alert("Suratnya kebawa angin 😢 Coba tangkap Mochi lagi nanti ya."); return; }
-    hideBusy();
+// Bisik-bisik Balai: fakta seru komunitas, dirakit dari data yang UDAH ada di
+// client (galeri, leaderboard, mading, streak) — beda-beda tiap saat, nol request.
+function balaiWhispers() {
+    const out = [];
+    const now = Date.now();
+    const WEEK = 7 * 86400000;
+    try {
+        const recent = (_galleryItems || []).filter(it => it.ts && (now - it.ts) < WEEK);
+        if (recent.length) out.push("Ada " + recent.length + " karya baru minggu ini di galeri — udah lihat semua? 👀");
+        const cnt = {};
+        recent.forEach(it => { if (it.nickname && it.nickname !== "Seminggu Satu") cnt[it.nickname] = (cnt[it.nickname] || 0) + 1; });
+        const busiest = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
+        if (busiest && cnt[busiest] >= 2) out.push("Psst… minggu ini " + busiest + " paling rajin — " + cnt[busiest] + " karya! 👏");
+        const loved = (_galleryItems || []).filter(it => (it.likes || 0) > 0).sort((a, b) => (b.likes || 0) - (a.likes || 0))[0];
+        if (loved) out.push("Karya paling disayang se-Balai saat ini punya " + loved.nickname + " — " + loved.likes + " ❤️");
+    } catch (e) { }
+    try {
+        if (_lbData && _lbData.top && _lbData.top[0]) out.push("Psst… " + _lbData.top[0].nickname + " lagi di puncak leaderboard dengan " + _lbData.top[0].poin + " poin ⚡ Kejar yuk!");
+        if (_lbData && _lbData.me && _lbData.me.rank) out.push("Kamu lagi peringkat #" + _lbData.me.rank + " dari " + _lbData.me.total + " se-Balai… diam-diam ngejar podium? 😏");
+        if (_lbData && _lbData.topEvents && _lbData.topEvents[0]) out.push(_lbData.topEvents[0].nickname + " paling sering dateng event — " + _lbData.topEvents[0].events + " kali! Setia banget 💙");
+    } catch (e) { }
+    try {
+        const streak = calculateJournalStreak(getJournalTrackerData(_profile.wa).records || {});
+        if (streak > 0) out.push("Streak journaling-mu " + streak + " minggu 🔥 Jangan sampe putus ya!");
+    } catch (e) { }
+    try {
+        if (_boardData && _boardData.items && _boardData.items.length) out.push(_boardData.items.length + " pesan semangat nempel di Mading Warga — udah mampir baca? 📌");
+    } catch (e) { }
+    try {
+        if (_questChallenges.length) {
+            const undone = _questChallenges.length - _questSubmitted.length;
+            if (undone > 0) out.push("Masih ada " + undone + " challenge yang belum kamu sentuh… Mochi nungguin karyamu 🎯");
+            else out.push("Kamu udah nyelesain SEMUA challenge — legend! 🏆");
+        }
+    } catch (e) { }
+    if (!out.length) out.push("Balai lagi hangat-hangatnya — makasih udah jadi bagian dari sini 💙");
+    return out;
+}
+
+// Surat Nyasar: bisik-bisik komunitas dari Mochi (hadiah nangkep dia)
+function openStrayLetter() {
     fireConfetti("love");
-    const it = randomPrompt(list);
     let modal = $("mochiModal");
     if (!modal) {
         modal = document.createElement("div");
@@ -2607,33 +2640,39 @@ async function openStrayLetter() {
         document.body.appendChild(modal);
         modal.addEventListener("click", (e) => { if (e.target === modal) closeMochiPrompt(); });
     }
+    const whispers = balaiWhispers();
+    let lastIdx = Math.floor(Math.random() * whispers.length);
     modal.innerHTML =
         '<div class="mochi-box">' +
         '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
         '<img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:64px;bottom:8px;right:8px;transform:rotate(10deg);" alt="">' +
         '<div class="mp-head">💌 Surat Nyasar!</div>' +
-        '<div class="mp-sub">Kamu berhasil nangkep Mochi si Penjaga Balai — ada prompt kejutan buat kamu~</div>' +
+        '<div class="mp-sub">Kamu berhasil nangkep Mochi si Penjaga Balai — dia bawa bisik-bisik seru~</div>' +
         '<div class="mp-card fortune pop" id="mpCard" style="margin-top:16px;">' +
         '<img class="mp-mochi" src="../images/mochi_maskot_sm.png" alt="">' +
-        '<div class="mp-kicker">SURAT NYASAR · SURPRISE ✨</div>' +
-        '<div><span class="mp-cat">🏷️ ' + esc(it.category || "Journaling") + '</span></div>' +
-        '<div class="mp-text" id="mpText">“' + esc(it.prompt) + '”</div>' +
+        '<div class="mp-kicker">SURAT NYASAR · RAHASIA BALAI ✨</div>' +
+        '<div><span class="mp-cat">📣 Bisik-bisik Balai</span></div>' +
+        '<div class="mp-text" id="mpText">“' + esc(whispers[lastIdx]) + '”</div>' +
         '<div class="mp-actions">' +
-        '<button class="mp-btn ghost" id="slCopy">📋 Salin</button>' +
+        (whispers.length > 1 ? '<button class="mp-btn ghost" id="slMore">👂 Bisik lagi</button>' : '') +
         '<button class="mp-btn" id="slClose">Makasih, Mochi! 🐾</button>' +
         '</div>' +
         '</div>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();
-    _mpLastId = it.id;
     $("mpClose").addEventListener("click", closeMochiPrompt);
     $("slClose").addEventListener("click", closeMochiPrompt);
-    $("slCopy").addEventListener("click", async () => {
-        const btn = $("slCopy");
-        try { await navigator.clipboard.writeText($("mpText").textContent.replace(/[“”]/g, "")); btn.textContent = "✓ Tersalin"; }
-        catch (e) { btn.textContent = "Salin manual ya"; }
-        setTimeout(() => { btn.textContent = "📋 Salin"; }, 1800);
+    const more = $("slMore");
+    if (more) more.addEventListener("click", () => {
+        let j = Math.floor(Math.random() * whispers.length);
+        if (j === lastIdx) j = (j + 1) % whispers.length; // jangan bisikin hal yang sama dua kali
+        lastIdx = j;
+        $("mpText").textContent = "“" + whispers[j] + "”";
+        const card = $("mpCard");
+        card.classList.remove("pop");
+        void card.offsetWidth;
+        card.classList.add("pop");
     });
 }
 
