@@ -2337,6 +2337,10 @@
         .psp-right { right: 0; border-radius: 3px 12px 12px 3px; border: 1px solid #e3d9c3; border-left: none; box-shadow: inset 14px 0 18px -14px rgba(16, 36, 94, .28), 0 16px 26px rgba(0, 10, 40, .35); }
         .psp-leaf { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; transform-origin: left center; transform-style: preserve-3d; z-index: 5; display: none; }
         .psp-face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 1px solid #e3d9c3; box-shadow: 0 16px 26px rgba(0, 10, 40, .35); }
+        /* Bug iOS: child yang punya layer compositing sendiri (img/emoji ber-filter
+           drop-shadow) NGGAK ikut backface-visibility induknya -> stiker "tembus"
+           mirrored beberapa ms pas leaf mendarat di 180°. Paksa ke semua turunan. */
+        .psp-face * { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
         .psp-front { border-radius: 3px 12px 12px 3px; }
         .psp-back { transform: rotateY(180deg); border-radius: 12px 3px 3px 12px; }
 
