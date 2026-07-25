@@ -1453,6 +1453,7 @@ function openPassport() {
         '<div class="psp-stage" id="pspStage"></div>';
     modal.classList.add("show");
     lockScroll();
+    wrappedMusicPlay(); // musik latar sama kayak wrapped (dipicu klik -> lolos autoplay)
     $("pspClose").addEventListener("click", closePassport);
     renderPassportBook($("pspStage"));
 }
@@ -1460,6 +1461,7 @@ function openPassport() {
 function closePassport() {
     const m = $("pspModal");
     if (m) m.classList.remove("show");
+    wrappedMusicStop();
     unlockScroll();
 }
 
@@ -3961,6 +3963,7 @@ function renderBoard() {
 
 // ---- Mading full: halaman gabus selayar, sticky notes masonry 2 kolom ----
 function openMadingModal() {
+    wrappedMusicPlay(); // musik latar bareng suasana mading
     let modal = $("madingModal");
     if (!modal) {
         modal = document.createElement("div");
@@ -3976,6 +3979,7 @@ function openMadingModal() {
 function closeMading() {
     const modal = $("madingModal");
     if (modal) modal.classList.remove("show");
+    wrappedMusicStop();
     unlockScroll();
 }
 
