@@ -3164,58 +3164,98 @@ async function loadBoard(force) {
     renderBoard();
 }
 
+function boardNoteHtml(m, i, mini) {
+    const COLORS = ["note-y", "note-p", "note-b", "note-g"];
+    const text = mini && m.text.length > 64 ? m.text.slice(0, 64) + "…" : m.text;
+    return '<div class="wb-note ' + COLORS[i % COLORS.length] + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '">' +
+        '<span class="wb-pin">📌</span>' +
+        '<div class="wb-text">' + esc(text) + '</div>' +
+        '<div class="wb-meta">— ' + esc(m.nickname) + ' · ' + esc(timeAgo(m.ts)) + '</div>' +
+        '</div>';
+}
+
+// Teaser di Gallery: papan mini berisi 2-3 pesan terbaru, klik = buka Mading full
 function renderBoard() {
     const host = $("wargaBoard");
     if (!host) return;
     const items = (_boardData && _boardData.items) || [];
-    const left = _boardData ? _boardData.left : 0;
-    const COLORS = ["note-y", "note-p", "note-b", "note-g"];
     let notes = "";
-    items.forEach((m, i) => {
-        notes += '<div class="wb-note ' + COLORS[i % COLORS.length] + (i % 2 ? " r" : "") + '">' +
-            '<span class="wb-pin">📌</span>' +
-            '<div class="wb-text">' + esc(m.text) + '</div>' +
-            '<div class="wb-meta">— ' + esc(m.nickname) + ' · ' + esc(timeAgo(m.ts)) + '</div>' +
-            '</div>';
-    });
+    items.slice(0, 3).forEach((m, i) => { notes += boardNoteHtml(m, i, true); });
     if (!notes) notes = '<div class="wb-empty">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
     host.innerHTML =
         '<div class="wb-head">' +
         '<div class="story-lbl" style="margin:0;">📌 Mading Warga</div>' +
-        '<button class="wb-add" id="wbAdd">＋ Tempel Pesan' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '') + '</button>' +
+        '<button class="wb-add" id="wbOpen">Buka Mading' + (items.length ? ' (' + items.length + ')' : '') + ' →</button>' +
         '</div>' +
-        '<div class="wb-board"><div class="wb-track">' + notes + '</div></div>';
-    $("wbAdd").addEventListener("click", openBoardModal);
+        '<button class="wb-board wb-teaser" id="wbTeaser">' +
+        '<div class="wb-track">' + notes + '</div>' +
+        '<span class="wb-more">📌 Buka Mading</span>' +
+        '</button>';
+    $("wbOpen").addEventListener("click", openMadingModal);
+    $("wbTeaser").addEventListener("click", openMadingModal);
 }
 
-function openBoardModal() {
-    const left = _boardData ? _boardData.left : 0;
-    if (left <= 0) { alert("Kuota nempel pesanmu hari ini habis (2/hari). Besok lagi ya! 🌙"); return; }
-    const modal = $("questModal");
-    $("questModalBox").innerHTML =
-        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
-        '<div class="qm-body">' +
-        '<div class="quest-game-title">📌 Tempel Pesan di Mading</div>' +
-        '<div class="quest-game-desc">Kata-kata semangat, quote, atau sapaan manis buat semua warga. Sisa kuota hari ini: <b>' + left + '</b>.</div>' +
-        '<textarea class="qm-cap-input" id="wbInput" maxlength="140" rows="3" placeholder="Tulis pesan semangatmu… ✨ (max 140)"></textarea>' +
-        '<button class="btn-primary" id="wbSend" style="margin-top:12px;">📌 Tempel ke Mading</button>' +
-        '</div>';
+// ---- Mading full: halaman gabus selayar, sticky notes masonry 2 kolom ----
+function openMadingModal() {
+    let modal = $("madingModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "madingModal";
+        modal.className = "mading-modal";
+        document.body.appendChild(modal);
+    }
+    renderMadingModal();
     modal.classList.add("show");
     lockScroll();
-    $("qmClose").addEventListener("click", closeQuestModal);
-    $("wbSend").addEventListener("click", async () => {
-        const text = $("wbInput").value.trim();
+}
+
+function closeMading() {
+    const modal = $("madingModal");
+    if (modal) modal.classList.remove("show");
+    unlockScroll();
+}
+
+function renderMadingModal() {
+    const modal = $("madingModal");
+    if (!modal) return;
+    const items = (_boardData && _boardData.items) || [];
+    const left = _boardData ? _boardData.left : 0;
+    let notes = "";
+    items.forEach((m, i) => { notes += boardNoteHtml(m, i, false); });
+    if (!notes) notes = '<div class="wb-empty">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
+    modal.innerHTML =
+        '<div class="md-wrap">' +
+        '<div class="md-head">' +
+        '<div class="md-title">📌 Mading Warga</div>' +
+        '<button class="md-close" id="mdClose" aria-label="Tutup">✕</button>' +
+        '</div>' +
+        '<button class="wb-add" id="mdAdd" style="width:100%;padding:11px;font-size:.85rem;">＋ Tempel Pesan' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '') + '</button>' +
+        '<div class="md-compose" id="mdCompose" style="display:none;">' +
+        '<span class="wb-pin">📌</span>' +
+        '<textarea id="mdInput" maxlength="140" rows="3" placeholder="Tulis pesan semangatmu… ✨ (max 140)"></textarea>' +
+        '<button class="btn-primary" id="mdSend" style="margin-top:8px;">📌 Tempel</button>' +
+        '</div>' +
+        '<div class="md-grid">' + notes + '</div>' +
+        '</div>';
+    $("mdClose").addEventListener("click", closeMading);
+    $("mdAdd").addEventListener("click", () => {
+        if ((_boardData ? _boardData.left : 0) <= 0) { alert("Kuota nempel pesanmu hari ini habis (2/hari). Besok lagi ya! 🌙"); return; }
+        const c = $("mdCompose");
+        c.style.display = c.style.display === "none" ? "block" : "none";
+        if (c.style.display === "block") $("mdInput").focus();
+    });
+    $("mdSend").addEventListener("click", async () => {
+        const text = $("mdInput").value.trim();
         if (text.length < 3) { alert("Pesannya kependekan 😅"); return; }
-        const btn = $("wbSend");
-        btn.disabled = true;
+        $("mdSend").disabled = true;
         showBusy("Nempelin pesanmu…");
         try {
             const r = await apiPost({ action: "memberPostBoard", token: _profile.token, text: text });
-            if (r.status !== "success") { btn.disabled = false; alert(r.message || "Gagal."); return; }
+            if (r.status !== "success") { $("mdSend").disabled = false; alert(r.message || "Gagal."); return; }
             fireConfetti("quest");
-            closeQuestModal();
-            loadBoard(true); // refresh mading + kuota
-        } catch (e) { btn.disabled = false; alert("Gagal terhubung ke server. Coba lagi ya."); }
+            await loadBoard(true);      // refresh data + teaser di Gallery
+            renderMadingModal();        // re-render papan full (pesan baru langsung nempel)
+        } catch (e) { $("mdSend").disabled = false; alert("Gagal terhubung ke server. Coba lagi ya."); }
         finally { hideBusy(); }
     });
 }
