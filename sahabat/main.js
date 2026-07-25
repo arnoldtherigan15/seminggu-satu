@@ -3376,12 +3376,15 @@ function renderMadingModal() {
     // dua kolom diisi selang-seling (bukan CSS columns yang numpuk kiri semua),
     // plus sticker die-cut nyelip tiap beberapa item biar papannya rame
     const colA = [], colB = [];
+    // tiap item dibungkus .md-in -> animasi "ketempel" satu-satu (delay bertingkat,
+    // wrapper yang dianimasikan biar rotate miring notes-nya nggak ketiban)
+    const pinDelay = i => Math.min(i * 0.08, 1.2).toFixed(2);
     entries.forEach((e, i) => {
-        ((i % 2 === 0) ? colA : colB).push(boardEntryHtml(e, i, false));
+        ((i % 2 === 0) ? colA : colB).push('<div class="md-in" style="--d:' + pinDelay(i) + 's">' + boardEntryHtml(e, i, false) + '</div>');
         if (i % 3 === 2) {
             const n = ((i * 7) % 11) + 1;
             const rot = (i % 2 ? -1 : 1) * (6 + (i % 9));
-            ((i % 2 === 0) ? colB : colA).push('<img class="md-stk" src="../images/sticker/str-' + n + '.png" alt="" style="transform:rotate(' + rot + 'deg);">');
+            ((i % 2 === 0) ? colB : colA).push('<div class="md-in" style="--d:' + pinDelay(i + 1) + 's"><img class="md-stk" src="../images/sticker/str-' + n + '.png" alt="" style="transform:rotate(' + rot + 'deg);"></div>');
         }
     });
     const boardHtml = entries.length
