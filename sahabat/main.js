@@ -2424,24 +2424,27 @@ function mochiSmartMessages() {
                 : "✍️ Belum check-in minggu ini — yuk mulai streak pertamamu!");
         }
     } catch (e) { }
-    // 4) Event yang lagi buka & tinggal <=7 hari — skip yg UDAH didaftar (kalau datanya udah ada)
+    // 4) Event yang lagi buka & tinggal <=14 hari — skip yg UDAH didaftar (kalau datanya udah ada).
+    //    Event tanpa tanggal yang kebaca -> tetap diingetin (tanpa hitung hari).
     try {
         const ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        let best = null;
+        let best = null, noDate = null;
         ws.forEach(w => {
             if (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open") return;
             if (_evRegistered && _evRegistered[w.id]) return; // udah daftar -> nggak perlu diingetin
             const d = (typeof parseDate === "function") ? parseDate(w.eventDate) : null;
-            if (!d) return;
+            if (!d) { if (!noDate) noDate = w; return; }
             const days = Math.round((d - today) / 86400000);
-            if (days < 0 || days > 7) return;
+            if (days < 0 || days > 14) return;
             if (!best || days < best.days) best = { w: w, days: days };
         });
         if (best) {
             const when = best.days === 0 ? "HARI INI" : (best.days === 1 ? "besok" : best.days + " hari lagi");
             msgs.push("🎪 " + (best.w.name || "Event") + " " + when + " — udah daftar?");
+        } else if (noDate) {
+            msgs.push("🎟️ " + (noDate.name || "Event baru") + " lagi buka pendaftaran — cek tab Event yuk!");
         }
     } catch (e) { }
     // 5) Penutup: teaser surat harian (selalu ada di ekor rotasi)
