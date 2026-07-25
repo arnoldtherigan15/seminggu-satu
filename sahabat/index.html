@@ -183,8 +183,11 @@
             font-size: 1rem;
             font-family: inherit;
             font-weight: 600;
-            color: var(--ink);
+            background: #fff;
+            color: #10245e;
         }
+
+        :root[data-theme="dark"] .auth-form input { background: var(--card); color: var(--ink); }
 
         .auth-form input:focus {
             outline: 3px solid rgba(255, 230, 0, .6);
@@ -1618,7 +1621,7 @@
 
         /* elemen konten */
         .wr-kicker { font-family: 'Outfit', sans-serif; font-size: .7rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; opacity: .75; }
-        .wr-big { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(72px, 26vw, 120px); line-height: 1; margin-top: 8px; color: var(--blue); }
+        .wr-big { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(72px, 26vw, 120px); line-height: 1; margin-top: 8px; color: #0046ff; }
         .wr-blue .wr-big { color: var(--yellow); text-shadow: 0 4px 0 rgba(0, 20, 90, .25); }
         .wr-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.3rem; margin-top: 8px; }
         .wr-hero { font-size: 2.1rem; line-height: 1.15; margin-top: 10px; }
@@ -1636,7 +1639,7 @@
 
         /* sticker chips judul challenge */
         .wr-chips { margin-top: 14px; max-width: 320px; }
-        .wr-chip { display: inline-block; background: #fff; color: var(--ink); border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 999px; padding: 5px 13px; font-weight: 700; font-size: .78rem; margin: 3px; transform: rotate(-1.5deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .08); }
+        .wr-chip { display: inline-block; background: #fff; color: #10245e; border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 999px; padding: 5px 13px; font-weight: 700; font-size: .78rem; margin: 3px; transform: rotate(-1.5deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .08); }
         .wr-chip:nth-child(even) { transform: rotate(1.5deg); }
 
         /* polaroid mini karya */
@@ -1646,8 +1649,8 @@
         .wr-pola img { width: 74px; height: 92px; object-fit: cover; border-radius: 4px; display: block; }
 
         /* rank & stamp */
-        .wr-rankbox { margin-top: 14px; background: #fff; border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 12px; padding: .6rem 1.1rem; font-size: .88rem; color: var(--ink); transform: rotate(-1deg); box-shadow: 0 4px 10px rgba(0, 0, 0, .08); }
-        .wr-rankbox b { font-family: 'Outfit', sans-serif; color: var(--blue); }
+        .wr-rankbox { margin-top: 14px; background: #fff; border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 12px; padding: .6rem 1.1rem; font-size: .88rem; color: #10245e; transform: rotate(-1deg); box-shadow: 0 4px 10px rgba(0, 0, 0, .08); }
+        .wr-rankbox b { font-family: 'Outfit', sans-serif; color: #0046ff; }
         .wr-stamp5 { margin-top: 14px; border: 3px solid #b91c1c; color: #b91c1c; background: rgba(255, 255, 255, .88); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; letter-spacing: 2px; padding: 6px 16px; border-radius: 8px; transform: rotate(-6deg); }
         .wr-stamps { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px; max-width: 200px; }
         .wr-stamp { width: 36px; height: 36px; border-radius: 10px; border: 2px dashed rgba(16, 36, 94, .3); display: flex; align-items: center; justify-content: center; background: #fff; font-weight: 800; color: #0a7a3d; transform: rotate(-2deg); }
@@ -1655,7 +1658,7 @@
         .wr-stamp.on { background: #e9fbf0; border-color: #22c55e; border-style: solid; }
 
         /* badge tier persona */
-        .wr-tier { margin-top: 16px; background: #fff; color: var(--ink); border: 2px dashed rgba(16, 36, 94, .3); border-radius: 14px; padding: 10px 20px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; transform: rotate(-2deg); box-shadow: 0 6px 14px rgba(0, 0, 0, .1); }
+        .wr-tier { margin-top: 16px; background: #fff; color: #10245e; border: 2px dashed rgba(16, 36, 94, .3); border-radius: 14px; padding: 10px 20px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; transform: rotate(-2deg); box-shadow: 0 6px 14px rgba(0, 0, 0, .1); }
 
         /* animasi pop-in per slide (jalan tiap slide jadi aktif) */
         .wr-anim { opacity: 0; }
@@ -1663,16 +1666,16 @@
         @keyframes wrPop { from { opacity: 0; transform: translateY(16px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
         /* tombol share per slide: nempel di pojok kanan bawah (di atas wr-zone biar tetap ke-klik) */
-        .wr-share { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px; z-index: 5; border: none; background: rgba(255, 255, 255, .94); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .78rem; padding: 10px 16px; border-radius: 999px; cursor: pointer; box-shadow: 0 6px 16px rgba(0, 0, 0, .18); display: inline-flex; align-items: center; gap: 6px; transition: transform .15s ease; }
+        .wr-share { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px; z-index: 5; border: none; background: rgba(255, 255, 255, .94); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .78rem; padding: 10px 16px; border-radius: 999px; cursor: pointer; box-shadow: 0 6px 16px rgba(0, 0, 0, .18); display: inline-flex; align-items: center; gap: 6px; transition: transform .15s ease; }
         .wr-share:active { transform: scale(.95); }
 
         /* Your Journaling Journey: daftar event ala tiket tempel */
         .wr-journey { margin-top: 14px; width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 9px; }
         .wr-jrow { background: #fff; border: 1.5px dashed rgba(16, 36, 94, .28); border-radius: 12px; padding: .55rem .8rem; display: flex; align-items: center; gap: 10px; transform: rotate(-.8deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .06); text-align: left; }
         .wr-jrow:nth-child(even) { transform: rotate(.8deg); }
-        .wr-jrow .n { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; background: var(--yellow); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .68rem; display: flex; align-items: center; justify-content: center; }
-        .wr-jrow .nm { flex: 1; min-width: 0; font-weight: 700; font-size: .8rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .wr-jrow .dt { flex: 0 0 auto; font-size: .66rem; color: var(--muted); }
+        .wr-jrow .n { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .68rem; display: flex; align-items: center; justify-content: center; }
+        .wr-jrow .nm { flex: 1; min-width: 0; font-weight: 700; font-size: .8rem; color: #10245e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .wr-jrow .dt { flex: 0 0 auto; font-size: .66rem; color: #6b7794; }
 
         /* angka kecil di sebelah angka gede (mis. 4/6 stamp) */
         .wr-big-sm { font-size: .38em; opacity: .55; }
