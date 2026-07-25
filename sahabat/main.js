@@ -1731,10 +1731,9 @@ function renderJournalTrackerHtml(wa) {
             '</div>';
     }
 
+    // udah check-in -> nggak perlu banner apa-apa, kartu "Minggu Ini" di atas udah ngabarin
     let actionBtnHtml = "";
-    if (isCurrentChecked) {
-        actionBtnHtml = '<div class="jt-status-banner"><span>✨</span> You\'ve checked in for this week!</div>';
-    } else {
+    if (!isCurrentChecked) {
         actionBtnHtml = '<button type="button" class="jt-action-btn" id="jtCheckInBtn">' + SVG_PENCIL + ' Check In This Week (+1 Streak)</button>';
     }
 
