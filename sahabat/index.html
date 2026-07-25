@@ -1095,6 +1095,10 @@
         .qg-img { width: 100%; height: 100%; object-fit: cover; display: block; }
         /* XP jadi sticker kuning miring */
         .qg-xp { position: absolute; top: 6px; right: 6px; background: rgba(255, 230, 0, .92); color: #10245e; font-size: .64rem; font-weight: 800; padding: 3px 9px; border-radius: 7px; border: 1px dashed rgba(16, 36, 94, .3); transform: rotate(3deg); z-index: 2; }
+        /* jumlah karya teman yg udah ikut (chip di pojok bawah foto) */
+        .qg-count { position: absolute; bottom: 6px; left: 6px; background: rgba(255, 255, 255, .92); color: #10245e; font-family: 'Outfit', sans-serif; font-size: .62rem; font-weight: 800; padding: 3px 8px; border-radius: 7px; border: 1px dashed rgba(16, 36, 94, .3); transform: rotate(-2deg); z-index: 2; }
+        :root[data-theme="dark"] .qg-count { background: rgba(23, 32, 53, .92); color: #cdd9f7; }
+        .qr-friends { font-size: .7rem; font-weight: 700; color: var(--muted); margin-top: 4px; }
         /* CLEARED jadi stempel karet miring */
         .qg-cell.done .qg-img { filter: grayscale(.35); opacity: .85; }
         .qg-cell.done .qg-imgwrap::before { content: ''; position: absolute; inset: 0; background: rgba(255, 255, 255, .35); z-index: 1; }

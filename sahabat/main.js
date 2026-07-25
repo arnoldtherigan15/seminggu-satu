@@ -741,11 +741,13 @@ function renderQuestBook(host) {
 
 function renderQuestRow(q, i) {
     const done = _questSubmitted.indexOf(q.id) >= 0;
+    const works = questWorks(q).length;
     return '<div class="quest-row' + (done ? " done" : "") + '" data-i="' + i + '">' +
         '<div class="qr-main">' +
         '<div class="qr-title">' + esc(q.title) + (done ? ' <span class="qr-done">✓ Cleared</span>' : '') + '</div>' +
         (q.description ? '<div class="qr-desc">' + esc(q.description) + '</div>' : '') +
         (q.theme ? '<div class="qr-theme">🎨 ' + esc(q.theme) + '</div>' : '') +
+        (works ? '<div class="qr-friends">👥 ' + works + ' karya teman 💙</div>' : '') +
         '</div>' +
         '<div class="qr-xp">🪙 +' + questPoints(q) + '</div>' +
         '</div>';
@@ -753,12 +755,14 @@ function renderQuestRow(q, i) {
 
 function renderQuestCell(q, i) {
     const done = _questSubmitted.indexOf(q.id) >= 0;
+    const works = questWorks(q).length;
     const tape = '<div class="jtape ' + (i % 2 === 0 ? "tl" : "tr blue") + '"></div>';
     return '<div class="qg-cell' + (done ? ' done' : '') + '" data-i="' + i + '">' +
         tape +
         '<div class="qg-imgwrap">' +
         '<img class="qg-img" src="' + esc(questImg(q)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25">' +
         '<span class="qg-xp">🪙 +' + questPoints(q) + '</span>' +
+        (works ? '<span class="qg-count">👥 ' + works + '</span>' : '') +
         '</div>' +
         '<div class="qg-body">' +
         '<div class="qg-title">' + esc(q.title) + '</div>' +
@@ -2639,6 +2643,9 @@ async function loadGallery() {
         return;
     }
     renderGallery();
+    // Data galeri baru masuk -> refresh Quest Board biar hitungan "karya teman"
+    // (badge 👥 di buku/grid/list) langsung keisi
+    if (_questsLoaded && _questChallenges.length && $("questGrid")) renderQuestBoard();
 }
 
 function galFiltered() {
