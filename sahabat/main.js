@@ -3962,8 +3962,35 @@ function renderBoard() {
 }
 
 // ---- Mading full: halaman gabus selayar, sticky notes masonry 2 kolom ----
+// ---------- Pesan suara Mochi di mading: little reminder harian ----------
+// 12 voice note di /mochi_notes, dipilih seeded dari tanggal -> tiap hari beda.
+// Selesai ngomong baru bg music nyala, biar suaranya nggak tabrakan.
+const MOCHI_NOTE_COUNT = 12;
+let _noteAudio = null;
+function mochiNotePlay() {
+    try {
+        const now = new Date();
+        const n = ((now.getFullYear() * 372 + now.getMonth() * 31 + now.getDate()) % MOCHI_NOTE_COUNT) + 1;
+        if (!_noteAudio) _noteAudio = new Audio();
+        _noteAudio.src = "../mochi_notes/note-" + n + ".mp3";
+        _noteAudio.loop = false;
+        _noteAudio.volume = 1;
+        _noteAudio.onended = () => {
+            const b = $("mdNote");
+            if (b) b.classList.remove("play");
+            wrappedMusicPlay();
+        };
+        _noteAudio.currentTime = 0;
+        _noteAudio.play().catch(() => { });
+        const b = $("mdNote");
+        if (b) b.classList.add("play");
+    } catch (e) { }
+}
+function mochiNoteStop() {
+    try { if (_noteAudio) { _noteAudio.onended = null; _noteAudio.pause(); } } catch (e) { }
+}
+
 function openMadingModal() {
-    wrappedMusicPlay(); // musik latar bareng suasana mading
     let modal = $("madingModal");
     if (!modal) {
         modal = document.createElement("div");
@@ -3974,11 +4001,13 @@ function openMadingModal() {
     renderMadingModal();
     modal.classList.add("show");
     lockScroll();
+    mochiNotePlay(); // pesan kecil dari Mochi dulu, musik nyusul setelah selesai
 }
 
 function closeMading() {
     const modal = $("madingModal");
     if (modal) modal.classList.remove("show");
+    mochiNoteStop();
     wrappedMusicStop();
     unlockScroll();
 }
@@ -4018,6 +4047,7 @@ function renderMadingModal() {
         '<div class="md-title">📌 Mading Warga</div>' +
         '<button class="md-close" id="mdClose" aria-label="Tutup">✕</button>' +
         '</div>' +
+        '<button type="button" class="md-note" id="mdNote"><span class="md-note-ic">🎧</span> Pesan kecil dari Mochi buat hari ini <span class="md-note-eq"><i></i><i></i><i></i></span></button>' +
         '<button class="wb-add" id="mdAdd" style="width:100%;padding:11px;font-size:.85rem;"' + (left <= 0 ? ' disabled' : '') + '>' + addLabel + '</button>' +
         '<div class="md-compose" id="mdCompose" style="display:none;">' +
         '<span class="wb-pin">📌</span>' +
@@ -4033,6 +4063,7 @@ function renderMadingModal() {
         boardHtml +
         '</div>';
     $("mdClose").addEventListener("click", closeMading);
+    $("mdNote").addEventListener("click", () => { wrappedMusicStop(); mochiNotePlay(); }); // tap = puter ulang
     modal.querySelectorAll("[data-goev]").forEach(b => b.addEventListener("click", () => {
         closeMading();
         try { location.hash = "events"; } catch (e) { }
