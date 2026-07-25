@@ -3586,6 +3586,11 @@ function openGalleryLightbox(it) {
 // (di-enforce server, direset otomatis ganti hari).
 let _boardData = null;
 
+// Susunan teaser di-cache: boardEntries() naruh flyer di posisi acak, jadi kalau
+// dihitung ulang tiap render, teaser keliatan "berubah-ubah" tiap ganti tab.
+// Diacak ulang cuma pas data mading beneran di-refetch.
+let _teaserEntries = null;
+
 async function loadBoard(force) {
     const host = $("wargaBoard");
     if (!host) return;
@@ -3602,6 +3607,7 @@ async function loadBoard(force) {
     // normalisasi (server lama / respons aneh): items harus array, left harus angka
     if (!_boardData || !Array.isArray(_boardData.items)) _boardData = { items: [] };
     if (typeof _boardData.left !== "number") _boardData.left = 0;
+    _teaserEntries = null; // data baru -> susunan teaser boleh dikocok ulang
     renderBoard();
 }
 
@@ -3701,7 +3707,8 @@ function boardNoteHtml(m, i, mini) {
 function renderBoard() {
     const host = $("wargaBoard");
     if (!host) return;
-    const entries = boardEntries();
+    if (!_teaserEntries) _teaserEntries = boardEntries();
+    const entries = _teaserEntries;
     let notes = "";
     entries.slice(0, 3).forEach((e, i) => { notes += boardEntryHtml(e, i, true); });
     if (!notes) notes = '<div class="wb-empty">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
