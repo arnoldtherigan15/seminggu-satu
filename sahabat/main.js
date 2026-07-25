@@ -1495,6 +1495,7 @@ function pspIdentityHtml() {
         (bd ? '<div class="psp-row"><span>Date of birth</span><b>' + esc(fmtEventDate(bd)) + '</b></div>' : '') +
         (s.since ? '<div class="psp-row"><span>Warga sejak</span><b>' + s.since + '</b></div>' : '') +
         '<div class="psp-row"><span>Tier</span><b>' + s.tierEmoji + ' ' + esc(s.tier) + '</b></div>' +
+        (_profile.bio ? '<div class="psp-bio">"' + esc(_profile.bio) + '"</div>' : '') +
         '<div class="psp-sign">' + esc(_profile.nickname || "Sahabat") + ' ♡</div>' +
         '<div class="psp-photo-cap">signature of authorized journaler</div>' +
         '<span class="psp-ok">WARGA AKTIF ✓</span>' +
@@ -3629,7 +3630,7 @@ function galFeedCard(it) {
     else if (it.kind === "weekly") frameDeco = '<span class="wj-check">✓</span>';
     return '<article class="ig-card feed-card' + evCls + '" data-id="' + esc(it.id) + '">' +
         '<header class="feed-header">' +
-        '<div class="user-meta">' + ava +
+        '<div class="user-meta"' + (!isEvent ? ' data-wcard="' + esc(it.id) + '" role="button"' : '') + '>' + ava +
         '<div class="user-info"><span class="username">' + esc(it.nickname || "Sahabat") +
         (it.mine ? ' <span class="me-star" title="Karya kamu">⭐</span>' : '') +
         (isEvent ? ' <span class="ig-me official-tag">OFFICIAL</span>' : '') + '</span>' +
@@ -3707,6 +3708,11 @@ function wireGallery(feed, grid) {
         const it = _galleryItems.find(x => x.id === g.dataset.id);
         if (it) openGalleryLightbox(it);
     }));
+    // tap avatar/nama di header feed -> kartu profil mini
+    feed.querySelectorAll("[data-wcard]").forEach(el => el.addEventListener("click", () => {
+        const it = _galleryItems.find(x => x.id === el.dataset.wcard);
+        if (it) openWargaCard(it);
+    }));
 }
 
 // Lightbox: buka foto galeri gede + info + tombol love (dipakai dari grid).
@@ -3747,7 +3753,7 @@ function openGalleryLightbox(it) {
         '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
         '<div class="ig-imgwrap" id="lbImg" style="aspect-ratio:1/1"><img src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
         '<div class="qm-body">' +
-        '<div class="ig-head" style="padding-left:0;padding-right:0;">' + ava +
+        '<div class="ig-head" style="padding-left:0;padding-right:0;"' + (!isEvent ? ' data-wcard="1" role="button"' : '') + '>' + ava +
         '<div class="ig-user-info"><div class="ig-user-row"><span class="ig-user">' + esc(it.nickname || "Sahabat") + '</span>' +
         (it.mine ? '<span class="me-star" title="Karya kamu">⭐</span>' : '') +
         (isEvent ? '<span class="ig-me official-tag">OFFICIAL</span>' : '') + '</div>' +
@@ -3760,6 +3766,8 @@ function openGalleryLightbox(it) {
     $("qmClose").addEventListener("click", closeQuestModal);
     const likeBtn = box.querySelector(".ig-btn-like");
     if (likeBtn) likeBtn.addEventListener("click", () => toggleLike(it.id));
+    const wcHead = box.querySelector("[data-wcard]");
+    if (wcHead) wcHead.addEventListener("click", () => openWargaCard(it));
     const wrap = $("lbImg");
     let last = 0;
     if (wrap) wrap.addEventListener("click", () => {
@@ -3770,6 +3778,41 @@ function openGalleryLightbox(it) {
             if (ov) { ov.classList.add("pop"); setTimeout(() => ov.classList.remove("pop"), 800); }
             last = 0;
         } else last = now;
+    });
+}
+
+// ---------- Kartu profil mini warga: rumahnya bio ----------
+// Dibuka dari tap avatar/nama di feed galeri & lightbox. Data dari item galeri
+// (server nempelin bio + avatar terkini di tiap item).
+function openWargaCard(it) {
+    const key = it.ownerKey || "";
+    const works = _galleryItems.filter(x => key ? x.ownerKey === key : x.nickname === it.nickname);
+    const info = works.find(x => x.bio) || works.find(x => x.avatar) || it;
+    const likes = works.reduce((a, x) => a + (x.likes || 0), 0);
+    const ava = info.avatar
+        ? '<img src="' + esc(info.avatar) + '" alt="">'
+        : esc((it.nickname || "S").charAt(0).toUpperCase());
+    const modal = $("questModal");
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="qm-body" style="text-align:center;">' +
+        '<div class="pe-ava">' + ava + '</div>' +
+        '<div class="wc-name">' + esc(it.nickname || "Sahabat") + (it.mine ? ' <span class="me-star">⭐</span>' : '') + '</div>' +
+        '<div class="wc-bio">' + (info.bio
+            ? '"' + esc(info.bio) + '"'
+            : (it.mine ? 'Belum ada bio — isi lewat Edit Profil ✍️' : 'Belum nulis bio ✍️')) + '</div>' +
+        '<div class="wc-chips"><span class="wc-chip">🎨 ' + works.length + ' karya</span><span class="wc-chip">❤️ ' + likes + ' likes</span></div>' +
+        (works.length ? '<button class="btn-primary" id="wcStory" style="margin-top:14px;">Lihat karyanya →</button>' : '') +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+    const ws = $("wcStory");
+    if (ws) ws.addEventListener("click", () => {
+        closeQuestModal();
+        if (!_storyGroups.length) _storyGroups = buildStoryGroups();
+        const gi = _storyGroups.findIndex(g => !g.official && !g.bday && g.nickname === it.nickname);
+        if (gi >= 0) openStory(gi, 0);
     });
 }
 
