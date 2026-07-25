@@ -345,6 +345,7 @@ async function loadEvents() {
         ]);
         counts = c || {}; registered = (r && r.registered) || {};
         _evRegistered = registered; // simpan buat bubble pintar Mochi (skip event yg udah didaftar)
+        _evCounts = counts;         // simpan buat flyer event di Mading Warga
     } catch (e) { }
 
     const items = _ws
@@ -2559,6 +2560,7 @@ function openProfileEditor() {
 // Bubble pintar: Mochi jadi asisten kecil — kumpulin SEMUA pesan yang relevan
 // (urut prioritas), nanti ditampilkan bergiliran. Datanya dari state client.
 let _evRegistered = null; // peta event yg udah didaftar (diisi loadEvents)
+let _evCounts = null;     // jumlah pendaftar per event (diisi loadEvents, buat kuota flyer)
 
 function mochiSmartMessages() {
     const msgs = [];
@@ -3373,19 +3375,59 @@ function weeklyPhotosThisWeek() {
     return (_galleryItems || []).filter(it => it.kind === "weekly" && it.photo && String(it.id).indexOf("_" + cw.key) > 0);
 }
 
+// Foto kegiatan OFFICIAL (workshop/reka-rekat/temu-warga) yang di-post <=7 hari terakhir
+function officialPhotosThisWeek() {
+    const now = Date.now();
+    return (_galleryItems || []).filter(it =>
+        (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga") &&
+        it.photo && it.ts && (now - it.ts) < 7 * 86400000);
+}
+
+// Flyer event: lagi buka pendaftaran & (kalau datanya ada) kuotanya belum penuh
+function boardFlyers() {
+    const ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
+    const out = [];
+    ws.forEach(w => {
+        if (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open") return;
+        let left = null;
+        if (w.maxQuota > 0 && _evCounts && typeof _evCounts[w.id] === "number") {
+            left = Math.max(0, w.maxQuota - _evCounts[w.id]);
+            if (left === 0) return; // penuh -> nggak usah dipromoin
+        }
+        out.push({ t: "flyer", w: w, left: left });
+    });
+    return out;
+}
+
+function boardFlyerHtml(w, left, i, mini) {
+    const tag = mini ? "div" : "button"; // teaser-nya sendiri udah button, jangan nested
+    const dateTxt = w.workshopDate || "";
+    return '<' + tag + ' class="wb-flyer' + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '"' + (mini ? '' : ' data-goev="1"') + '>' +
+        '<span class="wb-tape2 wt-b" style="top:5px;"></span>' +
+        '<div class="wb-flyer-k">📢 PENDAFTARAN DIBUKA</div>' +
+        '<div class="wb-flyer-t">' + esc(w.name || "Event") + '</div>' +
+        (dateTxt ? '<div class="wb-flyer-d">🗓 ' + esc(dateTxt) + '</div>' : '') +
+        (left !== null ? '<span class="wb-flyer-q">🔥 sisa ' + left + ' seat</span>' : '') +
+        (mini ? '' : '<div class="wb-flyer-cta">Daftar di tab Event →</div>') +
+        '</' + tag + '>';
+}
+
 function boardPhotoHtml(it, i, mini) {
     return '<div class="wb-photo f' + ((i % 3) + 1) + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '">' +
         boardAttach(i + 1) +
         '<img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async">' +
-        '<div class="wb-meta">📖 ' + esc(it.nickname) + '</div>' +
+        '<div class="wb-meta">' + (it.kind === "weekly" ? "📖 " + esc(it.nickname) : storyKindIcon(it.kind) + " " + esc(it.title)) + '</div>' +
         '</div>';
 }
 
-// Gabungan isi papan: sticky notes + polaroid weekly DIJALIN selang-seling
-// (2 notes : 1 foto) biar kecampur kayak mading beneran, bukan blok-blokan
+// Gabungan isi papan: sticky notes + polaroid (weekly warga + kegiatan official
+// <=7 hari) DIJALIN selang-seling (2 notes : 1 foto), lalu flyer event nyelip
+// di posisi ACAK — kayak mading beneran yang ditempel banyak tangan
 function boardEntries() {
     const notes = ((_boardData && _boardData.items) || []).map(m => ({ t: "note", ts: m.ts || 0, m: m }));
-    const photos = weeklyPhotosThisWeek().sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(p => ({ t: "photo", ts: p.ts || 0, p: p }));
+    const photos = weeklyPhotosThisWeek().concat(officialPhotosThisWeek())
+        .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+        .map(p => ({ t: "photo", ts: p.ts || 0, p: p }));
     const out = [];
     let i = 0, j = 0;
     while (i < notes.length || j < photos.length) {
@@ -3393,10 +3435,12 @@ function boardEntries() {
         if (i < notes.length) out.push(notes[i++]);
         if (j < photos.length) out.push(photos[j++]);
     }
+    boardFlyers().forEach(f => out.splice(Math.floor(Math.random() * (out.length + 1)), 0, f));
     return out;
 }
 
 function boardEntryHtml(e, i, mini) {
+    if (e.t === "flyer") return boardFlyerHtml(e.w, e.left, i, mini);
     return e.t === "photo" ? boardPhotoHtml(e.p, i, mini) : boardNoteHtml(e.m, i, mini);
 }
 
@@ -3506,6 +3550,11 @@ function renderMadingModal() {
         boardHtml +
         '</div>';
     $("mdClose").addEventListener("click", closeMading);
+    modal.querySelectorAll("[data-goev]").forEach(b => b.addEventListener("click", () => {
+        closeMading();
+        try { location.hash = "events"; } catch (e) { }
+        activateTab("events");
+    }));
     $("mdAdd").addEventListener("click", () => {
         if ((_boardData ? _boardData.left : 0) <= 0) { alert("Kuota nempel pesanmu hari ini habis (2/hari). Besok lagi ya! 🌙"); return; }
         const c = $("mdCompose");
