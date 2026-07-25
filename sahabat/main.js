@@ -2877,7 +2877,7 @@ function buildStoryGroups() {
         if (it.mine) map[key].mine = true;
         map[key].items.push(it);
     });
-    order.forEach(g => g.items.sort((a, b) => (a.ts || 0) - (b.ts || 0))); // lama -> baru, kayak story beneran
+    order.forEach(g => g.items.sort((a, b) => (b.ts || 0) - (a.ts || 0))); // TERBARU duluan
     for (let i = order.length - 1; i > 0; i--) { // shuffle Fisher-Yates
         const j = Math.floor(Math.random() * (i + 1));
         const t = order[i]; order[i] = order[j]; order[j] = t;
@@ -2901,7 +2901,7 @@ function renderStoryBar() {
     let html = '<div class="story-lbl">✨ Sahabat Stories</div><div class="story-track">';
     _storyGroups.forEach((g, idx) => {
         const rot = ["st-r1", "st-r2", "st-r3"][idx % 3];
-        const latest = g.items[g.items.length - 1];
+        const latest = g.items[0]; // items udah diurut terbaru duluan
         const ava = g.bday
             ? '<span class="story-ava bday-face">🎂</span>'
             : (g.official
