@@ -3280,8 +3280,8 @@ function weeklyPhotosThisWeek() {
 }
 
 function boardPhotoHtml(it, i, mini) {
-    return '<div class="wb-photo' + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '">' +
-        '<span class="wb-pin">📌</span>' +
+    return '<div class="wb-photo f' + ((i % 3) + 1) + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '">' +
+        boardAttach(i + 1) +
         '<img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async">' +
         '<div class="wb-meta">📖 ' + esc(it.nickname) + '</div>' +
         '</div>';
@@ -3306,11 +3306,17 @@ function boardEntryHtml(e, i, mini) {
     return e.t === "photo" ? boardPhotoHtml(e.p, i, mini) : boardNoteHtml(e.m, i, mini);
 }
 
+// Penempel bervariasi: pin / selotip kuning / biru / pink (biar nggak seragam)
+function boardAttach(i) {
+    if (i % 4 === 0) return '<span class="wb-pin">📌</span>';
+    return '<span class="wb-tape2 ' + ["wt-y", "wt-b", "wt-p"][i % 3] + '"></span>';
+}
+
 function boardNoteHtml(m, i, mini) {
     const COLORS = ["note-y", "note-p", "note-b", "note-g"];
     const text = mini && m.text.length > 64 ? m.text.slice(0, 64) + "…" : m.text;
     return '<div class="wb-note ' + COLORS[i % COLORS.length] + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '">' +
-        '<span class="wb-pin">📌</span>' +
+        boardAttach(i) +
         '<div class="wb-text">' + esc(text) + '</div>' +
         '<div class="wb-meta">— ' + esc(m.nickname) + ' · ' + esc(timeAgo(m.ts)) + '</div>' +
         '</div>';
@@ -3399,7 +3405,7 @@ function renderMadingModal() {
         '</div>' +
         // kertas pengumuman: sorotan komunitas acak (reuse mesin bisik-bisik)
         '<div class="md-info md-in" style="--d:0s">' +
-        '<span class="wb-pin" style="left:18%;">📌</span><span class="wb-pin" style="left:82%;">📌</span>' +
+        '<span class="wb-tape2 wt-b" style="width:70px;"></span>' +
         '<div class="md-info-k">📣 INFO BALAI</div>' +
         '<div class="md-info-t">' + esc(_mdInfoPick) + '</div>' +
         '</div>' +

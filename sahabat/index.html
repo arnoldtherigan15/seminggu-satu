@@ -1495,12 +1495,23 @@
         .wb-text { font-size: .8rem; font-weight: 600; line-height: 1.5; color: #10245e; word-break: break-word; }
         .wb-meta { margin-top: 8px; font-size: .64rem; font-weight: 700; font-style: italic; color: rgba(16, 36, 94, .55); text-align: right; }
         .wb-empty { flex: 1; text-align: center; font-size: .8rem; font-weight: 700; color: #fff8e8; padding: 14px 8px; text-shadow: 0 1px 2px rgba(90, 60, 20, .4); }
-        /* polaroid weekly tracker warga (minggu berjalan) ikut nempel di papan */
+        /* selotip warna-warni (selang-seling sama pin biar nggak seragam) */
+        .wb-tape2 { position: absolute; top: -8px; left: 50%; transform: translateX(-50%) rotate(-5deg); width: 52px; height: 14px; border: 1px dashed rgba(16, 36, 94, .22); box-shadow: 0 2px 4px rgba(0, 0, 0, .12); z-index: 2; }
+        .wb-tape2.wt-y { background: rgba(255, 230, 0, .8); }
+        .wb-tape2.wt-b { background: rgba(0, 146, 255, .45); }
+        .wb-tape2.wt-p { background: rgba(255, 92, 138, .5); }
+        /* polaroid weekly tracker warga — bingkainya beda-beda biar lucu */
         .wb-photo { position: relative; flex: 0 0 auto; background: #fff; padding: 6px 6px 4px; border-radius: 3px; transform: rotate(1.6deg); box-shadow: 0 1px 2px rgba(60, 40, 10, .18), 0 7px 14px rgba(60, 40, 10, .22); }
         .wb-photo.r { transform: rotate(-1.8deg); }
         .wb-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 2px; display: block; }
         .wb-photo .wb-meta { text-align: center; margin-top: 5px; font-style: normal; }
         .wb-photo.mini { width: 118px; }
+        .wb-photo.f2 { background: #fff6e4; border: 1px solid #eadcc0; border-radius: 8px; padding-bottom: 8px; }
+        .wb-photo.f2 img { border-radius: 6px; }
+        .wb-photo.f2 .wb-meta { color: #8a6b32; }
+        .wb-photo.f3 { background: #eef4ff; border: 1.5px dashed #a9c4f7; border-radius: 12px; }
+        .wb-photo.f3 img { border-radius: 8px; }
+        .wb-photo.f3 .wb-meta { color: #3a5aa8; }
         /* teaser di Gallery: papan mini yang bisa diklik, isi 2-3 pesan terbaru */
         .wb-teaser { position: relative; display: block; width: 100%; text-align: left; cursor: pointer; font-family: inherit; transition: transform .15s ease; padding: 10px 8px; }
         .wb-teaser:active { transform: scale(.985); }
