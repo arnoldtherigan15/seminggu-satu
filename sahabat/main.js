@@ -2928,6 +2928,7 @@ function renderGallery() {
 
     pane.innerHTML =
         '<div class="story-bar" id="storyBar"></div>' +
+        '<div id="wargaBoard"></div>' +
         '<div class="gallery-toolbar">' +
         '<div class="gfilters" id="galFilters">' + chips + '</div>' +
         '<div class="view-toggle">' +
@@ -2939,6 +2940,7 @@ function renderGallery() {
         '<div class="ig-grid" id="igGrid"' + (_galleryView === "grid" ? "" : ' style="display:none"') + '></div>';
 
     renderStoryBar(); // bar story selalu di atas, nggak kepengaruh filter/view
+    loadBoard();      // Mading Warga (papan gabus pesan semangat)
 
     const items = galFiltered();
     const feed = $("igFeed"), grid = $("igGrid");
@@ -3134,6 +3136,77 @@ function openGalleryLightbox(it) {
             if (ov) { ov.classList.add("pop"); setTimeout(() => ov.classList.remove("pop"), 800); }
             last = 0;
         } else last = now;
+    });
+}
+
+// ---------- Mading Warga: papan gabus pesan semangat antar warga ----------
+// Sticky notes warna-warni + pin, horizontal scroll. Limit 2 pesan/hari/warga
+// (di-enforce server, direset otomatis ganti hari).
+let _boardData = null;
+
+async function loadBoard(force) {
+    const host = $("wargaBoard");
+    if (!host) return;
+    if (_boardData && !force) { renderBoard(); return; }
+    try {
+        _boardData = await fetchJSONP(GS + "?page=board&wa=" + encodeURIComponent(_profile.wa), "brd", 15000);
+    } catch (e) { _boardData = null; }
+    renderBoard();
+}
+
+function renderBoard() {
+    const host = $("wargaBoard");
+    if (!host) return;
+    const items = (_boardData && _boardData.items) || [];
+    const left = _boardData ? _boardData.left : 0;
+    const COLORS = ["note-y", "note-p", "note-b", "note-g"];
+    let notes = "";
+    items.forEach((m, i) => {
+        notes += '<div class="wb-note ' + COLORS[i % COLORS.length] + (i % 2 ? " r" : "") + '">' +
+            '<span class="wb-pin">📌</span>' +
+            '<div class="wb-text">' + esc(m.text) + '</div>' +
+            '<div class="wb-meta">— ' + esc(m.nickname) + ' · ' + esc(timeAgo(m.ts)) + '</div>' +
+            '</div>';
+    });
+    if (!notes) notes = '<div class="wb-empty">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
+    host.innerHTML =
+        '<div class="wb-head">' +
+        '<div class="story-lbl" style="margin:0;">📌 Mading Warga</div>' +
+        '<button class="wb-add" id="wbAdd">＋ Tempel Pesan' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '') + '</button>' +
+        '</div>' +
+        '<div class="wb-board"><div class="wb-track">' + notes + '</div></div>';
+    $("wbAdd").addEventListener("click", openBoardModal);
+}
+
+function openBoardModal() {
+    const left = _boardData ? _boardData.left : 0;
+    if (left <= 0) { alert("Kuota nempel pesanmu hari ini habis (2/hari). Besok lagi ya! 🌙"); return; }
+    const modal = $("questModal");
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="qm-body">' +
+        '<div class="quest-game-title">📌 Tempel Pesan di Mading</div>' +
+        '<div class="quest-game-desc">Kata-kata semangat, quote, atau sapaan manis buat semua warga. Sisa kuota hari ini: <b>' + left + '</b>.</div>' +
+        '<textarea class="qm-cap-input" id="wbInput" maxlength="140" rows="3" placeholder="Tulis pesan semangatmu… ✨ (max 140)"></textarea>' +
+        '<button class="btn-primary" id="wbSend" style="margin-top:12px;">📌 Tempel ke Mading</button>' +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+    $("wbSend").addEventListener("click", async () => {
+        const text = $("wbInput").value.trim();
+        if (text.length < 3) { alert("Pesannya kependekan 😅"); return; }
+        const btn = $("wbSend");
+        btn.disabled = true;
+        showBusy("Nempelin pesanmu…");
+        try {
+            const r = await apiPost({ action: "memberPostBoard", token: _profile.token, text: text });
+            if (r.status !== "success") { btn.disabled = false; alert(r.message || "Gagal."); return; }
+            fireConfetti("quest");
+            closeQuestModal();
+            loadBoard(true); // refresh mading + kuota
+        } catch (e) { btn.disabled = false; alert("Gagal terhubung ke server. Coba lagi ya."); }
+        finally { hideBusy(); }
     });
 }
 

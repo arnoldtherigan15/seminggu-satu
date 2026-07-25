@@ -1475,6 +1475,26 @@
         .story-count { position: absolute; top: 2px; right: 0; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-size: .62rem; font-weight: 800; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; border: 2px solid var(--card); display: flex; align-items: center; justify-content: center; z-index: 3; box-shadow: 0 2px 5px rgba(0, 0, 0, .15); }
         .story-name { max-width: 72px; font-size: .68rem; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+        /* ---- Mading Warga: papan gabus + sticky notes ---- */
+        .wb-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 2px 8px; }
+        .wb-add { border: none; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; padding: 7px 12px; border-radius: 999px; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 214, 0, .35); transition: transform .15s ease; }
+        .wb-add:active { transform: scale(.95); }
+        .wb-add small { font-weight: 700; opacity: .7; }
+        .wb-board { background-color: #d9b98c; background-image: radial-gradient(rgba(120, 80, 30, .25) 1.2px, transparent 1.4px); background-size: 9px 9px; border: 3px solid #b98d55; border-radius: 14px; padding: 14px 10px; margin-bottom: 16px; box-shadow: inset 0 2px 8px rgba(90, 60, 20, .25), 0 6px 14px rgba(90, 60, 20, .15); }
+        :root[data-theme="dark"] .wb-board { background-color: #6d5433; border-color: #55402a; }
+        .wb-track { display: flex; gap: 12px; overflow-x: auto; padding: 6px 2px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .wb-track::-webkit-scrollbar { display: none; }
+        .wb-note { position: relative; flex: 0 0 auto; width: 168px; padding: 18px 12px 10px; border-radius: 3px; transform: rotate(-1.6deg); box-shadow: 0 1px 2px rgba(60, 40, 10, .18), 0 7px 14px rgba(60, 40, 10, .22); }
+        .wb-note.r { transform: rotate(1.8deg); }
+        .wb-note.note-y { background: #fff8c4; }
+        .wb-note.note-p { background: #ffe9f2; }
+        .wb-note.note-b { background: #e8f0ff; }
+        .wb-note.note-g { background: #e9fbf0; }
+        .wb-pin { position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(8deg); font-size: 1rem; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
+        .wb-text { font-size: .8rem; font-weight: 600; line-height: 1.5; color: #10245e; word-break: break-word; }
+        .wb-meta { margin-top: 8px; font-size: .64rem; font-weight: 700; font-style: italic; color: rgba(16, 36, 94, .55); text-align: right; }
+        .wb-empty { flex: 1; text-align: center; font-size: .8rem; font-weight: 700; color: #fff8e8; padding: 14px 8px; text-shadow: 0 1px 2px rgba(90, 60, 20, .4); }
+
         /* ---- Story viewer: polaroid gede di kertas dot-grid + washi tape (scrapbook) ---- */
         .story-modal { position: fixed; inset: 0; background: rgba(16, 36, 94, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
         .story-modal.show { display: flex; }
