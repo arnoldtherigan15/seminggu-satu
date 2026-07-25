@@ -2443,7 +2443,7 @@ async function loadLoyalty() {
             '<span class="psp-cta-emblem">SS</span>' +
             '<span class="psp-cta-body"><span class="psp-cta-t">Paspor Warga</span>' +
             '<span class="psp-cta-s">Identitas + stempel event yang udah kamu datengin</span></span>' +
-            '<span class="psp-cta-go">buka 📖</span>' +
+            '<span class="psp-cta-go">buka →</span>' +
             '</button>' +
             cardHtml +
             '<div class="stat-cards">' +
