@@ -1610,7 +1610,9 @@ function renderPassportBook(host) {
     }
     function setLeaf(deg, animate) {
         leaf.style.transition = animate ? "transform .65s cubic-bezier(.35,.1,.25,1)" : "none";
-        leaf.style.transform = "translateZ(.5px) rotateY(" + deg + "deg)";
+        // tanpa translateZ: di dalam perspective dia nge-scale konten 1.0003x ->
+        // keliatan "zoom" kecil pas node pindah leaf <-> halaman statis
+        leaf.style.transform = "rotateY(" + deg + "deg)";
     }
     function flip(dir) {
         if (anim) return;
@@ -1621,13 +1623,17 @@ function renderPassportBook(host) {
             return;
         }
         anim = true;
+        // Muka leaf yang nampilin halaman SEKARANG diisi lewat adopsi node (bukan
+        // rebuild innerHTML) — rebuild maksa <img> stiker decode ulang = kedip/zoom.
         if (dir === 1) {
-            front.innerHTML = SP[cur][1];
+            front.innerHTML = "";
+            while (rightP.firstChild) front.appendChild(rightP.firstChild);
             back.innerHTML = SP[j][0];
             rightP.innerHTML = SP[j][1];
         } else {
+            back.innerHTML = "";
+            while (leftP.firstChild) back.appendChild(leftP.firstChild);
             front.innerHTML = SP[j][1];
-            back.innerHTML = SP[cur][0];
             leftP.innerHTML = SP[j][0];
         }
         setLeaf(dir === 1 ? 0 : -180, false);
@@ -1678,7 +1684,7 @@ function renderPassportBook(host) {
         requestAnimationFrame(() => requestAnimationFrame(() => {
             book.style.transform = "translateX(0)"; // geser ke posisi spread (transisi CSS)
             leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
-            leaf.style.transform = "translateZ(.5px) rotateY(-180deg)";
+            leaf.style.transform = "rotateY(-180deg)";
             setTimeout(() => {
                 // adopsi node: muka belakang leaf (dalam cover) pindah ke halaman kiri statis
                 leftP.innerHTML = "";
