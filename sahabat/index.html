@@ -1543,6 +1543,12 @@
         @keyframes bbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         /* bulatan story ultah */
         .story-ring.ring-bday { background: linear-gradient(135deg, #ff5c8a, #ffe600 45%, #ff9ec0, #ff5c8a); }
+        /* story yang semua fotonya udah dilihat: ring redup abu + nama pudar (ala IG) */
+        .story-item.seen .story-ring { background: #cdd6e8; box-shadow: none; }
+        :root[data-theme="dark"] .story-item.seen .story-ring { background: #3a4666; }
+        .story-item.seen .story-name { color: var(--muted); font-weight: 600; }
+        .story-item.seen .story-count { background: #e4e9f5; color: #6b7794; }
+        :root[data-theme="dark"] .story-item.seen .story-count { background: #2a3550; color: #9fabc9; }
         .story-ava.bday-face { font-size: 1.5rem; }
         .ig-ava.bday-ava { background: linear-gradient(135deg, #ffe9f2, #fff6d8); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
         /* kartu ucapan di story viewer */

@@ -3124,6 +3124,31 @@ function storyKindIcon(kind) {
     return kind === "workshop" ? "🎪" : (kind === "reka-rekat" ? "✂️" : (kind === "temu-warga" ? "🏘️" : (kind === "weekly" ? "📖" : "🎯")));
 }
 
+// ---- Penanda story udah dilihat (per foto, disimpan di localStorage) ----
+const STORY_SEEN_KEY = "ss_story_seen";
+function storySeenSet() {
+    try { return new Set(JSON.parse(localStorage.getItem(STORY_SEEN_KEY) || "[]")); } catch (e) { return new Set(); }
+}
+function markStorySeen(id) {
+    if (!id) return;
+    try {
+        const s = storySeenSet();
+        s.add(id);
+        localStorage.setItem(STORY_SEEN_KEY, JSON.stringify(Array.from(s).slice(-800))); // cap biar nggak numpuk
+    } catch (e) { }
+    updateStoryBarSeen();
+}
+// Update ring di bar tanpa re-render (re-render bakal reshuffle urutan, jarring)
+function updateStoryBarSeen() {
+    const seen = storySeenSet();
+    document.querySelectorAll("#storyBar .story-item").forEach(el => {
+        const g = _storyGroups[Number(el.dataset.g)];
+        if (!g) return;
+        const done = g.items.every(it => seen.has(it.id));
+        el.classList.toggle("seen", done);
+    });
+}
+
 function buildStoryGroups() {
     const map = {};
     const order = [];
@@ -3143,15 +3168,21 @@ function buildStoryGroups() {
         const j = Math.floor(Math.random() * (i + 1));
         const t = order[i]; order[i] = order[j]; order[j] = t;
     }
+    // Yang BELUM dilihat maju ke depan, yang udah kelar mundur (kayak IG)
+    const seen = storySeenSet();
+    const unseen = order.filter(g => !g.items.every(it => seen.has(it.id)));
+    const done = order.filter(g => g.items.every(it => seen.has(it.id)));
+    const sorted = unseen.concat(done);
     // Ada yg ultah? Selipin story ultah di paling depan (ala iklan di story IG, tapi manis)
     if (BDAY_TODAY.length) {
-        order.unshift({
+        const dayKey = new Date().toISOString().slice(0, 10);
+        sorted.unshift({
             key: "__bday__", bday: true, official: false, mine: false,
             nickname: "Ultah Hari Ini",
-            items: BDAY_TODAY.map(b => ({ bday: true, nickname: b.nickname }))
+            items: BDAY_TODAY.map(b => ({ bday: true, nickname: b.nickname, id: "bd_" + b.nickname + "_" + dayKey }))
         });
     }
-    return order;
+    return sorted;
 }
 
 function renderStoryBar() {
@@ -3159,16 +3190,18 @@ function renderStoryBar() {
     if (!wrap) return;
     _storyGroups = buildStoryGroups();
     if (!_storyGroups.length) { wrap.innerHTML = ""; return; }
+    const seen = storySeenSet();
     let html = '<div class="story-lbl">✨ Sahabat Stories</div><div class="story-track">';
     _storyGroups.forEach((g, idx) => {
         const rot = ["st-r1", "st-r2", "st-r3"][idx % 3];
+        const isSeen = g.items.every(it => seen.has(it.id));
         const latest = g.items[0]; // items udah diurut terbaru duluan
         const ava = g.bday
             ? '<span class="story-ava bday-face">🎂</span>'
             : (g.official
                 ? '<span class="story-ava official">SS</span>'
                 : '<span class="story-ava"><img src="' + esc(latest.photo) + '" alt="" loading="lazy" decoding="async"></span>');
-        html += '<button class="story-item ' + rot + '" data-g="' + idx + '">' +
+        html += '<button class="story-item ' + rot + (isSeen ? " seen" : "") + '" data-g="' + idx + '">' +
             '<span class="story-ring' + (g.bday ? " ring-bday" : "") + '">' + ava + '</span>' +
             '<span class="story-sticker">' + (g.bday ? "🎈" : storyKindIcon(latest.kind)) + '</span>' +
             '<span class="story-count">' + g.items.length + '</span>' +
@@ -3271,6 +3304,7 @@ function renderStoryViewer() {
     const modal = $("storyModal");
     const g = _storyGroups[_storyGIdx];
     if (!modal || !g || !g.items[_storySIdx]) { closeStory(); return; }
+    markStorySeen(g.items[_storySIdx].id); // foto ini resmi "udah dilihat"
     modal.innerHTML =
         '<div class="story-stage" id="storyStage">' +
         '<div class="story-cube" id="storyCube">' +
