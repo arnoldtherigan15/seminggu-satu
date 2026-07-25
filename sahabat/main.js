@@ -3164,6 +3164,32 @@ async function loadBoard(force) {
     renderBoard();
 }
 
+// Foto weekly tracker minggu BERJALAN (dari data galeri; id weekly = "jw_<wa>_<weekKey>")
+// -> otomatis "reset" tiap ganti minggu tanpa perlu server
+function weeklyPhotosThisWeek() {
+    const cw = getMonthWeekObj(new Date());
+    return (_galleryItems || []).filter(it => it.kind === "weekly" && it.photo && String(it.id).indexOf("_" + cw.key) > 0);
+}
+
+function boardPhotoHtml(it, i, mini) {
+    return '<div class="wb-photo' + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '">' +
+        '<span class="wb-pin">📌</span>' +
+        '<img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async">' +
+        '<div class="wb-meta">📖 ' + esc(it.nickname) + '</div>' +
+        '</div>';
+}
+
+// Gabungan isi papan: sticky notes + polaroid weekly minggu ini, urut terbaru
+function boardEntries() {
+    const notes = ((_boardData && _boardData.items) || []).map(m => ({ t: "note", ts: m.ts || 0, m: m }));
+    const photos = weeklyPhotosThisWeek().map(p => ({ t: "photo", ts: p.ts || 0, p: p }));
+    return notes.concat(photos).sort((a, b) => b.ts - a.ts);
+}
+
+function boardEntryHtml(e, i, mini) {
+    return e.t === "photo" ? boardPhotoHtml(e.p, i, mini) : boardNoteHtml(e.m, i, mini);
+}
+
 function boardNoteHtml(m, i, mini) {
     const COLORS = ["note-y", "note-p", "note-b", "note-g"];
     const text = mini && m.text.length > 64 ? m.text.slice(0, 64) + "…" : m.text;
@@ -3178,14 +3204,14 @@ function boardNoteHtml(m, i, mini) {
 function renderBoard() {
     const host = $("wargaBoard");
     if (!host) return;
-    const items = (_boardData && _boardData.items) || [];
+    const entries = boardEntries();
     let notes = "";
-    items.slice(0, 3).forEach((m, i) => { notes += boardNoteHtml(m, i, true); });
+    entries.slice(0, 3).forEach((e, i) => { notes += boardEntryHtml(e, i, true); });
     if (!notes) notes = '<div class="wb-empty">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
     host.innerHTML =
         '<div class="wb-head">' +
         '<div class="story-lbl" style="margin:0;">📌 Mading Warga</div>' +
-        '<button class="wb-add" id="wbOpen">Buka Mading' + (items.length ? ' (' + items.length + ')' : '') + ' →</button>' +
+        '<button class="wb-add" id="wbOpen">Buka Mading' + (entries.length ? ' (' + entries.length + ')' : '') + ' →</button>' +
         '</div>' +
         '<button class="wb-board wb-teaser" id="wbTeaser">' +
         '<div class="wb-track">' + notes + '</div>' +
@@ -3218,18 +3244,21 @@ function closeMading() {
 function renderMadingModal() {
     const modal = $("madingModal");
     if (!modal) return;
-    const items = (_boardData && _boardData.items) || [];
+    const entries = boardEntries();
     const left = _boardData ? _boardData.left : 0;
     let notes = "";
-    items.forEach((m, i) => { notes += boardNoteHtml(m, i, false); });
+    entries.forEach((e, i) => { notes += boardEntryHtml(e, i, false); });
     if (!notes) notes = '<div class="wb-empty">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
+    const addLabel = left <= 0
+        ? '＋ Tempel Pesan <small>(kuota habis — besok lagi 🌙)</small>'
+        : '＋ Tempel Pesan' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '');
     modal.innerHTML =
         '<div class="md-wrap">' +
         '<div class="md-head">' +
         '<div class="md-title">📌 Mading Warga</div>' +
         '<button class="md-close" id="mdClose" aria-label="Tutup">✕</button>' +
         '</div>' +
-        '<button class="wb-add" id="mdAdd" style="width:100%;padding:11px;font-size:.85rem;">＋ Tempel Pesan' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '') + '</button>' +
+        '<button class="wb-add" id="mdAdd" style="width:100%;padding:11px;font-size:.85rem;"' + (left <= 0 ? ' disabled' : '') + '>' + addLabel + '</button>' +
         '<div class="md-compose" id="mdCompose" style="display:none;">' +
         '<span class="wb-pin">📌</span>' +
         '<textarea id="mdInput" maxlength="140" rows="3" placeholder="Tulis pesan semangatmu… ✨ (max 140)"></textarea>' +
