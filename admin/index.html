@@ -3207,8 +3207,10 @@
             <div id="questList" style="margin-top:10px;"></div>
           </details>
 
-          <div style="font-weight:800;margin:22px 0 10px;">🏆 Leaderboard Challenge</div>
-          <div id="adminLbList"></div>
+          <details id="adminLbAccordion" style="margin:22px 0 10px;">
+            <summary style="font-weight:800;cursor:pointer;user-select:none;padding:10px 12px;background:#fff;border:1px solid var(--line,#e5e7eb);border-radius:12px;">🏆 Leaderboard Challenge <span id="adminLbCount" style="font-weight:600;color:#6b7280;"></span></summary>
+            <div id="adminLbList" style="margin-top:10px;"></div>
+          </details>
 
           <div style="font-weight:800;margin:22px 0 10px;">📸 Galeri Event — foto momen (tampil di Gallery member)</div>
           <div class="fin-card">
@@ -4797,6 +4799,8 @@
         const r = await api("getLeaderboard", { token: getToken() });
         if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
         const top = (r.leaderboard && r.leaderboard.top) || [];
+        const lbCnt = document.getElementById("adminLbCount");
+        if (lbCnt) lbCnt.textContent = "(" + top.length + ")";
         if (!top.length) { el.innerHTML = '<p class="hint">Belum ada yang ngumpulin poin challenge.</p>'; return; }
         el.innerHTML = top.map(x =>
           `<div class="loy-card"><div class="loy-top">
