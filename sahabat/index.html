@@ -2533,10 +2533,11 @@
         }
         .mochi-bubble.theme { background: var(--yellow); }
 
-        /* ---- Mochi si Penjaga Balai: lari melintas layar bawa surat nyasar ---- */
-        .mochi-run { position: fixed; bottom: calc(88px + env(safe-area-inset-bottom)); left: 0; z-index: 1100; border: none; background: none; padding: 10px; cursor: pointer; animation: mochiRun 7.5s linear forwards; -webkit-tap-highlight-color: transparent; }
-        .mochi-run img { width: 62px; display: block; transform: scaleX(-1); animation: mochiBob .32s ease-in-out infinite alternate; filter: drop-shadow(0 6px 8px rgba(16, 36, 94, .3)); }
-        .mochi-mail { position: absolute; top: -4px; right: 4px; font-size: 1.1rem; animation: bbFloat 1s ease-in-out infinite; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .2)); }
+        /* ---- Mochi si Penjaga Balai: lari melintas TENGAH layar bawa surat nyasar ---- */
+        .mochi-run { position: fixed; top: 44%; left: 0; z-index: 1100; border: none; background: none; padding: 14px; cursor: pointer; animation: mochiRun 13s linear forwards; -webkit-tap-highlight-color: transparent; }
+        .mochi-run img { width: 68px; display: block; transform: scaleX(-1); animation: mochiBob .34s ease-in-out infinite alternate; filter: drop-shadow(0 6px 8px rgba(16, 36, 94, .3)); }
+        /* bubble ajakan biar user ngeh dia bisa ditangkap */
+        .mochi-catch { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap; background: #fff; color: #10245e; border: 2px solid #10245e; font-family: 'Outfit', sans-serif; font-size: .68rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; box-shadow: 0 4px 10px rgba(16, 36, 94, .25); animation: bbFloat 1.1s ease-in-out infinite; }
         @keyframes mochiRun {
             from { transform: translateX(-92px); }
             to { transform: translateX(calc(100vw + 92px)); }

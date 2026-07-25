@@ -2577,7 +2577,7 @@ function spawnMochi() {
     const el = document.createElement("button");
     el.className = "mochi-run";
     el.setAttribute("aria-label", "Mochi bawa surat nyasar — tangkap!");
-    el.innerHTML = '<img src="../images/sticker/str-6.png" alt=""><span class="mochi-mail">💌</span>';
+    el.innerHTML = '<span class="mochi-catch">💌 Tangkap aku!</span><img src="../images/sticker/str-6.png" alt="">';
     document.body.appendChild(el);
     el.addEventListener("animationend", () => {
         if (el.parentNode) el.parentNode.removeChild(el); // lolos... balik lagi nanti
