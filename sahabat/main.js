@@ -2641,7 +2641,7 @@ function openStrayLetter() {
         modal.addEventListener("click", (e) => { if (e.target === modal) closeMochiPrompt(); });
     }
     const whispers = balaiWhispers();
-    let lastIdx = Math.floor(Math.random() * whispers.length);
+    const pick = whispers[Math.floor(Math.random() * whispers.length)];
     modal.innerHTML =
         '<div class="mochi-box">' +
         '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
@@ -2652,9 +2652,8 @@ function openStrayLetter() {
         '<img class="mp-mochi" src="../images/mochi_maskot_sm.png" alt="">' +
         '<div class="mp-kicker">SURAT NYASAR · RAHASIA BALAI ✨</div>' +
         '<div><span class="mp-cat">📣 Bisik-bisik Balai</span></div>' +
-        '<div class="mp-text" id="mpText">“' + esc(whispers[lastIdx]) + '”</div>' +
+        '<div class="mp-text" id="mpText">“' + esc(pick) + '”</div>' +
         '<div class="mp-actions">' +
-        (whispers.length > 1 ? '<button class="mp-btn ghost" id="slMore">👂 Bisik lagi</button>' : '') +
         '<button class="mp-btn" id="slClose">Makasih, Mochi! 🐾</button>' +
         '</div>' +
         '</div>' +
@@ -2663,17 +2662,6 @@ function openStrayLetter() {
     lockScroll();
     $("mpClose").addEventListener("click", closeMochiPrompt);
     $("slClose").addEventListener("click", closeMochiPrompt);
-    const more = $("slMore");
-    if (more) more.addEventListener("click", () => {
-        let j = Math.floor(Math.random() * whispers.length);
-        if (j === lastIdx) j = (j + 1) % whispers.length; // jangan bisikin hal yang sama dua kali
-        lastIdx = j;
-        $("mpText").textContent = "“" + whispers[j] + "”";
-        const card = $("mpCard");
-        card.classList.remove("pop");
-        void card.offsetWidth;
-        card.classList.add("pop");
-    });
 }
 
 // ---------- Journaling Prompt (mystery envelope gacha, data: list_prompt.json) ----------
