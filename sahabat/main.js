@@ -131,7 +131,7 @@ async function stepCheckWa() {
     try {
         const r = await fetchJSONP(GS + "?page=memberStatus&wa=" + encodeURIComponent(wa), "ms", 20000);
         if (!r || !r.isMember) {
-            setMsg("Nomor ini belum terdaftar sebagai member 🌱 Yuk ikut salah satu event kami dulu!", true);
+            setMsg("Nomor ini belum terdaftar sebagai warga 🌱 Yuk ikut salah satu event kami dulu!", true);
             return;
         }
         const nick = r.nickname || "kamu";
@@ -1462,7 +1462,7 @@ function buildPassportSlides(s) {
         '<div class="wr-anim wr-kicker">EVENTS JOINED</div>' +
         '<div class="wr-anim wr-big" style="--d:.08s;">' + s.count + '</div>' +
         '<div class="wr-anim wr-title" style="--d:.14s;">event journaling kamu datengin 🎪</div>' +
-        (s.since ? '<div class="wr-anim wr-sub" style="--d:.2s;">member sejak <b>' + s.since + '</b> 🌱</div>' : '') +
+        (s.since ? '<div class="wr-anim wr-sub" style="--d:.2s;">warga sejak <b>' + s.since + '</b> 🌱</div>' : '') +
         (s.uniqueWs > 1 ? '<div class="wr-anim wr-chips" style="--d:.28s;"><span class="wr-chip">' + s.uniqueWs + ' tema beda dijelajahi 🗺️</span></div>' : '') +
         '</div>');
     // 3) Tier persona
@@ -1926,7 +1926,7 @@ function wireBirthday(b) {
     const claim = document.querySelector(".bday-claim");
     const share = document.querySelector(".bday-share");
     if (claim) claim.addEventListener("click", () => {
-        const msg = "Halo kak Arnold! 🎂 Aku mau claim *Voucher Ulang Tahun " + b.age + "% OFF* dari Member Hub buat event journaling.\n\nNama: " + nm + "\nWA: " + _profile.wa + "\n\nMakasih! 💙";
+        const msg = "Halo kak Arnold! 🎂 Aku mau claim *Voucher Ulang Tahun " + b.age + "% OFF* dari Balai Warga buat event journaling.\n\nNama: " + nm + "\nWA: " + _profile.wa + "\n\nMakasih! 💙";
         window.open("https://wa.me/" + ADMIN_WA + "?text=" + encodeURIComponent(msg), "_blank");
     });
     if (share) share.addEventListener("click", shareVoucher);
@@ -1991,7 +1991,7 @@ async function loadLoyalty() {
             '<div class="card-sticker">SS</div>' +
             '<div class="card-logo">' +
             '<div class="card-logo-title">SEMINGGU SATU</div>' +
-            '<div class="card-logo-sub">DIGITAL MEMBER</div>' +
+            '<div class="card-logo-sub">WARGA DIGITAL</div>' +
             '</div>' +
             '</div>' +
             '<div class="card-layer card-mid">' +
@@ -2000,7 +2000,7 @@ async function loadLoyalty() {
             '</div>' +
             '<div class="card-layer card-bot">' +
             '<div class="card-holder">' +
-            '<span class="card-label">Member Name</span>' +
+            '<span class="card-label">Nama Warga</span>' +
             '<span class="card-name">' + esc(_profile.nickname || "Sahabat") + '</span>' +
             '</div>' +
             '<div class="card-flip-hint"><span>Flip</span> 🔄</div>' +
@@ -2011,7 +2011,7 @@ async function loadLoyalty() {
             '<div class="card-tape-strip"></div>' +
             '<div class="card-layer card-back-body">' +
             '<div class="card-sig-line">' +
-            '<span>MEMBER HUB <b>#SEMINGGUSATU</b></span>' +
+            '<span>BALAI WARGA <b>#SEMINGGUSATU</b></span>' +
             '<span class="card-stamp">VERIFIED</span>' +
             '</div>' +
             '<div class="card-back-mid">' +
