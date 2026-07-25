@@ -3162,7 +3162,7 @@ function balaiWhispers(ctx) {
     } catch (e) { }
     try {
         if (_lbData && _lbData.top && _lbData.top[0]) out.push("Psst… " + _lbData.top[0].nickname + " lagi di puncak leaderboard dengan " + _lbData.top[0].poin + " poin ⚡ Kejar yuk!");
-        if (_lbData && _lbData.me && _lbData.me.rank) out.push("Kamu lagi peringkat #" + _lbData.me.rank + " dari " + _lbData.me.total + " se-Balai… diam-diam ngejar podium? 😏");
+        if (_lbData && _lbData.me && _lbData.me.rank) out.push("Peringkat #" + _lbData.me.rank + " dari " + _lbData.me.total + "… satu karya lagi bisa nyalip nih 👀");
         if (_lbData && _lbData.topEvents && _lbData.topEvents[0]) out.push(_lbData.topEvents[0].nickname + " paling sering dateng event — " + _lbData.topEvents[0].events + " kali! Setia banget 💙");
     } catch (e) { }
     try {
