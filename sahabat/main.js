@@ -1758,6 +1758,7 @@ function init3DCardListeners() {
 
     wrap.addEventListener("click", () => {
         isFlipped = !isFlipped;
+        playSfx("flip", 0.7);
         card.style.transform = ""; // buang tilt inline biar flip (class) nggak konflik
         resetShine();              // jangan bawa sisa kilau dari posisi sebelumnya
         card.classList.toggle("is-flipped", isFlipped);
@@ -3805,6 +3806,9 @@ function playSfx(name, vol) {
         a.play().catch(() => { });
     } catch (e) { }
 }
+
+// toggle tema (dark/light) bunyi "cetek" lampu — theme.js udah nge-dispatch event ini
+document.addEventListener("ss-theme-change", () => playSfx("light", 0.8));
 
 // ---------- Kartu profil mini warga: rumahnya bio ----------
 // Dibuka dari tap avatar/nama di feed galeri & lightbox. Data dari item galeri
