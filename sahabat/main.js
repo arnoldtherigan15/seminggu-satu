@@ -3158,6 +3158,9 @@ async function loadBoard(force) {
     try {
         _boardData = await fetchJSONP(GS + "?page=board&wa=" + encodeURIComponent(_profile.wa), "brd", 15000);
     } catch (e) { _boardData = null; }
+    // normalisasi (server lama / respons aneh): items harus array, left harus angka
+    if (!_boardData || !Array.isArray(_boardData.items)) _boardData = { items: [] };
+    if (typeof _boardData.left !== "number") _boardData.left = 0;
     renderBoard();
 }
 
