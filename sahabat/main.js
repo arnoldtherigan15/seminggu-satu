@@ -3829,13 +3829,15 @@ function renderTeras(modal) {
 // ---------- Bubble Wrap 🫧 (buat hari yang biasa aja) ----------
 // Mood-lifter tanpa tekanan: pecahin gelembung satu-satu, nol skill, nol kalah.
 // Beberapa gelembung nyimpen kejutan kecil (emoji / kata manis dari Mochi).
-const BW_SURPRISE = ["💙", "🌟", "🐾", "kamu lucu deh", "semangat!", "🍀", "hai 👋", "🌈", "pop!", "cinta ✨"];
+// kejutan = stiker koleksi kita (str-1..11), bukan emoji
 function renderBubbleWrap(modal) {
     const COLS = 5, ROWS = 6, N = COLS * ROWS;
-    // 5 gelembung kejutan di posisi acak
+    // 5 gelembung kejutan di posisi acak, isinya stiker str acak (nggak dobel)
     const surprise = {};
+    const stkPool = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].sort(() => Math.random() - 0.5);
     while (Object.keys(surprise).length < 5) {
-        surprise[Math.floor(Math.random() * N)] = BW_SURPRISE[Math.floor(Math.random() * BW_SURPRISE.length)];
+        const pos = Math.floor(Math.random() * N);
+        if (!(pos in surprise)) surprise[pos] = stkPool[Object.keys(surprise).length];
     }
     let cells = "";
     for (let i = 0; i < N; i++) cells += '<button type="button" class="bwr-b" data-i="' + i + '"></button>';
@@ -3858,7 +3860,7 @@ function renderBubbleWrap(modal) {
         const s = surprise[Number(b.dataset.i)];
         if (s) {
             b.classList.add("gift");
-            b.innerHTML = '<span class="bwr-s">' + esc(s) + '</span>';
+            b.innerHTML = '<img class="bwr-s" src="../images/sticker/str-' + s + '.png" alt="">';
         }
         $("bwrCount").textContent = popped + " / " + N;
         if (popped === N) {
