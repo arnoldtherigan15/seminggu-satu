@@ -3859,10 +3859,13 @@ function loadSnailMail() {
     });
 }
 
-// surat yang udah "nyampe" (publish_date jam 09:00 udah lewat), terbaru duluan
+// surat yang udah "nyampe" (publish_date jam 09:00 udah lewat), terbaru duluan.
+// Testing: buka /sahabat/?sndebug=1 -> semua surat kebuka (buat ngecek bulan depan)
 function snailAvail() {
+    const dbg = /(^|[?&])sndebug=1/.test(location.search);
     const now = Date.now();
     return (_snailMail || []).filter(l => {
+        if (dbg) return true;
         const t = new Date(String(l.publish_date) + "T09:00:00").getTime();
         return t && t <= now;
     }).sort((a, b) => String(b.publish_date).localeCompare(String(a.publish_date)));
