@@ -4341,7 +4341,7 @@ function snActDash(l, box, k) {
     let my = 0, vy = 0, playing = false, lives = 3, got = 0, lastT = 0, spawnT = 0, invUntil = 0;
     const obs = []; // { el, x, gapY, gapH, chip: {el, x, y, taken} | null }
 
-    function flap() { if (playing) vy = -260; }
+    function flap() { if (playing) { vy = -260; playSfx("flip", 0.22); } }
     stage.addEventListener("pointerdown", (e) => { flap(); e.preventDefault(); });
 
     function cleanup() {
@@ -4415,6 +4415,7 @@ function snActDash(l, box, k) {
             if (hitX && !inv && (my < o.gapY - 6 || my + 44 > o.gapY + o.gapH + 6)) {
                 lives--;
                 livesEl.textContent = "❤️".repeat(Math.max(0, lives)) + "🩶".repeat(3 - Math.max(0, lives));
+                playSfx("light", 0.5); // "duk" kecil pas nabrak awan
                 invUntil = t + 1300; // kebal sebentar biar nggak double-hit
                 stage.classList.add("shake");
                 setTimeout(() => stage.classList.remove("shake"), 350);
