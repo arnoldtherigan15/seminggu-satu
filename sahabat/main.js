@@ -3370,11 +3370,11 @@ async function openMochiPrompt() {
 // ---------- Cuaca Hati: mood check-in harian bareng Mochi 🌦️ ----------
 // Kesimpen di localStorage per bulan: ss_mood = { "2026-07": { "26": "cerah" } }
 const MOODS = [
-    { k: "cerah", e: "☀️", t: "Cerah" },
-    { k: "berawan", e: "⛅", t: "Berawan" },
-    { k: "hujan", e: "🌧️", t: "Hujan" },
-    { k: "badai", e: "⛈️", t: "Badai" },
-    { k: "pelangi", e: "🌈", t: "Pelangi" }
+    { k: "cerah", e: "☀️", t: "Cerah", d: "senang & semangat" },
+    { k: "berawan", e: "⛅", t: "Berawan", d: "biasa aja / so-so" },
+    { k: "hujan", e: "🌧️", t: "Hujan", d: "sedih / mellow" },
+    { k: "badai", e: "⛈️", t: "Badai", d: "marah / kewalahan" },
+    { k: "pelangi", e: "🌈", t: "Pelangi", d: "lega & bersyukur" }
 ];
 function moodStore() {
     try { return JSON.parse(localStorage.getItem("ss_mood") || "{}") || {}; } catch (e) { return {}; }
@@ -3428,7 +3428,8 @@ function openMoodTracker(modal) {
     let btns = "";
     MOODS.forEach(mo => {
         btns += '<button type="button" class="mood-btn' + (picked === mo.k ? " on" : "") + '" data-mood="' + mo.k + '">' +
-            '<span class="mood-e">' + mo.e + '</span><span class="mood-t">' + mo.t + '</span></button>';
+            '<span class="mood-e">' + mo.e + '</span><span class="mood-t">' + mo.t + '</span>' +
+            '<span class="mood-d">' + mo.d + '</span></button>';
     });
     const rec = moodStore()[mk] || {};
     const cnt = Object.keys(rec).length;
