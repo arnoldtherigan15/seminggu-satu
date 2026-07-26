@@ -3240,7 +3240,8 @@
         .tl-input { width: 100%; min-height: 185px; border: 1.5px dashed var(--line); border-radius: 12px; padding: .8rem; font-family: inherit; font-size: 16px; line-height: 1.7; color: var(--ink); background: var(--bg); resize: vertical; }
         .tl-input:focus { outline: none; border-color: var(--blue); }
         /* dua belahan kertas (tepi zigzag) jatuh berpisah */
-        .tl-half { position: absolute; inset: 0; background: #fffdf6; border: 1px solid #eadfbb; border-radius: 12px; padding: .8rem; overflow: hidden; }
+        /* kertas krem + bayangan tebal — biar sobekannya keliatan jatuh di mode terang juga */
+        .tl-half { position: absolute; inset: 0; background: #fbf2d9; background-image: repeating-linear-gradient(transparent, transparent 19px, rgba(16, 36, 94, .12) 20px); border: 1.5px solid #d9c68e; border-radius: 12px; padding: .8rem; overflow: hidden; box-shadow: 0 10px 24px rgba(40, 30, 5, .35); }
         .tl-half pre { margin: 0; font-family: inherit; font-size: .9rem; line-height: 1.7; color: #2a3550; white-space: pre-wrap; word-break: break-word; }
         .tl-half.l { clip-path: polygon(0 0, 54% 0, 46% 12%, 55% 25%, 46% 38%, 55% 52%, 46% 65%, 54% 78%, 47% 90%, 52% 100%, 0 100%); animation: tlTearL .95s ease-in forwards; }
         .tl-half.r { clip-path: polygon(54% 0, 100% 0, 100% 100%, 52% 100%, 47% 90%, 54% 78%, 46% 65%, 55% 52%, 46% 38%, 55% 25%, 46% 12%); animation: tlTearR .95s ease-in forwards; }

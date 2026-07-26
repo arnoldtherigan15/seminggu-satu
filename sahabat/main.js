@@ -3722,7 +3722,8 @@ function renderTulisLepas(modal) {
         '</div>';
     $("mpClose").addEventListener("click", closeMochiPrompt);
     const input = $("tlInput"), shred = $("tlShred"), stage = $("tlStage");
-    input.addEventListener("input", () => { shred.disabled = input.value.trim().length < 10; });
+    // sependek apa pun boleh disobek — kadang "ANJIR" doang udah cukup 😄
+    input.addEventListener("input", () => { shred.disabled = input.value.trim().length < 1; });
     setTimeout(() => input.focus(), 250);
     shred.addEventListener("click", () => {
         const text = input.value; // cuma buat ditampilin sesaat pas dirobek — abis itu musnah
