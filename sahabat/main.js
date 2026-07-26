@@ -4082,7 +4082,7 @@ const SN_ACT = {
     },
     "SM-042": { // Nov · Belajar Bilang Tidak
         type: "dash", title: "WORD DASH: BERANI BILANG TIDAK",
-        goal: 8,
+        goal: 15,
         words: ["Tidak!", "Batas", "Berani", "Jujur", "Cukup"],
         clouds: ["Ga enak…", "Iya deh", "Sungkan", "Nanti aja"]
     },
@@ -4121,7 +4121,7 @@ const SN_ACT = {
     },
     "SM-047": { // Apr · Merayakan Kemenangan Kecil
         type: "dash", title: "WORD DASH: KEJAR CONFETTI",
-        goal: 8,
+        goal: 15,
         words: ["Yeay!", "Bangga", "Bisa", "Progres", "Win!"],
         clouds: ["Gitu doang?", "B aja", "Kurang", "Belum sukses"]
     },
@@ -4325,7 +4325,7 @@ function openSnailActivity(l) {
 // nggak langsung game over (3 ❤️) — vibe-nya "bersihin kepala", bukan dihukum.
 function snActDash(l, box, k) {
     const pack = SN_ACT[l.id];
-    const GOAL = pack.goal || 8;
+    const GOAL = pack.goal || 15;
     box.innerHTML =
         '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
         '<span class="sn-washi"></span>' +
@@ -4378,6 +4378,7 @@ function snActDash(l, box, k) {
     }
     function end(win) {
         playing = false;
+        gameMusicStop();
         cleanup();
         const st = $("wdStart");
         st.style.display = "";
@@ -4393,7 +4394,7 @@ function snActDash(l, box, k) {
         $("wdPlay").addEventListener("click", start);
     }
     function loop(t) {
-        if (!playing || !stage.isConnected) return;
+        if (!playing || !stage.isConnected) { gameMusicStop(); return; }
         const dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
         lastT = t;
         const rc = stage.getBoundingClientRect();
@@ -4405,7 +4406,7 @@ function snActDash(l, box, k) {
         mochi.style.transform = "translateY(" + my + "px) rotate(" + Math.max(-22, Math.min(26, vy / 9)) + "deg)";
         // spawn
         if (t - spawnT > 1700) { spawnOb(W, H); spawnT = t; }
-        const vx = 105 + got * 5;
+        const vx = 105 + got * 3;
         const inv = t < invUntil;
         mochi.classList.toggle("hurt", inv);
         for (let i = obs.length - 1; i >= 0; i--) {
@@ -4454,6 +4455,7 @@ function snActDash(l, box, k) {
         scoreEl.textContent = "0 / " + GOAL;
         livesEl.textContent = "❤️❤️❤️";
         $("wdStart").style.display = "none";
+        gameMusicPlay("music-word-dash.mp3");
         playing = true;
         lastT = 0; spawnT = 0;
         requestAnimationFrame(loop);
