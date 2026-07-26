@@ -4449,12 +4449,14 @@ function snActCatch(l, box, k) {
         toastTimer = setTimeout(() => toast.classList.remove("show"), 1700);
     }
     function spawn() {
-        const emo = pack.emos[Math.floor(Math.random() * pack.emos.length)];
+        const ei = Math.floor(Math.random() * pack.emos.length);
+        const emo = pack.emos[ei];
         const el = document.createElement("div");
-        el.className = "ct-bub";
+        el.className = "ct-bub c" + (ei % 6); // warna beda per emosi biar playful
         el.textContent = emo.w;
         const x = 0.1 + Math.random() * 0.8;
         el.style.left = (x * 100) + "%";
+        el.style.rotate = (Math.random() * 10 - 5).toFixed(1) + "deg";
         stage.appendChild(el);
         bubs.push({ el: el, x: x, y: -30, v: 55 + Math.random() * 40 + caught * 4, emo: emo });
     }
