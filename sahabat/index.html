@@ -2502,7 +2502,9 @@
         .wd-chip.got { transition: transform .25s ease, opacity .25s ease; opacity: 0; scale: 1.6; }
 
         /* Word Snake */
-        .wsn-quote { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 10px; }
+        .wsn-top { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 10px; }
+        .wsn-quote { flex: 1; display: flex; flex-wrap: wrap; gap: 4px; }
+        .wsn-lives { flex: none; font-size: .72rem; letter-spacing: 1px; background: rgba(255, 255, 255, .8); border: 1.5px dashed rgba(16, 36, 94, .25); border-radius: 999px; padding: 4px 8px; }
         .wsn-tok { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .66rem; padding: 3px 8px; border-radius: 999px; border: 1.5px dashed rgba(16, 36, 94, .3); color: rgba(16, 36, 94, .45); background: rgba(255, 255, 255, .6); }
         .wsn-tok.ate { background: var(--blue); border: 1.5px solid var(--blue); color: #fff; }
         .wsn-tok.next { border: 1.5px solid #eab308; background: #fff3c4; color: #854d0e; animation: bdayPulse2 1.4s ease-in-out infinite; }

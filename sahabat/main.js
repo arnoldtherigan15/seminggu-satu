@@ -4333,9 +4333,8 @@ function snActSnake(l, box, k) {
         '<span class="sn-washi"></span>' +
         '<div class="sn-kicker">' + esc(pack.title) + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
         '<div class="sn-act-hint">Geser (swipe) buat belokin Mochi — makan kata sesuai urutan kalimatnya! Salah makan = tersedak 😖</div>' +
-        '<div class="wsn-quote" id="wsnQuote"></div>' +
+        '<div class="wsn-top"><div class="wsn-quote" id="wsnQuote"></div><div class="wsn-lives" id="wsnLives">❤️❤️❤️</div></div>' +
         '<div class="wsn-stage" id="wsnStage">' +
-        '<div class="wd-lives" id="wsnLives">❤️❤️❤️</div>' +
         '<div class="ct-start" id="wsnStart"><button type="button" class="btn-primary" id="wsnPlay">Mulai 🐍</button></div>' +
         '</div>' +
         '<div class="wsn-pad">' +
@@ -4388,7 +4387,7 @@ function snActSnake(l, box, k) {
             let x, y, tries = 0;
             do {
                 x = Math.floor(Math.random() * (COLS - span + 1));
-                y = 1 + Math.floor(Math.random() * (ROWS - 1)); // y mulai 1: baris atas ketutup ❤️
+                y = Math.floor(Math.random() * ROWS); // ❤️ udah di luar papan, semua baris aman
                 tries++;
             } while (!cellFree(x, y, span) && tries < 80);
             const el = document.createElement("div");
@@ -4509,7 +4508,10 @@ function snActSnake(l, box, k) {
     }
     function setDir(d) {
         const D = { u: { x: 0, y: -1 }, d: { x: 0, y: 1 }, l: { x: -1, y: 0 }, r: { x: 1, y: 0 } }[d];
-        if (!D || (D.x === -dir.x && D.y === -dir.y)) return; // nggak bisa putar balik
+        if (!D) return;
+        // putar balik dilarang CUMA kalau udah punya badan (nabrak leher sendiri);
+        // masih kepala doang boleh — kata yang pas di belakang tetap kekejar
+        if (snake.length > 1 && D.x === -dir.x && D.y === -dir.y) return;
         ndir = D;
     }
     let sx = 0, sy = 0;
