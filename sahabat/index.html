@@ -2384,7 +2384,9 @@
         .sn-henv { position: relative; display: block; width: min(320px, 86vw); aspect-ratio: 8 / 5; margin: 0 auto; border: 1.5px solid rgba(16, 36, 94, .18); border-radius: 10px; cursor: pointer; padding: 0; box-shadow: 0 14px 30px rgba(60, 40, 10, .28); animation: snWobble 2.4s ease-in-out infinite; }
         @keyframes snWobble { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
         .sn-hletter { position: absolute; left: 5%; right: 5%; top: 10%; bottom: 14%; background: #fff; border-radius: 6px; z-index: 1; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); display: flex; align-items: flex-start; justify-content: center; padding: 12px 10px; opacity: 0; transition: transform .7s cubic-bezier(.2, .8, .3, 1) .35s, opacity .3s ease .4s; }
-        .sn-henv.open .sn-hletter { opacity: 1; }
+        /* pas kebuka: kertas naik ke lapisan PALING depan — kalau tetap z1 dia
+           "nembus" di belakang label alamat/perangko/strip airmail */
+        .sn-henv.open .sn-hletter { opacity: 1; z-index: 7; }
         .sn-hl-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .82rem; line-height: 1.35; color: #10245e; opacity: 0; transition: opacity .4s ease .7s; }
         /* outline flap: ::before putih se-bentuk segitiga, ::after polanya (inherit)
            diciutkan 3px -> sisa pinggirnya jadi GARIS tepi V yang jelas */
