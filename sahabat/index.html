@@ -3058,10 +3058,11 @@
         .envelope { position: relative; width: 280px; height: 186px; margin: 0 auto; cursor: pointer; filter: drop-shadow(0 16px 26px rgba(0, 30, 120, .22)); transition: transform .15s ease; }
         .envelope:active { transform: scale(.96) rotate(-1deg); }
         .env-back { position: absolute; inset: 0; background: #f5d800; border-radius: 12px; }
-        /* surat ngumpet penuh di kantong pas tertutup — kalau ngintip dari atas,
-           keliatan bidang putih di sisi flap & bentuk amplopnya rusak */
-        .env-letter { position: absolute; left: 14px; right: 14px; top: 31%; bottom: 0; background: #fffdf6; border: 1px solid #eadfbb; border-radius: 8px 8px 0 0; z-index: 2; transition: transform .8s cubic-bezier(.2, .7, .2, 1) .25s; background-image: repeating-linear-gradient(transparent, transparent 15px, rgba(16, 36, 94, .12) 16px); background-position: 0 26px; }
-        .envelope.open .env-letter { transform: translateY(-96%); }
+        /* amplop tersegel = kertas di dalam NGGAK keliatan sama sekali (celah antara
+           flap & kantong nampilin kuning badan amplop). Kertas baru muncul + naik
+           pas seal dibuka — kayak amplop hero snail mail */
+        .env-letter { position: absolute; left: 14px; right: 14px; top: 8px; bottom: 0; background: #fffdf6; border: 1px solid #eadfbb; border-radius: 8px 8px 0 0; z-index: 2; opacity: 0; transition: transform .8s cubic-bezier(.2, .7, .2, 1) .25s, opacity .3s ease .3s; background-image: repeating-linear-gradient(transparent, transparent 15px, rgba(16, 36, 94, .12) 16px); background-position: 0 26px; }
+        .envelope.open .env-letter { opacity: 1; transform: translateY(-72%); }
         .env-front { position: absolute; inset: 0; background: linear-gradient(180deg, #ffee55 0%, #ffe600 55%, #f7d800 100%); clip-path: polygon(0 30%, 50% 62%, 100% 30%, 100% 100%, 0 100%); border-radius: 12px; z-index: 3; }
         .env-front::before { content: ''; position: absolute; inset: 0; background: #fff; }
         .env-front::after { content: ''; position: absolute; inset: 0; background: inherit; clip-path: polygon(0 calc(30% + 3px), 50% calc(62% + 3px), 100% calc(30% + 3px), 100% 100%, 0 100%); }
