@@ -3829,15 +3829,21 @@ function renderTeras(modal) {
 // ---------- Bubble Wrap 🫧 (buat hari yang biasa aja) ----------
 // Mood-lifter tanpa tekanan: pecahin gelembung satu-satu, nol skill, nol kalah.
 // Beberapa gelembung nyimpen kejutan kecil (emoji / kata manis dari Mochi).
-// kejutan = stiker koleksi kita (str-1..11), bukan emoji
+// kejutan: campuran stiker koleksi (str-1..11) + kata manis dari Mochi
+const BW_WORDS = ["kamu lucu deh", "semangat! 🐾", "hai 👋", "pop! 💙", "cinta ✨", "istirahat ya", "kamu cukup 🌟", "peluk 🤗"];
 function renderBubbleWrap(modal) {
     const COLS = 5, ROWS = 6, N = COLS * ROWS;
-    // 5 gelembung kejutan di posisi acak, isinya stiker str acak (nggak dobel)
+    // 5 gelembung kejutan di posisi acak: 3 stiker (nggak dobel) + 2 kata manis
     const surprise = {};
     const stkPool = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].sort(() => Math.random() - 0.5);
+    const wordPool = BW_WORDS.slice().sort(() => Math.random() - 0.5);
+    const gifts = [
+        { t: "stk", v: stkPool[0] }, { t: "stk", v: stkPool[1] }, { t: "stk", v: stkPool[2] },
+        { t: "word", v: wordPool[0] }, { t: "word", v: wordPool[1] }
+    ];
     while (Object.keys(surprise).length < 5) {
         const pos = Math.floor(Math.random() * N);
-        if (!(pos in surprise)) surprise[pos] = stkPool[Object.keys(surprise).length];
+        if (!(pos in surprise)) surprise[pos] = gifts[Object.keys(surprise).length];
     }
     let cells = "";
     for (let i = 0; i < N; i++) cells += '<button type="button" class="bwr-b" data-i="' + i + '"></button>';
@@ -3860,7 +3866,9 @@ function renderBubbleWrap(modal) {
         const s = surprise[Number(b.dataset.i)];
         if (s) {
             b.classList.add("gift");
-            b.innerHTML = '<img class="bwr-s" src="../images/sticker/str-' + s + '.png" alt="">';
+            b.innerHTML = s.t === "stk"
+                ? '<img class="bwr-s" src="../images/sticker/str-' + s.v + '.png" alt="">'
+                : '<span class="bwr-w">' + esc(s.v) + '</span>';
         }
         $("bwrCount").textContent = popped + " / " + N;
         if (popped === N) {
