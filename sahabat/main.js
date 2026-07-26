@@ -317,7 +317,11 @@ document.querySelectorAll(".tab").forEach(t => {
 });
 // Back/forward atau ubah hash manual -> ikutin (cuma kalau dashboard tampil)
 window.addEventListener("hashchange", () => {
-    if ($("dashView").style.display !== "none") activateTab((location.hash || "").replace("#", ""));
+    if ($("dashView").style.display === "none") return;
+    const h = (location.hash || "").replace("#", "");
+    if (h === "snail-mail") { openSnailBox(false); return; } // halaman kotak surat (deep-link/refresh aman)
+    closeSnailPage(false);
+    activateTab(h);
 });
 
 // ---------- Event pane ----------
@@ -2501,7 +2505,11 @@ async function loadLoyalty() {
         initJournalTrackerListeners(_profile.wa);
         initWeekNowListeners();
         renderEventTicket(); // kalau _evRegistered belum ada, loadEvents yang ngisi nanti
-        loadSnailMail().then(snailCtaRefresh).catch(() => { }); // kotak surat bulanan Mochi
+        loadSnailMail().then(() => {
+            snailCtaRefresh();
+            // habis refresh di #snail-mail -> langsung buka lagi halamannya
+            if (location.hash === "#snail-mail") openSnailBox(false);
+        }).catch(() => { }); // kotak surat bulanan Mochi
         const rc = $("recapCard");
         if (rc) rc.addEventListener("click", openMonthlyRecap);
         $("scardEvents").addEventListener("click", openEventLog);
@@ -3908,40 +3916,112 @@ function snailCtaRefresh() {
     $("snailCta").addEventListener("click", openSnailBox);
 }
 
-// Kotak surat: arsip semua surat yang udah nyampe, amplop beda-beda per bulan
-function openSnailBox() {
+// ---------- Halaman Kotak Surat (#snail-mail) ----------
+// Halaman sendiri (bukan modal) biar bisa di-refresh / deep-link. Vibe "dapet
+// surat": amplop hero goyang + wax seal, diketuk kebuka beranimasi, koleksi
+// amplop mini per bulan, dan siput jalan menuju surat berikutnya.
+function openSnailBox(setHash) {
+    let m = $("snailPage");
+    if (!m) {
+        m = document.createElement("div");
+        m.id = "snailPage";
+        m.className = "snail-page";
+        document.body.appendChild(m);
+    }
+    m.innerHTML = '<div class="snp-wrap">' +
+        '<div class="snp-head"><div class="snp-title">📬 Kotak Surat Mochi</div>' +
+        '<button class="snp-close" id="snpClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="snp-sub">Sebulan sekali Mochi nulis surat buat semua warga — pelan kayak siput, tapi selalu nyampe 💌</div>' +
+        '<div id="snpBody"></div>' +
+        '</div>';
+    m.classList.add("show");
+    m.scrollTop = 0;
+    lockScroll();
+    $("snpClose").addEventListener("click", () => closeSnailPage());
+    if (setHash !== false) { try { if (location.hash !== "#snail-mail") location.hash = "snail-mail"; } catch (e) { } }
+    loadSnailMail().then(renderSnailBox).catch(() => {
+        const b = $("snpBody");
+        if (b) b.innerHTML = '<div class="placeholder"><div class="em">📭</div><p>Gagal ngambil surat. Coba lagi ya.</p></div>';
+    });
+}
+
+function closeSnailPage(retHash) {
+    const m = $("snailPage");
+    if (!m || !m.classList.contains("show")) return;
+    m.classList.remove("show");
+    unlockScroll();
+    snailCtaRefresh(); // badge BARU di Home ikut update
+    if (retHash !== false) { try { if (location.hash === "#snail-mail") location.hash = "loyalty"; } catch (e) { } }
+}
+
+function renderSnailBox() {
+    const body = $("snpBody");
+    if (!body) return;
     const avail = snailAvail();
     const read = snailReadSet();
-    let rows = "";
+    const unreadL = avail.filter(l => !read.has(l.id));
+
+    // hero: surat terbaru yang belum dibaca -> amplop gede ber-seal, diketuk kebuka
+    let hero = "";
+    if (unreadL.length) {
+        const l = unreadL[0];
+        const k = snailSkin(l);
+        hero = '<div class="snp-hero">' +
+            '<div class="snp-hero-k">💌 SURAT BARU NYAMPE!</div>' +
+            '<button type="button" class="sn-henv sk' + k + '" id="snHero" data-sn="' + esc(l.id) + '">' +
+            '<span class="sn-hletter"><span class="sn-hl-t">' + esc(l.theme) + '</span></span>' +
+            '<span class="sn-hflap sk' + k + '"></span>' +
+            '<img class="sn-hseal" src="seal-paw.png" alt="">' +
+            '<span class="sn-hstamp">' + SN_STAMPS[k] + '</span>' +
+            '<span class="sn-hpost">UNTUK: WARGA BALAI · ' + esc(snailMonthLabel(l).toUpperCase()) + '</span>' +
+            '</button>' +
+            '<div class="snp-hero-hint">ketuk amplopnya buat buka ✨</div>' +
+            '</div>';
+    }
+
+    // koleksi: semua surat yang udah nyampe, amplop mini skin per bulan
+    let coll = "";
     avail.forEach((l, i) => {
         const k = snailSkin(l);
         const isNew = !read.has(l.id);
-        rows += '<button type="button" class="sn-env sk' + k + (i % 2 ? " r" : "") + '" data-sn="' + esc(l.id) + '">' +
-            '<span class="sn-stamp">' + SN_STAMPS[k] + '</span>' +
-            '<span class="sn-env-body"><span class="sn-post">SURAT ' + esc(snailMonthLabel(l).toUpperCase()) + '</span>' +
-            '<span class="sn-theme">' + esc(l.theme) + '</span></span>' +
-            (isNew ? '<span class="sn-seal"><img src="seal-paw.png" alt=""></span><span class="sn-badge">BARU</span>' : '<span class="sn-done">\u2713 dibaca</span>') +
+        coll += '<button type="button" class="sn-mini sk' + k + (i % 2 ? " r" : "") + '" data-sn="' + esc(l.id) + '">' +
+            '<span class="sn-mini-stamp">' + SN_STAMPS[k] + '</span>' +
+            (isNew ? '<img class="sn-mini-seal" src="seal-paw.png" alt="">' : '<span class="sn-mini-done">✓ dibaca</span>') +
+            '<span class="sn-mini-month">' + esc(snailMonthLabel(l).toUpperCase()) + '</span>' +
+            '<span class="sn-mini-theme">' + esc(l.theme) + '</span>' +
+            (isNew ? '<span class="sn-badge">BARU</span>' : '') +
             '</button>';
     });
-    // teaser surat berikutnya (biar ada yang ditunggu-tunggu)
-    let nextTxt = "";
+
+    // siput jalan: progress menuju surat bulan depan
     const nextL = (_snailMail || []).filter(l => new Date(String(l.publish_date) + "T09:00:00").getTime() > Date.now())
         .sort((a, b) => String(a.publish_date).localeCompare(String(b.publish_date)))[0];
-    if (nextL) nextTxt = '<div class="sn-next">\ud83d\udcee Surat berikutnya nyampe <b>1 ' + esc(snailMonthLabel(nextL)) + '</b> jam 9 pagi \u2728</div>';
+    let walk = "";
+    if (nextL) {
+        const nt = new Date(String(nextL.publish_date) + "T09:00:00").getTime();
+        const lastT = avail.length ? new Date(String(avail[0].publish_date) + "T09:00:00").getTime() : nt - 30 * 86400000;
+        const pct = Math.max(4, Math.min(92, Math.round(((Date.now() - lastT) / (nt - lastT)) * 100)));
+        const days = Math.max(1, Math.ceil((nt - Date.now()) / 86400000));
+        walk = '<div class="snp-walk">' +
+            '<div class="snp-walk-line"><span class="snp-snail" style="left:' + pct + '%">🐌</span><span class="snp-mailbox">📮</span></div>' +
+            '<div class="snp-walk-t">Surat ' + esc(snailMonthLabel(nextL)) + ' lagi di jalan — <b>' + days + ' hari lagi</b> nyampe 💨</div>' +
+            '</div>';
+    }
 
-    const modal = $("questModal");
-    $("questModalBox").innerHTML =
-        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">\u2715</button></div>' +
-        '<div class="qm-body">' +
-        '<div class="quest-game-title">\ud83d\udcec Kotak Surat Mochi</div>' +
-        '<div class="quest-game-desc">Sebulan sekali Mochi nulis surat buat semua warga — pelan kayak siput, tapi selalu nyampe \ud83d\udc8c</div>' +
-        (rows || '<div class="placeholder" style="padding:1.2rem 0;"><div class="em">\ud83d\udcec</div><p>Belum ada surat yang nyampe.</p></div>') +
-        nextTxt +
-        '</div>';
-    modal.classList.add("show");
-    lockScroll();
-    $("qmClose").addEventListener("click", closeQuestModal);
-    modal.querySelectorAll("[data-sn]").forEach(b => b.addEventListener("click", () => {
+    body.innerHTML = hero +
+        (coll ? '<div class="snp-sec">📚 Koleksi Suratmu (' + avail.length + ')</div><div class="snp-grid">' + coll + '</div>'
+            : '<div class="placeholder" style="padding:1.4rem 0;"><div class="em">📭</div><p>Belum ada surat yang nyampe.</p></div>') +
+        walk;
+
+    const heroEl = $("snHero");
+    if (heroEl) heroEl.addEventListener("click", () => {
+        if (heroEl.classList.contains("open")) return;
+        heroEl.classList.add("open"); // seal copot -> flap kebuka -> surat naik
+        playSfx("open-mail");
+        const l = avail.find(x => x.id === heroEl.dataset.sn);
+        setTimeout(() => { if (l) openSnailLetter(l, true); }, 1000);
+    });
+    body.querySelectorAll(".sn-mini").forEach(b => b.addEventListener("click", () => {
         const l = avail.find(x => x.id === b.dataset.sn);
         if (l) openSnailLetter(l);
     }));
@@ -4027,7 +4107,8 @@ function snActSave(id, arr) {
 function openSnailActivity(l) {
     const k = snailSkin(l);
     const type = snActType(l);
-    const box = $("questModalBox");
+    const box = $("snpBody");
+    if (!box) return;
     if (type === "ws") {
         const ws = snBuildWs(l);
         const found = snActState(l.id); // list kata yang udah ketemu
@@ -4036,8 +4117,6 @@ function openSnailActivity(l) {
         let wordsHtml = "";
         ws.placed.forEach(pl => { wordsHtml += '<span class="ws-word' + (found.indexOf(pl.word) >= 0 ? " done" : "") + '" data-w="' + pl.word + '">' + pl.word + '</span>'; });
         box.innerHTML =
-            '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
-            '<div class="qm-body">' +
             '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
             '<span class="sn-washi"></span>' +
             '<div class="sn-kicker">BONUS ' + esc(snailMonthLabel(l).toUpperCase()) + ' · CARI KATA 🔍</div>' +
@@ -4045,10 +4124,10 @@ function openSnailActivity(l) {
             '<div class="ws-grid">' + cellsHtml + '</div>' +
             '<div class="ws-words">' + wordsHtml + '</div>' +
             '</div>' +
-            '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>' +
-            '</div>';
-        $("qmClose").addEventListener("click", closeQuestModal);
-        $("snBack").addEventListener("click", () => openSnailLetter(l));
+            '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>';
+        $("snBack").addEventListener("click", () => openSnailLetter(l, true));
+        const pg = $("snailPage");
+        if (pg) pg.scrollTop = 0;
         const cellEls = box.querySelectorAll(".ws-cell");
         // tandai kata yang udah ketemu
         function paintFound() {
@@ -4087,8 +4166,6 @@ function openSnailActivity(l) {
             cellsHtml += '<button type="button" class="bg-cell' + (marked.indexOf(i) >= 0 ? " on" : "") + '" data-i="' + i + '">' + esc(t) + '</button>';
         });
         box.innerHTML =
-            '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
-            '<div class="qm-body">' +
             '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
             '<span class="sn-washi"></span>' +
             '<div class="sn-kicker">BONUS ' + esc(snailMonthLabel(l).toUpperCase()) + ' · BINGO JOURNALING 🎯</div>' +
@@ -4096,10 +4173,10 @@ function openSnailActivity(l) {
             '<div class="bg-grid">' + cellsHtml + '</div>' +
             '<div class="bg-banner" id="bgBanner" style="display:none;">🎉 BINGO! Kamu keren banget!</div>' +
             '</div>' +
-            '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>' +
-            '</div>';
-        $("qmClose").addEventListener("click", closeQuestModal);
-        $("snBack").addEventListener("click", () => openSnailLetter(l));
+            '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>';
+        $("snBack").addEventListener("click", () => openSnailLetter(l, true));
+        const pg = $("snailPage");
+        if (pg) pg.scrollTop = 0;
         function hasBingo() {
             const on = i => marked.indexOf(i) >= 0;
             for (let r = 0; r < 4; r++) if ([0, 1, 2, 3].every(c => on(r * 4 + c))) return true;
@@ -4128,28 +4205,27 @@ function openSnailActivity(l) {
 }
 
 // Baca satu surat: kertas se-skin amplopnya, postmark bulan, ttd Mochi
-function openSnailLetter(l) {
-    playSfx("open-mail");
+function openSnailLetter(l, silent) {
+    const body = $("snpBody");
+    if (!body) return;
+    if (!silent) playSfx("open-mail");
     snailMarkRead(l.id);
     const k = snailSkin(l);
-    $("questModalBox").innerHTML =
-        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">\u2715</button></div>' +
-        '<div class="qm-body">' +
+    body.innerHTML =
         '<div class="sn-paper sk' + k + '">' +
         '<span class="sn-washi"></span>' +
         '<span class="sn-postmark">POS BALAI WARGA<br>' + esc(snailMonthLabel(l).toUpperCase()) + '</span>' +
-        '<div class="sn-kicker">SNAIL MAIL \u00b7 ' + SN_STAMPS[k] + '</div>' +
+        '<div class="sn-kicker">SNAIL MAIL · ' + SN_STAMPS[k] + '</div>' +
         '<div class="sn-title">' + esc(l.theme) + '</div>' +
         '<div class="sn-body">' + esc(l.letter_content) + '</div>' +
-        '<div class="sn-sign">\u2014 Mochi \ud83d\udc3e</div>' +
+        '<div class="sn-sign">— Mochi 🐾</div>' +
         '</div>' +
-        '<button type="button" class="sn-bonus" id="snBonus">\ud83c\udf81 Bonus bulan ini: ' + (snActType(l) === "ws" ? "Cari Kata \ud83d\udd0d" : "Bingo Journaling \ud83c\udfaf") + ' \u2192</button>' +
-        '<button type="button" class="sn-back" id="snBack">\u2190 Balik ke Kotak Surat</button>' +
-        '</div>';
-    $("qmClose").addEventListener("click", closeQuestModal);
-    $("snBack").addEventListener("click", openSnailBox);
+        '<button type="button" class="sn-bonus" id="snBonus">🎁 Bonus bulan ini: ' + (snActType(l) === "ws" ? "Cari Kata 🔍" : "Bingo Journaling 🎯") + ' →</button>' +
+        '<button type="button" class="sn-back" id="snBack">← Balik ke Kotak Surat</button>';
+    $("snBack").addEventListener("click", renderSnailBox);
     $("snBonus").addEventListener("click", () => openSnailActivity(l));
-    snailCtaRefresh(); // badge BARU di Home ikut update
+    const pg = $("snailPage");
+    if (pg) pg.scrollTop = 0;
 }
 
 // ---------- Kartu profil mini warga: rumahnya bio ----------

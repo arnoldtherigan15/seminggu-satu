@@ -2349,20 +2349,60 @@
         :root[data-theme="dark"] .snail-cta { background-color: #2a2417; border-color: rgba(255, 230, 0, .3); }
         :root[data-theme="dark"] .snail-t { color: #eaeffc; }
 
-        /* amplop di kotak surat — skin beda per bulan */
-        .sn-env { position: relative; width: 100%; display: flex; align-items: center; gap: 10px; border: 1.5px solid rgba(16, 36, 94, .18); cursor: pointer; font-family: inherit; text-align: left; border-radius: 10px; padding: 13px 12px; margin-top: 12px; transform: rotate(-.8deg); box-shadow: 0 2px 7px rgba(16, 36, 94, .1); }
-        .sn-env.r { transform: rotate(.8deg); }
-        .sn-env:active { transform: scale(.98); }
-        .sn-stamp { flex: none; width: 34px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; background: rgba(255, 255, 255, .75); border: 1.5px dashed rgba(16, 36, 94, .35); border-radius: 4px; transform: rotate(3deg); }
-        .sn-env-body { flex: 1; min-width: 0; }
-        .sn-post { display: block; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .56rem; letter-spacing: .12em; color: rgba(16, 36, 94, .55); }
-        .sn-theme { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .84rem; color: #10245e; margin-top: 2px; line-height: 1.3; }
-        .sn-seal { flex: none; width: 30px; height: 30px; }
-        .sn-seal img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .2)); }
-        .sn-badge { position: absolute; top: -8px; right: 10px; background: #ef2d56; color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .58rem; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; box-shadow: 0 2px 5px rgba(0, 0, 0, .18); }
-        .sn-done { flex: none; font-size: .68rem; font-weight: 700; color: #0a7a3d; }
-        .sn-next { margin-top: 14px; font-size: .76rem; color: var(--muted); text-align: center; border: 1.5px dashed var(--line); border-radius: 12px; padding: 9px 10px; }
-        .sn-next b { color: var(--ink); }
+        /* ---------- halaman Kotak Surat (#snail-mail): meja pos kraft ---------- */
+        .snail-page { position: fixed; inset: 0; z-index: 1300; display: none; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; background-color: #f3e7cf; background-image: radial-gradient(rgba(146, 116, 60, .14) 1.2px, transparent 1.4px); background-size: 11px 11px; }
+        .snail-page.show { display: block; }
+        :root[data-theme="dark"] .snail-page { background-color: #141d33; background-image: radial-gradient(rgba(255, 255, 255, .05) 1.2px, transparent 1.4px); }
+        .snp-wrap { max-width: 480px; margin: 0 auto; padding: 16px 16px calc(46px + env(safe-area-inset-bottom)); }
+        .snp-head { display: flex; align-items: center; justify-content: space-between; }
+        .snp-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.05rem; color: #5c451d; }
+        .snp-close { width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(92, 69, 29, .15); color: #5c451d; font-size: .95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .snp-sub { font-size: .78rem; color: #8a7a56; line-height: 1.55; margin: 4px 0 8px; }
+        :root[data-theme="dark"] .snp-title { color: #eaeffc; }
+        :root[data-theme="dark"] .snp-close { background: rgba(255, 255, 255, .14); color: #fff; }
+        :root[data-theme="dark"] .snp-sub, :root[data-theme="dark"] .snp-hero-hint, :root[data-theme="dark"] .snp-walk-t { color: #9fabc9; }
+
+        /* hero: amplop baru nyampe — goyang pelan, seal copot pas diketuk */
+        .snp-hero { text-align: center; margin: 14px 0 4px; }
+        .snp-hero-k { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .68rem; letter-spacing: .16em; color: #b3305f; margin-bottom: 14px; }
+        .sn-henv { position: relative; display: block; width: min(320px, 86vw); aspect-ratio: 8 / 5; margin: 0 auto; border: 1.5px solid rgba(16, 36, 94, .18); border-radius: 10px; cursor: pointer; padding: 0; box-shadow: 0 14px 30px rgba(60, 40, 10, .28); animation: snWobble 2.4s ease-in-out infinite; }
+        @keyframes snWobble { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
+        .sn-hletter { position: absolute; left: 5%; right: 5%; top: 10%; bottom: 14%; background: #fff; border-radius: 6px; z-index: 1; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); display: flex; align-items: flex-start; justify-content: center; padding: 12px 10px; transition: transform .7s cubic-bezier(.2, .8, .3, 1) .35s; }
+        .sn-hl-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .82rem; line-height: 1.35; color: #10245e; opacity: 0; transition: opacity .4s ease .7s; }
+        .sn-hflap { position: absolute; left: 0; right: 0; top: 0; height: 58%; clip-path: polygon(0 0, 100% 0, 50% 100%); z-index: 3; transform-origin: top center; transition: transform .55s ease; filter: brightness(.96); border-radius: 10px 10px 0 0; }
+        .sn-hseal { position: absolute; top: 50%; left: 50%; width: 46px; height: 46px; transform: translate(-50%, -50%); z-index: 4; transition: opacity .3s ease .2s, transform .3s ease .2s; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .25)); }
+        .sn-hstamp { position: absolute; top: 8px; right: 10px; z-index: 5; font-size: 1.05rem; background: rgba(255, 255, 255, .8); border: 1.5px dashed rgba(16, 36, 94, .35); border-radius: 4px; padding: 3px 6px; transform: rotate(4deg); }
+        .sn-hpost { position: absolute; bottom: 7px; left: 0; right: 0; z-index: 2; text-align: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .55rem; letter-spacing: .12em; color: rgba(16, 36, 94, .5); }
+        .sn-henv.open { animation: none; }
+        .sn-henv.open .sn-hflap { transform: rotateX(180deg); z-index: 1; }
+        .sn-henv.open .sn-hseal { opacity: 0; transform: translate(-50%, -50%) scale(.35) rotate(-30deg); }
+        .sn-henv.open .sn-hletter { transform: translateY(-36%); }
+        .sn-henv.open .sn-hl-t { opacity: 1; }
+        .snp-hero-hint { font-size: .74rem; color: #8a7a56; margin-top: 12px; }
+
+        /* koleksi: grid amplop mini */
+        .snp-sec { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem; letter-spacing: .04em; color: #5c451d; margin: 24px 0 10px; }
+        :root[data-theme="dark"] .snp-sec { color: #eaeffc; }
+        .snp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; }
+        .sn-mini { position: relative; border: 1.5px solid rgba(16, 36, 94, .15); border-radius: 10px; padding: 12px 10px 11px; text-align: left; cursor: pointer; font-family: inherit; transform: rotate(-1deg); box-shadow: 0 3px 9px rgba(60, 40, 10, .16); }
+        .sn-mini.r { transform: rotate(1deg); }
+        .sn-mini:active { transform: scale(.97); }
+        .sn-mini-stamp { position: absolute; top: 8px; right: 8px; font-size: .95rem; background: rgba(255, 255, 255, .8); border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 4px; padding: 2px 5px; transform: rotate(4deg); }
+        .sn-mini-seal { position: absolute; top: -9px; left: 10px; width: 27px; height: 27px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .22)); }
+        .sn-mini-done { position: absolute; top: 10px; left: 10px; font-weight: 800; font-size: .62rem; color: #0a7a3d; }
+        .sn-mini-month { display: block; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .54rem; letter-spacing: .1em; color: rgba(16, 36, 94, .55); margin-top: 16px; }
+        .sn-mini-theme { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .76rem; color: #10245e; line-height: 1.35; margin-top: 3px; min-height: 2.7em; }
+        .sn-badge { position: absolute; top: -8px; right: 8px; background: #ef2d56; color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .56rem; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; box-shadow: 0 2px 5px rgba(0, 0, 0, .18); }
+
+        /* siput jalan menuju surat berikutnya */
+        .snp-walk { margin-top: 26px; }
+        .snp-walk-line { position: relative; height: 26px; border-bottom: 2.5px dashed rgba(92, 69, 29, .45); margin: 0 10px; }
+        :root[data-theme="dark"] .snp-walk-line { border-color: rgba(255, 255, 255, .25); }
+        .snp-snail { position: absolute; bottom: -5px; font-size: 1.15rem; transform: translateX(-50%) scaleX(-1); }
+        .snp-mailbox { position: absolute; right: -8px; bottom: -6px; font-size: 1.25rem; }
+        .snp-walk-t { text-align: center; font-size: .76rem; color: #8a7a56; margin-top: 12px; }
+        .snp-walk-t b { color: #5c451d; }
+        :root[data-theme="dark"] .snp-walk-t b { color: #eaeffc; }
 
         /* 6 skin kertas/amplop — warna beda per bulan biar tiap surat unik */
         .sn-env.sk0, .sn-paper.sk0 { background-color: #fdf6e3; background-image: radial-gradient(rgba(146, 116, 60, .13) 1px, transparent 1.2px); background-size: 10px 10px; }
