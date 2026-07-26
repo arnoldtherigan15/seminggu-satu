@@ -2975,7 +2975,11 @@ function pushTagCheckin(weekKey) {
     // ---- Install PWA ke home screen ----
     const installBtn = $("fabActionInstall");
     const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    // iPadOS modern nyamar jadi "Macintosh" di user-agent — bedain lewat layar sentuh.
+    // Laptop beneran (Mac tanpa touch / Windows) nggak masuk sini: banner cuma muncul
+    // kalau browser-nya ngasih prompt install (Chrome/Edge) lewat beforeinstallprompt.
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+        (/macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
     let deferredPrompt = null;
     // buat banner Home: state install dibagi ke luar IIFE
     window._ssInstall = { ready: () => !!deferredPrompt, ios: isIOS, standalone: isStandalone, prompt: null };
