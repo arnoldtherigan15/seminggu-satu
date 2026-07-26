@@ -3810,11 +3810,11 @@ function renderMochiChooser(modal, list) {
         (bday ? '<button class="mp-choice mc-bday" id="mcBday"><span class="mc-em">🎂</span><b>Surat Ultah</b><span>spesial hari ini ✨</span></button>' : '') +
         '<button class="mp-choice" id="mcPrompt"><span class="mc-em">✍️</span><b>Prompt Harian</b><span>ide journaling</span></button>' +
         '<button class="mp-choice cookie" id="mcCookie"><span class="mc-em">🥠</span><b>Fortune Cookie</b><span>pesan manis buatmu</span></button>' +
-        '<button class="mp-choice mood" id="mcMood"><span class="mc-em">🌦️</span><b>Cuaca Hati</b><span>catat mood hari ini</span></button>' +
+        '<button class="mp-choice mood" id="mcBreath"><span class="mc-em">🌬️</span><b>Napas Bareng</b><span>rehat 1 menit</span></button>' +
         '</div>' +
         '</div>';
     $("mpClose").addEventListener("click", closeMochiPrompt);
-    $("mcMood").addEventListener("click", () => openMoodTracker(modal));
+    $("mcBreath").addEventListener("click", () => renderBreath(modal)); // Cuaca Hati udah pindah ke Home
     const mcB = $("mcBday");
     if (mcB) mcB.addEventListener("click", () => renderMochiEnvelope(modal, list, "bday"));
     $("mcPrompt").addEventListener("click", () => renderMochiEnvelope(modal, list, "prompt"));
