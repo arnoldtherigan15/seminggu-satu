@@ -51,6 +51,17 @@
         :root[data-font="medium"] { font-size: 18px; }
         :root[data-font="large"] { font-size: 20px; }
 
+        /* Animasi "Kalem" (Pengaturan): animasi DEKORATIF dimatiin (goyang, denyut,
+           ngambang) — yang fungsional (flip, progress bar, jatuhan game) tetap jalan */
+        :root[data-motion="min"] .sn-bonus, :root[data-motion="min"] .mr-cta,
+        :root[data-motion="min"] .md-pbfab, :root[data-motion="min"] .sn-henv,
+        :root[data-motion="min"] .mc-crown, :root[data-motion="min"] .snail-new,
+        :root[data-motion="min"] .bday-today-badge, :root[data-motion="min"] .wsn-word.hot,
+        :root[data-motion="min"] .tr-mochi, :root[data-motion="min"] .wsn-tok.next,
+        :root[data-motion="min"] .md-note.play .md-note-eq i,
+        :root[data-motion="min"] .jt-week-box.done .jt-stamp,
+        :root[data-motion="min"] .wn-stamp-big { animation: none !important; }
+
         :root {
             --blue: #0046ff;
             --blue-2: #0092ff;

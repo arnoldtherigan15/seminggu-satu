@@ -15,10 +15,21 @@ let _profile = null; // { token, nickname, birthDate, wa }
     try {
         const f = localStorage.getItem("ss_font");
         if (f === "medium" || f === "large") document.documentElement.setAttribute("data-font", f);
+        if (localStorage.getItem("ss_motion") === "min") document.documentElement.setAttribute("data-motion", "min");
     } catch (e) { }
 })();
-function sndMuted() {
-    try { return localStorage.getItem("ss_mute") === "1"; } catch (e) { return false; }
+// ss_mute lama ("1" = semua senyap) tetap dihormatin sebagai fallback
+function sfxMuted() {
+    try { return localStorage.getItem("ss_mute_sfx") === "1" || localStorage.getItem("ss_mute") === "1"; } catch (e) { return false; }
+}
+function musicMuted() {
+    try { return localStorage.getItem("ss_mute_music") === "1" || localStorage.getItem("ss_mute") === "1"; } catch (e) { return false; }
+}
+function motionMin() {
+    try { return localStorage.getItem("ss_motion") === "min"; } catch (e) { return false; }
+}
+function runnerOff() {
+    try { return localStorage.getItem("ss_runner") === "0"; } catch (e) { return false; }
 }
 let _loyaltyLoaded = false;
 
@@ -198,6 +209,7 @@ async function doSetup() {
 // Paksa selalu di atas semua overlay/modal di app ini.
 const CONFETTI_Z = 99999;
 function fireConfetti(preset) {
+    if (motionMin()) return; // animasi kalem: tanpa confetti
     if (typeof confetti !== "function") return;
     if (preset === "login") {
         confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 }, zIndex: CONFETTI_Z });
@@ -1364,7 +1376,7 @@ function openWrapped() {
 // Lazy: file mp3 baru di-download pas pertama kali wrapped dibuka.
 let _wrAudio = null;
 function wrappedMusicPlay() {
-    if (sndMuted()) return;
+    if (musicMuted()) return;
     try {
         if (!_wrAudio) {
             _wrAudio = new Audio("../bg-music-2.mp3");
@@ -3023,7 +3035,6 @@ function openSettings() {
     const modal = $("questModal");
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     const fontPref = document.documentElement.getAttribute("data-font") || "normal";
-    const muted = sndMuted();
     const seg = (id, opts) => '<div class="st-seg" id="' + id + '">' +
         opts.map(o => '<button type="button" class="st-opt' + (o.on ? " on" : "") + '" data-v="' + o.v + '">' + o.t + '</button>').join("") + '</div>';
     $("questModalBox").innerHTML =
@@ -3039,8 +3050,14 @@ function openSettings() {
             { v: "medium", t: "Sedang", on: fontPref === "medium" },
             { v: "large", t: "Besar", on: fontPref === "large" }
         ]) + '</div>' +
-        '<div class="st-row"><div class="st-lbl">🔊 Suara & Musik</div>' +
-        seg("stSound", [{ v: "on", t: "🔔 Nyala", on: !muted }, { v: "off", t: "🔕 Senyap", on: muted }]) + '</div>' +
+        '<div class="st-row"><div class="st-lbl">🎵 Musik Latar</div>' +
+        seg("stMusic", [{ v: "on", t: "🔔 Nyala", on: !musicMuted() }, { v: "off", t: "🔕 Senyap", on: musicMuted() }]) + '</div>' +
+        '<div class="st-row"><div class="st-lbl">🔊 Efek Suara</div>' +
+        seg("stSfx", [{ v: "on", t: "🔔 Nyala", on: !sfxMuted() }, { v: "off", t: "🔕 Senyap", on: sfxMuted() }]) + '</div>' +
+        '<div class="st-row"><div class="st-lbl">🌀 Animasi</div>' +
+        seg("stMotion", [{ v: "full", t: "✨ Penuh", on: !motionMin() }, { v: "min", t: "🍃 Kalem", on: motionMin() }]) + '</div>' +
+        '<div class="st-row"><div class="st-lbl">🐾 Mochi Pelari</div>' +
+        seg("stRunner", [{ v: "on", t: "Muncul", on: !runnerOff() }, { v: "off", t: "Sembunyi", on: runnerOff() }]) + '</div>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();
@@ -3051,6 +3068,8 @@ function openSettings() {
             cb(b.dataset.v);
         }));
     }
+    // ganti preferensi suara mana pun -> kunci lama ss_mute dilepas biar nggak nge-override
+    function clearLegacyMute() { try { localStorage.removeItem("ss_mute"); } catch (e) { } }
     pick("stTheme", v => { setThemePref(v === "dark"); playSfx("light", 0.8); });
     pick("stFont", v => {
         if (v === "medium" || v === "large") document.documentElement.setAttribute("data-font", v);
@@ -3058,10 +3077,26 @@ function openSettings() {
         try { localStorage.setItem("ss_font", v); } catch (e) { }
         playSfx("love", 0.5);
     });
-    pick("stSound", v => {
-        try { localStorage.setItem("ss_mute", v === "off" ? "1" : "0"); } catch (e) { }
+    pick("stMusic", v => {
+        clearLegacyMute();
+        try { localStorage.setItem("ss_mute_music", v === "off" ? "1" : "0"); } catch (e) { }
         if (v === "off") { gameMusicStop(); wrappedMusicStop(); mochiNoteStop(); }
-        else playSfx("love", 0.6); // konfirmasi suara nyala lagi
+        playSfx("love", 0.5);
+    });
+    pick("stSfx", v => {
+        clearLegacyMute();
+        try { localStorage.setItem("ss_mute_sfx", v === "off" ? "1" : "0"); } catch (e) { }
+        if (v === "on") playSfx("love", 0.6); // konfirmasi
+    });
+    pick("stMotion", v => {
+        try { localStorage.setItem("ss_motion", v); } catch (e) { }
+        if (v === "min") document.documentElement.setAttribute("data-motion", "min");
+        else document.documentElement.removeAttribute("data-motion");
+        playSfx("love", 0.5);
+    });
+    pick("stRunner", v => {
+        try { localStorage.setItem("ss_runner", v === "off" ? "0" : "1"); } catch (e) { }
+        playSfx("love", 0.5);
     });
 }
 
@@ -3309,6 +3344,7 @@ function scheduleMochi() {
 }
 
 function spawnMochi() {
+    if (runnerOff()) return; // dimatiin dari Pengaturan
     if (_mochiRuns >= 3) return;
     // lagi ada modal kebuka / masih di halaman login? coba lagi nanti
     if (document.body.style.position === "fixed" || $("dashView").style.display === "none") { scheduleMochi(); return; }
@@ -3634,7 +3670,7 @@ function renderBreath(modal) {
     // fase "tahan" dihapus (motong audio & bikin kepatah-patah)
     let brAudio = null;
     function brSound(actn) {
-        if (sndMuted()) return;
+        if (musicMuted()) return;
         try {
             if (!brAudio) brAudio = new Audio("../sound-effect/breath.mp3");
             if (actn === "start") { brAudio.currentTime = 0; brAudio.play().catch(() => { }); }
@@ -4515,7 +4551,7 @@ function openGalleryLightbox(it) {
 // Audio di-cache per nama biar tap kedua langsung bunyi tanpa fetch ulang.
 const _sfxCache = {};
 function playSfx(name, vol) {
-    if (sndMuted()) return;
+    if (sfxMuted()) return;
     try {
         let a = _sfxCache[name];
         if (!a) { a = new Audio("../sound-effect/" + name + ".mp3"); _sfxCache[name] = a; }
@@ -5651,7 +5687,7 @@ function snActScramble(l, box, k) {
 // musik latar game (satu pemutar, src gonta-ganti per game; loop, stop pas keluar)
 let _gameAudio = null, _gameSrc = "";
 function gameMusicPlay(file) {
-    if (sndMuted()) return;
+    if (musicMuted()) return;
     try {
         if (!_gameAudio) { _gameAudio = new Audio(); _gameAudio.loop = true; }
         if (_gameSrc !== file) {
@@ -6150,7 +6186,7 @@ function renderBoard() {
 const MOCHI_NOTE_COUNT = 12;
 let _noteAudio = null;
 function mochiNotePlay() {
-    if (sndMuted()) return;
+    if (musicMuted()) return;
     try {
         const now = new Date();
         const n = ((now.getFullYear() * 372 + now.getMonth() * 31 + now.getDate()) % MOCHI_NOTE_COUNT) + 1;
