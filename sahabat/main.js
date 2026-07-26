@@ -2481,6 +2481,7 @@ async function loadLoyalty() {
             trackerHtml +
             '<div id="evTicketSlot"></div>' +
             renderRecapCardHtml() +
+            '<div id="snailSlot"></div>' +
             '<button type="button" class="psp-cta" id="btnPassport">' +
             '<span class="psp-cta-emblem">SS</span>' +
             '<span class="psp-cta-body"><span class="psp-cta-t">Paspor Warga</span>' +
@@ -2500,6 +2501,7 @@ async function loadLoyalty() {
         initJournalTrackerListeners(_profile.wa);
         initWeekNowListeners();
         renderEventTicket(); // kalau _evRegistered belum ada, loadEvents yang ngisi nanti
+        loadSnailMail().then(snailCtaRefresh).catch(() => { }); // kotak surat bulanan Mochi
         const rc = $("recapCard");
         if (rc) rc.addEventListener("click", openMonthlyRecap);
         $("scardEvents").addEventListener("click", openEventLog);
@@ -3031,6 +3033,11 @@ function mochiSmartMessages() {
     const myNick = (_profile && _profile.nickname) || "";
     const bd = BDAY_TODAY.filter(b => b.nickname !== myNick);
     if (bd.length) msgs.push("🎈 " + bd[0].nickname + " ultah hari ini — kirim ucapan yuk!");
+    // 2b) Surat bulanan belum dibaca? kabarin (excitement-nya di sini)
+    try {
+        const un = snailAvail().filter(l => !snailReadSet().has(l.id)).length;
+        if (un) msgs.push("\ud83d\udcec Surat bulanan dari Mochi udah nyampe — buka Kotak Surat di Home!");
+    } catch (e) { }
     // 3) Belum check-in minggu ini: ingetin (bawa-bawa streak biar makin kepancing)
     try {
         const records = getJournalTrackerData(_profile.wa).records || {};
@@ -3829,6 +3836,136 @@ function playSfx(name, vol) {
 
 // toggle tema (dark/light) bunyi "cetek" lampu — theme.js udah nge-dispatch event ini
 document.addEventListener("ss-theme-change", () => playSfx("light", 0.8));
+
+// ---------- Snail Mail: surat bulanan dari Mochi 📬 ----------
+// 12 surat di snail_mail.js, tiap surat "nyampe" tanggal 1 jam 9 pagi. Gratis
+// buat semua warga; yang udah kebuka ngumpul di Kotak Surat (arsip di Home).
+let _snailMail = null;
+function loadSnailMail() {
+    if (_snailMail) return Promise.resolve(_snailMail);
+    if (Array.isArray(window.SS_SNAILMAIL) && window.SS_SNAILMAIL.length) {
+        _snailMail = window.SS_SNAILMAIL;
+        return Promise.resolve(_snailMail);
+    }
+    return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "snail_mail.js";
+        s.onload = () => {
+            if (Array.isArray(window.SS_SNAILMAIL) && window.SS_SNAILMAIL.length) { _snailMail = window.SS_SNAILMAIL; resolve(_snailMail); }
+            else reject(new Error("daftar surat kosong"));
+        };
+        s.onerror = () => reject(new Error("gagal load surat"));
+        document.body.appendChild(s);
+    });
+}
+
+// surat yang udah "nyampe" (publish_date jam 09:00 udah lewat), terbaru duluan
+function snailAvail() {
+    const now = Date.now();
+    return (_snailMail || []).filter(l => {
+        const t = new Date(String(l.publish_date) + "T09:00:00").getTime();
+        return t && t <= now;
+    }).sort((a, b) => String(b.publish_date).localeCompare(String(a.publish_date)));
+}
+function snailReadSet() {
+    try { return new Set(JSON.parse(localStorage.getItem("ss_snail_read") || "[]")); } catch (e) { return new Set(); }
+}
+function snailMarkRead(id) {
+    try {
+        const s = Array.from(snailReadSet());
+        if (s.indexOf(id) < 0) s.push(id);
+        localStorage.setItem("ss_snail_read", JSON.stringify(s));
+    } catch (e) { }
+}
+function snailMonthLabel(l) {
+    const m = String(l.publish_date).match(/^(\d{4})-(\d{2})/);
+    return m ? BULAN_ID[parseInt(m[2], 10) - 1] + " " + m[1] : "";
+}
+// skin unik per bulan (warna kertas + perangko) -> tiap surat kerasa beda
+const SN_STAMPS = ["🐌", "🕊️", "🌻", "🍂", "❄️", "🌷"];
+function snailSkin(l) {
+    const m = String(l.publish_date).match(/-(\d{2})-/);
+    return m ? (parseInt(m[1], 10) - 1) % 6 : 0;
+}
+
+function snailCtaRefresh() {
+    const slot = $("snailSlot");
+    if (!slot) return;
+    const avail = snailAvail();
+    if (!avail.length) { slot.innerHTML = ""; return; }
+    const read = snailReadSet();
+    const unread = avail.filter(l => !read.has(l.id)).length;
+    slot.innerHTML =
+        '<button type="button" class="snail-cta" id="snailCta">' +
+        '<span class="snail-ic">📬</span>' +
+        '<span class="snail-body"><span class="snail-t">Kotak Surat Mochi</span>' +
+        '<span class="snail-s">' + (unread ? unread + ' surat belum dibaca 💌' : avail.length + ' surat terkumpul \u00b7 surat baru tiap tanggal 1') + '</span></span>' +
+        (unread ? '<span class="snail-new">BARU</span>' : '<span class="snail-go">buka \u2192</span>') +
+        '</button>';
+    $("snailCta").addEventListener("click", openSnailBox);
+}
+
+// Kotak surat: arsip semua surat yang udah nyampe, amplop beda-beda per bulan
+function openSnailBox() {
+    const avail = snailAvail();
+    const read = snailReadSet();
+    let rows = "";
+    avail.forEach((l, i) => {
+        const k = snailSkin(l);
+        const isNew = !read.has(l.id);
+        rows += '<button type="button" class="sn-env sk' + k + (i % 2 ? " r" : "") + '" data-sn="' + esc(l.id) + '">' +
+            '<span class="sn-stamp">' + SN_STAMPS[k] + '</span>' +
+            '<span class="sn-env-body"><span class="sn-post">SURAT ' + esc(snailMonthLabel(l).toUpperCase()) + '</span>' +
+            '<span class="sn-theme">' + esc(l.theme) + '</span></span>' +
+            (isNew ? '<span class="sn-seal"><img src="seal-paw.png" alt=""></span><span class="sn-badge">BARU</span>' : '<span class="sn-done">\u2713 dibaca</span>') +
+            '</button>';
+    });
+    // teaser surat berikutnya (biar ada yang ditunggu-tunggu)
+    let nextTxt = "";
+    const nextL = (_snailMail || []).filter(l => new Date(String(l.publish_date) + "T09:00:00").getTime() > Date.now())
+        .sort((a, b) => String(a.publish_date).localeCompare(String(b.publish_date)))[0];
+    if (nextL) nextTxt = '<div class="sn-next">\ud83d\udcee Surat berikutnya nyampe <b>1 ' + esc(snailMonthLabel(nextL)) + '</b> jam 9 pagi \u2728</div>';
+
+    const modal = $("questModal");
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">\u2715</button></div>' +
+        '<div class="qm-body">' +
+        '<div class="quest-game-title">\ud83d\udcec Kotak Surat Mochi</div>' +
+        '<div class="quest-game-desc">Sebulan sekali Mochi nulis surat buat semua warga — pelan kayak siput, tapi selalu nyampe \ud83d\udc8c</div>' +
+        (rows || '<div class="placeholder" style="padding:1.2rem 0;"><div class="em">\ud83d\udcec</div><p>Belum ada surat yang nyampe.</p></div>') +
+        nextTxt +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+    modal.querySelectorAll("[data-sn]").forEach(b => b.addEventListener("click", () => {
+        const l = avail.find(x => x.id === b.dataset.sn);
+        if (l) openSnailLetter(l);
+    }));
+}
+
+// Baca satu surat: kertas se-skin amplopnya, postmark bulan, ttd Mochi
+function openSnailLetter(l) {
+    playSfx("open-mail");
+    snailMarkRead(l.id);
+    const k = snailSkin(l);
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">\u2715</button></div>' +
+        '<div class="qm-body">' +
+        '<div class="sn-paper sk' + k + '">' +
+        '<span class="sn-washi"></span>' +
+        '<span class="sn-postmark">POS BALAI WARGA<br>' + esc(snailMonthLabel(l).toUpperCase()) + '</span>' +
+        '<div class="sn-kicker">SNAIL MAIL \u00b7 ' + SN_STAMPS[k] + '</div>' +
+        '<div class="sn-title">' + esc(l.theme) + '</div>' +
+        '<div class="sn-body">' + esc(l.letter_content) + '</div>' +
+        '<div class="sn-sign">\u2014 Mochi \ud83d\udc3e</div>' +
+        '</div>' +
+        '<button type="button" class="sn-back" id="snBack">\u2190 Balik ke Kotak Surat</button>' +
+        '</div>';
+    $("qmClose").addEventListener("click", closeQuestModal);
+    $("snBack").addEventListener("click", openSnailBox);
+    snailCtaRefresh(); // badge BARU di Home ikut update
+}
 
 // ---------- Kartu profil mini warga: rumahnya bio ----------
 // Dibuka dari tap avatar/nama di feed galeri & lightbox. Data dari item galeri

@@ -339,6 +339,8 @@
             #loyaltyContent > .card { order: 6; }
             #loyaltyContent > .tier { order: 7; }
             #loyaltyContent > .recap-card { order: 8; }
+            #loyaltyContent > #snailSlot { order: 9; }
+            #snailSlot:empty { display: none; }
 
             /* Event: kartu dua kolom, label & sticky note ultah tetap full-width */
             #pane-events.active { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; align-items: start; }
@@ -2333,6 +2335,52 @@
         .psp-cta-t { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: #ffe600; letter-spacing: .04em; }
         .psp-cta-s { display: block; font-size: .72rem; color: rgba(255, 255, 255, .8); margin-top: 1px; }
         .psp-cta-go { flex: none; font-weight: 800; font-size: .78rem; color: #ffe600; }
+
+        /* ---------- Snail Mail: kotak surat bulanan Mochi ---------- */
+        .snail-cta { position: relative; width: 100%; display: flex; align-items: center; gap: 11px; border: 1.5px dashed rgba(16, 36, 94, .3); cursor: pointer; font-family: inherit; text-align: left; background-color: #fdf6e3; background-image: repeating-linear-gradient(-45deg, rgba(179, 48, 95, .25) 0 8px, transparent 8px 16px, rgba(29, 78, 216, .25) 16px 24px, transparent 24px 32px); background-size: 100% 5px; background-repeat: no-repeat; background-position: top; border-radius: 14px; padding: 14px 14px 12px; margin-bottom: 1rem; transform: rotate(-.3deg); box-shadow: 0 3px 10px rgba(16, 36, 94, .08); }
+        .snail-cta:active { transform: rotate(-.3deg) scale(.98); }
+        .snail-ic { flex: none; font-size: 1.5rem; }
+        .snail-body { flex: 1; min-width: 0; }
+        .snail-t { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: #10245e; }
+        .snail-s { display: block; font-size: .74rem; color: #6b7794; margin-top: 1px; }
+        .snail-go { flex: none; font-weight: 800; font-size: .78rem; color: var(--blue); }
+        .snail-new { flex: none; background: #ef2d56; color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .62rem; letter-spacing: .06em; padding: 3px 9px; border-radius: 999px; animation: bdayPulse2 1.6s ease-in-out infinite; }
+        @keyframes bdayPulse2 { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        :root[data-theme="dark"] .snail-cta { background-color: #2a2417; border-color: rgba(255, 230, 0, .3); }
+        :root[data-theme="dark"] .snail-t { color: #eaeffc; }
+
+        /* amplop di kotak surat — skin beda per bulan */
+        .sn-env { position: relative; width: 100%; display: flex; align-items: center; gap: 10px; border: 1.5px solid rgba(16, 36, 94, .18); cursor: pointer; font-family: inherit; text-align: left; border-radius: 10px; padding: 13px 12px; margin-top: 12px; transform: rotate(-.8deg); box-shadow: 0 2px 7px rgba(16, 36, 94, .1); }
+        .sn-env.r { transform: rotate(.8deg); }
+        .sn-env:active { transform: scale(.98); }
+        .sn-stamp { flex: none; width: 34px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; background: rgba(255, 255, 255, .75); border: 1.5px dashed rgba(16, 36, 94, .35); border-radius: 4px; transform: rotate(3deg); }
+        .sn-env-body { flex: 1; min-width: 0; }
+        .sn-post { display: block; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .56rem; letter-spacing: .12em; color: rgba(16, 36, 94, .55); }
+        .sn-theme { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .84rem; color: #10245e; margin-top: 2px; line-height: 1.3; }
+        .sn-seal { flex: none; width: 30px; height: 30px; }
+        .sn-seal img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .2)); }
+        .sn-badge { position: absolute; top: -8px; right: 10px; background: #ef2d56; color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .58rem; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; box-shadow: 0 2px 5px rgba(0, 0, 0, .18); }
+        .sn-done { flex: none; font-size: .68rem; font-weight: 700; color: #0a7a3d; }
+        .sn-next { margin-top: 14px; font-size: .76rem; color: var(--muted); text-align: center; border: 1.5px dashed var(--line); border-radius: 12px; padding: 9px 10px; }
+        .sn-next b { color: var(--ink); }
+
+        /* 6 skin kertas/amplop — warna beda per bulan biar tiap surat unik */
+        .sn-env.sk0, .sn-paper.sk0 { background-color: #fdf6e3; background-image: radial-gradient(rgba(146, 116, 60, .13) 1px, transparent 1.2px); background-size: 10px 10px; }
+        .sn-env.sk1, .sn-paper.sk1 { background-color: #fff0f5; background-image: radial-gradient(rgba(190, 24, 93, .12) 1.2px, transparent 1.4px); background-size: 12px 12px; }
+        .sn-env.sk2, .sn-paper.sk2 { background-color: #fff8dc; background-image: repeating-linear-gradient(transparent, transparent 17px, rgba(146, 116, 60, .18) 18px); }
+        .sn-env.sk3, .sn-paper.sk3 { background-color: #eefaf1; background-image: radial-gradient(rgba(10, 122, 61, .12) 1px, transparent 1.2px); background-size: 11px 11px; }
+        .sn-env.sk4, .sn-paper.sk4 { background-color: #eef4ff; background-image: repeating-linear-gradient(transparent, transparent 17px, rgba(29, 78, 216, .14) 18px); }
+        .sn-env.sk5, .sn-paper.sk5 { background-color: #f5f0ff; background-image: radial-gradient(rgba(109, 40, 217, .11) 1.2px, transparent 1.4px); background-size: 12px 12px; }
+
+        /* kertas surat kebuka */
+        .sn-paper { position: relative; border: 1.5px solid rgba(16, 36, 94, .15); border-radius: 12px; padding: 34px 16px 16px; margin-top: 16px; text-align: left; box-shadow: 0 6px 16px rgba(16, 36, 94, .12); transform: rotate(-.4deg); }
+        .sn-washi { position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 84px; height: 19px; background: rgba(255, 230, 0, .8); border: 1px dashed rgba(16, 36, 94, .25); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+        .sn-postmark { position: absolute; top: 12px; right: 10px; width: 74px; height: 74px; border: 2px solid rgba(16, 36, 94, .22); border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .5rem; letter-spacing: .06em; line-height: 1.5; color: rgba(16, 36, 94, .45); transform: rotate(9deg); }
+        .sn-kicker { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .6rem; letter-spacing: .18em; color: rgba(16, 36, 94, .5); }
+        .sn-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.15rem; color: #10245e; margin: 6px 84px 12px 0; line-height: 1.3; }
+        .sn-body { font-size: .92rem; line-height: 1.85; color: #2a3550; }
+        .sn-sign { font-style: italic; font-weight: 700; font-size: .95rem; color: #10245e; margin-top: 14px; text-align: right; transform: rotate(-1.5deg); }
+        .sn-back { display: block; width: 100%; margin-top: 14px; border: 1.5px dashed var(--line); background: var(--bg); color: var(--ink); font-family: inherit; font-weight: 700; font-size: .82rem; border-radius: 12px; padding: 10px; cursor: pointer; }
 
         /* ---------- Paspor Warga: modal fullscreen gelap + buku yang kebuka dari cover ---------- */
         .psp-modal { position: fixed; inset: 0; background: rgba(10, 18, 51, .82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }

@@ -5,7 +5,7 @@ importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 // Strategi: network-first (kode & data selalu fresh), fallback ke cache saat offline.
 // Scope = folder /sahabat/, jadi TIDAK mengintervensi request ke Apps Script (beda origin).
 
-const CACHE = "ss-sahabat-v5";
+const CACHE = "ss-sahabat-v6";
 const CORE = [
   "./index.html",
   "./main.js",
@@ -15,7 +15,8 @@ const CORE = [
   "./apple-touch-icon.png",
   "./seal-paw.png",
   "./list_prompt.js",
-  "./list_fortune.js"
+  "./list_fortune.js",
+  "./snail_mail.js"
 ];
 
 self.addEventListener("install", (e) => {
