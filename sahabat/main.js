@@ -4058,7 +4058,7 @@ const SN_ACT = {
     },
     "SM-040": { // Ketika Emosi Datang Meluap-luap
         type: "catch", title: "TANGKAP RASA: BADAI EMOSI",
-        goal: 10,
+        goal: 30,
         emos: [
             { w: "Kesal", v: "Wajar kok kesal. Tarik napas dulu ya 🍃" },
             { w: "Sedih", v: "Sedih boleh singgah, nangis juga boleh 💧" },
@@ -4593,13 +4593,13 @@ function snActCatch(l, box, k) {
         el.style.left = (x * 100) + "%";
         el.style.rotate = (Math.random() * 10 - 5).toFixed(1) + "deg";
         stage.appendChild(el);
-        bubs.push({ el: el, x: x, y: -30, v: 55 + Math.random() * 40 + caught * 4, emo: emo });
+        bubs.push({ el: el, x: x, y: -30, v: 55 + Math.random() * 40 + caught * 2.2, emo: emo });
     }
     function loop(t) {
         if (!playing || !stage.isConnected) return; // halaman ditinggal -> stop
         const dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
         lastT = t;
-        if (t - lastSpawn > Math.max(650, 1100 - caught * 40)) { spawn(); lastSpawn = t; }
+        if (t - lastSpawn > Math.max(520, 1100 - caught * 22)) { spawn(); lastSpawn = t; }
         const rc = stage.getBoundingClientRect();
         const catchY = rc.height - 74;
         for (let i = bubs.length - 1; i >= 0; i--) {
