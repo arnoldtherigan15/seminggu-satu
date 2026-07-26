@@ -3251,7 +3251,7 @@ function mochiSmartMessages() {
         const todayMood = moodOf(moodMonthKey(), new Date().getDate());
         if (!todayMood) msgs.push("🌦️ Cuaca hatimu hari ini belum dicatat — cerita ke Mochi yuk!");
         else if (todayMood === "hujan") msgs.push("🌧️ Hati lagi hujan ya… pelan-pelan aja hari ini. Mochi di sini 🤗");
-        else if (todayMood === "badai") msgs.push("⛈️ Lagi kewalahan? Tarik napas bareng Mochi yuk — tap aku");
+        else if (todayMood === "badai") msgs.push("⛈️ Berat ya hari ini… Mochi nyiapin sesuatu di kartu cuacamu di Home 💙");
     } catch (e) { }
     // 5) Penutup: teaser surat harian (selalu ada di ekor rotasi)
     msgs.push("💌 Baca surat dari Mochi");
@@ -3887,13 +3887,11 @@ function renderMochiChooser(modal, list) {
         (bday ? '<button class="mp-choice mc-bday" id="mcBday"><span class="mc-em">🎂</span><b>Surat Ultah</b><span>spesial hari ini ✨</span></button>' : '') +
         '<button class="mp-choice" id="mcPrompt"><span class="mc-em">✍️</span><b>Prompt Harian</b><span>ide journaling</span></button>' +
         '<button class="mp-choice cookie" id="mcCookie"><span class="mc-em">🥠</span><b>Fortune Cookie</b><span>pesan manis buatmu</span></button>' +
-        '<button class="mp-choice mood" id="mcBreath"><span class="mc-em">🌬️</span><b>Napas Bareng</b><span>rehat 1 menit</span></button>' +
-        '<button class="mp-choice tl" id="mcTulis"><span class="mc-em">🗑️</span><b>Tulis Lepas</b><span>tumpahin, terus sobek</span></button>' +
         '</div>' +
         '</div>';
+    // Napas Bareng & Tulis Lepas sengaja NGGAK ada di sini — mereka kejutan yang
+    // muncul sebagai CTA pas nyatet cuaca hati (badai -> tumpahin -> napas)
     $("mpClose").addEventListener("click", closeMochiPrompt);
-    $("mcBreath").addEventListener("click", () => renderBreath(modal)); // Cuaca Hati udah pindah ke Home
-    $("mcTulis").addEventListener("click", () => renderTulisLepas(modal));
     const mcB = $("mcBday");
     if (mcB) mcB.addEventListener("click", () => renderMochiEnvelope(modal, list, "bday"));
     $("mcPrompt").addEventListener("click", () => renderMochiEnvelope(modal, list, "prompt"));
