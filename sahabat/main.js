@@ -2859,7 +2859,7 @@ function pushTagCheckin(weekKey) {
     if (actionMail) {
         actionMail.addEventListener("click", () => {
             toggleMenu(false);
-            openSnailBox(); // Kotak Surat Mochi (snail mail)
+            openPostboxPage(); // Kotak Pos Warga (saran/aspirasi ber-vote)
         });
     }
 
