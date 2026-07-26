@@ -3770,7 +3770,7 @@ function renderTeras(modal) {
         '<div class="mp-head">🌧️ Duduk Bareng Mochi</div>' +
         '<div class="mp-sub">Nggak perlu ngapa-ngapain. Dengerin hujannya aja.</div>' +
         '<div class="tr-scene" id="trScene">' +
-        '<span class="tr-rain"></span><span class="tr-rain r2"></span>' +
+        '<div class="tr-rainbox" id="trRainbox"></div>' +
         '<img class="tr-mochi" src="../images/sticker/str-6.png" alt="">' +
         '<button type="button" class="tr-cup" id="trCup" aria-label="Seruput cokelat anget">☕</button>' +
         '<div class="tr-line" id="trLine"></div>' +
@@ -3780,7 +3780,19 @@ function renderTeras(modal) {
         '<button class="mp-btn ghost" id="trDone">Udahan, makasih 💙</button>' +
         '</div>' +
         '</div>';
-    gameMusicPlay("music-hujan.mp3"); // ambience hujan (kalau filenya belum ada, diem aja — nggak error)
+    // rintik: ~26 tetes dengan posisi/kecepatan/panjang acak — jatuh miring kayak hujan beneran
+    const rb = $("trRainbox");
+    for (let i = 0; i < 26; i++) {
+        const d = document.createElement("span");
+        d.className = "tr-drop";
+        d.style.left = (Math.random() * 104 - 2) + "%";
+        d.style.height = (12 + Math.random() * 12) + "px";
+        d.style.animationDuration = (0.8 + Math.random() * 0.8) + "s";
+        d.style.animationDelay = (Math.random() * 1.6) + "s";
+        d.style.opacity = (0.35 + Math.random() * 0.5).toFixed(2);
+        rb.appendChild(d);
+    }
+    gameMusicPlay("music-hujan.mp3"); // ambience hujan
     $("mpClose").addEventListener("click", () => { gameMusicStop(); closeMochiPrompt(); });
     $("trDone").addEventListener("click", () => { gameMusicStop(); openMoodTracker(modal); });
     $("trHug").addEventListener("click", async () => {
