@@ -3232,7 +3232,8 @@
         @keyframes mrgPop { 0% { transform: scale(0) rotate(-30deg); } 70% { transform: scale(1.25) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
         .mr-v { font-weight: 800; font-size: .84rem; color: var(--ink); font-family: 'Outfit', sans-serif; line-height: 1.5; }
         .mr-p { font-size: .8rem; color: var(--muted); line-height: 1.65; margin-top: 6px; }
-        .mr-cta { display: block; width: 100%; margin-top: 10px; }
+        /* CTA respons cuaca: goyang berkala biar ke-notice bisa diklik (pola sn-bonus) */
+        .mr-cta { display: block; width: 100%; margin-top: 10px; animation: snBonusShake 3s ease-in-out infinite .8s; }
 
         /* Tulis Lepas + Sobek */
         .tl-stage { position: relative; margin-top: 12px; min-height: 190px; }
