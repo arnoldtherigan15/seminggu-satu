@@ -4090,16 +4090,10 @@ const SN_ACT = {
             "Cerita ke 1 orang yang kamu percaya", "Tandai 1 kebiasaan yang mau disudahi", "Peluk diri 10 detik, beneran", "Tutup bulan ini dengan 1 kata: lega"]
     },
     "SM-044": { // Berantakan Itu Manusiawi
-        type: "catch", title: "TANGKAP RASA: HARI YANG KUSUT",
-        goal: 10,
-        emos: [
-            { w: "Kusut", v: "Benang kusut diurainya satu-satu 🧶" },
-            { w: "Bingung", v: "Nggak tau arah bukan berarti tersesat 🧭" },
-            { w: "Kacau", v: "Berantakan itu bagian dari proses 🎨" },
-            { w: "Lelah", v: "Istirahat itu juga produktif 💤" },
-            { w: "Ragu", v: "Pelan-pelan aja, nggak usah buru-buru 🐌" },
-            { w: "Lega", v: "Nah, ini yang dicari! Simpan ya ✨" }
-        ]
+        type: "dash", title: "WORD DASH: NEMBUS HARI KUSUT",
+        goal: 8,
+        words: ["Pelan", "Napas", "Bisa", "Urai", "Satu-satu"],
+        clouds: ["Kusut", "Kacau", "Numpuk", "Ribet"]
     },
     "SM-045": { // Kesepian di Keramaian
         type: "scramble", title: "SUSUN KATA: PELAN-PELAN MENDEKAT",
@@ -4123,16 +4117,10 @@ const SN_ACT = {
             "Rayain nyelesaiin buku/episode", "Makan enak buat diri sendiri", "Tidur sebelum jam 11", "Tulis terima kasih buat tubuhmu"]
     },
     "SM-048": { // Rasa Cemas yang Suka Bohong
-        type: "catch", title: "TANGKAP RASA: CEMAS YANG BOHONG",
-        goal: 10,
-        emos: [
-            { w: "Panik", v: "Napas… 4 masuk, 7 tahan, 8 keluar 🌬️" },
-            { w: "Takut", v: "Ketakutan sering lebih besar di kepala 💭" },
-            { w: "Khawatir", v: "Fokus ke yang bisa kamu pegang hari ini 🤲" },
-            { w: "Ragu", v: "Kamu lebih siap dari yang kamu kira 🌱" },
-            { w: "Overthink", v: "Pikiranmu bukan fakta 📝" },
-            { w: "Tenang", v: "Nah! Bawa rasa ini pulang ✨" }
-        ]
+        type: "dash", title: "WORD DASH: NEMBUS AWAN CEMAS",
+        goal: 8,
+        words: ["Tenang", "Aman", "Nyata", "Pelan", "Bisa"],
+        clouds: ["Gimana?", "Panik", "Takut", "Overthink"]
     },
     "SM-049": { // Pelukan Hangat untuk Diri Sendiri
         type: "scramble", title: "SUSUN KATA: PELUK DIRI",
@@ -4155,7 +4143,11 @@ function snActType(l) {
 }
 function snActLabel(l) {
     const t = snActType(l);
-    return t === "ws" ? "Cari Kata 🔍" : (t === "bingo" ? "Bingo Journaling 🎯" : (t === "scramble" ? "Susun Kata 🔤" : "Tangkap Rasa 🫧"));
+    if (t === "ws") return "Cari Kata 🔍";
+    if (t === "bingo") return "Bingo Journaling 🎯";
+    if (t === "scramble") return "Susun Kata 🔤";
+    if (t === "dash") return "Mochi's Word Dash ☁️";
+    return "Tangkap Rasa 🫧";
 }
 
 const SN_WS_POOL = ["JURNAL", "MOCHI", "WASHI", "STIKER", "SYUKUR", "MIMPI", "CERITA", "WARGA", "BALAI", "PELUK", "NAPAS", "TENANG", "KARYA", "PENSIL", "KOPI", "SENJA"];
@@ -4316,9 +4308,152 @@ function openSnailActivity(l) {
         }));
     } else if (type === "scramble") {
         snActScramble(l, box, k);
+    } else if (type === "dash") {
+        snActDash(l, box, k);
     } else {
         snActCatch(l, box, k);
     }
+}
+
+// ---------- Mochi's Word Dash: flappy nembus awan pikiran negatif ----------
+// Tap = ngepak. Kumpulin kata positif yang beterbangan; nabrak awan negatif
+// nggak langsung game over (3 ❤️) — vibe-nya "bersihin kepala", bukan dihukum.
+function snActDash(l, box, k) {
+    const pack = SN_ACT[l.id];
+    const GOAL = pack.goal || 8;
+    box.innerHTML =
+        '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+        '<span class="sn-washi"></span>' +
+        '<div class="sn-kicker">' + esc(pack.title) + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
+        '<div class="sn-act-hint">Tap buat ngepak! Kumpulin ' + GOAL + ' kata positif, hindarin awan pikiran negatif ☁️</div>' +
+        '<div class="wd-stage" id="wdStage">' +
+        '<div class="ct-score" id="wdScore">0 / ' + GOAL + '</div>' +
+        '<div class="wd-lives" id="wdLives">❤️❤️❤️</div>' +
+        '<img class="wd-mochi" id="wdMochi" src="../images/sticker/str-6.png" alt="">' +
+        '<div class="ct-start" id="wdStart"><button type="button" class="btn-primary" id="wdPlay">Terbang! 🕊️</button></div>' +
+        '</div>' +
+        '</div>' +
+        '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>';
+    $("snBack").addEventListener("click", () => openSnailLetter(l, true));
+
+    const stage = $("wdStage"), mochi = $("wdMochi"), scoreEl = $("wdScore"), livesEl = $("wdLives");
+    const MX = 54; // posisi x Mochi (tetap)
+    let my = 0, vy = 0, playing = false, lives = 3, got = 0, lastT = 0, spawnT = 0, invUntil = 0;
+    const obs = []; // { el, x, gapY, gapH, chip: {el, x, y, taken} | null }
+
+    function flap() { if (playing) vy = -260; }
+    stage.addEventListener("pointerdown", (e) => { flap(); e.preventDefault(); });
+
+    function cleanup() {
+        obs.forEach(o => { if (o.el.parentNode) o.el.parentNode.removeChild(o.el); if (o.chip && o.chip.el.parentNode) o.chip.el.parentNode.removeChild(o.chip.el); });
+        obs.length = 0;
+    }
+    function spawnOb(W, H) {
+        const gapH = 150;
+        const gapY = 34 + Math.random() * (H - gapH - 68);
+        const cw = pack.clouds[Math.floor(Math.random() * pack.clouds.length)];
+        const el = document.createElement("div");
+        el.className = "wd-ob";
+        el.innerHTML =
+            '<div class="wd-cloud top" style="height:' + gapY + 'px;"><span>☁️ ' + esc(cw) + '</span></div>' +
+            '<div class="wd-cloud bot" style="top:' + (gapY + gapH) + 'px;"></div>';
+        stage.appendChild(el);
+        const o = { el: el, x: W + 40, gapY: gapY, gapH: gapH, chip: null };
+        // ~60% celah ada kata positifnya
+        if (Math.random() < 0.62) {
+            const w = pack.words[Math.floor(Math.random() * pack.words.length)];
+            const ce = document.createElement("div");
+            ce.className = "wd-chip";
+            ce.textContent = "✨ " + w;
+            stage.appendChild(ce);
+            o.chip = { el: ce, x: o.x + 26, y: gapY + gapH / 2 - 14, taken: false };
+        }
+        obs.push(o);
+    }
+    function end(win) {
+        playing = false;
+        cleanup();
+        const st = $("wdStart");
+        st.style.display = "";
+        if (win) {
+            playSfx("challenge-done");
+            fireConfetti("reward");
+            st.innerHTML = '<div class="ct-end">Kepala udah bersih & ringan ✨<br>Kata-kata baiknya bawa ke jurnal ya!</div>' +
+                '<button type="button" class="btn-primary" id="wdPlay" style="margin-top:10px;">Terbang lagi 🔁</button>';
+        } else {
+            st.innerHTML = '<div class="ct-end">Kepalanya lagi penuh banget ☁️<br>Tarik napas dulu… terus coba lagi pelan-pelan 💙</div>' +
+                '<button type="button" class="btn-primary" id="wdPlay" style="margin-top:10px;">Coba lagi 🕊️</button>';
+        }
+        $("wdPlay").addEventListener("click", start);
+    }
+    function loop(t) {
+        if (!playing || !stage.isConnected) return;
+        const dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
+        lastT = t;
+        const rc = stage.getBoundingClientRect();
+        const W = rc.width, H = rc.height;
+        // fisika Mochi
+        vy += 620 * dt;
+        my = Math.max(4, Math.min(H - 52, my + vy * dt));
+        if (my <= 4 || my >= H - 52) vy = 0; // mentok atas/bawah: berhenti halus, bukan mati
+        mochi.style.transform = "translateY(" + my + "px) rotate(" + Math.max(-22, Math.min(26, vy / 9)) + "deg)";
+        // spawn
+        if (t - spawnT > 1700) { spawnOb(W, H); spawnT = t; }
+        const vx = 105 + got * 5;
+        const inv = t < invUntil;
+        mochi.classList.toggle("hurt", inv);
+        for (let i = obs.length - 1; i >= 0; i--) {
+            const o = obs[i];
+            o.x -= vx * dt;
+            o.el.style.transform = "translateX(" + o.x + "px)";
+            if (o.chip && !o.chip.taken) {
+                o.chip.x -= vx * dt;
+                o.chip.el.style.transform = "translate(" + o.chip.x + "px," + o.chip.y + "px)";
+            }
+            // tabrakan (kotak Mochi ~ MX..MX+46, my..my+44)
+            const hitX = o.x < MX + 46 && o.x + 62 > MX;
+            if (hitX && !inv && (my < o.gapY - 6 || my + 44 > o.gapY + o.gapH + 6)) {
+                lives--;
+                livesEl.textContent = "❤️".repeat(Math.max(0, lives)) + "🩶".repeat(3 - Math.max(0, lives));
+                invUntil = t + 1300; // kebal sebentar biar nggak double-hit
+                stage.classList.add("shake");
+                setTimeout(() => stage.classList.remove("shake"), 350);
+                if (lives <= 0) { end(false); return; }
+            }
+            // ambil kata positif
+            if (o.chip && !o.chip.taken && o.chip.x < MX + 46 && o.chip.x + 66 > MX && o.chip.y < my + 44 && o.chip.y + 28 > my) {
+                o.chip.taken = true;
+                o.chip.el.classList.add("got");
+                (function (el) { setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 300); })(o.chip.el);
+                got++;
+                scoreEl.textContent = got + " / " + GOAL;
+                playSfx("love", 0.55);
+                mochi.classList.add("boost");
+                setTimeout(() => mochi.classList.remove("boost"), 450);
+                if (got >= GOAL) { end(true); return; }
+            }
+            if (o.x < -90) {
+                if (o.el.parentNode) o.el.parentNode.removeChild(o.el);
+                if (o.chip && o.chip.el.parentNode) o.chip.el.parentNode.removeChild(o.chip.el);
+                obs.splice(i, 1);
+            }
+        }
+        requestAnimationFrame(loop);
+    }
+    function start() {
+        cleanup();
+        got = 0; lives = 3; vy = 0; invUntil = 0;
+        my = stage.getBoundingClientRect().height / 2 - 22;
+        scoreEl.textContent = "0 / " + GOAL;
+        livesEl.textContent = "❤️❤️❤️";
+        $("wdStart").style.display = "none";
+        playing = true;
+        lastT = 0; spawnT = 0;
+        requestAnimationFrame(loop);
+    }
+    $("wdPlay").addEventListener("click", start);
+    const pg = $("snailPage");
+    if (pg) pg.scrollTop = 0;
 }
 
 // ---------- Susun Kata: acak huruf -> kata kunci -> refleksi journaling ----------
