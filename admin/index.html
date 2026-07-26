@@ -1774,6 +1774,10 @@
       color: #b45309;
     }
 
+    .sg-votes { display: inline-block; background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 1px 8px; margin-right: 4px; vertical-align: 1px; }
+    .sg-del { border: 1px solid #fecaca; background: #fff5f5; color: #b91c1c; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+    .sg-del:hover { background: #fee2e2; }
+
     .loy-note-badge {
       font-size: 11px;
       background: #eef2ff;
@@ -3322,6 +3326,13 @@
             </button>
             <div class="acc-body"><div id="memInactive"></div></div>
           </div>
+          <div class="acc" id="accSuggest">
+            <button class="acc-head" type="button">
+              <span class="acc-title">📮 Kotak Pos Warga <span class="acc-count" id="sgCount">…</span></span>
+              <span class="acc-chevron">▸</span>
+            </button>
+            <div class="acc-body"><div id="sgList"><p class="hint">Buka buat muat usulan warga.</p></div></div>
+          </div>
         </div>
 
         <!-- ===== VIEW: NOTIFIKASI / AKTIVITAS ===== -->
@@ -4687,9 +4698,53 @@
           const acc = document.getElementById(id);
           acc.querySelector(".acc-head").addEventListener("click", () => acc.classList.toggle("open"));
         });
+        // Kotak Pos Warga: muat pas pertama kali dibuka
+        const accSg = document.getElementById("accSuggest");
+        accSg.querySelector(".acc-head").addEventListener("click", () => {
+          accSg.classList.toggle("open");
+          if (accSg.classList.contains("open") && !accSg._loaded) { accSg._loaded = true; loadSuggestions(); }
+        });
         membersInit = true;
       }
       loadMembers();
+    }
+
+    // ---- Kotak Pos Warga (aspirasi ber-vote) ----
+    const SG_CAT_LABEL = { challenge: "🎯 Ide Challenge / Game", surat: "💌 Tema Surat Bulanan", fitur: "✨ Usulan Fitur" };
+    async function loadSuggestions() {
+      const el = document.getElementById("sgList");
+      el.innerHTML = skelLines(3);
+      try {
+        const r = await api("getSuggestions", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
+        const items = r.items || [];
+        document.getElementById("sgCount").textContent = items.length;
+        if (!items.length) { el.innerHTML = '<p class="hint">Kotak posnya masih kosong 📭</p>'; return; }
+        // urut vote terbanyak, dikelompokkan per kategori
+        let html = "";
+        ["challenge", "surat", "fitur"].forEach(cat => {
+          const group = items.filter(x => x.category === cat).sort((a, b) => b.votes - a.votes);
+          if (!group.length) return;
+          html += '<div style="font-weight:800;font-size:12px;margin:14px 0 8px;color:var(--muted);">' + SG_CAT_LABEL[cat] + ' (' + group.length + ')</div>';
+          group.forEach(it => {
+            html += `<div class="loy-card"><div class="loy-top">
+              <div style="min-width:0;">
+                <div class="loy-name"><span class="sg-votes">📮 ${it.votes}</span> ${escapeHtml(it.text)}</div>
+                <div class="loy-wa">— ${escapeHtml(it.nickname)} · ${it.ts ? new Date(it.ts).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) : ""}</div>
+              </div>
+              <button class="sg-del" data-sgid="${escapeHtml(it.id)}">🗑 Tolak</button>
+            </div></div>`;
+          });
+        });
+        el.innerHTML = html;
+        el.querySelectorAll(".sg-del").forEach(b => b.addEventListener("click", async () => {
+          if (!confirm("Hapus usulan ini? Nggak bisa dibalikin.")) return;
+          b.disabled = true;
+          const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.sgid });
+          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          loadSuggestions();
+        }));
+      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
     }
 
     // sub boleh HTML (potongan data di-escape satu-satu pas nyusun)

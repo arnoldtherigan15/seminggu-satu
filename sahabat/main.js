@@ -5104,6 +5104,108 @@ function openSnailLetter(l, silent) {
     if (pg) pg.scrollTop = 0;
 }
 
+// ---------- Kotak Pos Warga: kotak saran ber-vote di mading ----------
+const SG_CATS = [
+    { k: "challenge", e: "🎯", t: "Ide Challenge / Game" },
+    { k: "surat", e: "💌", t: "Tema Surat Bulanan" },
+    { k: "fitur", e: "✨", t: "Usulan Fitur" }
+];
+let _sgData = null;   // { items, left }
+let _sgCat = "challenge";
+
+function sgCatInfo(k) { return SG_CATS.find(c => c.k === k) || SG_CATS[2]; }
+
+async function loadSuggestions(force) {
+    if (_sgData && !force) return _sgData;
+    _sgData = await fetchJSONP(GS + "?page=suggestions&wa=" + encodeURIComponent(_profile.wa), "sug", 15000);
+    if (!_sgData || !Array.isArray(_sgData.items)) _sgData = { items: [] };
+    if (typeof _sgData.left !== "number") _sgData.left = 0;
+    return _sgData;
+}
+
+function renderPbPanel() {
+    const panel = $("pbPanel");
+    if (!panel || !_sgData) return;
+    const left = _sgData.left;
+    let chips = "";
+    SG_CATS.forEach(c => {
+        chips += '<button type="button" class="pb-cat' + (_sgCat === c.k ? " on" : "") + '" data-cat="' + c.k + '">' + c.e + ' ' + c.t + '</button>';
+    });
+    // urut: vote terbanyak dulu, seri -> terbaru
+    const items = _sgData.items.slice().sort((a, b) => (b.votes - a.votes) || (b.ts - a.ts));
+    let list = "";
+    items.forEach(it => {
+        const c = sgCatInfo(it.category);
+        list += '<div class="pb-item">' +
+            '<div class="pb-item-top"><span class="pb-item-cat">' + c.e + ' ' + esc(c.t) + '</span>' +
+            '<button type="button" class="pb-vote' + (it.voted ? " on" : "") + '" data-sgv="' + esc(it.id) + '">📮 ' + it.votes + '</button></div>' +
+            '<div class="pb-item-text">' + esc(it.text) + '</div>' +
+            '<div class="pb-item-by">— ' + esc(it.nickname) + (it.mine ? ' <span class="me-star">⭐</span>' : '') + ' · ' + esc(timeAgo(it.ts)) + '</div>' +
+            '</div>';
+    });
+    panel.innerHTML =
+        '<div class="pb-form">' +
+        '<div class="pb-form-t">Mau usul apa nih? 📨</div>' +
+        '<div class="pb-cats">' + chips + '</div>' +
+        '<textarea id="pbInput" maxlength="200" rows="3" placeholder="Tulis ide / aspirasimu… (max 200)"></textarea>' +
+        '<button type="button" class="btn-primary" id="pbSend"' + (left <= 0 ? " disabled" : "") + ' style="margin-top:8px;">' +
+        (left <= 0 ? "Kuota hari ini habis — besok lagi 🌙" : "📮 Masukin ke Kotak Pos" + (left < 2 ? " (" + left + " lagi)" : "")) + '</button>' +
+        '</div>' +
+        (list ? '<div class="pb-list-t">📬 Aspirasi warga — dukung yang kamu suka!</div>' + list
+            : '<div class="pb-empty">Belum ada usulan — jadilah yang pertama! ✨</div>');
+
+    panel.querySelectorAll(".pb-cat").forEach(b => b.addEventListener("click", () => {
+        _sgCat = b.dataset.cat;
+        panel.querySelectorAll(".pb-cat").forEach(x => x.classList.toggle("on", x.dataset.cat === _sgCat));
+    }));
+    $("pbSend").addEventListener("click", async () => {
+        const text = $("pbInput").value.trim();
+        if (text.length < 5) { alert("Usulannya kependekan 😅 ceritain dikit lagi ya."); return; }
+        const btn = $("pbSend");
+        btn.disabled = true;
+        showBusy("Masukin ke kotak pos…");
+        try {
+            const r = await apiPost({ action: "memberPostSuggestion", token: _profile.token, category: _sgCat, text: text });
+            if (r.status !== "success") { btn.disabled = false; alert(r.message || "Gagal."); return; }
+            playSfx("open-mail");
+            fireConfetti("quest");
+            await loadSuggestions(true);
+            renderPbPanel();
+        } catch (e) { btn.disabled = false; alert("Gagal terhubung ke server. Coba lagi ya."); }
+        finally { hideBusy(); }
+    });
+    panel.querySelectorAll("[data-sgv]").forEach(b => b.addEventListener("click", async () => {
+        const it = _sgData.items.find(x => x.id === b.dataset.sgv);
+        if (!it) return;
+        // optimistis: toggle langsung, koreksi dari respons server
+        it.voted = !it.voted;
+        it.votes = Math.max(0, it.votes + (it.voted ? 1 : -1));
+        if (it.voted) playSfx("love", 0.6);
+        b.classList.toggle("on", it.voted);
+        b.textContent = "📮 " + it.votes;
+        try {
+            const r = await apiPost({ action: "memberVoteSuggestion", token: _profile.token, id: it.id });
+            if (r.status === "success") { it.votes = r.votes; it.voted = r.voted; b.textContent = "📮 " + it.votes; b.classList.toggle("on", it.voted); }
+        } catch (e) { }
+    }));
+}
+
+function wirePostbox(modal) {
+    const pb = $("mdPostbox");
+    if (!pb) return;
+    pb.addEventListener("click", async () => {
+        const panel = $("pbPanel");
+        const opening = panel.style.display === "none";
+        panel.style.display = opening ? "" : "none";
+        pb.classList.toggle("open", opening);
+        if (opening && !_sgData) {
+            panel.innerHTML = '<div class="pb-empty">📮 Lagi ngecek isi kotak pos…</div>';
+            try { await loadSuggestions(); renderPbPanel(); }
+            catch (e) { panel.innerHTML = '<div class="pb-empty">Gagal ngambil isi kotak pos — coba lagi ya 🙏</div>'; }
+        }
+    });
+}
+
 // ---------- Kartu profil mini warga: rumahnya bio ----------
 // Dibuka dari tap avatar/nama di feed galeri & lightbox. Data dari item galeri
 // (server nempelin bio + avatar terkini di tiap item).
@@ -5391,6 +5493,12 @@ function renderMadingModal() {
         '<button class="md-close" id="mdClose" aria-label="Tutup">✕</button>' +
         '</div>' +
         '<button type="button" class="md-note" id="mdNote"><span class="md-note-ic">🎧</span> Pesan kecil dari Mochi buat hari ini <span class="md-note-eq"><i></i><i></i><i></i></span></button>' +
+        '<button type="button" class="md-postbox md-in" id="mdPostbox" style="--d:.05s">' +
+        '<span class="pb-slot"></span>' +
+        '<span class="pb-t">📮 KOTAK POS WARGA</span>' +
+        '<span class="pb-s">Usul ide challenge, tema surat, atau fitur — vote yang kamu suka! ▾</span>' +
+        '</button>' +
+        '<div class="pb-panel" id="pbPanel" style="display:none"></div>' +
         '<button class="wb-add" id="mdAdd" style="width:100%;padding:11px;font-size:.85rem;"' + (left <= 0 ? ' disabled' : '') + '>' + addLabel + '</button>' +
         '<div class="md-compose" id="mdCompose" style="display:none;">' +
         '<span class="wb-pin">📌</span>' +
@@ -5409,6 +5517,7 @@ function renderMadingModal() {
         '</div>';
     $("mdClose").addEventListener("click", closeMading);
     $("mdNote").addEventListener("click", () => { wrappedMusicStop(); mochiNotePlay(); }); // tap = puter ulang
+    wirePostbox(modal);
     modal.querySelectorAll("[data-goev]").forEach(b => b.addEventListener("click", () => {
         closeMading();
         try { location.hash = "events"; } catch (e) { }

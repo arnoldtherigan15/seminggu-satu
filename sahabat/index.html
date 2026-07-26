@@ -1555,6 +1555,31 @@
         /* stiker nangkring di pojok kartu INFO BALAI */
         .md-info-stk { position: absolute; top: -16px; right: -8px; width: 46px; transform: rotate(14deg); pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .18)); z-index: 2; }
 
+        /* 📮 Kotak Pos Warga: pillar box merah retro di mading */
+        .md-postbox { position: relative; display: block; width: 100%; margin-bottom: 10px; background: linear-gradient(180deg, #f43f5e, #d81f4b 70%, #c01843); border: none; border-radius: 18px 18px 10px 10px; padding: 26px 14px 12px; cursor: pointer; font-family: inherit; text-align: center; color: #fff; box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .18), inset 0 2px 0 rgba(255, 255, 255, .25), 0 4px 10px rgba(120, 20, 40, .35); }
+        .md-postbox:active { transform: scale(.98); }
+        .pb-slot { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 110px; height: 9px; background: #5a0f23; border-radius: 999px; box-shadow: inset 0 2px 3px rgba(0, 0, 0, .6); }
+        .pb-t { display: block; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .92rem; letter-spacing: .08em; }
+        .pb-s { display: block; font-size: .7rem; opacity: .9; margin-top: 3px; }
+        .md-postbox.open .pb-s { opacity: .75; }
+        .pb-panel { background-color: #fffdf6; background-image: radial-gradient(rgba(16, 36, 94, .06) 1px, transparent 1.2px); background-size: 10px 10px; border: 1.5px solid rgba(120, 80, 30, .35); border-radius: 12px; padding: 12px; margin-bottom: 14px; }
+        .pb-form-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .88rem; color: #10245e; margin-bottom: 8px; }
+        .pb-cats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
+        .pb-cat { border: 1.5px dashed rgba(16, 36, 94, .35); background: rgba(255, 255, 255, .85); color: #10245e; font-family: inherit; font-weight: 700; font-size: .7rem; border-radius: 999px; padding: 6px 10px; cursor: pointer; }
+        .pb-cat.on { background: var(--yellow); border: 1.5px solid #10245e; }
+        .pb-panel textarea { width: 100%; border: 1.5px solid rgba(16, 36, 94, .25); border-radius: 10px; padding: .65rem; font-family: inherit; font-size: 16px; color: #10245e; background: #fff; resize: vertical; }
+        .pb-panel textarea:focus { outline: none; border-color: var(--blue); }
+        .pb-list-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .76rem; color: #6b4f23; margin: 16px 0 8px; }
+        .pb-item { background: #fff; border: 1.5px solid rgba(16, 36, 94, .12); border-radius: 10px; padding: 10px 11px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(60, 40, 10, .08); }
+        .pb-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .pb-item-cat { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .6rem; letter-spacing: .04em; color: #6b7794; text-transform: uppercase; }
+        .pb-vote { flex: none; border: 1.5px dashed rgba(16, 36, 94, .35); background: rgba(255, 255, 255, .9); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; border-radius: 999px; padding: 4px 10px; cursor: pointer; transition: transform .12s ease; }
+        .pb-vote:active { transform: scale(.9); }
+        .pb-vote.on { background: var(--yellow); border: 1.5px solid #10245e; }
+        .pb-item-text { font-size: .84rem; line-height: 1.6; color: #2a3550; margin-top: 5px; }
+        .pb-item-by { font-size: .68rem; color: #8a7a56; margin-top: 5px; font-style: italic; }
+        .pb-empty { text-align: center; font-size: .78rem; color: #8a7a56; padding: 10px 0; }
+
         /* 🏆 spotlight karya sang juara di mading */
         .md-champ { position: relative; display: block; width: 100%; margin-top: 18px; background-color: #fffdf4; background-image: radial-gradient(rgba(234, 179, 8, .14) 1.2px, transparent 1.4px); background-size: 12px 12px; border: 2.5px solid #eab308; border-radius: 8px; padding: 20px 12px 12px; box-shadow: 0 6px 16px rgba(120, 80, 30, .3), inset 0 0 0 3px rgba(234, 179, 8, .2); transform: rotate(-.8deg); font-family: inherit; text-align: center; }
         .mc-crown { position: absolute; top: -17px; left: 50%; font-size: 1.6rem; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .28)); z-index: 2; animation: mcBob 2s ease-in-out infinite; }
