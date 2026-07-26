@@ -2054,6 +2054,16 @@ function openCheckinModal(wa) {
     lockScroll();
     $("qmClose").addEventListener("click", closeQuestModal);
     wirePhotoPicker($("questModalBox"));
+    // refresh tracker + kartu Minggu Ini (dipakai jalur optimistis & rollback)
+    function refreshCheckinUi() {
+        const widget = $("journalTrackerWidget");
+        if (widget) {
+            widget.outerHTML = renderJournalTrackerHtml(wa);
+            initJournalTrackerListeners(wa);
+        }
+        const wn = $("weekNowCard");
+        if (wn) { wn.outerHTML = renderWeekNowHtml(); initWeekNowListeners(); }
+    }
     $("ciSave").addEventListener("click", async () => {
         const box = $("questModalBox");
         const input = box.querySelector(".qm-file-input");
@@ -2061,27 +2071,50 @@ function openCheckinModal(wa) {
         const photo = input && input._photo;
         const note = capInput ? capInput.value.trim() : "";
         const btn = $("ciSave");
+
+        // ---- TANPA foto: optimistis — stempel langsung nempel, server nyusul ----
+        if (!photo) {
+            const prevRecords = _profile.journalRecords;
+            try {
+                const recs = JSON.parse(_profile.journalRecords || "{}") || {};
+                recs[cw.key] = { note: note, ts: Date.now() };
+                _profile.journalRecords = JSON.stringify(recs);
+            } catch (e) { }
+            pushTagCheckin(cw.key);
+            playSfx("check-in");
+            fireConfetti("quest");
+            closeQuestModal();
+            refreshCheckinUi();
+            apiPost({ action: "memberCheckin", token: _profile.token, weekKey: cw.key, note: note }).then(r => {
+                if (r.status === "success") {
+                    _profile.journalRecords = r.journalRecords || _profile.journalRecords; // sinkron versi server
+                } else {
+                    _profile.journalRecords = prevRecords; // rollback: stempel dicopot lagi
+                    refreshCheckinUi();
+                    alert(r.message || "Check-in belum kesimpen 😢 Coba lagi ya.");
+                }
+            }).catch(() => {
+                _profile.journalRecords = prevRecords;
+                refreshCheckinUi();
+                alert("Gagal terhubung ke server. Check-in belum kesimpen, coba lagi ya.");
+            });
+            return;
+        }
+
+        // ---- DENGAN foto: tetap nunggu (upload beneran, butuh kepastian) ----
         const orig = btn.textContent;
         btn.disabled = true; btn.textContent = "Menyimpan…";
-        showBusy(photo ? "Menyimpan check-in + foto…" : "Menyimpan check-in…");
+        showBusy("Menyimpan check-in + foto…");
         try {
-            const payload = { action: "memberCheckin", token: _profile.token, weekKey: cw.key, note: note };
-            if (photo) { payload.photoBase64 = photo.base64; payload.photoMime = photo.mime; }
-            const r = await apiPost(payload);
+            const r = await apiPost({ action: "memberCheckin", token: _profile.token, weekKey: cw.key, note: note, photoBase64: photo.base64, photoMime: photo.mime });
             if (r.status !== "success") { btn.disabled = false; btn.textContent = orig; alert(r.message || "Gagal menyimpan absen."); return; }
             _profile.journalRecords = r.journalRecords || _profile.journalRecords; // sinkron dari server
-            if (photo) _galleryLoaded = false; // biar galeri refetch (foto weekly ikut tampil)
+            _galleryLoaded = false; // biar galeri refetch (foto weekly ikut tampil)
             pushTagCheckin(cw.key); // jangan kirimi reminder mingguan lagi
             playSfx("check-in");
             fireConfetti("quest");
             closeQuestModal();
-            const widget = $("journalTrackerWidget");
-            if (widget) {
-                widget.outerHTML = renderJournalTrackerHtml(wa);
-                initJournalTrackerListeners(wa);
-            }
-            const wn = $("weekNowCard");
-            if (wn) { wn.outerHTML = renderWeekNowHtml(); initWeekNowListeners(); }
+            refreshCheckinUi();
         } catch (e) {
             btn.disabled = false; btn.textContent = orig;
             alert("Gagal terhubung ke server. Coba lagi ya.");
@@ -3077,24 +3110,59 @@ function openProfileEditor() {
         const btn = $("peSave");
         const nick = $("peNick").value.trim();
         if (!nick) { alert("Nama panggilan jangan kosong ya 😊"); return; }
+        const birth = $("peBirth").value.trim();
+        const bio = $("peBio").value.trim();
+
+        function applyProfileUi() {
+            renderProfileAva();
+            $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
+        }
+
+        // ---- TANPA foto baru: optimistis — profil keganti seketika, server nyusul ----
+        if (!newPhoto) {
+            const prev = { nickname: _profile.nickname, birthDate: _profile.birthDate, bio: _profile.bio };
+            _profile.nickname = nick;
+            _profile.birthDate = birth || _profile.birthDate;
+            _profile.bio = bio;
+            applyProfileUi();
+            fireConfetti("login");
+            closeQuestModal();
+            apiPost({ action: "memberUpdateProfile", token: _profile.token, nickname: nick, birthDate: birth, bio: bio }).then(r => {
+                if (r.status === "success") {
+                    _profile.nickname = r.nickname || _profile.nickname;
+                    _profile.birthDate = r.birthDate || _profile.birthDate;
+                    _profile.bio = r.bio !== undefined ? r.bio : _profile.bio;
+                    applyProfileUi();
+                    _galleryLoaded = false; // nickname di galeri ikut berubah -> refetch nanti
+                    _lbLoaded = false; _lbData = null; // nama di leaderboard juga
+                } else {
+                    _profile.nickname = prev.nickname; _profile.birthDate = prev.birthDate; _profile.bio = prev.bio; // rollback
+                    applyProfileUi();
+                    alert(r.message || "Profil belum kesimpen 😢 Coba lagi ya.");
+                }
+            }).catch(() => {
+                _profile.nickname = prev.nickname; _profile.birthDate = prev.birthDate; _profile.bio = prev.bio;
+                applyProfileUi();
+                alert("Gagal terhubung ke server. Profil belum kesimpen, coba lagi ya.");
+            });
+            return;
+        }
+
+        // ---- DENGAN foto baru: tetap nunggu (upload beneran) ----
         btn.disabled = true;
         showBusy("Menyimpan profil…");
         try {
-            const payload = {
+            const r = await apiPost({
                 action: "memberUpdateProfile", token: _profile.token,
-                nickname: nick,
-                birthDate: $("peBirth").value.trim(),
-                bio: $("peBio").value.trim()
-            };
-            if (newPhoto) { payload.photoBase64 = newPhoto.base64; payload.photoMime = newPhoto.mime; }
-            const r = await apiPost(payload);
+                nickname: nick, birthDate: birth, bio: bio,
+                photoBase64: newPhoto.base64, photoMime: newPhoto.mime
+            });
             if (r.status !== "success") { btn.disabled = false; alert(r.message || "Gagal menyimpan."); return; }
             _profile.nickname = r.nickname || _profile.nickname;
             _profile.birthDate = r.birthDate || _profile.birthDate;
             _profile.photoUrl = r.photoUrl || _profile.photoUrl;
             _profile.bio = r.bio !== undefined ? r.bio : _profile.bio;
-            renderProfileAva();
-            $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
+            applyProfileUi();
             _galleryLoaded = false; // avatar & nickname di galeri ikut berubah -> refetch nanti
             _lbLoaded = false; _lbData = null; // nama di leaderboard juga
             fireConfetti("login");
