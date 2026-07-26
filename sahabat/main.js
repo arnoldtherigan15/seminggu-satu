@@ -3594,7 +3594,7 @@ const MOOD_CARE = {
         ],
         v: ["Nggak apa-apa sedih. Nangis juga boleh 💧", "Peluk dulu 🤗 kamu nggak sendirian di hujan ini", "Sedihmu valid — nggak usah buru-buru cerah"],
         p: ["Kalau sedihnya bisa ngomong, dia mau bilang apa?", "Tulis surat pendek buat dirimu yang lagi hujan-hujanan ini.", "Apa yang biasanya bikin kamu hangat pas begini? Boleh banget dilakuin sekarang."],
-        cta: { t: "🤗 Ambil pelukan kata", act: "hug" }
+        cta: { t: "🌧️ Duduk bareng Mochi dulu", act: "teras" } // ditemenin dulu; pelukan kata ditawarin dari dalam scene
     },
     badai: {
         g: [
@@ -3751,6 +3751,69 @@ function renderTulisLepas(modal) {
     });
 }
 
+// ---------- Duduk di Teras Bareng Mochi 🌧️ (buat hari yang sedih) ----------
+// Bukan tugas, bukan game — scene hujan yang nemenin. Sedih butuh DITEMENIN,
+// bukan disuruh ngapa-ngapain. Mochi duduk bareng & sesekali ngomong pelan.
+const TERAS_LINES = [
+    "Nggak usah ngomong apa-apa. Duduk aja.",
+    "Hujannya lumayan ya… tapi kita di teras, aman.",
+    "Kalau mau nangis, gapapa. Mochi nggak liat kok 👀",
+    "Pelan-pelan aja. Nggak ada yang buru-buru.",
+    "Cokelatnya diminum selagi anget ☕",
+    "Kamu udah kuat banget hari ini. Beneran.",
+    "Mochi nggak ke mana-mana. Selama yang kamu butuh."
+];
+function renderTeras(modal) {
+    modal.innerHTML =
+        '<div class="mochi-box">' +
+        '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
+        '<div class="mp-head">🌧️ Duduk Bareng Mochi</div>' +
+        '<div class="mp-sub">Nggak perlu ngapa-ngapain. Dengerin hujannya aja.</div>' +
+        '<div class="tr-scene" id="trScene">' +
+        '<span class="tr-rain"></span><span class="tr-rain r2"></span>' +
+        '<img class="tr-mochi" src="../images/sticker/str-6.png" alt="">' +
+        '<button type="button" class="tr-cup" id="trCup" aria-label="Seruput cokelat anget">☕</button>' +
+        '<div class="tr-line" id="trLine"></div>' +
+        '</div>' +
+        '<div class="mp-actions">' +
+        '<button class="mp-btn" id="trHug">🤗 Pelukan kata</button>' +
+        '<button class="mp-btn ghost" id="trDone">Udahan, makasih 💙</button>' +
+        '</div>' +
+        '</div>';
+    gameMusicPlay("music-hujan.mp3"); // ambience hujan (kalau filenya belum ada, diem aja — nggak error)
+    $("mpClose").addEventListener("click", () => { gameMusicStop(); closeMochiPrompt(); });
+    $("trDone").addEventListener("click", () => { gameMusicStop(); openMoodTracker(modal); });
+    $("trHug").addEventListener("click", async () => {
+        gameMusicStop();
+        showBusy("Mochi lagi ngambil kue…");
+        try { await loadFortunes(); } catch (e) { hideBusy(); alert("Gagal ngambil kue-nya 😢"); return; }
+        hideBusy();
+        renderFortuneScene(modal, null, false, "mochi_hug");
+    });
+    // omongan pelan Mochi, ganti tiap ~7 detik (urut, nggak acak — kayak obrolan)
+    const lineEl = $("trLine");
+    let li = 0;
+    function say() {
+        if (!lineEl.isConnected) return; // pindah view -> berhenti
+        lineEl.textContent = "🐾 " + TERAS_LINES[li % TERAS_LINES.length];
+        lineEl.classList.remove("in");
+        void lineEl.offsetWidth;
+        lineEl.classList.add("in");
+        li++;
+        setTimeout(say, 7000);
+    }
+    say();
+    // seruput cokelat: micro-interaction kecil
+    $("trCup").addEventListener("click", () => {
+        playSfx("love", 0.4);
+        const s = document.createElement("span");
+        s.className = "tr-sip";
+        s.textContent = "♨️";
+        $("trScene").appendChild(s);
+        setTimeout(() => { if (s.parentNode) s.parentNode.removeChild(s); }, 900);
+    });
+}
+
 // buka Cuaca Hati langsung (dari widget Home) — tanpa lewat chooser
 function openMoodDirect() {
     let modal = $("mochiModal");
@@ -3856,6 +3919,7 @@ function openMoodTracker(modal, justPicked) {
         cta.addEventListener("click", async () => {
             if (act === "tulis") { renderTulisLepas(modal); return; }
             if (act === "breath") { renderBreath(modal); return; }
+            if (act === "teras") { renderTeras(modal); return; }
             if (act === "mading") { closeMochiPrompt(); openMadingModal(); return; }
             if (act === "hug") {
                 showBusy("Mochi lagi ngambil kue…");

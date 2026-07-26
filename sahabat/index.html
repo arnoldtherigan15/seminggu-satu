@@ -3235,6 +3235,21 @@
         /* CTA respons cuaca: goyang berkala biar ke-notice bisa diklik (pola sn-bonus) */
         .mr-cta { display: block; width: 100%; margin-top: 10px; animation: snBonusShake 3s ease-in-out infinite .8s; }
 
+        /* Duduk di Teras Bareng Mochi (scene hujan) */
+        .tr-scene { position: relative; height: 230px; border-radius: 14px; overflow: hidden; margin-top: 12px; background: linear-gradient(180deg, #232f55 0%, #33406e 55%, #3d3654 100%); border: 1.5px solid rgba(255, 255, 255, .12); }
+        .tr-rain { position: absolute; inset: -60px 0 0 0; pointer-events: none; background-image: repeating-linear-gradient(12deg, transparent 0 9px, rgba(190, 210, 255, .28) 9px 10.5px); animation: trRain 1.1s linear infinite; opacity: .7; }
+        .tr-rain.r2 { background-image: repeating-linear-gradient(15deg, transparent 0 17px, rgba(190, 210, 255, .18) 17px 18.5px); animation-duration: 1.7s; }
+        @keyframes trRain { to { transform: translateY(60px); } }
+        .tr-mochi { position: absolute; bottom: 10px; left: 22px; width: 72px; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .4)); pointer-events: none; animation: trSway 3.4s ease-in-out infinite; transform-origin: bottom center; }
+        @keyframes trSway { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg); } }
+        .tr-cup { position: absolute; bottom: 12px; left: 104px; border: none; background: none; font-size: 1.5rem; cursor: pointer; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .4)); -webkit-tap-highlight-color: transparent; }
+        .tr-cup::after { content: '♨️'; position: absolute; top: -14px; left: 6px; font-size: .7rem; opacity: .7; animation: trSteam 2.2s ease-in-out infinite; }
+        @keyframes trSteam { 0% { transform: translateY(0); opacity: .7; } 100% { transform: translateY(-10px); opacity: 0; } }
+        .tr-sip { position: absolute; bottom: 52px; left: 112px; font-size: 1rem; animation: trSteam .9s ease-out forwards; pointer-events: none; }
+        .tr-line { position: absolute; top: 16px; left: 14px; right: 14px; text-align: center; font-size: .84rem; font-weight: 700; color: #dfe7ff; line-height: 1.6; text-shadow: 0 1px 3px rgba(0, 0, 0, .5); opacity: 0; }
+        .tr-line.in { animation: trLineIn .6s ease forwards; }
+        @keyframes trLineIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
         /* Tulis Lepas + Sobek */
         .tl-stage { position: relative; margin-top: 12px; min-height: 190px; }
         .tl-input { width: 100%; min-height: 185px; border: 1.5px dashed var(--line); border-radius: 12px; padding: .8rem; font-family: inherit; font-size: 16px; line-height: 1.7; color: var(--ink); background: var(--bg); resize: vertical; }
