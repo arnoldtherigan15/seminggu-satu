@@ -7,6 +7,18 @@ const QUEST_WA_GROUP = "https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?s=cl&p=
 const ADMIN_WA = "6281214574782"; // WA Arnold buat claim voucher ulang tahun
 let _wa = "";        // wa (normalized) yang lagi diproses
 let _profile = null; // { token, nickname, birthDate, wa }
+
+// ---------- Preferensi warga (Pengaturan ⚙️) ----------
+// ss_font: "normal" | "large" -> html[data-font] (semua ukuran rem ikut ke-scale)
+// ss_mute: "1" = semua sfx & musik senyap
+(function applyPrefs() {
+    try {
+        if (localStorage.getItem("ss_font") === "large") document.documentElement.setAttribute("data-font", "large");
+    } catch (e) { }
+})();
+function sndMuted() {
+    try { return localStorage.getItem("ss_mute") === "1"; } catch (e) { return false; }
+}
 let _loyaltyLoaded = false;
 
 function $(id) { return document.getElementById(id); }
@@ -1340,6 +1352,7 @@ function openWrapped() {
 // Lazy: file mp3 baru di-download pas pertama kali wrapped dibuka.
 let _wrAudio = null;
 function wrappedMusicPlay() {
+    if (sndMuted()) return;
     try {
         if (!_wrAudio) {
             _wrAudio = new Audio("../bg-music-2.mp3");
@@ -2930,36 +2943,66 @@ function pushTagCheckin(weekKey) {
         });
     }
 
-    // ---- Toggle Dark Mode ----
-    const ICON_MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-    const ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-    const actionTheme = $("fabActionTheme");
-    if (actionTheme) {
-        const icon = $("fabThemeIcon");
-        const label = $("fabThemeLabel");
-        const meta = document.querySelector('meta[name="theme-color"]');
-        function syncTheme() {
-            const dark = document.documentElement.getAttribute("data-theme") === "dark";
-            if (icon) icon.innerHTML = dark ? ICON_SUN : ICON_MOON;
-            if (label) label.textContent = dark ? "Light Mode" : "Dark Mode";
-            if (meta) meta.setAttribute("content", dark ? "#0d1526" : "#0046ff");
-        }
-        syncTheme();
-        actionTheme.addEventListener("click", () => {
+    // ---- Pengaturan (tema, ukuran teks, suara) ----
+    const actionSettings = $("fabActionTheme");
+    if (actionSettings) {
+        actionSettings.addEventListener("click", () => {
             toggleMenu(false);
-            playSfx("light", 0.8); // FAB ini toggle sendiri (nggak lewat ssToggleTheme), jadi bunyinya dipasang di sini
-            const dark = document.documentElement.getAttribute("data-theme") === "dark";
-            if (dark) {
-                document.documentElement.removeAttribute("data-theme");
-                try { localStorage.setItem("ss_theme", "light"); } catch (e) { }
-            } else {
-                document.documentElement.setAttribute("data-theme", "dark");
-                try { localStorage.setItem("ss_theme", "dark"); } catch (e) { }
-            }
-            syncTheme();
+            openSettings();
         });
     }
 })();
+
+// ---------- Pengaturan ⚙️: Balai-mu, aturanmu ----------
+function setThemePref(dark) {
+    if (dark) document.documentElement.setAttribute("data-theme", "dark");
+    else document.documentElement.removeAttribute("data-theme");
+    try { localStorage.setItem("ss_theme", dark ? "dark" : "light"); } catch (e) { }
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", dark ? "#0d1526" : "#0046ff");
+}
+
+function openSettings() {
+    const modal = $("questModal");
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const isLarge = document.documentElement.getAttribute("data-font") === "large";
+    const muted = sndMuted();
+    const seg = (id, opts) => '<div class="st-seg" id="' + id + '">' +
+        opts.map(o => '<button type="button" class="st-opt' + (o.on ? " on" : "") + '" data-v="' + o.v + '">' + o.t + '</button>').join("") + '</div>';
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="qm-body">' +
+        '<div class="quest-game-title">⚙️ Pengaturan</div>' +
+        '<div class="quest-game-desc">Atur Balai-mu senyaman kamu 💙</div>' +
+        '<div class="st-row"><div class="st-lbl">🌓 Tema</div>' +
+        seg("stTheme", [{ v: "light", t: "☀️ Terang", on: !isDark }, { v: "dark", t: "🌙 Gelap", on: isDark }]) + '</div>' +
+        '<div class="st-row"><div class="st-lbl">🔤 Ukuran Teks</div>' +
+        seg("stFont", [{ v: "normal", t: "Normal", on: !isLarge }, { v: "large", t: "Besar Aa", on: isLarge }]) + '</div>' +
+        '<div class="st-row"><div class="st-lbl">🔊 Suara & Musik</div>' +
+        seg("stSound", [{ v: "on", t: "🔔 Nyala", on: !muted }, { v: "off", t: "🔕 Senyap", on: muted }]) + '</div>' +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+    function pick(segId, cb) {
+        $(segId).querySelectorAll(".st-opt").forEach(b => b.addEventListener("click", () => {
+            $(segId).querySelectorAll(".st-opt").forEach(x => x.classList.toggle("on", x === b));
+            cb(b.dataset.v);
+        }));
+    }
+    pick("stTheme", v => { setThemePref(v === "dark"); playSfx("light", 0.8); });
+    pick("stFont", v => {
+        if (v === "large") document.documentElement.setAttribute("data-font", "large");
+        else document.documentElement.removeAttribute("data-font");
+        try { localStorage.setItem("ss_font", v); } catch (e) { }
+        playSfx("love", 0.5);
+    });
+    pick("stSound", v => {
+        try { localStorage.setItem("ss_mute", v === "off" ? "1" : "0"); } catch (e) { }
+        if (v === "off") { gameMusicStop(); wrappedMusicStop(); mochiNoteStop(); }
+        else playSfx("love", 0.6); // konfirmasi suara nyala lagi
+    });
+}
 
 // ============================================================
 //  Profil warga: avatar sapaan + editor (foto, tanggal lahir, bio)
@@ -3950,6 +3993,7 @@ function openGalleryLightbox(it) {
 // Audio di-cache per nama biar tap kedua langsung bunyi tanpa fetch ulang.
 const _sfxCache = {};
 function playSfx(name, vol) {
+    if (sndMuted()) return;
     try {
         let a = _sfxCache[name];
         if (!a) { a = new Audio("../sound-effect/" + name + ".mp3"); _sfxCache[name] = a; }
@@ -5060,6 +5104,7 @@ function snActScramble(l, box, k) {
 // musik latar game (satu pemutar, src gonta-ganti per game; loop, stop pas keluar)
 let _gameAudio = null, _gameSrc = "";
 function gameMusicPlay(file) {
+    if (sndMuted()) return;
     try {
         if (!_gameAudio) { _gameAudio = new Audio(); _gameAudio.loop = true; }
         if (_gameSrc !== file) {
@@ -5514,6 +5559,7 @@ function renderBoard() {
 const MOCHI_NOTE_COUNT = 12;
 let _noteAudio = null;
 function mochiNotePlay() {
+    if (sndMuted()) return;
     try {
         const now = new Date();
         const n = ((now.getFullYear() * 372 + now.getMonth() * 31 + now.getDate()) % MOCHI_NOTE_COUNT) + 1;

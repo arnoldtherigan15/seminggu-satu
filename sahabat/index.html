@@ -47,6 +47,9 @@
             box-sizing: border-box;
         }
 
+        /* Ukuran teks "Besar" (Pengaturan) — semua satuan rem ikut nge-scale */
+        :root[data-font="large"] { font-size: 18px; }
+
         :root {
             --blue: #0046ff;
             --blue-2: #0092ff;
@@ -3087,6 +3090,14 @@
         .wc-bio { font-style: italic; font-size: .86rem; color: var(--muted); line-height: 1.55; margin: 6px auto 0; max-width: 260px; }
         .wc-chips { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
         .wc-chip { background: var(--bg); border: 1.5px dashed var(--line); border-radius: 999px; padding: 5px 12px; font-size: .74rem; font-weight: 700; color: var(--ink); }
+        /* Pengaturan: baris preferensi + segmented control */
+        .st-row { margin-top: 16px; text-align: left; }
+        .st-lbl { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .82rem; color: var(--ink); margin-bottom: 7px; }
+        .st-seg { display: flex; gap: 8px; }
+        .st-opt { flex: 1; border: 1.5px dashed var(--line); background: var(--bg); color: var(--muted); font-family: inherit; font-weight: 700; font-size: .84rem; border-radius: 12px; padding: 11px 8px; cursor: pointer; transition: transform .12s ease; }
+        .st-opt:active { transform: scale(.95); }
+        .st-opt.on { background: var(--yellow); border: 2px solid #10245e; color: #10245e; transform: rotate(-1deg); }
+
         .pe-field { margin-top: 12px; text-align: left; }
         .pe-field label { display: block; font-size: .74rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px; }
         .pe-field input[type="text"], .pe-field input[type="date"], .pe-field textarea { display: block; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; border: 1.5px solid var(--line); border-radius: 12px; padding: .7rem; font-family: inherit; font-size: 16px; color: var(--ink); background: var(--card); }
@@ -3161,12 +3172,12 @@
         .mood-btn:active { transform: scale(.92); }
         .mood-btn.on { background: var(--yellow); border: 2px solid #10245e; transform: rotate(-2deg); }
         .mood-e { font-size: 1.35rem; }
-        .mood-t { font-size: .6rem; font-weight: 800; color: #cbd5f5; font-family: 'Outfit', sans-serif; }
+        .mood-t { font-size: .7rem; font-weight: 800; color: #cbd5f5; font-family: 'Outfit', sans-serif; }
         .mood-btn.on .mood-t { color: #10245e; }
-        .mood-d { font-size: .5rem; color: rgba(203, 213, 245, .7); line-height: 1.25; max-width: 62px; }
-        .mood-btn.on .mood-d { color: rgba(16, 36, 94, .75); }
+        .mood-d { font-size: .58rem; color: rgba(203, 213, 245, .78); line-height: 1.3; max-width: 68px; }
+        .mood-btn.on .mood-d { color: rgba(16, 36, 94, .8); }
         .mood-cal { margin-top: 14px; background: rgba(255, 255, 255, .07); border: 1.5px dashed rgba(255, 255, 255, .25); border-radius: 12px; padding: 10px; }
-        .mood-cal-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .68rem; letter-spacing: .04em; color: #cbd5f5; margin-bottom: 8px; text-align: left; }
+        .mood-cal-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .76rem; letter-spacing: .04em; color: #cbd5f5; margin-bottom: 8px; text-align: left; }
         .mg-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .mg-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: .9rem; border-radius: 8px; background: rgba(255, 255, 255, .06); }
         .mg-cell i { font-style: normal; font-size: .56rem; font-weight: 700; color: rgba(203, 213, 245, .55); }
@@ -3388,8 +3399,8 @@
                         <span class="fab-item-label">Edit Profil</span>
                     </button>
                     <button class="fab-item" id="fabActionTheme">
-                        <span class="fab-item-icon" id="fabThemeIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
-                        <span class="fab-item-label" id="fabThemeLabel">Dark Mode</span>
+                        <span class="fab-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                        <span class="fab-item-label">Pengaturan</span>
                     </button>
                     <button class="fab-item" id="fabActionMail">
                         <span class="fab-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg></span>
