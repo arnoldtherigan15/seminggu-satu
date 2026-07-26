@@ -4378,7 +4378,8 @@ function snActSnake(l, box, k) {
             let x, y, tries = 0;
             do { x = Math.floor(Math.random() * COLS); y = Math.floor(Math.random() * ROWS); tries++; } while (!cellFree(x, y) && tries < 80);
             const el = document.createElement("div");
-            el.className = "wsn-word";
+            // kata yang BENER dikasih warna sama kayak highlight di bar kutipan
+            el.className = "wsn-word" + (w === tokens[idx] ? " hot" : "");
             el.textContent = w;
             el.style.transform = "translate(" + (x * CELL) + "px," + (y * CELL) + "px)";
             el.style.height = CELL + "px";
