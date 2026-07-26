@@ -2427,7 +2427,17 @@
         /* bonus aktivitas snail mail: Cari Kata & Bingo */
         /* instruksi game: kotak catatan jelas, jangan abu-abu samar */
         .sn-act-hint { font-size: .8rem; font-weight: 600; color: #2a3550; background: rgba(255, 255, 255, .75); border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 10px; padding: 8px 11px; margin: 8px 0 12px; line-height: 1.6; }
-        .sn-bonus { display: block; width: 100%; margin-top: 14px; border: none; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .85rem; border-radius: 12px; padding: 12px; cursor: pointer; box-shadow: 0 3px 0 rgba(16, 36, 94, .25); transform: rotate(-.4deg); }
+        .sn-bonus { display: block; width: 100%; margin-top: 14px; border: none; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .85rem; border-radius: 12px; padding: 12px; cursor: pointer; box-shadow: 0 3px 0 rgba(16, 36, 94, .25); transform: rotate(-.4deg); animation: snBonusShake 2.8s ease-in-out infinite; }
+        /* goyang sebentar tiap ~3 detik biar orang notice ada bonus game */
+        @keyframes snBonusShake {
+            0%, 84%, 100% { transform: rotate(-.4deg); }
+            86% { transform: rotate(1.8deg); }
+            88% { transform: rotate(-2.2deg); }
+            90% { transform: rotate(1.8deg); }
+            92% { transform: rotate(-1.4deg); }
+            94% { transform: rotate(.8deg); }
+            96% { transform: rotate(-.4deg); }
+        }
         .sn-bonus:active { transform: rotate(-.4deg) translateY(2px); box-shadow: 0 1px 0 rgba(16, 36, 94, .25); }
         .ws-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
         .ws-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(16, 36, 94, .15); border-radius: 6px; background: rgba(255, 255, 255, .75); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .82rem; color: #10245e; cursor: pointer; padding: 0; }

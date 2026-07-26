@@ -3938,6 +3938,7 @@ function openSnailBox(setHash) {
     m.scrollTop = 0;
     lockScroll();
     $("snpClose").addEventListener("click", () => closeSnailPage());
+    gameMusicPlay("music-snail.mp3"); // musik halaman kotak surat (blocked pas deep-link tanpa gesture -> nyusul di interaksi berikutnya)
     if (setHash !== false) { try { if (location.hash !== "#snail-mail") location.hash = "snail-mail"; } catch (e) { } }
     loadSnailMail().then(renderSnailBox).catch(() => {
         const b = $("snpBody");
@@ -4216,6 +4217,7 @@ function openSnailActivity(l) {
     const type = snActType(l);
     const box = $("snpBody");
     if (!box) return;
+    gameMusicStop(); // musik halaman berhenti; game yang punya musik nyalain sendiri
     if (type === "ws") {
         gameMusicPlay("music-cari-kata.mp3");
         const ws = snBuildWs(l);
@@ -4791,7 +4793,12 @@ let _gameAudio = null, _gameSrc = "";
 function gameMusicPlay(file) {
     try {
         if (!_gameAudio) { _gameAudio = new Audio(); _gameAudio.loop = true; }
-        if (_gameSrc !== file) { _gameAudio.src = "../music/" + file; _gameSrc = file; }
+        if (_gameSrc !== file) {
+            _gameAudio.src = "../music/" + file;
+            _gameSrc = file;
+        } else if (!_gameAudio.paused) {
+            return; // file sama & masih muter -> biarin nyambung (musik halaman surat)
+        }
         _gameAudio.volume = 0.6;
         _gameAudio.currentTime = 0;
         _gameAudio.play().catch(() => { });
@@ -4911,7 +4918,7 @@ function snActCatch(l, box, k) {
 function openSnailLetter(l, silent) {
     const body = $("snpBody");
     if (!body) return;
-    gameMusicStop(); // balik dari game -> musiknya berhenti
+    gameMusicPlay("music-snail.mp3"); // balik dari game -> musik halaman surat lagi
     if (!silent) playSfx("open-mail");
     snailMarkRead(l.id);
     const k = snailSkin(l);
