@@ -4544,6 +4544,23 @@ function snActScramble(l, box, k) {
     render();
 }
 
+// musik latar game Tangkap Rasa (loop selama main, berhenti pas selesai/keluar)
+let _catchAudio = null;
+function catchMusicPlay() {
+    try {
+        if (!_catchAudio) {
+            _catchAudio = new Audio("../music/music_catch.mp3");
+            _catchAudio.loop = true;
+            _catchAudio.volume = 0.6;
+        }
+        _catchAudio.currentTime = 0;
+        _catchAudio.play().catch(() => { });
+    } catch (e) { }
+}
+function catchMusicStop() {
+    try { if (_catchAudio) _catchAudio.pause(); } catch (e) { }
+}
+
 // ---------- Tangkap Rasa: arcade gelembung emosi jatuh, Mochi nangkepin ----------
 function snActCatch(l, box, k) {
     const pack = SN_ACT[l.id];
@@ -4596,7 +4613,7 @@ function snActCatch(l, box, k) {
         bubs.push({ el: el, x: x, y: -30, v: 55 + Math.random() * 40 + caught * 2.2, emo: emo });
     }
     function loop(t) {
-        if (!playing || !stage.isConnected) return; // halaman ditinggal -> stop
+        if (!playing || !stage.isConnected) { catchMusicStop(); return; } // halaman ditinggal -> stop
         const dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
         lastT = t;
         if (t - lastSpawn > Math.max(520, 1100 - caught * 22)) { spawn(); lastSpawn = t; }
@@ -4625,6 +4642,7 @@ function snActCatch(l, box, k) {
     }
     function end() {
         playing = false;
+        catchMusicStop();
         bubs.forEach(b => { if (b.el.parentNode) b.el.parentNode.removeChild(b.el); });
         bubs.length = 0;
         playSfx("challenge-done");
@@ -4639,6 +4657,7 @@ function snActCatch(l, box, k) {
         caught = 0;
         scoreEl.textContent = "0 / " + GOAL;
         $("ctStart").style.display = "none";
+        catchMusicPlay();
         playing = true;
         lastSpawn = 0; lastT = 0;
         requestAnimationFrame(loop);
