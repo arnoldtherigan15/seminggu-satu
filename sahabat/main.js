@@ -3944,6 +3944,186 @@ function openSnailBox() {
     }));
 }
 
+// ---------- Bonus aktivitas di amplop: Cari Kata / Bingo (gantian tiap bulan) ----------
+// Deterministik dari bulan surat (PRNG mulberry32) -> semua warga dapet puzzle
+// yang sama, nggak berubah tiap buka. Progress kesimpen di localStorage.
+function snMulberry(a) {
+    return function () {
+        a |= 0; a = a + 0x6D2B79F5 | 0;
+        let t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+}
+function snSeed(l) {
+    const m = String(l.publish_date).match(/^(\d{4})-(\d{2})/);
+    return m ? parseInt(m[1] + m[2], 10) : 2026;
+}
+// bulan ganjil = Cari Kata, genap = Bingo — tiap bulan beda rasa
+function snActType(l) {
+    const m = String(l.publish_date).match(/-(\d{2})-/);
+    return (m && parseInt(m[1], 10) % 2 === 0) ? "bingo" : "ws";
+}
+
+const SN_WS_POOL = ["JURNAL", "MOCHI", "WASHI", "STIKER", "SYUKUR", "MIMPI", "CERITA", "WARGA", "BALAI", "PELUK", "NAPAS", "TENANG", "KARYA", "PENSIL", "KOPI", "SENJA"];
+function snShuffle(arr, rnd) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+}
+// generator word search 8x8: 5 kata (kanan/bawah/diagonal), sisa diisi huruf acak
+function snBuildWs(l) {
+    const N = 8, rnd = snMulberry(snSeed(l));
+    const words = snShuffle(SN_WS_POOL, rnd).filter(w => w.length <= N).slice(0, 5);
+    const grid = new Array(N * N).fill("");
+    const placed = [];
+    const DIRS = [[0, 1], [1, 0], [1, 1]];
+    words.forEach(w => {
+        for (let att = 0; att < 300; att++) {
+            const d = DIRS[Math.floor(rnd() * DIRS.length)];
+            const maxR = N - (d[0] ? w.length : 1), maxC = N - (d[1] ? w.length : 1);
+            const r0 = Math.floor(rnd() * (maxR + 1)), c0 = Math.floor(rnd() * (maxC + 1));
+            let ok = true;
+            const cells = [];
+            for (let k = 0; k < w.length; k++) {
+                const idx = (r0 + d[0] * k) * N + (c0 + d[1] * k);
+                if (grid[idx] && grid[idx] !== w[k]) { ok = false; break; }
+                cells.push(idx);
+            }
+            if (!ok) continue;
+            cells.forEach((idx, k) => { grid[idx] = w[k]; });
+            placed.push({ word: w, cells: cells });
+            break;
+        }
+    });
+    const AZ = "ABCDEFGHIJKLMNOPRSTUWY";
+    for (let i = 0; i < grid.length; i++) if (!grid[i]) grid[i] = AZ[Math.floor(rnd() * AZ.length)];
+    return { n: N, grid: grid, placed: placed };
+}
+
+const SN_BINGO_POOL = [
+    "Journaling 10 menit tanpa HP", "Tempel washi tape favorit", "Tulis 3 hal yang kamu syukuri", "Doodle mood hari ini",
+    "Journaling sambil ngeteh/ngopi", "Tempel tiket atau struk kenangan", "Tulis quote favorit minggu ini", "Journaling di luar kamar",
+    "Pakai 3 warna di satu halaman", "Tulis surat kecil buat diri sendiri", "Foto spread-mu & share ke Balai", "Journaling sebelum tidur",
+    "Gambar cuaca hatimu hari ini", "Cerita 1 hal kecil yang bikin senyum", "Bikin wishlist bulan ini", "Journaling bareng musik favorit",
+    "Tempel foto atau polaroid", "Tulis 1 kata buat bulan ini", "Rapihin meja journaling-mu", "Ajak 1 teman journaling bareng"
+];
+function snBuildBingo(l) {
+    const rnd = snMulberry(snSeed(l) + 7);
+    return snShuffle(SN_BINGO_POOL, rnd).slice(0, 16);
+}
+
+// progress per surat di localStorage
+function snActState(id) {
+    try { return JSON.parse(localStorage.getItem("ss_snail_act_" + id) || "[]"); } catch (e) { return []; }
+}
+function snActSave(id, arr) {
+    try { localStorage.setItem("ss_snail_act_" + id, JSON.stringify(arr)); } catch (e) { }
+}
+
+function openSnailActivity(l) {
+    const k = snailSkin(l);
+    const type = snActType(l);
+    const box = $("questModalBox");
+    if (type === "ws") {
+        const ws = snBuildWs(l);
+        const found = snActState(l.id); // list kata yang udah ketemu
+        let cellsHtml = "";
+        ws.grid.forEach((ch, i) => { cellsHtml += '<button type="button" class="ws-cell" data-i="' + i + '">' + ch + '</button>'; });
+        let wordsHtml = "";
+        ws.placed.forEach(pl => { wordsHtml += '<span class="ws-word' + (found.indexOf(pl.word) >= 0 ? " done" : "") + '" data-w="' + pl.word + '">' + pl.word + '</span>'; });
+        box.innerHTML =
+            '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+            '<div class="qm-body">' +
+            '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+            '<span class="sn-washi"></span>' +
+            '<div class="sn-kicker">BONUS ' + esc(snailMonthLabel(l).toUpperCase()) + ' · CARI KATA 🔍</div>' +
+            '<div class="sn-act-hint">Ketuk huruf PERTAMA terus huruf TERAKHIR katanya ya!</div>' +
+            '<div class="ws-grid">' + cellsHtml + '</div>' +
+            '<div class="ws-words">' + wordsHtml + '</div>' +
+            '</div>' +
+            '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>' +
+            '</div>';
+        $("qmClose").addEventListener("click", closeQuestModal);
+        $("snBack").addEventListener("click", () => openSnailLetter(l));
+        const cellEls = box.querySelectorAll(".ws-cell");
+        // tandai kata yang udah ketemu
+        function paintFound() {
+            ws.placed.forEach(pl => {
+                if (found.indexOf(pl.word) >= 0) pl.cells.forEach(i => cellEls[i].classList.add("found"));
+            });
+        }
+        paintFound();
+        let startI = -1;
+        cellEls.forEach(el => el.addEventListener("click", () => {
+            const i = Number(el.dataset.i);
+            if (startI < 0) { startI = i; el.classList.add("sel"); return; }
+            if (i === startI) { el.classList.remove("sel"); startI = -1; return; }
+            // cek garis lurus dari startI ke i cocok sama salah satu kata
+            const hit = ws.placed.find(pl => {
+                const a = pl.cells[0], b = pl.cells[pl.cells.length - 1];
+                return (a === startI && b === i) || (a === i && b === startI);
+            });
+            cellEls[startI].classList.remove("sel");
+            startI = -1;
+            if (hit && found.indexOf(hit.word) < 0) {
+                found.push(hit.word);
+                snActSave(l.id, found);
+                playSfx("challenge-done", 0.7);
+                paintFound();
+                const wEl = box.querySelector('.ws-word[data-w="' + hit.word + '"]');
+                if (wEl) wEl.classList.add("done");
+                if (found.length === ws.placed.length) fireConfetti("reward"); // semua ketemu!
+            }
+        }));
+    } else {
+        const items = snBuildBingo(l);
+        const marked = snActState(l.id); // list index yang dicentang
+        let cellsHtml = "";
+        items.forEach((t, i) => {
+            cellsHtml += '<button type="button" class="bg-cell' + (marked.indexOf(i) >= 0 ? " on" : "") + '" data-i="' + i + '">' + esc(t) + '</button>';
+        });
+        box.innerHTML =
+            '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+            '<div class="qm-body">' +
+            '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+            '<span class="sn-washi"></span>' +
+            '<div class="sn-kicker">BONUS ' + esc(snailMonthLabel(l).toUpperCase()) + ' · BINGO JOURNALING 🎯</div>' +
+            '<div class="sn-act-hint">Kerjain misi kecilnya, ketuk buat nyentang. Satu baris penuh = BINGO! 🎉</div>' +
+            '<div class="bg-grid">' + cellsHtml + '</div>' +
+            '<div class="bg-banner" id="bgBanner" style="display:none;">🎉 BINGO! Kamu keren banget!</div>' +
+            '</div>' +
+            '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>' +
+            '</div>';
+        $("qmClose").addEventListener("click", closeQuestModal);
+        $("snBack").addEventListener("click", () => openSnailLetter(l));
+        function hasBingo() {
+            const on = i => marked.indexOf(i) >= 0;
+            for (let r = 0; r < 4; r++) if ([0, 1, 2, 3].every(c => on(r * 4 + c))) return true;
+            for (let c = 0; c < 4; c++) if ([0, 1, 2, 3].every(r => on(r * 4 + c))) return true;
+            if ([0, 5, 10, 15].every(on) || [3, 6, 9, 12].every(on)) return true;
+            return false;
+        }
+        function syncBanner(celebrate) {
+            const b = $("bgBanner");
+            if (!b) return;
+            const win = hasBingo();
+            b.style.display = win ? "" : "none";
+            if (win && celebrate) { fireConfetti("reward"); playSfx("challenge-done"); }
+        }
+        syncBanner(false);
+        box.querySelectorAll(".bg-cell").forEach(el => el.addEventListener("click", () => {
+            const i = Number(el.dataset.i);
+            const at = marked.indexOf(i);
+            const hadBingo = hasBingo();
+            if (at >= 0) { marked.splice(at, 1); el.classList.remove("on"); }
+            else { marked.push(i); el.classList.add("on"); playSfx("love", 0.6); }
+            snActSave(l.id, marked);
+            syncBanner(!hadBingo); // bingo BARU aja kejadian -> rayain
+        }));
+    }
+}
+
 // Baca satu surat: kertas se-skin amplopnya, postmark bulan, ttd Mochi
 function openSnailLetter(l) {
     playSfx("open-mail");
@@ -3960,10 +4140,12 @@ function openSnailLetter(l) {
         '<div class="sn-body">' + esc(l.letter_content) + '</div>' +
         '<div class="sn-sign">\u2014 Mochi \ud83d\udc3e</div>' +
         '</div>' +
+        '<button type="button" class="sn-bonus" id="snBonus">\ud83c\udf81 Bonus bulan ini: ' + (snActType(l) === "ws" ? "Cari Kata \ud83d\udd0d" : "Bingo Journaling \ud83c\udfaf") + ' \u2192</button>' +
         '<button type="button" class="sn-back" id="snBack">\u2190 Balik ke Kotak Surat</button>' +
         '</div>';
     $("qmClose").addEventListener("click", closeQuestModal);
     $("snBack").addEventListener("click", openSnailBox);
+    $("snBonus").addEventListener("click", () => openSnailActivity(l));
     snailCtaRefresh(); // badge BARU di Home ikut update
 }
 

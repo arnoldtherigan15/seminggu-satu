@@ -2382,6 +2382,23 @@
         .sn-sign { font-style: italic; font-weight: 700; font-size: .95rem; color: #10245e; margin-top: 14px; text-align: right; transform: rotate(-1.5deg); }
         .sn-back { display: block; width: 100%; margin-top: 14px; border: 1.5px dashed var(--line); background: var(--bg); color: var(--ink); font-family: inherit; font-weight: 700; font-size: .82rem; border-radius: 12px; padding: 10px; cursor: pointer; }
 
+        /* bonus aktivitas snail mail: Cari Kata & Bingo */
+        .sn-act-hint { font-size: .74rem; color: var(--muted); margin: 8px 0 12px; line-height: 1.5; }
+        .sn-bonus { display: block; width: 100%; margin-top: 14px; border: none; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .85rem; border-radius: 12px; padding: 12px; cursor: pointer; box-shadow: 0 3px 0 rgba(16, 36, 94, .25); transform: rotate(-.4deg); }
+        .sn-bonus:active { transform: rotate(-.4deg) translateY(2px); box-shadow: 0 1px 0 rgba(16, 36, 94, .25); }
+        .ws-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+        .ws-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(16, 36, 94, .15); border-radius: 6px; background: rgba(255, 255, 255, .75); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .82rem; color: #10245e; cursor: pointer; padding: 0; }
+        .ws-cell.sel { background: var(--yellow); border-color: #10245e; transform: scale(1.08); }
+        .ws-cell.found { background: var(--blue); border-color: var(--blue); color: #fff; }
+        .ws-words { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+        .ws-word { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .7rem; letter-spacing: .06em; background: rgba(255, 255, 255, .8); border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 999px; padding: 4px 10px; color: #10245e; }
+        .ws-word.done { text-decoration: line-through; opacity: .5; background: #f0fdf4; border-color: #4ade80; }
+        .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .bg-cell { position: relative; min-height: 74px; display: flex; align-items: center; justify-content: center; text-align: center; border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 8px; background: rgba(255, 255, 255, .75); font-family: inherit; font-weight: 600; font-size: .56rem; line-height: 1.35; color: #2a3550; cursor: pointer; padding: 5px 4px; }
+        .bg-cell.on { background: #f0fdf4; border: 2px solid #4ade80; color: #0a7a3d; transform: rotate(-1.5deg); }
+        .bg-cell.on::after { content: '⭐'; position: absolute; top: -7px; right: -4px; font-size: .8rem; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .2)); }
+        .bg-banner { margin-top: 12px; text-align: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .95rem; color: #10245e; background: var(--yellow); border-radius: 12px; padding: 10px; transform: rotate(-.6deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .12); }
+
         /* ---------- Paspor Warga: modal fullscreen gelap + buku yang kebuka dari cover ---------- */
         .psp-modal { position: fixed; inset: 0; background: rgba(10, 18, 51, .82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
         .psp-modal.show { display: flex; }
