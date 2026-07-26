@@ -2318,12 +2318,11 @@ function renderWeekNowHtml() {
     const records = getJournalTrackerData(_profile.wa).records || {};
     const cw = getMonthWeekObj(new Date());
     const streak = calculateJournalStreak(records);
+    // Udah check-in? Kartunya NGGAK usah tampil — tracker udah nunjukin stempel &
+    // streak, kebanyakan info. Placeholder tersembunyi disisain biar bisa
+    // di-render ulang (mis. rollback check-in optimistis yang gagal).
     if (records[cw.key]) {
-        return '<div class="wn-card done" id="weekNowCard"><span class="wn-tape"></span>' +
-            '<div class="wn-stamp-big">CHECKED-IN \u2713</div>' +
-            '<div class="wn-body"><div class="wn-title">Minggu ke-' + cw.week + ' aman! \ud83c\udf89</div>' +
-            '<div class="wn-sub">' + (streak > 1 ? 'Streak ' + streak + ' minggu \ud83d\udd25 sampai jumpa minggu depan!' : 'Streak pertamamu dimulai \ud83d\udd25 lanjut minggu depan!') + '</div></div>' +
-            '</div>';
+        return '<div id="weekNowCard" style="display:none"></div>';
     }
     const left = weekDaysLeft();
     const leftTxt = left <= 1
