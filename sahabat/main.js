@@ -2597,11 +2597,11 @@ async function loadLoyalty() {
         content.innerHTML =
             renderWeekNowHtml() +
             '<div id="moodSlot"></div>' +
+            renderRecapCardHtml() +
             bdayFriendsBannerHtml() +
             birthdayHtml +
             trackerHtml +
             '<div id="evTicketSlot"></div>' +
-            renderRecapCardHtml() +
             '<div id="snailSlot"></div>' +
             '<button type="button" class="psp-cta" id="btnPassport">' +
             '<span class="psp-cta-emblem">SS</span>' +
