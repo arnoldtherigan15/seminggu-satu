@@ -2589,6 +2589,7 @@ async function loadLoyalty() {
         const birthdayHtml = bday ? buildBirthdayHtml(bday) : "";
 
         content.innerHTML =
+            '<div id="installSlot"></div>' +
             renderWeekNowHtml() +
             '<div id="moodSlot"></div>' +
             renderRecapCardHtml() +
@@ -2615,6 +2616,7 @@ async function loadLoyalty() {
         init3DCardListeners();
         initJournalTrackerListeners(_profile.wa);
         initWeekNowListeners();
+        refreshInstallBanner(); // banner pasang app (ilang kalau udah standalone/di-snooze)
         refreshMoodWidget(); // widget cuaca hati (data sync dari localStorage/profil)
         renderEventTicket(); // kalau _evRegistered belum ada, loadEvents yang ngisi nanti
         loadSnailMail().then(() => {
@@ -2975,6 +2977,8 @@ function pushTagCheckin(weekKey) {
     const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     let deferredPrompt = null;
+    // buat banner Home: state install dibagi ke luar IIFE
+    window._ssInstall = { ready: () => !!deferredPrompt, ios: isIOS, standalone: isStandalone, prompt: null };
 
     if (installBtn && !isStandalone) {
         // Android/Chrome: tangkap prompt native browser
@@ -2982,7 +2986,17 @@ function pushTagCheckin(weekKey) {
             e.preventDefault();
             deferredPrompt = e;
             installBtn.style.display = "";
+            refreshInstallBanner(); // banner Home ikut nongol
         });
+        window._ssInstall.prompt = async () => {
+            if (!deferredPrompt) return false;
+            deferredPrompt.prompt();
+            try { await deferredPrompt.userChoice; } catch (e) { }
+            deferredPrompt = null;
+            installBtn.style.display = "none";
+            refreshInstallBanner();
+            return true;
+        };
         // iOS Safari ga support prompt native -> tetap tampil, pakai instruksi manual
         if (isIOS) installBtn.style.display = "";
 
@@ -3000,10 +3014,12 @@ function pushTagCheckin(weekKey) {
             }
         });
 
-        // udah keinstall -> sembunyiin tombolnya
+        // udah keinstall -> sembunyiin tombol & banner
         window.addEventListener("appinstalled", () => {
             installBtn.style.display = "none";
             deferredPrompt = null;
+            const slot = $("installSlot");
+            if (slot) slot.innerHTML = "";
         });
     }
 
@@ -3927,6 +3943,34 @@ function openMoodDirect() {
     openMoodTracker(modal);
     modal.classList.add("show");
     lockScroll();
+}
+
+// ---------- Banner install di Home ----------
+// Tampil kalau: belum standalone + belum di-snooze + (prompt Android siap ATAU iOS).
+// Bisa ditutup (snooze 14 hari); ilang permanen begitu keinstall.
+function refreshInstallBanner() {
+    const slot = $("installSlot");
+    if (!slot) return;
+    const st = window._ssInstall || {};
+    let snoozed = false;
+    try { snoozed = Date.now() - (+localStorage.getItem("ss_install_snooze") || 0) < 14 * 86400000; } catch (e) { }
+    if (st.standalone || snoozed || !(st.ios || (st.ready && st.ready()))) { slot.innerHTML = ""; return; }
+    slot.innerHTML =
+        '<div class="inst-b">' +
+        '<span class="inst-ic">📲</span>' +
+        '<span class="inst-body"><span class="inst-t">Pasang Balai Warga di HP-mu</span>' +
+        '<span class="inst-s">' + (st.ios
+            ? 'Ketuk tombol <b>Bagikan</b> di browser, lalu <b>“Add to Home Screen”</b> — biar nggak bolak-balik buka browser 🐾'
+            : 'Sekali tap langsung kebuka kayak aplikasi — nggak bolak-balik browser 🐾') + '</span></span>' +
+        (st.ios ? '' : '<button type="button" class="inst-go" id="instGo">Pasang</button>') +
+        '<button type="button" class="inst-x" id="instX" aria-label="Tutup">✕</button>' +
+        '</div>';
+    const go = $("instGo");
+    if (go) go.addEventListener("click", () => { if (st.prompt) st.prompt(); });
+    $("instX").addEventListener("click", () => {
+        try { localStorage.setItem("ss_install_snooze", String(Date.now())); } catch (e) { }
+        slot.innerHTML = ""; // snooze 14 hari
+    });
 }
 
 // ---------- Widget cuaca hati di Home (ala weather app) ----------

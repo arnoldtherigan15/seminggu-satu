@@ -336,6 +336,8 @@
             #loyaltyContent > .bday-banner, #loyaltyContent > .bday, #loyaltyContent > .wn-card { grid-column: 1 / -1; }
             #loyaltyContent > #moodSlot { grid-column: 1 / -1; }
             #moodSlot:empty { display: none; }
+            #loyaltyContent > #installSlot { grid-column: 1 / -1; }
+            #installSlot:empty { display: none; }
             /* pasangan baris disetel biar tinggi kolomnya seimbang: kartu tinggi
                bareng kartu tinggi (tracker|kartu warga), strip bareng strip */
             #loyaltyContent > .journal-tracker-card { order: 1; }
@@ -2368,6 +2370,17 @@
         :root[data-theme="dark"] .wn-card.todo { background-color: rgba(255, 224, 102, .07); border-color: rgba(255, 224, 102, .4); }
         :root[data-theme="dark"] .wn-card.done { background-color: rgba(34, 197, 94, .1); border-color: #22c55e; }
         :root[data-theme="dark"] .wn-stamp-big { border-color: #4ade80; color: #4ade80; background: rgba(0, 0, 0, .2); box-shadow: inset 0 0 0 1.5px rgba(74, 222, 128, .3); }
+
+        /* ---------- Banner install di Home ---------- */
+        .inst-b { position: relative; display: flex; align-items: flex-start; gap: 10px; background: linear-gradient(120deg, #0046ff, #2f6bff); color: #fff; border-radius: 14px; padding: 13px 38px 13px 14px; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0, 70, 255, .28); }
+        .inst-ic { flex: none; font-size: 1.4rem; }
+        .inst-body { flex: 1; min-width: 0; }
+        .inst-t { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .9rem; }
+        .inst-s { display: block; font-size: .74rem; opacity: .92; margin-top: 2px; line-height: 1.55; }
+        .inst-s b { color: var(--yellow); }
+        .inst-go { flex: none; align-self: center; border: none; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem; border-radius: 999px; padding: 9px 16px; cursor: pointer; box-shadow: 0 2px 0 rgba(0, 0, 0, .2); }
+        .inst-go:active { transform: translateY(1px); }
+        .inst-x { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border: none; border-radius: 50%; background: rgba(255, 255, 255, .18); color: #fff; font-size: .72rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         /* ---------- Widget cuaca hati di Home (ala weather app rasa scrapbook) ---------- */
         .mood-w { position: relative; width: 100%; display: flex; align-items: center; gap: 12px; border: 1.5px dashed var(--line); cursor: pointer; font-family: inherit; text-align: left; background: var(--card); border-radius: 14px; padding: 12px 14px; margin-bottom: 1rem; transform: rotate(.3deg); box-shadow: 0 3px 10px rgba(16, 36, 94, .07); }
