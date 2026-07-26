@@ -4225,7 +4225,7 @@ function openSnailActivity(l) {
         let wordsHtml = "";
         ws.placed.forEach(pl => { wordsHtml += '<span class="ws-word' + (found.indexOf(pl.word) >= 0 ? " done" : "") + '" data-w="' + pl.word + '">' + pl.word + '</span>'; });
         box.innerHTML =
-            '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+            '<div class="sn-paper sn-flat sk' + k + '" style="padding-top:20px;">' +
             '<span class="sn-washi"></span>' +
             '<div class="sn-kicker">' + esc((SN_ACT[l.id] || {}).title || "CARI KATA 🔍") + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
             '<div class="sn-act-hint">Ketuk huruf PERTAMA terus huruf TERAKHIR katanya ya!</div>' +
@@ -4274,7 +4274,7 @@ function openSnailActivity(l) {
             cellsHtml += '<button type="button" class="bg-cell' + (marked.indexOf(i) >= 0 ? " on" : "") + '" data-i="' + i + '">' + esc(t) + '</button>';
         });
         box.innerHTML =
-            '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+            '<div class="sn-paper sn-flat sk' + k + '" style="padding-top:20px;">' +
             '<span class="sn-washi"></span>' +
             '<div class="sn-kicker">' + esc((SN_ACT[l.id] || {}).title || "BINGO JOURNALING 🎯") + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
             '<div class="sn-act-hint">Kerjain misi kecilnya, ketuk buat nyentang. Satu baris penuh = BINGO! 🎉</div>' +
@@ -4329,7 +4329,7 @@ function snActSnake(l, box, k) {
     const tokens = pack.quote.split(" ");
     const COLS = 11, ROWS = 13;
     box.innerHTML =
-        '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+        '<div class="sn-paper sn-flat sk' + k + '" style="padding-top:20px;">' +
         '<span class="sn-washi"></span>' +
         '<div class="sn-kicker">' + esc(pack.title) + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
         '<div class="sn-act-hint">Geser (swipe) buat belokin Mochi — makan kata sesuai urutan kalimatnya! Salah makan = tersedak 😖</div>' +
@@ -4377,7 +4377,7 @@ function snActSnake(l, box, k) {
         while (opts.length < 3 && others.length) opts.push(others.splice(Math.floor(Math.random() * others.length), 1)[0]);
         opts.forEach(w => {
             let x, y, tries = 0;
-            do { x = Math.floor(Math.random() * COLS); y = Math.floor(Math.random() * ROWS); tries++; } while (!cellFree(x, y) && tries < 80);
+            do { x = Math.floor(Math.random() * COLS); y = 1 + Math.floor(Math.random() * (ROWS - 1)); tries++; } while (!cellFree(x, y) && tries < 80); // y mulai 1: baris atas ketutup indikator ❤️
             const el = document.createElement("div");
             // kata yang BENER dikasih warna sama kayak highlight di bar kutipan
             el.className = "wsn-word" + (w === tokens[idx] ? " hot" : "");
@@ -4537,7 +4537,7 @@ function snActDash(l, box, k) {
     const pack = SN_ACT[l.id];
     const GOAL = pack.goal || 15;
     box.innerHTML =
-        '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+        '<div class="sn-paper sn-flat sk' + k + '" style="padding-top:20px;">' +
         '<span class="sn-washi"></span>' +
         '<div class="sn-kicker">' + esc(pack.title) + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
         '<div class="sn-act-hint">Tap buat ngepak! Kumpulin ' + GOAL + ' kata positif, hindarin awan pikiran negatif ☁️</div>' +
@@ -4694,7 +4694,7 @@ function snActScramble(l, box, k) {
     function render() {
         if (cur >= rounds.length) {
             box.innerHTML =
-                '<div class="sn-paper sk' + k + '" style="padding-top:20px;text-align:center;">' +
+                '<div class="sn-paper sn-flat sk' + k + '" style="padding-top:20px;text-align:center;">' +
                 '<span class="sn-washi"></span>' +
                 '<div class="sn-kicker">' + esc(pack.title) + '</div>' +
                 '<div class="sc-done-em">🎉</div>' +
@@ -4711,7 +4711,7 @@ function snActScramble(l, box, k) {
         let slotsHtml = "";
         for (let i = 0; i < r.w.length; i++) slotsHtml += '<span class="sc-slot"></span>';
         box.innerHTML =
-            '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+            '<div class="sn-paper sn-flat sk' + k + '" style="padding-top:20px;">' +
             '<span class="sn-washi"></span>' +
             '<div class="sn-kicker">' + esc(pack.title) + ' · ' + (cur + 1) + '/' + rounds.length + '</div>' +
             '<div class="sn-act-hint">Susun huruf-hurufnya jadi satu kata — ketuk hurufnya urut ya! (salah? ketuk ↺)</div>' +
@@ -4783,7 +4783,7 @@ function snActCatch(l, box, k) {
     const pack = SN_ACT[l.id];
     const GOAL = pack.goal || 10;
     box.innerHTML =
-        '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+        '<div class="sn-paper sn-flat sk' + k + '" style="padding-top:20px;">' +
         '<span class="sn-washi"></span>' +
         '<div class="sn-kicker">' + esc(pack.title) + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
         '<div class="sn-act-hint">Geser Mochi kiri-kanan buat nangkep gelembung rasa — tiap rasa yang ketangkep dipeluk sama Mochi 🫧</div>' +
