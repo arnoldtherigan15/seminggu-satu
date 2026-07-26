@@ -4344,7 +4344,7 @@ function snActDash(l, box, k) {
     let my = 0, vy = 0, playing = false, lives = 3, got = 0, lastT = 0, spawnT = 0, invUntil = 0;
     const obs = []; // { el, x, gapY, gapH, chip: {el, x, y, taken} | null }
 
-    function flap() { if (playing) { vy = -260; playSfx("flip", 0.22); } }
+    function flap() { if (playing) { vy = -260; playSfx("catch-mochi", 0.35); } }
     stage.addEventListener("pointerdown", (e) => { flap(); e.preventDefault(); });
 
     function cleanup() {
@@ -4364,9 +4364,10 @@ function snActDash(l, box, k) {
         const o = { el: el, x: W + 40, gapY: gapY, gapH: gapH, chip: null };
         // ~60% celah ada kata positifnya
         if (Math.random() < 0.62) {
-            const w = pack.words[Math.floor(Math.random() * pack.words.length)];
+            const wi = Math.floor(Math.random() * pack.words.length);
+            const w = pack.words[wi];
             const ce = document.createElement("div");
-            ce.className = "wd-chip";
+            ce.className = "wd-chip c" + (wi % 5); // warna beda per kata biar rame
             ce.textContent = "✨ " + w;
             stage.appendChild(ce);
             o.chip = { el: ce, x: o.x + 26, y: gapY + gapH / 2 - 14, taken: false };
