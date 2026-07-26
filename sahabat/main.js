@@ -2855,21 +2855,11 @@ function pushTagCheckin(weekKey) {
         });
     }
 
-    const actionQuest = $("fabActionQuest");
-    if (actionQuest) {
-        actionQuest.addEventListener("click", () => {
+    const actionMail = $("fabActionMail");
+    if (actionMail) {
+        actionMail.addEventListener("click", () => {
             toggleMenu(false);
-            try { location.hash = "quest"; } catch (e) { }
-            activateTab("quest");
-        });
-    }
-
-    const actionShare = $("fabActionShare");
-    if (actionShare) {
-        actionShare.addEventListener("click", () => {
-            toggleMenu(false);
-            try { location.hash = "rank"; } catch (e) { }
-            activateTab("rank");
+            openSnailBox(); // Kotak Surat Mochi (snail mail)
         });
     }
 
