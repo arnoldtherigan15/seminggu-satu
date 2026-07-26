@@ -3245,9 +3245,12 @@ function mochiSmartMessages() {
             }
         });
     } catch (e) { }
-    // 4b) Cuaca hati hari ini belum dicatat? colek pelan
+    // 4b) Cuaca hati: belum dicatat -> colek; lagi hujan/badai -> Mochi hadir nemenin
     try {
-        if (!moodOf(moodMonthKey(), new Date().getDate())) msgs.push("🌦️ Cuaca hatimu hari ini belum dicatat — cerita ke Mochi yuk!");
+        const todayMood = moodOf(moodMonthKey(), new Date().getDate());
+        if (!todayMood) msgs.push("🌦️ Cuaca hatimu hari ini belum dicatat — cerita ke Mochi yuk!");
+        else if (todayMood === "hujan") msgs.push("🌧️ Hati lagi hujan ya… pelan-pelan aja hari ini. Mochi di sini 🤗");
+        else if (todayMood === "badai") msgs.push("⛈️ Lagi kewalahan? Tarik napas bareng Mochi yuk — tap aku");
     } catch (e) { }
     // 5) Penutup: teaser surat harian (selalu ada di ekor rotasi)
     msgs.push("💌 Baca surat dari Mochi");
@@ -3559,6 +3562,80 @@ function moodGridHtml(mk, small) {
     return '<div class="mg-grid' + (small ? " sm" : "") + '">' + cells + '</div>';
 }
 
+// Respons Mochi per cuaca: validasi perasaan + micro-prompt journaling + aksi lanjutan.
+// 3 variasi per cuaca, dipilih seeded per tanggal biar nggak monoton.
+const MOOD_CARE = {
+    cerah: {
+        v: ["Ikut seneng! Simpan energinya ya ☀️", "Cerah gini nular ke se-Balai loh 😄", "Mantep — ini hari yang layak diinget"],
+        p: ["Apa 1 hal yang bikin hari ini cerah? Tulis, biar bisa dibaca ulang pas mendung.", "Siapa yang ikut andil bikin harimu enak? Bilang makasih yuk.", "Energi lagi penuh — hal kecil apa yang mau kamu selesain hari ini?"],
+        cta: { t: "✍️ Abadikan di jurnal", act: "prompt" }
+    },
+    berawan: {
+        v: ["Hari biasa juga tetap berarti kok ⛅", "Nggak semua hari harus spesial — hadir aja udah cukup", "Pelan-pelan aja, awannya juga jalan kok"],
+        p: ["Tulis 3 hal kecil yang 'lumayan' hari ini.", "Kalau harimu adalah lagu, kira-kira judulnya apa?", "Apa 1 hal yang lagi kamu tunggu minggu ini?"],
+        cta: { t: "✍️ Pancing pelan-pelan", act: "prompt" }
+    },
+    hujan: {
+        v: ["Nggak apa-apa sedih. Nangis juga boleh 💧", "Peluk dulu 🤗 kamu nggak sendirian di hujan ini", "Sedihmu valid — nggak usah buru-buru cerah"],
+        p: ["Kalau sedihnya bisa ngomong, dia mau bilang apa?", "Tulis surat pendek buat dirimu yang lagi hujan-hujanan ini.", "Apa yang biasanya bikin kamu hangat pas begini? Boleh banget dilakuin sekarang."],
+        cta: { t: "🤗 Ambil pelukan kata", act: "hug" }
+    },
+    badai: {
+        v: ["Tarik napas dulu… badai selalu lewat ⛈️→🌤️", "Marah atau kewalahan itu sinyal, bukan aib", "Satu-satu aja — nggak semua harus beres sekarang"],
+        p: ["Tumpahin semua yang bikin penuh ke satu halaman — berantakan juga gapapa.", "Apa 1 hal KECIL yang masih bisa kamu pegang kendalinya sekarang?", "Mulai dari 'aku kewalahan karena…' dan biarin jujur."],
+        cta: { t: "🌬️ Napas bareng Mochi", act: "breath" }
+    },
+    pelangi: {
+        v: ["Lega ya rasanya 🌈 Selamat udah ngelewatin!", "Momen kayak gini layak dirayain", "Habis hujan emang gitu — nikmatin pelanginya"],
+        p: ["Apa yang tadinya berat dan sekarang udah lewat? Tulis — itu bukti kamu bisa.", "Resep pelangimu apa? Catat biar bisa dipakai lagi.", "Siapa atau apa yang bantu kamu sampai di titik lega ini?"],
+        cta: { t: "📌 Bagi semangat ke Mading", act: "mading" }
+    }
+};
+
+// ---------- Napas bareng Mochi: 3 putaran 4-7-8 ----------
+function renderBreath(modal) {
+    modal.innerHTML =
+        '<div class="mochi-box">' +
+        '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
+        '<div class="mp-head">🌬️ Napas Bareng Mochi</div>' +
+        '<div class="mp-sub">Ikutin lingkarannya — 3 putaran aja, pelan-pelan</div>' +
+        '<div class="br-scene"><div class="br-circle" id="brCircle"><img src="../images/sticker/str-6.png" alt=""></div></div>' +
+        '<div class="br-text" id="brText">Siap? Duduk yang nyaman dulu 🪑</div>' +
+        '<div class="mp-actions"><button class="mp-btn" id="brStart">Mulai 🌬️</button>' +
+        '<button class="mp-btn ghost" id="brBack">← Balik</button></div>' +
+        '</div>';
+    $("mpClose").addEventListener("click", closeMochiPrompt);
+    $("brBack").addEventListener("click", () => openMoodTracker(modal));
+    const circle = $("brCircle"), txt = $("brText");
+    const PHASES = [
+        { t: "Tarik napas… 👃", ms: 4000, s: 1.35 },
+        { t: "Tahan… ✨", ms: 7000, s: 1.35 },
+        { t: "Hembusin pelan… 🌬️", ms: 8000, s: 1 }
+    ];
+    function run(cycle, pi) {
+        if (!circle.isConnected) return; // modal udah pindah view -> stop
+        if (cycle >= 3) {
+            txt.textContent = "Selesai. Kepala udah agak lega? 💙";
+            circle.classList.add("done");
+            playSfx("love", 0.6);
+            const st = $("brStart");
+            if (st) { st.textContent = "Sekali lagi 🔁"; st.disabled = false; }
+            return;
+        }
+        const ph = PHASES[pi];
+        txt.textContent = ph.t + "  (" + (cycle + 1) + "/3)";
+        circle.style.transition = "transform " + ph.ms + "ms ease-in-out";
+        circle.style.transform = "scale(" + ph.s + ")";
+        setTimeout(() => run(pi === 2 ? cycle + 1 : cycle, (pi + 1) % 3), ph.ms);
+    }
+    $("brStart").addEventListener("click", () => {
+        $("brStart").disabled = true;
+        circle.classList.remove("done");
+        circle.style.transform = "scale(1)";
+        run(0, 0);
+    });
+}
+
 function openMoodTracker(modal) {
     const today = new Date().getDate();
     const mk = moodMonthKey();
@@ -3571,6 +3648,19 @@ function openMoodTracker(modal) {
     });
     const rec = moodStore()[mk] || {};
     const cnt = Object.keys(rec).length;
+    // respons Mochi buat cuaca yang dipilih (validasi + prompt + aksi) — seeded per hari
+    let respHtml = "";
+    if (picked && MOOD_CARE[picked]) {
+        const care = MOOD_CARE[picked];
+        const seed = new Date().getDate() + new Date().getMonth();
+        const val = care.v[seed % care.v.length];
+        const pr = care.p[seed % care.p.length];
+        respHtml = '<div class="mood-resp">' +
+            '<div class="mr-v">🐾 ' + esc(val) + '</div>' +
+            '<div class="mr-p">✍️ <i>' + esc(pr) + '</i></div>' +
+            '<button type="button" class="mp-btn mr-cta" id="mrCta">' + care.cta.t + '</button>' +
+            '</div>';
+    }
     modal.innerHTML =
         '<div class="mochi-box">' +
         '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
@@ -3578,6 +3668,7 @@ function openMoodTracker(modal) {
         '<div class="mp-head">🌦️ Cuaca Hati Hari Ini</div>' +
         '<div class="mp-sub">' + (picked ? "Udah dicatat — boleh diganti kalau cuacanya berubah 😉" : "Hari ini hatimu lagi cuaca apa?") + '</div>' +
         '<div class="mood-row">' + btns + '</div>' +
+        respHtml +
         '<div class="mood-cal">' +
         '<div class="mood-cal-t">📓 ' + esc(BULAN_ID[new Date().getMonth()]) + ' — ' + cnt + ' hari tercatat</div>' +
         moodGridHtml(mk) +
@@ -3587,8 +3678,30 @@ function openMoodTracker(modal) {
     modal.querySelectorAll(".mood-btn").forEach(b => b.addEventListener("click", () => {
         moodSave(today, b.dataset.mood);
         playSfx("love", 0.6);
-        openMoodTracker(modal); // re-render: tombol kepilih + kalender keisi
+        openMoodTracker(modal); // re-render: tombol kepilih + respons Mochi + kalender keisi
     }));
+    const cta = $("mrCta");
+    if (cta && picked && MOOD_CARE[picked]) {
+        const act = MOOD_CARE[picked].cta.act;
+        cta.addEventListener("click", async () => {
+            if (act === "breath") { renderBreath(modal); return; }
+            if (act === "mading") { closeMochiPrompt(); openMadingModal(); return; }
+            if (act === "hug") {
+                showBusy("Mochi lagi ngambil kue…");
+                try { await loadFortunes(); } catch (e) { hideBusy(); alert("Gagal ngambil kue-nya 😢"); return; }
+                hideBusy();
+                renderFortuneScene(modal, null, false, "mochi_hug"); // kue khusus pelukan
+                return;
+            }
+            // default: prompt harian
+            showBusy("Mochi lagi nyiapin surat…");
+            try {
+                const list = await loadPrompts();
+                hideBusy();
+                renderMochiEnvelope(modal, list, "prompt");
+            } catch (e) { hideBusy(); alert("Gagal ngambil prompt 😢 Coba lagi ya."); }
+        });
+    }
 }
 
 function renderMochiChooser(modal, list) {
@@ -3599,7 +3712,7 @@ function renderMochiChooser(modal, list) {
         '<img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:62px;bottom:8px;left:6px;transform:rotate(-8deg);" alt="">' +
         '<img class="mp-imgstk" src="../images/sticker/str-7.png" style="width:58px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">' +
         '<div class="mp-head">' + (bday ? "🎂 Mochi bawa banyak hadiah!" : "🐾 Mochi bawa apa hari ini?") + '</div>' +
-        '<div class="mp-sub">' + (bday ? "Hari spesial! Mau buka yang mana dulu?" : "Pilih satu — dua-duanya juga boleh 😉") + '</div>' +
+        '<div class="mp-sub">' + (bday ? "Hari spesial! Mau buka yang mana dulu?" : "Ambil yang kamu butuh — semuanya juga boleh 😉") + '</div>' +
         '<div class="mp-choose">' +
         (bday ? '<button class="mp-choice mc-bday" id="mcBday"><span class="mc-em">🎂</span><b>Surat Ultah</b><span>spesial hari ini ✨</span></button>' : '') +
         '<button class="mp-choice" id="mcPrompt"><span class="mc-em">✍️</span><b>Prompt Harian</b><span>ide journaling</span></button>' +
@@ -3624,7 +3737,7 @@ async function openFortune(modal, list) {
 
 // Scene fortune cookie: kue goyang-goyang -> diketuk -> pecah -> strip kertas keluar.
 // again=true (dari tombol "Kue lagi"): ulang ritual dari awal, isinya fortune acak.
-function renderFortuneScene(modal, list, again) {
+function renderFortuneScene(modal, list, again, cat) {
     modal.innerHTML =
         '<div class="mochi-box">' +
         '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
@@ -3671,14 +3784,15 @@ function renderFortuneScene(modal, list, again) {
         setTimeout(() => {
             $("fcScene").style.display = "none";
             $("mpCard").style.display = "block";
-            if (again) showFortune(randomFortune(_fortunes), false);
+            const pool = cat ? _fortunes.filter(f => f.category === cat) : _fortunes;
+            if (again || cat) showFortune(randomFortune(pool.length ? pool : _fortunes), false);
             else showFortune(dailyFortune(_fortunes), true);
             $("mpActions").innerHTML =
                 '<button class="mp-btn ghost" id="fcCopy">📋 Salin</button>' +
                 '<button class="mp-btn" id="fcAgain">🥠 Kue lagi</button>' +
                 '<button class="mp-btn ghost" id="fcPrompt" style="flex:1 1 100%;">✍️ Baca Prompt Harian</button>';
             // "Kue lagi" = ulang ritualnya dari awal (kue muncul -> ketuk -> pecah)
-            $("fcAgain").addEventListener("click", () => renderFortuneScene(modal, list, true));
+            $("fcAgain").addEventListener("click", () => renderFortuneScene(modal, list, true, cat));
             $("fcPrompt").addEventListener("click", () => renderMochiEnvelope(modal, list, "prompt"));
             $("fcCopy").addEventListener("click", async () => {
                 const btn = $("fcCopy");
