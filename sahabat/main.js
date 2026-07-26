@@ -4333,8 +4333,9 @@ function snActSnake(l, box, k) {
         '<span class="sn-washi"></span>' +
         '<div class="sn-kicker">' + esc(pack.title) + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
         '<div class="sn-act-hint">Geser (swipe) buat belokin Mochi — makan kata sesuai urutan kalimatnya! Salah makan = tersedak 😖</div>' +
-        '<div class="wsn-top"><div class="wsn-quote" id="wsnQuote"></div><div class="wsn-lives" id="wsnLives">❤️❤️❤️</div></div>' +
+        '<div class="wsn-quote" id="wsnQuote"></div>' +
         '<div class="wsn-stage" id="wsnStage">' +
+        '<div class="wsn-lives" id="wsnLives">❤️❤️❤️</div>' +
         '<div class="ct-start" id="wsnStart"><button type="button" class="btn-primary" id="wsnPlay">Mulai 🐍</button></div>' +
         '</div>' +
         '<div class="wsn-pad">' +
@@ -4384,15 +4385,22 @@ function snActSnake(l, box, k) {
         opts.forEach(w => {
             // perkiraan lebar pill dalam sel (font .7rem ~6px/huruf + padding)
             const span = Math.min(3, Math.max(1, Math.ceil((w.length * 6 + 16) / CELL)));
+            const hot = w === tokens[idx];
             let x, y, tries = 0;
             do {
-                x = Math.floor(Math.random() * (COLS - span + 1));
-                y = Math.floor(Math.random() * ROWS); // ❤️ udah di luar papan, semua baris aman
+                if (hot) {
+                    // kata target selalu di area tengah — jauh dari tepi, hati, & pojok
+                    x = 1 + Math.floor(Math.random() * Math.max(1, COLS - span - 1));
+                    y = 2 + Math.floor(Math.random() * (ROWS - 4));
+                } else {
+                    x = Math.floor(Math.random() * (COLS - span + 1));
+                    y = 1 + Math.floor(Math.random() * (ROWS - 1)); // baris atas buat indikator ❤️
+                }
                 tries++;
             } while (!cellFree(x, y, span) && tries < 80);
             const el = document.createElement("div");
             // kata yang BENER dikasih warna sama kayak highlight di bar kutipan
-            el.className = "wsn-word" + (w === tokens[idx] ? " hot" : "");
+            el.className = "wsn-word" + (hot ? " hot" : "");
             el.textContent = w;
             el.style.transform = "translate(" + (x * CELL) + "px," + (y * CELL) + "px)";
             el.style.height = CELL + "px";
