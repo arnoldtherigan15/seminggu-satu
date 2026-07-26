@@ -5318,21 +5318,39 @@ function renderPbPanel() {
         _sgCat = b.dataset.cat;
         panel.querySelectorAll(".pb-cat").forEach(x => x.classList.toggle("on", x.dataset.cat === _sgCat));
     }));
-    $("pbSend").addEventListener("click", async () => {
+    $("pbSend").addEventListener("click", () => {
         const text = $("pbInput").value.trim();
         if (text.length < 5) { alert("Usulannya kependekan 😅 ceritain dikit lagi ya."); return; }
-        const btn = $("pbSend");
-        btn.disabled = true;
-        showBusy("Masukin ke kotak pos…");
-        try {
-            const r = await apiPost({ action: "memberPostSuggestion", token: _profile.token, category: _sgCat, text: text });
-            if (r.status !== "success") { btn.disabled = false; alert(r.message || "Gagal."); return; }
-            playSfx("open-mail");
-            fireConfetti("quest");
-            await loadSuggestions(true);
+        // OPTIMISTIS (pola sama kayak mood): usulan langsung nempel di list, POST
+        // jalan di belakang; gagal -> dicabut lagi + kuota balik
+        const temp = {
+            id: "tmp" + Date.now().toString(36),
+            nickname: _profile.nickname || "Kamu",
+            category: _sgCat, text: text,
+            votes: 0, voted: false, mine: true, ts: Date.now()
+        };
+        _sgData.items.unshift(temp);
+        _sgData.left = Math.max(0, _sgData.left - 1);
+        playSfx("open-mail");
+        fireConfetti("quest");
+        renderPbPanel(); // form ke-reset + item baru langsung keliatan, nol loading
+        apiPost({ action: "memberPostSuggestion", token: _profile.token, category: temp.category, text: temp.text }).then(r => {
+            if (r.status === "success") {
+                if (r.id) { temp.id = r.id; renderPbPanel(); } // id asli -> tombol vote-nya langsung valid
+            } else {
+                const at = _sgData.items.indexOf(temp);
+                if (at >= 0) _sgData.items.splice(at, 1);
+                _sgData.left++;
+                renderPbPanel();
+                alert(r.message || "Gagal ngirim usulan.");
+            }
+        }).catch(() => {
+            const at = _sgData.items.indexOf(temp);
+            if (at >= 0) _sgData.items.splice(at, 1);
+            _sgData.left++;
             renderPbPanel();
-        } catch (e) { btn.disabled = false; alert("Gagal terhubung ke server. Coba lagi ya."); }
-        finally { hideBusy(); }
+            alert("Gagal terhubung ke server. Usulanmu belum kekirim, coba lagi ya.");
+        });
     });
     panel.querySelectorAll("[data-sgv]").forEach(b => b.addEventListener("click", async () => {
         const it = _sgData.items.find(x => x.id === b.dataset.sgv);
@@ -5707,19 +5725,38 @@ function renderMadingModal() {
         c.style.display = c.style.display === "none" ? "block" : "none";
         if (c.style.display === "block") $("mdInput").focus();
     });
-    $("mdSend").addEventListener("click", async () => {
+    $("mdSend").addEventListener("click", () => {
         const text = $("mdInput").value.trim();
         if (text.length < 3) { alert("Pesannya kependekan 😅"); return; }
-        $("mdSend").disabled = true;
-        showBusy("Nempelin pesanmu…");
-        try {
-            const r = await apiPost({ action: "memberPostBoard", token: _profile.token, text: text });
-            if (r.status !== "success") { $("mdSend").disabled = false; alert(r.message || "Gagal."); return; }
-            fireConfetti("quest");
-            await loadBoard(true);      // refresh data + teaser di Gallery
-            renderMadingModal();        // re-render papan full (pesan baru langsung nempel)
-        } catch (e) { $("mdSend").disabled = false; alert("Gagal terhubung ke server. Coba lagi ya."); }
-        finally { hideBusy(); }
+        // OPTIMISTIS: pesan langsung nempel di papan (tanpa loader/refetch),
+        // POST nyusul di belakang; gagal -> pesan dicopot lagi + kuota balik
+        const temp = { id: "tmpb" + Date.now().toString(36), nickname: _profile.nickname || "Kamu", text: text, ts: Date.now() };
+        _boardData.items.unshift(temp);
+        _boardData.left = Math.max(0, _boardData.left - 1);
+        _teaserEntries = null;          // teaser di Gallery ikut keisi pesan baru
+        playSfx("love", 0.6);
+        fireConfetti("quest");
+        renderMadingModal();            // langsung kerender, pesan baru ikut animasi tempel
+        renderBoard();
+        apiPost({ action: "memberPostBoard", token: _profile.token, text: temp.text }).then(r => {
+            if (r.status !== "success") {
+                const at = _boardData.items.indexOf(temp);
+                if (at >= 0) _boardData.items.splice(at, 1);
+                _boardData.left++;
+                _teaserEntries = null;
+                renderMadingModal();
+                renderBoard();
+                alert(r.message || "Gagal nempel pesan.");
+            }
+        }).catch(() => {
+            const at = _boardData.items.indexOf(temp);
+            if (at >= 0) _boardData.items.splice(at, 1);
+            _boardData.left++;
+            _teaserEntries = null;
+            renderMadingModal();
+            renderBoard();
+            alert("Gagal terhubung ke server. Pesanmu belum nempel, coba lagi ya.");
+        });
     });
 }
 
