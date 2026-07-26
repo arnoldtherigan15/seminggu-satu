@@ -4054,7 +4054,7 @@ const SN_ACT = {
     },
     "SM-039": { // Agu · Standar Hidup yang Bikin Siksa
         type: "hopper", title: "PAPER HOPPER: NAIK DI TEMPOKU",
-        goal: 30,
+        goal: 50,
         words: ["Pelan", "Cukup", "Fokus", "Tumbuh", "Punyaku"]
     },
     "SM-040": { // Sep · Ketika Emosi Datang Meluap-luap
@@ -4127,7 +4127,7 @@ const SN_ACT = {
     },
     "SM-049": { // Jun · Pelukan Hangat untuk Diri Sendiri
         type: "hopper", title: "PAPER HOPPER: TERBANG DIPELUK",
-        goal: 30,
+        goal: 50,
         words: ["Sayang", "Bangga", "Terima", "Hangat", "Pulih"]
     }
 };
@@ -4326,7 +4326,7 @@ function openSnailActivity(l) {
 // Jatuh nggak langsung game over (3 ❤️, respawn) — target: nembus langit-langit galeri.
 function snActHopper(l, box, k) {
     const pack = SN_ACT[l.id];
-    const GOAL_M = pack.goal || 30;      // "meter" galeri
+    const GOAL_M = pack.goal || 50;      // "meter" galeri
     const PXM = 100;                     // 1 m = 100px dunia
     const CRAFT = ["Washi", "Stiker", "Stempel", "Memo", "Catatan", "Pita"];
     box.innerHTML =
@@ -4375,6 +4375,7 @@ function snActHopper(l, box, k) {
     }
     function end(win) {
         playing = false;
+        gameMusicStop();
         cleanup();
         const st = $("hpStart");
         st.style.display = "";
@@ -4390,7 +4391,7 @@ function snActHopper(l, box, k) {
         $("hpPlay").addEventListener("click", start);
     }
     function loop(t) {
-        if (!playing || !stage.isConnected) return;
+        if (!playing || !stage.isConnected) { gameMusicStop(); return; }
         const dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
         lastT = t;
         const rc = stage.getBoundingClientRect();
@@ -4459,6 +4460,7 @@ function snActHopper(l, box, k) {
         addPlat(0, true);
         while (topSpawn < 400) addPlat(topSpawn + 62 + Math.random() * 32);
         $("hpStart").style.display = "none";
+        gameMusicPlay("music-jump.mp3");
         playing = true;
         lastT = 0;
         requestAnimationFrame(loop);
