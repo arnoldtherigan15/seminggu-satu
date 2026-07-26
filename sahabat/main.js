@@ -3976,8 +3976,10 @@ function renderSnailBox() {
             '<span class="sn-hletter"><span class="sn-hl-t">' + esc(l.theme) + '</span></span>' +
             '<span class="sn-hflap sk' + k + '"></span>' +
             '<img class="sn-hseal" src="seal-paw.png" alt="">' +
-            '<span class="sn-hstamp">' + SN_STAMPS[k] + '</span>' +
-            '<span class="sn-hpost">UNTUK: WARGA BALAI · ' + esc(snailMonthLabel(l).toUpperCase()) + '</span>' +
+            '<span class="sn-hair"></span>' +
+            '<span class="sn-hdoodle d1">✈️</span><span class="sn-hdoodle d2">♡</span>' +
+            '<span class="sn-hstamp">' + SN_STAMPS[k] + '<i>BALAI POST</i></span>' +
+            '<span class="sn-hlabel">UNTUK: WARGA BALAI<b>' + esc(snailMonthLabel(l).toUpperCase()) + '</b></span>' +
             '</button>' +
             '<div class="snp-hero-hint">ketuk amplopnya buat buka ✨</div>' +
             '</div>';

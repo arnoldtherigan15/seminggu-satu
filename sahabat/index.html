@@ -2369,18 +2369,36 @@
         .snp-hero-k { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .68rem; letter-spacing: .16em; color: #b3305f; margin-bottom: 14px; }
         .sn-henv { position: relative; display: block; width: min(320px, 86vw); aspect-ratio: 8 / 5; margin: 0 auto; border: 1.5px solid rgba(16, 36, 94, .18); border-radius: 10px; cursor: pointer; padding: 0; box-shadow: 0 14px 30px rgba(60, 40, 10, .28); animation: snWobble 2.4s ease-in-out infinite; }
         @keyframes snWobble { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
-        .sn-hletter { position: absolute; left: 5%; right: 5%; top: 10%; bottom: 14%; background: #fff; border-radius: 6px; z-index: 1; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); display: flex; align-items: flex-start; justify-content: center; padding: 12px 10px; transition: transform .7s cubic-bezier(.2, .8, .3, 1) .35s; }
+        .sn-hletter { position: absolute; left: 5%; right: 5%; top: 10%; bottom: 14%; background: #fff; border-radius: 6px; z-index: 1; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); display: flex; align-items: flex-start; justify-content: center; padding: 12px 10px; opacity: 0; transition: transform .7s cubic-bezier(.2, .8, .3, 1) .35s, opacity .3s ease .4s; }
+        .sn-henv.open .sn-hletter { opacity: 1; }
         .sn-hl-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .82rem; line-height: 1.35; color: #10245e; opacity: 0; transition: opacity .4s ease .7s; }
         .sn-hflap { position: absolute; left: 0; right: 0; top: 0; height: 58%; clip-path: polygon(0 0, 100% 0, 50% 100%); z-index: 3; transform-origin: top center; transition: transform .55s ease; filter: brightness(.96); border-radius: 10px 10px 0 0; }
         .sn-hseal { position: absolute; top: 50%; left: 50%; width: 46px; height: 46px; transform: translate(-50%, -50%); z-index: 4; transition: opacity .3s ease .2s, transform .3s ease .2s; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .25)); }
-        .sn-hstamp { position: absolute; top: 8px; right: 10px; z-index: 5; font-size: 1.05rem; background: rgba(255, 255, 255, .8); border: 1.5px dashed rgba(16, 36, 94, .35); border-radius: 4px; padding: 3px 6px; transform: rotate(4deg); }
-        .sn-hpost { position: absolute; bottom: 7px; left: 0; right: 0; z-index: 2; text-align: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .55rem; letter-spacing: .12em; color: rgba(16, 36, 94, .5); }
+        /* perangko berbingkai perforasi + tulisan pos kecil */
+        .sn-hstamp { position: absolute; top: 8px; right: 10px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 1.05rem; background: #fff; border: 2px dashed rgba(16, 36, 94, .4); border-radius: 4px; padding: 4px 6px 3px; transform: rotate(4deg); box-shadow: 0 2px 4px rgba(0, 0, 0, .15); }
+        .sn-hstamp i { font-style: normal; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .34rem; letter-spacing: .08em; color: #b3305f; }
+        /* strip AIR MAIL merah-biru di dasar amplop */
+        .sn-hair { position: absolute; left: 0; right: 0; bottom: 0; height: 11px; z-index: 2; background: repeating-linear-gradient(-45deg, #ef2d56 0 11px, #fff 11px 22px, #1d4ed8 22px 33px, #fff 33px 44px); border-top: 2px solid rgba(255, 255, 255, .9); border-radius: 0 0 9px 9px; }
+        /* label alamat tempel miring ala mesin tik */
+        .sn-hlabel { position: absolute; left: 7%; bottom: 18%; z-index: 3; background: #fff; padding: 5px 10px 4px; border-radius: 3px; box-shadow: 0 2px 6px rgba(0, 0, 0, .18); transform: rotate(-2deg); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .5rem; letter-spacing: .1em; color: #6b7794; text-align: left; }
+        .sn-hlabel b { display: block; font-size: .68rem; color: #10245e; letter-spacing: .06em; margin-top: 1px; }
+        .sn-hdoodle { position: absolute; z-index: 2; font-size: .85rem; opacity: .55; }
+        .sn-hdoodle.d1 { bottom: 26%; right: 14%; transform: rotate(10deg); }
+        .sn-hdoodle.d2 { bottom: 14%; right: 30%; transform: rotate(-8deg); font-weight: 800; color: #10245e; }
         .sn-henv.open { animation: none; }
         .sn-henv.open .sn-hflap { transform: rotateX(180deg); z-index: 1; }
         .sn-henv.open .sn-hseal { opacity: 0; transform: translate(-50%, -50%) scale(.35) rotate(-30deg); }
         .sn-henv.open .sn-hletter { transform: translateY(-36%); }
         .sn-henv.open .sn-hl-t { opacity: 1; }
         .snp-hero-hint { font-size: .74rem; color: #8a7a56; margin-top: 12px; }
+
+        /* pola amplop BERANI per bulan (hero + mini) — kertas surat tetap kalem */
+        .sn-henv.sk0, .sn-hflap.sk0, .sn-mini.sk0 { background-color: #ffd23f; background-image: radial-gradient(#fff 7px, transparent 7.6px); background-size: 34px 34px; }
+        .sn-henv.sk1, .sn-hflap.sk1, .sn-mini.sk1 { background-color: #ffd1e0; background-image: repeating-linear-gradient(45deg, #fff 0 9px, transparent 9px 23px); }
+        .sn-henv.sk2, .sn-hflap.sk2, .sn-mini.sk2 { background-color: #26338f; background-image: radial-gradient(#ffd23f 4px, transparent 4.6px), radial-gradient(#fff 10px, transparent 10.6px); background-size: 46px 46px, 46px 46px; }
+        .sn-henv.sk3, .sn-hflap.sk3, .sn-mini.sk3 { background-color: #eafaf0; background-image: repeating-linear-gradient(0deg, rgba(34, 197, 94, .3) 0 9px, transparent 9px 25px), repeating-linear-gradient(90deg, rgba(34, 197, 94, .3) 0 9px, transparent 9px 25px); }
+        .sn-henv.sk4, .sn-hflap.sk4, .sn-mini.sk4 { background-color: #dbeafe; background-image: repeating-linear-gradient(-45deg, rgba(59, 130, 246, .4) 0 11px, transparent 11px 27px); }
+        .sn-henv.sk5, .sn-hflap.sk5, .sn-mini.sk5 { background-color: #f3ebff; background-image: radial-gradient(#c4b5fd 5px, transparent 5.6px), radial-gradient(#f9a8d4 4px, transparent 4.6px), radial-gradient(#fde047 3px, transparent 3.6px); background-size: 42px 42px, 38px 38px, 30px 30px; background-position: 0 0, 14px 20px, 26px 8px; }
 
         /* koleksi: grid amplop mini */
         .snp-sec { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem; letter-spacing: .04em; color: #5c451d; margin: 24px 0 10px; }
@@ -2392,8 +2410,9 @@
         .sn-mini-stamp { position: absolute; top: 8px; right: 8px; font-size: .95rem; background: rgba(255, 255, 255, .8); border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 4px; padding: 2px 5px; transform: rotate(4deg); }
         .sn-mini-seal { position: absolute; top: -9px; left: 10px; width: 27px; height: 27px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .22)); }
         .sn-mini-done { position: absolute; top: 10px; left: 10px; font-weight: 800; font-size: .62rem; color: #0a7a3d; }
-        .sn-mini-month { display: block; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .54rem; letter-spacing: .1em; color: rgba(16, 36, 94, .55); margin-top: 16px; }
-        .sn-mini-theme { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .76rem; color: #10245e; line-height: 1.35; margin-top: 3px; min-height: 2.7em; }
+        .sn-mini-month { display: inline-block; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .52rem; letter-spacing: .1em; color: #6b7794; margin-top: 16px; background: #fff; padding: 2px 6px; border-radius: 3px; box-shadow: 0 1px 3px rgba(0, 0, 0, .14); transform: rotate(-1.5deg); }
+        .sn-mini-theme { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .74rem; color: #10245e; line-height: 1.4; margin-top: 5px; min-height: 2.8em; background: rgba(255, 255, 255, .92); padding: 4px 7px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+        .sn-mini-done { background: #fff; padding: 2px 6px; border-radius: 999px; box-shadow: 0 1px 3px rgba(0, 0, 0, .14); }
         .sn-badge { position: absolute; top: -8px; right: 8px; background: #ef2d56; color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .56rem; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; box-shadow: 0 2px 5px rgba(0, 0, 0, .18); }
 
         /* siput jalan menuju surat berikutnya */
