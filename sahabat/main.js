@@ -5353,15 +5353,15 @@ function renderMadingModal() {
                 .filter(it => it.kind === "quest" && it.nickname === top1.nickname && it.photo)
                 .sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
             if (work) {
-                champHtml = '<button type="button" class="md-champ md-in" style="--d:.15s" data-mid="' + esc(work.id) + '">' +
+                champHtml = '<div class="md-champ md-in" style="--d:.15s">' +
                     '<span class="mc-crown">👑</span>' +
                     '<span class="wb-tape2 wt-y" style="left:14px;"></span>' +
                     '<div class="mc-k">🏆 KARYA SANG JUARA · RANK #1 🎉</div>' +
                     '<div class="mc-frame"><img src="' + esc(work.photo) + '" alt="" loading="lazy" decoding="async">' +
                     '<span class="mc-conf c1">🎊</span><span class="mc-conf c2">✨</span></div>' +
                     '<div class="mc-name">' + esc(top1.nickname) + ' <span class="mc-poin">⚡ ' + top1.poin + ' poin</span></div>' +
-                    '<div class="mc-title">🎯 ' + esc(work.title) + ' · ketuk buat lihat 👀</div>' +
-                    '</button>';
+                    '<div class="mc-title">🎯 ' + esc(work.title) + '</div>' +
+                    '</div>';
             }
         }
     } catch (e) { }
@@ -5399,12 +5399,6 @@ function renderMadingModal() {
         '</div>';
     $("mdClose").addEventListener("click", closeMading);
     $("mdNote").addEventListener("click", () => { wrappedMusicStop(); mochiNotePlay(); }); // tap = puter ulang
-    const mch = modal.querySelector(".md-champ");
-    if (mch) mch.addEventListener("click", () => {
-        const it = _galleryItems.find(x => x.id === mch.dataset.mid);
-        closeMading();
-        if (it) openGalleryLightbox(it); // lightbox z-nya di bawah mading, jadi mading ditutup dulu
-    });
     modal.querySelectorAll("[data-goev]").forEach(b => b.addEventListener("click", () => {
         closeMading();
         try { location.hash = "events"; } catch (e) { }
