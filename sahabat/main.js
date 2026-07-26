@@ -2387,13 +2387,19 @@ function renderEventTicket() {
 const BULAN_ID = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 function prevMonthInfo() {
     const now = new Date();
+    // DEBUG ?recapdebug=1: recap pakai bulan BERJALAN (bukan bulan lalu) biar bisa
+    // dites pakai data asli yang udah ada (check-in, karya, mood bulan ini)
+    if (/[?&]recapdebug=1/.test(location.search)) {
+        return { year: now.getFullYear(), month: now.getMonth(), name: BULAN_ID[now.getMonth()], prefix: now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") };
+    }
     const y = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
     const m = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
     return { year: y, month: m, name: BULAN_ID[m], prefix: y + "-" + String(m + 1).padStart(2, "0") };
 }
 
 function renderRecapCardHtml() {
-    if (new Date().getDate() > 7) return ""; // cuma minggu pertama tiap bulan
+    const dbg = /[?&]recapdebug=1/.test(location.search);
+    if (!dbg && new Date().getDate() > 7) return ""; // cuma minggu pertama tiap bulan
     const pm = prevMonthInfo();
     const records = getJournalTrackerData(_profile.wa).records || {};
     const checkins = Object.keys(records).filter(k => k.indexOf(pm.prefix) === 0).length;
