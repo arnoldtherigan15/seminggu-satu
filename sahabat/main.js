@@ -4042,10 +4042,120 @@ function snSeed(l) {
     const m = String(l.publish_date).match(/^(\d{4})-(\d{2})/);
     return m ? parseInt(m[1] + m[2], 10) : 2026;
 }
-// bulan ganjil = Cari Kata, genap = Bingo — tiap bulan beda rasa
+// Paket aktivitas PER SURAT — konten nyambung sama tema suratnya, rotasi 4 game:
+// Cari Kata (ws), Bingo, Susun Kata (scramble), Tangkap Rasa (catch).
+const SN_ACT = {
+    "SM-038": { // Lelah yang Sering Tak Diundang
+        type: "ws", title: "CARI KATA: RESEP ISTIRAHAT",
+        words: ["REHAT", "NAPAS", "PULIH", "SANTAI", "TIDUR", "TENANG"]
+    },
+    "SM-039": { // Standar Hidup yang Bikin Siksa
+        type: "bingo", title: "BINGO: JALURKU SENDIRI",
+        items: ["Mute 1 akun yang bikin insecure", "Tulis 3 hal yang udah kamu capai", "Journaling: timeline-ku milikku", "Pagi tanpa scroll sosmed",
+            "Tulis definisi suksesmu sendiri", "Puji teman tanpa banding-bandingin", "Rayain progres sekecil apa pun", "Tulis surat buat kamu 5 tahun lagi",
+            "Catat 1 skill yang pelan-pelan naik", "Bilang 'aku cukup' depan cermin", "Journaling 10 menit tanpa HP", "List 3 perjuanganmu yang orang nggak tau",
+            "Ganti 'harusnya aku…' jadi 'aku lagi…'", "Apresiasi 1 keputusanmu tahun ini", "Tempel foto momen kamu bangga", "Tulis 1 hal yang kamu syukuri hari ini"]
+    },
+    "SM-040": { // Ketika Emosi Datang Meluap-luap
+        type: "catch", title: "TANGKAP RASA: BADAI EMOSI",
+        goal: 10,
+        emos: [
+            { w: "Kesal", v: "Wajar kok kesal. Tarik napas dulu ya 🍃" },
+            { w: "Sedih", v: "Sedih boleh singgah, nangis juga boleh 💧" },
+            { w: "Marah", v: "Marahmu valid. Pelan-pelan redainnya 🕯️" },
+            { w: "Cemas", v: "Nggak semua yang di kepala itu nyata 💭" },
+            { w: "Capek", v: "Nggak apa-apa kok kalau lagi capek 💤" },
+            { w: "Senang", v: "Simpan rasa ini di jurnalmu ya! ✨" }
+        ]
+    },
+    "SM-041": { // Suara Hati yang Terlalu Keras Menghakimi
+        type: "scramble", title: "SUSUN KATA: SUARA YANG LEMBUT",
+        rounds: [
+            { w: "LEMBUT", q: "Kalau sahabatmu salah, kamu ngomongnya gimana? Coba pakai nada itu ke dirimu sendiri." },
+            { w: "MAAF", q: "Tulis 1 kesalahan kecilmu minggu ini — terus maafin, beneran." },
+            { w: "LAYAK", q: "Apa 1 hal baik yang pernah kamu tolak karena ngerasa nggak pantas?" },
+            { w: "CUKUP", q: "Hari ini, apa yang sebenarnya udah cukup tapi masih kamu paksa?" },
+            { w: "BAIK", q: "Tulis 3 kata baik buat dirimu. Sekarang ya, bukan nanti." }
+        ]
+    },
+    "SM-042": { // Belajar Bilang Tidak
+        type: "ws", title: "CARI KATA: PAGAR DIRI",
+        words: ["BATAS", "TEGAS", "BERANI", "JUJUR", "RUANG", "DIRIKU"]
+    },
+    "SM-043": { // Melepaskan Genggaman yang Bikin Luka
+        type: "bingo", title: "BINGO: PELAN-PELAN DILEPAS",
+        items: ["Tulis 1 hal yang siap kamu lepas", "Sortir 1 barang yang udah nggak kepakai", "Unfollow yang udah nggak relate", "Tulis surat perpisahan (nggak usah dikirim)",
+            "Maafin 1 hal kecil hari ini", "Hapus 10 foto yang bikin berat", "Journaling: apa yang kugenggam terlalu erat?", "Napas 4-7-8 sebanyak 3x",
+            "Tulis 3 hal baik yang tetap tinggal", "Bikin playlist 'chapter baru'", "Rapihin 1 sudut kamar/meja", "Tulis: nggak semua harus kubawa",
+            "Cerita ke 1 orang yang kamu percaya", "Tandai 1 kebiasaan yang mau disudahi", "Peluk diri 10 detik, beneran", "Tutup bulan ini dengan 1 kata: lega"]
+    },
+    "SM-044": { // Berantakan Itu Manusiawi
+        type: "catch", title: "TANGKAP RASA: HARI YANG KUSUT",
+        goal: 10,
+        emos: [
+            { w: "Kusut", v: "Benang kusut diurainya satu-satu 🧶" },
+            { w: "Bingung", v: "Nggak tau arah bukan berarti tersesat 🧭" },
+            { w: "Kacau", v: "Berantakan itu bagian dari proses 🎨" },
+            { w: "Lelah", v: "Istirahat itu juga produktif 💤" },
+            { w: "Ragu", v: "Pelan-pelan aja, nggak usah buru-buru 🐌" },
+            { w: "Lega", v: "Nah, ini yang dicari! Simpan ya ✨" }
+        ]
+    },
+    "SM-045": { // Kesepian di Keramaian
+        type: "scramble", title: "SUSUN KATA: PELAN-PELAN MENDEKAT",
+        rounds: [
+            { w: "HADIR", q: "Siapa yang terakhir bikin kamu ngerasa beneran didengar?" },
+            { w: "SAPA", q: "Kirim 1 pesan singkat ke teman lama hari ini, yuk." },
+            { w: "PELUK", q: "Kapan terakhir kamu minta bantuan? Kenapa rasanya berat ya?" },
+            { w: "DENGAR", q: "Apa yang pengen banget kamu ceritain tapi belum sempat?" },
+            { w: "TEMAN", q: "Tulis nama 3 orang yang aman buat jadi tempat cerita." }
+        ]
+    },
+    "SM-046": { // Memaafkan Versi Diri yang Dulu
+        type: "ws", title: "CARI KATA: BERDAMAI",
+        words: ["MAAF", "TUMBUH", "IKHLAS", "LEMBUT", "BELAJAR", "BARU"]
+    },
+    "SM-047": { // Merayakan Kemenangan Kecil
+        type: "bingo", title: "BINGO: PESTA KECIL-KECILAN",
+        items: ["Bangun tanpa snooze — rayain!", "Catat 3 win kecil hari ini", "Traktir diri minuman favorit", "Tempel stiker bintang di jurnal",
+            "Screenshot chat yang bikin senyum", "Selesaiin 1 to-do yang ketunda", "Bilang 'good job' ke diri sendiri", "Foto langit hari ini",
+            "Tulis 1 hal yang dulu belum bisa, sekarang bisa", "Kasih tau teman soal win kecilmu", "Jalan kaki 10 menit tanpa tujuan", "Bikin halaman 'jar of wins'",
+            "Rayain nyelesaiin buku/episode", "Makan enak buat diri sendiri", "Tidur sebelum jam 11", "Tulis terima kasih buat tubuhmu"]
+    },
+    "SM-048": { // Rasa Cemas yang Suka Bohong
+        type: "catch", title: "TANGKAP RASA: CEMAS YANG BOHONG",
+        goal: 10,
+        emos: [
+            { w: "Panik", v: "Napas… 4 masuk, 7 tahan, 8 keluar 🌬️" },
+            { w: "Takut", v: "Ketakutan sering lebih besar di kepala 💭" },
+            { w: "Khawatir", v: "Fokus ke yang bisa kamu pegang hari ini 🤲" },
+            { w: "Ragu", v: "Kamu lebih siap dari yang kamu kira 🌱" },
+            { w: "Overthink", v: "Pikiranmu bukan fakta 📝" },
+            { w: "Tenang", v: "Nah! Bawa rasa ini pulang ✨" }
+        ]
+    },
+    "SM-049": { // Pelukan Hangat untuk Diri Sendiri
+        type: "scramble", title: "SUSUN KATA: PELUK DIRI",
+        rounds: [
+            { w: "SAYANG", q: "Tulis 1 kalimat sayang buat tubuhmu yang udah kerja keras." },
+            { w: "BANGGA", q: "Apa 1 hal tahun ini yang diam-diam bikin kamu bangga?" },
+            { w: "TERIMA", q: "Bagian mana dari dirimu yang mau kamu terima apa adanya?" },
+            { w: "CUKUP", q: "Selesaikan kalimat ini: 'Aku udah cukup, walaupun…'" },
+            { w: "PULANG", q: "Di mana, atau sama siapa, kamu ngerasa paling jadi diri sendiri?" }
+        ]
+    }
+};
+
+// tipe game per surat: dari paket; surat tanpa paket fallback gantian ws/bingo
 function snActType(l) {
+    const pack = SN_ACT[l.id];
+    if (pack && pack.type) return pack.type;
     const m = String(l.publish_date).match(/-(\d{2})-/);
     return (m && parseInt(m[1], 10) % 2 === 0) ? "bingo" : "ws";
+}
+function snActLabel(l) {
+    const t = snActType(l);
+    return t === "ws" ? "Cari Kata 🔍" : (t === "bingo" ? "Bingo Journaling 🎯" : (t === "scramble" ? "Susun Kata 🔤" : "Tangkap Rasa 🫧"));
 }
 
 const SN_WS_POOL = ["JURNAL", "MOCHI", "WASHI", "STIKER", "SYUKUR", "MIMPI", "CERITA", "WARGA", "BALAI", "PELUK", "NAPAS", "TENANG", "KARYA", "PENSIL", "KOPI", "SENJA"];
@@ -4057,7 +4167,8 @@ function snShuffle(arr, rnd) {
 // generator word search 8x8: 5 kata (kanan/bawah/diagonal), sisa diisi huruf acak
 function snBuildWs(l) {
     const N = 8, rnd = snMulberry(snSeed(l));
-    const words = snShuffle(SN_WS_POOL, rnd).filter(w => w.length <= N).slice(0, 5);
+    const pack = SN_ACT[l.id];
+    const words = (pack && pack.words ? pack.words.slice() : snShuffle(SN_WS_POOL, rnd).slice(0, 5)).filter(w => w.length <= N);
     const grid = new Array(N * N).fill("");
     const placed = [];
     const DIRS = [[0, 1], [1, 0], [1, 1]];
@@ -4092,8 +4203,10 @@ const SN_BINGO_POOL = [
     "Tempel foto atau polaroid", "Tulis 1 kata buat bulan ini", "Rapihin meja journaling-mu", "Ajak 1 teman journaling bareng"
 ];
 function snBuildBingo(l) {
+    const pack = SN_ACT[l.id];
     const rnd = snMulberry(snSeed(l) + 7);
-    return snShuffle(SN_BINGO_POOL, rnd).slice(0, 16);
+    // paket themed diacak urutannya (deterministik) biar papan tetap kerasa acak
+    return snShuffle(pack && pack.items ? pack.items : SN_BINGO_POOL, rnd).slice(0, 16);
 }
 
 // progress per surat di localStorage
@@ -4119,7 +4232,7 @@ function openSnailActivity(l) {
         box.innerHTML =
             '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
             '<span class="sn-washi"></span>' +
-            '<div class="sn-kicker">BONUS ' + esc(snailMonthLabel(l).toUpperCase()) + ' · CARI KATA 🔍</div>' +
+            '<div class="sn-kicker">' + esc((SN_ACT[l.id] || {}).title || "CARI KATA 🔍") + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
             '<div class="sn-act-hint">Ketuk huruf PERTAMA terus huruf TERAKHIR katanya ya!</div>' +
             '<div class="ws-grid">' + cellsHtml + '</div>' +
             '<div class="ws-words">' + wordsHtml + '</div>' +
@@ -4158,7 +4271,7 @@ function openSnailActivity(l) {
                 if (found.length === ws.placed.length) fireConfetti("reward"); // semua ketemu!
             }
         }));
-    } else {
+    } else if (type === "bingo") {
         const items = snBuildBingo(l);
         const marked = snActState(l.id); // list index yang dicentang
         let cellsHtml = "";
@@ -4168,7 +4281,7 @@ function openSnailActivity(l) {
         box.innerHTML =
             '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
             '<span class="sn-washi"></span>' +
-            '<div class="sn-kicker">BONUS ' + esc(snailMonthLabel(l).toUpperCase()) + ' · BINGO JOURNALING 🎯</div>' +
+            '<div class="sn-kicker">' + esc((SN_ACT[l.id] || {}).title || "BINGO JOURNALING 🎯") + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
             '<div class="sn-act-hint">Kerjain misi kecilnya, ketuk buat nyentang. Satu baris penuh = BINGO! 🎉</div>' +
             '<div class="bg-grid">' + cellsHtml + '</div>' +
             '<div class="bg-banner" id="bgBanner" style="display:none;">🎉 BINGO! Kamu keren banget!</div>' +
@@ -4201,7 +4314,201 @@ function openSnailActivity(l) {
             snActSave(l.id, marked);
             syncBanner(!hadBingo); // bingo BARU aja kejadian -> rayain
         }));
+    } else if (type === "scramble") {
+        snActScramble(l, box, k);
+    } else {
+        snActCatch(l, box, k);
     }
+}
+
+// ---------- Susun Kata: acak huruf -> kata kunci -> refleksi journaling ----------
+function snActScramble(l, box, k) {
+    const pack = SN_ACT[l.id];
+    const rounds = pack.rounds;
+    const solved = snActState(l.id); // index ronde yang udah kebuka
+    let cur = 0;
+    while (cur < rounds.length && solved.indexOf(cur) >= 0) cur++;
+
+    function shuffledTiles(word, ri) {
+        // deterministik per ronde biar susunannya stabil, dan dijamin nggak kebetulan
+        // udah urut (digeser 1 kalau hasil acaknya = kata aslinya)
+        let a = snShuffle(word.split(""), snMulberry(snSeed(l) + ri * 31 + 5));
+        if (a.join("") === word) a.push(a.shift());
+        return a;
+    }
+
+    function render() {
+        if (cur >= rounds.length) {
+            box.innerHTML =
+                '<div class="sn-paper sk' + k + '" style="padding-top:20px;text-align:center;">' +
+                '<span class="sn-washi"></span>' +
+                '<div class="sn-kicker">' + esc(pack.title) + '</div>' +
+                '<div class="sc-done-em">🎉</div>' +
+                '<div class="sc-q" style="text-align:center;">Semua kata kebuka! Refleksinya boleh banget dibawa ke jurnal minggu ini 💙</div>' +
+                '</div>' +
+                '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>';
+            $("snBack").addEventListener("click", () => openSnailLetter(l, true));
+            return;
+        }
+        const r = rounds[cur];
+        const tiles = shuffledTiles(r.w, cur);
+        let tilesHtml = "";
+        tiles.forEach((ch, i) => { tilesHtml += '<button type="button" class="sc-tile" data-i="' + i + '">' + ch + '</button>'; });
+        let slotsHtml = "";
+        for (let i = 0; i < r.w.length; i++) slotsHtml += '<span class="sc-slot"></span>';
+        box.innerHTML =
+            '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+            '<span class="sn-washi"></span>' +
+            '<div class="sn-kicker">' + esc(pack.title) + ' · ' + (cur + 1) + '/' + rounds.length + '</div>' +
+            '<div class="sn-act-hint">Susun huruf-hurufnya jadi satu kata — ketuk hurufnya urut ya! (salah? ketuk ↺)</div>' +
+            '<div class="sc-slots" id="scSlots">' + slotsHtml + '</div>' +
+            '<div class="sc-tiles" id="scTiles">' + tilesHtml + '</div>' +
+            '<button type="button" class="sc-reset" id="scReset">↺ Ulang</button>' +
+            '<div class="sc-reveal" id="scReveal" style="display:none;"></div>' +
+            '</div>' +
+            '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>';
+        $("snBack").addEventListener("click", () => openSnailLetter(l, true));
+        const slots = box.querySelectorAll(".sc-slot");
+        const tileEls = box.querySelectorAll(".sc-tile");
+        let typed = "";
+        function resetRound() {
+            typed = "";
+            slots.forEach(s => { s.textContent = ""; s.classList.remove("fill"); });
+            tileEls.forEach(t => { t.disabled = false; t.classList.remove("used"); });
+        }
+        $("scReset").addEventListener("click", resetRound);
+        tileEls.forEach(t => t.addEventListener("click", () => {
+            if (t.disabled || typed.length >= r.w.length) return;
+            t.disabled = true; t.classList.add("used");
+            slots[typed.length].textContent = t.textContent;
+            slots[typed.length].classList.add("fill");
+            typed += t.textContent;
+            if (typed.length === r.w.length) {
+                if (typed === r.w) {
+                    playSfx("challenge-done", 0.7);
+                    solved.push(cur);
+                    snActSave(l.id, solved);
+                    const rev = $("scReveal");
+                    rev.style.display = "";
+                    rev.innerHTML = '<div class="sc-word">✨ ' + esc(r.w) + '</div><div class="sc-q">' + esc(r.q) + '</div>' +
+                        '<button type="button" class="btn-primary" id="scNext" style="margin-top:12px;">' + (cur + 1 < rounds.length ? "Kata berikutnya →" : "Selesai 🎉") + '</button>';
+                    $("scTiles").style.display = "none";
+                    $("scReset").style.display = "none";
+                    if (cur + 1 >= rounds.length) fireConfetti("reward");
+                    $("scNext").addEventListener("click", () => { cur++; render(); });
+                } else {
+                    const sl = $("scSlots");
+                    sl.classList.add("wrong");
+                    setTimeout(() => { sl.classList.remove("wrong"); resetRound(); }, 480);
+                }
+            }
+        }));
+        const pg = $("snailPage");
+        if (pg) pg.scrollTop = 0;
+    }
+    render();
+}
+
+// ---------- Tangkap Rasa: arcade gelembung emosi jatuh, Mochi nangkepin ----------
+function snActCatch(l, box, k) {
+    const pack = SN_ACT[l.id];
+    const GOAL = pack.goal || 10;
+    box.innerHTML =
+        '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+        '<span class="sn-washi"></span>' +
+        '<div class="sn-kicker">' + esc(pack.title) + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
+        '<div class="sn-act-hint">Geser Mochi kiri-kanan buat nangkep gelembung rasa — tiap rasa yang ketangkep dipeluk sama Mochi 🫧</div>' +
+        '<div class="ct-stage" id="ctStage">' +
+        '<div class="ct-score" id="ctScore">0 / ' + GOAL + '</div>' +
+        '<div class="ct-toast" id="ctToast"></div>' +
+        '<img class="ct-mochi" id="ctMochi" src="../images/sticker/str-6.png" alt="">' +
+        '<div class="ct-start" id="ctStart"><button type="button" class="btn-primary" id="ctPlay">Mulai 🫧</button></div>' +
+        '</div>' +
+        '</div>' +
+        '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>';
+    $("snBack").addEventListener("click", () => openSnailLetter(l, true));
+
+    const stage = $("ctStage"), mochi = $("ctMochi"), toast = $("ctToast"), scoreEl = $("ctScore");
+    let mx = 0.5; // posisi mochi 0..1
+    function moveTo(clientX) {
+        const rc = stage.getBoundingClientRect();
+        mx = Math.max(0.08, Math.min(0.92, (clientX - rc.left) / rc.width));
+        mochi.style.left = (mx * 100) + "%";
+    }
+    stage.addEventListener("touchmove", e => { moveTo(e.touches[0].clientX); e.preventDefault(); }, { passive: false });
+    stage.addEventListener("touchstart", e => moveTo(e.touches[0].clientX), { passive: true });
+    stage.addEventListener("mousemove", e => moveTo(e.clientX));
+
+    let caught = 0, playing = false, lastSpawn = 0, lastT = 0;
+    const bubs = [];
+    let toastTimer = null;
+    function showToast(v) {
+        toast.textContent = v;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1700);
+    }
+    function spawn() {
+        const emo = pack.emos[Math.floor(Math.random() * pack.emos.length)];
+        const el = document.createElement("div");
+        el.className = "ct-bub";
+        el.textContent = emo.w;
+        const x = 0.1 + Math.random() * 0.8;
+        el.style.left = (x * 100) + "%";
+        stage.appendChild(el);
+        bubs.push({ el: el, x: x, y: -30, v: 55 + Math.random() * 40 + caught * 4, emo: emo });
+    }
+    function loop(t) {
+        if (!playing || !stage.isConnected) return; // halaman ditinggal -> stop
+        const dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
+        lastT = t;
+        if (t - lastSpawn > Math.max(650, 1100 - caught * 40)) { spawn(); lastSpawn = t; }
+        const rc = stage.getBoundingClientRect();
+        const catchY = rc.height - 74;
+        for (let i = bubs.length - 1; i >= 0; i--) {
+            const b = bubs[i];
+            b.y += b.v * dt;
+            b.el.style.transform = "translate(-50%," + b.y + "px)";
+            if (b.y >= catchY && b.y <= catchY + 46 && Math.abs(b.x - mx) < 0.14) {
+                // ketangkep!
+                b.el.classList.add("pop");
+                (function (el) { setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 250); })(b.el);
+                bubs.splice(i, 1);
+                caught++;
+                scoreEl.textContent = caught + " / " + GOAL;
+                playSfx("love", 0.55);
+                showToast(b.emo.v);
+                if (caught >= GOAL) { end(); return; }
+            } else if (b.y > rc.height + 20) {
+                if (b.el.parentNode) b.el.parentNode.removeChild(b.el);
+                bubs.splice(i, 1);
+            }
+        }
+        requestAnimationFrame(loop);
+    }
+    function end() {
+        playing = false;
+        bubs.forEach(b => { if (b.el.parentNode) b.el.parentNode.removeChild(b.el); });
+        bubs.length = 0;
+        playSfx("challenge-done");
+        fireConfetti("reward");
+        const st = $("ctStart");
+        st.style.display = "";
+        st.innerHTML = '<div class="ct-end">Semua rasanya udah dipeluk 🤗<br>Kepala rasanya lebih lega kan?</div>' +
+            '<button type="button" class="btn-primary" id="ctPlay" style="margin-top:10px;">Main lagi 🔁</button>';
+        $("ctPlay").addEventListener("click", start);
+    }
+    function start() {
+        caught = 0;
+        scoreEl.textContent = "0 / " + GOAL;
+        $("ctStart").style.display = "none";
+        playing = true;
+        lastSpawn = 0; lastT = 0;
+        requestAnimationFrame(loop);
+    }
+    $("ctPlay").addEventListener("click", start);
+    const pg = $("snailPage");
+    if (pg) pg.scrollTop = 0;
 }
 
 // Baca satu surat: kertas se-skin amplopnya, postmark bulan, ttd Mochi
@@ -4220,7 +4527,7 @@ function openSnailLetter(l, silent) {
         '<div class="sn-body">' + esc(l.letter_content) + '</div>' +
         '<div class="sn-sign">— Mochi 🐾</div>' +
         '</div>' +
-        '<button type="button" class="sn-bonus" id="snBonus">🎁 Bonus bulan ini: ' + (snActType(l) === "ws" ? "Cari Kata 🔍" : "Bingo Journaling 🎯") + ' →</button>' +
+        '<button type="button" class="sn-bonus" id="snBonus">🎁 Bonus bulan ini: ' + snActLabel(l) + ' →</button>' +
         '<button type="button" class="sn-back" id="snBack">← Balik ke Kotak Surat</button>';
     $("snBack").addEventListener("click", renderSnailBox);
     $("snBonus").addEventListener("click", () => openSnailActivity(l));

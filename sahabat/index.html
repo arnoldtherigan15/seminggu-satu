@@ -2439,6 +2439,34 @@
         .bg-cell.on::after { content: '⭐'; position: absolute; top: -7px; right: -4px; font-size: .8rem; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .2)); }
         .bg-banner { margin-top: 12px; text-align: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .95rem; color: #10245e; background: var(--yellow); border-radius: 12px; padding: 10px; transform: rotate(-.6deg); box-shadow: 0 3px 8px rgba(0, 0, 0, .12); }
 
+        /* Susun Kata (scramble) */
+        .sc-slots { display: flex; gap: 6px; justify-content: center; margin: 6px 0 14px; }
+        .sc-slots.wrong { animation: scShake .4s ease; }
+        @keyframes scShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
+        .sc-slot { width: 40px; height: 46px; border-bottom: 3px solid rgba(16, 36, 94, .35); display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.25rem; color: #10245e; }
+        .sc-slot.fill { border-color: var(--blue); }
+        .sc-tiles { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .sc-tile { width: 46px; height: 50px; border: 1.5px solid rgba(16, 36, 94, .25); border-radius: 10px; background: rgba(255, 255, 255, .85); font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.15rem; color: #10245e; cursor: pointer; box-shadow: 0 2px 0 rgba(16, 36, 94, .18); transform: rotate(-2deg); }
+        .sc-tile:nth-child(even) { transform: rotate(2deg); }
+        .sc-tile.used { opacity: .25; box-shadow: none; }
+        .sc-tile:active { transform: scale(.94); }
+        .sc-reset { display: block; margin: 12px auto 0; border: none; background: none; color: var(--blue); font-family: inherit; font-weight: 700; font-size: .78rem; cursor: pointer; }
+        .sc-reveal { margin-top: 10px; text-align: center; }
+        .sc-word { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.3rem; color: var(--blue); letter-spacing: .12em; }
+        .sc-q { font-size: .86rem; line-height: 1.7; color: #2a3550; margin-top: 8px; font-style: italic; }
+        .sc-done-em { font-size: 2.2rem; margin: 10px 0 6px; }
+
+        /* Tangkap Rasa (catch) */
+        .ct-stage { position: relative; height: 350px; border-radius: 12px; overflow: hidden; margin-top: 4px; background: linear-gradient(180deg, #dceafe, #f6fbff 70%); border: 1.5px solid rgba(16, 36, 94, .15); touch-action: none; }
+        .ct-score { position: absolute; top: 8px; right: 10px; z-index: 4; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .8rem; color: #10245e; background: rgba(255, 255, 255, .8); border-radius: 999px; padding: 3px 10px; }
+        .ct-mochi { position: absolute; bottom: 6px; left: 50%; width: 62px; transform: translateX(-50%); z-index: 3; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .2)); pointer-events: none; transition: left .08s linear; }
+        .ct-bub { position: absolute; top: 0; z-index: 2; background: rgba(255, 255, 255, .92); border: 2px solid rgba(0, 70, 255, .35); border-radius: 999px; padding: 8px 13px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .78rem; color: #10245e; box-shadow: 0 4px 10px rgba(0, 70, 255, .18); pointer-events: none; white-space: nowrap; }
+        .ct-bub.pop { transition: transform .22s ease, opacity .22s ease; transform: translate(-50%, 0) scale(1.6) !important; opacity: 0; }
+        .ct-toast { position: absolute; top: 40px; left: 50%; transform: translateX(-50%) scale(.9); z-index: 5; max-width: 86%; text-align: center; background: #10245e; color: #fff; font-size: .76rem; font-weight: 700; line-height: 1.45; border-radius: 12px; padding: 8px 13px; opacity: 0; transition: opacity .25s ease, transform .25s ease; pointer-events: none; }
+        .ct-toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
+        .ct-start { position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 255, 255, .55); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); padding: 16px; }
+        .ct-end { text-align: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; color: #10245e; line-height: 1.6; }
+
         /* ---------- Paspor Warga: modal fullscreen gelap + buku yang kebuka dari cover ---------- */
         .psp-modal { position: fixed; inset: 0; background: rgba(10, 18, 51, .82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
         .psp-modal.show { display: flex; }
