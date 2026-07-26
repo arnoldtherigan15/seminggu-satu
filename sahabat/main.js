@@ -4511,6 +4511,7 @@ function snActSnake(l, box, k) {
         spawnTiles();
         draw();
         $("wsnStart").style.display = "none";
+        gameMusicPlay("music-snake.mp3");
         playing = true;
         lastStep = 0;
         requestAnimationFrame(loop);
