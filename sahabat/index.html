@@ -47,8 +47,9 @@
             box-sizing: border-box;
         }
 
-        /* Ukuran teks "Besar" (Pengaturan) — semua satuan rem ikut nge-scale */
-        :root[data-font="large"] { font-size: 18px; }
+        /* Ukuran teks (Pengaturan): Normal 16 / Sedang 18 / Besar 20 — rem ikut nge-scale */
+        :root[data-font="medium"] { font-size: 18px; }
+        :root[data-font="large"] { font-size: 20px; }
 
         :root {
             --blue: #0046ff;
@@ -3168,20 +3169,22 @@
         /* teks dikunci navy: bg-nya kuning tetap, --ink di dark mode jadi putih (nggak kebaca) */
         /* Cuaca Hati: pilihan mood + kalender grid */
         .mood-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 14px 0 4px; }
-        .mood-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; border: 1.5px dashed rgba(16, 36, 94, .3); background: rgba(255, 255, 255, .08); border-radius: 12px; padding: 9px 8px 7px; cursor: pointer; font-family: inherit; min-width: 56px; transition: transform .12s ease; }
+        /* warna pakai variabel tema — kebaca di mode terang MAUPUN gelap */
+        .mood-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; border: 1.5px dashed var(--line); background: var(--bg); border-radius: 12px; padding: 9px 8px 7px; cursor: pointer; font-family: inherit; min-width: 56px; transition: transform .12s ease; }
         .mood-btn:active { transform: scale(.92); }
         .mood-btn.on { background: var(--yellow); border: 2px solid #10245e; transform: rotate(-2deg); }
         .mood-e { font-size: 1.35rem; }
-        .mood-t { font-size: .7rem; font-weight: 800; color: #cbd5f5; font-family: 'Outfit', sans-serif; }
+        .mood-t { font-size: .7rem; font-weight: 800; color: var(--ink); font-family: 'Outfit', sans-serif; }
         .mood-btn.on .mood-t { color: #10245e; }
-        .mood-d { font-size: .58rem; color: rgba(203, 213, 245, .78); line-height: 1.3; max-width: 68px; }
+        .mood-d { font-size: .58rem; color: var(--muted); line-height: 1.3; max-width: 68px; }
         .mood-btn.on .mood-d { color: rgba(16, 36, 94, .8); }
-        .mood-cal { margin-top: 14px; background: rgba(255, 255, 255, .07); border: 1.5px dashed rgba(255, 255, 255, .25); border-radius: 12px; padding: 10px; }
-        .mood-cal-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .76rem; letter-spacing: .04em; color: #cbd5f5; margin-bottom: 8px; text-align: left; }
+        .mood-cal { margin-top: 14px; background: var(--bg); border: 1.5px dashed var(--line); border-radius: 12px; padding: 10px; }
+        .mood-cal-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .76rem; letter-spacing: .04em; color: var(--ink); margin-bottom: 8px; text-align: left; }
         .mg-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-        .mg-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: .9rem; border-radius: 8px; background: rgba(255, 255, 255, .06); }
-        .mg-cell i { font-style: normal; font-size: .56rem; font-weight: 700; color: rgba(203, 213, 245, .55); }
-        .mg-cell.on { background: rgba(255, 230, 0, .14); }
+        .mg-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: .9rem; border-radius: 8px; background: var(--card); border: 1px solid var(--line); }
+        .mg-cell i { font-style: normal; font-size: .56rem; font-weight: 700; color: var(--muted); }
+        .mg-cell.on { background: rgba(255, 230, 0, .35); border-color: rgba(234, 179, 8, .6); }
+        :root[data-theme="dark"] .mg-cell.on { background: rgba(255, 230, 0, .16); }
         .mg-cell.fut { opacity: .35; }
         /* versi kecil buat slide recap (kertas terang) */
         .mg-grid.sm { gap: 3px; max-width: 280px; margin: 0 auto; }

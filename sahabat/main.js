@@ -13,7 +13,8 @@ let _profile = null; // { token, nickname, birthDate, wa }
 // ss_mute: "1" = semua sfx & musik senyap
 (function applyPrefs() {
     try {
-        if (localStorage.getItem("ss_font") === "large") document.documentElement.setAttribute("data-font", "large");
+        const f = localStorage.getItem("ss_font");
+        if (f === "medium" || f === "large") document.documentElement.setAttribute("data-font", f);
     } catch (e) { }
 })();
 function sndMuted() {
@@ -2976,7 +2977,7 @@ function setThemePref(dark) {
 function openSettings() {
     const modal = $("questModal");
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-    const isLarge = document.documentElement.getAttribute("data-font") === "large";
+    const fontPref = document.documentElement.getAttribute("data-font") || "normal";
     const muted = sndMuted();
     const seg = (id, opts) => '<div class="st-seg" id="' + id + '">' +
         opts.map(o => '<button type="button" class="st-opt' + (o.on ? " on" : "") + '" data-v="' + o.v + '">' + o.t + '</button>').join("") + '</div>';
@@ -2988,7 +2989,11 @@ function openSettings() {
         '<div class="st-row"><div class="st-lbl">🌓 Tema</div>' +
         seg("stTheme", [{ v: "light", t: "☀️ Terang", on: !isDark }, { v: "dark", t: "🌙 Gelap", on: isDark }]) + '</div>' +
         '<div class="st-row"><div class="st-lbl">🔤 Ukuran Teks</div>' +
-        seg("stFont", [{ v: "normal", t: "Normal", on: !isLarge }, { v: "large", t: "Besar Aa", on: isLarge }]) + '</div>' +
+        seg("stFont", [
+            { v: "normal", t: "Normal", on: fontPref === "normal" },
+            { v: "medium", t: "Sedang", on: fontPref === "medium" },
+            { v: "large", t: "Besar", on: fontPref === "large" }
+        ]) + '</div>' +
         '<div class="st-row"><div class="st-lbl">🔊 Suara & Musik</div>' +
         seg("stSound", [{ v: "on", t: "🔔 Nyala", on: !muted }, { v: "off", t: "🔕 Senyap", on: muted }]) + '</div>' +
         '</div>';
@@ -3003,7 +3008,7 @@ function openSettings() {
     }
     pick("stTheme", v => { setThemePref(v === "dark"); playSfx("light", 0.8); });
     pick("stFont", v => {
-        if (v === "large") document.documentElement.setAttribute("data-font", "large");
+        if (v === "medium" || v === "large") document.documentElement.setAttribute("data-font", v);
         else document.documentElement.removeAttribute("data-font");
         try { localStorage.setItem("ss_font", v); } catch (e) { }
         playSfx("love", 0.5);
