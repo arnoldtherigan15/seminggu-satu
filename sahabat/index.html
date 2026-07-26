@@ -1596,6 +1596,14 @@
         .pb-item-by { font-size: .68rem; color: #8a7a56; margin-top: 5px; font-style: italic; }
         .pb-empty { text-align: center; font-size: .78rem; color: #8a7a56; padding: 10px 0; }
 
+        /* 🌦️ strip Cuaca Balai di mading */
+        .bw-strip { display: flex; align-items: center; gap: 11px; background-color: #fffdf6; background-image: repeating-linear-gradient(transparent, transparent 19px, rgba(16, 36, 94, .08) 20px); border-radius: 3px; padding: 12px 13px; margin-top: 14px; transform: rotate(-.5deg); box-shadow: 0 1px 2px rgba(60, 40, 10, .18), 0 6px 12px rgba(60, 40, 10, .2); }
+        .bw-em { flex: none; font-size: 1.7rem; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .15)); }
+        .bw-body { flex: 1; min-width: 0; }
+        .bw-k { display: block; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .58rem; letter-spacing: .12em; color: #b3305f; }
+        .bw-t { display: block; font-weight: 700; font-size: .82rem; color: #10245e; line-height: 1.5; margin-top: 2px; }
+        .bw-n { display: block; font-size: .64rem; color: #8a7a56; margin-top: 3px; font-style: italic; }
+
         /* 🏆 spotlight karya sang juara di mading */
         .md-champ { position: relative; display: block; width: 100%; margin-top: 18px; background-color: #fffdf4; background-image: radial-gradient(rgba(234, 179, 8, .14) 1.2px, transparent 1.4px); background-size: 12px 12px; border: 2.5px solid #eab308; border-radius: 8px; padding: 20px 12px 12px; box-shadow: 0 6px 16px rgba(120, 80, 30, .3), inset 0 0 0 3px rgba(234, 179, 8, .2); transform: rotate(-.8deg); font-family: inherit; text-align: center; }
         .mc-crown { position: absolute; top: -17px; left: 50%; font-size: 1.6rem; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .28)); z-index: 2; animation: mcBob 2s ease-in-out infinite; }
@@ -2473,6 +2481,13 @@
         .sn-henv.open .sn-hl-t { opacity: 1; }
         .snp-hero-hint { font-size: .74rem; color: #8a7a56; margin-top: 12px; }
 
+        /* saran surat yang nyambung mood bulan ini */
+        .sn-sugg { display: block; width: 100%; margin-top: 16px; border: 1.5px dashed rgba(179, 48, 95, .45); background: rgba(255, 240, 246, .9); color: #6b2137; font-family: inherit; font-weight: 600; font-size: .78rem; line-height: 1.6; text-align: left; border-radius: 12px; padding: 11px 13px; cursor: pointer; }
+        .sn-sugg b { color: #8f2038; }
+        .sn-sugg:active { transform: scale(.98); }
+        :root[data-theme="dark"] .sn-sugg { background: rgba(244, 114, 182, .1); color: #f3cfdb; }
+        :root[data-theme="dark"] .sn-sugg b { color: #ffd9e0; }
+
         /* pola amplop BERANI per bulan (hero + mini) — kertas surat tetap kalem */
         .sn-henv.sk0, .sn-hflap.sk0, .sn-mini.sk0 { background-color: #ffd23f; background-image: radial-gradient(#fff 7px, transparent 7.6px); background-size: 34px 34px; }
         .sn-henv.sk1, .sn-hflap.sk1, .sn-mini.sk1 { background-color: #ffd1e0; background-image: repeating-linear-gradient(45deg, #fff 0 9px, transparent 9px 23px); }
@@ -3205,6 +3220,9 @@
         .mood-btn.on .mood-d { color: rgba(16, 36, 94, .8); }
         /* respons Mochi setelah milih cuaca */
         .mood-resp { margin-top: 12px; background: var(--bg); border: 1.5px dashed var(--line); border-radius: 12px; padding: 11px 12px; text-align: left; }
+        /* bukti pulih dari riwayat sendiri */
+        .mr-evi { margin-top: 8px; background: linear-gradient(120deg, rgba(255, 230, 0, .18), rgba(249, 168, 212, .18)); border: 1.5px dashed rgba(179, 48, 95, .4); border-radius: 10px; padding: 8px 10px; font-size: .78rem; line-height: 1.6; color: var(--ink); }
+
         /* hadiah kecil dari Mochi */
         .mr-gift { text-align: center; border-bottom: 1.5px dashed var(--line); padding-bottom: 10px; margin-bottom: 10px; }
         .mrg-from { display: block; font-size: .7rem; font-weight: 700; color: var(--muted); }

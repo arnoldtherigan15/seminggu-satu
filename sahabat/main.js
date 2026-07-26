@@ -3673,6 +3673,36 @@ function renderBreath(modal) {
     });
 }
 
+// ---------- "Kamu pernah lewatin ini" 🌈 ----------
+// Nyari bukti PULIH paling baru dari riwayat mood-nya sendiri: rentetan hari
+// berat (hujan/badai) yang disusul hari baik (pelangi/cerah). Self-evidence
+// buat ngelawan perasaan "nggak akan membaik".
+function moodEvidence() {
+    const s = moodStore();
+    const entries = [];
+    Object.keys(s).sort().forEach(mk => {
+        const m = mk.match(/^(\d{4})-(\d{2})$/);
+        if (!m) return;
+        Object.keys(s[mk]).forEach(d => {
+            entries.push({ mo: +m[2], d: +d, k: s[mk][d], t: new Date(+m[1], +m[2] - 1, +d).getTime() });
+        });
+    });
+    entries.sort((a, b) => a.t - b.t);
+    const BAD = { hujan: 1, badai: 1 }, GOOD = { pelangi: 1, cerah: 1 };
+    const todayT = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()).getTime();
+    let best = null;
+    for (let i = 1; i < entries.length; i++) {
+        if (!GOOD[entries[i].k] || entries[i].t >= todayT) continue;
+        let n = 0, j = i - 1;
+        while (j >= 0 && BAD[entries[j].k]) { n++; j--; }
+        if (n >= 1) best = { n: n, g: entries[i] }; // terus di-overwrite -> dapet yang paling recent
+    }
+    if (!best) return "";
+    const mo = MOODS.find(x => x.k === best.g.k) || MOODS[0];
+    return "Inget " + best.g.d + " " + BULAN_ID[best.g.mo - 1] + "? Habis " + best.n + " hari berat" + (best.n > 1 ? " berturut-turut" : "") +
+        ", kamu nyatet " + mo.t.toLowerCase() + " " + mo.e + " — kamu pernah lewatin ini, dan bisa lagi.";
+}
+
 // buka Cuaca Hati langsung (dari widget Home) — tanpa lewat chooser
 function openMoodDirect() {
     let modal = $("mochiModal");
@@ -3739,6 +3769,7 @@ function openMoodTracker(modal, justPicked) {
         const val = care.v[seed % care.v.length];
         const pr = care.p[seed % care.p.length];
         const gift = care.g[seed % care.g.length];
+        const evi = (picked === "hujan" || picked === "badai") ? moodEvidence() : "";
         respHtml = '<div class="mood-resp">' +
             '<div class="mr-gift' + (justPicked ? " pop" : "") + '">' +
             '<span class="mrg-from">🐾 Mochi ngasih ini buat kamu:</span>' +
@@ -3746,6 +3777,7 @@ function openMoodTracker(modal, justPicked) {
             '<span class="mrg-note">“' + esc(gift.t) + '”</span>' +
             '</div>' +
             '<div class="mr-v">' + esc(val) + '</div>' +
+            (evi ? '<div class="mr-evi">🌈 <b>Bukti dari kamu sendiri:</b> ' + esc(evi) + '</div>' : '') +
             '<div class="mr-p">✍️ <i>' + esc(pr) + '</i></div>' +
             '<button type="button" class="mp-btn mr-cta" id="mrCta">' + care.cta.t + '</button>' +
             '</div>';
@@ -4474,7 +4506,32 @@ function renderSnailBox() {
             '</div>';
     }
 
-    body.innerHTML = hero +
+    // saran baca ulang: surat yang temanya nyambung sama mood dominan bulan ini
+    let sugg = "";
+    try {
+        const rec = moodStore()[moodMonthKey()] || {};
+        const tally = {};
+        Object.values(rec).forEach(k => { tally[k] = (tally[k] || 0) + 1; });
+        const domK = Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0];
+        // mood -> kandidat surat (urut paling relevan); dipilih yang UDAH nyampe
+        const MOOD_LETTER = {
+            hujan: ["SM-045", "SM-040", "SM-038"],
+            badai: ["SM-048", "SM-040", "SM-044", "SM-038"],
+            berawan: ["SM-044", "SM-039", "SM-038"]
+        };
+        if (domK && MOOD_LETTER[domK] && (tally[domK] || 0) >= 3) {
+            const lid = MOOD_LETTER[domK].find(id => avail.some(l => l.id === id));
+            const l = avail.find(x => x.id === lid);
+            if (l) {
+                const mo = MOODS.find(x => x.k === domK);
+                sugg = '<button type="button" class="sn-sugg" data-sn="' + esc(l.id) + '">' +
+                    '💌 Bulan ini hatimu sering ' + mo.t.toLowerCase() + ' ' + mo.e +
+                    ' — surat ini mungkin ngena: <b>“' + esc(l.theme) + '”</b></button>';
+            }
+        }
+    } catch (e) { }
+
+    body.innerHTML = hero + sugg +
         (coll ? '<div class="snp-sec">📚 Koleksi Suratmu (' + avail.length + ')</div><div class="snp-grid">' + coll + '</div>'
             : '<div class="placeholder" style="padding:1.4rem 0;"><div class="em">📭</div><p>Belum ada surat yang nyampe.</p></div>') +
         walk;
@@ -4487,7 +4544,7 @@ function renderSnailBox() {
         const l = avail.find(x => x.id === heroEl.dataset.sn);
         setTimeout(() => { if (l) openSnailLetter(l, true); }, 1000);
     });
-    body.querySelectorAll(".sn-mini").forEach(b => b.addEventListener("click", () => {
+    body.querySelectorAll(".sn-mini, .sn-sugg").forEach(b => b.addEventListener("click", () => {
         const l = avail.find(x => x.id === b.dataset.sn);
         if (l) openSnailLetter(l);
     }));
@@ -5656,6 +5713,32 @@ function renderPbPanel() {
     }));
 }
 
+// ---------- Cuaca Balai: agregat anonim mood se-komunitas di mading ----------
+let _bwData = null;
+const BW_MSG = {
+    cerah: "Minggu ini Balai lagi cerah ☀️ — energinya bagus, gas berkarya!",
+    berawan: "Cuaca Balai lagi kalem ⛅ — pelan-pelan juga nggak apa-apa.",
+    hujan: "Minggu ini Balai lagi sering hujan 🌧️ — saling jaga & saling sapa ya 💙",
+    badai: "Lagi banyak warga yang kewalahan ⛈️ — yuk makin lembut ke sesama 🤗",
+    pelangi: "Banyak yang lagi lega 🌈 — habis gelap emang terbit pelangi!"
+};
+async function fillBalaiWeather() {
+    const slot = $("balaiWeatherSlot");
+    if (!slot) return;
+    try {
+        if (!_bwData) _bwData = await fetchJSONP(GS + "?page=balaiWeather", "bw", 12000);
+    } catch (e) { return; } // gagal ya udah, strip-nya nggak muncul aja
+    if (!_bwData || !_bwData.dominant || (_bwData.total || 0) < 3) return; // data kurang -> jangan sok tau
+    const mo = MOODS.find(x => x.k === _bwData.dominant) || MOODS[0];
+    slot.innerHTML =
+        '<div class="bw-strip md-in" style="--d:.1s">' +
+        '<span class="bw-em">' + mo.e + '</span>' +
+        '<span class="bw-body"><span class="bw-k">🌦️ CUACA BALAI MINGGU INI</span>' +
+        '<span class="bw-t">' + esc(BW_MSG[_bwData.dominant] || "") + '</span>' +
+        '<span class="bw-n">' + _bwData.total + ' catatan cuaca hati dari warga</span></span>' +
+        '</div>';
+}
+
 function wirePostbox(modal) {
     const pb = $("mdPostbox");
     if (pb) pb.addEventListener("click", openPostboxPage);
@@ -5993,6 +6076,7 @@ function renderMadingModal() {
         '<div class="md-info-k">📣 INFO BALAI</div>' +
         '<div class="md-info-t">' + esc(_mdInfoPick) + '</div>' +
         '</div>' +
+        '<div id="balaiWeatherSlot"></div>' +
         champHtml +
         boardHtml +
         '</div>' +
@@ -6002,6 +6086,7 @@ function renderMadingModal() {
     $("mdClose").addEventListener("click", closeMading);
     $("mdNote").addEventListener("click", () => { wrappedMusicStop(); mochiNotePlay(); }); // tap = puter ulang
     wirePostbox(modal);
+    fillBalaiWeather(); // strip cuaca komunitas (async, nggak ngeblok papan)
     modal.querySelectorAll("[data-goev]").forEach(b => b.addEventListener("click", () => {
         closeMading();
         try { location.hash = "events"; } catch (e) { }
