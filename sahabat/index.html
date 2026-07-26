@@ -333,6 +333,8 @@
                di elemen 3D (kartu member ke-flip pas tap area kosong) */
             #loyaltyContent { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; align-items: start; }
             #loyaltyContent > .bday-banner, #loyaltyContent > .bday, #loyaltyContent > .wn-card { grid-column: 1 / -1; }
+            #loyaltyContent > #moodSlot { grid-column: 1 / -1; }
+            #moodSlot:empty { display: none; }
             /* pasangan baris disetel biar tinggi kolomnya seimbang: kartu tinggi
                bareng kartu tinggi (tracker|kartu warga), strip bareng strip */
             #loyaltyContent > .journal-tracker-card { order: 1; }
@@ -2357,6 +2359,26 @@
         :root[data-theme="dark"] .wn-card.todo { background-color: rgba(255, 224, 102, .07); border-color: rgba(255, 224, 102, .4); }
         :root[data-theme="dark"] .wn-card.done { background-color: rgba(34, 197, 94, .1); border-color: #22c55e; }
         :root[data-theme="dark"] .wn-stamp-big { border-color: #4ade80; color: #4ade80; background: rgba(0, 0, 0, .2); box-shadow: inset 0 0 0 1.5px rgba(74, 222, 128, .3); }
+
+        /* ---------- Widget cuaca hati di Home (ala weather app rasa scrapbook) ---------- */
+        .mood-w { position: relative; width: 100%; display: flex; align-items: center; gap: 12px; border: 1.5px dashed var(--line); cursor: pointer; font-family: inherit; text-align: left; background: var(--card); border-radius: 14px; padding: 12px 14px; margin-bottom: 1rem; transform: rotate(.3deg); box-shadow: 0 3px 10px rgba(16, 36, 94, .07); }
+        .mood-w:active { transform: rotate(.3deg) scale(.98); }
+        .mw-em { flex: none; font-size: 1.5rem; }
+        .mw-em.big { font-size: 2.1rem; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .15)); }
+        .mw-body { flex: 1; min-width: 0; }
+        .mw-k { display: block; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .56rem; letter-spacing: .14em; opacity: .65; }
+        .mw-t { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: var(--ink); }
+        .mw-s { display: block; font-size: .74rem; color: var(--muted); margin-top: 2px; line-height: 1.45; }
+        .mw-go { flex: none; font-weight: 800; font-size: .78rem; color: var(--blue); }
+        /* tint per cuaca — kayak kartu weather app */
+        .mood-w.mw-cerah { background: linear-gradient(120deg, #fff7d1, #fff3b8); border: 1.5px solid #f5d800; }
+        .mood-w.mw-berawan { background: linear-gradient(120deg, #eef2f8, #e4eaf3); border: 1.5px solid #c3cede; }
+        .mood-w.mw-hujan { background: linear-gradient(120deg, #e3efff, #d7e8ff); border: 1.5px solid #9cc3f5; }
+        .mood-w.mw-badai { background: linear-gradient(120deg, #e9e4fb, #ded5f7); border: 1.5px solid #b39ddb; }
+        .mood-w.mw-pelangi { background: linear-gradient(120deg, #ffe9f2, #fff3d6 60%, #e2f6ff); border: 1.5px solid #f9a8d4; }
+        .mood-w.mw-cerah .mw-t, .mood-w.mw-berawan .mw-t, .mood-w.mw-hujan .mw-t, .mood-w.mw-badai .mw-t, .mood-w.mw-pelangi .mw-t { color: #10245e; }
+        .mood-w.mw-cerah .mw-s, .mood-w.mw-berawan .mw-s, .mood-w.mw-hujan .mw-s, .mood-w.mw-badai .mw-s, .mood-w.mw-pelangi .mw-s { color: #44507a; }
+        .mood-w.mw-cerah .mw-k, .mood-w.mw-berawan .mw-k, .mood-w.mw-hujan .mw-k, .mood-w.mw-badai .mw-k, .mood-w.mw-pelangi .mw-k { color: #44507a; opacity: 1; }
 
         /* ---------- Tiket countdown: event terdaftar terdekat (lubang tiket via mask) ---------- */
         .evt-ticket { position: relative; width: 100%; display: flex; align-items: center; gap: 10px; border: none; cursor: pointer; font-family: inherit; text-align: left; color: #fff; background: linear-gradient(115deg, var(--blue), #2f6bff); border-radius: 14px; padding: 12px 14px; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0, 70, 255, .22);

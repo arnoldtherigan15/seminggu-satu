@@ -2584,6 +2584,7 @@ async function loadLoyalty() {
 
         content.innerHTML =
             renderWeekNowHtml() +
+            '<div id="moodSlot"></div>' +
             bdayFriendsBannerHtml() +
             birthdayHtml +
             trackerHtml +
@@ -2608,6 +2609,7 @@ async function loadLoyalty() {
         init3DCardListeners();
         initJournalTrackerListeners(_profile.wa);
         initWeekNowListeners();
+        refreshMoodWidget(); // widget cuaca hati (data sync dari localStorage/profil)
         renderEventTicket(); // kalau _evRegistered belum ada, loadEvents yang ngisi nanti
         loadSnailMail().then(() => {
             snailCtaRefresh();
@@ -3675,6 +3677,52 @@ function renderBreath(modal) {
     });
 }
 
+// buka Cuaca Hati langsung (dari widget Home) — tanpa lewat chooser
+function openMoodDirect() {
+    let modal = $("mochiModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "mochiModal";
+        modal.className = "mochi-modal";
+        document.body.appendChild(modal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closeMochiPrompt(); });
+    }
+    openMoodTracker(modal);
+    modal.classList.add("show");
+    lockScroll();
+}
+
+// ---------- Widget cuaca hati di Home (ala weather app) ----------
+function moodWidgetHtml() {
+    const today = new Date().getDate();
+    const picked = moodOf(moodMonthKey(), today);
+    if (!picked) {
+        return '<button type="button" class="mood-w empty" id="moodWidget">' +
+            '<span class="mw-em">🌦️</span>' +
+            '<span class="mw-body"><span class="mw-t">Mochi pengen tau cuaca hatimu hari ini</span>' +
+            '<span class="mw-s">Cerah? Hujan? Cerita dikit yuk</span></span>' +
+            '<span class="mw-go">catat →</span>' +
+            '</button>';
+    }
+    const mo = MOODS.find(x => x.k === picked) || MOODS[0];
+    const care = MOOD_CARE[picked];
+    const seed = today + new Date().getMonth();
+    const line = care ? care.v[seed % care.v.length] : "";
+    return '<button type="button" class="mood-w mw-' + mo.k + '" id="moodWidget">' +
+        '<span class="mw-em big">' + mo.e + '</span>' +
+        '<span class="mw-body"><span class="mw-k">CUACA HATIMU HARI INI</span>' +
+        '<span class="mw-t">' + mo.t + ' · ' + esc(mo.d) + '</span>' +
+        (line ? '<span class="mw-s">' + esc(line) + '</span>' : '') + '</span>' +
+        '</button>';
+}
+function refreshMoodWidget() {
+    const slot = $("moodSlot");
+    if (!slot) return;
+    slot.innerHTML = moodWidgetHtml();
+    const w = $("moodWidget");
+    if (w) w.addEventListener("click", openMoodDirect);
+}
+
 function openMoodTracker(modal, justPicked) {
     const today = new Date().getDate();
     const mk = moodMonthKey();
@@ -3723,6 +3771,7 @@ function openMoodTracker(modal, justPicked) {
     modal.querySelectorAll(".mood-btn").forEach(b => b.addEventListener("click", () => {
         moodSave(today, b.dataset.mood);
         openMoodTracker(modal, true); // re-render + hadiah Mochi nge-pop
+        refreshMoodWidget();          // display cuaca di Home ikut ganti
         setTimeout(() => playSfx("catch-mochi", 0.5), 150); // pas hadiahnya muncul
     }));
     const cta = $("mrCta");
