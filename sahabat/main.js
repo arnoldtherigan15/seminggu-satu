@@ -4053,11 +4053,8 @@ const SN_ACT = {
         words: ["REHAT", "NAPAS", "PULIH", "SANTAI", "TIDUR", "TENANG"]
     },
     "SM-039": { // Agu · Standar Hidup yang Bikin Siksa
-        type: "bingo", title: "BINGO: JALURKU SENDIRI",
-        items: ["Mute 1 akun yang bikin insecure", "Tulis 3 hal yang udah kamu capai", "Journaling: timeline-ku milikku", "Pagi tanpa scroll sosmed",
-            "Tulis definisi suksesmu sendiri", "Puji teman tanpa banding-bandingin", "Rayain progres sekecil apa pun", "Tulis surat buat kamu 5 tahun lagi",
-            "Catat 1 skill yang pelan-pelan naik", "Bilang 'aku cukup' depan cermin", "Journaling 10 menit tanpa HP", "List 3 perjuanganmu yang orang nggak tau",
-            "Ganti 'harusnya aku…' jadi 'aku lagi…'", "Apresiasi 1 keputusanmu tahun ini", "Tempel foto momen kamu bangga", "Tulis 1 hal yang kamu syukuri hari ini"]
+        type: "snake", title: "WORD SNAKE: TIMELINE-KU SENDIRI",
+        quote: "Timeline hidupku berjalan dengan kecepatanku sendiri"
     },
     "SM-040": { // Sep · Ketika Emosi Datang Meluap-luap
         type: "catch", title: "TANGKAP RASA: BADAI EMOSI",
@@ -4096,11 +4093,8 @@ const SN_ACT = {
         words: ["URAI", "PELAN", "PROSES", "SABAR", "MULAI", "BISA"]
     },
     "SM-045": { // Feb · Kesepian di Keramaian
-        type: "bingo", title: "BINGO: PELAN-PELAN MENDEKAT",
-        items: ["Kirim pesan ke teman lama", "Sapa 1 warga di grup", "Ajak 1 orang ngobrol 10 menit", "Tulis: aku nggak sendirian karena…",
-            "Datang ke 1 acara/komunitas", "Telepon orang rumah", "Bilang makasih ke 1 orang", "Journaling habis ketemu orang",
-            "Senyum ke orang asing (beneran)", "Bales story teman + komentar tulus", "Tulis 3 orang tempat aman cerita", "Minta tolong hal kecil ke seseorang",
-            "Cerita 1 hal jujur ke teman", "Jadwalin ketemuan minggu ini", "Puji temanmu secara spesifik", "Tempel foto bareng teman di jurnal"]
+        type: "snake", title: "WORD SNAKE: SATU SAPA KECIL",
+        quote: "Mendekat itu mulai dari satu sapa kecil"
     },
     "SM-046": { // Mar · Memaafkan Versi Diri yang Dulu
         type: "catch", title: "TANGKAP RASA: BERDAMAI SAMA YANG DULU",
@@ -4140,8 +4134,7 @@ const SN_ACT = {
 function snActType(l) {
     const pack = SN_ACT[l.id];
     if (pack && pack.type) return pack.type;
-    const m = String(l.publish_date).match(/-(\d{2})-/);
-    return (m && parseInt(m[1], 10) % 2 === 0) ? "bingo" : "ws";
+    return "ws"; // surat tanpa paket fallback ke Cari Kata (bingo di-takeout dari rotasi)
 }
 function snActLabel(l) {
     const t = snActType(l);
