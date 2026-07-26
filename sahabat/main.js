@@ -4046,7 +4046,7 @@ function snSeed(l) {
 // Paket aktivitas PER SURAT — konten nyambung sama tema suratnya, rotasi 4 game:
 // Cari Kata (ws), Bingo, Susun Kata (scramble), Tangkap Rasa (catch).
 const SN_ACT = {
-    // === siklus game: ws -> bingo -> catch -> scramble -> dash, ulang dari awal ===
+    // === siklus game: ws -> bingo -> catch -> scramble -> dash -> snake, muter 2x setahun ===
     "SM-038": { // Jul · Lelah yang Sering Tak Diundang
         type: "ws", title: "CARI KATA: RESEP ISTIRAHAT",
         words: ["REHAT", "NAPAS", "PULIH", "SANTAI", "TIDUR", "TENANG"]
@@ -4087,54 +4087,51 @@ const SN_ACT = {
         clouds: ["Ga enak…", "Iya deh", "Sungkan", "Nanti aja"]
     },
     "SM-043": { // Des · Melepaskan Genggaman yang Bikin Luka
-        type: "ws", title: "CARI KATA: PELAN-PELAN DILEPAS",
-        words: ["LEPAS", "IKHLAS", "RELA", "RINGAN", "LEGA", "BARU"]
+        type: "snake", title: "WORD SNAKE: MAKAN KATA, LEPAS BEBAN",
+        quote: "Melepaskan bukan kalah tapi memberi ruang untuk tumbuh"
     },
     "SM-044": { // Jan · Berantakan Itu Manusiawi
-        type: "bingo", title: "BINGO: KUSUT JUGA NGGAK APA-APA",
-        items: ["Rapihin 1 sudut kecil aja", "Tulis 3 hal yang udah beres", "Maklumin 1 rencana yang meleset", "Journaling tanpa mikirin rapi",
-            "Coret-coret bebas 1 halaman penuh", "Tulis: berantakan itu proses", "Peluk diri 10 detik", "Bikin to-do cuma 3 biji",
-            "Selesain 1 hal PALING kecil dulu", "Cerita kusutmu ke 1 orang", "Napas 4-7-8 sebanyak 3x", "Tunda 1 hal tanpa rasa bersalah",
-            "Tulis 1 hal yang tetap jalan walau kacau", "Foto meja berantakanmu, tempel di jurnal", "Tidur cukup malam ini", "Tulis 1 kata buat hari ini"]
+        type: "ws", title: "CARI KATA: URAI PELAN-PELAN",
+        words: ["URAI", "PELAN", "PROSES", "SABAR", "MULAI", "BISA"]
     },
     "SM-045": { // Feb · Kesepian di Keramaian
-        type: "catch", title: "TANGKAP RASA: SEPI DI TENGAH RAME",
-        goal: 30,
-        emos: [
-            { w: "Sepi", v: "Rame bukan jaminan — rasamu valid 💙" },
-            { w: "Rindu", v: "Kangen itu tanda pernah ada yang hangat 🕯️" },
-            { w: "Canggung", v: "Nggak semua obrolan harus dalem kok 🌱" },
-            { w: "Sendiri", v: "Sendiri bukan berarti sendirian selamanya 🤍" },
-            { w: "Hampa", v: "Pelan-pelan isi lagi, satu cerita sehari 📖" },
-            { w: "Hangat", v: "Nah! Simpan rasa ini, bagi ke Balai yuk ✨" }
-        ]
+        type: "bingo", title: "BINGO: PELAN-PELAN MENDEKAT",
+        items: ["Kirim pesan ke teman lama", "Sapa 1 warga di grup", "Ajak 1 orang ngobrol 10 menit", "Tulis: aku nggak sendirian karena…",
+            "Datang ke 1 acara/komunitas", "Telepon orang rumah", "Bilang makasih ke 1 orang", "Journaling habis ketemu orang",
+            "Senyum ke orang asing (beneran)", "Bales story teman + komentar tulus", "Tulis 3 orang tempat aman cerita", "Minta tolong hal kecil ke seseorang",
+            "Cerita 1 hal jujur ke teman", "Jadwalin ketemuan minggu ini", "Puji temanmu secara spesifik", "Tempel foto bareng teman di jurnal"]
     },
     "SM-046": { // Mar · Memaafkan Versi Diri yang Dulu
-        type: "scramble", title: "SUSUN KATA: BERDAMAI",
-        rounds: [
-            { w: "MAAF", q: "Tulis 1 kalimat maaf buat kamu yang dulu — dia udah berusaha sebisanya." },
-            { w: "TUMBUH", q: "Keputusan 'bodoh' mana yang ternyata ngajarin kamu paling banyak?" },
-            { w: "IKHLAS", q: "Apa 1 hal dari masa lalu yang siap kamu relakan bulan ini?" },
-            { w: "LEMBUT", q: "Kalau ketemu dirimu 5 tahun lalu, kamu mau meluk atau marahin dia?" },
-            { w: "BARU", q: "Versi kamu sekarang beda apa dari yang dulu? Tulis 3 buktinya." }
+        type: "catch", title: "TANGKAP RASA: BERDAMAI SAMA YANG DULU",
+        goal: 30,
+        emos: [
+            { w: "Nyesel", v: "Keputusan itu dibuat dengan yang kamu tau saat itu 🤍" },
+            { w: "Malu", v: "Semua orang punya babak yang pengen dilupain 🌱" },
+            { w: "Marah", v: "Marah ke diri sendiri boleh, tapi jangan nginep 🕯️" },
+            { w: "Benci", v: "Kamu bukan kesalahanmu 💙" },
+            { w: "Sedih", v: "Yang dulu itu bagian dari cerita tumbuhmu 📖" },
+            { w: "Bangga", v: "Nah! Lihat sejauh apa kamu udah jalan ✨" }
         ]
     },
     "SM-047": { // Apr · Merayakan Kemenangan Kecil
-        type: "dash", title: "WORD DASH: KEJAR CONFETTI",
-        goal: 15,
-        words: ["Yeay!", "Bangga", "Bisa", "Progres", "Win!"],
-        clouds: ["Gitu doang?", "B aja", "Kurang", "Belum sukses"]
+        type: "scramble", title: "SUSUN KATA: PESTA KECIL",
+        rounds: [
+            { w: "BANGGA", q: "Tulis 1 win kecil minggu ini yang belum sempet kamu rayain." },
+            { w: "RAYAKAN", q: "Cara paling sederhana buat ngerayain dirimu hari ini apa?" },
+            { w: "KECIL", q: "Kenapa ya kita suka nunggu momen besar dulu baru ngerasa cukup?" },
+            { w: "MAJU", q: "Dibanding 3 bulan lalu, kamu udah maju di hal apa?" },
+            { w: "SENYUM", q: "Hal kecil apa yang hari ini berhasil bikin kamu senyum?" }
+        ]
     },
     "SM-048": { // Mei · Rasa Cemas yang Suka Bohong
-        type: "ws", title: "CARI KATA: BALIK KE NYATA",
-        words: ["NYATA", "AMAN", "FAKTA", "FOKUS", "PIJAK", "KINI"]
+        type: "dash", title: "WORD DASH: NEMBUS AWAN CEMAS",
+        goal: 15,
+        words: ["Tenang", "Nyata", "Aman", "Pelan", "Bisa"],
+        clouds: ["Gimana?", "Panik", "Takut", "Overthink"]
     },
     "SM-049": { // Jun · Pelukan Hangat untuk Diri Sendiri
-        type: "bingo", title: "BINGO: PELUK DIRI SENDIRI",
-        items: ["Peluk diri 10 detik, beneran", "Tulis 3 hal yang kamu suka dari dirimu", "Mandi/skincare santai tanpa buru-buru", "Tidur siang tanpa rasa bersalah",
-            "Masak/beli makanan favoritmu", "Tulis terima kasih buat tubuhmu", "Bilang 'aku sayang kamu' ke cermin", "Jalan santai 15 menit",
-            "Pakai baju yang bikin pede", "Journaling: aku bangga karena…", "Matiin notif 1 jam buat me-time", "Dengerin lagu yang nenangin",
-            "Tulis surat cinta buat diri sendiri", "Rayain 1 hal kecil hari ini", "Minum air cukup seharian", "Tempel foto kamu tersenyum di jurnal"]
+        type: "snake", title: "WORD SNAKE: RANGKAI PELUKAN",
+        quote: "Peluk dirimu dulu sebelum sibuk memeluk dunia"
     }
 };
 
@@ -4151,6 +4148,7 @@ function snActLabel(l) {
     if (t === "bingo") return "Bingo Journaling 🎯";
     if (t === "scramble") return "Susun Kata 🔤";
     if (t === "dash") return "Mochi's Word Dash ☁️";
+    if (t === "snake") return "Word Snake 🐍";
     return "Tangkap Rasa 🫧";
 }
 
@@ -4315,9 +4313,186 @@ function openSnailActivity(l) {
         snActScramble(l, box, k);
     } else if (type === "dash") {
         snActDash(l, box, k);
+    } else if (type === "snake") {
+        snActSnake(l, box, k);
     } else {
         snActCatch(l, box, k);
     }
+}
+
+// ---------- Word Snake: Mochi memanjang makan kata sesuai urutan kutipan ----------
+// Makan kata yang BENER urutannya -> badan manjang & kalimatnya kerangkai;
+// salah makan = "tersedak" (❤️ -3 total). Tembok wrap-around, nabrak badan
+// sendiri cuma kehilangan ❤️ — vibe santai, bukan hukuman.
+function snActSnake(l, box, k) {
+    const pack = SN_ACT[l.id];
+    const tokens = pack.quote.split(" ");
+    const COLS = 11, ROWS = 13;
+    box.innerHTML =
+        '<div class="sn-paper sk' + k + '" style="padding-top:20px;">' +
+        '<span class="sn-washi"></span>' +
+        '<div class="sn-kicker">' + esc(pack.title) + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
+        '<div class="sn-act-hint">Geser (swipe) buat belokin Mochi — makan kata sesuai urutan kalimatnya! Salah makan = tersedak 😖</div>' +
+        '<div class="wsn-quote" id="wsnQuote"></div>' +
+        '<div class="wsn-stage" id="wsnStage">' +
+        '<div class="wd-lives" id="wsnLives">❤️❤️❤️</div>' +
+        '<div class="ct-start" id="wsnStart"><button type="button" class="btn-primary" id="wsnPlay">Mulai 🐍</button></div>' +
+        '</div>' +
+        '<div class="wsn-pad">' +
+        '<button type="button" class="wsn-btn" data-d="u">▲</button>' +
+        '<div><button type="button" class="wsn-btn" data-d="l">◀</button>' +
+        '<button type="button" class="wsn-btn" data-d="d">▼</button>' +
+        '<button type="button" class="wsn-btn" data-d="r">▶</button></div>' +
+        '</div>' +
+        '</div>' +
+        '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>';
+    $("snBack").addEventListener("click", () => openSnailLetter(l, true));
+
+    const stage = $("wsnStage"), quoteEl = $("wsnQuote"), livesEl = $("wsnLives");
+    const CELL = Math.floor(stage.clientWidth / COLS);
+    stage.style.height = (CELL * ROWS) + "px";
+
+    let snake, dir, ndir, idx, hearts, tiles, playing = false, lastStep = 0, invUntil = 0;
+    const segEls = [], tileEls = [];
+
+    function renderQuote() {
+        let h = "";
+        tokens.forEach((w, i) => {
+            h += '<span class="wsn-tok' + (i < idx ? " ate" : (i === idx ? " next" : "")) + '">' + esc(w) + '</span>';
+        });
+        quoteEl.innerHTML = h;
+    }
+    function cellFree(x, y) {
+        return !snake.some(s => s.x === x && s.y === y) && !tiles.some(t => t.x === x && t.y === y);
+    }
+    function spawnTiles() {
+        tiles.length = 0;
+        tileEls.forEach(e => { if (e.parentNode) e.parentNode.removeChild(e); });
+        tileEls.length = 0;
+        // 1 kata bener + 2 pengecoh (dari sisa kata kutipan; kalau kurang, kata umum)
+        const DECOY = ["nanti", "jangan", "kemarin", "takut"];
+        const opts = [tokens[idx]];
+        const others = tokens.slice(idx + 1).concat(DECOY).filter(w => w !== tokens[idx]);
+        while (opts.length < 3 && others.length) opts.push(others.splice(Math.floor(Math.random() * others.length), 1)[0]);
+        opts.forEach(w => {
+            let x, y, tries = 0;
+            do { x = Math.floor(Math.random() * COLS); y = Math.floor(Math.random() * ROWS); tries++; } while (!cellFree(x, y) && tries < 80);
+            const el = document.createElement("div");
+            el.className = "wsn-word";
+            el.textContent = w;
+            el.style.transform = "translate(" + (x * CELL) + "px," + (y * CELL) + "px)";
+            el.style.height = CELL + "px";
+            stage.appendChild(el);
+            tiles.push({ x: x, y: y, w: w });
+            tileEls.push(el);
+        });
+    }
+    function draw() {
+        while (segEls.length < snake.length) {
+            const el = document.createElement(segEls.length === 0 ? "img" : "div");
+            if (segEls.length === 0) { el.src = "../images/sticker/str-6.png"; el.className = "wsn-head"; el.alt = ""; }
+            else el.className = "wsn-seg sk" + k;
+            el.style.width = CELL + "px"; el.style.height = CELL + "px";
+            stage.appendChild(el);
+            segEls.push(el);
+        }
+        snake.forEach((s, i) => { segEls[i].style.transform = "translate(" + (s.x * CELL) + "px," + (s.y * CELL) + "px)"; });
+    }
+    function hurt() {
+        hearts--;
+        livesEl.textContent = "❤️".repeat(Math.max(0, hearts)) + "🩶".repeat(3 - Math.max(0, hearts));
+        playSfx("light", 0.5);
+        stage.classList.add("shake");
+        setTimeout(() => stage.classList.remove("shake"), 350);
+        invUntil = performance.now() + 1400;
+        if (hearts <= 0) end(false);
+    }
+    function end(win) {
+        playing = false;
+        gameMusicStop();
+        const st = $("wsnStart");
+        st.style.display = "";
+        if (win) {
+            playSfx("challenge-done");
+            fireConfetti("reward");
+            st.innerHTML = '<div class="ct-end">Kalimatnya utuh! 🎉</div>' +
+                '<div class="wsn-final">"' + esc(pack.quote) + '"</div>' +
+                '<button type="button" class="btn-primary" id="wsnCopy" style="margin-top:10px;">📋 Salin jadi daily quote</button>' +
+                '<button type="button" class="btn-primary" id="wsnPlay" style="margin-top:8px;background:transparent;color:var(--blue);border:1.5px dashed var(--blue);box-shadow:none;">Main lagi 🔁</button>';
+            $("wsnCopy").addEventListener("click", async () => {
+                try { await navigator.clipboard.writeText('"' + pack.quote + '" — Mochi 🐾 @seminggu_satu'); $("wsnCopy").textContent = "✓ Tersalin!"; }
+                catch (e) { prompt("Salin manual ya:", pack.quote); }
+            });
+        } else {
+            st.innerHTML = '<div class="ct-end">Mochi kekenyangan kata yang salah 😖<br>Pelan-pelan aja, kalimatnya nggak lari kok 💙</div>' +
+                '<button type="button" class="btn-primary" id="wsnPlay" style="margin-top:10px;">Coba lagi 🐍</button>';
+        }
+        $("wsnPlay").addEventListener("click", start);
+    }
+    function step(now) {
+        dir = ndir;
+        const h = snake[0];
+        const nx = (h.x + dir.x + COLS) % COLS, ny = (h.y + dir.y + ROWS) % ROWS; // tembok wrap
+        // nabrak badan sendiri (kecuali lagi kebal)
+        if (now >= invUntil && snake.some((s, i) => i > 0 && s.x === nx && s.y === ny)) hurt();
+        snake.unshift({ x: nx, y: ny });
+        const ti = tiles.findIndex(t => t.x === nx && t.y === ny);
+        if (ti >= 0) {
+            if (tiles[ti].w === tokens[idx]) {
+                idx++;
+                playSfx("love", 0.6);
+                renderQuote();
+                if (idx >= tokens.length) { draw(); end(true); return; }
+                spawnTiles(); // badan manjang: ekor nggak di-pop
+            } else {
+                hurt(); // tersedak
+                if (!playing) return;
+                snake.pop(); // nggak manjang
+                spawnTiles();
+            }
+        } else {
+            snake.pop();
+        }
+        draw();
+    }
+    function loop(t) {
+        if (!playing || !stage.isConnected) { gameMusicStop(); return; }
+        if (t - lastStep > Math.max(200, 300 - idx * 8)) { step(t); lastStep = t; }
+        requestAnimationFrame(loop);
+    }
+    function setDir(d) {
+        const D = { u: { x: 0, y: -1 }, d: { x: 0, y: 1 }, l: { x: -1, y: 0 }, r: { x: 1, y: 0 } }[d];
+        if (!D || (D.x === -dir.x && D.y === -dir.y)) return; // nggak bisa putar balik
+        ndir = D;
+    }
+    let sx = 0, sy = 0;
+    stage.addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    stage.addEventListener("touchend", e => {
+        const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return;
+        setDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "r" : "l") : (dy > 0 ? "d" : "u"));
+    }, { passive: true });
+    box.querySelectorAll(".wsn-btn").forEach(b => b.addEventListener("click", () => setDir(b.dataset.d)));
+
+    function start() {
+        segEls.forEach(e => { if (e.parentNode) e.parentNode.removeChild(e); });
+        segEls.length = 0;
+        snake = [{ x: 5, y: 6 }, { x: 4, y: 6 }, { x: 3, y: 6 }];
+        dir = { x: 1, y: 0 }; ndir = dir;
+        idx = 0; hearts = 3; invUntil = 0;
+        tiles = [];
+        livesEl.textContent = "❤️❤️❤️";
+        renderQuote();
+        spawnTiles();
+        draw();
+        $("wsnStart").style.display = "none";
+        playing = true;
+        lastStep = 0;
+        requestAnimationFrame(loop);
+    }
+    $("wsnPlay").addEventListener("click", start);
+    const pg = $("snailPage");
+    if (pg) pg.scrollTop = 0;
 }
 
 // ---------- Mochi's Word Dash: flappy nembus awan pikiran negatif ----------

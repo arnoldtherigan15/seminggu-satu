@@ -2498,6 +2498,22 @@
         .wd-chip.c4 { background: #ede9fe; border: 2px solid #8b5cf6; color: #5b21b6; }
         .wd-chip.got { transition: transform .25s ease, opacity .25s ease; opacity: 0; scale: 1.6; }
 
+        /* Word Snake */
+        .wsn-quote { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 10px; }
+        .wsn-tok { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .66rem; padding: 3px 8px; border-radius: 999px; border: 1.5px dashed rgba(16, 36, 94, .3); color: rgba(16, 36, 94, .45); background: rgba(255, 255, 255, .6); }
+        .wsn-tok.ate { background: var(--blue); border: 1.5px solid var(--blue); color: #fff; }
+        .wsn-tok.next { border: 1.5px solid #eab308; background: #fff3c4; color: #854d0e; animation: bdayPulse2 1.4s ease-in-out infinite; }
+        .wsn-stage { position: relative; border-radius: 12px; overflow: hidden; background: linear-gradient(180deg, #f0fdf4, #ecfdf5); border: 1.5px solid rgba(16, 36, 94, .15); touch-action: none; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+        .wsn-stage.shake { animation: scShake .35s ease; }
+        .wsn-head { position: absolute; top: 0; left: 0; z-index: 3; object-fit: contain; transition: transform .18s linear; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .2)); pointer-events: none; }
+        .wsn-seg { position: absolute; top: 0; left: 0; z-index: 2; border-radius: 8px; transition: transform .18s linear; box-shadow: inset 0 0 0 1.5px rgba(16, 36, 94, .18); pointer-events: none; transform-origin: center; scale: .82; }
+        .wsn-word { position: absolute; top: 0; left: 0; z-index: 1; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .62rem; color: #10245e; background: rgba(255, 255, 255, .95); border: 1.5px dashed rgba(16, 36, 94, .4); border-radius: 8px; padding: 0 7px; white-space: nowrap; box-shadow: 0 2px 5px rgba(16, 36, 94, .14); pointer-events: none; }
+        .wsn-pad { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 10px; }
+        .wsn-pad > div { display: flex; gap: 6px; }
+        .wsn-btn { width: 52px; height: 44px; border-radius: 12px; border: 1.5px solid rgba(16, 36, 94, .25); background: rgba(255, 255, 255, .85); color: #10245e; font-size: .95rem; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+        .wsn-btn:active { transform: scale(.92); background: var(--yellow); }
+        .wsn-final { margin-top: 10px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: #10245e; text-align: center; line-height: 1.6; font-style: italic; }
+
         /* ---------- Paspor Warga: modal fullscreen gelap + buku yang kebuka dari cover ---------- */
         .psp-modal { position: fixed; inset: 0; background: rgba(10, 18, 51, .82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
         .psp-modal.show { display: flex; }
