@@ -15,7 +15,6 @@ let _profile = null; // { token, nickname, birthDate, wa }
     try {
         const f = localStorage.getItem("ss_font");
         if (f === "medium" || f === "large") document.documentElement.setAttribute("data-font", f);
-        if (localStorage.getItem("ss_motion") === "min") document.documentElement.setAttribute("data-motion", "min");
     } catch (e) { }
 })();
 // ss_mute lama ("1" = semua senyap) tetap dihormatin sebagai fallback
@@ -24,9 +23,6 @@ function sfxMuted() {
 }
 function musicMuted() {
     try { return localStorage.getItem("ss_mute_music") === "1" || localStorage.getItem("ss_mute") === "1"; } catch (e) { return false; }
-}
-function motionMin() {
-    try { return localStorage.getItem("ss_motion") === "min"; } catch (e) { return false; }
 }
 function runnerOff() {
     try { return localStorage.getItem("ss_runner") === "0"; } catch (e) { return false; }
@@ -209,7 +205,6 @@ async function doSetup() {
 // Paksa selalu di atas semua overlay/modal di app ini.
 const CONFETTI_Z = 99999;
 function fireConfetti(preset) {
-    if (motionMin()) return; // animasi kalem: tanpa confetti
     if (typeof confetti !== "function") return;
     if (preset === "login") {
         confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 }, zIndex: CONFETTI_Z });
@@ -3054,8 +3049,6 @@ function openSettings() {
         seg("stMusic", [{ v: "on", t: "🔔 Nyala", on: !musicMuted() }, { v: "off", t: "🔕 Senyap", on: musicMuted() }]) + '</div>' +
         '<div class="st-row"><div class="st-lbl">🔊 Efek Suara</div>' +
         seg("stSfx", [{ v: "on", t: "🔔 Nyala", on: !sfxMuted() }, { v: "off", t: "🔕 Senyap", on: sfxMuted() }]) + '</div>' +
-        '<div class="st-row"><div class="st-lbl">🌀 Animasi</div>' +
-        seg("stMotion", [{ v: "full", t: "✨ Penuh", on: !motionMin() }, { v: "min", t: "🍃 Kalem", on: motionMin() }]) + '</div>' +
         '<div class="st-row"><div class="st-lbl">🐾 Mochi Pelari</div>' +
         seg("stRunner", [{ v: "on", t: "Muncul", on: !runnerOff() }, { v: "off", t: "Sembunyi", on: runnerOff() }]) + '</div>' +
         '</div>';
@@ -3087,12 +3080,6 @@ function openSettings() {
         clearLegacyMute();
         try { localStorage.setItem("ss_mute_sfx", v === "off" ? "1" : "0"); } catch (e) { }
         if (v === "on") playSfx("love", 0.6); // konfirmasi
-    });
-    pick("stMotion", v => {
-        try { localStorage.setItem("ss_motion", v); } catch (e) { }
-        if (v === "min") document.documentElement.setAttribute("data-motion", "min");
-        else document.documentElement.removeAttribute("data-motion");
-        playSfx("love", 0.5);
     });
     pick("stRunner", v => {
         try { localStorage.setItem("ss_runner", v === "off" ? "0" : "1"); } catch (e) { }
