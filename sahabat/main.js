@@ -4353,6 +4353,7 @@ function snActSnake(l, box, k) {
     stage.style.height = (CELL * ROWS) + "px";
 
     let snake, dir, ndir, idx, hearts, tiles, eaten, playing = false, lastStep = 0, invUntil = 0;
+    let stepMs = 300; // tempo langkah; transisi CSS ngikutin ini biar gerak meluncur mulus
     const segEls = [], tileEls = [];
 
     function renderQuote() {
@@ -4415,6 +4416,12 @@ function snActSnake(l, box, k) {
         }
         snake.forEach((s, i) => {
             const el = segEls[i];
+            // transisi = tempo langkah -> meluncur nyambung, nggak gerak-berhenti-gerak.
+            // Loncat wrap tembok (delta > 1 sel) transisinya dimatiin biar nggak "kelempar".
+            const px = el._cx, py = el._cy;
+            const jump = px !== undefined && (Math.abs(s.x - px) > 1 || Math.abs(s.y - py) > 1);
+            el.style.transition = jump ? "none" : "transform " + stepMs + "ms linear";
+            el._cx = s.x; el._cy = s.y;
             el.style.transform = "translate(" + (s.x * CELL) + "px," + (s.y * CELL) + "px)";
             if (i > 0) {
                 // segmen persis di belakang kepala = kata terbaru; ekor = kata pertama
@@ -4483,7 +4490,8 @@ function snActSnake(l, box, k) {
     }
     function loop(t) {
         if (!playing || !stage.isConnected) { gameMusicStop(); return; }
-        if (t - lastStep > Math.max(200, 300 - idx * 8)) { step(t); lastStep = t; }
+        stepMs = Math.max(200, 300 - idx * 8);
+        if (t - lastStep > stepMs) { step(t); lastStep = t; }
         requestAnimationFrame(loop);
     }
     function setDir(d) {
