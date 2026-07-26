@@ -1481,7 +1481,13 @@ function openPassport() {
     lockScroll();
     wrappedMusicPlay(); // musik latar sama kayak wrapped (dipicu klik -> lolos autoplay)
     $("pspClose").addEventListener("click", closePassport);
-    renderPassportBook($("pspStage"));
+    // lebar stage dikunci ke px GENAP: 92vw bisa pecahan -> muka buku (50%) duduk
+    // di setengah pixel dan teks/stiker cover kena resample (blur)
+    const stg = $("pspStage");
+    let sw = Math.min(Math.round(window.innerWidth * 0.92), 400);
+    if (sw % 2) sw--;
+    stg.style.width = sw + "px";
+    renderPassportBook(stg);
 }
 
 function closePassport() {

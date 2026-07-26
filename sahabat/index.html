@@ -2588,7 +2588,9 @@
         .wsn-final { margin-top: 10px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: #10245e; text-align: center; line-height: 1.6; font-style: italic; }
 
         /* ---------- Paspor Warga: modal fullscreen gelap + buku yang kebuka dari cover ---------- */
-        .psp-modal { position: fixed; inset: 0; background: rgba(10, 18, 51, .82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
+        /* tanpa backdrop-filter: di iOS dia ikut ngerasterin isi modal -> teks & stiker
+           cover paspor blur. Backdrop dibikin lebih pekat sebagai gantinya. */
+        .psp-modal { position: fixed; inset: 0; background: rgba(10, 18, 51, .93); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
         .psp-modal.show { display: flex; }
         .psp-close { position: absolute; top: 16px; right: 16px; width: 38px; height: 38px; border-radius: 50%; border: none; background: rgba(255, 255, 255, .14); color: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
         .psp-stage { width: min(92vw, 400px); }
