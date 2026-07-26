@@ -4363,8 +4363,15 @@ function snActSnake(l, box, k) {
         });
         quoteEl.innerHTML = h;
     }
-    function cellFree(x, y) {
-        return !snake.some(s => s.x === x && s.y === y) && !tiles.some(t => t.x === x && t.y === y);
+    // span = lebar pill dalam satuan sel (kata panjang bisa 2-3 sel)
+    function cellFree(x, y, span) {
+        span = span || 1;
+        for (let i = 0; i < span; i++) {
+            const cx = x + i;
+            if (snake.some(s => s.x === cx && s.y === y)) return false;
+            if (tiles.some(t => t.y === y && cx >= t.x && cx < t.x + (t.span || 1))) return false;
+        }
+        return true;
     }
     function spawnTiles() {
         tiles.length = 0;
@@ -4376,8 +4383,14 @@ function snActSnake(l, box, k) {
         const others = tokens.slice(idx + 1).concat(DECOY).filter(w => w !== tokens[idx]);
         while (opts.length < 3 && others.length) opts.push(others.splice(Math.floor(Math.random() * others.length), 1)[0]);
         opts.forEach(w => {
+            // perkiraan lebar pill dalam sel (font .7rem ~6px/huruf + padding)
+            const span = Math.min(3, Math.max(1, Math.ceil((w.length * 6 + 16) / CELL)));
             let x, y, tries = 0;
-            do { x = Math.floor(Math.random() * COLS); y = 1 + Math.floor(Math.random() * (ROWS - 1)); tries++; } while (!cellFree(x, y) && tries < 80); // y mulai 1: baris atas ketutup indikator ❤️
+            do {
+                x = Math.floor(Math.random() * (COLS - span + 1));
+                y = 1 + Math.floor(Math.random() * (ROWS - 1)); // y mulai 1: baris atas ketutup ❤️
+                tries++;
+            } while (!cellFree(x, y, span) && tries < 80);
             const el = document.createElement("div");
             // kata yang BENER dikasih warna sama kayak highlight di bar kutipan
             el.className = "wsn-word" + (w === tokens[idx] ? " hot" : "");
@@ -4385,7 +4398,7 @@ function snActSnake(l, box, k) {
             el.style.transform = "translate(" + (x * CELL) + "px," + (y * CELL) + "px)";
             el.style.height = CELL + "px";
             stage.appendChild(el);
-            tiles.push({ x: x, y: y, w: w });
+            tiles.push({ x: x, y: y, w: w, span: span });
             tileEls.push(el);
         });
     }
@@ -4468,7 +4481,7 @@ function snActSnake(l, box, k) {
         // nabrak badan sendiri (kecuali lagi kebal)
         if (now >= invUntil && snake.some((s, i) => i > 0 && s.x === nx && s.y === ny)) hurt();
         snake.unshift({ x: nx, y: ny });
-        const ti = tiles.findIndex(t => t.x === nx && t.y === ny);
+        const ti = tiles.findIndex(t => t.y === ny && nx >= t.x && nx < t.x + (t.span || 1));
         if (ti >= 0) {
             if (tiles[ti].w === tokens[idx]) {
                 eaten.push(tokens[idx]); // kata nempel jadi badan
