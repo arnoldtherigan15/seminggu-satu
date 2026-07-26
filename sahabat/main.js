@@ -3950,6 +3950,11 @@ function closeSnailPage(retHash) {
     const m = $("snailPage");
     if (!m || !m.classList.contains("show")) return;
     m.classList.remove("show");
+    // KOSONGIN isinya: halaman cuma di-hide, DOM-nya masih connected — loop game
+    // (hopper/snake/dash/catch) ngecek stage.isConnected, jadi kalau nggak dicabut
+    // game-nya terus jalan di balik layar & sfx-nya (flip/light) bocor ke Home
+    const b = $("snpBody");
+    if (b) b.innerHTML = "";
     unlockScroll();
     gameMusicStop();
     snailCtaRefresh(); // badge BARU di Home ikut update
