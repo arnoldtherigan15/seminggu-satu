@@ -211,7 +211,18 @@ function fireConfetti(preset) {
 
 function onAuthSuccess(r) {
     _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}" };
-    try { if (r.moodRecords) localStorage.setItem("ss_mood", r.moodRecords); } catch (e) { } // server = sumber kebenaran, sinkron lintas device
+    // MERGE mood server + lokal (bukan nimpa buta): server menang per-hari (kebenaran
+    // lintas device), tapi hari yang cuma ada di lokal (sync-nya sempet gagal/offline)
+    // jangan sampai kehapus
+    try {
+        const srv = JSON.parse(r.moodRecords || "{}") || {};
+        const loc = JSON.parse(localStorage.getItem("ss_mood") || "{}") || {};
+        Object.keys(loc).forEach(mk => {
+            srv[mk] = srv[mk] || {};
+            Object.keys(loc[mk]).forEach(d => { if (!srv[mk][d]) srv[mk][d] = loc[mk][d]; });
+        });
+        localStorage.setItem("ss_mood", JSON.stringify(srv));
+    } catch (e) { }
     BDAY_TODAY = Array.isArray(r.birthdays) ? r.birthdays.filter(b => b && b.nickname) : [];
     try { localStorage.setItem(TOKEN_KEY, r.token); } catch (e) { }
     showDashboard();
@@ -3439,7 +3450,7 @@ function moodSave(day, k) {
         if (r && r.status === "success" && r.moodRecords) {
             try { localStorage.setItem("ss_mood", r.moodRecords); } catch (e) { }
         }
-    }).catch(() => { }); // gagal sinkron = catatan lokal tetap ada, kekirim lagi lain kali
+    }).catch(() => { }); // gagal sinkron (offline) = catatan tetap aman di lokal (di-merge pas login, nggak ketimpa)
 }
 function moodOf(mk, day) {
     const s = moodStore();
