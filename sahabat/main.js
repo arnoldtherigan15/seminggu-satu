@@ -3566,26 +3566,51 @@ function moodGridHtml(mk, small) {
 // 3 variasi per cuaca, dipilih seeded per tanggal biar nggak monoton.
 const MOOD_CARE = {
     cerah: {
+        g: [
+            { e: "🍭", t: "Permen ekstra — hari manis pantes ditambah manis" },
+            { e: "🌻", t: "Bunga matahari, buat yang lagi ikut bersinar" },
+            { e: "📸", t: "Kamera bekas Mochi — abadikan harinya!" }
+        ],
         v: ["Ikut seneng! Simpan energinya ya ☀️", "Cerah gini nular ke se-Balai loh 😄", "Mantep — ini hari yang layak diinget"],
         p: ["Apa 1 hal yang bikin hari ini cerah? Tulis, biar bisa dibaca ulang pas mendung.", "Siapa yang ikut andil bikin harimu enak? Bilang makasih yuk.", "Energi lagi penuh — hal kecil apa yang mau kamu selesain hari ini?"],
         cta: { t: "✍️ Abadikan di jurnal", act: "prompt" }
     },
     berawan: {
+        g: [
+            { e: "🍪", t: "Cemilan buat nemenin hari yang biasa-biasa aja" },
+            { e: "🧦", t: "Kaos kaki hangat — hari abu-abu butuh yang empuk" },
+            { e: "🎈", t: "Balon kecil, biar hatinya agak ringan" }
+        ],
         v: ["Hari biasa juga tetap berarti kok ⛅", "Nggak semua hari harus spesial — hadir aja udah cukup", "Pelan-pelan aja, awannya juga jalan kok"],
         p: ["Tulis 3 hal kecil yang 'lumayan' hari ini.", "Kalau harimu adalah lagu, kira-kira judulnya apa?", "Apa 1 hal yang lagi kamu tunggu minggu ini?"],
         cta: { t: "✍️ Pancing pelan-pelan", act: "prompt" }
     },
     hujan: {
+        g: [
+            { e: "🍦", t: "Es krim buat yang lagi hujan-hujanan. Dingin, tapi manis — kayak nangis terus lega" },
+            { e: "☕", t: "Cokelat hangat. Pegang pakai dua tangan ya" },
+            { e: "🧸", t: "Temen peluk buat malam ini — dia pendengar yang baik" }
+        ],
         v: ["Nggak apa-apa sedih. Nangis juga boleh 💧", "Peluk dulu 🤗 kamu nggak sendirian di hujan ini", "Sedihmu valid — nggak usah buru-buru cerah"],
         p: ["Kalau sedihnya bisa ngomong, dia mau bilang apa?", "Tulis surat pendek buat dirimu yang lagi hujan-hujanan ini.", "Apa yang biasanya bikin kamu hangat pas begini? Boleh banget dilakuin sekarang."],
         cta: { t: "🤗 Ambil pelukan kata", act: "hug" }
     },
     badai: {
+        g: [
+            { e: "🍵", t: "Teh anget. Seruput pelan… perangnya bisa nanti" },
+            { e: "🎧", t: "Headphone — biar badainya ketutup suara hujan yang tenang" },
+            { e: "🧋", t: "Boba dulu. Nggak nyelesain masalah, tapi nemenin" }
+        ],
         v: ["Tarik napas dulu… badai selalu lewat ⛈️→🌤️", "Marah atau kewalahan itu sinyal, bukan aib", "Satu-satu aja — nggak semua harus beres sekarang"],
         p: ["Tumpahin semua yang bikin penuh ke satu halaman — berantakan juga gapapa.", "Apa 1 hal KECIL yang masih bisa kamu pegang kendalinya sekarang?", "Mulai dari 'aku kewalahan karena…' dan biarin jujur."],
         cta: { t: "🌬️ Napas bareng Mochi", act: "breath" }
     },
     pelangi: {
+        g: [
+            { e: "🏅", t: "Medali 'udah ngelewatin' — dipakai di hati aja" },
+            { e: "🧁", t: "Cupcake perayaan kecil. Lega itu layak dirayain" },
+            { e: "🎁", t: "Kado kecil: isinya rasa bangga dari Mochi" }
+        ],
         v: ["Lega ya rasanya 🌈 Selamat udah ngelewatin!", "Momen kayak gini layak dirayain", "Habis hujan emang gitu — nikmatin pelanginya"],
         p: ["Apa yang tadinya berat dan sekarang udah lewat? Tulis — itu bukti kamu bisa.", "Resep pelangimu apa? Catat biar bisa dipakai lagi.", "Siapa atau apa yang bantu kamu sampai di titik lega ini?"],
         cta: { t: "📌 Bagi semangat ke Mading", act: "mading" }
@@ -3636,7 +3661,7 @@ function renderBreath(modal) {
     });
 }
 
-function openMoodTracker(modal) {
+function openMoodTracker(modal, justPicked) {
     const today = new Date().getDate();
     const mk = moodMonthKey();
     const picked = moodOf(mk, today);
@@ -3655,8 +3680,14 @@ function openMoodTracker(modal) {
         const seed = new Date().getDate() + new Date().getMonth();
         const val = care.v[seed % care.v.length];
         const pr = care.p[seed % care.p.length];
+        const gift = care.g[seed % care.g.length];
         respHtml = '<div class="mood-resp">' +
-            '<div class="mr-v">🐾 ' + esc(val) + '</div>' +
+            '<div class="mr-gift' + (justPicked ? " pop" : "") + '">' +
+            '<span class="mrg-from">🐾 Mochi ngasih ini buat kamu:</span>' +
+            '<span class="mrg-item">' + gift.e + '</span>' +
+            '<span class="mrg-note">“' + esc(gift.t) + '”</span>' +
+            '</div>' +
+            '<div class="mr-v">' + esc(val) + '</div>' +
             '<div class="mr-p">✍️ <i>' + esc(pr) + '</i></div>' +
             '<button type="button" class="mp-btn mr-cta" id="mrCta">' + care.cta.t + '</button>' +
             '</div>';
@@ -3677,8 +3708,8 @@ function openMoodTracker(modal) {
     $("mpClose").addEventListener("click", closeMochiPrompt);
     modal.querySelectorAll(".mood-btn").forEach(b => b.addEventListener("click", () => {
         moodSave(today, b.dataset.mood);
-        playSfx("love", 0.6);
-        openMoodTracker(modal); // re-render: tombol kepilih + respons Mochi + kalender keisi
+        openMoodTracker(modal, true); // re-render + hadiah Mochi nge-pop
+        setTimeout(() => playSfx("catch-mochi", 0.5), 150); // pas hadiahnya muncul
     }));
     const cta = $("mrCta");
     if (cta && picked && MOOD_CARE[picked]) {

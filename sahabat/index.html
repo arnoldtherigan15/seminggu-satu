@@ -3183,6 +3183,13 @@
         .mood-btn.on .mood-d { color: rgba(16, 36, 94, .8); }
         /* respons Mochi setelah milih cuaca */
         .mood-resp { margin-top: 12px; background: var(--bg); border: 1.5px dashed var(--line); border-radius: 12px; padding: 11px 12px; text-align: left; }
+        /* hadiah kecil dari Mochi */
+        .mr-gift { text-align: center; border-bottom: 1.5px dashed var(--line); padding-bottom: 10px; margin-bottom: 10px; }
+        .mrg-from { display: block; font-size: .7rem; font-weight: 700; color: var(--muted); }
+        .mrg-item { display: inline-block; font-size: 2.3rem; margin: 6px 0 2px; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .18)); }
+        .mrg-note { display: block; font-size: .76rem; font-style: italic; color: var(--ink); line-height: 1.55; }
+        .mr-gift.pop .mrg-item { animation: mrgPop .6s cubic-bezier(.2, 1.4, .4, 1) both .12s; }
+        @keyframes mrgPop { 0% { transform: scale(0) rotate(-30deg); } 70% { transform: scale(1.25) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
         .mr-v { font-weight: 800; font-size: .84rem; color: var(--ink); font-family: 'Outfit', sans-serif; line-height: 1.5; }
         .mr-p { font-size: .8rem; color: var(--muted); line-height: 1.65; margin-top: 6px; }
         .mr-cta { display: block; width: 100%; margin-top: 10px; }
