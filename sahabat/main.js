@@ -4352,7 +4352,7 @@ function snActSnake(l, box, k) {
     const CELL = Math.floor(stage.clientWidth / COLS);
     stage.style.height = (CELL * ROWS) + "px";
 
-    let snake, dir, ndir, idx, hearts, tiles, playing = false, lastStep = 0, invUntil = 0;
+    let snake, dir, ndir, idx, hearts, tiles, eaten, playing = false, lastStep = 0, invUntil = 0;
     const segEls = [], tileEls = [];
 
     function renderQuote() {
@@ -4389,14 +4389,38 @@ function snActSnake(l, box, k) {
     }
     function draw() {
         while (segEls.length < snake.length) {
-            const el = document.createElement(segEls.length === 0 ? "img" : "div");
-            if (segEls.length === 0) { el.src = "../images/sticker/str-6.png"; el.className = "wsn-head"; el.alt = ""; }
-            else el.className = "wsn-seg sk" + k;
-            el.style.width = CELL + "px"; el.style.height = CELL + "px";
+            let el;
+            if (segEls.length === 0) {
+                // kepala = Mochi, dilebihin dikit & di-center di sel biar nyambung sama badan
+                el = document.createElement("img");
+                el.src = "../images/sticker/str-6.png";
+                el.className = "wsn-head";
+                el.alt = "";
+                el.style.width = Math.round(CELL * 1.4) + "px";
+                el.style.height = Math.round(CELL * 1.4) + "px";
+                el.style.marginLeft = (-Math.round(CELL * 0.2)) + "px";
+                el.style.marginTop = (-Math.round(CELL * 0.2)) + "px";
+            } else {
+                // badan = pill berisi kata yang udah dimakan
+                el = document.createElement("div");
+                el.className = "wsn-seg";
+                el.style.width = Math.round(CELL * 1.6) + "px";
+                el.style.height = Math.round(CELL * 0.78) + "px";
+                el.style.marginLeft = (-Math.round(CELL * 0.3)) + "px";
+                el.style.marginTop = Math.round(CELL * 0.11) + "px";
+            }
             stage.appendChild(el);
             segEls.push(el);
         }
-        snake.forEach((s, i) => { segEls[i].style.transform = "translate(" + (s.x * CELL) + "px," + (s.y * CELL) + "px)"; });
+        snake.forEach((s, i) => {
+            const el = segEls[i];
+            el.style.transform = "translate(" + (s.x * CELL) + "px," + (s.y * CELL) + "px)";
+            if (i > 0) {
+                // segmen persis di belakang kepala = kata terbaru; ekor = kata pertama
+                const w = eaten[eaten.length - i] || "";
+                if (el.textContent !== w) el.textContent = w;
+            }
+        });
     }
     function hurt() {
         hearts--;
@@ -4439,6 +4463,7 @@ function snActSnake(l, box, k) {
         const ti = tiles.findIndex(t => t.x === nx && t.y === ny);
         if (ti >= 0) {
             if (tiles[ti].w === tokens[idx]) {
+                eaten.push(tokens[idx]); // kata nempel jadi badan
                 idx++;
                 playSfx("love", 0.6);
                 renderQuote();
@@ -4477,10 +4502,10 @@ function snActSnake(l, box, k) {
     function start() {
         segEls.forEach(e => { if (e.parentNode) e.parentNode.removeChild(e); });
         segEls.length = 0;
-        snake = [{ x: 5, y: 6 }, { x: 4, y: 6 }, { x: 3, y: 6 }];
+        snake = [{ x: 5, y: 6 }]; // mulai cuma kepala — badan tumbuh dari kata yang dimakan
         dir = { x: 1, y: 0 }; ndir = dir;
         idx = 0; hearts = 3; invUntil = 0;
-        tiles = [];
+        tiles = []; eaten = [];
         livesEl.textContent = "❤️❤️❤️";
         renderQuote();
         spawnTiles();
