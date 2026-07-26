@@ -283,6 +283,7 @@ function renderError(container, retryFn, msg) {
 
 const VALID_TABS = ["loyalty", "events", "rec", "quest", "rank", "gallery"];
 function activateTab(pane) {
+    if (pane === "home") pane = "loyalty"; // alias URL: internal tetap "loyalty" (id pane & data lama), URL pakai #home
     if (VALID_TABS.indexOf(pane) < 0) pane = "loyalty";
     document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.pane === pane));
     document.querySelectorAll(".pane").forEach(x => x.classList.remove("active"));
@@ -311,7 +312,7 @@ function renderPaneSkeleton(pane) {
 document.querySelectorAll(".tab").forEach(t => {
     t.addEventListener("click", () => {
         const pane = t.dataset.pane;
-        try { location.hash = pane; } catch (e) { }
+        try { location.hash = (pane === "loyalty" ? "home" : pane); } catch (e) { }
         activateTab(pane);
     });
 });
@@ -3958,7 +3959,7 @@ function closeSnailPage(retHash) {
     unlockScroll();
     gameMusicStop();
     snailCtaRefresh(); // badge BARU di Home ikut update
-    if (retHash !== false) { try { if (location.hash === "#snail-mail") location.hash = "loyalty"; } catch (e) { } }
+    if (retHash !== false) { try { if (location.hash === "#snail-mail") location.hash = "home"; } catch (e) { } }
 }
 
 function renderSnailBox() {
