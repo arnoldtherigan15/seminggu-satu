@@ -5124,7 +5124,7 @@ async function loadSuggestions(force) {
 }
 
 function renderPbPanel() {
-    const panel = $("pbPanel");
+    const panel = $("pbBody");
     if (!panel || !_sgData) return;
     const left = _sgData.left;
     let chips = "";
@@ -5192,18 +5192,37 @@ function renderPbPanel() {
 
 function wirePostbox(modal) {
     const pb = $("mdPostbox");
-    if (!pb) return;
-    pb.addEventListener("click", async () => {
-        const panel = $("pbPanel");
-        const opening = panel.style.display === "none";
-        panel.style.display = opening ? "" : "none";
-        pb.classList.toggle("open", opening);
-        if (opening && !_sgData) {
-            panel.innerHTML = '<div class="pb-empty">📮 Lagi ngecek isi kotak pos…</div>';
-            try { await loadSuggestions(); renderPbPanel(); }
-            catch (e) { panel.innerHTML = '<div class="pb-empty">Gagal ngambil isi kotak pos — coba lagi ya 🙏</div>'; }
-        }
+    if (pb) pb.addEventListener("click", openPostboxPage);
+}
+
+// halaman khusus Kotak Pos (overlay di atas mading)
+function openPostboxPage() {
+    let pg = $("pbPage");
+    if (!pg) {
+        pg = document.createElement("div");
+        pg.id = "pbPage";
+        pg.className = "pb-page";
+        document.body.appendChild(pg);
+    }
+    pg.innerHTML =
+        '<div class="snp-wrap">' +
+        '<div class="snp-head"><div class="snp-title">📮 Kotak Pos Warga</div>' +
+        '<button class="snp-close" id="pbClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="snp-sub">Usulan & aspirasimu buat Balai — ide challenge, tema surat bulanan, sampai fitur baru. Vote yang kamu suka, yang paling didukung bakal diwujudkan! 💙</div>' +
+        '<div class="pb-panel" id="pbBody"><div class="pb-empty">📮 Lagi ngecek isi kotak pos…</div></div>' +
+        '</div>';
+    pg.classList.add("show");
+    playSfx("open-mail", 0.6);
+    $("pbClose").addEventListener("click", closePostboxPage);
+    loadSuggestions().then(renderPbPanel).catch(() => {
+        const b = $("pbBody");
+        if (b) b.innerHTML = '<div class="pb-empty">Gagal ngambil isi kotak pos — coba lagi ya 🙏</div>';
     });
+}
+
+function closePostboxPage() {
+    const pg = $("pbPage");
+    if (pg) pg.classList.remove("show");
 }
 
 // ---------- Kartu profil mini warga: rumahnya bio ----------
@@ -5428,6 +5447,7 @@ function openMadingModal() {
 }
 
 function closeMading() {
+    closePostboxPage(); // halaman kotak pos numpang di atas mading
     const modal = $("madingModal");
     if (modal) modal.classList.remove("show");
     mochiNoteStop();
@@ -5493,12 +5513,6 @@ function renderMadingModal() {
         '<button class="md-close" id="mdClose" aria-label="Tutup">✕</button>' +
         '</div>' +
         '<button type="button" class="md-note" id="mdNote"><span class="md-note-ic">🎧</span> Pesan kecil dari Mochi buat hari ini <span class="md-note-eq"><i></i><i></i><i></i></span></button>' +
-        '<button type="button" class="md-postbox md-in" id="mdPostbox" style="--d:.05s">' +
-        '<span class="pb-slot"></span>' +
-        '<span class="pb-t">📮 KOTAK POS WARGA</span>' +
-        '<span class="pb-s">Usul ide challenge, tema surat, atau fitur — vote yang kamu suka! ▾</span>' +
-        '</button>' +
-        '<div class="pb-panel" id="pbPanel" style="display:none"></div>' +
         '<button class="wb-add" id="mdAdd" style="width:100%;padding:11px;font-size:.85rem;"' + (left <= 0 ? ' disabled' : '') + '>' + addLabel + '</button>' +
         '<div class="md-compose" id="mdCompose" style="display:none;">' +
         '<span class="wb-pin">📌</span>' +
@@ -5514,7 +5528,10 @@ function renderMadingModal() {
         '</div>' +
         champHtml +
         boardHtml +
-        '</div>';
+        '</div>' +
+        '<button type="button" class="md-pbfab" id="mdPostbox" aria-label="Kotak Pos Warga — kirim aspirasimu">' +
+        '<span class="pbf-lbl">POS</span><span class="pbf-slot"></span><span class="pbf-hint">📮 kirim surat</span>' +
+        '</button>';
     $("mdClose").addEventListener("click", closeMading);
     $("mdNote").addEventListener("click", () => { wrappedMusicStop(); mochiNotePlay(); }); // tap = puter ulang
     wirePostbox(modal);
