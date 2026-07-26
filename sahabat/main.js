@@ -1644,7 +1644,11 @@ function pspSpreads() {
     return spreads;
 }
 
-// Mesin flip sama persis kayak Quest Book (leaf 3D + adopsi node di akhir flip)
+// Mesin flip = kembaran Quest Book: perspektif PERMANEN (tapi diisolasi di kotak
+// leaf sendiri, jadi halaman statis & cover tetap tajam), tanpa bongkar-pasang
+// konteks 3D antar flip (biang "nyangkut" di iOS), muka leaf tanpa bayangan gede
+// (biang "shadow nyapu kanan-kiri"), dan penyelesaian flip via transitionend
+// (nggak ada jendela ghost di akhir putaran).
 function renderPassportBook(host) {
     const SP = pspSpreads();
     let cur = 0;
@@ -1652,7 +1656,8 @@ function renderPassportBook(host) {
         '<div class="psp-book" id="pspBook">' +
         '<div class="psp-page psp-left" id="pspLeft"></div>' +
         '<div class="psp-page psp-right" id="pspRight"></div>' +
-        '<div class="psp-leaf" id="pspLeaf"><div class="psp-face psp-front" id="pspFront"></div><div class="psp-face psp-back" id="pspBack"></div></div>' +
+        '<div class="psp-leafbox"><div class="psp-leaf" id="pspLeaf"><div class="psp-face psp-front" id="pspFront"></div><div class="psp-face psp-back" id="pspBack"></div></div></div>' +
+        '<button type="button" class="psp-cover-static" id="pspCoverBtn">' + pspCoverFaceHtml() + '</button>' +
         '</div>' +
         '<div class="qbook-nav" id="pspNav" style="visibility:hidden;">' +
         '<button class="qb-arrow" id="pspPrev" aria-label="Halaman sebelumnya">‹</button>' +
@@ -1661,7 +1666,9 @@ function renderPassportBook(host) {
         '</div>';
     const book = $("pspBook"), leftP = $("pspLeft"), rightP = $("pspRight");
     const leaf = $("pspLeaf"), front = $("pspFront"), back = $("pspBack");
+    const coverBtn = $("pspCoverBtn");
     let anim = false;
+
     function setPages(i) {
         cur = i;
         leftP.innerHTML = SP[i][0];
@@ -1672,10 +1679,24 @@ function renderPassportBook(host) {
     }
     function setLeaf(deg, animate) {
         leaf.style.transition = animate ? "transform .65s cubic-bezier(.35,.1,.25,1)" : "none";
-        // tanpa translateZ: di dalam perspective dia nge-scale konten 1.0003x ->
-        // keliatan "zoom" kecil pas node pindah leaf <-> halaman statis
         leaf.style.transform = "rotateY(" + deg + "deg)";
     }
+    function showLeaf() { leaf.style.opacity = "1"; }
+    function hideLeaf() { leaf.style.opacity = "0"; }
+    // selesai TEPAT di akhir transisi (transitionend) -> nggak ada jeda leaf nganggur
+    // di 180° yang bisa bocorin muka lamanya; timeout cuma jaring pengaman
+    function finishOnce(ms, fn) {
+        let done = false;
+        const go = () => {
+            if (done) return;
+            done = true;
+            leaf.removeEventListener("transitionend", go);
+            fn();
+        };
+        leaf.addEventListener("transitionend", go);
+        setTimeout(go, ms);
+    }
+
     function flip(dir) {
         if (anim) return;
         const j = cur + dir;
@@ -1685,10 +1706,9 @@ function renderPassportBook(host) {
             return;
         }
         anim = true;
-        book.classList.add("flip3d"); // perspektif nyala cuma selama animasi
         playSfx("flip", 0.7);
-        // Muka leaf yang nampilin halaman SEKARANG diisi lewat adopsi node (bukan
-        // rebuild innerHTML) — rebuild maksa <img> stiker decode ulang = kedip/zoom.
+        // Muka leaf yang nampilin halaman SEKARANG diisi lewat ADOPSI node (bukan
+        // rebuild innerHTML) — rebuild maksa <img> stiker decode ulang = kedip.
         if (dir === 1) {
             front.innerHTML = "";
             while (rightP.firstChild) front.appendChild(rightP.firstChild);
@@ -1701,12 +1721,11 @@ function renderPassportBook(host) {
             leftP.innerHTML = SP[j][0];
         }
         setLeaf(dir === 1 ? 0 : -180, false);
-        leaf.style.opacity = "1"; // BUKAN visibility: layer visibility-hidden nggak di-repaint iOS -> pas muncul, tekstur halaman LAMA (emoji dkk) ke-flash dulu
-        leaf.style.pointerEvents = "";
+        showLeaf();
         void leaf.offsetWidth;
         requestAnimationFrame(() => requestAnimationFrame(() => {
             setLeaf(dir === 1 ? -180 : 0, true);
-            setTimeout(() => {
+            finishOnce(720, () => {
                 cur = j;
                 const srcFace = dir === 1 ? back : front;
                 const target = dir === 1 ? leftP : rightP;
@@ -1715,59 +1734,51 @@ function renderPassportBook(host) {
                 $("pspCount").textContent = (j + 1) + " / " + SP.length;
                 $("pspPrev").style.opacity = j === 0 ? ".35" : "1";
                 $("pspNext").style.opacity = j === SP.length - 1 ? ".35" : "1";
-                leaf.style.opacity = "0"; // JANGAN display:none (iOS bongkar layer, jank) / visibility (tekstur basi)
-                leaf.style.pointerEvents = "none";
-                book.classList.remove("flip3d"); // balik render datar -> teks tajam
+                hideLeaf();
                 anim = false;
-            }, 680);
+            });
         }));
     }
     setPages(0);
 
     // ---- keadaan awal: buku TERTUTUP ----
-    // leaf = cover navy (depan) / dalam-cover (belakang) nutupin halaman kanan;
-    // halaman kiri disembunyiin + buku digeser px BULAT biar cover pas di tengah.
-    // Penting: selama tertutup leaf TANPA transform 3D (transform none) — kombinasi
-    // translateZ + perspective + filter bikin cover ke-resample terus (blur).
+    // Cover yang keliatan = elemen STATIS (di luar kotak perspektif -> tajam).
+    // Leaf udah dipersiapin diam-diam (muka depan = kembaran cover, belakang =
+    // lembar kosong) tapi transparan; pas diketuk tinggal tukeran satu frame.
     anim = true;
     front.innerHTML = pspCoverFaceHtml();
     back.innerHTML = SP[0][0];
     leftP.style.visibility = "hidden";
+    hideLeaf();
     book.style.transition = "none";
     book.style.transform = "translateX(-" + Math.round(book.offsetWidth / 4) + "px)";
     void book.offsetWidth;
     book.style.transition = "";
-    leaf.style.transition = "none";
-    leaf.style.transform = "none"; // datar & tajam, nggak masuk konteks 3D
-    leaf.style.display = "block";  // sekali doang; abis ini show/hide pakai opacity
-    leaf.style.opacity = "1";
     let opened = false;
     function openBook() {
         if (opened) return;
         opened = true;
-        book.classList.add("flip3d");
         playSfx("flip", 0.7);
         leftP.style.visibility = "";
-        // masuk mode 3D dulu di 0° (tanpa transisi), commit, baru swing 180°
         setLeaf(0, false);
+        showLeaf();
+        coverBtn.style.display = "none"; // leaf kembarannya gantiin di frame yang sama
         void leaf.offsetWidth;
         requestAnimationFrame(() => requestAnimationFrame(() => {
             book.style.transform = "translateX(0)"; // geser ke posisi spread (transisi CSS)
             leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
             leaf.style.transform = "rotateY(-180deg)";
-            setTimeout(() => {
-                // adopsi node: muka belakang leaf (dalam cover) pindah ke halaman kiri statis
+            finishOnce(950, () => {
+                // adopsi node: muka belakang leaf (lembar kosong) -> halaman kiri statis
                 leftP.innerHTML = "";
                 while (back.firstChild) leftP.appendChild(back.firstChild);
-                leaf.style.opacity = "0";
-                leaf.style.pointerEvents = "none";
-                book.classList.remove("flip3d");
+                hideLeaf();
                 $("pspNav").style.visibility = "";
                 anim = false;
-            }, 930);
+            });
         }));
     }
-    leaf.addEventListener("click", openBook);
+    coverBtn.addEventListener("click", openBook);
 
     $("pspPrev").addEventListener("click", () => flip(-1));
     $("pspNext").addEventListener("click", () => flip(1));

@@ -2638,6 +2638,7 @@
         /* buku tertutup: digeser biar cover (separuh kanan) pas di tengah; offset di-set
            dari JS dalam px BULAT — persen bisa jatuh di sub-pixel dan bikin cover blur */
         .psp-book { transition: transform .9s cubic-bezier(.3, .1, .25, 1); }
+        .psp-cover-static { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; border: none; padding: 0; background: transparent; cursor: pointer; z-index: 6; border-radius: 3px 12px 12px 3px; overflow: hidden; font-family: inherit; box-shadow: 0 16px 26px rgba(0, 10, 40, .35); }
         .psp-cvface { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(150deg, #16307c, #0d1f56); box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 44px rgba(0, 0, 0, .35); color: #ffe600; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: inherit; }
         /* nav di backdrop gelap */
         .psp-modal .qb-arrow { border-color: transparent; background: rgba(255, 255, 255, .14); color: #fff; }
@@ -2649,18 +2650,20 @@
         .psp-cover-stk { width: 62px; transform: rotate(-8deg); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .3)); }
         .psp-cover-hint { font-size: .62rem; font-weight: 700; color: rgba(255, 255, 255, .75); }
 
-        /* perspektif 3D CUMA pas animasi flip — kalau nyala terus, semua teks/stiker
-           di buku dirender lewat jalur 3D dan kena rasterisasi (blur, web & iOS) */
         .psp-book { position: relative; width: 100%; height: 352px; margin-top: 8px; }
-        .psp-book.flip3d { perspective: 1600px; }
+        /* kotak perspektif PERMANEN khusus leaf (kayak Quest Book): konteks 3D nggak
+           dibongkar-pasang antar flip (biang nyangkut di iOS), sementara halaman
+           statis & cover ada DI LUAR kotak -> tetap dirender datar & tajam */
+        .psp-leafbox { position: absolute; inset: 0; perspective: 1600px; pointer-events: none; z-index: 5; }
         .psp-book.nudge { animation: qbNudge .3s ease; }
         .psp-page, .psp-face { background-color: #fbf6ea; background-image: radial-gradient(rgba(16, 36, 94, .05) 1px, transparent 1.1px); background-size: 10px 10px; }
         .psp-page { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; }
         .psp-left { left: 0; border-radius: 12px 3px 3px 12px; border: 1px solid #e3d9c3; border-right: none; box-shadow: inset -14px 0 18px -14px rgba(16, 36, 94, .28), 0 16px 26px rgba(0, 10, 40, .35); }
         .psp-right { right: 0; border-radius: 3px 12px 12px 3px; border: 1px solid #e3d9c3; border-left: none; box-shadow: inset 14px 0 18px -14px rgba(16, 36, 94, .28), 0 16px 26px rgba(0, 10, 40, .35); }
         /* will-change: layer 3D-nya dipertahanin GPU antar flip (iOS jank kalau dibikin ulang) */
-        .psp-leaf { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; transform-origin: left center; transform-style: preserve-3d; z-index: 5; display: none; will-change: transform; }
-        .psp-face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 1px solid #e3d9c3; box-shadow: 0 16px 26px rgba(0, 10, 40, .35); }
+        .psp-leaf { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; transform-origin: left center; transform-style: preserve-3d; opacity: 0; pointer-events: none; will-change: transform; }
+        /* tanpa box-shadow: bayangan di muka leaf ikut muter & "nyapu" layar pas flip */
+        .psp-face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 1px solid #e3d9c3; }
         /* Bug iOS: child yang punya layer compositing sendiri (img/emoji ber-filter
            drop-shadow) NGGAK ikut backface-visibility induknya -> stiker "tembus"
            mirrored beberapa ms pas leaf mendarat di 180°. Paksa ke semua turunan. */
