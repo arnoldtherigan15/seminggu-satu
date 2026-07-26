@@ -2381,6 +2381,26 @@ function openMonthlyRecap() {
             (polas ? '<div class="wr-anim wr-polas" style="--d:.26s;">' + polas + '</div>' : '') +
             '</div>');
     }
+    // 3b) Cuaca Hati bulan lalu (kalau ada catatan mood)
+    const moodMk = pm.year + "-" + String(pm.month + 1).padStart(2, "0");
+    const moodRec = moodStore()[moodMk] || {};
+    const moodDays = Object.keys(moodRec).length;
+    if (moodDays) {
+        const tally = {};
+        Object.values(moodRec).forEach(k => { tally[k] = (tally[k] || 0) + 1; });
+        const domK = Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0];
+        const dom = MOODS.find(x => x.k === domK) || MOODS[0];
+        slides.push('<div class="wr-slide wr-paper">' +
+            '<span class="wr-tape" style="top:56px;left:22px;transform:rotate(-11deg);"></span>' +
+            '<span class="wr-stk" style="top:13%;right:10%;">🌦️</span>' +
+            '<div class="wr-anim wr-kicker">CUACA HATI ' + esc(pm.name.toUpperCase()) + '</div>' +
+            '<div class="wr-anim wr-big" style="--d:.08s;">' + dom.e + '</div>' +
+            '<div class="wr-anim wr-title" style="--d:.14s;">bulan yang kebanyakan ' + esc(dom.t.toLowerCase()) + '</div>' +
+            '<div class="wr-anim wr-sub" style="--d:.2s;">' + moodDays + ' hari kamu catat cuacanya 💙</div>' +
+            '<div class="wr-anim" style="--d:.28s;">' + moodGridHtml(moodMk, true) + '</div>' +
+            '</div>');
+    }
+
     // 4) Outro + streak berjalan
     slides.push('<div class="wr-slide wr-blue">' +
         '<span class="wr-tape" style="top:58px;right:22px;transform:rotate(8deg);"></span>' +
@@ -3086,6 +3106,10 @@ function mochiSmartMessages() {
             }
         });
     } catch (e) { }
+    // 4b) Cuaca hati hari ini belum dicatat? colek pelan
+    try {
+        if (!moodOf(moodMonthKey(), new Date().getDate())) msgs.push("🌦️ Cuaca hatimu hari ini belum dicatat — cerita ke Mochi yuk!");
+    } catch (e) { }
     // 5) Penutup: teaser surat harian (selalu ada di ekor rotasi)
     msgs.push("💌 Baca surat dari Mochi");
     return msgs;
@@ -3342,6 +3366,85 @@ async function openMochiPrompt() {
 }
 
 // Menu hadiah Mochi: pilih mau dibawain apa hari ini
+// ---------- Cuaca Hati: mood check-in harian bareng Mochi 🌦️ ----------
+// Kesimpen di localStorage per bulan: ss_mood = { "2026-07": { "26": "cerah" } }
+const MOODS = [
+    { k: "cerah", e: "☀️", t: "Cerah" },
+    { k: "berawan", e: "⛅", t: "Berawan" },
+    { k: "hujan", e: "🌧️", t: "Hujan" },
+    { k: "badai", e: "⛈️", t: "Badai" },
+    { k: "pelangi", e: "🌈", t: "Pelangi" }
+];
+function moodStore() {
+    try { return JSON.parse(localStorage.getItem("ss_mood") || "{}") || {}; } catch (e) { return {}; }
+}
+function moodMonthKey(d) {
+    const x = d || new Date();
+    return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0");
+}
+function moodSave(day, k) {
+    try {
+        const s = moodStore();
+        const mk = moodMonthKey();
+        s[mk] = s[mk] || {};
+        s[mk][String(day)] = k;
+        localStorage.setItem("ss_mood", JSON.stringify(s));
+    } catch (e) { }
+}
+function moodOf(mk, day) {
+    const s = moodStore();
+    return (s[mk] || {})[String(day)] || "";
+}
+// grid kalender mood 1 bulan (7 kolom); mk = "YYYY-MM"
+function moodGridHtml(mk, small) {
+    const m = mk.match(/^(\d{4})-(\d{2})$/);
+    if (!m) return "";
+    const year = +m[1], mon = +m[2] - 1;
+    const days = new Date(year, mon + 1, 0).getDate();
+    const rec = moodStore()[mk] || {};
+    const now = new Date();
+    const isCurMonth = moodMonthKey(now) === mk;
+    let cells = "";
+    for (let d = 1; d <= days; d++) {
+        const mood = MOODS.find(x => x.k === rec[String(d)]);
+        const future = isCurMonth && d > now.getDate();
+        cells += '<span class="mg-cell' + (mood ? " on" : "") + (future ? " fut" : "") + '">' +
+            (mood ? mood.e : '<i>' + d + '</i>') + '</span>';
+    }
+    return '<div class="mg-grid' + (small ? " sm" : "") + '">' + cells + '</div>';
+}
+
+function openMoodTracker(modal) {
+    const today = new Date().getDate();
+    const mk = moodMonthKey();
+    const picked = moodOf(mk, today);
+    let btns = "";
+    MOODS.forEach(mo => {
+        btns += '<button type="button" class="mood-btn' + (picked === mo.k ? " on" : "") + '" data-mood="' + mo.k + '">' +
+            '<span class="mood-e">' + mo.e + '</span><span class="mood-t">' + mo.t + '</span></button>';
+    });
+    const rec = moodStore()[mk] || {};
+    const cnt = Object.keys(rec).length;
+    modal.innerHTML =
+        '<div class="mochi-box">' +
+        '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
+        '<img class="mp-imgstk" src="../images/sticker/str-1.png" style="width:56px;bottom:8px;left:6px;transform:rotate(-9deg);" alt="">' +
+        '<div class="mp-head">🌦️ Cuaca Hati Hari Ini</div>' +
+        '<div class="mp-sub">' + (picked ? "Udah dicatat — boleh diganti kalau cuacanya berubah 😉" : "Hari ini hatimu lagi cuaca apa?") + '</div>' +
+        '<div class="mood-row">' + btns + '</div>' +
+        '<div class="mood-cal">' +
+        '<div class="mood-cal-t">📓 ' + esc(BULAN_ID[new Date().getMonth()]) + ' — ' + cnt + ' hari tercatat</div>' +
+        moodGridHtml(mk) +
+        '</div>' +
+        '</div>';
+    $("mpClose").addEventListener("click", closeMochiPrompt);
+    modal.querySelectorAll(".mood-btn").forEach(b => b.addEventListener("click", () => {
+        moodSave(today, b.dataset.mood);
+        playSfx("love", 0.6);
+        openMoodTracker(modal); // re-render: tombol kepilih + kalender keisi
+    }));
+}
+
 function renderMochiChooser(modal, list) {
     const bday = isMyBirthdayToday();
     modal.innerHTML =
@@ -3355,9 +3458,11 @@ function renderMochiChooser(modal, list) {
         (bday ? '<button class="mp-choice mc-bday" id="mcBday"><span class="mc-em">🎂</span><b>Surat Ultah</b><span>spesial hari ini ✨</span></button>' : '') +
         '<button class="mp-choice" id="mcPrompt"><span class="mc-em">✍️</span><b>Prompt Harian</b><span>ide journaling</span></button>' +
         '<button class="mp-choice cookie" id="mcCookie"><span class="mc-em">🥠</span><b>Fortune Cookie</b><span>pesan manis buatmu</span></button>' +
+        '<button class="mp-choice mood" id="mcMood"><span class="mc-em">🌦️</span><b>Cuaca Hati</b><span>catat mood hari ini</span></button>' +
         '</div>' +
         '</div>';
     $("mpClose").addEventListener("click", closeMochiPrompt);
+    $("mcMood").addEventListener("click", () => openMoodTracker(modal));
     const mcB = $("mcBday");
     if (mcB) mcB.addEventListener("click", () => renderMochiEnvelope(modal, list, "bday"));
     $("mcPrompt").addEventListener("click", () => renderMochiEnvelope(modal, list, "prompt"));

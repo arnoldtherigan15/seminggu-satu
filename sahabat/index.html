@@ -3155,6 +3155,27 @@
         .mp-card.pop { animation: wrPop .5s cubic-bezier(.2, .8, .3, 1.18); }
         .mp-kicker { font-family: 'Outfit', sans-serif; font-size: .66rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
         /* teks dikunci navy: bg-nya kuning tetap, --ink di dark mode jadi putih (nggak kebaca) */
+        /* Cuaca Hati: pilihan mood + kalender grid */
+        .mood-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 14px 0 4px; }
+        .mood-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; border: 1.5px dashed rgba(16, 36, 94, .3); background: rgba(255, 255, 255, .08); border-radius: 12px; padding: 9px 8px 7px; cursor: pointer; font-family: inherit; min-width: 56px; transition: transform .12s ease; }
+        .mood-btn:active { transform: scale(.92); }
+        .mood-btn.on { background: var(--yellow); border: 2px solid #10245e; transform: rotate(-2deg); }
+        .mood-e { font-size: 1.35rem; }
+        .mood-t { font-size: .6rem; font-weight: 800; color: #cbd5f5; font-family: 'Outfit', sans-serif; }
+        .mood-btn.on .mood-t { color: #10245e; }
+        .mood-cal { margin-top: 14px; background: rgba(255, 255, 255, .07); border: 1.5px dashed rgba(255, 255, 255, .25); border-radius: 12px; padding: 10px; }
+        .mood-cal-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .68rem; letter-spacing: .04em; color: #cbd5f5; margin-bottom: 8px; text-align: left; }
+        .mg-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .mg-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: .9rem; border-radius: 8px; background: rgba(255, 255, 255, .06); }
+        .mg-cell i { font-style: normal; font-size: .56rem; font-weight: 700; color: rgba(203, 213, 245, .55); }
+        .mg-cell.on { background: rgba(255, 230, 0, .14); }
+        .mg-cell.fut { opacity: .35; }
+        /* versi kecil buat slide recap (kertas terang) */
+        .mg-grid.sm { gap: 3px; max-width: 280px; margin: 0 auto; }
+        .mg-grid.sm .mg-cell { font-size: .74rem; border-radius: 6px; background: rgba(16, 36, 94, .06); }
+        .mg-grid.sm .mg-cell i { color: rgba(16, 36, 94, .35); }
+        .mg-grid.sm .mg-cell.on { background: rgba(255, 230, 0, .5); }
+
         .mp-cat { display: inline-block; margin-top: 10px; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; padding: 4px 12px; border-radius: 8px; border: 1.5px dashed rgba(16, 36, 94, .3); transform: rotate(-2deg); }
         .mp-text { margin-top: 14px; font-size: 1.02rem; font-weight: 600; line-height: 1.6; color: var(--ink); }
         .mp-actions { display: flex; gap: 8px; margin-top: 18px; }
