@@ -3772,7 +3772,7 @@ function openMoodTracker(modal, justPicked) {
         moodSave(today, b.dataset.mood);
         openMoodTracker(modal, true); // re-render + hadiah Mochi nge-pop
         refreshMoodWidget();          // display cuaca di Home ikut ganti
-        setTimeout(() => playSfx("catch-mochi", 0.5), 150); // pas hadiahnya muncul
+        setTimeout(() => playSfx("shine", 0.7), 150); // kilau pas hadiahnya muncul
     }));
     const cta = $("mrCta");
     if (cta && picked && MOOD_CARE[picked]) {
