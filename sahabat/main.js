@@ -3519,19 +3519,7 @@ const MOODS = [
     { k: "pelangi", e: "🌈", t: "Pelangi", d: "lega & bersyukur" }
 ];
 function moodStore() {
-    try {
-        const s = JSON.parse(localStorage.getItem("ss_mood") || "{}") || {};
-        // DEBUG: ?mooddebug=badai (atau cerah/berawan/hujan/pelangi) -> bulan ini
-        // disuntik 4 hari mood itu, CUMA di memori (nggak kesimpen/kekirim server).
-        // Buat ngetes saran surat, kalender, & recap tanpa ngotorin data asli.
-        const m = location.search.match(/[?&]mooddebug=(cerah|berawan|hujan|badai|pelangi)/);
-        if (m) {
-            const mk = moodMonthKey();
-            s[mk] = Object.assign({}, s[mk]);
-            for (let d = 1; d <= 4; d++) s[mk][String(d)] = m[1];
-        }
-        return s;
-    } catch (e) { return {}; }
+    try { return JSON.parse(localStorage.getItem("ss_mood") || "{}") || {}; } catch (e) { return {}; }
 }
 function moodMonthKey(d) {
     const x = d || new Date();
