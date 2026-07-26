@@ -2372,7 +2372,9 @@
         .sn-hletter { position: absolute; left: 5%; right: 5%; top: 10%; bottom: 14%; background: #fff; border-radius: 6px; z-index: 1; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); display: flex; align-items: flex-start; justify-content: center; padding: 12px 10px; opacity: 0; transition: transform .7s cubic-bezier(.2, .8, .3, 1) .35s, opacity .3s ease .4s; }
         .sn-henv.open .sn-hletter { opacity: 1; }
         .sn-hl-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .82rem; line-height: 1.35; color: #10245e; opacity: 0; transition: opacity .4s ease .7s; }
-        .sn-hflap { position: absolute; left: 0; right: 0; top: 0; height: 58%; clip-path: polygon(0 0, 100% 0, 50% 100%); z-index: 3; transform-origin: top center; transition: transform .55s ease; filter: brightness(.96); border-radius: 10px 10px 0 0; }
+        /* garis tepi flap: drop-shadow ngikutin bentuk clip-path -> tepi V putih + bayangan,
+           flap-nya juga digelapin dikit biar kebedain dari badan amplop */
+        .sn-hflap { position: absolute; left: 0; right: 0; top: 0; height: 58%; clip-path: polygon(0 0, 100% 0, 50% 100%); z-index: 3; transform-origin: top center; transition: transform .55s ease, filter .3s ease; filter: brightness(.9) drop-shadow(0 2px 0 rgba(255, 255, 255, .95)) drop-shadow(0 4px 6px rgba(0, 0, 0, .25)); border-radius: 10px 10px 0 0; }
         .sn-hseal { position: absolute; top: 50%; left: 50%; width: 46px; height: 46px; transform: translate(-50%, -50%); z-index: 4; transition: opacity .3s ease .2s, transform .3s ease .2s; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .25)); }
         /* perangko berbingkai perforasi + tulisan pos kecil */
         .sn-hstamp { position: absolute; top: 8px; right: 10px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 1.05rem; background: #fff; border: 2px dashed rgba(16, 36, 94, .4); border-radius: 4px; padding: 4px 6px 3px; transform: rotate(4deg); box-shadow: 0 2px 4px rgba(0, 0, 0, .15); }
