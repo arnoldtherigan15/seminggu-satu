@@ -3629,16 +3629,29 @@ function renderBreath(modal) {
         '<div class="mp-actions"><button class="mp-btn" id="brStart">Mulai 🌬️</button>' +
         '<button class="mp-btn ghost" id="brBack">← Balik</button></div>' +
         '</div>';
-    $("mpClose").addEventListener("click", closeMochiPrompt);
-    $("brBack").addEventListener("click", () => openMoodTracker(modal));
+    // suara napas (~5.1s = tarik + hembus): diputar pas tarik, di-pause pas tahan,
+    // dilanjutin pas hembus — gerak lingkaran & suaranya sinkron
+    let brAudio = null;
+    function brSound(actn) {
+        if (sndMuted()) return;
+        try {
+            if (!brAudio) brAudio = new Audio("../sound-effect/breath.mp3");
+            if (actn === "start") { brAudio.currentTime = 0; brAudio.play().catch(() => { }); }
+            else if (actn === "pause") brAudio.pause();
+            else if (actn === "resume") brAudio.play().catch(() => { });
+            else if (actn === "stop") { brAudio.pause(); brAudio.currentTime = 0; }
+        } catch (e) { }
+    }
+    $("mpClose").addEventListener("click", () => { brSound("stop"); closeMochiPrompt(); });
+    $("brBack").addEventListener("click", () => { brSound("stop"); openMoodTracker(modal); });
     const circle = $("brCircle"), txt = $("brText");
     const PHASES = [
-        { t: "Tarik napas… 👃", ms: 4000, s: 1.35 },
-        { t: "Tahan… ✨", ms: 7000, s: 1.35 },
-        { t: "Hembusin pelan… 🌬️", ms: 8000, s: 1 }
+        { t: "Tarik napas… 👃", ms: 2500, s: 1.35, a: "start" },
+        { t: "Tahan… ✨", ms: 1600, s: 1.35, a: "pause" },
+        { t: "Hembusin pelan… 🌬️", ms: 2600, s: 1, a: "resume" }
     ];
     function run(cycle, pi) {
-        if (!circle.isConnected) return; // modal udah pindah view -> stop
+        if (!circle.isConnected) { brSound("stop"); return; } // modal pindah view -> stop
         if (cycle >= 3) {
             txt.textContent = "Selesai. Kepala udah agak lega? 💙";
             circle.classList.add("done");
@@ -3649,6 +3662,7 @@ function renderBreath(modal) {
         }
         const ph = PHASES[pi];
         txt.textContent = ph.t + "  (" + (cycle + 1) + "/3)";
+        brSound(ph.a);
         circle.style.transition = "transform " + ph.ms + "ms ease-in-out";
         circle.style.transform = "scale(" + ph.s + ")";
         setTimeout(() => run(pi === 2 ? cycle + 1 : cycle, (pi + 1) % 3), ph.ms);
