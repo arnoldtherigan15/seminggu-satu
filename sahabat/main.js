@@ -5341,6 +5341,28 @@ function renderMadingModal() {
             ((i % 2 === 0) ? colB : colA).push('<div class="md-in" style="--d:' + pinDelay(i + 1) + 's"><img class="md-stk" src="../images/sticker/str-' + n + '.png" alt="" style="transform:rotate(' + rot + 'deg);"></div>');
         }
     });
+    // 🏆 spotlight: karya challenge TERBARU dari rank #1 leaderboard (kalau datanya udah ke-load)
+    let champHtml = "";
+    try {
+        const top1 = _lbData && _lbData.top && _lbData.top[0];
+        if (top1) {
+            const work = (_galleryItems || [])
+                .filter(it => it.kind === "quest" && it.nickname === top1.nickname && it.photo)
+                .sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
+            if (work) {
+                champHtml = '<button type="button" class="md-champ md-in" style="--d:.15s" data-mid="' + esc(work.id) + '">' +
+                    '<span class="mc-crown">👑</span>' +
+                    '<span class="wb-tape2 wt-y" style="left:14px;"></span>' +
+                    '<div class="mc-k">🏆 KARYA SANG JUARA · RANK #1 🎉</div>' +
+                    '<div class="mc-frame"><img src="' + esc(work.photo) + '" alt="" loading="lazy" decoding="async">' +
+                    '<span class="mc-conf c1">🎊</span><span class="mc-conf c2">✨</span></div>' +
+                    '<div class="mc-name">' + esc(top1.nickname) + ' <span class="mc-poin">⚡ ' + top1.poin + ' poin</span></div>' +
+                    '<div class="mc-title">🎯 ' + esc(work.title) + ' · ketuk buat lihat 👀</div>' +
+                    '</button>';
+            }
+        }
+    } catch (e) { }
+
     const boardHtml = entries.length
         ? '<div class="md-cols"><div class="md-col">' + colA.join("") + '</div><div class="md-col">' + colB.join("") + '</div></div>'
         : '<div class="wb-empty" style="margin-top:14px;">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
@@ -5369,10 +5391,17 @@ function renderMadingModal() {
         '<div class="md-info-k">📣 INFO BALAI</div>' +
         '<div class="md-info-t">' + esc(_mdInfoPick) + '</div>' +
         '</div>' +
+        champHtml +
         boardHtml +
         '</div>';
     $("mdClose").addEventListener("click", closeMading);
     $("mdNote").addEventListener("click", () => { wrappedMusicStop(); mochiNotePlay(); }); // tap = puter ulang
+    const mch = modal.querySelector(".md-champ");
+    if (mch) mch.addEventListener("click", () => {
+        const it = _galleryItems.find(x => x.id === mch.dataset.mid);
+        closeMading();
+        if (it) openGalleryLightbox(it); // lightbox z-nya di bawah mading, jadi mading ditutup dulu
+    });
     modal.querySelectorAll("[data-goev]").forEach(b => b.addEventListener("click", () => {
         closeMading();
         try { location.hash = "events"; } catch (e) { }

@@ -1555,6 +1555,21 @@
         /* stiker nangkring di pojok kartu INFO BALAI */
         .md-info-stk { position: absolute; top: -16px; right: -8px; width: 46px; transform: rotate(14deg); pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .18)); z-index: 2; }
 
+        /* 🏆 spotlight karya sang juara di mading */
+        .md-champ { position: relative; display: block; width: 100%; margin-top: 18px; background-color: #fffdf4; background-image: radial-gradient(rgba(234, 179, 8, .14) 1.2px, transparent 1.4px); background-size: 12px 12px; border: 2.5px solid #eab308; border-radius: 8px; padding: 20px 12px 12px; box-shadow: 0 6px 16px rgba(120, 80, 30, .3), inset 0 0 0 3px rgba(234, 179, 8, .2); transform: rotate(-.8deg); cursor: pointer; font-family: inherit; text-align: center; }
+        .md-champ:active { transform: rotate(-.8deg) scale(.98); }
+        .mc-crown { position: absolute; top: -17px; left: 50%; font-size: 1.6rem; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .28)); z-index: 2; animation: mcBob 2s ease-in-out infinite; }
+        @keyframes mcBob { 0%, 100% { transform: translateX(-50%) rotate(-8deg) translateY(0); } 50% { transform: translateX(-50%) rotate(-3deg) translateY(-4px); } }
+        .mc-k { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .62rem; letter-spacing: .12em; color: #b45309; margin-bottom: 9px; }
+        .mc-frame { position: relative; border: 5px solid #fff; border-radius: 4px; box-shadow: 0 4px 10px rgba(0, 0, 0, .18); transform: rotate(.8deg); overflow: hidden; }
+        .mc-frame img { width: 100%; display: block; aspect-ratio: 4 / 3; object-fit: cover; }
+        .mc-conf { position: absolute; font-size: 1.05rem; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .25)); }
+        .mc-conf.c1 { top: 5px; left: 6px; transform: rotate(-12deg); }
+        .mc-conf.c2 { bottom: 5px; right: 6px; transform: rotate(10deg); }
+        .mc-name { margin-top: 10px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: #10245e; }
+        .mc-poin { font-size: .66rem; background: var(--yellow); border-radius: 999px; padding: 2px 8px; color: #10245e; margin-left: 4px; vertical-align: 1px; }
+        .mc-title { font-size: .7rem; color: #8a7a56; margin-top: 3px; }
+
         /* chip voice note Mochi di mading */
         .md-note { width: 100%; display: flex; align-items: center; gap: 8px; border: 1.5px dashed rgba(120, 80, 30, .5); background: rgba(255, 251, 235, .92); color: #6b4f23; font-family: inherit; font-weight: 700; font-size: .8rem; border-radius: 999px; padding: 9px 14px; margin-bottom: 10px; cursor: pointer; transform: rotate(-.5deg); box-shadow: 0 2px 6px rgba(0, 0, 0, .12); }
         .md-note-ic { flex: none; }
