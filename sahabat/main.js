@@ -198,7 +198,8 @@ function fireConfetti(preset) {
 }
 
 function onAuthSuccess(r) {
-    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "" };
+    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}" };
+    try { if (r.moodRecords) localStorage.setItem("ss_mood", r.moodRecords); } catch (e) { } // server = sumber kebenaran, sinkron lintas device
     BDAY_TODAY = Array.isArray(r.birthdays) ? r.birthdays.filter(b => b && b.nickname) : [];
     try { localStorage.setItem(TOKEN_KEY, r.token); } catch (e) { }
     showDashboard();
@@ -3388,8 +3389,14 @@ function moodSave(day, k) {
         const mk = moodMonthKey();
         s[mk] = s[mk] || {};
         s[mk][String(day)] = k;
-        localStorage.setItem("ss_mood", JSON.stringify(s));
+        localStorage.setItem("ss_mood", JSON.stringify(s)); // optimistis: UI langsung keisi
     } catch (e) { }
+    // sinkron ke server (kolom moodRecords) — lintas device/browser/PWA
+    apiPost({ action: "memberSetMood", token: _profile.token, mood: k }).then(r => {
+        if (r && r.status === "success" && r.moodRecords) {
+            try { localStorage.setItem("ss_mood", r.moodRecords); } catch (e) { }
+        }
+    }).catch(() => { }); // gagal sinkron = catatan lokal tetap ada, kekirim lagi lain kali
 }
 function moodOf(mk, day) {
     const s = moodStore();
