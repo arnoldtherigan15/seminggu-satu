@@ -3604,7 +3604,7 @@ const MOOD_CARE = {
         ],
         v: ["Tarik napas dulu… badai selalu lewat ⛈️→🌤️", "Marah atau kewalahan itu sinyal, bukan aib", "Satu-satu aja — nggak semua harus beres sekarang"],
         p: ["Tumpahin semua yang bikin penuh ke satu halaman — berantakan juga gapapa.", "Apa 1 hal KECIL yang masih bisa kamu pegang kendalinya sekarang?", "Mulai dari 'aku kewalahan karena…' dan biarin jujur."],
-        cta: { t: "🌬️ Napas bareng Mochi", act: "breath" }
+        cta: { t: "🗑️ Tumpahin dulu ke kertas", act: "tulis" } // habis sobek baru ditawarin napas (release -> regulate)
     },
     pelangi: {
         g: [
@@ -3701,6 +3701,53 @@ function moodEvidence() {
     const mo = MOODS.find(x => x.k === best.g.k) || MOODS[0];
     return "Inget " + best.g.d + " " + BULAN_ID[best.g.mo - 1] + "? Habis " + best.n + " hari berat" + (best.n > 1 ? " berturut-turut" : "") +
         ", kamu nyatet " + mo.t.toLowerCase() + " " + mo.e + " — kamu pernah lewatin ini, dan bisa lagi.";
+}
+
+// ---------- Tulis Lepas + Sobek 🗑️ (expressive writing ala Pennebaker) ----------
+// Nulis bebas tentang yang paling berat, terus DIROBEK. Nggak disimpen di mana
+// pun (nggak ke localStorage, nggak ke server) — manfaatnya di proses nulisnya,
+// dan jaminan tanpa jejak itu yang bikin berani jujur.
+function renderTulisLepas(modal) {
+    modal.innerHTML =
+        '<div class="mochi-box">' +
+        '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
+        '<div class="mp-head">🗑️ Tulis Lepas</div>' +
+        '<div class="mp-sub">Tumpahin yang paling berat. Habis ini dirobek — nggak disimpen, nggak dibaca siapa pun. Termasuk Mochi.</div>' +
+        '<div class="tl-stage" id="tlStage">' +
+        '<textarea id="tlInput" class="tl-input" rows="7" placeholder="Tulis aja semuanya… boleh marah, boleh ngumpat, boleh CAPS LOCK SEMUA. Ini cuma antara kamu dan kertas ini."></textarea>' +
+        '</div>' +
+        '<div class="mp-actions" id="tlActions">' +
+        '<button class="mp-btn" id="tlShred" disabled>🗑️ SOBEK</button>' +
+        '</div>' +
+        '</div>';
+    $("mpClose").addEventListener("click", closeMochiPrompt);
+    const input = $("tlInput"), shred = $("tlShred"), stage = $("tlStage");
+    input.addEventListener("input", () => { shred.disabled = input.value.trim().length < 10; });
+    setTimeout(() => input.focus(), 250);
+    shred.addEventListener("click", () => {
+        const text = input.value; // cuma buat ditampilin sesaat pas dirobek — abis itu musnah
+        playSfx("flip", 1);
+        // kertas berisi tulisannya dibelah dua (tepi zigzag) terus jatuh
+        stage.innerHTML =
+            '<div class="tl-paper tl-half l"><pre>' + esc(text) + '</pre></div>' +
+            '<div class="tl-paper tl-half r"><pre>' + esc(text) + '</pre></div>';
+        $("tlActions").style.visibility = "hidden";
+        setTimeout(() => {
+            stage.innerHTML =
+                '<div class="tl-after">' +
+                '<div class="tl-after-em">💨</div>' +
+                '<div class="tl-after-t">Udah keluar, udah dirobek.</div>' +
+                '<div class="tl-after-s">Nggak ada jejaknya — beneran. Lega dikit?</div>' +
+                '</div>';
+            $("tlActions").style.visibility = "";
+            $("tlActions").innerHTML =
+                '<button class="mp-btn ghost" id="tlAgain">✍️ Tulis lagi</button>' +
+                '<button class="mp-btn" id="tlBreath">🌬️ Napas dulu</button>';
+            playSfx("shine", 0.6);
+            $("tlAgain").addEventListener("click", () => renderTulisLepas(modal));
+            $("tlBreath").addEventListener("click", () => renderBreath(modal));
+        }, 950);
+    });
 }
 
 // buka Cuaca Hati langsung (dari widget Home) — tanpa lewat chooser
@@ -3806,6 +3853,7 @@ function openMoodTracker(modal, justPicked) {
     if (cta && picked && MOOD_CARE[picked]) {
         const act = MOOD_CARE[picked].cta.act;
         cta.addEventListener("click", async () => {
+            if (act === "tulis") { renderTulisLepas(modal); return; }
             if (act === "breath") { renderBreath(modal); return; }
             if (act === "mading") { closeMochiPrompt(); openMadingModal(); return; }
             if (act === "hug") {
@@ -3840,10 +3888,12 @@ function renderMochiChooser(modal, list) {
         '<button class="mp-choice" id="mcPrompt"><span class="mc-em">✍️</span><b>Prompt Harian</b><span>ide journaling</span></button>' +
         '<button class="mp-choice cookie" id="mcCookie"><span class="mc-em">🥠</span><b>Fortune Cookie</b><span>pesan manis buatmu</span></button>' +
         '<button class="mp-choice mood" id="mcBreath"><span class="mc-em">🌬️</span><b>Napas Bareng</b><span>rehat 1 menit</span></button>' +
+        '<button class="mp-choice tl" id="mcTulis"><span class="mc-em">🗑️</span><b>Tulis Lepas</b><span>tumpahin, terus sobek</span></button>' +
         '</div>' +
         '</div>';
     $("mpClose").addEventListener("click", closeMochiPrompt);
     $("mcBreath").addEventListener("click", () => renderBreath(modal)); // Cuaca Hati udah pindah ke Home
+    $("mcTulis").addEventListener("click", () => renderTulisLepas(modal));
     const mcB = $("mcBday");
     if (mcB) mcB.addEventListener("click", () => renderMochiEnvelope(modal, list, "bday"));
     $("mcPrompt").addEventListener("click", () => renderMochiEnvelope(modal, list, "prompt"));

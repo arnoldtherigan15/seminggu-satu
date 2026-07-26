@@ -3234,6 +3234,22 @@
         .mr-p { font-size: .8rem; color: var(--muted); line-height: 1.65; margin-top: 6px; }
         .mr-cta { display: block; width: 100%; margin-top: 10px; }
 
+        /* Tulis Lepas + Sobek */
+        .tl-stage { position: relative; margin-top: 12px; min-height: 190px; }
+        .tl-input { width: 100%; min-height: 185px; border: 1.5px dashed var(--line); border-radius: 12px; padding: .8rem; font-family: inherit; font-size: 16px; line-height: 1.7; color: var(--ink); background: var(--bg); resize: vertical; }
+        .tl-input:focus { outline: none; border-color: var(--blue); }
+        /* dua belahan kertas (tepi zigzag) jatuh berpisah */
+        .tl-half { position: absolute; inset: 0; background: #fffdf6; border: 1px solid #eadfbb; border-radius: 12px; padding: .8rem; overflow: hidden; }
+        .tl-half pre { margin: 0; font-family: inherit; font-size: .9rem; line-height: 1.7; color: #2a3550; white-space: pre-wrap; word-break: break-word; }
+        .tl-half.l { clip-path: polygon(0 0, 54% 0, 46% 12%, 55% 25%, 46% 38%, 55% 52%, 46% 65%, 54% 78%, 47% 90%, 52% 100%, 0 100%); animation: tlTearL .95s ease-in forwards; }
+        .tl-half.r { clip-path: polygon(54% 0, 100% 0, 100% 100%, 52% 100%, 47% 90%, 54% 78%, 46% 65%, 55% 52%, 46% 38%, 55% 25%, 46% 12%); animation: tlTearR .95s ease-in forwards; }
+        @keyframes tlTearL { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 25% { transform: translate(-14px, 6px) rotate(-5deg); opacity: 1; } 100% { transform: translate(-70px, 130%) rotate(-24deg); opacity: 0; } }
+        @keyframes tlTearR { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 25% { transform: translate(14px, 6px) rotate(5deg); opacity: 1; } 100% { transform: translate(70px, 130%) rotate(24deg); opacity: 0; } }
+        .tl-after { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 185px; text-align: center; }
+        .tl-after-em { font-size: 2.4rem; }
+        .tl-after-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1rem; color: var(--ink); margin-top: 8px; }
+        .tl-after-s { font-size: .82rem; color: var(--muted); margin-top: 4px; }
+
         /* napas bareng Mochi */
         .br-scene { display: flex; align-items: center; justify-content: center; height: 190px; margin-top: 8px; }
         .br-circle { width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255, 230, 0, .35), rgba(0, 70, 255, .18)); border: 2.5px dashed rgba(255, 230, 0, .6); display: flex; align-items: center; justify-content: center; transform: scale(1); will-change: transform; }
