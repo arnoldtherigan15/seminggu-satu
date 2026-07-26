@@ -380,6 +380,10 @@
                 left: 0;
                 right: 0;
                 z-index: 1000;
+                /* translateZ(0): paksa layer GPU sendiri — tanpa ini iOS kadang
+                   ninggalin fixed element ber-backdrop-filter "nyangkut" pas scroll */
+                transform: translateZ(0);
+                will-change: transform;
                 background: rgba(255, 255, 255, 0.92);
                 backdrop-filter: blur(14px);
                 -webkit-backdrop-filter: blur(14px);
@@ -431,6 +435,8 @@
             position: fixed;
             bottom: 24px;
             right: 20px;
+            transform: translateZ(0); /* layer sendiri, senasib sama .tabs */
+            will-change: transform;
             z-index: 999;
             display: flex;
             flex-direction: column;
