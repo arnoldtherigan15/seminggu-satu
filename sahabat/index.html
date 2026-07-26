@@ -2511,6 +2511,20 @@
         .wd-chip.c4 { background: #ede9fe; border: 2px solid #8b5cf6; color: #5b21b6; }
         .wd-chip.got { transition: transform .25s ease, opacity .25s ease; opacity: 0; scale: 1.6; }
 
+        /* Paper Hopper (doodle jump) */
+        .hp-stage { position: relative; height: 380px; border-radius: 12px; overflow: hidden; margin-top: 4px; background: linear-gradient(180deg, #fef3c7, #fde8ef 45%, #e0f2fe); border: 1.5px solid rgba(16, 36, 94, .15); touch-action: none; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+        .hp-stage.shake { animation: scShake .35s ease; }
+        .hp-lives { top: 6px; left: 8px; right: auto; }
+        .hp-mochi { position: absolute; top: 0; left: 0; width: 46px; z-index: 3; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .2)); pointer-events: none; will-change: transform; }
+        .hp-mochi.boost { filter: drop-shadow(0 0 12px rgba(255, 230, 0, .95)) drop-shadow(0 3px 4px rgba(0, 0, 0, .2)); }
+        .hp-plat { position: absolute; top: 0; left: 0; z-index: 2; width: 68px; text-align: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .58rem; color: #10245e; padding: 5px 4px; border-radius: 4px; box-shadow: 0 3px 6px rgba(16, 36, 94, .18); pointer-events: none; will-change: transform; transform-origin: center; }
+        .hp-plat.c0 { background: #fff3c4; border: 1.5px solid #eab308; }
+        .hp-plat.c1 { background: #ffe0ec; border: 1.5px solid #ec4899; }
+        .hp-plat.c2 { background: #dcfce7; border: 1.5px solid #22c55e; }
+        .hp-plat.c3 { background: #dbeafe; border: 1.5px solid #3b82f6; }
+        .hp-plat.c4 { background: #ede9fe; border: 1.5px solid #8b5cf6; }
+        .hp-pu { font-size: .72rem; }
+
         /* Word Snake */
         .wsn-quote { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 10px; }
         .wsn-lives { position: absolute; top: 6px; right: 8px; z-index: 4; font-size: .7rem; letter-spacing: 1px; background: rgba(255, 255, 255, .85); border-radius: 999px; padding: 3px 8px; pointer-events: none; box-shadow: 0 1px 4px rgba(16, 36, 94, .12); }

@@ -4053,8 +4053,9 @@ const SN_ACT = {
         words: ["REHAT", "NAPAS", "PULIH", "SANTAI", "TIDUR", "TENANG"]
     },
     "SM-039": { // Agu · Standar Hidup yang Bikin Siksa
-        type: "snake", title: "WORD SNAKE: TIMELINE-KU SENDIRI",
-        quote: "Timeline hidupku berjalan dengan kecepatanku sendiri"
+        type: "hopper", title: "PAPER HOPPER: NAIK DI TEMPOKU",
+        goal: 30,
+        words: ["Pelan", "Cukup", "Fokus", "Tumbuh", "Punyaku"]
     },
     "SM-040": { // Sep · Ketika Emosi Datang Meluap-luap
         type: "catch", title: "TANGKAP RASA: BADAI EMOSI",
@@ -4125,8 +4126,9 @@ const SN_ACT = {
         clouds: ["Gimana?", "Panik", "Takut", "Overthink"]
     },
     "SM-049": { // Jun · Pelukan Hangat untuk Diri Sendiri
-        type: "snake", title: "WORD SNAKE: RANGKAI PELUKAN",
-        quote: "Peluk dirimu dulu sebelum sibuk memeluk dunia"
+        type: "hopper", title: "PAPER HOPPER: TERBANG DIPELUK",
+        goal: 30,
+        words: ["Sayang", "Bangga", "Terima", "Hangat", "Pulih"]
     }
 };
 
@@ -4143,6 +4145,7 @@ function snActLabel(l) {
     if (t === "scramble") return "Susun Kata 🔤";
     if (t === "dash") return "Mochi's Word Dash ☁️";
     if (t === "snake") return "Word Snake 🐍";
+    if (t === "hopper") return "Paper Hopper 📄";
     return "Tangkap Rasa 🫧";
 }
 
@@ -4310,9 +4313,159 @@ function openSnailActivity(l) {
         snActDash(l, box, k);
     } else if (type === "snake") {
         snActSnake(l, box, k);
+    } else if (type === "hopper") {
+        snActHopper(l, box, k);
     } else {
         snActCatch(l, box, k);
     }
+}
+
+// ---------- Paper Hopper: Mochi lompat-lompat pijakan kertas ke atas (doodle jump) ----------
+// Geser kiri-kanan buat ngarahin; mantul otomatis tiap nginjek memo. Pijakan
+// berisi kata penyemangat / elemen kerajinan; power-up ☕/🖊️ = lompat super.
+// Jatuh nggak langsung game over (3 ❤️, respawn) — target: nembus langit-langit galeri.
+function snActHopper(l, box, k) {
+    const pack = SN_ACT[l.id];
+    const GOAL_M = pack.goal || 30;      // "meter" galeri
+    const PXM = 100;                     // 1 m = 100px dunia
+    const CRAFT = ["Washi", "Stiker", "Stempel", "Memo", "Catatan", "Pita"];
+    box.innerHTML =
+        '<div class="sn-paper sn-flat sk' + k + '" style="padding-top:20px;">' +
+        '<span class="sn-washi"></span>' +
+        '<div class="sn-kicker">' + esc(pack.title) + ' · ' + esc(snailMonthLabel(l).toUpperCase()) + '</div>' +
+        '<div class="sn-act-hint">Geser kiri-kanan buat ngarahin Mochi — dia mantul sendiri tiap nginjek kertas! Naik sampai ' + GOAL_M + ' m, ☕/🖊️ = lompat super 🚀</div>' +
+        '<div class="hp-stage" id="hpStage">' +
+        '<div class="ct-score" id="hpScore">0 m / ' + GOAL_M + ' m</div>' +
+        '<div class="wsn-lives hp-lives" id="hpLives">❤️❤️❤️</div>' +
+        '<img class="hp-mochi" id="hpMochi" src="../images/sticker/str-6.png" alt="">' +
+        '<div class="ct-start" id="hpStart"><button type="button" class="btn-primary" id="hpPlay">Lompat! 🐾</button></div>' +
+        '</div>' +
+        '</div>' +
+        '<button type="button" class="sn-back" id="snBack">← Balik ke surat</button>';
+    $("snBack").addEventListener("click", () => openSnailLetter(l, true));
+
+    const stage = $("hpStage"), mochi = $("hpMochi"), scoreEl = $("hpScore"), livesEl = $("hpLives");
+    const JUMP = 430, G = 900;
+    let mx = 0.5, myW = 0, vyW = 0, camAlt = 0, hearts = 3, playing = false, lastT = 0, topSpawn = 0;
+    const plats = [];
+
+    function moveTo(clientX) {
+        const rc = stage.getBoundingClientRect();
+        mx = Math.max(0.06, Math.min(0.94, (clientX - rc.left) / rc.width));
+    }
+    stage.addEventListener("touchmove", e => { moveTo(e.touches[0].clientX); e.preventDefault(); }, { passive: false });
+    stage.addEventListener("touchstart", e => moveTo(e.touches[0].clientX), { passive: true });
+    stage.addEventListener("mousemove", e => moveTo(e.clientX));
+
+    function cleanup() {
+        plats.forEach(p => { if (p.el.parentNode) p.el.parentNode.removeChild(p.el); });
+        plats.length = 0;
+    }
+    function addPlat(alt, isFirst) {
+        const w = (plats.length % 2 === 0)
+            ? pack.words[Math.floor(Math.random() * pack.words.length)]
+            : CRAFT[Math.floor(Math.random() * CRAFT.length)];
+        const el = document.createElement("div");
+        const pu = !isFirst && Math.random() < 0.12; // sesekali ada power-up
+        el.className = "hp-plat c" + (Math.floor(Math.random() * 5));
+        el.innerHTML = esc(w) + (pu ? ' <span class="hp-pu">' + (Math.random() < 0.5 ? "☕" : "🖊️") + '</span>' : '');
+        stage.appendChild(el);
+        plats.push({ el: el, x: isFirst ? 0.5 : (0.1 + Math.random() * 0.8), alt: alt, pu: pu });
+        topSpawn = Math.max(topSpawn, alt);
+    }
+    function end(win) {
+        playing = false;
+        cleanup();
+        const st = $("hpStart");
+        st.style.display = "";
+        if (win) {
+            playSfx("challenge-done");
+            fireConfetti("reward");
+            st.innerHTML = '<div class="ct-end">Kamu nembus langit-langit galeri! 🎨✨<br>Ternyata naiknya nggak harus buru-buru kan?</div>' +
+                '<button type="button" class="btn-primary" id="hpPlay" style="margin-top:10px;">Lompat lagi 🔁</button>';
+        } else {
+            st.innerHTML = '<div class="ct-end">Kertasnya licin 📄💨<br>Nggak apa-apa, mulai dari pijakan pertama lagi ya 💙</div>' +
+                '<button type="button" class="btn-primary" id="hpPlay" style="margin-top:10px;">Coba lagi 🐾</button>';
+        }
+        $("hpPlay").addEventListener("click", start);
+    }
+    function loop(t) {
+        if (!playing || !stage.isConnected) return;
+        const dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
+        lastT = t;
+        const rc = stage.getBoundingClientRect();
+        const W = rc.width, H = rc.height;
+        // fisika (dunia: ke atas = alt nambah)
+        vyW -= G * dt;
+        const prevW = myW;
+        myW += vyW * dt;
+        // nginjek pijakan (cuma pas lagi turun; cek nyebrangin alt pijakan)
+        if (vyW < 0) {
+            for (const p of plats) {
+                if (prevW >= p.alt && myW <= p.alt && Math.abs((p.x - mx) * W) < 46) {
+                    myW = p.alt;
+                    if (p.pu) {
+                        vyW = JUMP * 1.9; // lompat super!
+                        playSfx("catch-mochi", 0.5);
+                        mochi.classList.add("boost");
+                        setTimeout(() => mochi.classList.remove("boost"), 500);
+                    } else {
+                        vyW = JUMP;
+                        playSfx("flip", 0.15);
+                    }
+                    break;
+                }
+            }
+        }
+        // kamera ngikut ke atas
+        camAlt = Math.max(camAlt, myW - H * 0.55);
+        // spawn pijakan baru di atas layar
+        while (topSpawn < camAlt + H + 120) addPlat(topSpawn + 62 + Math.random() * 32);
+        // jatuh ke bawah layar -> respawn di pijakan terdekat, -1 ❤️
+        if (myW < camAlt - 70) {
+            hearts--;
+            livesEl.textContent = "❤️".repeat(Math.max(0, hearts)) + "🩶".repeat(3 - Math.max(0, hearts));
+            playSfx("light", 0.5);
+            stage.classList.add("shake");
+            setTimeout(() => stage.classList.remove("shake"), 350);
+            if (hearts <= 0) { end(false); return; }
+            const anchor = plats.filter(p => p.alt > camAlt + 40).sort((a, b) => a.alt - b.alt)[0];
+            if (anchor) { myW = anchor.alt + 2; mx = anchor.x; vyW = JUMP; }
+            else { myW = camAlt + 80; vyW = JUMP; }
+        }
+        // render
+        mochi.style.transform = "translate(" + (mx * W - 23) + "px," + (H - (myW - camAlt) - 46) + "px)" +
+            (vyW > 0 ? " scaleY(1.06)" : " scaleY(.97)");
+        for (let i = plats.length - 1; i >= 0; i--) {
+            const p = plats[i];
+            const sy = H - (p.alt - camAlt);
+            if (sy > H + 60) { // udah lewat bawah -> buang
+                if (p.el.parentNode) p.el.parentNode.removeChild(p.el);
+                plats.splice(i, 1);
+                continue;
+            }
+            p.el.style.transform = "translate(" + (p.x * W - 34) + "px," + sy + "px)";
+        }
+        const m = Math.max(0, Math.floor(myW / PXM));
+        scoreEl.textContent = Math.min(m, GOAL_M) + " m / " + GOAL_M + " m";
+        if (myW >= GOAL_M * PXM) { end(true); return; }
+        requestAnimationFrame(loop);
+    }
+    function start() {
+        cleanup();
+        mx = 0.5; myW = 0; vyW = JUMP; camAlt = 0; hearts = 3; topSpawn = 0;
+        livesEl.textContent = "❤️❤️❤️";
+        scoreEl.textContent = "0 m / " + GOAL_M + " m";
+        addPlat(0, true);
+        while (topSpawn < 400) addPlat(topSpawn + 62 + Math.random() * 32);
+        $("hpStart").style.display = "none";
+        playing = true;
+        lastT = 0;
+        requestAnimationFrame(loop);
+    }
+    $("hpPlay").addEventListener("click", start);
+    const pg = $("snailPage");
+    if (pg) pg.scrollTop = 0;
 }
 
 // ---------- Word Snake: Mochi memanjang makan kata sesuai urutan kutipan ----------
