@@ -3584,7 +3584,7 @@ const MOOD_CARE = {
         ],
         v: ["Hari biasa juga tetap berarti kok ⛅", "Nggak semua hari harus spesial — hadir aja udah cukup", "Pelan-pelan aja, awannya juga jalan kok"],
         p: ["Tulis 3 hal kecil yang 'lumayan' hari ini.", "Kalau harimu adalah lagu, kira-kira judulnya apa?", "Apa 1 hal yang lagi kamu tunggu minggu ini?"],
-        cta: { t: "✍️ Pancing pelan-pelan", act: "prompt" }
+        cta: { t: "🫧 Main bentar yuk", act: "bubble" } // hari datar diangkat pakai kesenangan instan; nulis ditawarin abis main
     },
     hujan: {
         g: [
@@ -3826,6 +3826,61 @@ function renderTeras(modal) {
     });
 }
 
+// ---------- Bubble Wrap 🫧 (buat hari yang biasa aja) ----------
+// Mood-lifter tanpa tekanan: pecahin gelembung satu-satu, nol skill, nol kalah.
+// Beberapa gelembung nyimpen kejutan kecil (emoji / kata manis dari Mochi).
+const BW_SURPRISE = ["💙", "🌟", "🐾", "kamu lucu deh", "semangat!", "🍀", "hai 👋", "🌈", "pop!", "cinta ✨"];
+function renderBubbleWrap(modal) {
+    const COLS = 5, ROWS = 6, N = COLS * ROWS;
+    // 5 gelembung kejutan di posisi acak
+    const surprise = {};
+    while (Object.keys(surprise).length < 5) {
+        surprise[Math.floor(Math.random() * N)] = BW_SURPRISE[Math.floor(Math.random() * BW_SURPRISE.length)];
+    }
+    let cells = "";
+    for (let i = 0; i < N; i++) cells += '<button type="button" class="bwr-b" data-i="' + i + '"></button>';
+    modal.innerHTML =
+        '<div class="mochi-box">' +
+        '<button class="mp-close" id="mpClose" aria-label="Tutup">✕</button>' +
+        '<div class="mp-head">🫧 Bubble Wrap</div>' +
+        '<div class="mp-sub">Pecahin aja semuanya. Nggak ada aturan, nggak ada kalah.</div>' +
+        '<div class="bwr-sheet" id="bwrSheet">' + cells + '</div>' +
+        '<div class="bwr-count" id="bwrCount">0 / ' + N + '</div>' +
+        '<div class="mp-actions" id="bwrActions"></div>' +
+        '</div>';
+    $("mpClose").addEventListener("click", closeMochiPrompt);
+    let popped = 0;
+    modal.querySelectorAll(".bwr-b").forEach(b => b.addEventListener("click", () => {
+        if (b.classList.contains("pop")) return;
+        b.classList.add("pop");
+        popped++;
+        playSfx("bubble", 0.7);
+        const s = surprise[Number(b.dataset.i)];
+        if (s) {
+            b.classList.add("gift");
+            b.innerHTML = '<span class="bwr-s">' + esc(s) + '</span>';
+        }
+        $("bwrCount").textContent = popped + " / " + N;
+        if (popped === N) {
+            fireConfetti("quest");
+            playSfx("shine", 0.7);
+            $("bwrCount").textContent = "Semua pecah! Lumayan kan? 😄";
+            $("bwrActions").innerHTML =
+                '<button class="mp-btn" id="bwrAgain">🫧 Lembar baru</button>' +
+                '<button class="mp-btn ghost" id="bwrWrite">✍️ Lanjut nulis dikit</button>';
+            $("bwrAgain").addEventListener("click", () => renderBubbleWrap(modal));
+            $("bwrWrite").addEventListener("click", async () => {
+                showBusy("Mochi lagi nyiapin surat…");
+                try {
+                    const list = await loadPrompts();
+                    hideBusy();
+                    renderMochiEnvelope(modal, list, "prompt");
+                } catch (e) { hideBusy(); alert("Gagal ngambil prompt 😢"); }
+            });
+        }
+    }));
+}
+
 // buka Cuaca Hati langsung (dari widget Home) — tanpa lewat chooser
 function openMoodDirect() {
     let modal = $("mochiModal");
@@ -3932,6 +3987,7 @@ function openMoodTracker(modal, justPicked) {
             if (act === "tulis") { renderTulisLepas(modal); return; }
             if (act === "breath") { renderBreath(modal); return; }
             if (act === "teras") { renderTeras(modal); return; }
+            if (act === "bubble") { renderBubbleWrap(modal); return; }
             if (act === "mading") { closeMochiPrompt(); openMadingModal(); return; }
             if (act === "hug") {
                 showBusy("Mochi lagi ngambil kue…");

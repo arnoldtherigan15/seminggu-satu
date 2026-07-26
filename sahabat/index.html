@@ -3235,6 +3235,18 @@
         /* CTA respons cuaca: goyang berkala biar ke-notice bisa diklik (pola sn-bonus) */
         .mr-cta { display: block; width: 100%; margin-top: 10px; animation: snBonusShake 3s ease-in-out infinite .8s; }
 
+        /* Bubble Wrap 🫧 */
+        .bwr-sheet { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 12px; background: rgba(160, 200, 255, .12); border: 1.5px dashed rgba(120, 160, 220, .4); border-radius: 14px; padding: 10px; }
+        .bwr-b { aspect-ratio: 1; border: none; cursor: pointer; border-radius: 50%; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .95), rgba(190, 215, 250, .75) 55%, rgba(150, 185, 235, .8)); box-shadow: inset -2px -3px 5px rgba(90, 130, 190, .45), inset 2px 3px 5px rgba(255, 255, 255, .8), 0 2px 4px rgba(60, 90, 150, .25); -webkit-tap-highlight-color: transparent; transition: transform .08s ease; padding: 0; }
+        .bwr-b:active { transform: scale(.9); }
+        /* udah pecah: kempes, kusut */
+        .bwr-b.pop { background: radial-gradient(circle at 50% 55%, rgba(150, 185, 235, .28), rgba(120, 155, 210, .18)); box-shadow: inset 0 2px 4px rgba(60, 90, 150, .35); animation: bwrPop .18s ease; cursor: default; }
+        @keyframes bwrPop { 0% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .bwr-b.gift { display: flex; align-items: center; justify-content: center; }
+        .bwr-s { font-size: .62rem; font-weight: 800; color: #10245e; text-align: center; line-height: 1.2; padding: 2px; animation: mrgPop .5s cubic-bezier(.2, 1.4, .4, 1) both; font-family: 'Outfit', sans-serif; }
+        :root[data-theme="dark"] .bwr-s { color: #eaeffc; }
+        .bwr-count { text-align: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem; color: var(--muted); margin-top: 10px; }
+
         /* Duduk di Teras Bareng Mochi (scene hujan) */
         .tr-scene { position: relative; height: 230px; border-radius: 14px; overflow: hidden; margin-top: 12px; background: linear-gradient(180deg, #232f55 0%, #33406e 55%, #3d3654 100%); border: 1.5px solid rgba(255, 255, 255, .12); }
         /* tetes hujan individual (span di-spawn dari JS) — garis pendek jatuh miring */
