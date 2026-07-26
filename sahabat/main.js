@@ -4045,18 +4045,19 @@ function snSeed(l) {
 // Paket aktivitas PER SURAT — konten nyambung sama tema suratnya, rotasi 4 game:
 // Cari Kata (ws), Bingo, Susun Kata (scramble), Tangkap Rasa (catch).
 const SN_ACT = {
-    "SM-038": { // Lelah yang Sering Tak Diundang
+    // === siklus game: ws -> bingo -> catch -> scramble -> dash, ulang dari awal ===
+    "SM-038": { // Jul · Lelah yang Sering Tak Diundang
         type: "ws", title: "CARI KATA: RESEP ISTIRAHAT",
         words: ["REHAT", "NAPAS", "PULIH", "SANTAI", "TIDUR", "TENANG"]
     },
-    "SM-039": { // Standar Hidup yang Bikin Siksa
+    "SM-039": { // Agu · Standar Hidup yang Bikin Siksa
         type: "bingo", title: "BINGO: JALURKU SENDIRI",
         items: ["Mute 1 akun yang bikin insecure", "Tulis 3 hal yang udah kamu capai", "Journaling: timeline-ku milikku", "Pagi tanpa scroll sosmed",
             "Tulis definisi suksesmu sendiri", "Puji teman tanpa banding-bandingin", "Rayain progres sekecil apa pun", "Tulis surat buat kamu 5 tahun lagi",
             "Catat 1 skill yang pelan-pelan naik", "Bilang 'aku cukup' depan cermin", "Journaling 10 menit tanpa HP", "List 3 perjuanganmu yang orang nggak tau",
             "Ganti 'harusnya aku…' jadi 'aku lagi…'", "Apresiasi 1 keputusanmu tahun ini", "Tempel foto momen kamu bangga", "Tulis 1 hal yang kamu syukuri hari ini"]
     },
-    "SM-040": { // Ketika Emosi Datang Meluap-luap
+    "SM-040": { // Sep · Ketika Emosi Datang Meluap-luap
         type: "catch", title: "TANGKAP RASA: BADAI EMOSI",
         goal: 30,
         emos: [
@@ -4068,7 +4069,7 @@ const SN_ACT = {
             { w: "Senang", v: "Simpan rasa ini di jurnalmu ya! ✨" }
         ]
     },
-    "SM-041": { // Suara Hati yang Terlalu Keras Menghakimi
+    "SM-041": { // Okt · Suara Hati yang Terlalu Keras Menghakimi
         type: "scramble", title: "SUSUN KATA: SUARA YANG LEMBUT",
         rounds: [
             { w: "LEMBUT", q: "Kalau sahabatmu salah, kamu ngomongnya gimana? Coba pakai nada itu ke dirimu sendiri." },
@@ -4078,59 +4079,61 @@ const SN_ACT = {
             { w: "BAIK", q: "Tulis 3 kata baik buat dirimu. Sekarang ya, bukan nanti." }
         ]
     },
-    "SM-042": { // Belajar Bilang Tidak
-        type: "ws", title: "CARI KATA: PAGAR DIRI",
-        words: ["BATAS", "TEGAS", "BERANI", "JUJUR", "RUANG", "DIRIKU"]
-    },
-    "SM-043": { // Melepaskan Genggaman yang Bikin Luka
-        type: "bingo", title: "BINGO: PELAN-PELAN DILEPAS",
-        items: ["Tulis 1 hal yang siap kamu lepas", "Sortir 1 barang yang udah nggak kepakai", "Unfollow yang udah nggak relate", "Tulis surat perpisahan (nggak usah dikirim)",
-            "Maafin 1 hal kecil hari ini", "Hapus 10 foto yang bikin berat", "Journaling: apa yang kugenggam terlalu erat?", "Napas 4-7-8 sebanyak 3x",
-            "Tulis 3 hal baik yang tetap tinggal", "Bikin playlist 'chapter baru'", "Rapihin 1 sudut kamar/meja", "Tulis: nggak semua harus kubawa",
-            "Cerita ke 1 orang yang kamu percaya", "Tandai 1 kebiasaan yang mau disudahi", "Peluk diri 10 detik, beneran", "Tutup bulan ini dengan 1 kata: lega"]
-    },
-    "SM-044": { // Berantakan Itu Manusiawi
-        type: "dash", title: "WORD DASH: NEMBUS HARI KUSUT",
+    "SM-042": { // Nov · Belajar Bilang Tidak
+        type: "dash", title: "WORD DASH: BERANI BILANG TIDAK",
         goal: 8,
-        words: ["Pelan", "Napas", "Bisa", "Urai", "Satu-satu"],
-        clouds: ["Kusut", "Kacau", "Numpuk", "Ribet"]
+        words: ["Tidak!", "Batas", "Berani", "Jujur", "Cukup"],
+        clouds: ["Ga enak…", "Iya deh", "Sungkan", "Nanti aja"]
     },
-    "SM-045": { // Kesepian di Keramaian
-        type: "scramble", title: "SUSUN KATA: PELAN-PELAN MENDEKAT",
-        rounds: [
-            { w: "HADIR", q: "Siapa yang terakhir bikin kamu ngerasa beneran didengar?" },
-            { w: "SAPA", q: "Kirim 1 pesan singkat ke teman lama hari ini, yuk." },
-            { w: "PELUK", q: "Kapan terakhir kamu minta bantuan? Kenapa rasanya berat ya?" },
-            { w: "DENGAR", q: "Apa yang pengen banget kamu ceritain tapi belum sempat?" },
-            { w: "TEMAN", q: "Tulis nama 3 orang yang aman buat jadi tempat cerita." }
+    "SM-043": { // Des · Melepaskan Genggaman yang Bikin Luka
+        type: "ws", title: "CARI KATA: PELAN-PELAN DILEPAS",
+        words: ["LEPAS", "IKHLAS", "RELA", "RINGAN", "LEGA", "BARU"]
+    },
+    "SM-044": { // Jan · Berantakan Itu Manusiawi
+        type: "bingo", title: "BINGO: KUSUT JUGA NGGAK APA-APA",
+        items: ["Rapihin 1 sudut kecil aja", "Tulis 3 hal yang udah beres", "Maklumin 1 rencana yang meleset", "Journaling tanpa mikirin rapi",
+            "Coret-coret bebas 1 halaman penuh", "Tulis: berantakan itu proses", "Peluk diri 10 detik", "Bikin to-do cuma 3 biji",
+            "Selesain 1 hal PALING kecil dulu", "Cerita kusutmu ke 1 orang", "Napas 4-7-8 sebanyak 3x", "Tunda 1 hal tanpa rasa bersalah",
+            "Tulis 1 hal yang tetap jalan walau kacau", "Foto meja berantakanmu, tempel di jurnal", "Tidur cukup malam ini", "Tulis 1 kata buat hari ini"]
+    },
+    "SM-045": { // Feb · Kesepian di Keramaian
+        type: "catch", title: "TANGKAP RASA: SEPI DI TENGAH RAME",
+        goal: 30,
+        emos: [
+            { w: "Sepi", v: "Rame bukan jaminan — rasamu valid 💙" },
+            { w: "Rindu", v: "Kangen itu tanda pernah ada yang hangat 🕯️" },
+            { w: "Canggung", v: "Nggak semua obrolan harus dalem kok 🌱" },
+            { w: "Sendiri", v: "Sendiri bukan berarti sendirian selamanya 🤍" },
+            { w: "Hampa", v: "Pelan-pelan isi lagi, satu cerita sehari 📖" },
+            { w: "Hangat", v: "Nah! Simpan rasa ini, bagi ke Balai yuk ✨" }
         ]
     },
-    "SM-046": { // Memaafkan Versi Diri yang Dulu
-        type: "ws", title: "CARI KATA: BERDAMAI",
-        words: ["MAAF", "TUMBUH", "IKHLAS", "LEMBUT", "BELAJAR", "BARU"]
-    },
-    "SM-047": { // Merayakan Kemenangan Kecil
-        type: "bingo", title: "BINGO: PESTA KECIL-KECILAN",
-        items: ["Bangun tanpa snooze — rayain!", "Catat 3 win kecil hari ini", "Traktir diri minuman favorit", "Tempel stiker bintang di jurnal",
-            "Screenshot chat yang bikin senyum", "Selesaiin 1 to-do yang ketunda", "Bilang 'good job' ke diri sendiri", "Foto langit hari ini",
-            "Tulis 1 hal yang dulu belum bisa, sekarang bisa", "Kasih tau teman soal win kecilmu", "Jalan kaki 10 menit tanpa tujuan", "Bikin halaman 'jar of wins'",
-            "Rayain nyelesaiin buku/episode", "Makan enak buat diri sendiri", "Tidur sebelum jam 11", "Tulis terima kasih buat tubuhmu"]
-    },
-    "SM-048": { // Rasa Cemas yang Suka Bohong
-        type: "dash", title: "WORD DASH: NEMBUS AWAN CEMAS",
-        goal: 8,
-        words: ["Tenang", "Aman", "Nyata", "Pelan", "Bisa"],
-        clouds: ["Gimana?", "Panik", "Takut", "Overthink"]
-    },
-    "SM-049": { // Pelukan Hangat untuk Diri Sendiri
-        type: "scramble", title: "SUSUN KATA: PELUK DIRI",
+    "SM-046": { // Mar · Memaafkan Versi Diri yang Dulu
+        type: "scramble", title: "SUSUN KATA: BERDAMAI",
         rounds: [
-            { w: "SAYANG", q: "Tulis 1 kalimat sayang buat tubuhmu yang udah kerja keras." },
-            { w: "BANGGA", q: "Apa 1 hal tahun ini yang diam-diam bikin kamu bangga?" },
-            { w: "TERIMA", q: "Bagian mana dari dirimu yang mau kamu terima apa adanya?" },
-            { w: "CUKUP", q: "Selesaikan kalimat ini: 'Aku udah cukup, walaupun…'" },
-            { w: "PULANG", q: "Di mana, atau sama siapa, kamu ngerasa paling jadi diri sendiri?" }
+            { w: "MAAF", q: "Tulis 1 kalimat maaf buat kamu yang dulu — dia udah berusaha sebisanya." },
+            { w: "TUMBUH", q: "Keputusan 'bodoh' mana yang ternyata ngajarin kamu paling banyak?" },
+            { w: "IKHLAS", q: "Apa 1 hal dari masa lalu yang siap kamu relakan bulan ini?" },
+            { w: "LEMBUT", q: "Kalau ketemu dirimu 5 tahun lalu, kamu mau meluk atau marahin dia?" },
+            { w: "BARU", q: "Versi kamu sekarang beda apa dari yang dulu? Tulis 3 buktinya." }
         ]
+    },
+    "SM-047": { // Apr · Merayakan Kemenangan Kecil
+        type: "dash", title: "WORD DASH: KEJAR CONFETTI",
+        goal: 8,
+        words: ["Yeay!", "Bangga", "Bisa", "Progres", "Win!"],
+        clouds: ["Gitu doang?", "B aja", "Kurang", "Belum sukses"]
+    },
+    "SM-048": { // Mei · Rasa Cemas yang Suka Bohong
+        type: "ws", title: "CARI KATA: BALIK KE NYATA",
+        words: ["NYATA", "AMAN", "FAKTA", "FOKUS", "PIJAK", "KINI"]
+    },
+    "SM-049": { // Jun · Pelukan Hangat untuk Diri Sendiri
+        type: "bingo", title: "BINGO: PELUK DIRI SENDIRI",
+        items: ["Peluk diri 10 detik, beneran", "Tulis 3 hal yang kamu suka dari dirimu", "Mandi/skincare santai tanpa buru-buru", "Tidur siang tanpa rasa bersalah",
+            "Masak/beli makanan favoritmu", "Tulis terima kasih buat tubuhmu", "Bilang 'aku sayang kamu' ke cermin", "Jalan santai 15 menit",
+            "Pakai baju yang bikin pede", "Journaling: aku bangga karena…", "Matiin notif 1 jam buat me-time", "Dengerin lagu yang nenangin",
+            "Tulis surat cinta buat diri sendiri", "Rayain 1 hal kecil hari ini", "Minum air cukup seharian", "Tempel foto kamu tersenyum di jurnal"]
     }
 };
 
