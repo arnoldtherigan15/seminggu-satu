@@ -2608,7 +2608,10 @@
         .psp-cover-stk { width: 62px; transform: rotate(-8deg); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .3)); }
         .psp-cover-hint { font-size: .62rem; font-weight: 700; color: rgba(255, 255, 255, .75); }
 
-        .psp-book { position: relative; width: 100%; height: 352px; perspective: 1600px; margin-top: 8px; }
+        /* perspektif 3D CUMA pas animasi flip — kalau nyala terus, semua teks/stiker
+           di buku dirender lewat jalur 3D dan kena rasterisasi (blur, web & iOS) */
+        .psp-book { position: relative; width: 100%; height: 352px; margin-top: 8px; }
+        .psp-book.flip3d { perspective: 1600px; }
         .psp-book.nudge { animation: qbNudge .3s ease; }
         .psp-page, .psp-face { background-color: #fbf6ea; background-image: radial-gradient(rgba(16, 36, 94, .05) 1px, transparent 1.1px); background-size: 10px 10px; }
         .psp-page { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; }

@@ -1658,6 +1658,7 @@ function renderPassportBook(host) {
             return;
         }
         anim = true;
+        book.classList.add("flip3d"); // perspektif nyala cuma selama animasi
         playSfx("flip", 0.7);
         // Muka leaf yang nampilin halaman SEKARANG diisi lewat adopsi node (bukan
         // rebuild innerHTML) — rebuild maksa <img> stiker decode ulang = kedip/zoom.
@@ -1689,6 +1690,7 @@ function renderPassportBook(host) {
                 $("pspNext").style.opacity = j === SP.length - 1 ? ".35" : "1";
                 leaf.style.opacity = "0"; // JANGAN display:none (iOS bongkar layer, jank) / visibility (tekstur basi)
                 leaf.style.pointerEvents = "none";
+                book.classList.remove("flip3d"); // balik render datar -> teks tajam
                 anim = false;
             }, 680);
         }));
@@ -1716,6 +1718,7 @@ function renderPassportBook(host) {
     function openBook() {
         if (opened) return;
         opened = true;
+        book.classList.add("flip3d");
         playSfx("flip", 0.7);
         leftP.style.visibility = "";
         // masuk mode 3D dulu di 0° (tanpa transisi), commit, baru swing 180°
@@ -1731,6 +1734,7 @@ function renderPassportBook(host) {
                 while (back.firstChild) leftP.appendChild(back.firstChild);
                 leaf.style.opacity = "0";
                 leaf.style.pointerEvents = "none";
+                book.classList.remove("flip3d");
                 $("pspNav").style.visibility = "";
                 anim = false;
             }, 930);
