@@ -646,35 +646,13 @@
         })();
 
         const listEl = document.getElementById('workshopList');
-        // GOOGLE_SCRIPT_URL is loaded from env.js
+        // SUPABASE_URL/SUPABASE_ANON_KEY dari env.js
 
-        // --- Helper: Fetch JSONP ---
-        function fetchJSONP(url, callbackPrefix) {
-            return new Promise((resolve, reject) => {
-                const callbackName = callbackPrefix + '_' + Date.now();
-                const script = document.createElement('script');
-                const timeout = setTimeout(() => {
-                    reject(new Error("Request timeout"));
-                    delete window[callbackName];
-                    script.remove();
-                }, 15000);
-
-                window[callbackName] = function (data) {
-                    clearTimeout(timeout);
-                    resolve(data);
-                    delete window[callbackName];
-                    script.remove();
-                };
-
-                script.src = `${url}?callback=${callbackName}`;
-                script.onerror = () => {
-                    clearTimeout(timeout);
-                    reject(new Error("Failed to load script"));
-                    delete window[callbackName];
-                    script.remove();
-                };
-                document.body.appendChild(script);
-            });
+        // --- Helper: cek kuota tiap workshop (Edge Function workshop-counts) ---
+        function fetchWorkshopCounts() {
+            return fetch(`${SUPABASE_URL}/functions/v1/workshop-counts`, {
+                headers: { apikey: SUPABASE_ANON_KEY }
+            }).then(res => res.json());
         }
 
         // Render kartu workshop dari config. counts = jumlah pendaftar (buat status "penuh").
@@ -840,7 +818,7 @@
 
             // 2) Ambil kuota di background, lalu render ulang dgn status final (tombol aktif)
             try {
-                const res = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota');
+                const res = await fetchWorkshopCounts();
                 _lastCounts = (res && typeof res === 'object') ? res : {};
             } catch (err) {
                 console.error("Gagal mengambil kuota:", err);

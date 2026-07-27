@@ -1,7 +1,6 @@
 // ============================================================
 //  Member Hub (/member) — login/daftar akun + portal
 // ============================================================
-const GS = (typeof GOOGLE_SCRIPT_URL !== "undefined") ? GOOGLE_SCRIPT_URL : "";
 const TOKEN_KEY = "ss_member_token";
 const QUEST_WA_GROUP = "https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?s=cl&p=i&ilr=0&amv=0"; // grup WA buat kirim spread challenge
 const ADMIN_WA = "6281214574782"; // WA Arnold buat claim voucher ulang tahun
@@ -40,21 +39,46 @@ function normWa(v) {
     return d;
 }
 
-function fetchJSONP(url, cbPrefix, timeoutMs) {
-    return new Promise((resolve, reject) => {
-        const cb = cbPrefix + "_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
-        const s = document.createElement("script");
-        const to = setTimeout(() => { reject(new Error("timeout")); done(); }, timeoutMs || 15000);
-        function done() { try { delete window[cb]; } catch (e) { } if (s.parentNode) s.parentNode.removeChild(s); }
-        window[cb] = (data) => { clearTimeout(to); resolve(data); done(); };
-        s.src = url + (url.indexOf("?") >= 0 ? "&" : "?") + "callback=" + cb + "&_=" + Date.now();
-        s.onerror = () => { clearTimeout(to); reject(new Error("network")); done(); };
-        document.body.appendChild(s);
-    });
+function fnGet(name, qs, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
+    return fetch(`${SUPABASE_URL}/functions/v1/${name}${qs ? "?" + qs : ""}`, {
+        headers: { apikey: SUPABASE_ANON_KEY },
+        signal: controller.signal
+    }).then(res => { clearTimeout(timer); return res.json(); })
+      .catch(err => { clearTimeout(timer); throw err; });
+}
+function restGet(path, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
+    return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY },
+        signal: controller.signal
+    }).then(res => { clearTimeout(timer); return res.json(); })
+      .catch(err => { clearTimeout(timer); throw err; });
 }
 
+const MEMBER_ACTION_FN = {
+    memberCheckin: "member-checkin",
+    memberEditQuest: "member-edit-quest",
+    memberLogin: "member-login",
+    memberPostBoard: "member-post-board",
+    memberPostSuggestion: "member-post-suggestion",
+    memberSession: "member-session",
+    memberSetMood: "member-set-mood",
+    memberSetup: "member-setup",
+    memberSubmitQuest: "member-submit-quest",
+    memberToggleLike: "member-toggle-like",
+    memberUpdateProfile: "member-update-profile",
+    memberVoteSuggestion: "member-vote-suggestion"
+};
 async function apiPost(payload) {
-    const res = await fetch(GS, { method: "POST", body: JSON.stringify(payload) });
+    const fn = MEMBER_ACTION_FN[payload.action];
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/${fn}`, {
+        method: "POST",
+        headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
     return await res.json();
 }
 
@@ -145,12 +169,12 @@ function resetToWa() {
 async function stepCheckWa() {
     const wa = normWa($("waInput").value);
     if (!wa || wa.length < 8) { setMsg("Nomor WhatsApp-nya kurang lengkap ya 🙏", true); return; }
-    if (!GS) { setMsg("Konfigurasi belum siap, refresh dulu ya.", true); return; }
+    if (!SUPABASE_URL) { setMsg("Konfigurasi belum siap, refresh dulu ya.", true); return; }
     _wa = wa;
     const btn = $("nextBtn"); btn.disabled = true; setMsg("Mengecek…");
     showBusy("Mengecek nomor kamu…");
     try {
-        const r = await fetchJSONP(GS + "?page=memberStatus&wa=" + encodeURIComponent(wa), "ms", 20000);
+        const r = await fnGet("member-status", "wa=" + encodeURIComponent(wa), 20000);
         if (!r || !r.isMember) {
             setMsg("Nomor ini belum terdaftar sebagai warga 🌱 Yuk ikut salah satu event kami dulu!", true);
             return;
@@ -377,8 +401,8 @@ async function loadEvents() {
     let counts = {}, registered = {};
     try {
         const [c, r] = await Promise.all([
-            fetchJSONP(GS, "cnt", 12000).catch(() => ({})),
-            fetchJSONP(GS + "?page=memberEvents&wa=" + encodeURIComponent(_profile.wa), "mev", 15000).catch(() => ({}))
+            fnGet("workshop-counts", "", 12000).catch(() => ({})),
+            fnGet("member-events", "wa=" + encodeURIComponent(_profile.wa), 15000).catch(() => ({}))
         ]);
         counts = c || {}; registered = (r && r.registered) || {};
         _evRegistered = registered; // simpan buat bubble pintar Mochi (skip event yg udah didaftar)
@@ -520,8 +544,16 @@ let _questCaptions = {};    // { challengeId: caption }
 let _questView = "book";    // "book" | "grid" | "list"
 let _qbRefresh = null;      // refresh halaman buku yg lagi kebuka (diisi renderQuestBook)
 
+// Link share Drive ("/file/d/<id>/view...") nggak bisa langsung dipakai <img src>
+// -- ubah ke format lh3 yang embeddable. URL yang udah bener (atau non-Drive) lolos apa adanya.
+function driveThumb(url) {
+    var s = String(url || "");
+    if (!/drive\.google|docs\.google|googleusercontent/.test(s)) return s;
+    var m = s.match(/\/d\/([-\w]{20,})/) || s.match(/[?&]id=([-\w]{20,})/);
+    return m ? ("https://lh3.googleusercontent.com/d/" + m[1]) : s;
+}
 function questImg(q) {
-    return q.image ? (/^https?:\/\//.test(q.image) ? q.image : "../" + q.image) : "../images/mochi_maskot_sm.png";
+    return q.image ? (/^https?:\/\//.test(q.image) ? driveThumb(q.image) : "../" + q.image) : "../images/mochi_maskot_sm.png";
 }
 function questPoints(q) { return (q.points && q.points > 0) ? q.points : 50; }
 function questCaption(q) { return "Halo semuaa! 🎉 Ini spread challenge" + (q.title ? ' "' + q.title + '"' : "") + " journaling-ku ✨ #SemingguSatu"; }
@@ -579,11 +611,11 @@ async function loadQuests() {
     const pane = $("pane-quest");
     pane.innerHTML = skeletonQuest();
     try {
-        const [c, s] = await Promise.all([
-            fetchJSONP(GS + "?page=challenges", "chl", 15000),
-            fetchJSONP(GS + "?page=memberQuests&wa=" + encodeURIComponent(_profile.wa), "mq", 15000)
+        const [challengeRows, s] = await Promise.all([
+            restGet("challenges?active=eq.true&select=id,title,theme,description,image,points", 15000),
+            fnGet("member-quests", "wa=" + encodeURIComponent(_profile.wa), 15000)
         ]);
-        _questChallenges = (c && c.challenges) || [];
+        _questChallenges = challengeRows || [];
         _questSubmitted = (s && s.submitted) || [];
         _questPhotos = (s && s.photos) || {};
         _questCaptions = (s && s.captions) || {};
@@ -1040,7 +1072,7 @@ async function loadLeaderboard() {
     loading.style.display = "none"; content.innerHTML = skeletonRank();
     let data = { top: [], me: null };
     try {
-        data = await fetchJSONP(GS + "?page=leaderboard&wa=" + encodeURIComponent(_profile.wa), "lb", 20000);
+        data = await fnGet("leaderboard", "wa=" + encodeURIComponent(_profile.wa), 20000);
     } catch (e) {
         loading.style.display = "none";
         _lbLoaded = false;
@@ -2499,7 +2531,7 @@ async function loadLoyalty() {
     const loading = $("loyaltyLoading"), content = $("loyaltyContent");
     loading.style.display = "none"; content.innerHTML = skeletonLoyalty();
     try {
-        const d = await fetchJSONP(GS + "?page=loyalty&wa=" + encodeURIComponent(_profile.wa), "loy", 20000);
+        const d = await fnGet("loyalty", "wa=" + encodeURIComponent(_profile.wa), 20000);
         loading.style.display = "none";
         if (!d || !d.found) {
             content.innerHTML = '<div class="placeholder"><div class="em">🌱</div><h3>Belum ada riwayat</h3><p>Yuk ikut event pertamamu!</p></div>';
@@ -2719,7 +2751,7 @@ function pushTagCheckin(weekKey) {
 (async function init() {
     let token = "";
     try { token = localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { }
-    if (!token || !GS) { showAuth(); return; }   // nggak ada sesi -> langsung form login
+    if (!token || !SUPABASE_URL) { showAuth(); return; }   // nggak ada sesi -> langsung form login
     // Ada token -> optimis: langsung tampilkan shell dashboard (menu + skeleton),
     // verifikasi sesi jalan di belakang — nggak ada blocker "cek sesi" lagi
     hideBoot();
@@ -4360,7 +4392,7 @@ async function loadGallery() {
     const pane = $("pane-gallery");
     pane.innerHTML = skeletonGallery();
     try {
-        const g = await fetchJSONP(GS + "?page=questGallery&wa=" + encodeURIComponent(_profile.wa), "gal", 20000);
+        const g = await fnGet("quest-gallery", "wa=" + encodeURIComponent(_profile.wa), 20000);
         _galleryItems = (g && g.items) || [];
     } catch (e) {
         _galleryLoaded = false;
@@ -5923,7 +5955,7 @@ function sgCatInfo(k) { return SG_CATS.find(c => c.k === k) || SG_CATS[2]; }
 
 async function loadSuggestions(force) {
     if (_sgData && !force) return _sgData;
-    _sgData = await fetchJSONP(GS + "?page=suggestions&wa=" + encodeURIComponent(_profile.wa), "sug", 15000);
+    _sgData = await fnGet("suggestions", "wa=" + encodeURIComponent(_profile.wa), 15000);
     if (!_sgData || !Array.isArray(_sgData.items)) _sgData = { items: [] };
     if (typeof _sgData.left !== "number") _sgData.left = 0;
     return _sgData;
@@ -6027,7 +6059,7 @@ async function fillBalaiWeather() {
     const slot = $("balaiWeatherSlot");
     if (!slot) return;
     try {
-        if (!_bwData) _bwData = await fetchJSONP(GS + "?page=balaiWeather", "bw", 12000);
+        if (!_bwData) _bwData = await fnGet("balai-weather", "", 12000);
     } catch (e) { return; } // gagal ya udah, strip-nya nggak muncul aja
     if (!_bwData || !_bwData.dominant || (_bwData.total || 0) < 3) return; // data kurang -> jangan sok tau
     const mo = MOODS.find(x => x.k === _bwData.dominant) || MOODS[0];
@@ -6131,7 +6163,7 @@ async function loadBoard(force) {
             skEl("width:100%;height:118px;border-radius:14px;margin-bottom:16px;");
     }
     try {
-        _boardData = await fetchJSONP(GS + "?page=board&wa=" + encodeURIComponent(_profile.wa), "brd", 15000);
+        _boardData = await fnGet("board", "wa=" + encodeURIComponent(_profile.wa), 15000);
     } catch (e) { _boardData = null; }
     // normalisasi (server lama / respons aneh): items harus array, left harus angka
     if (!_boardData || !Array.isArray(_boardData.items)) _boardData = { items: [] };

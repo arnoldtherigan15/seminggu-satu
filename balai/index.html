@@ -143,16 +143,16 @@
     </div>
 
     <script>
-        // JSONP ringan (fetch biasa kena CORS di Apps Script)
-        function jsonp(url, cb) {
-            var name = "cb" + Date.now().toString(36);
-            var t = setTimeout(function () { cb(null); cleanup(); }, 15000);
-            function cleanup() { delete window[name]; if (s.parentNode) s.parentNode.removeChild(s); clearTimeout(t); }
-            window[name] = function (data) { cb(data); cleanup(); };
-            var s = document.createElement("script");
-            s.src = url + (url.indexOf("?") >= 0 ? "&" : "?") + "callback=" + name;
-            s.onerror = function () { cb(null); cleanup(); };
-            document.body.appendChild(s);
+        // Panggil Edge Function (Supabase, CORS asli -- ganti JSONP lama)
+        function fnGet(name, qs, cb) {
+            var controller = new AbortController();
+            var timer = setTimeout(function () { controller.abort(); }, 15000);
+            fetch(SUPABASE_URL + "/functions/v1/" + name + (qs ? "?" + qs : ""), {
+                headers: { apikey: SUPABASE_ANON_KEY },
+                signal: controller.signal
+            }).then(function (res) { return res.json(); })
+              .then(function (data) { clearTimeout(timer); cb(data); })
+              .catch(function () { clearTimeout(timer); cb(null); });
         }
         function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
 
@@ -181,7 +181,7 @@
         if (wid) {
             document.querySelector(".hero").classList.add("hidden");
             document.getElementById("loading").innerHTML = skeletonProfile();
-            jsonp(GOOGLE_SCRIPT_URL + "?page=publicProfile&id=" + wid, function (d) {
+            fnGet("public-profile", "id=" + wid, function (d) {
                 document.getElementById("loading").classList.add("hidden");
                 var pf = document.getElementById("profile");
                 if (!d) { document.getElementById("err").classList.remove("hidden"); return; }
@@ -221,7 +221,7 @@
             // showcase di bawah nggak usah di-fetch
         } else {
         document.getElementById("loading").innerHTML = skeletonShowcase();
-        jsonp(GOOGLE_SCRIPT_URL + "?page=showcase", function (d) {
+        fnGet("showcase", "", function (d) {
             document.getElementById("loading").classList.add("hidden");
             if (!d) { document.getElementById("err").classList.remove("hidden"); return; }
             document.getElementById("content").classList.remove("hidden");

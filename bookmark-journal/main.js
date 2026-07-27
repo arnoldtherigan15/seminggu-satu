@@ -3,6 +3,25 @@
 //  (Seminggu Satu by Arnold)
 // ============================================================
 
+// --- Autofill nomor WA kalau lagi login di Balai Warga (session token
+// dibaca dari localStorage, satu domain jadi kebaca dari sini juga) ---
+(function autofillWaFromMemberSession() {
+    var token = localStorage.getItem("ss_member_token");
+    if (!token || typeof SUPABASE_URL === "undefined" || !SUPABASE_URL) return;
+    fetch(`${SUPABASE_URL}/functions/v1/member-session`, {
+        method: "POST",
+        headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token })
+    }).then(function (res) { return res.json(); })
+      .then(function (r) {
+          var el = document.getElementById("whatsapp");
+          if (el && !el.value && r && r.status === "success" && r.wa) {
+              el.value = r.wa.replace(/^62/, "0");
+          }
+      })
+      .catch(function () { /* diamkan, biarin user isi manual */ });
+})();
+
 // Config = sumber tunggal dari server (cache/live). Bisa null di kunjungan pertama
 // (cache kosong) -> jangan crash; placeholder "Memuat..." + listener 'workshops:updated'.
 let _workshopData = getWorkshopById("bookmark-journal");
@@ -81,32 +100,15 @@ function hideBlockerLoader() {
     if (blocker) blocker.classList.remove('visible');
 }
 
-function fetchJSONP(url, callbackPrefix, timeoutMs) {
-    return new Promise((resolve, reject) => {
-        const callbackName = callbackPrefix + '_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
-        const script = document.createElement('script');
-        const timeout = setTimeout(() => {
-            reject(new Error("Request timeout"));
-            delete window[callbackName];
-            script.remove();
-        }, timeoutMs || 15000);
-
-        window[callbackName] = function (data) {
-            clearTimeout(timeout);
-            resolve(data);
-            delete window[callbackName];
-            script.remove();
-        };
-
-        script.src = `${url}?callback=${callbackName}`;
-        script.onerror = () => {
-            clearTimeout(timeout);
-            reject(new Error("Failed to load script"));
-            delete window[callbackName];
-            script.remove();
-        };
-        document.body.appendChild(script);
-    });
+// --- Helper: cek kuota tiap workshop (Edge Function workshop-counts) ---
+function fetchWorkshopCounts(timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
+    return fetch(`${SUPABASE_URL}/functions/v1/workshop-counts`, {
+        headers: { apikey: SUPABASE_ANON_KEY },
+        signal: controller.signal
+    }).then(res => { clearTimeout(timer); return res.json(); })
+      .catch(err => { clearTimeout(timer); throw err; });
 }
 
 async function checkQuota() {
@@ -115,7 +117,7 @@ async function checkQuota() {
     let counts = null;
     for (let attempt = 1; attempt <= 2 && !counts; attempt++) {
         try {
-            counts = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handleQuota', 8000);
+            counts = await fetchWorkshopCounts(8000);
         } catch (err) {
             console.error(`Cek kuota gagal (percobaan ${attempt}/2):`, err);
         }
@@ -329,7 +331,7 @@ form.addEventListener('submit', async (e) => {
     payload.workshopType = 'bookmark-journal';
 
     try {
-        const counts = await fetchJSONP(GOOGLE_SCRIPT_URL, 'handlePreSubmit');
+        const counts = await fetchWorkshopCounts();
         const currentCount = counts['bookmark-journal'] || 0;
         const maxQuota = _workshopData.maxQuota || 9;
 
@@ -348,8 +350,9 @@ form.addEventListener('submit', async (e) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000);
     try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/register-workshop`, {
             method: 'POST',
+            headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
             signal: controller.signal
         });

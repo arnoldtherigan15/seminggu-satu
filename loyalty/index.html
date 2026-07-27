@@ -887,7 +887,6 @@
     </div>
 
     <script>
-        var GS = (typeof GOOGLE_SCRIPT_URL !== "undefined") ? GOOGLE_SCRIPT_URL : "";
         var lastData = null;
         // Datang dari portal member -> logo & tombol balik ke portal (bukan home publik),
         // dan input WA disembunyiin (nomornya udah kebawa dari sesi member)
@@ -916,30 +915,14 @@
             return d;
         }
 
-        function fetchJSONP(url, cbPrefix, timeoutMs) {
-            return new Promise(function (resolve, reject) {
-                var cb = cbPrefix + "_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
-                var s = document.createElement("script");
-                var to = setTimeout(function () {
-                    reject(new Error("timeout"));
-                    try { delete window[cb]; } catch (e) { }
-                    if (s.parentNode) s.parentNode.removeChild(s);
-                }, timeoutMs || 15000);
-                window[cb] = function (data) {
-                    clearTimeout(to);
-                    resolve(data);
-                    try { delete window[cb]; } catch (e) { }
-                    if (s.parentNode) s.parentNode.removeChild(s);
-                };
-                s.src = url + (url.indexOf("?") >= 0 ? "&" : "?") + "callback=" + cb + "&_=" + Date.now();
-                s.onerror = function () {
-                    clearTimeout(to);
-                    reject(new Error("network"));
-                    try { delete window[cb]; } catch (e) { }
-                    if (s.parentNode) s.parentNode.removeChild(s);
-                };
-                document.body.appendChild(s);
-            });
+        function fnGet(name, qs, timeoutMs) {
+            var controller = new AbortController();
+            var timer = setTimeout(function () { controller.abort(); }, timeoutMs || 15000);
+            return fetch(SUPABASE_URL + "/functions/v1/" + name + (qs ? "?" + qs : ""), {
+                headers: { apikey: SUPABASE_ANON_KEY },
+                signal: controller.signal
+            }).then(function (res) { clearTimeout(timer); return res.json(); })
+              .catch(function (err) { clearTimeout(timer); throw err; });
         }
 
         // Persona / tier (samain sama admin passport)
@@ -1132,7 +1115,7 @@
         async function doLookup(raw) {
             var wa = normWa(raw);
             if (!wa || wa.length < 8) { alert("Nomor WhatsApp-nya kurang lengkap ya 🙏"); return; }
-            if (!GS) { alert("Konfigurasi belum siap. Coba refresh halaman."); return; }
+            if (!SUPABASE_URL) { alert("Konfigurasi belum siap. Coba refresh halaman."); return; }
 
             var btn = document.getElementById("lookupBtn");
             var spinner = document.getElementById("spinner");
@@ -1143,7 +1126,7 @@
             spinner.style.display = "block";
 
             try {
-                var data = await fetchJSONP(GS + "?page=loyalty&wa=" + encodeURIComponent(wa), "loy", 20000);
+                var data = await fnGet("loyalty", "wa=" + encodeURIComponent(wa), 20000);
                 lastData = data;
                 renderResult(data);
             } catch (err) {

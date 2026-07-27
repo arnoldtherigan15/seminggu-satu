@@ -318,28 +318,17 @@
     </main>
 
     <script>
-        // --- JSONP helper ---
-        function fetchJSONP(url, callbackPrefix) {
-            return new Promise(function (resolve, reject) {
-                var cb = callbackPrefix + "_" + Math.floor(Math.random() * 1e9);
-                var timer = setTimeout(function () {
-                    cleanup();
-                    reject(new Error("timeout"));
-                }, 12000);
-                function cleanup() {
-                    clearTimeout(timer);
-                    try { delete window[cb]; } catch (e) { window[cb] = undefined; }
-                    if (s && s.parentNode) s.parentNode.removeChild(s);
-                }
-                window[cb] = function (data) { cleanup(); resolve(data); };
-                var s = document.createElement("script");
-                s.src = url + (url.indexOf("?") > -1 ? "&" : "?") + "callback=" + cb + "&_=" + Date.now();
-                s.onerror = function () { cleanup(); reject(new Error("network")); };
-                document.body.appendChild(s);
-            });
+        // --- REST helper (ganti JSONP) ---
+        function supaGet(path) {
+            return fetch(SUPABASE_URL + path, {
+                headers: { apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY }
+            }).then(function (res) { return res.json(); });
         }
-
-        var GS = (typeof GOOGLE_SCRIPT_URL !== "undefined") ? GOOGLE_SCRIPT_URL : "";
+        function fnGet(name) {
+            return fetch(SUPABASE_URL + "/functions/v1/" + name, {
+                headers: { apikey: SUPABASE_ANON_KEY }
+            }).then(function (res) { return res.json(); });
+        }
 
         // --- Render daftar event ---
         // counts: objek { workshopId: jumlahPendaftar } dari server
@@ -472,16 +461,18 @@
             // Workshop: render dari config (cache) dulu; status "Cek tiket…" (belum tahu penuh)
             rerenderWorkshops();
 
-            if (GS) {
+            if (typeof SUPABASE_URL !== "undefined" && SUPABASE_URL) {
                 // Refresh config (data workshop terbaru)
-                fetchJSONP(GS + "?page=config", "cfg")
-                    .then(function (data) {
+                supaGet("/rest/v1/app_config?key=eq.WORKSHOPS_JSON&select=value")
+                    .then(function (rows) {
+                        var raw = rows && rows[0] && rows[0].value;
+                        var data = raw ? JSON.parse(raw) : null;
                         if (Array.isArray(data) && data.length) { _workshops = data; rerenderWorkshops(); }
                     })
                     .catch(function () { /* pakai cache */ });
 
                 // Ambil jumlah pendaftar -> tahu mana yang sold out
-                fetchJSONP(GS, "qta")
+                fnGet("workshop-counts")
                     .then(function (res) {
                         _counts = (res && typeof res === "object") ? res : {};
                         _countsReady = true;
@@ -494,7 +485,8 @@
 
                 // Link custom dari admin
                 try {
-                    var items = await fetchJSONP(GS + "?page=content&type=links", "lnk");
+                    var rows2 = await supaGet("/rest/v1/content_items?content_type=eq.links&select=id,title,extra");
+                    var items = (rows2 || []).map(function (r) { return Object.assign({ id: r.id, title: r.title }, r.extra || {}); });
                     renderLinks(items);
                 } catch (e) {
                     renderLinks([]);

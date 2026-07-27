@@ -3012,9 +3012,6 @@
           <button class="nav-btn" data-view="pendaftar">
             <span class="nav-icon">👥</span> Registrations
           </button>
-          <button class="nav-btn" data-view="loyalty">
-            <span class="nav-icon">🎁</span> Loyalty
-          </button>
           <button class="nav-btn" data-view="leads">
             <span class="nav-icon">🎯</span> Leads
           </button>
@@ -3088,7 +3085,6 @@
             </div>
             <button class="btn btn-sm" id="refreshBtn">🔄 Muat Ulang</button>
             <button class="btn btn-sm btn-ghost" id="newBatchBtn">＋ Batch Baru</button>
-            <button class="btn btn-sm btn-ghost" id="regBatchBtn">Daftarkan tab lama</button>
           </div>
           <div id="batchInfo" class="batch-info"></div>
 
@@ -3108,23 +3104,6 @@
             </div>
             <div class="empty" id="tableEmpty" style="display:none;">Belum ada data.</div>
           </div>
-        </div>
-
-        <!-- ===== VIEW: LOYALTY ===== -->
-        <div class="wrap view" id="viewLoyalty" style="display:none;">
-          <div class="loyalty-head">
-            <div>
-              <h2 class="loyalty-title">🎁 Loyalty Card</h2>
-              <p class="loyalty-sub">Kumpulkan <b>6 stamp</b> (6× ikut event) → dapat hadiah. Otomatis dari semua event.
-              </p>
-            </div>
-            <button class="btn btn-sm btn-ghost" id="loyaltyReload">🔄 Muat Ulang</button>
-          </div>
-          <div class="loyalty-stats" id="loyaltyStats"></div>
-          <div class="reg-tools">
-            <input type="text" id="loyaltySearch" placeholder="🔍 Cari nama / nomor WA..." />
-          </div>
-          <div id="loyaltyList"></div>
         </div>
 
         <!-- ===== VIEW: KEUANGAN ===== -->
@@ -3312,6 +3291,20 @@
           <div style="font-weight:800;margin:18px 0 10px;" id="memBdayTitle">🎂 Ultah bulan ini</div>
           <div id="memBirthdays"></div>
           <div style="height:14px;"></div>
+          <div class="acc" id="accLoyalty">
+            <button class="acc-head" type="button">
+              <span class="acc-title">🎁 Loyalty Card <span class="acc-count" id="loyaltyCount">…</span></span>
+              <span class="acc-chevron">▸</span>
+            </button>
+            <div class="acc-body">
+              <p class="hint" style="margin:0 0 10px;">Kumpulkan <b>6 stamp</b> (6× ikut event) → dapat hadiah. Otomatis dari semua event.</p>
+              <div class="loyalty-stats" id="loyaltyStats"></div>
+              <div class="reg-tools" style="margin-top:10px;">
+                <input type="text" id="loyaltySearch" placeholder="🔍 Cari nama / nomor WA..." />
+              </div>
+              <div id="loyaltyList"></div>
+            </div>
+          </div>
           <div class="acc" id="accActive">
             <button class="acc-head" type="button">
               <span class="acc-title">✅ Member aktif <span class="acc-count" id="memActiveCount">0</span></span>
@@ -3529,7 +3522,7 @@
     </div>
   </div>
 
-  <!-- Config global: GOOGLE_SCRIPT_URL & data statis (untuk seed awal editor) -->
+  <!-- Config global: SUPABASE_URL/SUPABASE_ANON_KEY & data statis (untuk seed awal editor) -->
   <script src="../env.js"></script>
   <script src="../workshop-config.js"></script>
   <script src="../gallery-config.js"></script>
@@ -3569,8 +3562,9 @@
           const controller = new AbortController();
           const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
           try {
-            const res = await fetch(GOOGLE_SCRIPT_URL, {
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-api`, {
               method: "POST",
+              headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
               body: JSON.stringify(Object.assign({ action }, payload)),
               signal: controller.signal
             });
@@ -3756,9 +3750,51 @@
       return `<td>${c === "" ? "-" : escapeHtml(c)}</td>`;
     }
 
+    // Kolom `registrations.extra` beda-beda per jenis workshop -- label ramah biar tabel
+    // tetap enak dibaca (dulu ini nama kolom sheet Google, sekarang key JSON).
+    const REG_FIELD_LABELS = {
+      created_at: "Timestamp", full_name: "Nama Lengkap", nickname: "Nickname", wa: "WhatsApp",
+      ig_username: "Instagram", consent: "Consent", payment_proof_url: "Bukti Bayar", attendance: "Hadir",
+      frame: "Frame", initial: "Inisial", frontCoverWord: "Kata di Cover",
+      colorCover: "Warna Cover", colorFlap: "Warna Flap", colorStrap: "Warna Tali/Strap",
+      charmUrl: "Foto Charm", coverType: "Tipe Cover (Bag)", flapType: "Tipe Flap (Bag)",
+      rantai: "Warna Rantai", pita: "Warna Pita"
+    };
+    // Ubah `items` (array objek registrations) jadi shape lama {headers, rows, ids} biar
+    // semua render/cari/export tabel yang udah ada nggak perlu ditulis ulang.
+    function itemsToSheetShape(items) {
+      const baseKeys = ["created_at", "full_name", "nickname", "wa", "ig_username", "consent"];
+      const extraKeySet = new Set();
+      let maxPhotos = 0;
+      items.forEach(it => {
+        Object.keys(it.extra || {}).forEach(k => { if (k !== "photos") extraKeySet.add(k); });
+        const p = (it.extra || {}).photos;
+        if (Array.isArray(p) && p.length > maxPhotos) maxPhotos = p.length;
+      });
+      const extraKeys = Array.from(extraKeySet);
+      const photoKeys = Array.from({ length: maxPhotos }, (_, i) => "photos." + i);
+      const allKeys = [...baseKeys, ...extraKeys, ...photoKeys, "payment_proof_url", "attendance"];
+      const headers = allKeys.map(k => k.indexOf("photos.") === 0
+        ? "Foto " + (parseInt(k.split(".")[1], 10) + 1)
+        : (REG_FIELD_LABELS[k] || k));
+      const rows = items.map(it => allKeys.map(k => {
+        if (k === "attendance") return it.attendance ? "Ya" : "";
+        if (k === "consent") return it.consent ? "Ya" : "Tidak";
+        if (k === "payment_proof_url") return it.payment_proof_url || "";
+        if (baseKeys.includes(k)) return it[k] ?? "";
+        if (k.indexOf("photos.") === 0) {
+          const idx = parseInt(k.split(".")[1], 10);
+          const p = (it.extra || {}).photos;
+          return (Array.isArray(p) && p[idx]) || "";
+        }
+        return (it.extra || {})[k] ?? "";
+      }));
+      return { headers, rows, ids: items.map(it => it.id) };
+    }
+
     async function loadRegistrations() {
       const workshop = document.getElementById("wsSelect").value;
-      const sheetName = document.getElementById("batchSelect").value; // batch terpilih (kosong = batch aktif)
+      const batchId = document.getElementById("batchSelect").value; // batch terpilih (kosong = batch aktif)
       const head = document.getElementById("tableHead");
       const body = document.getElementById("tableBody");
       const empty = document.getElementById("tableEmpty");
@@ -3768,23 +3804,25 @@
       document.getElementById("exportCsvBtn").disabled = true; // aktif lagi kalau data berhasil dimuat
 
       try {
-        const r = await api("getRegistrations", { token: getToken(), workshop, sheetName });
+        const r = await api("getRegistrations", { token: getToken(), workshop, batchId });
         if (r.status !== "success") return handleAuthError(r);
 
-        REG_DATA = { headers: r.headers || [], rows: r.rows || [], sheetName: r.sheetName || (sheetName || workshop) };
+        const shaped = itemsToSheetShape(r.items || []);
+        REG_DATA = { headers: shaped.headers, rows: shaped.rows, filename: workshop };
+
         document.getElementById("exportCsvBtn").disabled = REG_DATA.rows.length === 0;
 
-        // Sembunyikan kolom Timestamp dari tampilan (tetap ada di sheet & CSV)
-        const tsIdx = r.headers.findIndex(h => /timestamp|waktu/i.test(String(h)));
-        head.innerHTML = "<th>#</th>" + r.headers.map((h, i) => i === tsIdx ? "" : `<th>${h}</th>`).join("");
+        // Sembunyikan kolom Timestamp dari tampilan (tetap ada di CSV)
+        const tsIdx = shaped.headers.findIndex(h => /timestamp|waktu/i.test(String(h)));
+        head.innerHTML = "<th>#</th>" + shaped.headers.map((h, i) => i === tsIdx ? "" : `<th>${h}</th>`).join("");
 
-        if (!r.rows.length) {
+        if (!shaped.rows.length) {
           body.innerHTML = "";
           empty.style.display = "block";
           return;
         }
         empty.style.display = "none";
-        body.innerHTML = r.rows.map((row, i) => {
+        body.innerHTML = shaped.rows.map((row, i) => {
           const cells = row.map((c, idx) => idx === tsIdx ? "" : cellHtml(c)).join("");
           return `<tr><td>${i + 1}</td>${cells}</tr>`;
         }).join("");
@@ -3795,7 +3833,7 @@
     }
 
     // --- Cari & Export CSV (Registrations) ---
-    let REG_DATA = { headers: [], rows: [], sheetName: "" };
+    let REG_DATA = { headers: [], rows: [], filename: "" };
 
     function filterReg() {
       const q = (document.getElementById("regSearch").value || "").toLowerCase().trim();
@@ -3814,7 +3852,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = (REG_DATA.sheetName || "peserta") + ".csv";
+      a.download = (REG_DATA.filename || "peserta") + ".csv";
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
@@ -3840,7 +3878,6 @@
     document.getElementById("regSearch").addEventListener("input", filterReg);
     document.getElementById("exportCsvBtn").addEventListener("click", exportReg);
     document.getElementById("newBatchBtn").addEventListener("click", createNewBatch);
-    document.getElementById("regBatchBtn").addEventListener("click", registerOldBatch);
 
     // ---------- BATCH / VOLUME ----------
     async function loadBatches() {
@@ -3857,7 +3894,7 @@
           sel.innerHTML = `<option value="">(belum ada batch)</option>`;
         } else {
           sel.innerHTML = BATCHES.map(b =>
-            `<option value="${escapeHtml(b.sheetName)}">${escapeHtml(b.label)}${b.active ? " • AKTIF" : ""}</option>`
+            `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.active ? " • AKTIF" : ""}</option>`
           ).join("");
           const activeIdx = BATCHES.findIndex(b => b.active);
           if (activeIdx >= 0) sel.selectedIndex = activeIdx;
@@ -3871,8 +3908,8 @@
 
     function updateBatchInfo() {
       const info = document.getElementById("batchInfo");
-      const name = document.getElementById("batchSelect").value;
-      const b = BATCHES.find(x => x.sheetName === name);
+      const id = document.getElementById("batchSelect").value;
+      const b = BATCHES.find(x => x.id === id);
       if (!b) { info.innerHTML = ""; return; }
       if (b.active) {
         info.innerHTML = `<span class="badge">✅ Batch aktif — pendaftaran baru masuk ke sini</span>`;
@@ -3907,15 +3944,14 @@
     }
 
     async function renameBatch() {
-      const workshop = document.getElementById("wsSelect").value;
-      const sheetName = document.getElementById("batchSelect").value;
-      const b = BATCHES.find(x => x.sheetName === sheetName);
+      const batchId = document.getElementById("batchSelect").value;
+      const b = BATCHES.find(x => x.id === batchId);
       if (!b) { alert("Pilih batch dulu ya."); return; }
       const label = prompt("Nama/label batch (mis. 'Vol 2'):", b.label || "");
       if (label === null) return;
       const eventDate = prompt("Tanggal event (mis. '11 Juli 2026') — ini yang tampil di loyalty peserta:", b.eventDate || "");
       if (eventDate === null) return;
-      const r = await api("renameBatch", { token: getToken(), workshop, sheetName, label: (label || "").trim(), eventDate: (eventDate || "").trim() });
+      const r = await api("renameBatch", { token: getToken(), batchId, label: (label || "").trim(), eventDate: (eventDate || "").trim() });
       alert(r.message || r.status);
       if (r.status === "success") { await loadBatches(); loadSummary(); }
     }
@@ -3926,30 +3962,16 @@
       if (!label) return;
       const eventDate = prompt("Tanggal event (mis. '11 Juli 2026') — tampil di loyalty peserta:", "");
       if (eventDate === null) return;
-      const suggested = (workshop + "-" + label).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      const sheetName = prompt("Nama tab baru di Google Sheet (huruf/angka/strip):", suggested);
-      if (!sheetName) return;
-      const r = await api("newBatch", { token: getToken(), workshop, label, sheetName, eventDate: (eventDate || "").trim() });
+      const r = await api("newBatch", { token: getToken(), workshop, label, eventDate: (eventDate || "").trim() });
       alert(r.message || r.status);
       if (r.status === "success") { await loadBatches(); loadSummary(); }
     }
 
-    async function registerOldBatch() {
-      const workshop = document.getElementById("wsSelect").value;
-      const sheetName = prompt("Nama tab yang sudah ada (persis seperti di Google Sheet):");
-      if (!sheetName) return;
-      const label = prompt("Label untuk batch ini (mis. 'Vol 1 - 20 Juni'):", sheetName);
-      if (label === null) return;
-      const r = await api("registerBatch", { token: getToken(), workshop, sheetName, label });
-      alert(r.message || r.status);
-      if (r.status === "success") await loadBatches();
-    }
-
     async function setActiveBatch() {
       const workshop = document.getElementById("wsSelect").value;
-      const sheetName = document.getElementById("batchSelect").value;
+      const batchId = document.getElementById("batchSelect").value;
       if (!confirm("Jadikan batch ini AKTIF?\nPendaftaran baru akan masuk ke sini, dan batch lain jadi arsip.")) return;
-      const r = await api("setActiveBatch", { token: getToken(), workshop, sheetName });
+      const r = await api("setActiveBatch", { token: getToken(), workshop, batchId });
       alert(r.message || r.status);
       if (r.status === "success") { await loadBatches(); loadSummary(); }
     }
@@ -3964,8 +3986,9 @@
     function applyHash() {
       let h = (location.hash || "").replace(/^#/, "");
       if (!h) h = "overview";
+      if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "loyalty", "leads", "quest", "activity", "members"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "leads", "quest", "activity", "members"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1]);
     }
@@ -3981,7 +4004,6 @@
       document.getElementById("viewPrep").style.display = (view === "prep") ? "block" : "none";
       document.getElementById("viewConfig").style.display = (view === "config") ? "block" : "none";
       document.getElementById("viewKonten").style.display = (view === "konten") ? "block" : "none";
-      document.getElementById("viewLoyalty").style.display = (view === "loyalty") ? "block" : "none";
       document.getElementById("viewLeads").style.display = (view === "leads") ? "block" : "none";
       document.getElementById("viewQuest").style.display = (view === "quest") ? "block" : "none";
       document.getElementById("viewActivity").style.display = (view === "activity") ? "block" : "none";
@@ -3992,7 +4014,6 @@
       if (view === "prep") ensurePrep(event);
       if (view === "config") ensureConfigLoaded();
       if (view === "konten") ensureKontenLoaded();
-      if (view === "loyalty") ensureLoyalty();
       if (view === "leads") ensureLeads();
       if (view === "quest") ensureQuest();
       if (view === "activity") ensureActivity();
@@ -4041,7 +4062,7 @@
         if (r.status === "success") {
           FIN_BATCHES = r.batches || [];
           sel.innerHTML = GENERAL + FIN_BATCHES.map(b =>
-            `<option value="${escapeHtml(b.sheetName)}">${escapeHtml(b.label)} (${b.count} org)${b.active ? " • AKTIF" : ""}</option>`
+            `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)} (${b.count} org)${b.active ? " • AKTIF" : ""}</option>`
           ).join("");
         } else { FIN_BATCHES = []; handleAuthError(r); }
       } catch (e) { FIN_BATCHES = []; }
@@ -4058,7 +4079,7 @@
       // Jumlah pendaftar: general -> batch aktif; batch -> count batch itu
       let count;
       if (batchKey === "") count = SUMMARY[id] || 0;
-      else { const b = FIN_BATCHES.find(x => x.sheetName === batchKey); count = b ? b.count : 0; }
+      else { const b = FIN_BATCHES.find(x => x.id === batchKey); count = b ? b.count : 0; }
       document.getElementById("finCount").textContent = count;
 
       // Resolusi item modal: batch spesifik -> pakai; kalau belum ada -> warisi general
@@ -4692,9 +4713,9 @@
     let MEM_DATA = null; // respons getMembers, disimpan biar search nggak refetch
     async function ensureMembers() {
       if (!membersInit) {
-        document.getElementById("memReloadBtn").addEventListener("click", loadMembers);
+        document.getElementById("memReloadBtn").addEventListener("click", () => { loadMembers(); loadLoyalty(); });
         document.getElementById("memSearch").addEventListener("input", renderMembers);
-        ["accActive", "accInactive"].forEach(id => {
+        ["accLoyalty", "accActive", "accInactive"].forEach(id => {
           const acc = document.getElementById(id);
           acc.querySelector(".acc-head").addEventListener("click", () => acc.classList.toggle("open"));
         });
@@ -4707,6 +4728,7 @@
         membersInit = true;
       }
       loadMembers();
+      ensureLoyalty();
     }
 
     // ---- Kotak Pos Warga (aspirasi ber-vote) ----
@@ -4850,7 +4872,8 @@
       document.getElementById("memActive").innerHTML = accs.length
         ? accs.map(a => {
           const age = memAge(a.birthDate);
-          const sub = (a.birthDate ? "🎂 " + escapeHtml(memBdayShort(a.birthDate)) + (age !== null ? " · <b>" + age + " thn</b>" : "") + " · " : "") + "login terakhir: " + escapeHtml(a.lastLogin || "-");
+          const sub = "Total ikut: <b>" + (a.count || 0) + "x</b>" + (a.questCount ? " · " + a.questCount + " quest" : "") + " · " +
+            (a.birthDate ? "🎂 " + escapeHtml(memBdayShort(a.birthDate)) + (age !== null ? " · <b>" + age + " thn</b>" : "") + " · " : "") + "login terakhir: " + escapeHtml(a.lastLogin || "-");
           return memRow(a.nickname, sub, a.wa, "Chat", "chat", a.ig);
         }).join("")
         : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Belum ada yang daftar /warga.") + '</p>';
@@ -5715,8 +5738,9 @@
         if (r.status !== "success") { handleAuthError(r); return; }
         if (cnt) cnt.textContent = r.total || 0;
 
-        const headers = r.headers || [];
-        pesertaSheetName = r.sheetName || "";
+        const shaped = itemsToSheetShape(r.items || []);
+        const headers = shaped.headers;
+        pesertaRegIds = shaped.ids;
         const waIdx = headers.findIndex(h => /whats?app|nomor|\bwa\b|hp|telp/i.test(h));
         const igIdx = headers.findIndex(h => /instagram|\big\b/i.test(h));
         const hadirIdx = headers.findIndex(h => String(h) === "Hadir");
@@ -5729,14 +5753,14 @@
         const hideIdx = (idx) => idx === hadirIdx || idx === tsIdx; // Hadir & Timestamp disembunyikan dari tampilan
         const dataHeaders = headers.map((h, idx) => hideIdx(idx) ? null : `<th>${h}</th>`).filter(Boolean).join("");
         head.innerHTML = "<th>#</th><th>Absen</th>" + (hasAction ? "<th>Aksi</th>" : "") + dataHeaders;
-        if (!r.rows.length) { body.innerHTML = ""; empty.style.display = "block"; renderHadirSummary(0, 0); return; }
+        if (!shaped.rows.length) { body.innerHTML = ""; empty.style.display = "block"; renderHadirSummary(0, 0); return; }
         empty.style.display = "none";
 
         let hadirCount = 0;
-        body.innerHTML = r.rows.map((row, i) => {
+        body.innerHTML = shaped.rows.map((row, i) => {
           const isHadir = hadirIdx >= 0 && String(row[hadirIdx]) === "Ya";
           if (isHadir) hadirCount++;
-          const attCell = `<td><input type="checkbox" class="att-check" data-row="${i + 1}" ${isHadir ? "checked" : ""}/></td>`;
+          const attCell = `<td><input type="checkbox" class="att-check" data-id="${escapeHtml(pesertaRegIds[i])}" ${isHadir ? "checked" : ""}/></td>`;
           const cells = row.map((c, idx) => hideIdx(idx) ? null : cellHtml(c)).filter(x => x !== null).join("");
           let action = "";
           if (hasAction) {
@@ -5757,7 +5781,7 @@
           }
           return `<tr><td>${i + 1}</td>${attCell}${action}${cells}</tr>`;
         }).join("");
-        renderHadirSummary(hadirCount, r.rows.length);
+        renderHadirSummary(hadirCount, shaped.rows.length);
 
         // Wiring tombol aksi (delegasi)
         body.onclick = (e) => {
@@ -5782,22 +5806,22 @@
             return;
           }
           const att = e.target.closest(".att-check");
-          if (att) { setAttendance(att.dataset.row, att.checked, att); }
+          if (att) { setAttendance(att.dataset.id, att.checked, att); }
         };
       } catch (e) {
         body.innerHTML = `<tr><td style="padding:16px;color:#dc2626;">Gagal memuat.</td></tr>`;
       }
     }
 
-    let pesertaSheetName = "";
+    let pesertaRegIds = [];
     function renderHadirSummary(hadir, total) {
       const el = document.getElementById("hadirSummary");
       if (el) el.innerHTML = total ? `✅ Hadir: <b>${hadir}</b> / ${total} peserta` : "";
     }
-    async function setAttendance(row, hadir, el) {
+    async function setAttendance(registrationId, hadir, el) {
       if (el) el.disabled = true;
       try {
-        const r = await api("setAttendance", { token: getToken(), sheetName: pesertaSheetName, row: row, hadir: hadir });
+        const r = await api("setAttendance", { token: getToken(), registrationId, hadir });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal simpan kehadiran."); if (el) el.checked = !hadir; }
         else {
           const checks = document.querySelectorAll("#pesertaBody .att-check");
@@ -5907,7 +5931,6 @@
 
     async function ensureLoyalty() {
       if (!loyaltyInit) {
-        document.getElementById("loyaltyReload").addEventListener("click", loadLoyalty);
         document.getElementById("loyaltySearch").addEventListener("input", renderLoyalty);
         document.getElementById("loyaltyModalClose").addEventListener("click", closeLoyaltyModal);
         document.getElementById("loyaltyModal").addEventListener("click", (e) => { if (e.target.id === "loyaltyModal") closeLoyaltyModal(); });
@@ -5936,6 +5959,8 @@
       const q = (document.getElementById("loyaltySearch").value || "").toLowerCase().trim();
       const eligibleCount = LOYALTY.filter(m => m.eligible).length;
       const totalRewards = LOYALTY.reduce((s, m) => s + (m.claimed || 0), 0);
+      const lc = document.getElementById("loyaltyCount");
+      if (lc) lc.textContent = LOYALTY.length + (eligibleCount ? ` · 🎁 ${eligibleCount}` : "");
       document.getElementById("loyaltyStats").innerHTML =
         `<div class="stat"><div class="stat-n">${LOYALTY.length}</div><div class="stat-l">Total peserta</div></div>` +
         `<div class="stat"><div class="stat-n">${eligibleCount}</div><div class="stat-l">🎁 Siap tukar</div></div>` +
@@ -5943,7 +5968,7 @@
 
       const rows = LOYALTY.filter(m => {
         if (!q) return true;
-        return (m.name || "").toLowerCase().includes(q) || String(m.wa || "").toLowerCase().includes(q);
+        return (m.nickname || m.fullName || "").toLowerCase().includes(q) || String(m.wa || "").toLowerCase().includes(q);
       });
       const list = document.getElementById("loyaltyList");
       if (!rows.length) { list.innerHTML = `<p class="hint">Belum ada data peserta.</p>`; return; }
@@ -5957,7 +5982,7 @@
         return `<div class="loy-card${m.eligible ? " loy-reward" : ""}" data-key="${escapeHtml(m.key)}">
           <div class="loy-top">
             <div>
-              <div class="loy-name">${escapeHtml(m.name || "(tanpa nama)")} ${rewardBadge} ${noteBadge}</div>
+              <div class="loy-name">${escapeHtml(m.nickname || m.fullName || "(tanpa nama)")} ${rewardBadge} ${noteBadge}</div>
               <div class="loy-wa">${escapeHtml(m.wa || "-")} · Total ikut: <b>${m.count}</b>${m.claimed > 0 ? ` · 🎁 ${m.claimed}×` : ""}</div>
             </div>
             <div class="loy-count">${m.progress}/${LOYALTY_TARGET}</div>
@@ -5965,7 +5990,7 @@
           <div class="loy-stamps">${stamps}</div>
           <div class="loy-card-foot">
             <span class="loy-tap">Ketuk untuk detail →</span>
-            <button class="loy-send" type="button" data-wa="${escapeHtml(m.wa || "")}" data-name="${escapeHtml(m.name || "")}">💬 Kirim loyalty ke WA</button>
+            <button class="loy-send" type="button" data-wa="${escapeHtml(m.wa || "")}" data-name="${escapeHtml(m.nickname || m.fullName || "")}">💬 Kirim loyalty ke WA</button>
           </div>
         </div>`;
       }).join("");
@@ -6035,7 +6060,7 @@
         (m.claimed > 0 ? `<button class="btn btn-sm btn-ghost loy-unclaim">↩︎ Batal 1 penukaran</button>` : "");
 
       document.getElementById("loyaltyDetail").innerHTML = `
-        <h2 class="det-name">${escapeHtml(m.name || "(tanpa nama)")}</h2>
+        <h2 class="det-name">${escapeHtml(m.nickname || m.fullName || "(tanpa nama)")}</h2>
         <div class="loy-stamps det-stamps">${stamps}</div>
         <div class="det-prog">${m.progress}/${LOYALTY_TARGET} stamp · Total ikut <b>${m.count}</b> · 🎁 ditukar <b>${m.claimed}</b></div>
         ${actions ? `<div class="loy-actions">${actions}</div>` : ""}
@@ -6312,7 +6337,7 @@
         if (c > 0) {
           uniqueSet.add(m.key);
           // Peserta paling loyal yang aktif di periode ini (pakai total ikut keseluruhan)
-          if ((m.count || 0) > topUser.count) topUser = { name: m.name || "(tanpa nama)", count: m.count || 0 };
+          if ((m.count || 0) > topUser.count) topUser = { name: m.nickname || m.fullName || "(tanpa nama)", count: m.count || 0 };
         }
         if (mode !== "active") rewards += (m.claimed || 0);
       });
@@ -6387,7 +6412,7 @@
         ? top.map((m, i) => `
             <div class="rs-rank ${i === 0 ? "top" : ""}">
               <span class="n">${medals[i]}</span>
-              <span class="nm">${escapeHtml(m.name || "(tanpa nama)")}</span>
+              <span class="nm">${escapeHtml(m.nickname || m.fullName || "(tanpa nama)")}</span>
               <span class="ct">${m.count}×</span>
             </div>`).join("")
         : `<div class="rs-rank"><span class="nm">Belum ada data peserta</span></div>`;

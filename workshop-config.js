@@ -154,23 +154,25 @@ function formatDateIndo(dateStr) {
 
     var tries = 0;
     function refreshLive() {
-        // GOOGLE_SCRIPT_URL dari env.js — kalau belum ke-load, tunggu sebentar (maks ~4 dtk)
-        if (typeof GOOGLE_SCRIPT_URL === "undefined" || !GOOGLE_SCRIPT_URL) {
+        // SUPABASE_URL dari env.js — kalau belum ke-load, tunggu sebentar (maks ~4 dtk)
+        if (typeof SUPABASE_URL === "undefined" || !SUPABASE_URL) {
             if (tries++ < 40) { setTimeout(refreshLive, 100); return; }
             fail(); return;
         }
-        var cb = "_wsCfgCb_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
-        var s;
-        window[cb] = function (data) {
-            try { applyLive(data); }
-            finally { try { delete window[cb]; } catch (e) { } if (s && s.parentNode) s.parentNode.removeChild(s); }
-        };
-        s = document.createElement("script");
-        s.src = GOOGLE_SCRIPT_URL + "?page=config&callback=" + cb + "&_=" + Date.now();
-        s.onerror = function () { try { delete window[cb]; } catch (e) { } fail(); };
-        (document.head || document.documentElement).appendChild(s);
-        // Timeout: JSONP script tag kadang nggak trigger onerror kalau server hang.
-        setTimeout(function () { fail(); }, 12000);
+        // Timeout: kalau server hang, tetep gagal setelah 12 dtk.
+        var timer = setTimeout(function () { fail(); }, 12000);
+        fetch(SUPABASE_URL + "/rest/v1/app_config?key=eq.WORKSHOPS_JSON&select=value", {
+            headers: { apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY }
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (rows) {
+                clearTimeout(timer);
+                var raw = rows && rows[0] && rows[0].value;
+                var data = null;
+                try { data = raw ? JSON.parse(raw) : null; } catch (e) { data = null; }
+                applyLive(data);
+            })
+            .catch(function () { clearTimeout(timer); fail(); });
     }
     refreshLive();
 })();

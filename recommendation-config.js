@@ -186,20 +186,19 @@ const RECOMMENDATION_CATEGORIES = {
     } catch (e) { /* pakai statis */ }
 
     function refreshCache() {
-        if (typeof GOOGLE_SCRIPT_URL === "undefined" || !GOOGLE_SCRIPT_URL) return;
-        var cbName = "_recommendationCb_" + Date.now();
-        var s;
-        window[cbName] = function (data) {
-            try {
-                if (Array.isArray(data) && data.length) localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-            } catch (e) {}
-            try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
-            if (s && s.parentNode) s.parentNode.removeChild(s);
-        };
-        s = document.createElement("script");
-        s.src = GOOGLE_SCRIPT_URL + "?page=content&type=recommendation&callback=" + cbName;
-        s.onerror = function () { try { delete window[cbName]; } catch (e) {} };
-        document.body.appendChild(s);
+        if (typeof SUPABASE_URL === "undefined" || !SUPABASE_URL) return;
+        fetch(SUPABASE_URL + "/rest/v1/content_items?content_type=eq.recommendation&select=id,title,extra", {
+            headers: { apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY }
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (rows) {
+                if (!Array.isArray(rows) || !rows.length) return;
+                var data = rows.map(function (r) {
+                    return Object.assign({ id: r.id }, r.extra || {});
+                });
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+            })
+            .catch(function () {});
     }
     if (document.readyState === "complete") refreshCache();
     else window.addEventListener("load", refreshCache);

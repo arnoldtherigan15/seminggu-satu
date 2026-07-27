@@ -8,6 +8,25 @@ const MAX_SLOT = 6;
 let _member = null;      // { wa, nickname } setelah lolos gate
 let _configApplied = false;
 
+// --- Autofill nomor WA kalau lagi login di Balai Warga (session token
+// dibaca dari localStorage, satu domain jadi kebaca dari sini juga) ---
+(function autofillWaFromMemberSession() {
+    var token = localStorage.getItem("ss_member_token");
+    if (!token || typeof SUPABASE_URL === "undefined" || !SUPABASE_URL) return;
+    fetch(`${SUPABASE_URL}/functions/v1/member-session`, {
+        method: "POST",
+        headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token })
+    }).then(function (res) { return res.json(); })
+      .then(function (r) {
+          var el = document.getElementById("waInput");
+          if (el && !el.value && r && r.status === "success" && r.wa) {
+              el.value = r.wa.replace(/^62/, "0");
+          }
+      })
+      .catch(function () { /* diamkan, biarin user isi manual */ });
+})();
+
 // ---------- Utils ----------
 function showToast(message) {
     const c = document.getElementById('toastContainer');
@@ -30,17 +49,14 @@ function normWa(v) {
     return d;
 }
 
-function fetchJSONP(url, cbPrefix, timeoutMs) {
-    return new Promise((resolve, reject) => {
-        const cb = cbPrefix + "_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
-        const s = document.createElement("script");
-        const to = setTimeout(() => { reject(new Error("timeout")); cleanup(); }, timeoutMs || 15000);
-        function cleanup() { try { delete window[cb]; } catch (e) {} if (s.parentNode) s.parentNode.removeChild(s); }
-        window[cb] = (data) => { clearTimeout(to); resolve(data); cleanup(); };
-        s.src = url + (url.indexOf("?") >= 0 ? "&" : "?") + "callback=" + cb + "&_=" + Date.now();
-        s.onerror = () => { clearTimeout(to); reject(new Error("network")); cleanup(); };
-        document.body.appendChild(s);
-    });
+function fnGet(name, qs, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
+    return fetch(`${SUPABASE_URL}/functions/v1/${name}${qs ? "?" + qs : ""}`, {
+        headers: { apikey: SUPABASE_ANON_KEY },
+        signal: controller.signal
+    }).then(res => { clearTimeout(timer); return res.json(); })
+      .catch(err => { clearTimeout(timer); throw err; });
 }
 
 // ---------- Config sesi (dari server, via workshop-config.js) ----------
@@ -73,7 +89,7 @@ async function refreshSlot() {
     const el = document.getElementById("jdSlotText");
     const sub = document.getElementById("submitBtn");
     try {
-        const counts = await fetchJSONP(GOOGLE_SCRIPT_URL, "cnt", 10000);
+        const counts = await fnGet("workshop-counts", "", 10000);
         const w = (typeof getWorkshopById === "function") ? getWorkshopById(ID) : null;
         const max = (w && w.maxQuota) ? w.maxQuota : MAX_SLOT;
         const used = (counts && counts[ID]) || 0;
@@ -101,13 +117,13 @@ async function checkMember() {
     const wa = normWa(raw);
     const msg = document.getElementById("gateMsg");
     if (!wa || wa.length < 8) { msg.className = "jd-msg err"; msg.textContent = "Nomor WhatsApp-nya kurang lengkap ya 🙏"; return; }
-    if (typeof GOOGLE_SCRIPT_URL === "undefined" || !GOOGLE_SCRIPT_URL) { msg.className = "jd-msg err"; msg.textContent = "Konfigurasi belum siap, refresh dulu ya."; return; }
+    if (typeof SUPABASE_URL === "undefined" || !SUPABASE_URL) { msg.className = "jd-msg err"; msg.textContent = "Konfigurasi belum siap, refresh dulu ya."; return; }
 
     const btn = document.getElementById("checkBtn");
     btn.disabled = true; msg.className = "jd-msg"; msg.textContent = "";
     showBlocker("Mengecek keanggotaan…");
     try {
-        const r = await fetchJSONP(GOOGLE_SCRIPT_URL + "?page=memberCheck&wa=" + encodeURIComponent(wa), "mc", 20000);
+        const r = await fnGet("member-check", "wa=" + encodeURIComponent(wa), 20000);
         if (r && r.isMember) {
             _member = { wa: wa, nickname: r.nickname || "Sahabat" };
             document.getElementById("gateSection").style.display = "none";
@@ -196,7 +212,12 @@ document.getElementById("jdForm").addEventListener("submit", async (e) => {
     const controller = new AbortController();
     const tid = setTimeout(() => controller.abort(), 60000);
     try {
-        const res = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload), signal: controller.signal });
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/register-workshop`, {
+            method: "POST",
+            headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+        });
         clearTimeout(tid);
         const result = await res.json();
         if (result.status === "success") {
