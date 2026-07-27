@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>Balai Warga — Seminggu Satu 🐾</title>
+    <meta name="description" content="Intip Balai Warga Seminggu Satu — komunitas journaling yang nulis bareng seminggu sekali. Lihat warganya, karyanya, dan keseruannya!">
+    <meta property="og:title" content="Balai Warga — Seminggu Satu">
+    <meta property="og:description" content="Komunitas journaling yang nulis bareng seminggu sekali 💙 Main ke Balai yuk!">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400@display=swap" rel="stylesheet">
+    <script src="../env.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --blue: #0046ff; --yellow: #ffe600; --ink: #10245e; --muted: #6b7794; --line: #e4e9f5; }
+        body { font-family: 'Open Sans', sans-serif; color: var(--ink); background-color: #f4f7ff; background-image: radial-gradient(rgba(16, 36, 94, .055) 1px, transparent 1.2px); background-size: 18px 18px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        .wrap { max-width: 520px; margin: 0 auto; padding: 1.6rem 1.1rem 4rem; }
+        h1, h2, .stat b { font-family: 'Outfit', sans-serif; }
+
+        .top { text-align: center; margin-bottom: 1.6rem; }
+        .top .paws { font-size: 1.1rem; letter-spacing: 4px; }
+        .top h1 { font-size: 1.7rem; font-weight: 900; color: var(--blue); letter-spacing: .02em; }
+        .top h1 span { color: #d4a900; }
+        .top .sub { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; letter-spacing: .3em; color: var(--muted); margin-top: 2px; }
+
+        .hero { position: relative; background: #fff; border: 1.5px dashed rgba(16, 36, 94, .25); border-radius: 18px; padding: 1.4rem 1.2rem; text-align: center; transform: rotate(-.4deg); box-shadow: 0 6px 18px rgba(16, 36, 94, .08); }
+        .hero .tape { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 92px; height: 20px; background: rgba(255, 230, 0, .85); border: 1px dashed rgba(16, 36, 94, .25); }
+        .hero p { font-size: .95rem; line-height: 1.75; }
+        .hero p b { color: var(--blue); }
+
+        .stats { display: flex; gap: 8px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+        .stat { background: var(--yellow); border-radius: 999px; padding: 7px 14px; font-size: .74rem; font-weight: 700; color: #10245e; transform: rotate(-1deg); box-shadow: 0 2px 5px rgba(0, 0, 0, .12); }
+        .stat:nth-child(2) { transform: rotate(1deg); background: #dbeafe; }
+        .stat:nth-child(3) { transform: rotate(-1.5deg); background: #ffe0ec; }
+        .stat b { font-size: .9rem; margin-right: 3px; }
+
+        .sec { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; margin: 2rem 0 1rem; }
+        .sec small { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); font-family: 'Open Sans', sans-serif; margin-top: 2px; }
+
+        /* dinding polaroid warga */
+        .people { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 10px; }
+        .person { background: #fff; border: 1px solid #eee4cf; padding: 7px 7px 8px; box-shadow: 0 4px 10px rgba(16, 36, 94, .1); transform: rotate(-1.5deg); text-align: center; }
+        .person:nth-child(even) { transform: rotate(1.5deg); }
+        .person .ava { width: 100%; aspect-ratio: 1; border-radius: 6px; object-fit: cover; display: block; background: #eef2ff; }
+        .person .ava.init { display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.6rem; color: var(--blue); }
+        .person .nm { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .person .bio { font-size: .58rem; color: var(--muted); font-style: italic; line-height: 1.4; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.4em; }
+
+        /* karya & momen */
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .work { background: #fff; border: 1px solid #eee4cf; padding: 7px 7px 8px; box-shadow: 0 4px 10px rgba(16, 36, 94, .1); transform: rotate(-1deg); }
+        .work:nth-child(even) { transform: rotate(1deg); }
+        .work img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 5px; display: block; background: #eef2ff; }
+        .work .cap { font-size: .64rem; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+        .work .cap b { color: var(--ink); font-family: 'Outfit', sans-serif; }
+
+        .cta { margin-top: 2.4rem; background: linear-gradient(120deg, var(--blue), #2f6bff); color: #fff; border-radius: 18px; padding: 1.5rem 1.2rem; text-align: center; box-shadow: 0 8px 22px rgba(0, 70, 255, .3); transform: rotate(.3deg); }
+        .cta h2 { font-size: 1.15rem; font-weight: 900; }
+        .cta p { font-size: .82rem; opacity: .92; margin-top: 6px; line-height: 1.6; }
+        .cta .btns { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+        .cta a { text-decoration: none; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .84rem; border-radius: 999px; padding: 11px 18px; }
+        .cta a.ig { background: var(--yellow); color: #10245e; box-shadow: 0 3px 0 rgba(0, 0, 0, .2); }
+        .cta a.ev { background: rgba(255, 255, 255, .16); color: #fff; border: 1.5px dashed rgba(255, 255, 255, .6); }
+
+        .foot { text-align: center; font-size: .7rem; color: var(--muted); margin-top: 2.2rem; line-height: 1.7; }
+        .loading, .err { text-align: center; color: var(--muted); font-size: .85rem; padding: 2rem 0; }
+        .hidden { display: none; }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="top">
+            <div class="paws">🐾🐾🐾</div>
+            <h1>SEMINGGU <span>SATU</span></h1>
+            <div class="sub">BALAI WARGA</div>
+        </div>
+
+        <div class="hero">
+            <span class="tape"></span>
+            <p>Komunitas journaling yang <b>nulis bareng seminggu sekali</b> — ada challenge, event tatap muka, mading warga, sampai surat bulanan dari maskot kami, si <b>Mochi</b> 🐶🐝</p>
+            <div class="stats" id="stats"></div>
+        </div>
+
+        <div class="loading" id="loading">Lagi bukain pintu Balai… 🐌</div>
+
+        <div class="hidden" id="content">
+            <div id="secPeople" class="hidden">
+                <div class="sec">🏘️ Warga Balai <small>yang dengan bangga pasang wajahnya di sini</small></div>
+                <div class="people" id="people"></div>
+            </div>
+
+            <div id="secWorks" class="hidden">
+                <div class="sec">🎨 Karya Terbaru <small>spread journal buatan tangan warga</small></div>
+                <div class="grid2" id="works"></div>
+            </div>
+
+            <div id="secOfficial" class="hidden">
+                <div class="sec">📸 Momen di Balai <small>keseruan event & kumpul bareng</small></div>
+                <div class="grid2" id="official"></div>
+            </div>
+
+            <div class="cta">
+                <h2>Pengen ikut nulis bareng? 💙</h2>
+                <p>Pintu Balai selalu kebuka. Sapa kami di Instagram, atau langsung intip event yang lagi buka pendaftaran.</p>
+                <div class="btns">
+                    <a class="ig" href="https://instagram.com/seminggu_satu" target="_blank" rel="noopener">📷 @seminggu_satu</a>
+                    <a class="ev" href="../">🎟️ Lihat Event</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="err hidden" id="err">Pintunya lagi macet 😅 coba refresh ya.</div>
+
+        <div class="foot">Dibuat dengan 💙 (dan banyak washi tape) oleh warga Seminggu Satu<br>seminggusatu.com</div>
+    </div>
+
+    <script>
+        // JSONP ringan (fetch biasa kena CORS di Apps Script)
+        function jsonp(url, cb) {
+            var name = "cb" + Date.now().toString(36);
+            var t = setTimeout(function () { cb(null); cleanup(); }, 15000);
+            function cleanup() { delete window[name]; if (s.parentNode) s.parentNode.removeChild(s); clearTimeout(t); }
+            window[name] = function (data) { cb(data); cleanup(); };
+            var s = document.createElement("script");
+            s.src = url + (url.indexOf("?") >= 0 ? "&" : "?") + "callback=" + name;
+            s.onerror = function () { cb(null); cleanup(); };
+            document.body.appendChild(s);
+        }
+        function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
+
+        jsonp(GOOGLE_SCRIPT_URL + "?page=showcase", function (d) {
+            document.getElementById("loading").classList.add("hidden");
+            if (!d) { document.getElementById("err").classList.remove("hidden"); return; }
+            document.getElementById("content").classList.remove("hidden");
+
+            document.getElementById("stats").innerHTML =
+                '<span class="stat"><b>' + (d.members || 0) + '</b> warga</span>' +
+                '<span class="stat"><b>' + (d.karya || 0) + '</b> karya</span>' +
+                '<span class="stat"><b>' + (d.events || 0) + '</b> event</span>';
+
+            if (d.profiles && d.profiles.length) {
+                document.getElementById("secPeople").classList.remove("hidden");
+                document.getElementById("people").innerHTML = d.profiles.map(function (p) {
+                    var ava = p.p
+                        ? '<img class="ava" src="' + esc(p.p) + '" alt="" loading="lazy">'
+                        : '<div class="ava init">' + esc((p.n || "S").charAt(0).toUpperCase()) + '</div>';
+                    return '<div class="person">' + ava +
+                        '<div class="nm">' + esc(p.n) + '</div>' +
+                        '<div class="bio">' + (p.b ? "“" + esc(p.b) + "”" : "") + '</div></div>';
+                }).join("");
+            }
+            if (d.works && d.works.length) {
+                document.getElementById("secWorks").classList.remove("hidden");
+                document.getElementById("works").innerHTML = d.works.map(function (w) {
+                    return '<div class="work"><img src="' + esc(w.photo) + '" alt="" loading="lazy">' +
+                        '<div class="cap"><b>' + esc(w.n) + '</b> · ' + esc(w.title) + '</div></div>';
+                }).join("");
+            }
+            if (d.official && d.official.length) {
+                document.getElementById("secOfficial").classList.remove("hidden");
+                document.getElementById("official").innerHTML = d.official.map(function (w) {
+                    return '<div class="work"><img src="' + esc(w.photo) + '" alt="" loading="lazy">' +
+                        '<div class="cap"><b>' + esc(w.title) + '</b></div></div>';
+                }).join("");
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -218,7 +218,7 @@ function fireConfetti(preset) {
 }
 
 function onAuthSuccess(r) {
-    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}" };
+    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}", publicOptIn: r.publicOptIn === "1" ? "1" : "" };
     // MERGE mood server + lokal (bukan nimpa buta): server menang per-hari (kebenaran
     // lintas device), tapi hari yang cuma ada di lokal (sync-nya sempet gagal/offline)
     // jangan sampai kehapus
@@ -3071,6 +3071,12 @@ function openSettings() {
         seg("stSfx", [{ v: "on", t: "🔔 Nyala", on: !sfxMuted() }, { v: "off", t: "🔕 Senyap", on: sfxMuted() }]) + '</div>' +
         '<div class="st-row"><div class="st-lbl">🐾 Mochi Pelari</div>' +
         seg("stRunner", [{ v: "on", t: "Muncul", on: !runnerOff() }, { v: "off", t: "Sembunyi", on: runnerOff() }]) + '</div>' +
+        '<div class="st-row"><div class="st-lbl">🌍 Profil Publik</div>' +
+        seg("stPublic", [
+            { v: "1", t: "Tampil", on: _profile.publicOptIn === "1" },
+            { v: "0", t: "Sembunyi", on: _profile.publicOptIn !== "1" }
+        ]) +
+        '<div class="st-hint">Kalau "Tampil", nama + foto + bio kamu ikut dipajang di halaman publik <b>seminggusatu.com/balai</b> — etalase Balai buat orang luar. Default-nya sembunyi, dan bisa diubah kapan aja 💙</div></div>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();
@@ -3104,6 +3110,20 @@ function openSettings() {
     pick("stRunner", v => {
         try { localStorage.setItem("ss_runner", v === "off" ? "0" : "1"); } catch (e) { }
         playSfx("love", 0.5);
+    });
+    pick("stPublic", v => {
+        const prev = _profile.publicOptIn;
+        _profile.publicOptIn = v === "1" ? "1" : ""; // optimistis
+        playSfx(v === "1" ? "shine" : "love", 0.6);
+        apiPost({ action: "memberUpdateProfile", token: _profile.token, publicOptIn: v }).then(r => {
+            if (r.status !== "success") {
+                _profile.publicOptIn = prev; // rollback
+                alert(r.message || "Gagal nyimpen preferensi. Coba lagi ya.");
+            }
+        }).catch(() => {
+            _profile.publicOptIn = prev;
+            alert("Gagal terhubung ke server. Preferensi belum kesimpen.");
+        });
     });
 }
 
