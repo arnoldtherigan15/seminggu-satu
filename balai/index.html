@@ -63,7 +63,15 @@
         .cta a.ev { background: rgba(255, 255, 255, .16); color: #fff; border: 1.5px dashed rgba(255, 255, 255, .6); }
 
         .foot { text-align: center; font-size: .7rem; color: var(--muted); margin-top: 2.2rem; line-height: 1.7; }
-        .loading, .err { text-align: center; color: var(--muted); font-size: .85rem; padding: 2rem 0; }
+        .loading { padding: 1.4rem 0 0; }
+        .err { text-align: center; color: var(--muted); font-size: .85rem; padding: 2rem 0; }
+        /* skeleton shimmer */
+        .sk { position: relative; overflow: hidden; background: #e6ebf7; border-radius: 10px; }
+        .sk::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .8), transparent); animation: skSh 1.2s infinite; }
+        @keyframes skSh { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+        .sk-row { display: flex; gap: 8px; justify-content: center; }
+        .sk-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 10px; margin-top: 1.6rem; }
+        .sk-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1.6rem; }
         .hidden { display: none; }
 
         /* profil warga ala IG */
@@ -99,7 +107,7 @@
             <div class="stats" id="stats"></div>
         </div>
 
-        <div class="loading" id="loading">Lagi bukain pintu Balai… 🐌</div>
+        <div class="loading" id="loading"></div>
 
         <div class="hidden" id="content">
             <div id="secPeople" class="hidden">
@@ -148,10 +156,31 @@
         }
         function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
 
+        function sk(style) { return '<div class="sk" style="' + style + '"></div>'; }
+        function skeletonShowcase() {
+            var boxes3 = "", boxes2 = "";
+            for (var i = 0; i < 6; i++) boxes3 += sk("aspect-ratio:1;");
+            for (var j = 0; j < 4; j++) boxes2 += sk("aspect-ratio:4/3;");
+            return '<div class="sk-row">' + sk("width:86px;height:30px;border-radius:999px;") + sk("width:86px;height:30px;border-radius:999px;") + sk("width:86px;height:30px;border-radius:999px;") + '</div>' +
+                '<div class="sk-grid3">' + boxes3 + '</div>' +
+                '<div class="sk-grid2">' + boxes2 + '</div>';
+        }
+        function skeletonProfile() {
+            var boxes = "";
+            for (var i = 0; i < 6; i++) boxes += sk("aspect-ratio:1;border-radius:4px;");
+            return '<div style="display:flex;align-items:center;gap:16px;">' +
+                sk("width:86px;height:86px;border-radius:50%;flex:none;") +
+                sk("flex:1;height:64px;border-radius:12px;") + '</div>' +
+                sk("width:45%;height:20px;margin-top:16px;") +
+                sk("width:75%;height:13px;margin-top:8px;") +
+                '<div class="sk-grid3" style="gap:4px;">' + boxes + '</div>';
+        }
+
         // /balai/?w=<id> -> profil publik 1 warga (ala IG, bisa di-share)
         var wid = (location.search.match(/[?&]w=([a-f0-9]{8})/) || [])[1];
         if (wid) {
             document.querySelector(".hero").classList.add("hidden");
+            document.getElementById("loading").innerHTML = skeletonProfile();
             jsonp(GOOGLE_SCRIPT_URL + "?page=publicProfile&id=" + wid, function (d) {
                 document.getElementById("loading").classList.add("hidden");
                 var pf = document.getElementById("profile");
@@ -190,7 +219,8 @@
                 });
             });
             // showcase di bawah nggak usah di-fetch
-        } else
+        } else {
+        document.getElementById("loading").innerHTML = skeletonShowcase();
         jsonp(GOOGLE_SCRIPT_URL + "?page=showcase", function (d) {
             document.getElementById("loading").classList.add("hidden");
             if (!d) { document.getElementById("err").classList.remove("hidden"); return; }
@@ -227,6 +257,7 @@
                 }).join("");
             }
         });
+        }
     </script>
 </body>
 
