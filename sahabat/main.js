@@ -218,7 +218,7 @@ function fireConfetti(preset) {
 }
 
 function onAuthSuccess(r) {
-    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}", publicOptIn: r.publicOptIn === "1" ? "1" : "" };
+    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}", publicOptIn: r.publicOptIn === "1" ? "1" : "", publicId: r.publicId || "" };
     // MERGE mood server + lokal (bukan nimpa buta): server menang per-hari (kebenaran
     // lintas device), tapi hari yang cuma ada di lokal (sync-nya sempet gagal/offline)
     // jangan sampai kehapus
@@ -3076,7 +3076,8 @@ function openSettings() {
             { v: "1", t: "Tampil", on: _profile.publicOptIn === "1" },
             { v: "0", t: "Sembunyi", on: _profile.publicOptIn !== "1" }
         ]) +
-        '<div class="st-hint">Kalau "Tampil", nama + foto + bio kamu ikut dipajang di halaman publik <b>seminggusatu.com/balai</b> — etalase Balai buat orang luar. Default-nya sembunyi, dan bisa diubah kapan aja 💙</div></div>' +
+        '<div class="st-hint">Kalau "Tampil", nama + foto + bio + karyamu dipajang di halaman publik <b>seminggusatu.com/balai</b> dan kamu dapet link profil sendiri buat ditaruh di bio IG 🌍 Default-nya sembunyi, bisa diubah kapan aja 💙</div>' +
+        (_profile.publicId ? '<button type="button" class="st-copylink" id="stCopyLink">🔗 Salin link profilku</button>' : '') + '</div>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();
@@ -3110,6 +3111,13 @@ function openSettings() {
     pick("stRunner", v => {
         try { localStorage.setItem("ss_runner", v === "off" ? "0" : "1"); } catch (e) { }
         playSfx("love", 0.5);
+    });
+    const cpl = $("stCopyLink");
+    if (cpl) cpl.addEventListener("click", async () => {
+        const url = "https://seminggusatu.com/balai/?w=" + _profile.publicId;
+        try { await navigator.clipboard.writeText(url); cpl.textContent = "✓ Tersalin! Taruh di bio IG-mu 😄"; }
+        catch (e) { prompt("Salin manual ya:", url); }
+        setTimeout(() => { cpl.innerHTML = "🔗 Salin link profilku"; }, 2200);
     });
     pick("stPublic", v => {
         const prev = _profile.publicOptIn;
