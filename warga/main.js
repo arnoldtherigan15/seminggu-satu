@@ -314,16 +314,14 @@ function schedulePrefetch() {
     else setTimeout(run, 600);
 }
 
-// Panggil semua loader (idempotent via guard _xxxLoaded) tanpa nunggu -> render ke pane masing2.
-// Kalau ada yg gagal, loader-nya reset guard sendiri -> nanti pas tab dibuka bakal retry live.
-// Prefetch BERURUTAN, bukan barengan — tiap user cuma megang 1-2 eksekusi
-// Apps Script pada satu waktu (jaga limit simultaneous executions project).
+// Panggil semua loader (idempotent via guard _xxxLoaded) sekaligus BARENGAN -> render
+// ke pane masing2 begitu siap. Kalau ada yg gagal, loader-nya reset guard sendiri ->
+// nanti pas tab dibuka bakal retry live (Promise.allSettled -> 1 gagal ga nunggu yg lain).
+// Dulu sengaja satu-satu + jeda 350ms (limit simultaneous execution Apps Script) --
+// udah nggak relevan sejak pindah ke Supabase Edge Functions, jadi dibarengin semua.
 async function prefetchTabs() {
     const fns = [loadLoyalty, loadEvents, loadRec, loadQuests, loadLeaderboard, loadGallery];
-    for (const fn of fns) {
-        try { await fn(); } catch (e) { }
-        await new Promise(r => setTimeout(r, 350)); // kasih napas antar request
-    }
+    await Promise.allSettled(fns.map(fn => fn()));
 }
 
 // Error state + tombol "Coba lagi" (dipakai loader biar gagal fetch nggak "meracuni" tab)
@@ -425,7 +423,7 @@ async function loadEvents() {
     if (bd) {
         html += '<button class="ev-bday-note" id="evBdayNote">' +
             '<span class="ebn-tape"></span>' +
-            '🎂 Bulan ultahmu! Semua event <b>diskon ' + bd.age + '%</b> buat kamu — ketuk buat cek vouchernya 🎁' +
+            '🎂 Voucher ultahmu aktif! Semua event <b>diskon ' + bd.age + '%</b> buat kamu — ketuk buat cek vouchernya 🎁' +
             '</button>';
     }
     items.forEach(x => {
@@ -693,7 +691,7 @@ function qbRightHtml(i) {
     let friends;
     if (works.length) {
         friends = '<div class="qb-friends">' +
-            works.slice(0, 3).map(w => '<img src="' + esc(w.photo) + '" alt="">').join("") +
+            works.slice(0, 3).map(w => '<img src="' + esc(driveThumb(w.photo)) + '" alt="">').join("") +
             '<span>' + works.length + ' karya teman 💙</span></div>';
     } else {
         friends = '<div class="qb-friends empty">Jadilah yang pertama upload ✨</div>';
@@ -2049,7 +2047,7 @@ function renderJournalTrackerHtml(wa) {
           '<span>📸 Memori minggu ini</span><span class="jt-chev">▾</span></button>' +
           '<div class="jt-photo-wrap" id="jtPhotoWrap"><div class="jt-pola">' +
           '<span class="jt-pola-tape"></span>' +
-          '<img src="' + esc(currRec.photo) + '" alt="" loading="lazy" decoding="async">' +
+          '<img src="' + esc(driveThumb(currRec.photo)) + '" alt="" loading="lazy" decoding="async">' +
           '<div class="jt-pola-cap">' + polaCap + '<span class="jt-pola-date">' + esc(currMonthWeek.monthName) + ' · Week ' + currentWeekNum + '</span></div>' +
           '</div></div>'
         : '';
@@ -2236,17 +2234,24 @@ function bdayFriendsBannerHtml() {
 }
 
 // ---------- Birthday Surprise ----------
-// Voucher = umur% (mis. 27 th -> 27%), tampil sepanjang BULAN ulang tahun.
+// Voucher = umur% (mis. 27 th -> 27%), berlaku 1 BULAN PENUH sejak tanggal ultah asli
+// (mis. ultah 17 Juli -> berlaku sampai 17 Agustus), bukan sekadar bulan kalender ultah.
 function birthdayInfo() {
     const bd = _profile && _profile.birthDate ? String(_profile.birthDate) : "";
     const m = bd.match(/(\d{4})-(\d{2})-(\d{2})/);
     if (!m) return null;
+    const birthYear = parseInt(m[1], 10), birthMonth = parseInt(m[2], 10), birthDay = parseInt(m[3], 10);
     const now = new Date();
-    if ((now.getMonth() + 1) !== parseInt(m[2], 10)) return null; // cuma tampil pas bulan ultah
-    const age = now.getFullYear() - parseInt(m[1], 10);
-    if (age <= 0 || age > 120) return null;
-    return { age: age };
+    function windowFor(y) {
+        return { start: new Date(y, birthMonth - 1, birthDay), end: new Date(y, birthMonth, birthDay), age: y - birthYear };
+    }
+    // Cek ultah tahun ini & tahun lalu -- jaga-jaga window 1 bulannya nyebrang ke tahun baru
+    const win = [windowFor(now.getFullYear()), windowFor(now.getFullYear() - 1)].find(w => now >= w.start && now < w.end);
+    if (!win || win.age <= 0 || win.age > 120) return null;
+    return { age: win.age, validUntil: win.end };
 }
+const BDAY_MONTHS_ID = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+function fmtBdayDate(d) { return d.getDate() + " " + BDAY_MONTHS_ID[d.getMonth()] + " " + d.getFullYear(); }
 
 function buildBirthdayHtml(b) {
     const nm = _profile.nickname || "Sahabat";
@@ -2266,7 +2271,7 @@ function buildBirthdayHtml(b) {
         '</div>' +
         '<button class="btn-primary bday-claim" style="margin-top:12px;">📲 Claim Voucher via WhatsApp</button>' +
         '<button class="btn-ghost2 bday-share" style="margin-top:8px;">🎁 Kirim gambar voucher ke admin</button>' +
-        '<p class="bday-note">Berlaku sepanjang bulan ini. Klik claim → chat admin (pesan udah siap) 💙</p>' +
+        '<p class="bday-note">Berlaku sampai ' + fmtBdayDate(b.validUntil) + '. Klik claim → chat admin (pesan udah siap) 💙</p>' +
         '</div>';
 }
 
@@ -2478,7 +2483,7 @@ function openMonthlyRecap() {
     // 3) Karya (kalau data galeri ada)
     if (works && works.length) {
         let polas = "";
-        works.slice(0, 3).forEach(w => { polas += '<span class="wr-pola"><img src="' + esc(w.photo) + '" alt="" loading="lazy" decoding="async"></span>'; });
+        works.slice(0, 3).forEach(w => { polas += '<span class="wr-pola"><img src="' + esc(driveThumb(w.photo)) + '" alt="" loading="lazy" decoding="async"></span>'; });
         slides.push('<div class="wr-slide wr-yellow">' +
             '<span class="wr-tape b" style="top:54px;left:20px;transform:rotate(-10deg);"></span>' +
             '<span class="wr-stk" style="top:15%;right:12%;">\ud83c\udfa8</span>' +
@@ -4511,7 +4516,7 @@ function galFeedCard(it) {
         '</header>' +
         '<div class="feed-photo-frame">' +
         frameDeco +
-        '<div class="ig-imgwrap feed-photo-wrap" data-tap="' + esc(it.id) + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div>' + ((it.ts && (Date.now() - it.ts) < 86400000) ? '<span class="gal-new">BARU</span>' : '') + '</div>' +
+        '<div class="ig-imgwrap feed-photo-wrap" data-tap="' + esc(it.id) + '"><img src="' + esc(driveThumb(it.photo)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div>' + ((it.ts && (Date.now() - it.ts) < 86400000) ? '<span class="gal-new">BARU</span>' : '') + '</div>' +
         '</div>' +
         '<div class="feed-actions"><button class="action-btn ig-btn-like' + (it.liked ? " active" : "") + '" data-like="' + esc(it.id) + '"><span class="li-icon">' + (it.liked ? "❤️" : "🤍") + '</span> <span class="li-count">' + (it.likes || 0) + '</span> Likes</button></div>' +
         (it.caption ? '<div class="feed-caption-box"><p class="caption-text"><b>' + esc(it.nickname || "Sahabat") + '</b> ' + esc(it.caption) + '</p></div>' : '') +
@@ -4549,7 +4554,7 @@ function galGridItem(it, i) {
     const isNew = it.ts && (Date.now() - it.ts) < 86400000; // <24 jam
     return '<div class="jcard ' + frame + '" data-id="' + esc(it.id) + '">' +
         deco +
-        '<div class="jcard-imgwrap ' + ratio + '"><img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25">' + stampIn + (isNew ? '<span class="gal-new">BARU</span>' : '') + '</div>' +
+        '<div class="jcard-imgwrap ' + ratio + '"><img src="' + esc(driveThumb(it.photo)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25">' + stampIn + (isNew ? '<span class="gal-new">BARU</span>' : '') + '</div>' +
         '<div class="jcard-body">' +
         '<div class="jcard-author">' + ava +
         '<span class="jcard-nick">' + esc(it.nickname || "Sahabat") + (it.mine ? ' <span class="me-star">⭐</span>' : "") + '</span>' +
@@ -4623,7 +4628,7 @@ function openGalleryLightbox(it) {
         : (it.avatar ? '<div class="ig-ava"><img src="' + esc(it.avatar) + '" alt=""></div>' : '<div class="ig-ava">' + initial + '</div>');
     $("questModalBox").innerHTML =
         '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
-        '<div class="ig-imgwrap" id="lbImg" style="aspect-ratio:1/1"><img src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
+        '<div class="ig-imgwrap" id="lbImg" style="aspect-ratio:1/1"><img src="' + esc(driveThumb(it.photo)) + '" alt="" onerror="this.style.opacity=.25"><div class="like-overlay">❤️</div></div>' +
         '<div class="qm-body">' +
         '<div class="ig-head" style="padding-left:0;padding-right:0;"' + (!isEvent ? ' data-wcard="1" role="button"' : '') + '>' + ava +
         '<div class="ig-user-info"><div class="ig-user-row"><span class="ig-user">' + esc(it.nickname || "Sahabat") + '</span>' +
@@ -6219,7 +6224,7 @@ function boardFlyerHtml(w, left, i, mini) {
 function boardPhotoHtml(it, i, mini) {
     return '<div class="wb-photo f' + ((i % 4) + 1) + (i % 2 ? " r" : "") + (mini ? " mini" : "") + '">' +
         boardAttach(i + 1) +
-        '<img src="' + esc(it.photo) + '" alt="" loading="lazy" decoding="async">' +
+        '<img src="' + esc(driveThumb(it.photo)) + '" alt="" loading="lazy" decoding="async">' +
         '<div class="wb-meta">' + (it.kind === "weekly" ? "📖 " + esc(it.nickname) : storyKindIcon(it.kind) + " " + esc(it.title)) + '</div>' +
         '</div>';
 }
@@ -6372,7 +6377,7 @@ function renderMadingModal() {
                     '<span class="mc-crown">👑</span>' +
                     '<span class="wb-tape2 wt-y" style="left:14px;"></span>' +
                     '<div class="mc-k">🏆 KARYA SANG JUARA · RANK #1 🎉</div>' +
-                    '<div class="mc-frame"><img src="' + esc(work.photo) + '" alt="" loading="lazy" decoding="async">' +
+                    '<div class="mc-frame"><img src="' + esc(driveThumb(work.photo)) + '" alt="" loading="lazy" decoding="async">' +
                     '<span class="mc-conf c1">🎊</span><span class="mc-conf c2">✨</span></div>' +
                     '<div class="mc-name">' + esc(top1.nickname) + ' <span class="mc-poin">⚡ ' + top1.poin + ' poin</span></div>' +
                     '<div class="mc-title">🎯 ' + esc(work.title) + '</div>' +
@@ -6556,7 +6561,7 @@ function renderStoryBar() {
             ? '<span class="story-ava bday-face">🎂</span>'
             : (g.official
                 ? '<span class="story-ava official">SS</span>'
-                : '<span class="story-ava"><img src="' + esc(latest.photo) + '" alt="" loading="lazy" decoding="async"></span>');
+                : '<span class="story-ava"><img src="' + esc(driveThumb(latest.avatar || latest.photo)) + '" alt="" loading="lazy" decoding="async"></span>');
         html += '<button class="story-item ' + rot + (isSeen ? " seen" : "") + '" data-g="' + idx + '">' +
             '<span class="story-ring' + (g.bday ? " ring-bday" : "") + '">' + ava + '</span>' +
             '<span class="story-sticker">' + (g.bday ? "🎈" : storyKindIcon(latest.kind)) + '</span>' +
@@ -6627,7 +6632,7 @@ function storyBoxHtml(gIdx, sIdx, active) {
     const avaP = (g.items.find(x => x.avatar) || {}).avatar;
     const ava = g.official
         ? '<div class="ig-ava official">SS</div>'
-        : (avaP ? '<div class="ig-ava"><img src="' + esc(avaP) + '" alt=""></div>' : '<div class="ig-ava">' + esc((g.nickname || "S").charAt(0).toUpperCase()) + '</div>');
+        : (avaP ? '<div class="ig-ava"><img src="' + esc(driveThumb(avaP)) + '" alt=""></div>' : '<div class="ig-ava">' + esc((g.nickname || "S").charAt(0).toUpperCase()) + '</div>');
     const icon = storyKindIcon(it.kind);
     return '<div class="story-box">' +
         '<span class="story-tape-tl"></span><span class="story-tape-br"></span>' +
@@ -6641,7 +6646,7 @@ function storyBoxHtml(gIdx, sIdx, active) {
         (active ? '<button class="story-close" id="storyClose" aria-label="Tutup">✕</button>' : '<span class="story-close">✕</span>') +
         '</div>' +
         '<div class="story-photo">' +
-        '<img src="' + esc(it.photo) + '" alt="" onerror="this.style.opacity=.25">' +
+        '<img src="' + esc(driveThumb(it.photo)) + '" alt="" onerror="this.style.opacity=.25">' +
         '<span class="story-stamp">' + icon + '</span>' +
         (active ? '<div class="story-nav"><button id="storyPrev" aria-label="Story sebelumnya"></button><button id="storyNext" aria-label="Story selanjutnya"></button></div>' : '') +
         '</div>' +

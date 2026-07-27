@@ -3725,6 +3725,14 @@
       return m ? m[1] : null;
     }
 
+    // Link share Drive mentah ("/file/d/<id>/view...") nggak bisa dipasang langsung
+    // di <img src> (itu halaman preview, bukan gambar). Ubah ke format embeddable;
+    // URL yang udah bener (atau non-Drive) lolos apa adanya.
+    function driveThumb(url) {
+      const id = driveId(url);
+      return id ? ("https://lh3.googleusercontent.com/d/" + id) : String(url || "");
+    }
+
     // Render 1 sel tabel: kalau URL gambar -> embed thumbnail + preview; else teks
     function cellHtml(c) {
       if (isUrl(c)) {
@@ -4994,7 +5002,7 @@
       if (!list.length) { el.innerHTML = '<p class="hint">Belum ada foto event. Tambahin momen workshop / reka-rekat di atas ya 📸</p>'; return; }
       el.innerHTML = list.map(p =>
         '<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">' +
-          '<img src="' + p.photo + '" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;" loading="lazy">' +
+          '<img src="' + driveThumb(p.photo) + '" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;" loading="lazy">' +
           '<div style="flex:1;min-width:0;"><b>' + (p.tag === "reka-rekat" ? "✂️ Reka-Rekat" : (p.tag === "temu-warga" ? "🏘️ Temu-Warga" : "🎪 Workshop")) + '</b>' + (p.eventDate ? ' <span style="font-size:.75rem;color:#6b7280;">🗓 ' + p.eventDate + '</span>' : '') +
             '<div style="font-size:.8rem;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (p.caption ? String(p.caption).replace(/</g, "&lt;") : "(tanpa caption)") + '</div></div>' +
           '<button class="btn btn-sm" data-epdel="' + p.id + '" style="background:#fee2e2;color:var(--err);flex-shrink:0;">🗑️</button>' +
@@ -5097,7 +5105,7 @@
              <span class="k-num">${escapeHtml(c.title || "(tanpa judul)")} ${c.active ? '<span class="loy-badge">AKTIF</span>' : '<span class="loy-note-badge">draft</span>'}</span>
            </div>
            <div style="display:flex;gap:12px;align-items:center;">
-             ${c.image ? `<img src="${escapeHtml(c.image)}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;flex-shrink:0;">` : ""}
+             ${c.image ? `<img src="${escapeHtml(driveThumb(c.image))}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;flex-shrink:0;">` : ""}
              <div style="min-width:0;"><div style="font-weight:600;font-size:13px;">${escapeHtml(c.theme || "")}</div>
              <div class="hint" style="margin:0;">${escapeHtml((c.description || "").slice(0, 90))}</div></div>
            </div>
@@ -5116,7 +5124,7 @@
       document.getElementById("qImageBase64").value = "";
       document.getElementById("qImageExisting").value = c.image || "";
       document.getElementById("qImageFile").value = "";
-      document.getElementById("qImagePreview").innerHTML = c.image ? '<img src="' + escapeHtml(c.image) + '" style="width:100%;max-width:320px;border-radius:12px;">' : "";
+      document.getElementById("qImagePreview").innerHTML = c.image ? '<img src="' + escapeHtml(driveThumb(c.image)) + '" style="width:100%;max-width:320px;border-radius:12px;">' : "";
       document.getElementById("qDeleteBtn").style.display = c.id ? "inline-flex" : "none";
       document.getElementById("qMsg").textContent = "";
     }

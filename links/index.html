@@ -262,6 +262,15 @@
         }
         .home-cta i { width: 20px; height: 20px; color: #fff; flex-shrink: 0; }
 
+        /* --- Balai Warga CTA --- */
+        .balai-cta { display: flex; align-items: center; gap: 12px; text-decoration: none; background: linear-gradient(120deg, #0046ff, #2f6bff); color: #fff; border-radius: var(--radius); padding: 1.05rem 1.2rem; box-shadow: var(--shadow-md); transition: transform 0.2s ease, box-shadow 0.2s ease; animation: slideUp 0.45s ease both; }
+        .balai-cta:hover, .balai-cta:active { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .balai-cta-ic { flex: none; font-size: 1.6rem; }
+        .balai-cta-body { flex: 1; min-width: 0; }
+        .balai-cta-body b { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; }
+        .balai-cta-body span { display: block; font-size: 0.76rem; opacity: 0.9; margin-top: 2px; line-height: 1.5; }
+        .balai-cta-go { flex: none; font-weight: 800; font-size: 1.1rem; color: #ffe600; }
+
         /* --- Footer --- */
         .foot {
             text-align: center;
@@ -301,6 +310,18 @@
             </div>
         </section>
 
+        <!-- Balai Warga -->
+        <section class="section">
+            <a class="balai-cta" href="../balai/">
+                <span class="balai-cta-ic">🏘️</span>
+                <span class="balai-cta-body">
+                    <b>Intip Balai Warga 🐾</b>
+                    <span>Kenalan sama warga komunitasnya, lihat karya & keseruannya di dalam</span>
+                </span>
+                <span class="balai-cta-go">→</span>
+            </a>
+        </section>
+
         <!-- Navigasi ke home -->
         <section class="section">
             <a class="home-cta" href="../index.html">
@@ -338,6 +359,14 @@
             var el = document.getElementById("wsList");
             if (!Array.isArray(list)) list = [];
             counts = counts || {};
+
+            // Belum ada config sama sekali (cache kosong, masih nunggu server) -> shimmer,
+            // biar nggak keliatan blank pas load pertama.
+            if (!list.length && (typeof window.WS_CONFIG_STATE === "undefined" || window.WS_CONFIG_STATE === "pending")) {
+                section.style.display = "block";
+                el.innerHTML = '<div class="skel"></div><div class="skel"></div>';
+                return;
+            }
 
             var items = list
                 .filter(function (w) { return w && w.isDisplay !== false; })

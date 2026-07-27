@@ -111,7 +111,7 @@
 
         <div class="hidden" id="content">
             <div id="secPeople" class="hidden">
-                <div class="sec">🏘️ Warga Balai <small>yang dengan bangga pasang wajahnya di sini</small></div>
+                <div class="sec">🏘️ Warga Balai <small>yuk kenalan sama mereka</small></div>
                 <div class="people" id="people"></div>
             </div>
 
@@ -156,6 +156,16 @@
         }
         function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
 
+        // Link share Drive mentah ("/file/d/<id>/view...") nggak bisa dipasang langsung
+        // di <img src> (itu halaman preview, bukan gambar). Ubah ke format embeddable;
+        // URL yang udah bener (atau non-Drive) lolos apa adanya.
+        function driveThumb(url) {
+            var s = String(url || "");
+            if (!/drive\.google|docs\.google|googleusercontent/.test(s)) return s;
+            var m = s.match(/\/d\/([-\w]{20,})/) || s.match(/[?&]id=([-\w]{20,})/);
+            return m ? ("https://lh3.googleusercontent.com/d/" + m[1]) : s;
+        }
+
         function sk(style) { return '<div class="sk" style="' + style + '"></div>'; }
         function skeletonShowcase() {
             var boxes3 = "", boxes2 = "";
@@ -191,7 +201,7 @@
                     return;
                 }
                 var ava = d.p
-                    ? '<img class="pf-ava" src="' + esc(d.p) + '" alt="">'
+                    ? '<img class="pf-ava" src="' + esc(driveThumb(d.p)) + '" alt="">'
                     : '<div class="pf-ava init">' + esc((d.n || "S").charAt(0).toUpperCase()) + '</div>';
                 pf.innerHTML =
                     '<a class="back" href="./">← Balai Warga</a>' +
@@ -204,7 +214,7 @@
                     (d.b ? '<div class="pf-bio">“' + esc(d.b) + '”</div>' : '') +
                     '<button type="button" class="pf-share" id="pfShare">🔗 Bagikan profil</button>' +
                     (d.works && d.works.length
-                        ? '<div class="pf-grid">' + d.works.map(function (w) { return '<img src="' + esc(w.photo) + '" alt="' + esc(w.title) + '" loading="lazy">'; }).join("") + '</div>'
+                        ? '<div class="pf-grid">' + d.works.map(function (w) { return '<img src="' + esc(driveThumb(w.photo)) + '" alt="' + esc(w.title) + '" loading="lazy">'; }).join("") + '</div>'
                         : '<div class="pf-empty">Belum ada karya yang kepajang ✨</div>');
                 document.getElementById("pfShare").addEventListener("click", function () {
                     var url = location.origin + location.pathname + "?w=" + wid;
@@ -235,7 +245,7 @@
                 document.getElementById("secPeople").classList.remove("hidden");
                 document.getElementById("people").innerHTML = d.profiles.map(function (p) {
                     var ava = p.p
-                        ? '<img class="ava" src="' + esc(p.p) + '" alt="" loading="lazy">'
+                        ? '<img class="ava" src="' + esc(driveThumb(p.p)) + '" alt="" loading="lazy">'
                         : '<div class="ava init">' + esc((p.n || "S").charAt(0).toUpperCase()) + '</div>';
                     return '<a class="person-link" href="?w=' + esc(p.id) + '"><div class="person">' + ava +
                         '<div class="nm">' + esc(p.n) + '</div>' +
@@ -245,14 +255,14 @@
             if (d.works && d.works.length) {
                 document.getElementById("secWorks").classList.remove("hidden");
                 document.getElementById("works").innerHTML = d.works.map(function (w) {
-                    return '<div class="work"><img src="' + esc(w.photo) + '" alt="" loading="lazy">' +
+                    return '<div class="work"><img src="' + esc(driveThumb(w.photo)) + '" alt="" loading="lazy">' +
                         '<div class="cap"><b>' + esc(w.n) + '</b> · ' + esc(w.title) + '</div></div>';
                 }).join("");
             }
             if (d.official && d.official.length) {
                 document.getElementById("secOfficial").classList.remove("hidden");
                 document.getElementById("official").innerHTML = d.official.map(function (w) {
-                    return '<div class="work"><img src="' + esc(w.photo) + '" alt="" loading="lazy">' +
+                    return '<div class="work"><img src="' + esc(driveThumb(w.photo)) + '" alt="" loading="lazy">' +
                         '<div class="cap"><b>' + esc(w.title) + '</b></div></div>';
                 }).join("");
             }
