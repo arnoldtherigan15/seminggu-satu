@@ -3170,11 +3170,22 @@ function openProfileEditor() {
         '<input type="date" id="peBirth" value="' + esc((String(_profile.birthDate || "").match(/\d{4}-\d{2}-\d{2}/) || [""])[0]) + '"></div>' +
         '<div class="pe-field"><label>Bio singkat ✨</label>' +
         '<textarea id="peBio" maxlength="160" rows="3" placeholder="Ceritain dikit tentang kamu… (max 160)">' + esc(_profile.bio || "") + '</textarea></div>' +
+        (_profile.publicId
+            ? '<button type="button" class="st-copylink" id="peCopyLink" style="margin-top:12px;">🔗 Salin link profil publikku</button>' +
+              (_profile.publicOptIn === "1" ? '' : '<div class="st-hint" style="text-align:left;">Profilmu masih <b>sembunyi</b> dari halaman publik — nyalain "🌍 Profil Publik" di Pengaturan dulu biar link-nya bisa dibuka orang.</div>')
+            : '') +
         '<button class="btn-primary" id="peSave" style="margin-top:14px;">💾 Simpan Profil</button>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();
     $("qmClose").addEventListener("click", closeQuestModal);
+    const peCpl = $("peCopyLink");
+    if (peCpl) peCpl.addEventListener("click", async () => {
+        const url = "https://seminggusatu.com/balai/?w=" + _profile.publicId;
+        try { await navigator.clipboard.writeText(url); peCpl.textContent = "✓ Tersalin! Taruh di bio IG-mu 😄"; }
+        catch (e) { prompt("Salin manual ya:", url); }
+        setTimeout(() => { peCpl.innerHTML = "🔗 Salin link profil publikku"; }, 2200);
+    });
 
     let newPhoto = null;
     $("peFile").addEventListener("change", async (e) => {
