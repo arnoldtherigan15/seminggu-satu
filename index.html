@@ -181,6 +181,15 @@
             gap: 1rem;
         }
 
+        /* pintu ke halaman publik komunitas (/balai) */
+        .balai-cta { display: flex; align-items: center; gap: 12px; margin-top: 1rem; text-decoration: none; background: linear-gradient(120deg, #0046ff, #2f6bff); color: #fff; border-radius: 16px; padding: 14px 16px; box-shadow: 0 6px 16px rgba(0, 70, 255, .28); transform: rotate(-.3deg); transition: transform .15s ease; }
+        .balai-cta:active { transform: rotate(-.3deg) scale(.98); }
+        .balai-cta-ic { flex: none; font-size: 1.6rem; }
+        .balai-cta-body { flex: 1; min-width: 0; }
+        .balai-cta-body b { display: block; font-family: 'Outfit', sans-serif, sans-serif; font-weight: 800; font-size: .95rem; }
+        .balai-cta-body span { display: block; font-size: .76rem; opacity: .9; margin-top: 2px; line-height: 1.5; }
+        .balai-cta-go { flex: none; font-weight: 800; font-size: 1.1rem; color: #ffe600; }
+
         .workshop-card {
             background: var(--bg-card);
             border: 1.5px solid var(--border);
@@ -571,6 +580,14 @@
             <div id="workshopList" class="workshop-list">
                 <!-- Rendered by JS -->
             </div>
+            <a class="balai-cta" href="balai/">
+                <span class="balai-cta-ic">🏘️</span>
+                <span class="balai-cta-body">
+                    <b>Intip Balai Warga 🐾</b>
+                    <span>Kenalan sama warga komunitasnya, lihat karya & keseruannya di dalam</span>
+                </span>
+                <span class="balai-cta-go">→</span>
+            </a>
         </section>
 
         <!-- Testimonies List -->
