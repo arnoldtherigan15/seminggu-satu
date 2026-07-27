@@ -893,7 +893,7 @@
         // dan input WA disembunyiin (nomornya udah kebawa dari sesi member)
         var FROM_MEMBER = new URLSearchParams(location.search).get("from") === "member";
         if (FROM_MEMBER) {
-            var _bl = document.getElementById("brandLink"); if (_bl) _bl.href = "../sahabat/";
+            var _bl = document.getElementById("brandLink"); if (_bl) _bl.href = "../warga/";
             var _lc = document.getElementById("lookupCard"); if (_lc) _lc.style.display = "none";
             var _ht = document.querySelector(".hint"); if (_ht) _ht.style.display = "none";
         }
@@ -1027,7 +1027,7 @@
                 '<div id="passportCard" class="recap-story"></div>' +
                 '<div class="pp-actions">' +
                 '<button class="share-ig-btn" id="ppShare">' + ICON_CAMERA + ' Share to IG Story</button>' +
-                '<a class="btn-ghost" href="' + (FROM_MEMBER ? "../sahabat/#events" : "../index.html") + '">See Upcoming Events →</a>' +
+                '<a class="btn-ghost" href="' + (FROM_MEMBER ? "../warga/#events" : "../index.html") + '">See Upcoming Events →</a>' +
                 '</div>' +
                 '<p class="share-note">Pencet tombol → pilih <b>Instagram → Story</b>. Jangan lupa tag <b>@seminggu_satu</b> ya! 💙</p>';
 

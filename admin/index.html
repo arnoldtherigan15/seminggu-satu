@@ -3299,7 +3299,7 @@
           <div id="epList" style="margin-top:10px;"></div>
         </div>
 
-        <!-- ===== VIEW: MEMBER (akun /sahabat, ultah, aktif) ===== -->
+        <!-- ===== VIEW: MEMBER (akun /warga, ultah, aktif) ===== -->
         <div class="wrap view" id="viewMembers" style="display:none;">
           <div class="toolbar">
             <div style="font-weight:800;font-size:16px;">👥 Member Hub</div>
@@ -4687,7 +4687,7 @@
       }
     }
 
-    // ---------- MEMBER (akun /sahabat, ultah, aktif) ----------
+    // ---------- MEMBER (akun /warga, ultah, aktif) ----------
     let membersInit = false;
     let MEM_DATA = null; // respons getMembers, disimpan biar search nggak refetch
     async function ensureMembers() {
@@ -4796,7 +4796,7 @@
     }
 
     function memWaMsg(type, nm) {
-      const base = "https://seminggusatu.com/sahabat";
+      const base = "https://seminggusatu.com/warga";
       if (type === "bday") return "Hai " + nm + "! 🎂✨ Selamat ulang tahun yaa dari keluarga Seminggu Satu 💙 Semoga makin kreatif & bahagia! Ada kejutan voucher ultah buat kamu di Member Hub: " + base;
       if (type === "nudge") return "Hai " + nm + "! 👋 Kamu sekarang bisa akses *Member Hub* Seminggu Satu — cek loyalty, event, challenge & kejutan ultah kamu di sini ya: " + base + " 💙";
       return "Hai " + nm + "! 👋";
@@ -4853,12 +4853,12 @@
           const sub = (a.birthDate ? "🎂 " + escapeHtml(memBdayShort(a.birthDate)) + (age !== null ? " · <b>" + age + " thn</b>" : "") + " · " : "") + "login terakhir: " + escapeHtml(a.lastLogin || "-");
           return memRow(a.nickname, sub, a.wa, "Chat", "chat", a.ig);
         }).join("")
-        : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Belum ada yang daftar /sahabat.") + '</p>';
+        : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Belum ada yang daftar /warga.") + '</p>';
       document.getElementById("memActiveCount").textContent = accs.length + (q ? "/" + r.accounts.length : "");
 
       const inacts = r.notRegistered.filter(hit);
       document.getElementById("memInactive").innerHTML = inacts.length
-        ? inacts.map(m => memRow(m.nickname, m.count + " event · belum daftar /sahabat", m.wa, "Ajak daftar", "nudge", m.ig)).join("")
+        ? inacts.map(m => memRow(m.nickname, m.count + " event · belum daftar /warga", m.wa, "Ajak daftar", "nudge", m.ig)).join("")
         : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Semua member udah daftar 🎉") + '</p>';
       document.getElementById("memInactiveCount").textContent = inacts.length + (q ? "/" + r.notRegistered.length : "");
 

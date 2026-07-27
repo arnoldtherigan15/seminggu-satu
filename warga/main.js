@@ -2662,8 +2662,8 @@ function initPush() {
         try {
             await OneSignal.init({
                 appId: ONESIGNAL_APP_ID,
-                serviceWorkerPath: "/sahabat/sw.js",
-                serviceWorkerParam: { scope: "/sahabat/" }
+                serviceWorkerPath: "/warga/sw.js",
+                serviceWorkerParam: { scope: "/warga/" }
             });
             // tag nomor WA -> server bisa exclude pengirim pas broadcast karya baru
             if (_profile && _profile.wa) OneSignal.User.addTag("wa", String(_profile.wa).replace(/\D/g, ""));
