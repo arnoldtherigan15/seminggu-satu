@@ -179,6 +179,7 @@ Deno.serve(async (req) => {
         fullName: fullName || nickname,
         nickname: nickname || igUsername || fullName,
         whatsapp: wa,
+        batchId: batch?.id,
       });
     } catch (_e) {
       // sengaja diabaikan

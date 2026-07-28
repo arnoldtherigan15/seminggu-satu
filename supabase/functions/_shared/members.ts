@@ -1,20 +1,22 @@
 import { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { waKey } from "./auth.ts";
+import { loyaltyMembers } from "./queries.ts";
 
 // "Member" = nomor WA pernah kedaftar di minimal 1 event BERBAYAR (loyalty).
 // journaling-date dikecualikan (event gratis khusus member) -- port dari
 // memberInfo_ / LOYALTY_EXCLUDE_ di Google_Script_Code.js.
+//
+// PENTING: pake loyaltyMembers() (normalisasi wa di kode, bukan `.eq("wa", key)`
+// mentah ke DB) -- sebagian baris `registrations.wa` hasil migrasi lama nggak
+// tersimpan dalam format yang udah dinormalisasi persis, jadi exact-match query
+// bisa false-negative padahal orangnya emang member (ketemu di member-status,
+// tapi nggak ketemu di sini -- bug nyata yang bikin reset-password/setup gagal
+// walau akunnya valid).
 export async function isMemberWa(admin: SupabaseClient, wa: string): Promise<boolean> {
   const key = waKey(wa);
   if (!key) return false;
-  const { data } = await admin
-    .from("registrations")
-    .select("id")
-    .eq("wa", key)
-    .neq("workshop_type", "journaling-date")
-    .limit(1)
-    .maybeSingle();
-  return !!data;
+  const members = await loyaltyMembers(admin);
+  return members.some((m) => m.key === key);
 }
 
 function jakartaMonthDay(): string {

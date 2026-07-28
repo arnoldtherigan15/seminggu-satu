@@ -32,14 +32,19 @@ function waButton(waRaw: string | undefined, nickname: string, sapaan: string) {
 // workshop baru, + tombol "Sambut di WhatsApp" siap-klik.
 export async function notifyRegistration(
   admin: SupabaseClient,
-  info: { workshopType: string; label: string; fullName?: string; nickname?: string; whatsapp?: string },
+  info: { workshopType: string; label: string; fullName?: string; nickname?: string; whatsapp?: string; batchId?: string },
 ) {
   if (!Deno.env.get("TELEGRAM_TOKEN")) return;
 
-  const { count } = await admin
-    .from("registrations")
-    .select("id", { count: "exact", head: true })
-    .eq("workshop_type", info.workshopType);
+  // Port dari kirimNotifTelegram() -- dulu "jumlah = sheet.getLastRow()-1", yaitu
+  // total di SHEET BATCH itu doang (tiap batch punya sheet sendiri). Di sini
+  // registrations udah 1 tabel gabungan, jadi WAJIB difilter per batch_id juga,
+  // bukan cuma workshop_type -- kalau nggak, angkanya jadi total SEMUA batch
+  // sepanjang masa (bug yang sempet kejadian: nunjukkin 47 padahal batch aktif
+  // baru 9 orang).
+  let q = admin.from("registrations").select("id", { count: "exact", head: true }).eq("workshop_type", info.workshopType);
+  if (info.batchId) q = q.eq("batch_id", info.batchId);
+  const { count } = await q;
 
   const pesan =
     "🎉 *Pendaftar Baru!*\n\n" +
@@ -47,7 +52,7 @@ export async function notifyRegistration(
     `👤 Nama: ${info.fullName || "-"}\n` +
     `🏷️ Nickname: ${info.nickname || "-"}\n` +
     `📱 WA: ${info.whatsapp || "-"}\n` +
-    `📊 Total pendaftar: *${count ?? "?"}*`;
+    `📊 Total di batch ini: *${count ?? "?"}* peserta`;
 
   const nick = info.nickname || "kak";
   let groupLink = "";
