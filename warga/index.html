@@ -3426,7 +3426,16 @@
                     <label id="loginHi">Masukin password kamu</label>
                     <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
                     <button class="auth-btn" id="loginBtn">Masuk</button>
+                    <button class="auth-back" id="forgotBtn" type="button">Lupa password?</button>
                     <button class="auth-back" id="backBtn1">← Ganti nomor</button>
+                </div>
+
+                <!-- Step 2: lupa password (reset) -->
+                <div class="auth-form" id="stepReset" style="display:none;">
+                    <label id="resetHi">Bikin password baru</label>
+                    <input type="password" id="resetPass" placeholder="Password baru (min. 4 karakter)" autocomplete="new-password">
+                    <button class="auth-btn" id="resetBtn">Simpan Password Baru</button>
+                    <button class="auth-back" id="backBtn3">← Ganti nomor</button>
                 </div>
 
                 <!-- Step 2: setup (belum punya akun) -->

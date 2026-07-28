@@ -64,6 +64,7 @@ const MEMBER_ACTION_FN = {
     memberLogin: "member-login",
     memberPostBoard: "member-post-board",
     memberPostSuggestion: "member-post-suggestion",
+    memberResetPassword: "member-reset-password",
     memberSession: "member-session",
     memberSetMood: "member-set-mood",
     memberSetup: "member-setup",
@@ -150,14 +151,25 @@ $("waInput").addEventListener("keydown", (e) => { if (e.key === "Enter") stepChe
 $("loginBtn").addEventListener("click", doLogin);
 $("loginPass").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
 $("setupBtn").addEventListener("click", doSetup);
+$("forgotBtn").addEventListener("click", () => {
+    $("stepLogin").style.display = "none";
+    $("stepReset").style.display = "flex";
+    setMsg("");
+    $("resetPass").focus();
+});
+$("resetBtn").addEventListener("click", doResetPassword);
+$("resetPass").addEventListener("keydown", (e) => { if (e.key === "Enter") doResetPassword(); });
 $("backBtn1").addEventListener("click", resetToWa);
 $("backBtn2").addEventListener("click", resetToWa);
+$("backBtn3").addEventListener("click", resetToWa);
 $("logoutBtn").addEventListener("click", logout);
 
 function resetToWa() {
     $("stepLogin").style.display = "none";
     $("stepSetup").style.display = "none";
+    $("stepReset").style.display = "none";
     $("stepWa").style.display = "flex";
+    if ($("resetPass")) $("resetPass").value = "";
     if ($("setupBirth")) $("setupBirth").value = "";
     if ($("dpValue")) {
         $("dpValue").textContent = "Pilih tanggal lahir...";
@@ -220,6 +232,19 @@ async function doSetup() {
         const r = await apiPost({ action: "memberSetup", wa: _wa, password: pass, birthDate: birth });
         if (r.status === "success") { onAuthSuccess(r); }
         else { setMsg(r.message || "Gagal membuat akun.", true); }
+    } catch (e) { setMsg("Gagal terhubung ke server.", true); }
+    finally { btn.disabled = false; hideBusy(); }
+}
+
+async function doResetPassword() {
+    const pass = $("resetPass").value;
+    if (pass.length < 4) { setMsg("Password minimal 4 karakter.", true); return; }
+    const btn = $("resetBtn"); btn.disabled = true; setMsg("Menyimpan password baru…");
+    showBusy("Menyimpan password baru…");
+    try {
+        const r = await apiPost({ action: "memberResetPassword", wa: _wa, password: pass });
+        if (r.status === "success") { onAuthSuccess(r); }
+        else { setMsg(r.message || "Gagal ganti password.", true); }
     } catch (e) { setMsg("Gagal terhubung ke server.", true); }
     finally { btn.disabled = false; hideBusy(); }
 }
