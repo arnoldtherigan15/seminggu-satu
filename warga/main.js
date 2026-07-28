@@ -3949,9 +3949,13 @@ function renderTeras(modal) {
     $("trHug").addEventListener("click", async () => {
         gameMusicStop();
         showBusy("Mochi lagi ngambil kue…");
-        try { await loadFortunes(); } catch (e) { hideBusy(); alert("Gagal ngambil kue-nya 😢"); return; }
+        let promptList;
+        // ikut load daftar prompt juga (bukan cuma fortune) -- kepake kalau dari
+        // sini user pencet "Baca Prompt Harian", nggak boleh null (dulu bikin
+        // surat kebuka kosong / JS error)
+        try { promptList = await loadPrompts(); await loadFortunes(); } catch (e) { hideBusy(); alert("Gagal ngambil kue-nya 😢"); return; }
         hideBusy();
-        renderFortuneScene(modal, null, false, "mochi_hug");
+        renderFortuneScene(modal, promptList, false, "mochi_hug");
     });
     // omongan pelan Mochi, ganti tiap ~7 detik (urut, nggak acak — kayak obrolan)
     const lineEl = $("trLine");
@@ -4180,9 +4184,10 @@ function openMoodTracker(modal, justPicked) {
             if (act === "mading") { closeMochiPrompt(); openMadingModal(); return; }
             if (act === "hug") {
                 showBusy("Mochi lagi ngambil kue…");
-                try { await loadFortunes(); } catch (e) { hideBusy(); alert("Gagal ngambil kue-nya 😢"); return; }
+                let promptList;
+                try { promptList = await loadPrompts(); await loadFortunes(); } catch (e) { hideBusy(); alert("Gagal ngambil kue-nya 😢"); return; }
                 hideBusy();
-                renderFortuneScene(modal, null, false, "mochi_hug"); // kue khusus pelukan
+                renderFortuneScene(modal, promptList, false, "mochi_hug"); // kue khusus pelukan
                 return;
             }
             // default: prompt harian
