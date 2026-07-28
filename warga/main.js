@@ -61,6 +61,8 @@ function restGet(path, timeoutMs) {
 const MEMBER_ACTION_FN = {
     memberCheckin: "member-checkin",
     memberEditQuest: "member-edit-quest",
+    memberJarAdd: "member-jar-add",
+    memberJarCustomize: "member-jar-customize",
     memberLogin: "member-login",
     memberPostBoard: "member-post-board",
     memberPostSuggestion: "member-post-suggestion",
@@ -267,7 +269,7 @@ function fireConfetti(preset) {
 }
 
 function onAuthSuccess(r) {
-    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}", publicOptIn: r.publicOptIn === "1" ? "1" : "", publicId: r.publicId || "" };
+    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}", jarRecords: r.jarRecords || "{}", publicOptIn: r.publicOptIn === "1" ? "1" : "", publicId: r.publicId || "" };
     // MERGE mood server + lokal (bukan nimpa buta): server menang per-hari (kebenaran
     // lintas device), tapi hari yang cuma ada di lokal (sync-nya sempet gagal/offline)
     // jangan sampai kehapus
@@ -400,7 +402,9 @@ window.addEventListener("hashchange", () => {
     if ($("dashView").style.display === "none") return;
     const h = (location.hash || "").replace("#", "");
     if (h === "snail-mail") { openSnailBox(false); return; } // halaman kotak surat (deep-link/refresh aman)
+    if (h === "jar") { openJarBox(false); return; } // halaman toples syukur (deep-link/refresh aman)
     closeSnailPage(false);
+    closeJarPage(false);
     activateTab(h);
 });
 
@@ -2659,13 +2663,14 @@ async function loadLoyalty() {
             birthdayHtml +
             trackerHtml +
             '<div id="evTicketSlot"></div>' +
-            '<div id="snailSlot"></div>' +
-            '<button type="button" class="psp-cta" id="btnPassport">' +
-            '<span class="psp-cta-emblem">SS</span>' +
-            '<span class="psp-cta-body"><span class="psp-cta-t">Paspor Warga</span>' +
-            '<span class="psp-cta-s">Identitas + stempel event yang udah kamu datengin</span></span>' +
-            '<span class="psp-cta-go">buka →</span>' +
+            '<div class="pr-row" id="personalRow">' +
+            '<div id="prJarTile"></div>' +
+            '<div id="prMailTile"></div>' +
+            '<button type="button" class="pr-tile" id="btnPassport">' +
+            '<span class="pr-ic">🪪</span><span class="pr-t">Paspor Warga</span>' +
+            '<span class="pr-s">Stempel event</span>' +
             '</button>' +
+            '</div>' +
             cardHtml +
             '<div class="stat-cards">' +
             '<button type="button" class="scard" id="scardEvents"><b>' + count + '</b><span>Events Joined</span><span class="scard-go">lihat \u2192</span></button>' +
@@ -2681,6 +2686,8 @@ async function loadLoyalty() {
         refreshInstallBanner(); // banner pasang app (ilang kalau udah standalone/di-snooze)
         refreshMoodWidget(); // widget cuaca hati (data sync dari localStorage/profil)
         renderEventTicket(); // kalau _evRegistered belum ada, loadEvents yang ngisi nanti
+        jarCtaRefresh(); // toples syukur/impian -- data udah kebawa dari _profile, ga perlu fetch lagi
+        if (location.hash === "#jar") openJarBox(false); // habis refresh di #jar -> langsung buka lagi
         loadSnailMail().then(() => {
             snailCtaRefresh();
             // habis refresh di #snail-mail -> langsung buka lagi halamannya
@@ -4752,18 +4759,18 @@ function snailSkin(l) {
 }
 
 function snailCtaRefresh() {
-    const slot = $("snailSlot");
+    const slot = $("prMailTile");
     if (!slot) return;
     const avail = snailAvail();
     if (!avail.length) { slot.innerHTML = ""; return; }
     const read = snailReadSet();
     const unread = avail.filter(l => !read.has(l.id)).length;
     slot.innerHTML =
-        '<button type="button" class="snail-cta" id="snailCta">' +
-        '<span class="snail-ic">📬</span>' +
-        '<span class="snail-body"><span class="snail-t">Kotak Surat Mochi</span>' +
-        '<span class="snail-s">' + (unread ? unread + ' surat belum dibaca 💌' : avail.length + ' surat terkumpul \u00b7 surat baru tiap tanggal 1') + '</span></span>' +
-        (unread ? '<span class="snail-new">BARU</span>' : '<span class="snail-go">buka \u2192</span>') +
+        '<button type="button" class="pr-tile" id="snailCta">' +
+        (unread ? '<span class="pr-dot"></span>' : '') +
+        '<span class="pr-ic">📬</span>' +
+        '<span class="pr-t">Kotak Surat</span>' +
+        '<span class="pr-s">' + (unread ? unread + ' baru 💌' : 'sudah dibaca') + '</span>' +
         '</button>';
     $("snailCta").addEventListener("click", openSnailBox);
 }
@@ -4811,6 +4818,320 @@ function closeSnailPage(retHash) {
     gameMusicStop();
     snailCtaRefresh(); // badge BARU di Home ikut update
     if (retHash !== false) { try { if (location.hash === "#snail-mail") location.hash = "home"; } catch (e) { } }
+}
+
+// ---------- Gratitude Jar (toples syukur/impian) (#jar) ----------
+// Pola sama kayak Kotak Surat: halaman penuh (bukan modal) biar bisa deep-link
+// & di-refresh. 1 entri per hari, dikelompokkan per bulan; bulan lama nggak
+// di-reset -- tetep bisa dibuka lagi lewat "rak toples" (bukan hilang/ke-punish
+// kalau kelewat hari, lihat skill seminggu-psych).
+const JAR_TAG_PALETTE = ["#ffe08a", "#ffc2d1", "#b8e3ff", "#c8f2d4", "#ffd3b0", "#dcd0ff"];
+const JAR_RIBBON_COLORS = ["#ffe600", "#ff6f8f", "#6fc2ff", "#7fe0a8", "#ffab73"];
+const JAR_MASK_PATH = "M 0.3933 0.0211 L 0.6067 0.0211 L 0.6067 0.1105 C 0.6067 0.1105 0.7733 0.1526 0.8267 0.2526 C 0.8733 0.3421 0.8733 0.3947 0.8733 0.3947 L 0.8733 0.8684 C 0.8733 0.9342 0.8000 0.9789 0.7000 0.9789 L 0.3000 0.9789 C 0.2000 0.9789 0.1267 0.9342 0.1267 0.8684 L 0.1267 0.3947 C 0.1267 0.3947 0.1267 0.3421 0.1733 0.2526 C 0.2267 0.1526 0.3933 0.1105 0.3933 0.1105 Z";
+let _jarViewMonth = null; // bulan yang lagi ditampilin (default: bulan berjalan)
+
+function jarMonthKey(d) {
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit" }).formatToParts(d || new Date());
+    return parts.find(p => p.type === "year").value + "-" + parts.find(p => p.type === "month").value;
+}
+function jarTodayNum() {
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", day: "2-digit" }).formatToParts(new Date());
+    return parseInt(parts.find(p => p.type === "day").value, 10);
+}
+function jarAllRecords() {
+    try { return JSON.parse((_profile && _profile.jarRecords) || "{}"); } catch (e) { return {}; }
+}
+function jarMonthData(key) { return jarAllRecords()[key] || null; }
+
+// Simpen nama/pita segera (independen dari nambah kata) -- lihat catatan di
+// renderJarPage soal kenapa ini nggak boleh nunggu submit kata.
+async function jarSaveCustomization(name, ribbon) {
+    try {
+        const r = await apiPost({ action: "memberJarCustomize", token: _profile.token, jarName: name, ribbon: ribbon });
+        if (r && r.status === "success") {
+            _profile.jarRecords = r.jarRecords || _profile.jarRecords;
+            jarCtaRefresh();
+        }
+    } catch (e) { /* diamkan -- kalau gagal, tetep kesimpen kalau user ganti lagi/nambah kata */ }
+}
+function jarMonthLabelFromKey(key) {
+    const m = key.match(/^(\d{4})-(\d{2})$/);
+    return m ? BULAN_ID[parseInt(m[2], 10) - 1] + " " + m[1] : key;
+}
+
+function jarCtaRefresh() {
+    const slot = $("prJarTile");
+    if (!slot) return;
+    const curKey = jarMonthKey();
+    const jar = jarMonthData(curKey);
+    const items = (jar && jar.items) || [];
+    const today = jarTodayNum();
+    const doneToday = items.some(it => it.day === today);
+    const name = (jar && jar.name) || "Gratitude Jar";
+    slot.innerHTML =
+        '<button type="button" class="pr-tile" id="jarCta">' +
+        '<span class="pr-ic">🫙</span>' +
+        '<span class="pr-t">' + esc(name) + '</span>' +
+        '<span class="pr-s">' + (doneToday ? 'udah hari ini ✓' : (items.length ? items.length + ' kata bulan ini' : 'yuk mulai')) + '</span>' +
+        '</button>';
+    $("jarCta").addEventListener("click", () => openJarBox());
+}
+
+function openJarBox(setHash) {
+    let p = $("jarPage");
+    if (!p) {
+        p = document.createElement("div");
+        p.id = "jarPage";
+        p.className = "jar-page";
+        document.body.appendChild(p);
+    }
+    _jarViewMonth = jarMonthKey();
+    renderJarPage();
+    p.classList.add("show");
+    lockScroll();
+    wrappedMusicPlay(); // musik latar sama kayak My Summary/Passport
+    if (setHash !== false) { try { location.hash = "jar"; } catch (e) { } }
+}
+
+function closeJarPage(retHash) {
+    const p = $("jarPage");
+    if (!p || !p.classList.contains("show")) return;
+    p.classList.remove("show");
+    unlockScroll();
+    wrappedMusicStop();
+    jarCtaRefresh();
+    if (retHash !== false) { try { if (location.hash === "#jar") location.hash = "home"; } catch (e) { } }
+}
+
+function jarPileHtml(items) {
+    return (items || []).map((it, i) => {
+        const color = JAR_TAG_PALETTE[i % JAR_TAG_PALETTE.length];
+        const rot = ((i * 37) % 10 - 5).toFixed(1); // deterministik (bukan random) biar re-render stabil
+        return '<div class="jp-tag" style="background:' + color + ';--tag-rot:' + rot + 'deg;animation:none;">' + esc(it.text) + '</div>';
+    }).join("");
+}
+
+function jarShelfHtml(months, activeKey) {
+    return '<div class="jp-shelf-title">Rak toples bulan-bulan lalu</div>' +
+        '<div class="jp-shelf">' + months.map(k => {
+            const j = jarMonthData(k);
+            const hasData = j && (j.items || []).length;
+            return '<button type="button" class="jp-mini" data-month="' + esc(k) + '">' +
+                '<div class="glyph' + (k === activeKey ? " current" : "") + '" style="opacity:' + (hasData ? 1 : .45) + '"></div>' +
+                esc(jarMonthLabelFromKey(k).split(" ")[0]) + '</button>';
+        }).join("") + '</div>';
+}
+function wireJarShelf() {
+    document.querySelectorAll(".jp-mini").forEach(b => b.addEventListener("click", () => {
+        _jarViewMonth = b.dataset.month;
+        renderJarPage();
+    }));
+}
+
+function renderJarPage() {
+    const page = $("jarPage");
+    if (!page) return;
+    const key = _jarViewMonth;
+    const curKey = jarMonthKey();
+    const isCurrent = key === curKey;
+    const jar = jarMonthData(key) || { name: "Gratitude Jar", ribbon: "#ffe600", items: [] };
+    const items = jar.items || [];
+    const today = jarTodayNum();
+    const doneToday = items.some(it => it.day === today);
+
+    const recs = jarAllRecords();
+    const months = Object.keys(recs);
+    if (months.indexOf(curKey) < 0) months.push(curKey);
+    months.sort();
+
+    if (!isCurrent) {
+        // Bulan lama: baca-doang, list kata-kata aja (nggak perlu render toples full)
+        page.innerHTML =
+            '<div class="jp-wrap">' +
+            '<div class="jp-head"><div class="jp-title">' + esc(jar.name || "Gratitude Jar") + '</div>' +
+            '<button type="button" class="jp-close" id="jpClose">✕</button></div>' +
+            '<div class="jp-sub">' + esc(jarMonthLabelFromKey(key)) + '</div>' +
+            '<div class="jp-view-title">' + items.length + ' kata terkumpul</div>' +
+            (items.length
+                ? '<div class="jp-view-list">' + items.map((it, i) => '<span class="jp-view-tag" style="background:' + JAR_TAG_PALETTE[i % JAR_TAG_PALETTE.length] + '">' + esc(it.text) + '</span>').join("") + '</div>'
+                : '<div class="jp-empty">Nggak ada kata bulan ini 🌙</div>') +
+            '<button type="button" class="jp-back-btn" id="jpBackCurrent">← Balik ke toples bulan ini</button>' +
+            jarShelfHtml(months, key) +
+            '</div>';
+        $("jpClose").addEventListener("click", () => closeJarPage());
+        $("jpBackCurrent").addEventListener("click", () => { _jarViewMonth = curKey; renderJarPage(); });
+        wireJarShelf();
+        return;
+    }
+
+    page.innerHTML =
+        '<svg width="0" height="0" style="position:absolute"><defs><clipPath id="jarMaskW" clipPathUnits="objectBoundingBox">' +
+        '<path d="' + JAR_MASK_PATH + '"/>' +
+        '</clipPath></defs></svg>' +
+        '<div class="jp-wrap">' +
+        '<div class="jp-head"><div class="jp-title">🫙 Gratitude Jar</div>' +
+        '<button type="button" class="jp-close" id="jpClose">✕</button></div>' +
+        '<div class="jp-sub">1 kata/hari, kapan aja kamu inget. Nggak keburu-buru — nggak dipaksa tiap hari juga nggak apa 💙</div>' +
+        '<div class="jp-dock">' +
+        '<span class="jp-dock-lbl">Nama</span>' +
+        '<input class="jp-name-input" id="jpNameInput" type="text" maxlength="24" value="' + esc(jar.name || "Gratitude Jar") + '">' +
+        '<div class="jp-dock-divider"></div>' +
+        '<span class="jp-dock-lbl">Pita</span>' +
+        '<div class="jp-swatch-row" id="jpSwatches"></div>' +
+        '</div>' +
+        '<div class="jp-stage">' +
+        '<div class="jp-shell" id="jpShell" style="--jar-ribbon:' + (jar.ribbon || "#ffe600") + '">' +
+        '<div class="jp-clip"><div class="jp-pile" id="jpPile">' + jarPileHtml(items) + '</div></div>' +
+        '<div class="jp-shine"></div>' +
+        '<svg class="jp-outline" viewBox="0 0 300 380" preserveAspectRatio="none"><path d="M 118 8 L 182 8 L 182 42 C 182 42 232 58 248 96 C 262 130 262 150 262 150 L 262 330 C 262 355 240 372 210 372 L 90 372 C 60 372 38 355 38 330 L 38 150 C 38 150 38 130 52 96 C 68 58 118 42 118 42 Z"/></svg>' +
+        '<div class="jp-ribbon" id="jpRibbon"><svg viewBox="0 0 74 46" fill="none">' +
+        '<path class="bow-shape" d="M35 20 C 24 8 8 6 4 14 C 0 22 8 28 35 22 Z"/><path class="bow-shade" d="M35 20 C 28 13 16 10 8 13 C 20 14 30 18 35 22 Z"/>' +
+        '<path class="bow-shape" d="M39 20 C 50 8 66 6 70 14 C 74 22 66 28 39 22 Z"/><path class="bow-shade" d="M39 20 C 46 13 58 10 66 13 C 54 14 44 18 39 22 Z"/>' +
+        '<path class="bow-shape" d="M31 19 L28 44 L34 41 L37 44 L40 41 L46 44 L43 19 Z"/><rect class="bow-shape" x="30" y="14" width="14" height="13" rx="3.5"/><rect class="bow-shade" x="30" y="14" width="14" height="5" rx="2.5"/>' +
+        '</svg></div>' +
+        '<div class="jp-label">' + esc(jar.name || "Gratitude Jar") + ' — ' + esc(jarMonthLabelFromKey(key).split(" ")[0]) + '</div>' +
+        '<div class="jp-count" id="jpCount">' + items.length + ' kata</div>' +
+        '</div>' +
+        '<form class="jp-composer" id="jpComposer">' +
+        '<input id="jpEntryInput" type="text" maxlength="40" placeholder="Hari ini aku bersyukur karena…" autocomplete="off"' + (doneToday ? " disabled" : "") + '>' +
+        '<button type="submit"' + (doneToday ? " disabled" : "") + '>Masukin</button>' +
+        '</form>' +
+        '<p class="jp-hint" id="jpHint">' + (doneToday ? "Udah masukin 1 kali hari ini — balik lagi besok ya 💙" : "Boleh 1 kali hari ini ✨") + '</p>' +
+        '</div>' +
+        jarShelfHtml(months, key) +
+        '</div>';
+
+    $("jpClose").addEventListener("click", () => closeJarPage());
+
+    const nameInput = $("jpNameInput");
+    nameInput.addEventListener("input", () => {
+        const val = nameInput.value.trim() || "Gratitude Jar";
+        const lbl = page.querySelector(".jp-label");
+        if (lbl) lbl.textContent = val + " — " + jarMonthLabelFromKey(key).split(" ")[0];
+    });
+    // Disimpen begitu selesai ngetik (blur) -- JANGAN nunggu kata baru dimasukin,
+    // soalnya kalau jatah hari itu udah kepake, nggak ada cara lain buat nyimpen
+    // nama (kejadian nyata: user ganti nama, ga ke-save karena udah submit 1x/hari).
+    nameInput.addEventListener("blur", () => {
+        const val = nameInput.value.trim() || "Gratitude Jar";
+        const curRibbon = (jarMonthData(key) || {}).ribbon || jar.ribbon || "#ffe600";
+        jarSaveCustomization(val, curRibbon);
+    });
+
+    const swRow = $("jpSwatches");
+    JAR_RIBBON_COLORS.forEach(c => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "jp-swatch" + (c === (jar.ribbon || "#ffe600") ? " active" : "");
+        b.style.background = c;
+        b.addEventListener("click", () => {
+            swRow.querySelectorAll(".jp-swatch").forEach(s => s.classList.remove("active"));
+            b.classList.add("active");
+            $("jpShell").style.setProperty("--jar-ribbon", c);
+            jarSaveCustomization($("jpNameInput").value.trim() || "Gratitude Jar", c);
+        });
+        swRow.appendChild(b);
+    });
+
+    $("jpComposer").addEventListener("submit", jarSubmitEntry);
+    wireJarShelf();
+}
+
+function jarBumpJar() {
+    const shell = $("jpShell");
+    if (!shell) return;
+    shell.classList.remove("bump");
+    void shell.offsetWidth;
+    shell.classList.add("bump");
+}
+function jarSpawnSparkles(x, y) {
+    for (let i = 0; i < 6; i++) {
+        const s = document.createElement("div");
+        s.className = "jp-sparkle";
+        s.style.left = x + "px"; s.style.top = y + "px";
+        const ang = Math.random() * Math.PI * 2;
+        const dist = 18 + Math.random() * 20;
+        s.style.setProperty("--sx", (Math.cos(ang) * dist).toFixed(1) + "px");
+        s.style.setProperty("--sy", (Math.sin(ang) * dist - 10).toFixed(1) + "px");
+        document.body.appendChild(s);
+        s.addEventListener("animationend", () => s.remove());
+    }
+}
+async function jarFlyToInput(text, color) {
+    const input = $("jpEntryInput");
+    const shell = $("jpShell");
+    if (!input || !shell) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const startRect = input.getBoundingClientRect();
+    const jarRect = shell.getBoundingClientRect();
+    const start = { x: startRect.left + startRect.width * 0.28, y: startRect.top + startRect.height / 2 };
+    const end = { x: jarRect.left + jarRect.width * 0.5, y: jarRect.top + jarRect.height * 0.1 };
+
+    const fly = document.createElement("div");
+    fly.className = "jp-flying";
+    fly.textContent = text;
+    fly.style.background = color;
+    fly.style.transform = "translate(" + start.x + "px," + start.y + "px) translate(-50%,-50%)";
+    document.body.appendChild(fly);
+
+    const midX = start.x + (end.x - start.x) * 0.55;
+    const midY = Math.min(start.y, end.y) - 90;
+
+    const anim = fly.animate([
+        { transform: "translate(" + start.x + "px," + start.y + "px) translate(-50%,-50%) rotate(0deg) scale(1)", offset: 0 },
+        { transform: "translate(" + midX + "px," + midY + "px) translate(-50%,-50%) rotate(-14deg) scale(1.08)", offset: .55 },
+        { transform: "translate(" + end.x + "px," + end.y + "px) translate(-50%,-50%) rotate(8deg) scale(.3)", offset: 1 }
+    ], { duration: 600, easing: "cubic-bezier(.32,.6,.4,1)" });
+
+    await anim.finished;
+    fly.remove();
+    jarBumpJar();
+    jarSpawnSparkles(end.x, end.y);
+}
+
+async function jarSubmitEntry(e) {
+    e.preventDefault();
+    const input = $("jpEntryInput");
+    const text = input.value.trim();
+    if (!text) return;
+    const btn = e.target.querySelector("button");
+    btn.disabled = true; input.disabled = true;
+    input.value = "";
+
+    const curItems = (jarMonthData(_jarViewMonth) || {}).items || [];
+    const color = JAR_TAG_PALETTE[curItems.length % JAR_TAG_PALETTE.length];
+    await jarFlyToInput(text, color);
+
+    // Drop ke pile SECARA VISUAL dulu (optimistic, biar animasinya kepake langsung)
+    const pile = $("jpPile");
+    if (pile) {
+        const tag = document.createElement("div");
+        tag.className = "jp-tag";
+        tag.textContent = text;
+        tag.style.background = color;
+        tag.style.setProperty("--tag-rot", (Math.random() * 10 - 5).toFixed(1) + "deg");
+        pile.appendChild(tag);
+        const countEl = $("jpCount");
+        if (countEl) countEl.textContent = (curItems.length + 1) + " kata";
+    }
+
+    showBusy("Menyimpan…");
+    try {
+        const r = await apiPost({ action: "memberJarAdd", token: _profile.token, text });
+        hideBusy();
+        if (r.status !== "success") {
+            const hint = $("jpHint"); if (hint) hint.textContent = r.message || "Gagal nyimpen, coba lagi ya.";
+            btn.disabled = false; input.disabled = false;
+            return;
+        }
+        _profile.jarRecords = r.jarRecords || _profile.jarRecords;
+        const hint = $("jpHint"); if (hint) hint.textContent = "Udah masukin 1 kali hari ini — balik lagi besok ya 💙";
+        jarCtaRefresh();
+    } catch (err) {
+        hideBusy();
+        const hint = $("jpHint"); if (hint) hint.textContent = "Gagal terhubung ke server.";
+        btn.disabled = false; input.disabled = false;
+    }
 }
 
 function renderSnailBox() {

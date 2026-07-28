@@ -61,6 +61,9 @@
             --card: #fff;
             --line: #e4e9f5;
             --muted: #6b7794;
+            --jar-glass-1: rgba(170, 200, 255, .55);
+            --jar-glass-2: rgba(130, 165, 255, .28);
+            --jar-shine: rgba(255, 255, 255, .55);
         }
 
         /* ---- Dark mode (remap token + surface hardcoded) ---- */
@@ -72,6 +75,9 @@
             --card: #172035;
             --line: #2a3550;
             --muted: #9fabc9;
+            --jar-glass-1: rgba(70, 100, 190, .5);
+            --jar-glass-2: rgba(40, 60, 130, .4);
+            --jar-shine: rgba(190, 215, 255, .35);
         }
         :root[data-theme="dark"] .fab-item,
         :root[data-theme="dark"] .jt-week-box,
@@ -343,13 +349,11 @@
             #loyaltyContent > .journal-tracker-card { order: 1; }
             #loyaltyContent > .member-card-wrapper { order: 2; }
             #loyaltyContent > #evTicketSlot { order: 3; }
-            #loyaltyContent > .psp-cta { order: 4; }
             #loyaltyContent > .stat-cards { order: 5; }
             #loyaltyContent > .card { order: 6; }
             #loyaltyContent > .tier { order: 7; }
             #loyaltyContent > .recap-card { order: 0; grid-column: 1 / -1; } /* nempel setelah widget cuaca */
-            #loyaltyContent > #snailSlot { order: 9; }
-            #snailSlot:empty { display: none; }
+            #loyaltyContent > .pr-row { order: 8; grid-column: 1 / -1; }
 
             /* Event: kartu dua kolom, label & sticky note ultah tetap full-width */
             #pane-events.active { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; align-items: start; }
@@ -2424,29 +2428,18 @@
         .rc-go { flex: none; font-weight: 800; font-size: .78rem; color: var(--blue); }
         :root[data-theme="dark"] .recap-card { background-color: rgba(244, 114, 182, .08); border-color: rgba(244, 114, 182, .4); }
 
-        /* CTA paspor: mini cover navy di bawah kartu warga */
-        .psp-cta { position: relative; width: 100%; display: flex; align-items: center; gap: 12px; border: none; cursor: pointer; font-family: inherit; text-align: left; color: #fff; background: linear-gradient(150deg, #16307c, #0d1f56); border-radius: 12px 16px 16px 12px; padding: 13px 14px; margin-bottom: 1rem; box-shadow: inset 0 0 0 2px rgba(255, 230, 0, .3), 0 6px 16px rgba(13, 31, 86, .3); }
-        .psp-cta:active { transform: scale(.98); }
-        .psp-cta-emblem { flex: none; width: 38px; height: 38px; border-radius: 50%; border: 2px solid #ffe600; color: #ffe600; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .8rem; }
-        .psp-cta-body { flex: 1; min-width: 0; }
-        .psp-cta-t { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: #ffe600; letter-spacing: .04em; }
-        .psp-cta-s { display: block; font-size: .72rem; color: rgba(255, 255, 255, .8); margin-top: 1px; }
-        .psp-cta-go { flex: none; font-weight: 800; font-size: .78rem; color: #ffe600; }
-
-        /* ---------- Snail Mail: kotak surat bulanan Mochi ---------- */
-        .snail-cta { position: relative; width: 100%; display: flex; align-items: center; gap: 11px; border: 1.5px dashed rgba(16, 36, 94, .3); cursor: pointer; font-family: inherit; text-align: left; background-color: #fdf6e3; background-image: repeating-linear-gradient(-45deg, rgba(179, 48, 95, .25) 0 8px, transparent 8px 16px, rgba(29, 78, 216, .25) 16px 24px, transparent 24px 32px); background-size: 100% 5px; background-repeat: no-repeat; background-position: top; border-radius: 14px; padding: 14px 14px 12px; margin-bottom: 1rem; transform: rotate(-.3deg); box-shadow: 0 3px 10px rgba(16, 36, 94, .08); }
-        .snail-cta:active { transform: rotate(-.3deg) scale(.98); }
-        .snail-ic { flex: none; font-size: 1.5rem; }
-        .snail-body { flex: 1; min-width: 0; }
-        .snail-t { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; color: #10245e; }
-        .snail-s { display: block; font-size: .74rem; color: #6b7794; margin-top: 1px; }
-        .snail-go { flex: none; font-weight: 800; font-size: .78rem; color: var(--blue); }
-        .snail-new { flex: none; background: #ef2d56; color: #fff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .62rem; letter-spacing: .06em; padding: 3px 9px; border-radius: 999px; animation: bdayPulse2 1.6s ease-in-out infinite; }
+        /* ---- Row: 3 pintu masuk personal (Toples/Gratitude Jar, Kotak Surat, Paspor) ----
+           Sebelumnya 3 kartu penuh berturut-turut & 2 di antaranya keliatan kembar
+           (sama-sama navy+kuning) -- digabung 1 baris ikon kompak biar Home nggak
+           numpuk & tiap fitur gampang dibedain sekilas. */
         @keyframes bdayPulse2 { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        :root[data-theme="dark"] .snail-cta { background-color: #322a18; border-color: rgba(255, 230, 0, .45); }
-        :root[data-theme="dark"] .snail-cta .snail-t { color: #ffe600; }
-        :root[data-theme="dark"] .snail-cta .snail-s { color: #ede1b8; }
-        :root[data-theme="dark"] .snail-cta .snail-go { color: #ffe600; }
+        .pr-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+        .pr-tile { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 1.5px solid var(--line); background: var(--card); border-radius: 14px; padding: 12px 6px 10px; cursor: pointer; font-family: inherit; text-align: center; }
+        .pr-tile:active { transform: scale(.96); }
+        .pr-ic { font-size: 1.4rem; line-height: 1; }
+        .pr-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .68rem; color: var(--ink); line-height: 1.25; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pr-s { font-size: .6rem; color: var(--muted); line-height: 1.2; }
+        .pr-dot { position: absolute; top: 6px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: #ef2d56; animation: bdayPulse2 1.6s ease-in-out infinite; }
 
         /* ---------- halaman Kotak Surat (#snail-mail): meja pos kraft ---------- */
         .snail-page { position: fixed; inset: 0; z-index: 1300; display: none; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; background-color: #f3e7cf; background-image: radial-gradient(rgba(146, 116, 60, .14) 1.2px, transparent 1.4px); background-size: 11px 11px; }
@@ -3390,6 +3383,71 @@
         .ptr.spin .ptr-ic { animation: ptrRot .7s linear infinite; }
         .ptr-ic { display: inline-block; }
         @keyframes ptrRot { to { transform: rotate(360deg); } }
+
+        /* ============================================================
+           Gratitude Jar (toples syukur/impian) — halaman penuh (#jar)
+           ============================================================ */
+        .jar-page { position: fixed; inset: 0; z-index: 1300; display: none; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; background: var(--bg); }
+        .jar-page.show { display: block; }
+        .jp-wrap { max-width: 480px; margin: 0 auto; padding: 16px 16px calc(46px + env(safe-area-inset-bottom)); }
+        .jp-head { display: flex; align-items: center; justify-content: space-between; }
+        .jp-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--ink); }
+        .jp-close { width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--line); color: var(--ink); font-size: .95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .jp-sub { font-size: .78rem; color: var(--muted); line-height: 1.55; margin: 4px 0 18px; }
+
+        .jp-dock { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: .7rem .8rem; margin-bottom: 1.1rem; }
+        .jp-dock-lbl { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+        .jp-name-input { font-size: .82rem; font-weight: 700; padding: .35rem .6rem; border-radius: 9px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); font-family: inherit; width: 132px; }
+        .jp-name-input:focus { outline: none; border-color: var(--blue-2); }
+        .jp-swatch-row { display: flex; gap: .35rem; }
+        .jp-swatch { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2.5px solid transparent; padding: 0; position: relative; }
+        .jp-swatch.active { border-color: var(--ink); }
+        .jp-swatch.active::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1.5px solid var(--ink); opacity: .35; }
+        .jp-dock-divider { width: 1px; align-self: stretch; background: var(--line); }
+
+        .jp-stage { position: relative; display: flex; flex-direction: column; align-items: center; padding: .5rem 0; }
+        .jp-shell { position: relative; width: min(300px, 74vw); aspect-ratio: 300/380; filter: drop-shadow(0 14px 22px rgba(16,36,94,.18)); }
+        .jp-clip { position: absolute; inset: 0; clip-path: url(#jarMaskW); background: linear-gradient(180deg, var(--jar-glass-1) 0%, var(--jar-glass-2) 100%); overflow: hidden; }
+        .jp-outline { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+        .jp-outline path { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linejoin: round; opacity: .85; }
+        .jp-shine { position: absolute; inset: 0; clip-path: url(#jarMaskW); background: linear-gradient(100deg, transparent 34%, var(--jar-shine) 47%, transparent 60%); pointer-events: none; }
+        .jp-ribbon { position: absolute; top: -19px; left: 50%; transform: translateX(-50%); width: 65px; height: 40px; z-index: 5; filter: drop-shadow(0 5px 8px rgba(16,36,94,.28)); }
+        .jp-ribbon svg { width: 100%; height: 100%; display: block; }
+        .jp-ribbon .bow-shape { fill: var(--jar-ribbon, var(--yellow)); }
+        .jp-ribbon .bow-shade { fill: rgba(0,0,0,.12); }
+        .jp-label { position: absolute; top: 68px; left: 50%; transform: translateX(-50%) rotate(-1.2deg); background: var(--card); border: 1.5px dashed var(--glass-edge, rgba(16,36,94,.14)); padding: .28rem .8rem; border-radius: 4px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .78rem; color: var(--ink); box-shadow: 0 6px 14px -8px rgba(16,36,94,.14); z-index: 4; white-space: nowrap; max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
+        .jp-pile { position: absolute; left: 30px; right: 30px; bottom: 14px; display: flex; flex-wrap: wrap-reverse; align-content: flex-start; justify-content: center; gap: 7px 5px; max-height: 72%; }
+        .jp-tag { font-size: .68rem; font-weight: 700; padding: .3rem .55rem; border-radius: 5px; color: #21264a; box-shadow: 0 3px 6px rgba(16,36,94,.18), inset 0 0 0 1px rgba(255,255,255,.5); white-space: nowrap; max-width: 118px; overflow: hidden; text-overflow: ellipsis; animation: jpDrop .5s cubic-bezier(.22,1.4,.36,1) both; transform-origin: center; }
+        @keyframes jpDrop { 0% { transform: translateY(-50px) rotate(var(--tag-rot,0deg)) scale(.7); opacity: 0; } 65% { transform: translateY(4px) rotate(var(--tag-rot,0deg)) scale(1.05); opacity: 1; } 100% { transform: translateY(0) rotate(var(--tag-rot,0deg)) scale(1); opacity: 1; } }
+        .jp-count { position: absolute; bottom: -10px; right: 4px; background: var(--ink); color: var(--bg); font-size: .62rem; font-weight: 700; padding: .22rem .5rem; border-radius: 999px; box-shadow: 0 4px 10px -4px rgba(16,36,94,.2); font-variant-numeric: tabular-nums; }
+        .jp-shell { transform-origin: 50% 92%; }
+        @keyframes jpBump { 0% { transform: scale(1,1); } 35% { transform: scale(1.05,.95); } 65% { transform: scale(.97,1.03); } 100% { transform: scale(1,1); } }
+        .jp-shell.bump { animation: jpBump .42s ease; }
+
+        .jp-flying { position: fixed; z-index: 1999; pointer-events: none; top: 0; left: 0; font-size: .74rem; font-weight: 700; padding: .3rem .55rem; border-radius: 5px; color: #21264a; box-shadow: 0 6px 16px rgba(16,36,94,.32), inset 0 0 0 1px rgba(255,255,255,.5); white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis; will-change: transform, opacity; }
+        .jp-sparkle { position: fixed; z-index: 1998; pointer-events: none; top: 0; left: 0; width: 6px; height: 6px; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 7px 1.5px rgba(255,230,0,.75); animation: jpSparklePop .55s ease-out forwards; }
+        @keyframes jpSparklePop { 0% { transform: translate(-50%,-50%) translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(-50%,-50%) translate(var(--sx),var(--sy)) scale(0); opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .jp-shell.bump { animation: none; } .jp-sparkle { display: none; } }
+
+        .jp-composer { width: 100%; max-width: 380px; margin: 1.8rem auto 0; display: flex; gap: .5rem; }
+        .jp-composer input { flex: 1; font-family: inherit; font-size: .88rem; padding: .8rem .9rem; border-radius: 13px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); outline: none; }
+        .jp-composer input:focus { border-color: var(--blue-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue-2) 18%, transparent); }
+        .jp-composer button { font-family: inherit; font-weight: 700; font-size: .85rem; background: var(--blue); color: #fff; border: none; padding: 0 1.15rem; border-radius: 13px; cursor: pointer; }
+        .jp-composer button:active { transform: scale(.96); }
+        .jp-composer button:disabled { opacity: .45; cursor: not-allowed; }
+        .jp-hint { text-align: center; color: var(--muted); font-size: .74rem; margin-top: .55rem; }
+
+        .jp-shelf-title { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 2.4rem 0 .8rem; text-align: center; }
+        .jp-shelf { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+        .jp-mini { width: 58px; text-align: center; color: var(--muted); font-size: .64rem; font-weight: 600; background: none; border: none; font-family: inherit; cursor: pointer; padding: 0; }
+        .jp-mini .glyph { width: 42px; height: 48px; margin: 0 auto .3rem; background: var(--card); border: 1.5px solid var(--line); clip-path: path("M 15 2 L 27 2 L 27 9 C 27 9 36 13 39 22 C 41 27 41 31 41 31 L 41 42 C 41 46 36 48 30 48 L 12 48 C 6 48 1 46 1 42 L 1 31 C 1 31 1 27 3 22 C 6 13 15 9 15 9 Z"); opacity: .8; }
+        .jp-mini .glyph.current { opacity: 1; border-color: var(--blue-2); }
+        .jp-empty { text-align: center; color: var(--muted); font-size: .82rem; padding: 1rem; }
+
+        .jp-view-title { text-align: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; color: var(--ink); margin-bottom: .6rem; }
+        .jp-view-list { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 380px; margin: 0 auto; }
+        .jp-view-tag { font-size: .72rem; font-weight: 700; padding: .32rem .6rem; border-radius: 5px; color: #21264a; box-shadow: 0 3px 6px rgba(16,36,94,.12); }
+        .jp-back-btn { display: block; width: 100%; max-width: 380px; margin: 1.4rem auto 0; border: 1.5px dashed var(--line); background: var(--bg); color: var(--ink); font-family: inherit; font-weight: 700; font-size: .82rem; border-radius: 12px; padding: 10px; cursor: pointer; }
     </style>
 </head>
 
