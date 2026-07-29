@@ -1613,8 +1613,11 @@ function closePassport() {
 }
 
 // Muka depan cover (jadi "leaf" pas buku tertutup; baliknya = halaman dalam cover)
+// Sampul Paspor ikut pattern yang dipilih di halaman "Profil Kamu" (reuse
+// myProfileCoverStyle -- satu sumber kebenaran buat "gimana cover-ku
+// keliatan" di kedua buku, biar konsisten begitu warga ganti pattern).
 function pspCoverFaceHtml() {
-    return '<div class="psp-cvface">' +
+    return '<div class="psp-cvface" style="' + myProfileCoverStyle((_profile && _profile.profileBg) || "") + '">' +
         '<span class="psp-emblem">SS</span>' +
         '<span class="psp-cover-t">PASSPORT</span>' +
         '<span class="psp-cover-s">BALAI WARGA · SEMINGGU SATU</span>' +
@@ -1877,7 +1880,6 @@ function renderPassportBook(host) {
         if (opened) return;
         opened = true;
         playSfx("flip", 0.7);
-        leftP.style.visibility = "";
         setLeaf(0, false);
         showLeaf();
         coverBtn.style.display = "none"; // leaf kembarannya gantiin di frame yang sama
@@ -1887,9 +1889,12 @@ function renderPassportBook(host) {
             leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
             leaf.style.transform = "rotateY(-180deg)";
             finishOnce(950, () => {
-                // adopsi node: muka belakang leaf (lembar kosong) -> halaman kiri statis
+                // adopsi node: muka belakang leaf (lembar kosong) -> halaman kiri statis,
+                // BARU abis itu leftP ditampilin -- kalau ditampilin dari awal (sebelum
+                // ada isinya) muncul sliver lembar kosong kelihatan pas buku geser
                 leftP.innerHTML = "";
                 while (back.firstChild) leftP.appendChild(back.firstChild);
+                leftP.style.visibility = "";
                 hideLeaf();
                 $("pspNav").style.visibility = "";
                 anim = false;
@@ -3559,7 +3564,6 @@ function initFlipBook(refs, spreads, opts) {
             if (opened) return;
             opened = true;
             playSfx("flip", 0.7);
-            leftP.style.visibility = "";
             setLeaf(0, false);
             showLeaf();
             coverBtn.style.display = "none";
@@ -3569,8 +3573,11 @@ function initFlipBook(refs, spreads, opts) {
                 leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
                 leaf.style.transform = "rotateY(-180deg)";
                 finishOnce(950, () => {
+                    // adopsi DULU, baru tampilin -- kalau ditampilin dari awal (belum
+                    // ada isinya) muncul sliver lembar kosong pas buku geser
                     leftP.innerHTML = "";
                     while (back.firstChild) leftP.appendChild(back.firstChild);
+                    leftP.style.visibility = "";
                     hideLeaf();
                     if (countEl) countEl.textContent = "1 / " + spreads.length;
                     if (prevBtn) prevBtn.style.opacity = ".35";
@@ -3599,14 +3606,12 @@ function initFlipBook(refs, spreads, opts) {
 }
 
 // Sampul buku: default (belum milih pattern) pakai navy-kuning yang sama kayak
-// cover Paspor Warga -- biar kerasa satu keluarga visual "buku warga". Kalau
-// pattern dipilih, dikasih scrim gelap tipis di atasnya biar teks tetep kebaca
-// nggak peduli pattern-nya terang (garis pink) atau gelap (bintang denim).
+// cover Paspor Warga. Kalau pattern dipilih, tampil APA ADANYA tanpa scrim
+// gelap (biar warna aslinya nggak ketutup) -- keterbacaan teks nama/hint
+// diurus lewat background chip di elemennya sendiri, bukan nutup semua.
 function myProfileCoverStyle(bgKey) {
     const file = bgKey === "custom" ? (_profile && _profile.profileBgCustom) : PROFILE_BG_PATTERNS[bgKey];
-    const img = file
-        ? "linear-gradient(rgba(10,18,40,.4),rgba(10,18,40,.52)), url(" + file + ")"
-        : "linear-gradient(150deg, #16307c, #0d1f56)";
+    const img = file ? "url(" + file + ")" : "linear-gradient(150deg, #16307c, #0d1f56)";
     return "background-image:" + img + ";";
 }
 
@@ -3811,6 +3816,7 @@ function openMyProfile(setHash) {
     renderMyProfilePage();
     p.classList.add("show");
     lockScroll();
+    gameMusicPlay("happy.mp3");
     if (setHash !== false) { try { location.hash = "profile"; } catch (e) { } }
 }
 
@@ -3819,6 +3825,7 @@ function closeMyProfile(retHash) {
     if (!p || !p.classList.contains("show")) return;
     p.classList.remove("show");
     unlockScroll();
+    gameMusicStop();
     if (retHash !== false) { try { if (location.hash === "#profile") location.hash = "home"; } catch (e) { } }
 }
 

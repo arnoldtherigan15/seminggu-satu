@@ -118,7 +118,7 @@
 
         /* cover tertutup: tombol tap-to-open, 50% lebar (kembaran psp-cover-static) */
         .pf-cover-static { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; border: none; padding: 0; background: transparent; cursor: pointer; z-index: 6; border-radius: 3px 12px 12px 3px; overflow: hidden; font-family: inherit; box-shadow: 0 16px 26px rgba(0, 10, 40, .35); }
-        .pf-cvface { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 12px; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 44px rgba(0, 0, 0, .35); cursor: pointer; border-radius: inherit; background-size: cover; background-position: center; }
+        .pf-cvface { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 12px; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 30px rgba(0, 0, 0, .18); cursor: pointer; border-radius: inherit; background-size: cover; background-position: center; }
         .pf-cvface::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: linear-gradient(90deg, rgba(0, 0, 0, .3), transparent); pointer-events: none; }
         .pf-corner { position: absolute; right: 0; bottom: 0; width: 0; height: 0; border-style: solid; border-width: 0 0 26px 26px; border-color: transparent transparent rgba(255, 255, 255, .5) transparent; filter: drop-shadow(-2px -2px 3px rgba(0, 0, 0, .22)); pointer-events: none; }
 
@@ -129,8 +129,8 @@
         .pf-ava.init { display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.3rem; color: var(--blue); }
         .pf-mini-tape { position: absolute; top: -8px; left: 50%; transform: translateX(-50%) rotate(-2deg); width: 38px; height: 12px; background: rgba(255, 230, 0, .85); border: 1px dashed rgba(16, 36, 94, .3); }
 
-        .pf-cv-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .95rem; color: #ffe600; margin-top: 8px; text-align: center; text-shadow: 0 2px 5px rgba(0, 0, 0, .35); }
-        .pf-cv-hint { font-size: .58rem; font-weight: 700; color: rgba(255, 255, 255, .78); margin-top: 6px; }
+        .pf-cv-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .95rem; color: #ffe600; margin-top: 8px; text-align: center; background: rgba(16, 36, 94, .6); padding: 4px 14px; border-radius: 999px; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+        .pf-cv-hint { font-size: .58rem; font-weight: 700; color: #fff; margin-top: 6px; background: rgba(16, 36, 94, .55); padding: 3px 11px; border-radius: 999px; }
         .pf-id-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .92rem; color: #10245e; margin-top: 10px; }
         .pf-id-bio { font-style: italic; font-size: .62rem; line-height: 1.5; color: #6b7794; margin-top: 6px; max-width: 96%; }
         .pf-id-bio.muted { font-style: normal; color: #a0906c; }
@@ -364,7 +364,6 @@
                 var openBook = function () {
                     if (opened) return;
                     opened = true;
-                    leftP.style.visibility = "";
                     setLeaf(0, false);
                     showLeaf();
                     coverBtn.style.display = "none";
@@ -374,8 +373,11 @@
                         leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
                         leaf.style.transform = "rotateY(-180deg)";
                         finishOnce(950, function () {
+                            // adopsi DULU, baru tampilin -- biar nggak ada sliver lembar
+                            // kosong kelihatan pas buku geser
                             leftP.innerHTML = "";
                             while (back.firstChild) leftP.appendChild(back.firstChild);
+                            leftP.style.visibility = "";
                             hideLeaf();
                             if (cnt) cnt.textContent = "1 / " + spreads.length;
                             if (prevBtn) prevBtn.style.opacity = ".35";
@@ -439,6 +441,30 @@
                 '<div class="sk-grid3" style="gap:4px;margin-top:1.4rem;">' + boxes + '</div>';
         }
 
+        // Musik latar profil -- ambient pas liat "buku" warga. Browser suka nolak
+        // autoplay tanpa gesture user (halaman ini kebuka langsung dari fetch,
+        // bukan klik), makanya ada fallback: coba lagi begitu ada interaksi
+        // pertama (tap/klik di mana aja) kalau percobaan awal keblokir.
+        function playHappyMusic() {
+            try {
+                var a = document.getElementById("happyMusic");
+                if (!a) {
+                    a = document.createElement("audio");
+                    a.id = "happyMusic";
+                    a.src = "../music/happy.mp3";
+                    a.loop = true;
+                    a.volume = 0.55;
+                    document.body.appendChild(a);
+                }
+                var p = a.play();
+                if (p && p.catch) p.catch(function () {
+                    var retry = function () { a.play().catch(function () { }); document.removeEventListener("click", retry); document.removeEventListener("touchend", retry); };
+                    document.addEventListener("click", retry, { once: true });
+                    document.addEventListener("touchend", retry, { once: true });
+                });
+            } catch (e) { }
+        }
+
         // /balai/?w=<id> -> profil publik 1 warga (ala IG, bisa di-share)
         var wid = (location.search.match(/[?&]w=([a-f0-9]{8})/) || [])[1];
         if (wid) {
@@ -453,13 +479,12 @@
                     pf.innerHTML = '<a class="back" href="./">← Balai Warga</a><div class="pf-empty">Profil ini nggak ketemu — mungkin warganya lagi milih sembunyi dulu 🌙</div>';
                     return;
                 }
+                playHappyMusic();
                 var ava = d.p
                     ? '<img class="pf-ava" src="' + esc(driveThumb(d.p)) + '" alt="">'
                     : '<div class="pf-ava init">' + esc((d.n || "S").charAt(0).toUpperCase()) + '</div>';
                 var bgFile = d.bg === "custom" ? d.bgCustom : BG_PATTERNS[d.bg];
-                var coverImg = bgFile
-                    ? 'linear-gradient(rgba(10,18,40,.4),rgba(10,18,40,.52)), url(' + bgFile + ')'
-                    : 'linear-gradient(150deg, #16307c, #0d1f56)';
+                var coverImg = bgFile ? 'url(' + bgFile + ')' : 'linear-gradient(150deg, #16307c, #0d1f56)';
                 var works = d.works || [];
                 var karya = d.karya || 0;
 

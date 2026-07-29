@@ -2683,16 +2683,16 @@
            dari JS dalam px BULAT — persen bisa jatuh di sub-pixel dan bikin cover blur */
         .psp-book { transition: transform .9s cubic-bezier(.3, .1, .25, 1); }
         .psp-cover-static { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; border: none; padding: 0; background: transparent; cursor: pointer; z-index: 6; border-radius: 3px 12px 12px 3px; overflow: hidden; font-family: inherit; box-shadow: 0 16px 26px rgba(0, 10, 40, .35); }
-        .psp-cvface { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(150deg, #16307c, #0d1f56); box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 44px rgba(0, 0, 0, .35); color: #ffe600; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: inherit; }
+        .psp-cvface { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 30px rgba(0, 0, 0, .18); color: #ffe600; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: inherit; background-size: cover; background-position: center; }
         /* nav di backdrop gelap */
         .psp-modal .qb-arrow { border-color: transparent; background: rgba(255, 255, 255, .14); color: #fff; }
         .psp-modal .qb-count { color: #cbd5f5; }
-        .psp-emblem { width: 54px; height: 54px; border-radius: 50%; border: 2.5px solid #ffe600; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.15rem; }
-        .psp-emblem.sm { width: 34px; height: 34px; font-size: .78rem; border-color: rgba(16, 36, 94, .45); color: rgba(16, 36, 94, .65); margin-bottom: 8px; }
-        .psp-cover-t { font-size: 1.12rem; font-weight: 900; letter-spacing: .32em; text-indent: .32em; }
-        .psp-cover-s { font-size: .55rem; font-weight: 700; letter-spacing: .14em; opacity: .85; }
+        .psp-emblem { width: 54px; height: 54px; border-radius: 50%; border: 2.5px solid #ffe600; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.15rem; background: rgba(16, 36, 94, .55); }
+        .psp-emblem.sm { width: 34px; height: 34px; font-size: .78rem; border-color: rgba(16, 36, 94, .45); color: rgba(16, 36, 94, .65); margin-bottom: 8px; background: none; }
+        .psp-cover-t { font-size: 1.12rem; font-weight: 900; letter-spacing: .32em; text-indent: .32em; background: rgba(16, 36, 94, .6); padding: 5px 10px 5px 18px; border-radius: 999px; }
+        .psp-cover-s { font-size: .55rem; font-weight: 700; letter-spacing: .14em; color: #fff; background: rgba(16, 36, 94, .55); padding: 3px 10px; border-radius: 999px; }
         .psp-cover-stk { width: 62px; transform: rotate(-8deg); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .3)); }
-        .psp-cover-hint { font-size: .62rem; font-weight: 700; color: rgba(255, 255, 255, .75); }
+        .psp-cover-hint { font-size: .62rem; font-weight: 700; color: #fff; background: rgba(16, 36, 94, .55); padding: 3px 11px; border-radius: 999px; }
 
         .psp-book { position: relative; width: 100%; height: 352px; margin-top: 8px; }
         /* kotak perspektif PERMANEN khusus leaf (kayak Quest Book): konteks 3D nggak
@@ -3466,7 +3466,7 @@
            halaman karya, SATU objek buku beneran -- ketuk cover buat buka,
            persis behavior Paspor Warga (reuse .psp-book/.psp-cover-static) ---- */
         .mypf-stage { margin: calc(50px + env(safe-area-inset-top)) auto 0; }
-        .mypf-cvface { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 12px; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 44px rgba(0, 0, 0, .35); cursor: pointer; border-radius: inherit; background-size: cover; background-position: center; }
+        .mypf-cvface { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 12px; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 30px rgba(0, 0, 0, .18); cursor: pointer; border-radius: inherit; background-size: cover; background-position: center; }
         .mypf-cvface::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: linear-gradient(90deg, rgba(0, 0, 0, .3), transparent); pointer-events: none; }
         .mypf-corner { position: absolute; right: 0; bottom: 0; width: 0; height: 0; border-style: solid; border-width: 0 0 26px 26px; border-color: transparent transparent rgba(255, 255, 255, .5) transparent; filter: drop-shadow(-2px -2px 3px rgba(0, 0, 0, .22)); pointer-events: none; }
         .mypf-mini-polaroid { position: relative; width: 84px; background: #fdfdfd; padding: 6px 6px 16px; box-shadow: 0 6px 14px rgba(0, 0, 0, .3); transform: rotate(-3deg); margin: 0 auto; flex: none; }
@@ -3474,8 +3474,8 @@
         .mypf-mini-photo img, .mypf-mini-init { width: 100%; height: 100%; object-fit: cover; display: block; }
         .mypf-mini-init { display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.3rem; color: var(--blue); }
         .mypf-mini-tape { position: absolute; top: -8px; left: 50%; transform: translateX(-50%) rotate(-2deg); width: 38px; height: 12px; background: rgba(255, 230, 0, .85); border: 1px dashed rgba(16, 36, 94, .3); }
-        .mypf-cv-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .95rem; color: #ffe600; margin-top: 8px; text-align: center; text-shadow: 0 2px 5px rgba(0, 0, 0, .35); }
-        .mypf-cv-hint { font-size: .58rem; font-weight: 700; color: rgba(255, 255, 255, .78); margin-top: 6px; }
+        .mypf-cv-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .95rem; color: #ffe600; margin-top: 8px; text-align: center; background: rgba(16, 36, 94, .6); padding: 4px 14px; border-radius: 999px; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+        .mypf-cv-hint { font-size: .58rem; font-weight: 700; color: #fff; margin-top: 6px; background: rgba(16, 36, 94, .55); padding: 3px 11px; border-radius: 999px; }
         .mypf-id-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .92rem; color: #10245e; margin-top: 10px; }
         .mypf-id-bio { font-style: italic; font-size: .62rem; line-height: 1.5; color: #6b7794; margin-top: 6px; max-width: 96%; }
         .mypf-id-bio.muted { font-style: normal; color: #a0906c; }
