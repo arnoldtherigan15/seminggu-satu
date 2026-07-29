@@ -74,23 +74,73 @@
         .sk-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1.6rem; }
         .hidden { display: none; }
 
-        /* profil warga ala IG */
+        /* profil warga = SATU buku beneran (bukan grid/kartu terpisah): cover
+           ketutup (pattern pilihan warga sendiri, diatur di halaman "Profil
+           Kamu" app warga) -> ketuk buat buka -> halaman identitas -> halaman
+           karya, di-flip 3D kayak buku sungguhan. Reuse mesin yang sama kayak
+           Paspor Warga di app warga biar konsisten se-app. */
         .back { display: inline-block; text-decoration: none; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem; color: var(--blue); margin-bottom: 1rem; }
-        .pf-head { display: flex; align-items: center; gap: 16px; }
-        .pf-ava { width: 86px; height: 86px; border-radius: 50%; object-fit: cover; border: 3px solid var(--yellow); box-shadow: 0 6px 16px rgba(0, 70, 255, .2); background: #eef2ff; flex: none; }
-        .pf-ava.init { display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 2rem; color: var(--blue); }
-        .pf-stats { flex: 1; display: flex; gap: 8px; }
-        .pf-stat { flex: 1; text-align: center; background: #fff; border: 1.5px dashed var(--line); border-radius: 12px; padding: 10px 4px; }
-        .pf-stat b { display: block; font-family: 'Outfit', sans-serif; font-size: 1.15rem; color: var(--blue); }
-        .pf-stat span { font-size: .62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-        .pf-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.15rem; margin-top: 14px; }
-        .pf-bio { font-size: .85rem; color: var(--muted); font-style: italic; line-height: 1.6; margin-top: 3px; }
-        .pf-share { display: inline-flex; align-items: center; gap: 6px; border: none; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem; border-radius: 999px; padding: 10px 16px; cursor: pointer; margin-top: 12px; box-shadow: 0 3px 0 rgba(16, 36, 94, .25); }
-        .pf-share:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(16, 36, 94, .25); }
-        .pf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 1.4rem; border-top: 1.5px dashed var(--line); padding-top: 1rem; }
-        .pf-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; display: block; background: #eef2ff; }
         .pf-empty { text-align: center; color: var(--muted); font-size: .8rem; padding: 1.6rem 0; }
         .person-link { text-decoration: none; color: inherit; display: block; }
+
+        @keyframes qbNudge { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(-7px); } 70% { transform: translateX(5px); } }
+        .pf-fbook { position: relative; width: 100%; height: 340px; margin: 0 auto; transition: transform .9s cubic-bezier(.3, .1, .25, 1); }
+        .pf-fbook.nudge { animation: qbNudge .3s ease; }
+        .pf-fleafbox { position: absolute; inset: 0; perspective: 1600px; pointer-events: none; z-index: 5; }
+        .pf-fpage, .pf-fface { background-color: #fbf6ea; background-image: radial-gradient(rgba(16, 36, 94, .05) 1px, transparent 1.1px); background-size: 10px 10px; }
+        .pf-fpage { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; }
+        .pf-fleft { left: 0; border-radius: 12px 3px 3px 12px; border: 1px solid #e3d9c3; border-right: none; box-shadow: inset -14px 0 18px -14px rgba(16, 36, 94, .28), 0 16px 26px rgba(0, 10, 40, .35); }
+        .pf-fright { right: 0; border-radius: 3px 12px 12px 3px; border: 1px solid #e3d9c3; border-left: none; box-shadow: inset 14px 0 18px -14px rgba(16, 36, 94, .28), 0 16px 26px rgba(0, 10, 40, .35); }
+        .pf-fleaf { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; transform-origin: left center; transform-style: preserve-3d; opacity: 0; pointer-events: none; will-change: transform; }
+        .pf-fface { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 1px solid #e3d9c3; }
+        .pf-fface * { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .pf-ffront { border-radius: 3px 12px 12px 3px; }
+        .pf-fback { transform: rotateY(180deg); border-radius: 12px 3px 3px 12px; }
+        .pf-fin { position: relative; height: 100%; padding: 13px 10px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; overflow: hidden; }
+        .pf-fin.blank { justify-content: center; }
+        .pf-fkicker { font-size: .5rem; font-weight: 900; letter-spacing: .16em; color: #8a7a56; font-family: 'Outfit', sans-serif; margin-bottom: 8px; flex: none; }
+        .pf-fwm { width: 72px; height: 72px; border: 3px solid rgba(16, 36, 94, .08); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.3rem; color: rgba(16, 36, 94, .08); }
+        .pf-fphoto { width: 100%; max-width: 128px; aspect-ratio: 4 / 3; border: 2px solid #cbbfa2; background: #fff; padding: 3px; box-shadow: 0 2px 5px rgba(0, 0, 0, .12); margin: 6px auto 0; cursor: pointer; }
+
+        /* lightbox foto -- karya bisa diliat lebih gede */
+        .photo-lightbox { position: fixed; inset: 0; z-index: 9500; display: none; align-items: center; justify-content: center; background: rgba(8, 12, 28, .92); padding: 20px; }
+        .photo-lightbox.show { display: flex; }
+        .photo-lightbox img { max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 6px; box-shadow: 0 20px 50px rgba(0, 0, 0, .5); }
+        .photo-lightbox-close { position: absolute; top: calc(14px + env(safe-area-inset-top)); right: 14px; width: 38px; height: 38px; border-radius: 50%; border: none; background: rgba(255, 255, 255, .16); color: #fff; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .pf-fphoto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pf-fcap { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .62rem; color: #10245e; text-align: center; margin-top: 10px; line-height: 1.45; padding: 0 4px; }
+        .pf-fnote { font-style: italic; font-size: .56rem; line-height: 1.5; color: #6b7794; margin-top: 5px; max-width: 92%; padding: 0 4px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .pf-stk { position: absolute; pointer-events: none; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .2)); z-index: 1; }
+        .pf-knav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 12px; visibility: hidden; }
+        .pf-karrow { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: #fff; color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .pf-karrow:active { transform: scale(.9); }
+        .pf-kcount { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem; color: var(--muted); min-width: 52px; text-align: center; }
+
+        /* cover tertutup: tombol tap-to-open, 50% lebar (kembaran psp-cover-static) */
+        .pf-cover-static { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; border: none; padding: 0; background: transparent; cursor: pointer; z-index: 6; border-radius: 3px 12px 12px 3px; overflow: hidden; font-family: inherit; box-shadow: 0 16px 26px rgba(0, 10, 40, .35); }
+        .pf-cvface { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 12px; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .35), inset 0 0 44px rgba(0, 0, 0, .35); cursor: pointer; border-radius: inherit; background-size: cover; background-position: center; }
+        .pf-cvface::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: linear-gradient(90deg, rgba(0, 0, 0, .3), transparent); pointer-events: none; }
+        .pf-corner { position: absolute; right: 0; bottom: 0; width: 0; height: 0; border-style: solid; border-width: 0 0 26px 26px; border-color: transparent transparent rgba(255, 255, 255, .5) transparent; filter: drop-shadow(-2px -2px 3px rgba(0, 0, 0, .22)); pointer-events: none; }
+
+        /* mini polaroid (dipakai di cover & halaman identitas) */
+        .pf-mini-polaroid { position: relative; width: 84px; background: #fdfdfd; padding: 6px 6px 16px; box-shadow: 0 6px 14px rgba(0, 0, 0, .3); transform: rotate(-3deg); margin: 0 auto; flex: none; }
+        .pf-mini-photo { width: 72px; height: 72px; background: #eef2ff; overflow: hidden; }
+        .pf-ava, .pf-ava.init { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pf-ava.init { display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.3rem; color: var(--blue); }
+        .pf-mini-tape { position: absolute; top: -8px; left: 50%; transform: translateX(-50%) rotate(-2deg); width: 38px; height: 12px; background: rgba(255, 230, 0, .85); border: 1px dashed rgba(16, 36, 94, .3); }
+
+        .pf-cv-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .95rem; color: #ffe600; margin-top: 8px; text-align: center; text-shadow: 0 2px 5px rgba(0, 0, 0, .35); }
+        .pf-cv-hint { font-size: .58rem; font-weight: 700; color: rgba(255, 255, 255, .78); margin-top: 6px; }
+        .pf-id-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .92rem; color: #10245e; margin-top: 10px; }
+        .pf-id-bio { font-style: italic; font-size: .62rem; line-height: 1.5; color: #6b7794; margin-top: 6px; max-width: 96%; }
+        .pf-id-bio.muted { font-style: normal; color: #a0906c; }
+        .pf-id-stat { margin-top: 10px; }
+        .pf-id-stat b { display: block; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.3rem; color: #10245e; }
+        .pf-id-stat span { font-size: .5rem; font-weight: 700; color: #a0906c; text-transform: uppercase; letter-spacing: .06em; }
+
+        .pf-actions { margin-top: 1.4rem; text-align: center; }
+        .pf-share { display: inline-flex; align-items: center; gap: 6px; border: none; background: var(--yellow); color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem; border-radius: 999px; padding: 10px 16px; cursor: pointer; box-shadow: 0 3px 0 rgba(16, 36, 94, .35); }
+        .pf-share:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(16, 36, 94, .35); }
     </style>
 </head>
 
@@ -166,6 +216,213 @@
             return m ? ("https://lh3.googleusercontent.com/d/" + m[1]) : s;
         }
 
+        // Lightbox foto generik -- karya bisa diliat lebih gede
+        function openPhotoLightbox(src) {
+            var lb = document.getElementById("photoLightbox");
+            if (!lb) {
+                lb = document.createElement("div");
+                lb.id = "photoLightbox";
+                lb.className = "photo-lightbox";
+                lb.innerHTML = '<button type="button" class="photo-lightbox-close" aria-label="Tutup">✕</button><img id="photoLightboxImg" alt="">';
+                document.body.appendChild(lb);
+                lb.addEventListener("click", closePhotoLightbox);
+            }
+            document.getElementById("photoLightboxImg").src = src;
+            lb.classList.add("show");
+        }
+        function closePhotoLightbox() {
+            var lb = document.getElementById("photoLightbox");
+            if (lb) lb.classList.remove("show");
+        }
+
+        // Mesin flip 3D -- versi vanilla dari mesin yang sama dipakai Paspor
+        // Warga & Profil Kamu di app warga, biar konsisten se-app (satu
+        // keluarga visual "buku warga"). coverFaceHtml opsional: kalau diisi,
+        // buku mulai TERTUTUP (ketuk buat buka); kalau nggak, langsung
+        // "kebuka" di spread pertama.
+        function initFlipBook(spreads, coverFaceHtml) {
+            var book = document.getElementById("pfFBook"),
+                leftP = document.getElementById("pfFLeft"), rightP = document.getElementById("pfFRight"),
+                leaf = document.getElementById("pfFLeaf"), front = document.getElementById("pfFFront"), back = document.getElementById("pfFBack"),
+                coverBtn = document.getElementById("pfCoverBtn"),
+                prevBtn = document.getElementById("pfKPrev"), nextBtn = document.getElementById("pfKNext"), cnt = document.getElementById("pfKCount"),
+                navEl = document.getElementById("pfKNav");
+            if (!book) return;
+            // lebar dari viewport langsung (bukan clientWidth elemen induk yang
+            // bisa kebaca 0/belum akurat pas belum settle layout-nya)
+            var sw = Math.min(Math.round(window.innerWidth * 0.92), 380);
+            if (sw % 2) sw--;
+            book.style.width = sw + "px";
+            // delegasi klik -- konten halaman karya sering dipindah antar
+            // leftP/rightP/leaf pas flip, delegasi di book tetep kepakai
+            // regardless posisi foto lagi di mana
+            book.addEventListener("click", function (e) {
+                var img = e.target.closest(".pf-fphoto img");
+                if (img) openPhotoLightbox(img.src);
+            });
+            var cur = 0, anim = false, opened = false;
+
+            function setPages(i) {
+                cur = i;
+                leftP.innerHTML = spreads[i][0];
+                rightP.innerHTML = spreads[i][1];
+                if (cnt) cnt.textContent = (i + 1) + " / " + spreads.length;
+                if (prevBtn) prevBtn.style.opacity = i === 0 ? ".35" : "1";
+                if (nextBtn) nextBtn.style.opacity = i === spreads.length - 1 ? ".35" : "1";
+            }
+            function setLeaf(deg, animate) {
+                leaf.style.transition = animate ? "transform .65s cubic-bezier(.35,.1,.25,1)" : "none";
+                leaf.style.transform = "rotateY(" + deg + "deg)";
+            }
+            function showLeaf() { leaf.style.opacity = "1"; }
+            function hideLeaf() { leaf.style.opacity = "0"; }
+            function finishOnce(ms, fn) {
+                var done = false;
+                function go() { if (done) return; done = true; leaf.removeEventListener("transitionend", go); fn(); }
+                leaf.addEventListener("transitionend", go);
+                setTimeout(go, ms);
+            }
+            // Mundur dari halaman pertama pas kebuka -> nutup lagi balik ke cover
+            // (kembaran mirror dari openBook di bawah)
+            function closeBook() {
+                if (anim || !coverBtn || !opened) return;
+                anim = true;
+                back.innerHTML = "";
+                while (leftP.firstChild) back.appendChild(leftP.firstChild);
+                front.innerHTML = coverFaceHtml;
+                setLeaf(-180, false);
+                showLeaf();
+                // leaf udah gantiin tampilan leftP -> sembunyiin SEKARANG (bukan di
+                // akhir), biar nggak ada lembar krem kosong nyangkut di luar cover
+                leftP.style.visibility = "hidden";
+                void leaf.offsetWidth;
+                requestAnimationFrame(function () { requestAnimationFrame(function () {
+                    book.style.transform = "translateX(-" + Math.round(book.offsetWidth / 4) + "px)";
+                    leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
+                    leaf.style.transform = "rotateY(0deg)";
+                    finishOnce(950, function () {
+                        coverBtn.style.display = "";
+                        hideLeaf();
+                        if (navEl) navEl.style.visibility = "hidden";
+                        opened = false;
+                        anim = false;
+                    });
+                }); });
+            }
+            function flip(dir) {
+                // ketutup -> swipe/panah nggak ngapa-ngapain, cuma tap cover yang buka
+                if (anim || (coverBtn && !opened)) return;
+                var j = cur + dir;
+                if (dir === -1 && j < 0) { closeBook(); return; }
+                if (j < 0 || j >= spreads.length) {
+                    book.classList.add("nudge");
+                    setTimeout(function () { book.classList.remove("nudge"); }, 320);
+                    return;
+                }
+                anim = true;
+                if (dir === 1) {
+                    front.innerHTML = "";
+                    while (rightP.firstChild) front.appendChild(rightP.firstChild);
+                    back.innerHTML = spreads[j][0];
+                    rightP.innerHTML = spreads[j][1];
+                } else {
+                    back.innerHTML = "";
+                    while (leftP.firstChild) back.appendChild(leftP.firstChild);
+                    front.innerHTML = spreads[j][1];
+                    leftP.innerHTML = spreads[j][0];
+                }
+                setLeaf(dir === 1 ? 0 : -180, false);
+                showLeaf();
+                void leaf.offsetWidth;
+                requestAnimationFrame(function () { requestAnimationFrame(function () {
+                    setLeaf(dir === 1 ? -180 : 0, true);
+                    finishOnce(720, function () {
+                        cur = j;
+                        var srcFace = dir === 1 ? back : front;
+                        var target = dir === 1 ? leftP : rightP;
+                        target.innerHTML = "";
+                        while (srcFace.firstChild) target.appendChild(srcFace.firstChild);
+                        if (cnt) cnt.textContent = (j + 1) + " / " + spreads.length;
+                        if (prevBtn) prevBtn.style.opacity = j === 0 ? ".35" : "1";
+                        if (nextBtn) nextBtn.style.opacity = j === spreads.length - 1 ? ".35" : "1";
+                        hideLeaf();
+                        anim = false;
+                    });
+                }); });
+            }
+            if (coverBtn && coverFaceHtml) {
+                setPages(0); // isi rightP (halaman identitas) DULU, baru ketutup cover di atasnya
+                anim = true;
+                front.innerHTML = coverFaceHtml;
+                back.innerHTML = spreads[0][0];
+                leftP.style.visibility = "hidden";
+                hideLeaf();
+                book.style.transition = "none";
+                book.style.transform = "translateX(-" + Math.round(book.offsetWidth / 4) + "px)";
+                void book.offsetWidth;
+                book.style.transition = "";
+                var openBook = function () {
+                    if (opened) return;
+                    opened = true;
+                    leftP.style.visibility = "";
+                    setLeaf(0, false);
+                    showLeaf();
+                    coverBtn.style.display = "none";
+                    void leaf.offsetWidth;
+                    requestAnimationFrame(function () { requestAnimationFrame(function () {
+                        book.style.transform = "translateX(0)";
+                        leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
+                        leaf.style.transform = "rotateY(-180deg)";
+                        finishOnce(950, function () {
+                            leftP.innerHTML = "";
+                            while (back.firstChild) leftP.appendChild(back.firstChild);
+                            hideLeaf();
+                            if (cnt) cnt.textContent = "1 / " + spreads.length;
+                            if (prevBtn) prevBtn.style.opacity = ".35";
+                            if (nextBtn) nextBtn.style.opacity = spreads.length > 1 ? "1" : ".35";
+                            if (navEl) navEl.style.visibility = "";
+                            anim = false;
+                        });
+                    }); });
+                };
+                coverBtn.addEventListener("click", openBook);
+            } else {
+                setPages(0);
+                hideLeaf();
+            }
+            if (prevBtn) prevBtn.addEventListener("click", function () { flip(-1); });
+            if (nextBtn) nextBtn.addEventListener("click", function () { flip(1); });
+            var sx = 0, sy = 0;
+            book.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+            book.addEventListener("touchend", function (e) {
+                var t = e.changedTouches[0];
+                var dx = t.clientX - sx, dy = t.clientY - sy;
+                if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) flip(dx < 0 ? 1 : -1);
+            }, { passive: true });
+        }
+
+        // Pattern sampul (dipilih warga sendiri di halaman "Profil Kamu" -- app warga)
+        var BG_PATTERNS = {
+            "pattern-1": "../warga/assets/pattern-1.webp",
+            "pattern-2": "../warga/assets/pattern-2.webp",
+            "pattern-3": "../warga/assets/pattern-3.webp",
+            "pattern-4": "../warga/assets/pattern-4.webp",
+            "pattern-5": "../warga/assets/pattern-5.webp",
+            "pattern-6": "../warga/assets/pattern-6.webp",
+            "pattern-7": "../warga/assets/pattern-7.webp",
+            "pattern-8": "../warga/assets/pattern-8.webp",
+            "pattern-9": "../warga/assets/pattern-9.webp",
+            "pattern-10": "../warga/assets/pattern-10.webp",
+            "pattern-11": "../warga/assets/pattern-11.webp",
+            "pattern-12": "../warga/assets/pattern-12.webp",
+            "pattern-13": "../warga/assets/pattern-13.webp",
+            "pattern-14": "../warga/assets/pattern-14.webp",
+            "pattern-15": "../warga/assets/pattern-15.webp",
+            "pattern-16": "../warga/assets/pattern-16.webp",
+            "pattern-17": "../warga/assets/pattern-17.webp",
+            "pattern-18": "../warga/assets/pattern-18.webp",
+            "pattern-19": "../warga/assets/pattern-19.webp"
+        };
         function sk(style) { return '<div class="sk" style="' + style + '"></div>'; }
         function skeletonShowcase() {
             var boxes3 = "", boxes2 = "";
@@ -178,12 +435,8 @@
         function skeletonProfile() {
             var boxes = "";
             for (var i = 0; i < 6; i++) boxes += sk("aspect-ratio:1;border-radius:4px;");
-            return '<div style="display:flex;align-items:center;gap:16px;">' +
-                sk("width:86px;height:86px;border-radius:50%;flex:none;") +
-                sk("flex:1;height:64px;border-radius:12px;") + '</div>' +
-                sk("width:45%;height:20px;margin-top:16px;") +
-                sk("width:75%;height:13px;margin-top:8px;") +
-                '<div class="sk-grid3" style="gap:4px;">' + boxes + '</div>';
+            return sk("height:300px;margin:-1.6rem -1.1rem 0;border-radius:6px 22px 22px 6px;") +
+                '<div class="sk-grid3" style="gap:4px;margin-top:1.4rem;">' + boxes + '</div>';
         }
 
         // /balai/?w=<id> -> profil publik 1 warga (ala IG, bisa di-share)
@@ -203,19 +456,62 @@
                 var ava = d.p
                     ? '<img class="pf-ava" src="' + esc(driveThumb(d.p)) + '" alt="">'
                     : '<div class="pf-ava init">' + esc((d.n || "S").charAt(0).toUpperCase()) + '</div>';
+                var bgFile = d.bg === "custom" ? d.bgCustom : BG_PATTERNS[d.bg];
+                var coverImg = bgFile
+                    ? 'linear-gradient(rgba(10,18,40,.4),rgba(10,18,40,.52)), url(' + bgFile + ')'
+                    : 'linear-gradient(150deg, #16307c, #0d1f56)';
+                var works = d.works || [];
+                var karya = d.karya || 0;
+
+                // Stiker tempelan halaman karya -- deterministik dari index biar
+                // stabil pas re-render, bukan acak (kembaran MPK_STK di app warga)
+                var STK = [
+                    '<img class="pf-stk" src="../images/sticker/str-1.png" style="bottom:10px;right:8px;width:36px;transform:rotate(9deg);" alt="">',
+                    '<img class="pf-stk" src="../images/sticker/str-4.png" style="bottom:12px;left:8px;width:34px;transform:rotate(-8deg);" alt="">',
+                    '<img class="pf-stk" src="../images/sticker/str-7.png" style="bottom:8px;right:12px;width:38px;transform:rotate(-10deg);" alt="">',
+                    '<img class="pf-stk" src="../images/sticker/str-2.png" style="bottom:10px;left:12px;width:34px;transform:rotate(7deg);" alt="">',
+                    '<img class="pf-stk" src="../images/sticker/str-11.png" style="bottom:12px;right:6px;width:36px;transform:rotate(11deg);" alt="">',
+                    '<img class="pf-stk" src="../images/sticker/str-6.png" style="bottom:8px;left:6px;width:38px;transform:rotate(-6deg);" alt="">'
+                ];
+                function fKaryaPageHtml(w, idx) {
+                    if (!w) return '<div class="pf-fin blank"><span class="pf-fwm">SS</span></div>';
+                    return '<div class="pf-fin"><div class="pf-fkicker">★ KARYA ★</div>' +
+                        '<div class="pf-fphoto"><img src="' + esc(driveThumb(w.photo)) + '" alt="' + esc(w.title || "") + '"></div>' +
+                        (w.title ? '<div class="pf-fcap">' + esc(w.title) + '</div>' : '') +
+                        (w.caption ? '<div class="pf-fnote">“' + esc(w.caption) + '”</div>' : '') +
+                        STK[(idx || 0) % STK.length] + '</div>';
+                }
+                function fCoverFaceHtml() {
+                    return '<div class="pf-cvface" style="background-image:' + coverImg + ';">' +
+                        '<div class="pf-mini-polaroid"><div class="pf-mini-photo">' + ava + '</div><span class="pf-mini-tape"></span></div>' +
+                        '<div class="pf-cv-name">' + esc(d.n) + '</div>' +
+                        '<div class="pf-cv-hint">ketuk buat buka 📖</div>' +
+                        '<span class="pf-corner"></span></div>';
+                }
+                function fIdentityPageHtml() {
+                    return '<div class="pf-fin">' +
+                        '<div class="pf-fkicker">★ ARSIP WARGA ★</div>' +
+                        '<div class="pf-mini-polaroid"><div class="pf-mini-photo">' + ava + '</div><span class="pf-mini-tape"></span></div>' +
+                        '<div class="pf-id-name">' + esc(d.n) + '</div>' +
+                        (d.b ? '<div class="pf-id-bio">“' + esc(d.b) + '”</div>' : '<div class="pf-id-bio muted">Belum nulis bio</div>') +
+                        '<div class="pf-id-stat"><b>' + karya + '</b><span>karya</span></div></div>';
+                }
+                var spreads = [[fKaryaPageHtml(null), fIdentityPageHtml()]];
+                for (var wi = 0; wi < works.length; wi += 2) spreads.push([fKaryaPageHtml(works[wi], wi), fKaryaPageHtml(works[wi + 1], wi + 1)]);
+
                 pf.innerHTML =
                     '<a class="back" href="./">← Balai Warga</a>' +
-                    '<div class="pf-head">' + ava +
-                    '<div class="pf-stats">' +
-                    '<div class="pf-stat"><b>' + (d.karya || 0) + '</b><span>karya</span></div>' +
-                    '<div class="pf-stat"><b>' + (d.events || 0) + '</b><span>event</span></div>' +
-                    '</div></div>' +
-                    '<div class="pf-name">' + esc(d.n) + '</div>' +
-                    (d.b ? '<div class="pf-bio">“' + esc(d.b) + '”</div>' : '') +
-                    '<button type="button" class="pf-share" id="pfShare">🔗 Bagikan profil</button>' +
-                    (d.works && d.works.length
-                        ? '<div class="pf-grid">' + d.works.map(function (w) { return '<img src="' + esc(driveThumb(w.photo)) + '" alt="' + esc(w.title) + '" loading="lazy">'; }).join("") + '</div>'
-                        : '<div class="pf-empty">Belum ada karya yang kepajang ✨</div>');
+                    '<div class="pf-fbook" id="pfFBook">' +
+                    '<div class="pf-fpage pf-fleft" id="pfFLeft"></div>' +
+                    '<div class="pf-fpage pf-fright" id="pfFRight"></div>' +
+                    '<div class="pf-fleafbox"><div class="pf-fleaf" id="pfFLeaf"><div class="pf-fface pf-ffront" id="pfFFront"></div><div class="pf-fface pf-fback" id="pfFBack"></div></div></div>' +
+                    '<button type="button" class="pf-cover-static" id="pfCoverBtn">' + fCoverFaceHtml() + '</button>' +
+                    '</div>' +
+                    '<div class="pf-knav" id="pfKNav"><button type="button" class="pf-karrow" id="pfKPrev" aria-label="Halaman sebelumnya">‹</button>' +
+                    '<div class="pf-kcount" id="pfKCount"></div>' +
+                    '<button type="button" class="pf-karrow" id="pfKNext" aria-label="Halaman berikutnya">›</button></div>' +
+                    '<div class="pf-actions"><button type="button" class="pf-share" id="pfShare">🔗 Bagikan profil</button></div>';
+                initFlipBook(spreads, fCoverFaceHtml());
                 document.getElementById("pfShare").addEventListener("click", function () {
                     var url = location.origin + location.pathname + "?w=" + wid;
                     var text = d.n + " — warga Balai Seminggu Satu 🐾";

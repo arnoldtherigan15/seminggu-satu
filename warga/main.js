@@ -269,7 +269,7 @@ function fireConfetti(preset) {
 }
 
 function onAuthSuccess(r) {
-    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}", jarRecords: r.jarRecords || "{}", publicOptIn: r.publicOptIn === "1" ? "1" : "", publicId: r.publicId || "" };
+    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}", jarRecords: r.jarRecords || "{}", profileBg: r.profileBg || "", profileBgCustom: r.profileBgCustom || "", publicOptIn: r.publicOptIn === "1" ? "1" : "", publicId: r.publicId || "" };
     // MERGE mood server + lokal (bukan nimpa buta): server menang per-hari (kebenaran
     // lintas device), tapi hari yang cuma ada di lokal (sync-nya sempet gagal/offline)
     // jangan sampai kehapus
@@ -403,8 +403,10 @@ window.addEventListener("hashchange", () => {
     const h = (location.hash || "").replace("#", "");
     if (h === "snail-mail") { openSnailBox(false); return; } // halaman kotak surat (deep-link/refresh aman)
     if (h === "jar") { openJarBox(false); return; } // halaman toples syukur (deep-link/refresh aman)
+    if (h === "profile") { openMyProfile(false); return; } // halaman profil kamu (deep-link/refresh aman)
     closeSnailPage(false);
     closeJarPage(false);
+    closeMyProfile(false);
     activateTab(h);
 });
 
@@ -579,6 +581,26 @@ function driveThumb(url) {
     var m = s.match(/\/d\/([-\w]{20,})/) || s.match(/[?&]id=([-\w]{20,})/);
     return m ? ("https://lh3.googleusercontent.com/d/" + m[1]) : s;
 }
+// Lightbox foto generik -- dipakai buat liat foto karya di buku Profil Kamu
+// (dan bisa dipakai ulang di tempat lain) lebih gede, tanpa fitur macam-macam.
+function openPhotoLightbox(src) {
+    let lb = $("photoLightbox");
+    if (!lb) {
+        lb = document.createElement("div");
+        lb.id = "photoLightbox";
+        lb.className = "photo-lightbox";
+        lb.innerHTML = '<button type="button" class="photo-lightbox-close" aria-label="Tutup">✕</button><img id="photoLightboxImg" alt="">';
+        document.body.appendChild(lb);
+        lb.addEventListener("click", closePhotoLightbox);
+    }
+    $("photoLightboxImg").src = src;
+    lb.classList.add("show");
+}
+function closePhotoLightbox() {
+    const lb = $("photoLightbox");
+    if (lb) lb.classList.remove("show");
+}
+
 function questImg(q) {
     return q.image ? (/^https?:\/\//.test(q.image) ? driveThumb(q.image) : "../" + q.image) : "../images/mochi_maskot_sm.png";
 }
@@ -1763,9 +1785,39 @@ function renderPassportBook(host) {
         setTimeout(go, ms);
     }
 
+    // Mundur dari halaman pertama pas kebuka -> BUKAN nudge, tapi beneran
+    // nutup lagi balik ke cover (mirror dari openBook() di bawah).
+    function closeBook() {
+        if (anim || !opened) return;
+        anim = true;
+        playSfx("flip", 0.7);
+        back.innerHTML = "";
+        while (leftP.firstChild) back.appendChild(leftP.firstChild);
+        front.innerHTML = pspCoverFaceHtml();
+        setLeaf(-180, false);
+        showLeaf();
+        // leaf udah gantiin tampilan leftP (posisinya sama persis di -180deg) ->
+        // sembunyiin leftP SEKARANG (bukan di akhir), biar pas buku geser nutup
+        // nggak ada lembar krem kosong yang nyangkut/keliatan di luar cover
+        leftP.style.visibility = "hidden";
+        void leaf.offsetWidth;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            book.style.transform = "translateX(-" + Math.round(book.offsetWidth / 4) + "px)";
+            leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
+            leaf.style.transform = "rotateY(0deg)";
+            finishOnce(950, () => {
+                coverBtn.style.display = "";
+                hideLeaf();
+                $("pspNav").style.visibility = "hidden";
+                opened = false;
+                anim = false;
+            });
+        }));
+    }
     function flip(dir) {
-        if (anim) return;
+        if (anim || !opened) return; // ketutup -> swipe/panah nggak ngapa-ngapain, cuma tap cover yang buka
         const j = cur + dir;
+        if (dir === -1 && j < 0) { closeBook(); return; }
         if (j < 0 || j >= SP.length) {
             book.classList.add("nudge");
             setTimeout(() => book.classList.remove("nudge"), 320);
@@ -2578,7 +2630,7 @@ async function loadLoyalty() {
         const uniqueWs = (function () { const s = {}; evList.forEach(e => { s[e.name] = 1; }); return Object.keys(s).length; })();
         const years = evList.map(e => { const m = String(e.date || "").match(/(\d{4})$/); return m ? Number(m[1]) : null; }).filter(Boolean);
         _loyaltyStats = {
-            count: count, target: target, progress: progress, eligible: !!d.eligible,
+            count: count, target: target, progress: progress, eligible: !!d.eligible, questCount: d.questCount || 0,
             tier: p.title, tierEmoji: p.emoji, tierTag: p.tag,
             trait: uniqueWs >= 3 ? "Sang Penjelajah" : (count >= 3 ? "Si Paling Setia" : "Pencari Inspirasi"),
             events: evList, uniqueWs: uniqueWs,
@@ -2688,6 +2740,7 @@ async function loadLoyalty() {
         renderEventTicket(); // kalau _evRegistered belum ada, loadEvents yang ngisi nanti
         jarCtaRefresh(); // toples syukur/impian -- data udah kebawa dari _profile, ga perlu fetch lagi
         if (location.hash === "#jar") openJarBox(false); // habis refresh di #jar -> langsung buka lagi
+        if (location.hash === "#profile") openMyProfile(false); // habis refresh di #profile -> langsung buka lagi
         loadSnailMail().then(() => {
             snailCtaRefresh();
             // habis refresh di #snail-mail -> langsung buka lagi halamannya
@@ -3278,6 +3331,8 @@ function openProfileEditor() {
         function applyProfileUi() {
             renderProfileAva();
             $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
+            const mp = $("mypfPage");
+            if (mp && mp.classList.contains("show")) renderMyProfilePage(); // sinkron balik ke halaman Profil Kamu kalau lagi kebuka
         }
 
         // ---- TANPA foto baru: optimistis — profil keganti seketika, server nyusul ----
@@ -3334,9 +3389,442 @@ function openProfileEditor() {
     });
 }
 
+// ============================================================
+//  Halaman "Profil Kamu" -- mirror ala IG dari profil publik
+//  (/balai/?w=<id>), bedanya di sini bisa diedit: ada tombol pensil
+//  di foto + bisa ganti sampul (pilih salah satu dari 4 pattern).
+//  Sengaja pola tampilan disamain sama profil publik biar pas warga
+//  nge-share link-nya, apa yang orang lain lihat = apa yang dia lihat
+//  sendiri di sini (nggak ada kejutan angka beda dll).
+// ============================================================
+const PROFILE_BG_PATTERNS = {
+    "pattern-1": "assets/pattern-1.webp",
+    "pattern-2": "assets/pattern-2.webp",
+    "pattern-3": "assets/pattern-3.webp",
+    "pattern-4": "assets/pattern-4.webp",
+    "pattern-5": "assets/pattern-5.webp",
+    "pattern-6": "assets/pattern-6.webp",
+    "pattern-7": "assets/pattern-7.webp",
+    "pattern-8": "assets/pattern-8.webp",
+    "pattern-9": "assets/pattern-9.webp",
+    "pattern-10": "assets/pattern-10.webp",
+    "pattern-11": "assets/pattern-11.webp",
+    "pattern-12": "assets/pattern-12.webp",
+    "pattern-13": "assets/pattern-13.webp",
+    "pattern-14": "assets/pattern-14.webp",
+    "pattern-15": "assets/pattern-15.webp",
+    "pattern-16": "assets/pattern-16.webp",
+    "pattern-17": "assets/pattern-17.webp",
+    "pattern-18": "assets/pattern-18.webp",
+    "pattern-19": "assets/pattern-19.webp"
+};
+
+function myProfileWorks() {
+    return _galleryItems.filter(it => it.mine && it.photo)
+        .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+        .slice(0, 30);
+}
+
+function myProfileSwatchesHtml() {
+    const cur = (_profile && _profile.profileBg) || "";
+    const customUrl = _profile && _profile.profileBgCustom;
+    let html = '<button type="button" class="mypf-sw blank' + (cur === "" ? " on" : "") + '" data-bg="" aria-label="Polos, tanpa pattern">✕</button>';
+    Object.keys(PROFILE_BG_PATTERNS).forEach(k => {
+        html += '<button type="button" class="mypf-sw' + (cur === k ? " on" : "") + '" data-bg="' + k + '" style="background-image:url(' + PROFILE_BG_PATTERNS[k] + ')" aria-label="Pilih pattern"></button>';
+    });
+    // slot ke-5: pattern upload sendiri, maks 1 -- kalau udah pernah upload,
+    // tampil sebagai thumbnail yang bisa dipilih + badge pensil buat ganti;
+    // kalau belum, jadi tombol "+" yang langsung buka file picker.
+    html += customUrl
+        ? '<button type="button" class="mypf-sw custom' + (cur === "custom" ? " on" : "") + '" data-bg="custom" style="background-image:url(' + esc(customUrl) + ')" aria-label="Pattern upload sendiri"><span class="mypf-sw-edit">✎</span></button>'
+        : '<button type="button" class="mypf-sw add" id="mypfBgAdd" aria-label="Upload pattern sendiri">+</button>';
+    return html;
+}
+
+// Mesin flip generik, dicabut dari renderPassportBook() biar bisa dipakai
+// ulang (buku Profil Kamu) TANPA bongkar-pasang kode Paspor yang udah
+// battle-tested. opts.coverFaceHtml + refs.coverBtn = opsional: kalau diisi,
+// bukunya mulai TERTUTUP (ketuk buat buka, persis pola Paspor); kalau nggak,
+// langsung "kebuka" di spread pertama.
+function initFlipBook(refs, spreads, opts) {
+    opts = opts || {};
+    let cur = 0, anim = false, opened = false;
+    const { book, leftP, rightP, leaf, front, back, prevBtn, nextBtn, countEl, coverBtn, navEl } = refs;
+    function setPages(i) {
+        cur = i;
+        leftP.innerHTML = spreads[i][0];
+        rightP.innerHTML = spreads[i][1];
+        if (countEl) countEl.textContent = (i + 1) + " / " + spreads.length;
+        if (prevBtn) prevBtn.style.opacity = i === 0 ? ".35" : "1";
+        if (nextBtn) nextBtn.style.opacity = i === spreads.length - 1 ? ".35" : "1";
+    }
+    function setLeaf(deg, animate) {
+        leaf.style.transition = animate ? "transform .65s cubic-bezier(.35,.1,.25,1)" : "none";
+        leaf.style.transform = "rotateY(" + deg + "deg)";
+    }
+    function showLeaf() { leaf.style.opacity = "1"; }
+    function hideLeaf() { leaf.style.opacity = "0"; }
+    function finishOnce(ms, fn) {
+        let done = false;
+        const go = () => { if (done) return; done = true; leaf.removeEventListener("transitionend", go); fn(); };
+        leaf.addEventListener("transitionend", go);
+        setTimeout(go, ms);
+    }
+    // Mundur dari halaman pertama pas buku lagi kebuka -> BUKAN nudge, tapi
+    // beneran nutup lagi balik ke cover (kembaran mirror dari openBook()).
+    function closeBook() {
+        if (anim || !coverBtn || !opened) return;
+        anim = true;
+        playSfx("flip", 0.7);
+        back.innerHTML = "";
+        while (leftP.firstChild) back.appendChild(leftP.firstChild);
+        front.innerHTML = opts.coverFaceHtml;
+        setLeaf(-180, false);
+        showLeaf();
+        // leaf udah gantiin tampilan leftP (posisinya sama persis di -180deg) ->
+        // sembunyiin leftP SEKARANG (bukan di akhir), biar pas buku geser nutup
+        // nggak ada lembar krem kosong yang nyangkut/keliatan di luar cover
+        leftP.style.visibility = "hidden";
+        void leaf.offsetWidth;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            book.style.transform = "translateX(-" + Math.round(book.offsetWidth / 4) + "px)";
+            leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
+            leaf.style.transform = "rotateY(0deg)";
+            finishOnce(950, () => {
+                coverBtn.style.display = "";
+                hideLeaf();
+                if (navEl) navEl.style.visibility = "hidden";
+                opened = false;
+                anim = false;
+            });
+        }));
+    }
+    function flip(dir) {
+        // ketutup -> swipe/panah nggak ngapa-ngapain (cuma tap cover yang buka),
+        // biar nggak ada flip diam-diam di belakang cover yang bikin cur nyasar
+        if (anim || (coverBtn && !opened)) return;
+        const j = cur + dir;
+        if (dir === -1 && j < 0) { closeBook(); return; }
+        if (j < 0 || j >= spreads.length) {
+            if (book) { book.classList.add("nudge"); setTimeout(() => book.classList.remove("nudge"), 320); }
+            return;
+        }
+        anim = true;
+        playSfx("flip", 0.7);
+        if (dir === 1) {
+            front.innerHTML = "";
+            while (rightP.firstChild) front.appendChild(rightP.firstChild);
+            back.innerHTML = spreads[j][0];
+            rightP.innerHTML = spreads[j][1];
+        } else {
+            back.innerHTML = "";
+            while (leftP.firstChild) back.appendChild(leftP.firstChild);
+            front.innerHTML = spreads[j][1];
+            leftP.innerHTML = spreads[j][0];
+        }
+        setLeaf(dir === 1 ? 0 : -180, false);
+        showLeaf();
+        void leaf.offsetWidth;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            setLeaf(dir === 1 ? -180 : 0, true);
+            finishOnce(720, () => {
+                cur = j;
+                const srcFace = dir === 1 ? back : front;
+                const target = dir === 1 ? leftP : rightP;
+                target.innerHTML = "";
+                while (srcFace.firstChild) target.appendChild(srcFace.firstChild);
+                if (countEl) countEl.textContent = (j + 1) + " / " + spreads.length;
+                if (prevBtn) prevBtn.style.opacity = j === 0 ? ".35" : "1";
+                if (nextBtn) nextBtn.style.opacity = j === spreads.length - 1 ? ".35" : "1";
+                hideLeaf();
+                anim = false;
+            });
+        }));
+    }
+    if (coverBtn && opts.coverFaceHtml) {
+        // keadaan awal: buku TERTUTUP (kembaran openBook() di renderPassportBook).
+        // setPages(0) DULU -- ngisi rightP (halaman identitas) biar udah bener
+        // pas cover statis di atasnya kebuka, baru abis itu overlay ketutup.
+        setPages(0);
+        anim = true;
+        front.innerHTML = opts.coverFaceHtml;
+        back.innerHTML = spreads[0][0];
+        leftP.style.visibility = "hidden";
+        hideLeaf();
+        book.style.transition = "none";
+        book.style.transform = "translateX(-" + Math.round(book.offsetWidth / 4) + "px)";
+        void book.offsetWidth;
+        book.style.transition = "";
+        const openBook = () => {
+            if (opened) return;
+            opened = true;
+            playSfx("flip", 0.7);
+            leftP.style.visibility = "";
+            setLeaf(0, false);
+            showLeaf();
+            coverBtn.style.display = "none";
+            void leaf.offsetWidth;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                book.style.transform = "translateX(0)";
+                leaf.style.transition = "transform .9s cubic-bezier(.3,.1,.25,1)";
+                leaf.style.transform = "rotateY(-180deg)";
+                finishOnce(950, () => {
+                    leftP.innerHTML = "";
+                    while (back.firstChild) leftP.appendChild(back.firstChild);
+                    hideLeaf();
+                    if (countEl) countEl.textContent = "1 / " + spreads.length;
+                    if (prevBtn) prevBtn.style.opacity = ".35";
+                    if (nextBtn) nextBtn.style.opacity = spreads.length > 1 ? "1" : ".35";
+                    if (navEl) navEl.style.visibility = "";
+                    anim = false;
+                });
+            }));
+        };
+        coverBtn.addEventListener("click", openBook);
+    } else {
+        setPages(0);
+        hideLeaf();
+    }
+    if (prevBtn) prevBtn.addEventListener("click", () => flip(-1));
+    if (nextBtn) nextBtn.addEventListener("click", () => flip(1));
+    if (book) {
+        let sx = 0, sy = 0;
+        book.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+        book.addEventListener("touchend", (e) => {
+            const t = e.changedTouches[0];
+            const dx = t.clientX - sx, dy = t.clientY - sy;
+            if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) flip(dx < 0 ? 1 : -1);
+        }, { passive: true });
+    }
+}
+
+// Sampul buku: default (belum milih pattern) pakai navy-kuning yang sama kayak
+// cover Paspor Warga -- biar kerasa satu keluarga visual "buku warga". Kalau
+// pattern dipilih, dikasih scrim gelap tipis di atasnya biar teks tetep kebaca
+// nggak peduli pattern-nya terang (garis pink) atau gelap (bintang denim).
+function myProfileCoverStyle(bgKey) {
+    const file = bgKey === "custom" ? (_profile && _profile.profileBgCustom) : PROFILE_BG_PATTERNS[bgKey];
+    const img = file
+        ? "linear-gradient(rgba(10,18,40,.4),rgba(10,18,40,.52)), url(" + file + ")"
+        : "linear-gradient(150deg, #16307c, #0d1f56)";
+    return "background-image:" + img + ";";
+}
+
+function myProfileAvaHtml() {
+    return _profile.photoUrl
+        ? '<img src="' + esc(_profile.photoUrl) + '" alt="">'
+        : '<div class="mypf-mini-init">' + esc((_profile.nickname || "S").charAt(0).toUpperCase()) + '</div>';
+}
+
+// Muka depan cover (jadi "leaf" pas buku tertutup; baliknya = halaman identitas)
+function myProfileCoverFaceHtml() {
+    // (dipakai 2x per render -- cover statis & muka depan leaf -- makanya class,
+    // bukan id, biar nggak dobel di DOM)
+    return '<div class="mypf-cvface" style="' + myProfileCoverStyle(_profile.profileBg || "") + '">' +
+        '<div class="mypf-mini-polaroid"><div class="mypf-mini-photo">' + myProfileAvaHtml() + '</div><span class="mypf-mini-tape"></span></div>' +
+        '<div class="mypf-cv-name">' + esc(_profile.nickname || "Sahabat") + '</div>' +
+        '<div class="mypf-cv-hint">ketuk buat buka 📖</div>' +
+        '<span class="mypf-corner"></span>' +
+        '</div>';
+}
+
+// Halaman identitas: foto+nama+bio+jumlah karya, kertas krem sama kayak Paspor
+function myProfileIdentityPageHtml() {
+    return '<div class="psp-in">' +
+        '<div class="psp-kicker">★ ARSIP WARGA ★</div>' +
+        '<div class="mypf-mini-polaroid"><div class="mypf-mini-photo">' + myProfileAvaHtml() + '</div><span class="mypf-mini-tape"></span></div>' +
+        '<div class="mypf-id-name">' + esc(_profile.nickname || "Sahabat") + '</div>' +
+        (_profile.bio ? '<div class="mypf-id-bio">“' + esc(_profile.bio) + '”</div>' : '<div class="mypf-id-bio muted">Belum nulis bio</div>') +
+        '<div class="mypf-id-stat"><b>' + myProfileWorks().length + '</b><span>karya</span></div>' +
+        '</div>';
+}
+
+// Halaman karya -- 1 karya = 1 halaman, foto jadi bintang utamanya
+// Stiker tempelan di halaman karya, dipilih deterministik dari index (bukan
+// acak) biar re-render stabil -- sama pola kayak PSP_STK di halaman visa Paspor.
+const MPK_STK = [
+    '<img class="mpk-stk" src="../images/sticker/str-1.png" style="bottom:10px;right:8px;width:36px;transform:rotate(9deg);" alt="">',
+    '<img class="mpk-stk" src="../images/sticker/str-4.png" style="bottom:12px;left:8px;width:34px;transform:rotate(-8deg);" alt="">',
+    '<img class="mpk-stk" src="../images/sticker/str-7.png" style="bottom:8px;right:12px;width:38px;transform:rotate(-10deg);" alt="">',
+    '<img class="mpk-stk" src="../images/sticker/str-2.png" style="bottom:10px;left:12px;width:34px;transform:rotate(7deg);" alt="">',
+    '<img class="mpk-stk" src="../images/sticker/str-11.png" style="bottom:12px;right:6px;width:36px;transform:rotate(11deg);" alt="">',
+    '<img class="mpk-stk" src="../images/sticker/str-6.png" style="bottom:8px;left:6px;width:38px;transform:rotate(-6deg);" alt="">'
+];
+
+function myProfileKaryaPageHtml(w, idx) {
+    if (!w) return '<div class="psp-in psp-blank"><span class="psp-wm">SS</span></div>';
+    return '<div class="psp-in">' +
+        '<div class="psp-kicker">★ KARYA ★</div>' +
+        '<div class="mpk-photo"><img src="' + esc(driveThumb(w.photo)) + '" alt="' + esc(w.title || "") + '"></div>' +
+        (w.title ? '<div class="mpk-cap">' + esc(w.title) + '</div>' : '') +
+        (w.caption ? '<div class="mpk-note">“' + esc(w.caption) + '”</div>' : '') +
+        MPK_STK[(idx || 0) % MPK_STK.length] +
+        '</div>';
+}
+
+// Susunan spread: [kosong | identitas] -> halaman karya berpasangan
+function myProfileSpreads() {
+    const works = myProfileWorks();
+    const spreads = [[myProfileKaryaPageHtml(null), myProfileIdentityPageHtml()]];
+    for (let i = 0; i < works.length; i += 2) spreads.push([myProfileKaryaPageHtml(works[i], i), myProfileKaryaPageHtml(works[i + 1], i + 1)]);
+    return spreads;
+}
+
+function myProfileBookHtml() {
+    return '<div class="mypf-stage" id="mypfStage">' +
+        '<div class="psp-book" id="mypfBook">' +
+        '<div class="psp-page psp-left" id="mypfLeft"></div>' +
+        '<div class="psp-page psp-right" id="mypfRight"></div>' +
+        '<div class="psp-leafbox"><div class="psp-leaf" id="mypfLeaf"><div class="psp-face psp-front" id="mypfFront"></div><div class="psp-face psp-back" id="mypfBack"></div></div></div>' +
+        '<button type="button" class="psp-cover-static" id="mypfCoverBtn">' + myProfileCoverFaceHtml() + '</button>' +
+        '</div>' +
+        '<div class="qbook-nav" id="mypfNav" style="visibility:hidden;">' +
+        '<button type="button" class="qb-arrow" id="mypfPrev" aria-label="Halaman sebelumnya">‹</button>' +
+        '<div class="qb-count" id="mypfCount"></div>' +
+        '<button type="button" class="qb-arrow" id="mypfNext" aria-label="Halaman berikutnya">›</button></div>' +
+        '</div>';
+}
+
+function wireMyProfileBook() {
+    const stage = $("mypfStage");
+    if (!stage) return;
+    // lebar dari viewport langsung (persis trik Paspor di openPassport()),
+    // BUKAN clientWidth elemen induk -- clientWidth bisa kebaca 0/belum akurat
+    // kalau halaman ini kebuka lewat deep-link fresh-load (mis. langsung ke
+    // #profile), pas ancestor-nya (dashView dkk) belum tentu selesai di-layout.
+    // window.innerWidth selalu valid dari awal, nggak gantung ke timing itu.
+    let sw = Math.min(Math.round(window.innerWidth * 0.92) - 28, 380);
+    if (sw % 2) sw--;
+    stage.style.width = sw + "px";
+    const book = $("mypfBook");
+    initFlipBook({
+        book, leftP: $("mypfLeft"), rightP: $("mypfRight"),
+        leaf: $("mypfLeaf"), front: $("mypfFront"), back: $("mypfBack"),
+        prevBtn: $("mypfPrev"), nextBtn: $("mypfNext"), countEl: $("mypfCount"),
+        coverBtn: $("mypfCoverBtn"), navEl: $("mypfNav")
+    }, myProfileSpreads(), { coverFaceHtml: myProfileCoverFaceHtml() });
+    // delegasi klik (bukan listener per-<img>) -- konten halaman karya sering
+    // dipindah-pindah antar leftP/rightP/leaf pas flip, delegasi di book yang
+    // nggak pernah diganti tetep kepakai regardless posisi foto lagi di mana
+    if (book) book.addEventListener("click", (e) => {
+        const img = e.target.closest(".mpk-photo img");
+        if (img) openPhotoLightbox(img.src);
+    });
+}
+
+function renderMyProfilePage() {
+    const p = $("mypfPage");
+    if (!p || !_profile) return;
+    p.innerHTML =
+        '<div class="mypf-wrap">' +
+        '<button type="button" class="mypf-pageclose" id="mypfClose" aria-label="Tutup">✕</button>' +
+        myProfileBookHtml() +
+        '<div class="mypf-actions">' +
+        '<button type="button" class="mypf-action-btn ghost" id="mypfEditBtn">✏️ Edit Profil</button>' +
+        (_profile.publicId ? '<button type="button" class="mypf-action-btn primary" id="mypfShare">🔗 Bagikan</button>' : '') +
+        '</div>' +
+        (_profile.publicId && _profile.publicOptIn !== "1"
+            ? '<div class="mypf-hint">Profilmu masih <b>sembunyi</b> dari halaman publik — nyalain "🌍 Profil Publik" di Pengaturan dulu ya.</div>'
+            : '') +
+        '<div class="mypf-bgpicker">' +
+        '<div class="mypf-bgpicker-t">🎨 Ganti sampul buku</div>' +
+        '<div class="mypf-swatches" id="mypfSwatches">' + myProfileSwatchesHtml() + '</div>' +
+        '<input type="file" id="mypfBgFile" accept="image/*" hidden>' +
+        '</div>' +
+        '</div>';
+
+    $("mypfClose").addEventListener("click", () => closeMyProfile());
+    $("mypfEditBtn").addEventListener("click", openProfileEditor);
+    const shareBtn = $("mypfShare");
+    if (shareBtn) shareBtn.addEventListener("click", async () => {
+        const url = "https://seminggusatu.com/balai/?w=" + _profile.publicId;
+        try { await navigator.clipboard.writeText(url); shareBtn.textContent = "✓ Tersalin!"; }
+        catch (e) { prompt("Salin manual ya:", url); }
+        setTimeout(() => { const s = $("mypfShare"); if (s) s.innerHTML = "🔗 Bagikan"; }, 2200);
+    });
+    const bgFile = $("mypfBgFile");
+    bgFile.addEventListener("change", (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (f) myProfileUploadBg(f);
+        bgFile.value = "";
+    });
+    const addBg = $("mypfBgAdd");
+    if (addBg) addBg.addEventListener("click", () => bgFile.click());
+    p.querySelectorAll(".mypf-sw").forEach(sw => sw.addEventListener("click", (e) => {
+        if (e.target.closest(".mypf-sw-edit")) { bgFile.click(); return; }
+        myProfileSetBg(sw.dataset.bg);
+    }));
+    wireMyProfileBook();
+
+    // gallery belum ke-load (mis. baru login, belum sempat buka tab lain) -> ambil
+    // diem-diem, refresh halaman identitas (jumlah karya) + halaman karya kalau
+    // belum sempat kebuka bukunya
+    if (!_galleryLoaded) loadGallery().then(() => renderMyProfilePage()).catch(() => { });
+}
+
+// Upload pattern sendiri (maks 1 slot) -- reuse compressImage yang udah ada
+// buat foto profil, tapi resolusinya nggak perlu setinggi foto orang (700px
+// cukup buat background).
+async function myProfileUploadBg(file) {
+    showBusy("Mengunggah pattern…");
+    try {
+        const img = await compressImage(file, 700, 0.82);
+        const r = await apiPost({ action: "memberUpdateProfile", token: _profile.token, profileBgImage: img.base64, profileBgImageMime: img.mime });
+        if (r.status !== "success") throw new Error(r.message || "gagal");
+        _profile.profileBg = r.profileBg || "custom";
+        _profile.profileBgCustom = r.profileBgCustom || _profile.profileBgCustom;
+        renderMyProfilePage();
+    } catch (e) {
+        alert("Gagal upload pattern, coba lagi ya.");
+    } finally { hideBusy(); }
+}
+
+// Simpen pilihan sampul segera (optimistis, rollback kalau gagal) -- pola sama
+// kayak jarSaveCustomization: nggak nunggu tombol "simpan" terpisah.
+async function myProfileSetBg(key) {
+    if ((_profile.profileBg || "") === key) return;
+    const prev = _profile.profileBg;
+    _profile.profileBg = key;
+    // 2 kemunculan (cover statis + muka depan leaf) -- lihat catatan di
+    // myProfileCoverFaceHtml soal kenapa class, bukan id
+    const bgCss = myProfileCoverStyle(key).replace(/^background-image:|;$/g, "");
+    document.querySelectorAll(".mypf-cvface").forEach(el => { el.style.backgroundImage = bgCss; });
+    document.querySelectorAll(".mypf-sw").forEach(sw => sw.classList.toggle("on", sw.dataset.bg === key));
+    try {
+        const r = await apiPost({ action: "memberUpdateProfile", token: _profile.token, profileBg: key });
+        if (r.status !== "success") throw new Error(r.message || "gagal");
+    } catch (e) {
+        _profile.profileBg = prev;
+        renderMyProfilePage();
+        alert("Gagal ganti sampul, coba lagi ya.");
+    }
+}
+
+function openMyProfile(setHash) {
+    let p = $("mypfPage");
+    if (!p) {
+        p = document.createElement("div");
+        p.id = "mypfPage";
+        p.className = "mypf-page";
+        document.body.appendChild(p);
+    }
+    renderMyProfilePage();
+    p.classList.add("show");
+    lockScroll();
+    if (setHash !== false) { try { location.hash = "profile"; } catch (e) { } }
+}
+
+function closeMyProfile(retHash) {
+    const p = $("mypfPage");
+    if (!p || !p.classList.contains("show")) return;
+    p.classList.remove("show");
+    unlockScroll();
+    if (retHash !== false) { try { if (location.hash === "#profile") location.hash = "home"; } catch (e) { } }
+}
+
 (function initProfileBtn() {
     const b = $("profileBtn");
-    if (b) b.addEventListener("click", openProfileEditor);
+    if (b) b.addEventListener("click", () => openMyProfile());
 })();
 
 // ============================================================
@@ -4428,23 +4916,34 @@ const ICON_GRID = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" s
 // Ikon shared (sama kayak ikon tab -> konsisten se-app)
 const ICON_CAMERA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
 
-async function loadGallery() {
-    if (_galleryLoaded) return;
-    _galleryLoaded = true;
+// _galleryLoaded cuma jadi true SETELAH data beneran nyampe (bukan pas mulai
+// fetch) -- _galleryLoadingPromise nampung fetch yang lagi jalan biar caller
+// yang manggil bebarengan (mis. prefetchTabs() vs renderMyProfilePage()) ikut
+// nunggu hasil yang SAMA, bukan dapet resolve kosong duluan (bug nyata: karya
+// kebaca 0 di halaman Profil Kamu padahal datanya lagi otw dari prefetch).
+let _galleryLoadingPromise = null;
+function loadGallery() {
+    if (_galleryLoaded) return Promise.resolve();
+    if (_galleryLoadingPromise) return _galleryLoadingPromise;
     const pane = $("pane-gallery");
-    pane.innerHTML = skeletonGallery();
-    try {
-        const g = await fnGet("quest-gallery", "wa=" + encodeURIComponent(_profile.wa), 20000);
-        _galleryItems = (g && g.items) || [];
-    } catch (e) {
-        _galleryLoaded = false;
-        renderError(pane, loadGallery);
-        return;
-    }
-    renderGallery();
-    // Data galeri baru masuk -> refresh Quest Board biar hitungan "karya teman"
-    // (badge 👥 di buku/grid/list) langsung keisi
-    if (_questsLoaded && _questChallenges.length && $("questGrid")) renderQuestBoard();
+    if (pane) pane.innerHTML = skeletonGallery();
+    _galleryLoadingPromise = (async () => {
+        try {
+            const g = await fnGet("quest-gallery", "wa=" + encodeURIComponent(_profile.wa), 20000);
+            _galleryItems = (g && g.items) || [];
+        } catch (e) {
+            _galleryLoadingPromise = null;
+            renderError(pane, loadGallery);
+            return;
+        }
+        _galleryLoaded = true;
+        _galleryLoadingPromise = null;
+        renderGallery();
+        // Data galeri baru masuk -> refresh Quest Board biar hitungan "karya teman"
+        // (badge 👥 di buku/grid/list) langsung keisi
+        if (_questsLoaded && _questChallenges.length && $("questGrid")) renderQuestBoard();
+    })();
+    return _galleryLoadingPromise;
 }
 
 function galFiltered() {

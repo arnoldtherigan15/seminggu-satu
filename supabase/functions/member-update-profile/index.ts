@@ -4,6 +4,11 @@ import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { uploadBase64 } from "../_shared/storage.ts";
 
+const VALID_BG = new Set([
+  "",
+  ...Array.from({ length: 19 }, (_, i) => `pattern-${i + 1}`),
+]);
+
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
   if (opt) return opt;
@@ -35,6 +40,23 @@ Deno.serve(async (req) => {
     if (data.publicOptIn !== undefined) {
       patch.public_opt_in = String(data.publicOptIn) === "1";
     }
+    // Upload pattern custom (maks 1 slot -- upload baru nimpa yang lama)
+    // -- dicek DULUAN, karena kalau ini ada, dia yang nentuin profile_bg
+    // ("custom"), bukan field profileBg yang mungkin ikut kekirim stale.
+    if (data.profileBgImage) {
+      const bgUrl = await uploadBase64(admin, "profile-photos", data.profileBgImage, `profile-bg-${row.wa}`, data.profileBgImageMime);
+      if (!bgUrl) return errorResponse("Gagal upload pattern, coba lagi ya.");
+      patch.profile_bg_custom = bgUrl;
+      patch.profile_bg = "custom";
+    } else if (data.profileBg !== undefined) {
+      const bg = String(data.profileBg || "");
+      if (bg === "custom") {
+        if (!row.profile_bg_custom) return errorResponse("Belum ada pattern custom yang diupload.");
+      } else if (!VALID_BG.has(bg)) {
+        return errorResponse("Pattern sampul nggak dikenal.");
+      }
+      patch.profile_bg = bg;
+    }
     if (data.photoBase64) {
       const photoUrl = await uploadBase64(admin, "profile-photos", data.photoBase64, `profile-${row.wa}`, data.photoMime);
       if (!photoUrl) return errorResponse("Gagal upload foto profil, coba lagi ya.");
@@ -51,6 +73,8 @@ Deno.serve(async (req) => {
       birthDate: updated.birth_date || "",
       photoUrl: updated.photo_url || "",
       bio: updated.bio || "",
+      profileBg: updated.profile_bg || "",
+      profileBgCustom: updated.profile_bg_custom || "",
     });
   } catch (e) {
     return errorResponse((e as Error).message || "Terjadi kesalahan", 500);

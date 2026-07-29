@@ -36,6 +36,8 @@ Deno.serve(async (req) => {
       n: row.nickname || "Warga",
       p: row.photo_url || "",
       b: row.bio || "",
+      bg: row.profile_bg || "",
+      bgCustom: row.profile_bg_custom || "",
       karya: works.length,
       events: eventsCount ?? 0,
       works,
