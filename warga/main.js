@@ -59,6 +59,8 @@ function restGet(path, timeoutMs) {
 }
 
 const MEMBER_ACTION_FN = {
+    memberBookAdd: "member-book-add",
+    memberBookCustomize: "member-book-customize",
     memberCheckin: "member-checkin",
     memberEditQuest: "member-edit-quest",
     memberJarAdd: "member-jar-add",
@@ -73,7 +75,8 @@ const MEMBER_ACTION_FN = {
     memberSubmitQuest: "member-submit-quest",
     memberToggleLike: "member-toggle-like",
     memberUpdateProfile: "member-update-profile",
-    memberVoteSuggestion: "member-vote-suggestion"
+    memberVoteSuggestion: "member-vote-suggestion",
+    memberWargaBook: "member-warga-book"
 };
 async function apiPost(payload) {
     const fn = MEMBER_ACTION_FN[payload.action];
@@ -269,7 +272,7 @@ function fireConfetti(preset) {
 }
 
 function onAuthSuccess(r) {
-    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}", jarRecords: r.jarRecords || "{}", profileBg: r.profileBg || "", profileBgCustom: r.profileBgCustom || "", publicOptIn: r.publicOptIn === "1" ? "1" : "", publicId: r.publicId || "" };
+    _profile = { token: r.token, nickname: r.nickname, birthDate: r.birthDate, wa: r.wa, journalRecords: r.journalRecords || "{}", photoUrl: r.photoUrl || "", bio: r.bio || "", moodRecords: r.moodRecords || "{}", jarRecords: r.jarRecords || "{}", writingRecords: r.writingRecords || "{}", profileBg: r.profileBg || "", profileBgCustom: r.profileBgCustom || "", publicOptIn: r.publicOptIn === "1" ? "1" : "", publicId: r.publicId || "" };
     // MERGE mood server + lokal (bukan nimpa buta): server menang per-hari (kebenaran
     // lintas device), tapi hari yang cuma ada di lokal (sync-nya sempet gagal/offline)
     // jangan sampai kehapus
@@ -403,9 +406,11 @@ window.addEventListener("hashchange", () => {
     const h = (location.hash || "").replace("#", "");
     if (h === "snail-mail") { openSnailBox(false); return; } // halaman kotak surat (deep-link/refresh aman)
     if (h === "jar") { openJarBox(false); return; } // halaman toples syukur (deep-link/refresh aman)
+    if (h === "journal") { openJournalPage(false); return; } // halaman jurnal bulanan (deep-link/refresh aman)
     if (h === "profile") { openMyProfile(false); return; } // halaman profil kamu (deep-link/refresh aman)
     closeSnailPage(false);
     closeJarPage(false);
+    closeJournalPage(false);
     closeMyProfile(false);
     activateTab(h);
 });
@@ -2722,6 +2727,7 @@ async function loadLoyalty() {
             '<div id="evTicketSlot"></div>' +
             '<div class="pr-row" id="personalRow">' +
             '<div id="prJarTile"></div>' +
+            '<div id="prJournalTile"></div>' +
             '<div id="prMailTile"></div>' +
             '<button type="button" class="pr-tile" id="btnPassport">' +
             '<span class="pr-ic">🪪</span><span class="pr-t">Paspor Warga</span>' +
@@ -2744,7 +2750,9 @@ async function loadLoyalty() {
         refreshMoodWidget(); // widget cuaca hati (data sync dari localStorage/profil)
         renderEventTicket(); // kalau _evRegistered belum ada, loadEvents yang ngisi nanti
         jarCtaRefresh(); // toples syukur/impian -- data udah kebawa dari _profile, ga perlu fetch lagi
+        journalCtaRefresh(); // jurnal bulanan -- sama, data udah ada dari _profile
         if (location.hash === "#jar") openJarBox(false); // habis refresh di #jar -> langsung buka lagi
+        if (location.hash === "#journal") openJournalPage(false); // habis refresh di #journal -> langsung buka lagi
         if (location.hash === "#profile") openMyProfile(false); // habis refresh di #profile -> langsung buka lagi
         loadSnailMail().then(() => {
             snailCtaRefresh();
@@ -3546,7 +3554,19 @@ function initFlipBook(refs, spreads, opts) {
             });
         }));
     }
-    if (coverBtn && opts.coverFaceHtml) {
+    if (coverBtn && opts.coverFaceHtml && opts.startOpen !== undefined) {
+        // udah "kebuka" langsung di spread tertentu, TANPA animasi tutup+tap-buka
+        // -- dipakai abis submit entri baru: user mau LANGSUNG liat hasil
+        // tulisannya, bukan disuruh buka-tutup dari cover terus swipe nyari lagi
+        // (itungan makin capek makin banyak halaman). Cover-nya tetep ADA (bisa
+        // di-swipe-back buat nutup manual via closeBook()), cuma disembunyiin.
+        const idx = Math.max(0, Math.min(opts.startOpen, spreads.length - 1));
+        setPages(idx);
+        hideLeaf();
+        coverBtn.style.display = "none";
+        opened = true;
+        if (navEl) navEl.style.visibility = "";
+    } else if (coverBtn && opts.coverFaceHtml) {
         // keadaan awal: buku TERTUTUP (kembaran openBook() di renderPassportBook).
         // setPages(0) DULU -- ngisi rightP (halaman identitas) biar udah bener
         // pas cover statis di atasnya kebuka, baru abis itu overlay ketutup.
@@ -5422,18 +5442,47 @@ function jarPileHtml(items) {
     }).join("");
 }
 
+// Shelf bulan yang dipakai bareng Jar & Jurnal -- makin lama dipakai warga
+// (bisa tahunan), daftar bulan bisa panjang banget kalau ditumpuk flat, jadi
+// cuma RECENT bulan terbaru yang keliatan langsung; sisanya dikelompokkan per
+// tahun di balik satu <details> (bukan infinite-scroll nyari 1-1).
+const MONTH_SHELF_RECENT = 6;
+function monthShortLabel(key) {
+    const m = key.match(/^(\d{4})-(\d{2})$/);
+    return m ? BULAN_ID[parseInt(m[2], 10) - 1] : key;
+}
+function monthShelfHtml(months, activeKey, hasDataFn, glyphClass, title) {
+    const item = k => '<button type="button" class="jp-mini" data-month="' + esc(k) + '">' +
+        '<div class="glyph ' + glyphClass + (k === activeKey ? " current" : "") + '" style="opacity:' + (hasDataFn(k) ? 1 : .45) + '"></div>' +
+        esc(monthShortLabel(k)) + '</button>';
+    const recent = months.slice(-MONTH_SHELF_RECENT);
+    const older = months.slice(0, -MONTH_SHELF_RECENT);
+    let html = '<div class="jp-shelf-title">' + esc(title) + '</div>' +
+        '<div class="jp-shelf">' + recent.map(item).join("") + '</div>';
+    if (older.length) {
+        const byYear = {};
+        older.forEach(k => { const y = k.slice(0, 4); (byYear[y] = byYear[y] || []).push(k); });
+        const years = Object.keys(byYear).sort((a, b) => b - a);
+        html += '<details class="jp-shelf-more"><summary>Lihat ' + older.length + ' bulan lainnya</summary>' +
+            years.map(y => '<div class="jp-shelf-year">' + y + '</div><div class="jp-shelf">' +
+                byYear[y].slice().reverse().map(item).join("") + '</div>').join("") +
+            '</details>';
+    }
+    return html;
+}
+
 function jarShelfHtml(months, activeKey) {
-    return '<div class="jp-shelf-title">Rak toples bulan-bulan lalu</div>' +
-        '<div class="jp-shelf">' + months.map(k => {
-            const j = jarMonthData(k);
-            const hasData = j && (j.items || []).length;
-            return '<button type="button" class="jp-mini" data-month="' + esc(k) + '">' +
-                '<div class="glyph' + (k === activeKey ? " current" : "") + '" style="opacity:' + (hasData ? 1 : .45) + '"></div>' +
-                esc(jarMonthLabelFromKey(k).split(" ")[0]) + '</button>';
-        }).join("") + '</div>';
+    return monthShelfHtml(months, activeKey,
+        k => { const j = jarMonthData(k); return !!(j && (j.items || []).length); },
+        "jar-glyph", "Rak toples bulan-bulan lalu");
 }
 function wireJarShelf() {
-    document.querySelectorAll(".jp-mini").forEach(b => b.addEventListener("click", () => {
+    // scoped ke #jarPage -- kalau nggak, sekali Jurnal Bulanan pernah kebuka
+    // di sesi yang sama, .jp-mini punya DIA (masih nangkring di DOM, cuma
+    // disembunyiin) ikut ke-listen juga & bikin _jarViewMonth ke-set salah
+    const page = $("jarPage");
+    if (!page) return;
+    page.querySelectorAll(".jp-mini").forEach(b => b.addEventListener("click", () => {
         _jarViewMonth = b.dataset.month;
         renderJarPage();
     }));
@@ -5643,6 +5692,360 @@ async function jarSubmitEntry(e) {
         const hint = $("jpHint"); if (hint) hint.textContent = "Gagal terhubung ke server.";
         btn.disabled = false; input.disabled = false;
     }
+}
+
+// ============================================================
+//  Jurnal Bulanan (#journal) -- "luapin perasaan" lewat tulisan bebas,
+//  1 entri/hari, dikemas sebagai buku fisik yang bisa di-flip (reuse
+//  initFlipBook yang sama kayak Paspor/Profil Kamu). Nama & sampul
+//  kesimpen per bulan (pola data identik Gratitude Jar), bulan lama
+//  nggak di-reset -- tetep bisa dibuka lagi lewat "rak buku".
+//  Expressive writing (Pennebaker): nulis bebas tanpa dibaca siapa pun
+//  lain bantu regulasi emosi -- lihat skill seminggu-psych.
+// ============================================================
+let _wbookViewMonth = null; // bulan yang lagi ditampilin (default: bulan berjalan)
+
+function wbookMonthKey(d) {
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit" }).formatToParts(d || new Date());
+    return parts.find(p => p.type === "year").value + "-" + parts.find(p => p.type === "month").value;
+}
+function wbookTodayNum() {
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", day: "2-digit" }).formatToParts(new Date());
+    return parseInt(parts.find(p => p.type === "day").value, 10);
+}
+function wbookAllRecords() {
+    try { return JSON.parse((_profile && _profile.writingRecords) || "{}"); } catch (e) { return {}; }
+}
+function wbookMonthData(key) { return wbookAllRecords()[key] || null; }
+function wbookMonthLabelFromKey(key) {
+    const m = key.match(/^(\d{4})-(\d{2})$/);
+    return m ? BULAN_ID[parseInt(m[2], 10) - 1] + " " + m[1] : key;
+}
+
+// Sampul: reuse persis logika+CSS sampul Profil Kamu (myProfileCoverStyle) --
+// 1 slot custom upload dibagi bareng, nggak ada upload baru khusus jurnal.
+function wbookSwatchesHtml(coverKey) {
+    let html = '<button type="button" class="mypf-sw blank' + (coverKey === "" ? " on" : "") + '" data-cover="" aria-label="Polos, tanpa pattern">✕</button>';
+    Object.keys(PROFILE_BG_PATTERNS).forEach(k => {
+        html += '<button type="button" class="mypf-sw' + (coverKey === k ? " on" : "") + '" data-cover="' + k + '" style="background-image:url(' + PROFILE_BG_PATTERNS[k] + ')" aria-label="Pilih pattern"></button>';
+    });
+    // slot custom -- 1 SLOT dibagi bareng sama sampul Profil Kamu (nggak ada
+    // upload terpisah per buku, biar hemat & konsisten). Belum pernah upload ->
+    // tombol "+" yang buka file picker; udah pernah -> thumbnail dipilih +
+    // badge pensil kecil buat ganti (pola sama kayak myProfileSwatchesHtml).
+    html += (_profile && _profile.profileBgCustom)
+        ? '<button type="button" class="mypf-sw custom' + (coverKey === "custom" ? " on" : "") + '" data-cover="custom" style="background-image:url(' + esc(_profile.profileBgCustom) + ')" aria-label="Sampul custom kamu"><span class="mypf-sw-edit">✎</span></button>'
+        : '<button type="button" class="mypf-sw add" id="jnBgAdd" aria-label="Upload sampul sendiri">+</button>';
+    return html;
+}
+
+// Upload sampul custom dari dalam Jurnal Bulanan -- reuse endpoint yang sama
+// kayak upload sampul Profil Kamu (1 slot custom dibagi bareng), tapi abis
+// sukses langsung diset jadi sampul BUKU BULAN INI juga & halaman jurnal
+// yang di-refresh (bukan halaman profil).
+async function jnUploadBg(file) {
+    showBusy("Mengunggah sampul…");
+    try {
+        const img = await compressImage(file, 700, 0.82);
+        const r = await apiPost({ action: "memberUpdateProfile", token: _profile.token, profileBgImage: img.base64, profileBgImageMime: img.mime });
+        if (r.status !== "success") throw new Error(r.message || "gagal");
+        _profile.profileBg = r.profileBg || "custom";
+        _profile.profileBgCustom = r.profileBgCustom || _profile.profileBgCustom;
+        const nameInput = $("jnNameInput");
+        await jnSaveCustomization((nameInput && nameInput.value.trim()) || "Jurnal Bulanan", "custom");
+        renderJournalPage();
+    } catch (e) {
+        alert("Gagal upload sampul, coba lagi ya.");
+    } finally { hideBusy(); }
+}
+
+function jnCoverFaceHtml(book) {
+    return '<div class="mypf-cvface" style="' + myProfileCoverStyle(book.cover || "") + '">' +
+        '<div class="mypf-cv-name">' + esc(book.name || "Jurnal Bulanan") + '</div>' +
+        '<div class="mypf-cv-hint">ketuk buat buka 📖</div>' +
+        '<span class="mypf-corner"></span>' +
+        '</div>';
+}
+function jnIntroPageHtml(book, monthKey) {
+    const count = (book.entries || []).length;
+    return '<div class="psp-in">' +
+        '<div class="psp-kicker">★ ' + esc(wbookMonthLabelFromKey(monthKey)).toUpperCase() + ' ★</div>' +
+        '<div class="jn-book-title">' + esc(book.name || "Jurnal Bulanan") + '</div>' +
+        '<div class="jn-book-count">' + count + ' catatan bulan ini</div>' +
+        '</div>';
+}
+// "Kamis, 30 Juli 2026" -- dari ts (timestamp lengkap), bukan cuma nomor
+// hari, biar kebaca jelas tanggal beneran pas dibaca ulang lama kemudian
+function jnEntryDateLabel(e) {
+    if (!e || !e.ts) return "Hari " + (e ? e.day : "");
+    try {
+        return new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Jakarta", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(e.ts));
+    } catch (err) { return "Hari " + e.day; }
+}
+function jnEntryPageHtml(e) {
+    if (!e) return myProfileKaryaPageHtml(null); // reuse lembar kosong ber-watermark
+    return '<div class="psp-in">' +
+        '<div class="psp-kicker jn-entry-date">✍️ ' + esc(jnEntryDateLabel(e)) + '</div>' +
+        '<div class="jn-entry-text">“' + esc(e.text) + '”</div>' +
+        '</div>';
+}
+function wbookSpreads(monthKey) {
+    const book = wbookMonthData(monthKey) || { name: "", cover: "", entries: [] };
+    const entries = (book.entries || []).slice().sort((a, b) => a.day - b.day);
+    const spreads = [[myProfileKaryaPageHtml(null), jnIntroPageHtml(book, monthKey)]];
+    for (let i = 0; i < entries.length; i += 2) spreads.push([jnEntryPageHtml(entries[i]), jnEntryPageHtml(entries[i + 1])]);
+    return spreads;
+}
+
+function wbookShelfHtml(months, activeKey) {
+    return monthShelfHtml(months, activeKey,
+        k => { const b = wbookMonthData(k); return !!(b && (b.entries || []).length); },
+        "book-glyph", "Buku-buku bulan lalu");
+}
+
+// Fitur ini resmi mulai 1 Agustus 2026 -- sebelum itu (termasuk Juli, yang
+// cuma dipakai buat testing internal) tile-nya tampil "Segera Hadir" & nggak
+// bisa diklik warga umum. Perbandingan string "YYYY-MM" valid buat urutan
+// kronologis. Nggak perlu di-revert manual -- begitu masuk Agustus otomatis
+// aktif normal dengan sendirinya.
+const JOURNAL_LAUNCH_KEY = "2026-08";
+function journalLaunched() { return wbookMonthKey() >= JOURNAL_LAUNCH_KEY; }
+
+function journalCtaRefresh() {
+    const slot = $("prJournalTile");
+    if (!slot) return;
+    if (!journalLaunched()) {
+        slot.innerHTML =
+            '<div class="pr-tile pr-tile-soon">' +
+            '<span class="pr-ic">📔</span>' +
+            '<span class="pr-t">Jurnal Bulanan</span>' +
+            '<span class="pr-s">Segera hadir 1 Agustus</span>' +
+            '</div>';
+        return;
+    }
+    const curKey = wbookMonthKey();
+    const book = wbookMonthData(curKey);
+    const entries = (book && book.entries) || [];
+    const today = wbookTodayNum();
+    const doneToday = entries.some(e => e.day === today);
+    const name = (book && book.name) || "Jurnal Bulanan";
+    slot.innerHTML =
+        '<button type="button" class="pr-tile" id="journalCta">' +
+        '<span class="pr-ic">📔</span>' +
+        '<span class="pr-t">' + esc(name) + '</span>' +
+        '<span class="pr-s">' + (doneToday ? "udah hari ini ✓" : (entries.length ? entries.length + " catatan" : "yuk mulai")) + '</span>' +
+        '</button>';
+    $("journalCta").addEventListener("click", () => openJournalPage());
+}
+
+function openJournalPage(setHash) {
+    if (!journalLaunched()) return; // belum 1 Agustus -- tile juga nggak bisa diklik, ini jaga-jaga kalau ke-trigger dari hash/deep-link
+    let p = $("journalPage");
+    if (!p) {
+        p = document.createElement("div");
+        p.id = "journalPage";
+        p.className = "jar-page";
+        document.body.appendChild(p);
+    }
+    _wbookViewMonth = wbookMonthKey();
+    renderJournalPage();
+    p.classList.add("show");
+    lockScroll();
+    wrappedMusicPlay(); // musik latar sama kayak My Summary/Passport/Gratitude Jar
+    if (setHash !== false) { try { location.hash = "journal"; } catch (e) { } }
+}
+function closeJournalPage(retHash) {
+    const p = $("journalPage");
+    if (!p || !p.classList.contains("show")) return;
+    p.classList.remove("show");
+    unlockScroll();
+    wrappedMusicStop();
+    journalCtaRefresh();
+    if (retHash !== false) { try { if (location.hash === "#journal") location.hash = "home"; } catch (e) { } }
+}
+
+function wireJournalShelf() {
+    const page = $("journalPage"); // scoped -- lihat catatan di wireJarShelf
+    if (!page) return;
+    page.querySelectorAll(".jp-mini").forEach(b => b.addEventListener("click", () => {
+        _wbookViewMonth = b.dataset.month;
+        renderJournalPage();
+    }));
+}
+
+async function jnSaveCustomization(name, cover) {
+    try {
+        const r = await apiPost({ action: "memberBookCustomize", token: _profile.token, name, cover });
+        if (r && r.status === "success") {
+            _profile.writingRecords = r.writingRecords || _profile.writingRecords;
+            journalCtaRefresh();
+        }
+    } catch (e) { /* diamkan -- kesimpen kalau user ganti lagi/nambah entri */ }
+}
+
+async function jnSubmitEntry(e) {
+    e.preventDefault();
+    const input = $("jnInput");
+    const text = input.value.trim();
+    if (!text) return;
+    const btn = $("jnSubmit");
+    btn.disabled = true; input.disabled = true;
+
+    showBusy("Menyimpan…");
+    try {
+        const r = await apiPost({ action: "memberBookAdd", token: _profile.token, text });
+        hideBusy();
+        if (r.status !== "success") {
+            const hint = $("jnHint"); if (hint) hint.textContent = r.message || "Gagal nyimpen, coba lagi ya.";
+            btn.disabled = false; input.disabled = false;
+            return;
+        }
+        _profile.writingRecords = r.writingRecords || _profile.writingRecords;
+        fireConfetti("quest");
+        renderJournalPage(true); // buku ke-refresh, LANGSUNG kebuka di halaman catatan barunya
+    } catch (err) {
+        hideBusy();
+        const hint = $("jnHint"); if (hint) hint.textContent = "Gagal terhubung ke server.";
+        btn.disabled = false; input.disabled = false;
+    }
+}
+
+function renderJournalPage(openLast) {
+    const page = $("journalPage");
+    if (!page) return;
+    const key = _wbookViewMonth;
+    const curKey = wbookMonthKey();
+    const isCurrent = key === curKey;
+    const book = wbookMonthData(key) || { name: "", cover: "", entries: [] };
+    const entries = (book.entries || []).slice().sort((a, b) => a.day - b.day);
+
+    const recs = wbookAllRecords();
+    const months = Object.keys(recs);
+    if (months.indexOf(curKey) < 0) months.push(curKey);
+    months.sort();
+
+    if (!isCurrent) {
+        // Bulan lama: baca-doang, list catatan (nggak perlu render buku full)
+        page.innerHTML =
+            '<div class="jp-wrap">' +
+            '<div class="jp-head"><div class="jp-title">' + esc(book.name || "Jurnal Bulanan") + '</div>' +
+            '<button type="button" class="jp-close" id="jpClose">✕</button></div>' +
+            '<div class="jp-sub">' + esc(wbookMonthLabelFromKey(key)) + '</div>' +
+            '<div class="jp-view-title">' + entries.length + ' catatan terkumpul</div>' +
+            (entries.length
+                ? '<div class="jn-view-list">' + entries.map(e => '<div class="jn-view-entry"><b>' + esc(jnEntryDateLabel(e)) + '</b><p>' + esc(e.text) + '</p></div>').join("") + '</div>'
+                : '<div class="jp-empty">Nggak ada catatan bulan ini 🌙</div>') +
+            '<button type="button" class="jp-back-btn" id="jpBackCurrent">← Balik ke jurnal bulan ini</button>' +
+            wbookShelfHtml(months, key) +
+            '</div>';
+        $("jpClose").addEventListener("click", () => closeJournalPage());
+        $("jpBackCurrent").addEventListener("click", () => { _wbookViewMonth = curKey; renderJournalPage(); });
+        wireJournalShelf();
+        return;
+    }
+
+    const today = wbookTodayNum();
+    const doneToday = entries.some(e => e.day === today);
+    page.innerHTML =
+        '<div class="jp-wrap">' +
+        '<div class="jp-head"><div class="jp-title">📔 Jurnal Bulanan</div>' +
+        '<button type="button" class="jp-close" id="jpClose">✕</button></div>' +
+        '<div class="jp-sub">Luapin apa aja yang lagi dirasain, 1 catatan/hari. Ditulis buat diri sendiri, bukan buat dibaca orang lain 💙</div>' +
+        '<div class="jp-dock">' +
+        '<span class="jp-dock-lbl">Nama</span>' +
+        '<input class="jp-name-input" id="jnNameInput" type="text" maxlength="30" value="' + esc(book.name || "Jurnal Bulanan") + '">' +
+        '</div>' +
+        // Accordion: ketutup default kalau udah PERNAH milih sampul (nggak
+        // perlu keliatan tiap buka halaman ini), kebuka default kalau masih
+        // pakai default polos (ngundang buat coba-coba pertama kali)
+        '<details class="jn-cover-acc"' + (book.cover ? "" : " open") + '>' +
+        '<summary class="jn-cover-summary"><span>🎨 Sampul buku</span>' +
+        '<span class="jn-cover-preview" style="' + myProfileCoverStyle(book.cover || "") + '" id="jnCoverPreview"></span></summary>' +
+        '<div class="jp-swatch-row jn-cover-row" id="jnSwatches">' + wbookSwatchesHtml(book.cover || "") + '</div>' +
+        '<input type="file" id="jnBgFile" accept="image/*" hidden>' +
+        '</details>' +
+        '<div class="jn-stage" id="jnStage">' +
+        '<div class="psp-book" id="jnBook">' +
+        '<div class="psp-page psp-left" id="jnLeft"></div>' +
+        '<div class="psp-page psp-right" id="jnRight"></div>' +
+        '<div class="psp-leafbox"><div class="psp-leaf" id="jnLeaf"><div class="psp-face psp-front" id="jnFront"></div><div class="psp-face psp-back" id="jnBack"></div></div></div>' +
+        '<button type="button" class="psp-cover-static" id="jnCoverBtn">' + jnCoverFaceHtml(book) + '</button>' +
+        '</div>' +
+        '<div class="qbook-nav" id="jnNav" style="visibility:hidden;">' +
+        '<button type="button" class="qb-arrow" id="jnPrev" aria-label="Halaman sebelumnya">‹</button>' +
+        '<div class="qb-count" id="jnCount"></div>' +
+        '<button type="button" class="qb-arrow" id="jnNext" aria-label="Halaman berikutnya">›</button></div>' +
+        '</div>' +
+        '<form class="jn-composer" id="jnComposer">' +
+        '<textarea id="jnInput" maxlength="240" rows="3" placeholder="Hari ini rasanya…" autocomplete="off"' + (doneToday ? " disabled" : "") + '></textarea>' +
+        '<div class="jn-composer-foot">' +
+        '<span class="jn-counter" id="jnCounter">0/240</span>' +
+        '<button type="submit" class="jn-submit" id="jnSubmit"' + (doneToday ? " disabled" : "") + '>Simpan ✍️</button>' +
+        '</div></form>' +
+        '<p class="jp-hint" id="jnHint">' + (doneToday ? "Udah nulis 1 kali hari ini — balik lagi besok ya 💙" : "Boleh 1 kali hari ini ✨") + '</p>' +
+        wbookShelfHtml(months, key) +
+        '</div>';
+
+    $("jpClose").addEventListener("click", () => closeJournalPage());
+
+    const nameInput = $("jnNameInput");
+    // live pas ngetik -- 2 kemunculan .mypf-cv-name (cover statis + muka
+    // depan leaf), sama pola kayak label Gratitude Jar (.jp-label on-input)
+    nameInput.addEventListener("input", () => {
+        const val = nameInput.value.trim() || "Jurnal Bulanan";
+        page.querySelectorAll(".mypf-cv-name").forEach(el => { el.textContent = val; });
+    });
+    nameInput.addEventListener("blur", () => {
+        const val = nameInput.value.trim() || "Jurnal Bulanan";
+        const curCover = (wbookMonthData(key) || {}).cover || book.cover || "";
+        jnSaveCustomization(val, curCover);
+    });
+
+    const input = $("jnInput"), counter = $("jnCounter");
+    if (input) input.addEventListener("input", () => { if (counter) counter.textContent = input.value.length + "/240"; });
+
+    const jnBgFile = $("jnBgFile");
+    if (jnBgFile) jnBgFile.addEventListener("change", (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (f) jnUploadBg(f);
+        jnBgFile.value = "";
+    });
+    const jnBgAdd = $("jnBgAdd");
+    if (jnBgAdd) jnBgAdd.addEventListener("click", () => { if (jnBgFile) jnBgFile.click(); });
+
+    page.querySelectorAll(".jn-cover-row .mypf-sw").forEach(sw => sw.addEventListener("click", (e) => {
+        if (e.target.closest(".mypf-sw-edit")) { if (jnBgFile) jnBgFile.click(); return; }
+        page.querySelectorAll(".jn-cover-row .mypf-sw").forEach(s => s.classList.remove("on"));
+        sw.classList.add("on");
+        const cover = sw.dataset.cover;
+        const coverCss = myProfileCoverStyle(cover).replace(/^background-image:|;$/g, "");
+        // .mypf-cvface, BUKAN #jnCoverBtn -- warna patternnya nempel di div
+        // dalemnya (cvface), #jnCoverBtn cuma pembungkus transparan. 2
+        // kemunculan (cover statis + muka depan leaf), sama kayak fix di
+        // Profil Kamu -- lihat myProfileSetBg.
+        page.querySelectorAll(".mypf-cvface").forEach(el => { el.style.backgroundImage = coverCss; });
+        const preview = $("jnCoverPreview");
+        if (preview) preview.style.backgroundImage = coverCss;
+        jnSaveCustomization($("jnNameInput").value.trim() || "Jurnal Bulanan", cover);
+    }));
+
+    $("jnComposer").addEventListener("submit", jnSubmitEntry);
+
+    const jnBook = $("jnBook");
+    let sw2 = Math.min(Math.round(window.innerWidth * 0.92) - 28, 380);
+    if (sw2 % 2) sw2--;
+    $("jnStage").style.width = sw2 + "px";
+    const spreads = wbookSpreads(key);
+    const flipOpts = { coverFaceHtml: jnCoverFaceHtml(book) };
+    if (openLast) flipOpts.startOpen = spreads.length - 1; // abis submit -- langsung ke halaman catatan barusan
+    initFlipBook({
+        book: jnBook, leftP: $("jnLeft"), rightP: $("jnRight"),
+        leaf: $("jnLeaf"), front: $("jnFront"), back: $("jnBack"),
+        prevBtn: $("jnPrev"), nextBtn: $("jnNext"), countEl: $("jnCount"),
+        coverBtn: $("jnCoverBtn"), navEl: $("jnNav")
+    }, spreads, flipOpts);
+
+    wireJournalShelf();
 }
 
 function renderSnailBox() {
@@ -7366,6 +7769,139 @@ function updateStoryBarSeen() {
     });
 }
 
+// ============================================================
+//  Bottom sheet "buku warga lain" -- dibuka dari avatar/nama di story
+//  galeri. Muncul di ATAS story (bukan pindah halaman), story-nya ikut
+//  di-pause (reuse mekanisme "hold" yang sama kayak long-press pause).
+//  Reuse abis-abisan: mesin flip (initFlipBook), halaman karya
+//  (myProfileKaryaPageHtml), style cover/polaroid (.mypf-*) yang udah
+//  ada buat halaman Profil Kamu -- cuma datanya dari fetch, bukan _profile.
+// ============================================================
+let _wbPublicId = null;
+
+function pauseStoryProgress() {
+    const box = document.querySelector(".story-modal .story-face.cur .story-box");
+    if (box) box.classList.add("hold");
+}
+function resumeStoryProgress() {
+    const box = document.querySelector(".story-modal .story-face.cur .story-box");
+    if (box) box.classList.remove("hold");
+}
+
+function wargaBookCoverStyle(d) {
+    const file = d.bg === "custom" ? d.bgCustom : PROFILE_BG_PATTERNS[d.bg];
+    const img = file ? "url(" + file + ")" : "linear-gradient(150deg, #16307c, #0d1f56)";
+    return "background-image:" + img + ";";
+}
+function wargaBookAvaHtml(d) {
+    return d.p
+        ? '<img src="' + esc(driveThumb(d.p)) + '" alt="">'
+        : '<div class="mypf-mini-init">' + esc((d.n || "S").charAt(0).toUpperCase()) + '</div>';
+}
+function wargaBookCoverFaceHtml(d) {
+    return '<div class="mypf-cvface" style="' + wargaBookCoverStyle(d) + '">' +
+        '<div class="mypf-mini-polaroid"><div class="mypf-mini-photo">' + wargaBookAvaHtml(d) + '</div><span class="mypf-mini-tape"></span></div>' +
+        '<div class="mypf-cv-name">' + esc(d.n) + '</div>' +
+        '<div class="mypf-cv-hint">ketuk buat buka 📖</div>' +
+        '<span class="mypf-corner"></span>' +
+        '</div>';
+}
+function wargaBookIdentityPageHtml(d) {
+    return '<div class="psp-in">' +
+        '<div class="psp-kicker">★ ARSIP WARGA ★</div>' +
+        '<div class="mypf-mini-polaroid"><div class="mypf-mini-photo">' + wargaBookAvaHtml(d) + '</div><span class="mypf-mini-tape"></span></div>' +
+        '<div class="mypf-id-name">' + esc(d.n) + '</div>' +
+        (d.b ? '<div class="mypf-id-bio">“' + esc(d.b) + '”</div>' : '<div class="mypf-id-bio muted">Belum nulis bio</div>') +
+        '<div class="mypf-id-stat"><b>' + (d.karya || 0) + '</b><span>karya</span></div>' +
+        '</div>';
+}
+function wargaBookSpreads(d) {
+    const works = d.works || [];
+    const spreads = [[myProfileKaryaPageHtml(null), wargaBookIdentityPageHtml(d)]];
+    for (let i = 0; i < works.length; i += 2) spreads.push([myProfileKaryaPageHtml(works[i], i), myProfileKaryaPageHtml(works[i + 1], i + 1)]);
+    return spreads;
+}
+
+function renderWargaBookBody(d) {
+    const body = $("wbBody");
+    if (!body) return;
+    if (!d || !d.found) {
+        body.innerHTML = '<div class="mypf-empty">Profil ini nggak ketemu 🌙</div>';
+        return;
+    }
+    // Sengaja nggak ada state "locked" di sini kayak di /balai/ -- public_opt_in
+    // itu gerbang buat ORANG LUAR/nggak login, sedangkan sheet ini cuma bisa
+    // dibuka warga yang UDAH login (member-warga-book ngecek token, bukan
+    // opt-in target), dan karya/story-nya emang udah keliatan ke semua warga
+    // lain lewat galeri/story tanpa gerbang apa pun -- ngunci di sini percuma.
+    body.innerHTML =
+        '<div class="mypf-stage" id="wbStage">' +
+        '<div class="psp-book" id="wbBook">' +
+        '<div class="psp-page psp-left" id="wbLeft"></div>' +
+        '<div class="psp-page psp-right" id="wbRight"></div>' +
+        '<div class="psp-leafbox"><div class="psp-leaf" id="wbLeaf"><div class="psp-face psp-front" id="wbFront"></div><div class="psp-face psp-back" id="wbBack"></div></div></div>' +
+        '<button type="button" class="psp-cover-static" id="wbCoverBtn">' + wargaBookCoverFaceHtml(d) + '</button>' +
+        '</div>' +
+        '<div class="qbook-nav" id="wbNav" style="visibility:hidden;">' +
+        '<button type="button" class="qb-arrow" id="wbPrev" aria-label="Halaman sebelumnya">‹</button>' +
+        '<div class="qb-count" id="wbCount"></div>' +
+        '<button type="button" class="qb-arrow" id="wbNext" aria-label="Halaman berikutnya">›</button></div>' +
+        '</div>';
+    const stage = $("wbStage");
+    let sw = Math.min(Math.round(window.innerWidth * 0.92) - 28, 380);
+    if (sw % 2) sw--;
+    stage.style.width = sw + "px";
+    const book = $("wbBook");
+    initFlipBook({
+        book, leftP: $("wbLeft"), rightP: $("wbRight"),
+        leaf: $("wbLeaf"), front: $("wbFront"), back: $("wbBack"),
+        prevBtn: $("wbPrev"), nextBtn: $("wbNext"), countEl: $("wbCount"),
+        coverBtn: $("wbCoverBtn"), navEl: $("wbNav")
+    }, wargaBookSpreads(d), { coverFaceHtml: wargaBookCoverFaceHtml(d) });
+    if (book) book.addEventListener("click", (e) => {
+        const img = e.target.closest(".mpk-photo img");
+        if (img) openPhotoLightbox(img.src);
+    });
+}
+
+async function openWargaBook(publicId) {
+    if (!publicId) return;
+    _wbPublicId = publicId;
+    let sheet = $("wbSheet");
+    if (!sheet) {
+        sheet = document.createElement("div");
+        sheet.id = "wbSheet";
+        sheet.className = "wb-sheet";
+        document.body.appendChild(sheet);
+        sheet.addEventListener("click", (e) => { if (e.target === sheet) closeWargaBook(); });
+    }
+    sheet.innerHTML =
+        '<div class="wb-panel"><div class="wb-handle"></div>' +
+        '<button type="button" class="wb-close" id="wbClose" aria-label="Tutup">✕</button>' +
+        '<div class="wb-body" id="wbBody"><div class="wb-loading"><img src="../images/sticker/str-6.png" alt="Lagi ambil buku..."></div></div></div>';
+    sheet.classList.add("show");
+    // scroll udah dikunci sama story modal di belakangnya (satu-satunya jalur
+    // buka sheet ini) -- nggak perlu lockScroll lagi di sini
+    pauseStoryProgress();
+    $("wbClose").addEventListener("click", closeWargaBook);
+    try {
+        const d = await apiPost({ action: "memberWargaBook", token: _profile.token, publicId });
+        if (_wbPublicId !== publicId) return; // sheet keburu ditutup/ganti orang
+        renderWargaBookBody(d);
+    } catch (e) {
+        if (_wbPublicId !== publicId) return;
+        const b = $("wbBody");
+        if (b) b.innerHTML = '<div class="mypf-empty">Gagal memuat profil 📡<br><span>Coba lagi ya.</span></div>';
+    }
+}
+
+function closeWargaBook() {
+    const sheet = $("wbSheet");
+    if (sheet) sheet.classList.remove("show");
+    _wbPublicId = null;
+    resumeStoryProgress(); // scroll lock biar tetep dipegang story modal (masih kebuka)
+}
+
 function buildStoryGroups() {
     const map = {};
     const order = [];
@@ -7531,12 +8067,17 @@ function renderStoryViewer() {
         '</div></div>';
     let held = false; // habis drag/long-press, click bawaan di-swallow biar nggak dobel navigasi
     $("storyClose").addEventListener("click", closeStory);
-    // tap avatar/nama di header story -> kartu profil mini (story ditutup dulu,
-    // questModal z-nya di bawah story modal)
+    // tap avatar/nama di header story -> buku jurnal warga itu, sebagai bottom
+    // sheet DI ATAS story (bukan pindah halaman -- flow nggak keputus, story
+    // ikut ke-pause di belakang). Kalau belum punya publicId (jarang, member
+    // lama yang belum sempet ke-generate), fallback ke kartu profil mini lama.
     const swc = modal.querySelector("[data-wcard]");
     if (swc) swc.addEventListener("click", () => {
         const wit = _galleryItems.find(x => x.id === swc.dataset.wcard);
-        if (wit) { closeStory(); openWargaCard(wit); }
+        if (!wit) return;
+        if (wit.publicId) { openWargaBook(wit.publicId); return; }
+        closeStory();
+        openWargaCard(wit);
     });
     $("storyPrev").addEventListener("click", () => { if (!held) prevStory(); });
     $("storyNext").addEventListener("click", () => { if (!held) nextStory(); });

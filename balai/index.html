@@ -131,6 +131,8 @@
 
         .pf-cv-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .95rem; color: #ffe600; margin-top: 8px; text-align: center; background: rgba(16, 36, 94, .6); padding: 4px 14px; border-radius: 999px; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
         .pf-cv-hint { font-size: .58rem; font-weight: 700; color: #fff; margin-top: 6px; background: rgba(16, 36, 94, .55); padding: 3px 11px; border-radius: 999px; }
+        .pf-lockbook { position: relative; width: 100%; max-width: 380px; height: 300px; margin: 0 auto; border-radius: 3px 12px 12px 3px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 12px; box-shadow: inset 0 0 0 3px rgba(255, 230, 0, .22), inset 0 0 40px rgba(0, 0, 0, .4), 0 16px 26px rgba(0, 10, 40, .35); background-size: cover; background-position: center; filter: grayscale(.4) brightness(.82); }
+        .pf-lock-badge { font-size: .64rem; font-weight: 800; color: #fff; background: rgba(0, 0, 0, .6); padding: 5px 14px; border-radius: 999px; margin-top: 6px; font-family: 'Outfit', sans-serif; }
         .pf-id-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .92rem; color: #10245e; margin-top: 10px; }
         .pf-id-bio { font-style: italic; font-size: .62rem; line-height: 1.5; color: #6b7794; margin-top: 6px; max-width: 96%; }
         .pf-id-bio.muted { font-style: normal; color: #a0906c; }
@@ -466,7 +468,11 @@
         }
 
         // /balai/?w=<id> -> profil publik 1 warga (ala IG, bisa di-share)
+        // ret=gallery (dikirim dari story galeri app warga) -> tombol "← Balai
+        // Warga" balik ke situ lagi, bukan ke homepage Balai
         var wid = (location.search.match(/[?&]w=([a-f0-9]{8})/) || [])[1];
+        var backHref = /[?&]ret=gallery(&|$)/.test(location.search) ? "../warga/index.html#gallery" : "./";
+        var backLabel = backHref === "./" ? "← Balai Warga" : "← Kembali";
         if (wid) {
             document.querySelector(".hero").classList.add("hidden");
             document.getElementById("loading").innerHTML = skeletonProfile();
@@ -476,7 +482,26 @@
                 if (!d) { document.getElementById("err").classList.remove("hidden"); return; }
                 pf.classList.remove("hidden");
                 if (!d.found) {
-                    pf.innerHTML = '<a class="back" href="./">← Balai Warga</a><div class="pf-empty">Profil ini nggak ketemu — mungkin warganya lagi milih sembunyi dulu 🌙</div>';
+                    pf.innerHTML = '<a class="back" href="' + backHref + '">' + backLabel + '</a><div class="pf-empty">Profil ini nggak ketemu — mungkin warganya lagi milih sembunyi dulu 🌙</div>';
+                    return;
+                }
+                // Belum opt-in ke profil publik: tampilin cover-nya (nama+foto+sampul)
+                // tapi digembok -- lebih informatif daripada pesan kosong "nggak ketemu"
+                if (d.locked) {
+                    var lAva = d.p
+                        ? '<img class="pf-ava" src="' + esc(driveThumb(d.p)) + '" alt="">'
+                        : '<div class="pf-ava init">' + esc((d.n || "S").charAt(0).toUpperCase()) + '</div>';
+                    var lBgFile = d.bg === "custom" ? d.bgCustom : BG_PATTERNS[d.bg];
+                    var lCoverImg = lBgFile ? 'url(' + lBgFile + ')' : 'linear-gradient(150deg, #16307c, #0d1f56)';
+                    pf.innerHTML =
+                        '<a class="back" href="' + backHref + '">' + backLabel + '</a>' +
+                        '<div class="pf-lockbook" style="background-image:' + lCoverImg + ';">' +
+                        '<div class="pf-mini-polaroid"><div class="pf-mini-photo">' + lAva + '</div><span class="pf-mini-tape"></span></div>' +
+                        '<div class="pf-cv-name">' + esc(d.n) + '</div>' +
+                        '<div class="pf-lock-badge">🔒 Privat</div>' +
+                        '<span class="pf-corner"></span>' +
+                        '</div>' +
+                        '<div class="pf-empty">Buku jurnal ini masih dikunci pemiliknya 🔒<br>Belum bisa dibuka warga lain.</div>';
                     return;
                 }
                 playHappyMusic();
@@ -525,7 +550,7 @@
                 for (var wi = 0; wi < works.length; wi += 2) spreads.push([fKaryaPageHtml(works[wi], wi), fKaryaPageHtml(works[wi + 1], wi + 1)]);
 
                 pf.innerHTML =
-                    '<a class="back" href="./">← Balai Warga</a>' +
+                    '<a class="back" href="' + backHref + '">' + backLabel + '</a>' +
                     '<div class="pf-fbook" id="pfFBook">' +
                     '<div class="pf-fpage pf-fleft" id="pfFLeft"></div>' +
                     '<div class="pf-fpage pf-fright" id="pfFRight"></div>' +

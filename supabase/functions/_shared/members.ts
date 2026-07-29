@@ -53,6 +53,7 @@ export async function profileResponse(admin: SupabaseClient, row: any) {
     bio: row.bio || "",
     moodRecords: JSON.stringify(row.mood_records || {}),
     jarRecords: JSON.stringify(row.jar_records || {}),
+    writingRecords: JSON.stringify(row.writing_records || {}),
     profileBg: row.profile_bg || "",
     profileBgCustom: row.profile_bg_custom || "",
     publicOptIn: row.public_opt_in ? "1" : "",

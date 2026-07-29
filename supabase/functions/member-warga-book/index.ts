@@ -1,10 +1,10 @@
-// Port dari publicProfile_() -- profil publik 1 warga (buat /balai?w=<id>,
-// dan bottom sheet "buku warga" di app warga sendiri).
-//
-// Member yang belum opt-in TETEP dikasih tau ketemu (found:true, locked:true)
-// + info non-sensitif (nama/foto/sampul doang) -- biar covernya bisa
-// ditampilin dengan gembok, bukan cuma pesan "nggak ketemu" yang kosong.
-// Karya/bio/jumlah event/dst cuma keluar kalau beneran udah opt-in.
+// Buku jurnal warga LAIN, dilihat dari dalam app (bottom sheet di story galeri).
+// BEDA sama public-profile (buat /balai/, orang luar/nggak login): di sini
+// yang digerbang cuma "kamu warga beneran yang lagi login" (via token), BUKAN
+// public_opt_in target-nya -- karena karya/story warga itu emang udah keliatan
+// ke semua warga lain lewat galeri/story tanpa gerbang apa pun, jadi ngunci
+// bottom sheet ini berdasarkan opt-in cuma bikin bingung (kayak nutup pintu
+// yang jendelanya udah kebuka).
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { questGalleryBase } from "../_shared/queries.ts";
@@ -14,24 +14,17 @@ Deno.serve(async (req) => {
   const opt = handleOptions(req);
   if (opt) return opt;
   try {
-    const url = new URL(req.url);
-    const id = req.method === "GET" ? url.searchParams.get("id") : (await req.json()).id;
-    if (!id) return jsonResponse({ found: false });
+    const data = await req.json();
+    const token = String(data.token || "");
+    const publicId = String(data.publicId || "");
+    if (!publicId) return jsonResponse({ found: false });
 
     const admin = supabaseAdmin();
-    const { data: row } = await admin.from("members").select("*").eq("public_id", id).maybeSingle();
-    if (!row) return jsonResponse({ found: false });
+    const { data: caller } = await admin.from("members").select("wa").eq("token", token).maybeSingle();
+    if (!caller) return errorResponse("Sesi tidak valid, login lagi ya.");
 
-    if (!row.public_opt_in) {
-      return jsonResponse({
-        found: true,
-        locked: true,
-        n: row.nickname || "Warga",
-        p: row.photo_url || "",
-        bg: row.profile_bg || "",
-        bgCustom: row.profile_bg_custom || "",
-      });
-    }
+    const { data: row } = await admin.from("members").select("*").eq("public_id", publicId).maybeSingle();
+    if (!row) return jsonResponse({ found: false });
 
     const key = waKey(row.wa);
     const items = await questGalleryBase(admin);
@@ -49,7 +42,6 @@ Deno.serve(async (req) => {
 
     return jsonResponse({
       found: true,
-      locked: false,
       n: row.nickname || "Warga",
       p: row.photo_url || "",
       b: row.bio || "",

@@ -111,6 +111,7 @@ export async function memberNickMap(admin: SupabaseClient): Promise<Record<strin
 export type GalleryItem = {
   id: string; kind: string; challengeId: string; title: string; nickname: string;
   photo: string; caption: string; ts: number; ownerKey: string; avatar: string; bio: string; eventDate?: string;
+  publicId: string;
 };
 
 // Port dari questGalleryBase_() -- gabungan submission quest + foto weekly
@@ -122,14 +123,16 @@ export async function questGalleryBase(admin: SupabaseClient): Promise<GalleryIt
   const titleMap: Record<string, string> = {};
   for (const c of challenges || []) titleMap[c.id] = c.title;
 
-  const { data: members } = await admin.from("members").select("wa, nickname, photo_url, bio, journal_records");
+  const { data: members } = await admin.from("members").select("wa, nickname, photo_url, bio, journal_records, public_id");
   const avatarMap: Record<string, string> = {};
   const bioMap: Record<string, string> = {};
+  const publicIdMap: Record<string, string> = {};
   for (const m of members || []) {
     const k = waKey(m.wa);
     if (!k) continue;
     if (m.photo_url) avatarMap[k] = m.photo_url;
     if (m.bio) bioMap[k] = m.bio;
+    if (m.public_id) publicIdMap[k] = m.public_id;
   }
   const nickMap = await memberNickMap(admin);
 
@@ -141,7 +144,7 @@ export async function questGalleryBase(admin: SupabaseClient): Promise<GalleryIt
       id: r.id, kind: "quest", challengeId: r.challenge_id, title: titleMap[r.challenge_id] || "Challenge",
       nickname: nickMap[k] || r.nickname || "Sahabat", photo: r.photo_url, caption: r.caption || "",
       ts: r.created_at ? new Date(r.created_at).getTime() : 0, ownerKey: k,
-      avatar: avatarMap[k] || "", bio: bioMap[k] || "",
+      avatar: avatarMap[k] || "", bio: bioMap[k] || "", publicId: publicIdMap[k] || "",
     });
   }
 
@@ -155,7 +158,7 @@ export async function questGalleryBase(admin: SupabaseClient): Promise<GalleryIt
         id: `jw_${k}_${wk}`, kind: "weekly", challengeId: "weekly", title: "Weekly Journal",
         nickname: m.nickname || "Sahabat", photo: rec.photo, caption: rec.note || "",
         ts: rec.ts ? new Date(rec.ts).getTime() : 0, ownerKey: k,
-        avatar: avatarMap[k] || "", bio: bioMap[k] || "",
+        avatar: avatarMap[k] || "", bio: bioMap[k] || "", publicId: publicIdMap[k] || "",
       });
     }
   }
@@ -170,7 +173,7 @@ export async function questGalleryBase(admin: SupabaseClient): Promise<GalleryIt
       id: r.id, kind: tag, challengeId: "event",
       title: tag === "reka-rekat" ? "Reka-Rekat" : tag === "temu-warga" ? "Temu-Warga" : "Workshop",
       nickname: "Seminggu Satu", photo: r.photo_url, caption: r.caption || "",
-      ts: eventTs, eventDate: r.event_date || "", ownerKey: "", avatar: "", bio: "",
+      ts: eventTs, eventDate: r.event_date || "", ownerKey: "", avatar: "", bio: "", publicId: "",
     });
   }
 

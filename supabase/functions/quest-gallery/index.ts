@@ -19,6 +19,7 @@ Deno.serve(async (req) => {
     const out = items.map((it) => ({
       id: it.id, kind: it.kind, challengeId: it.challengeId, title: it.title, nickname: it.nickname,
       photo: it.photo, caption: it.caption, ts: it.ts, eventDate: it.eventDate || "", avatar: it.avatar || "",
+      publicId: it.publicId || "",
       mine: !!(it.ownerKey && it.ownerKey === myKey),
       likes: likes.count[it.id] || 0,
       liked: !!likes.mine[it.id],
