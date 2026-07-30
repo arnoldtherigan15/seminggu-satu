@@ -114,6 +114,13 @@ export type GalleryItem = {
   publicId: string;
 };
 
+// Batas ambil data per sumber, diurut TERBARU duluan di level query (bukan di
+// JS) -- biar query & payload-nya tetep ringan walau submission udah numpuk
+// ribuan lifetime. Weekly journal nggak perlu batas karena udah kebatasin
+// alami (1 foto/minggu/member, disimpen di kolom members bukan tabel sendiri).
+const GALLERY_QUEST_CAP = 1500;
+const GALLERY_EVENT_CAP = 500;
+
 // Port dari questGalleryBase_() -- gabungan submission quest + foto weekly
 // journal + foto event admin, diurut terbaru duluan.
 export async function questGalleryBase(admin: SupabaseClient): Promise<GalleryItem[]> {
@@ -136,7 +143,9 @@ export async function questGalleryBase(admin: SupabaseClient): Promise<GalleryIt
   }
   const nickMap = await memberNickMap(admin);
 
-  const { data: submissions } = await admin.from("quest_submissions").select("id, challenge_id, wa, nickname, photo_url, caption, created_at");
+  const { data: submissions } = await admin.from("quest_submissions")
+    .select("id, challenge_id, wa, nickname, photo_url, caption, created_at")
+    .order("created_at", { ascending: false }).limit(GALLERY_QUEST_CAP);
   for (const r of submissions || []) {
     if (!r.photo_url) continue;
     const k = waKey(r.wa);
@@ -163,7 +172,9 @@ export async function questGalleryBase(admin: SupabaseClient): Promise<GalleryIt
     }
   }
 
-  const { data: eventPhotos } = await admin.from("event_photos").select("id, tag, photo_url, caption, created_at, event_date");
+  const { data: eventPhotos } = await admin.from("event_photos")
+    .select("id, tag, photo_url, caption, created_at, event_date")
+    .order("created_at", { ascending: false }).limit(GALLERY_EVENT_CAP);
   for (const r of eventPhotos || []) {
     if (!r.photo_url) continue;
     const tag = r.tag || "workshop";

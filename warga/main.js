@@ -4934,12 +4934,17 @@ function closeMochiPrompt() {
 let _galleryLoaded = false;
 let _galleryItems = [];
 let _galleryFilter = "all";   // "all" | "mine" | "t:<judul>"
+let _galleryTimeFilter = "all"; // "all" | "week" | "month" -- rentang waktu, independen dari _galleryFilter
 let _galleryView = "grid";    // "grid" | "feed" (default grid, samain sama tab Challenge)
+const GALLERY_PAGE_SIZE = 5;  // render per-batch biar ga berat kalau item udah banyak
+let _galleryRenderedCount = 0;
+let _galleryObserver = null;  // IntersectionObserver buat lazy-scroll batch berikutnya
 
 // Ikon toggle view (SVG currentColor -> otomatis ikut light/dark mode)
 const ICON_FEED = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.8"/><rect x="4" y="14" width="16" height="6" rx="1.8"/></svg>';
 const ICON_BOOK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6.5A3.5 3.5 0 0 1 12 7.5V20a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-6.5A3.5 3.5 0 0 0 12 7.5V20a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>';
 const ICON_GRID = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>';
+const ICON_FILTER = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>';
 // Ikon shared (sama kayak ikon tab -> konsisten se-app)
 const ICON_CAMERA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
 
@@ -4973,10 +4978,26 @@ function loadGallery() {
     return _galleryLoadingPromise;
 }
 
+// Awal periode ("minggu ini" mulai Senin, "bulan ini" mulai tanggal 1) dalam
+// epoch ms, dihitung di jam Asia/Jakarta -- pola sama kayak jarMonthKey dkk.
+function galleryTimeStart(scope) {
+    if (scope !== "week" && scope !== "month") return 0;
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+    const y = parseInt(parts.find(p => p.type === "year").value, 10);
+    const m = parseInt(parts.find(p => p.type === "month").value, 10);
+    const d = parseInt(parts.find(p => p.type === "day").value, 10);
+    const JAKARTA_OFFSET = 7 * 3600000;
+    if (scope === "month") return Date.UTC(y, m - 1, 1) - JAKARTA_OFFSET;
+    const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0=Min..6=Sab
+    const backToMonday = (dow + 6) % 7;
+    return Date.UTC(y, m - 1, d - backToMonday) - JAKARTA_OFFSET;
+}
+
 function galFiltered() {
     let items = _galleryItems.slice();
     if (_galleryFilter === "mine") items = items.filter(x => x.mine);
     else if (_galleryFilter.indexOf("t:") === 0) { const t = _galleryFilter.slice(2); items = items.filter(x => x.title === t); }
+    if (_galleryTimeFilter !== "all") { const from = galleryTimeStart(_galleryTimeFilter); items = items.filter(x => (x.ts || 0) >= from); }
     return items;
 }
 
@@ -4997,39 +5018,136 @@ function renderGallery() {
         chips += '<button class="gchip' + (_galleryFilter === ("t:" + t) ? " active" : "") + '" data-f="t:' + esc(t) + '">' + esc(t) + '</button>';
     });
 
+    const TIME_LABEL = { all: "All Time", week: "This Week", month: "This Month" };
+    const timeOpts = ['all', 'week', 'month'].map(s =>
+        '<button class="gtime-opt' + (_galleryTimeFilter === s ? " active" : "") + '" data-tf="' + s + '">' + esc(TIME_LABEL[s]) + '</button>'
+    ).join("");
+
     pane.innerHTML =
         '<div class="story-bar" id="storyBar"></div>' +
         '<div id="wargaBoard"></div>' +
         '<div class="gallery-toolbar">' +
         '<div class="gfilters" id="galFilters">' + chips + '</div>' +
+        '<div class="gtb-right">' +
+        '<div class="gtime-dd" id="galTimeDd">' +
+        '<button class="vbtn' + (_galleryTimeFilter !== "all" ? " active" : "") + '" id="btnTimeFilter" title="Filter waktu" aria-label="Filter waktu" aria-haspopup="true" aria-expanded="false">' + ICON_FILTER +
+        (_galleryTimeFilter !== "all" ? '<span class="gtime-dot"></span>' : '') + '</button>' +
+        '<div class="gtime-menu" id="galTimeMenu">' + timeOpts + '</div>' +
+        '</div>' +
         '<div class="view-toggle">' +
         '<button class="vbtn' + (_galleryView === "grid" ? " active" : "") + '" id="btnViewGrid" title="Mode Grid" aria-label="Mode Grid">' + ICON_GRID + '</button>' +
         '<button class="vbtn' + (_galleryView === "feed" ? " active" : "") + '" id="btnViewFeed" title="Mode Feed" aria-label="Mode Feed">' + ICON_FEED + '</button>' +
         '</div>' +
         '</div>' +
+        '</div>' +
         '<div class="ig-feed" id="igFeed"' + (_galleryView === "feed" ? "" : ' style="display:none"') + '></div>' +
-        '<div class="ig-grid" id="igGrid"' + (_galleryView === "grid" ? "" : ' style="display:none"') + '></div>';
+        '<div class="ig-grid" id="igGrid"' + (_galleryView === "grid" ? "" : ' style="display:none"') +
+        '><div class="ig-col" id="igColA"></div><div class="ig-col" id="igColB"></div></div>' +
+        '<div id="galLoadMoreWrap"></div>';
 
     renderStoryBar(); // bar story selalu di atas, nggak kepengaruh filter/view
     loadBoard();      // Mading Warga (papan gabus pesan semangat)
 
     const items = galFiltered();
     const feed = $("igFeed"), grid = $("igGrid");
+    if (_galleryObserver) { _galleryObserver.disconnect(); _galleryObserver = null; }
     if (!items.length) {
         const empty = '<div class="placeholder" style="grid-column:1/-1;padding:2rem 1rem;"><div class="em">🍃</div><p>Belum ada foto di filter ini.</p></div>';
         feed.innerHTML = empty; grid.innerHTML = empty;
     } else {
-        feed.innerHTML = items.map(galFeedCard).join("");
-        // bagi ke 2 kolom flex (masonry manual, bebas bug paint css-columns)
-        const colA = [], colB = [];
-        items.forEach((it, i) => ((i % 2 === 0) ? colA : colB).push(galGridItem(it, i)));
-        grid.innerHTML = '<div class="ig-col">' + colA.join("") + '</div><div class="ig-col">' + colB.join("") + '</div>';
-        wireGallery(feed, grid);
+        _galleryRenderedCount = 0; // filter/view baru ganti -> mulai dari batch pertama lagi
+        galleryRenderNextChunk(items);
     }
 
     pane.querySelectorAll("#galFilters .gchip").forEach(c => c.addEventListener("click", () => { _galleryFilter = c.dataset.f; renderGallery(); }));
     $("btnViewFeed").addEventListener("click", () => { _galleryView = "feed"; renderGallery(); });
     $("btnViewGrid").addEventListener("click", () => { _galleryView = "grid"; renderGallery(); });
+    wireGalleryTimeDropdown(pane);
+}
+
+// Dropdown filter waktu di samping tombol grid/feed -- toggle buka/tutup +
+// tutup otomatis kalau tap di luar dropdown (pola sama kayak FAB menu).
+// Listener "klik di luar" cuma dipasang SEKALI ke document (dijaga
+// _galTimeDdWired), soalnya pane-nya di-rebuild total tiap renderGallery()
+// -- kalau dipasang ulang tiap render, listener lama numpuk terus (leak).
+// Handler-nya selalu ambil ulang elemen lewat $() biar nunjuk ke DOM yang
+// masih hidup, bukan referensi node lama yang udah kehapus.
+let _galTimeDdWired = false;
+function wireGalleryTimeDropdown(pane) {
+    const dd = $("galTimeDd"), btn = $("btnTimeFilter"), menu = $("galTimeMenu");
+    if (!dd || !btn || !menu) return;
+    btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const open = !dd.classList.contains("open");
+        dd.classList.toggle("open", open);
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    pane.querySelectorAll("#galTimeMenu .gtime-opt").forEach(opt => opt.addEventListener("click", () => {
+        _galleryTimeFilter = opt.dataset.tf;
+        renderGallery();
+    }));
+    if (_galTimeDdWired) return;
+    _galTimeDdWired = true;
+    document.addEventListener("click", (e) => {
+        const curDd = $("galTimeDd");
+        if (curDd && curDd.classList.contains("open") && !curDd.contains(e.target)) {
+            curDd.classList.remove("open");
+            const curBtn = $("btnTimeFilter");
+            if (curBtn) curBtn.setAttribute("aria-expanded", "false");
+        }
+    });
+}
+
+// Render nambah GALLERY_PAGE_SIZE item aja tiap dipanggil (append, bukan
+// rebuild total) -- item bisa ratusan kalau challenge udah lama jalan, DOM
+// segede itu sekaligus bikin render awal berat & scroll patah-patah. Dipicu
+// otomatis pas sentinel di bawah kelihatan (lazy scroll), bukan tombol.
+// Lightbox tetep swipe ke SELURUH galFiltered(), cuma yang kegambar di
+// grid/feed-nya aja yang nambah pelan-pelan.
+function galleryRenderNextChunk(items) {
+    const feed = $("igFeed"), colA = $("igColA"), colB = $("igColB");
+    if (!feed || !colA || !colB) return;
+    const start = _galleryRenderedCount;
+    const chunk = items.slice(start, start + GALLERY_PAGE_SIZE);
+    if (chunk.length) {
+        const feedTmp = document.createElement("div");
+        feedTmp.innerHTML = chunk.map(galFeedCard).join("");
+        const feedNodes = Array.from(feedTmp.children);
+        feedNodes.forEach(n => feed.appendChild(n));
+
+        const gridNodes = chunk.map((it, i) => {
+            const globalI = start + i;
+            const tmp = document.createElement("div");
+            tmp.innerHTML = galGridItem(it, globalI);
+            const node = tmp.firstElementChild;
+            (globalI % 2 === 0 ? colA : colB).appendChild(node);
+            return node;
+        });
+
+        wireGalleryNodes(feedNodes, gridNodes);
+        _galleryRenderedCount = start + chunk.length;
+    }
+    gallerySetupSentinel(items);
+}
+
+// Sentinel tak-terlihat di bawah daftar -- begitu BENER-BENER kescroll deket
+// batas layar (rootMargin kecil, cuma dikit di bawah viewport), otomatis muat
+// batch berikutnya. Diconnect & bikin ulang tiap render biar gak numpuk.
+// rootMargin sengaja KECIL -- kalau kegedean, sentinel keitung "kelihatan"
+// padahal user belum scroll sama sekali (batch pendek + layar pendek), jadi
+// semua batch ke-trigger beruntun kayak lazy load-nya gak jalan.
+function gallerySetupSentinel(items) {
+    const wrap = $("galLoadMoreWrap");
+    if (!wrap) return;
+    if (_galleryObserver) { _galleryObserver.disconnect(); _galleryObserver = null; }
+    if (_galleryRenderedCount >= items.length) { wrap.innerHTML = ""; return; }
+    wrap.innerHTML = '<div class="spinner" id="galSentinel"><div class="ring"></div></div>';
+    const sentinel = $("galSentinel");
+    if (!sentinel) return;
+    _galleryObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) galleryRenderNextChunk(items);
+    }, { rootMargin: "80px 0px", threshold: 0.01 });
+    _galleryObserver.observe(sentinel);
 }
 
 // "2026-07-11" -> "11 Jul 2026" (buat tanggal event di galeri)
@@ -5128,30 +5246,37 @@ function galGridItem(it, i) {
         '</div>';
 }
 
-function wireGallery(feed, grid) {
-    feed.querySelectorAll(".ig-btn-like").forEach(btn =>
-        btn.addEventListener("click", () => toggleLike(btn.dataset.like)));
-    const taps = {};
-    feed.querySelectorAll(".ig-imgwrap").forEach(wrap => {
-        wrap.addEventListener("click", () => {
-            const id = wrap.dataset.tap, now = Date.now();
-            if (taps[id] && now - taps[id] < 300) {
-                const it = _galleryItems.find(x => x.id === id);
-                if (it && !it.liked) toggleLike(id);
-                const ov = wrap.querySelector(".like-overlay");
-                if (ov) { ov.classList.add("pop"); setTimeout(() => ov.classList.remove("pop"), 800); }
-                taps[id] = 0;
-            } else taps[id] = now;
+// Dipanggil per-batch (bukan per-container) supaya listener cuma nempel ke
+// elemen yang BARU ditambahin -- kalau query ulang seluruh container tiap
+// batch, elemen lama ikut ke-double-bind (like/lightbox jadi kepencet 2x).
+function wireGalleryNodes(feedNodes, gridNodes) {
+    feedNodes.forEach(card => {
+        const btn = card.querySelector(".ig-btn-like");
+        if (btn) btn.addEventListener("click", () => toggleLike(btn.dataset.like));
+        const wrap = card.querySelector(".ig-imgwrap");
+        if (wrap) {
+            let lastTap = 0;
+            wrap.addEventListener("click", () => {
+                const id = wrap.dataset.tap, now = Date.now();
+                if (lastTap && now - lastTap < 300) {
+                    const it = _galleryItems.find(x => x.id === id);
+                    if (it && !it.liked) toggleLike(id);
+                    const ov = wrap.querySelector(".like-overlay");
+                    if (ov) { ov.classList.add("pop"); setTimeout(() => ov.classList.remove("pop"), 800); }
+                    lastTap = 0;
+                } else lastTap = now;
+            });
+        }
+        // tap avatar/nama di header feed -> kartu profil mini
+        const wcard = card.querySelector("[data-wcard]");
+        if (wcard) wcard.addEventListener("click", () => {
+            const it = _galleryItems.find(x => x.id === wcard.dataset.wcard);
+            if (it) openWargaCard(it);
         });
     });
-    grid.querySelectorAll(".jcard").forEach(g => g.addEventListener("click", () => {
+    gridNodes.forEach(g => g.addEventListener("click", () => {
         const it = _galleryItems.find(x => x.id === g.dataset.id);
         if (it) openGalleryLightbox(it);
-    }));
-    // tap avatar/nama di header feed -> kartu profil mini
-    feed.querySelectorAll("[data-wcard]").forEach(el => el.addEventListener("click", () => {
-        const it = _galleryItems.find(x => x.id === el.dataset.wcard);
-        if (it) openWargaCard(it);
     }));
 }
 
@@ -7902,6 +8027,8 @@ function closeWargaBook() {
     resumeStoryProgress(); // scroll lock biar tetep dipegang story modal (masih kebuka)
 }
 
+const STORY_MAX_PER_PERSON = 10; // batas slide per orang di story bar, biar ga numpuk kalau udah banyak submit
+
 function buildStoryGroups() {
     const map = {};
     const order = [];
@@ -7916,7 +8043,10 @@ function buildStoryGroups() {
         if (it.mine) map[key].mine = true;
         map[key].items.push(it);
     });
-    order.forEach(g => g.items.sort((a, b) => (b.ts || 0) - (a.ts || 0))); // TERBARU duluan
+    order.forEach(g => {
+        g.items.sort((a, b) => (b.ts || 0) - (a.ts || 0)); // TERBARU duluan
+        g.items = g.items.slice(0, STORY_MAX_PER_PERSON); // batasin biar story ga kepanjangan kalau udah sering submit
+    });
     // grup diurutkan dari yang postingan terbarunya paling baru (bukan random lagi)
     order.sort((a, b) => ((b.items[0] && b.items[0].ts) || 0) - ((a.items[0] && a.items[0].ts) || 0));
     // Yang BELUM dilihat maju ke depan, yang udah kelar mundur (kayak IG)

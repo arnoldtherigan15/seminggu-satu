@@ -1273,10 +1273,23 @@
         .gfilters { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .gchip { flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--card); color: var(--muted); border-radius: 999px; padding: 6px 14px; font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all .2s ease; }
         .gchip.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+        .gtb-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .view-toggle { display: flex; flex-shrink: 0; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 2px; }
         .vbtn { border: none; background: none; padding: 6px 9px; border-radius: 8px; cursor: pointer; transition: background .2s, color .2s; color: var(--muted); display: flex; align-items: center; justify-content: center; }
         .vbtn svg { display: block; }
         .vbtn.active { background: rgba(0, 70, 255, .14); color: var(--blue); }
+        #galLoadMoreWrap .spinner { padding: 1.4rem 0; }
+
+        /* ---- Dropdown filter waktu (Minggu Ini / Bulan Ini / All Time) ---- */
+        .gtime-dd { position: relative; }
+        .gtime-dd .vbtn { position: relative; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 9px; }
+        .gtime-dd .vbtn.active { background: rgba(0, 70, 255, .14); color: var(--blue); border-color: var(--blue); }
+        .gtime-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: #ff6f8f; border: 1.5px solid var(--card); }
+        .gtime-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; min-width: 148px; background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 6px; box-shadow: 0 10px 26px rgba(16, 36, 94, .16); display: flex; flex-direction: column; gap: 2px; opacity: 0; pointer-events: none; transform: translateY(-6px) scale(.97); transition: opacity .16s ease, transform .16s ease; }
+        .gtime-dd.open .gtime-menu { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+        .gtime-opt { border: none; background: none; text-align: left; padding: 8px 10px; border-radius: 9px; font-family: inherit; font-size: .82rem; font-weight: 700; color: var(--ink); cursor: pointer; white-space: nowrap; transition: background .15s ease; }
+        .gtime-opt:hover { background: rgba(0, 70, 255, .08); }
+        .gtime-opt.active { background: var(--blue); color: #fff; }
 
         /* ---- Galeri feed (post ala IG) ---- */
         .ig-feed { display: flex; flex-direction: column; gap: 1.25rem; }
