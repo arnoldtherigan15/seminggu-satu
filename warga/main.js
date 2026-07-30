@@ -854,6 +854,9 @@ async function loadQuests() {
     // Belum selesai di atas
     _questChallenges.sort((a, b) => (_questSubmitted.indexOf(a.id) >= 0 ? 1 : 0) - (_questSubmitted.indexOf(b.id) >= 0 ? 1 : 0));
     renderQuestBoard();
+    // Galeri (sumber hitungan "karya teman" 👥) mungkin belum ke-load pas ini
+    // render pertama kali -> begitu nyampe, render ulang biar badge-nya keisi
+    onGalleryReady(() => { if ($("questGrid")) renderQuestBoard(); });
 }
 
 function renderQuestBoard() {
@@ -5131,6 +5134,18 @@ const ICON_CAMERA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" 
 // nunggu hasil yang SAMA, bukan dapet resolve kosong duluan (bug nyata: karya
 // kebaca 0 di halaman Profil Kamu padahal datanya lagi otw dari prefetch).
 let _galleryLoadingPromise = null;
+
+// _galleryItems dipakai banyak fitur lain (badge, quest count, karya profil,
+// weekly journal, dst) yang render-nya BISA lebih cepat dari gallery fetch-nya
+// sendiri. Daripada tiap fitur bikin pengecekan "udah ke-load belum" sendiri2
+// (gampang kelewat pas nambah fitur baru), pake onGalleryReady(cb): langsung
+// jalan kalau datanya udah ada, atau nunggu jalan sendiri begitu loadGallery()
+// selesai -- satu pola, satu tempat, dipakai fitur mana aja yang butuh.
+let _galleryReadyCallbacks = [];
+function onGalleryReady(cb) {
+    if (_galleryLoaded) { cb(); return; }
+    _galleryReadyCallbacks.push(cb);
+}
 function loadGallery() {
     if (_galleryLoaded) return Promise.resolve();
     if (_galleryLoadingPromise) return _galleryLoadingPromise;
@@ -5148,9 +5163,9 @@ function loadGallery() {
         _galleryLoaded = true;
         _galleryLoadingPromise = null;
         renderGallery();
-        // Data galeri baru masuk -> refresh Quest Board biar hitungan "karya teman"
-        // (badge 👥 di buku/grid/list) langsung keisi
-        if (_questsLoaded && _questChallenges.length && $("questGrid")) renderQuestBoard();
+        const cbs = _galleryReadyCallbacks;
+        _galleryReadyCallbacks = [];
+        cbs.forEach(cb => { try { cb(); } catch (e) { } });
     })();
     return _galleryLoadingPromise;
 }
