@@ -144,6 +144,30 @@
             margin-top: 3px;
         }
 
+        /* ---- Aksen tema musiman (Kemerdekaan/Ramadhan/Natal, nyala otomatis
+           sesuai kalender -- lihat SEASONAL_THEMES & applySeasonalTheme() di
+           main.js) -- sengaja halus: cuma dekorasi di header (strip + badge),
+           warna --blue sistem tetep dipakai di semua tombol/status. Warna
+           strip/badge di-set inline lewat JS (beda per tema), CSS di sini
+           cuma ngatur bentuk/layout-nya. ---- */
+        .seasonal-strip {
+            height: 6px;
+            margin: -1.25rem -1.1rem 0;
+            box-shadow: 0 1px 4px rgba(16, 36, 94, .18);
+        }
+        .seasonal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 800;
+            letter-spacing: .2px;
+            border: 1px solid transparent;
+        }
+
         /* ---- Auth ---- */
         .auth-card {
             background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%);
@@ -3587,9 +3611,11 @@
 <body>
     <div class="ptr" id="ptrIndicator"><span class="ptr-ic">↓</span></div>
     <div class="wrap">
+        <div class="seasonal-strip" id="seasonalStrip" style="display:none;"></div>
         <div class="top">
             <a href="../index.html"><img src="../logo_seminggu.png" alt="Seminggu Satu"></a>
             <div class="by">BALAI WARGA</div>
+            <div class="seasonal-badge" id="seasonalBadge" style="display:none;"></div>
         </div>
 
         <!-- ===== BOOT LOADER (cek sesi saat refresh) ===== -->

@@ -16,6 +16,102 @@ let _profile = null; // { token, nickname, birthDate, wa }
         if (f === "medium" || f === "large") document.documentElement.setAttribute("data-font", f);
     } catch (e) { }
 })();
+
+// ---------- Aksen tema musiman (aktif otomatis sesuai kalender, balik
+// normal sendiri pas udah lewat -- ga perlu di-revert manual tiap tahun).
+// Tiap tema cuma dekorasi (strip + badge di header), warna --blue sistem
+// tetep dipakai di semua tombol/status biar gak ambigu.
+// Preview manual sebelum tanggalnya tiba: ?theme=<key> di URL, mis.
+// file:///.../warga/index.html?theme=natal#gallery
+// Bisa dimatiin total dari Pengaturan (ss_seasonal="0").
+function jakartaParts(opts) {
+    return new Intl.DateTimeFormat("en-CA", Object.assign({ timeZone: "Asia/Jakarta" }, opts)).formatToParts(new Date());
+}
+function jakartaMonth() { return jakartaParts({ month: "2-digit" }).find(p => p.type === "month").value; }
+function jakartaYear() { return parseInt(jakartaParts({ year: "numeric" }).find(p => p.type === "year").value, 10); }
+// Bulan Hijriah (1-12, Ramadhan = 9) -- dihitung dari kalender Islam bawaan
+// Intl, jadi otomatis geser tiap tahun ngikutin kalender bulan (nggak perlu
+// tabel tanggal manual yang wajib di-update tiap tahun kayak kalau di-hardcode).
+function hijriMonth() {
+    try {
+        const fmt = new Intl.DateTimeFormat("en-US-u-ca-islamic", { timeZone: "Asia/Jakarta", month: "numeric" });
+        return parseInt(fmt.format(new Date()), 10);
+    } catch (e) { return 0; }
+}
+// Urutan = prioritas kalau kebetulan ada 2 tema yang overlap (Ramadhan geser
+// ~11 hari tiap tahun, sesekali bisa nyenggol bulan lain) -- yang pertama
+// cocok yang dipakai.
+const SEASONAL_THEMES = [
+    {
+        key: "ramadhan",
+        stripBg: "repeating-linear-gradient(-45deg, #0f6b4c 0 10px, #f2c14e 10px 20px)",
+        badge: "🌙 Marhaban Ya Ramadhan",
+        color: "#0f6b4c", bg: "rgba(15,107,76,.09)", border: "rgba(15,107,76,.25)",
+        colorDark: "#4fd8a5", bgDark: "rgba(79,216,165,.13)", borderDark: "rgba(79,216,165,.32)",
+        label: "🌙 Tema Ramadhan",
+        isActive: () => hijriMonth() === 9,
+    },
+    {
+        key: "valentine",
+        stripBg: "repeating-linear-gradient(-45deg, #c2185b 0 10px, #ffd1dc 10px 20px)",
+        badge: "💕 Bulan Kasih Sayang",
+        color: "#c2185b", bg: "rgba(194,24,91,.09)", border: "rgba(194,24,91,.25)",
+        colorDark: "#ff8fb3", bgDark: "rgba(255,143,179,.13)", borderDark: "rgba(255,143,179,.32)",
+        label: "💕 Tema Valentine",
+        isActive: () => jakartaMonth() === "02",
+    },
+    {
+        key: "merdeka",
+        stripBg: "repeating-linear-gradient(-45deg, #ce1126 0 10px, #fff 10px 20px)",
+        badge: () => "🇮🇩 HUT RI ke-" + (jakartaYear() - 1945),
+        color: "#ce1126", bg: "rgba(206,17,38,.09)", border: "rgba(206,17,38,.25)",
+        colorDark: "#ff8286", bgDark: "rgba(255,130,134,.13)", borderDark: "rgba(255,130,134,.32)",
+        label: "🇮🇩 Tema Kemerdekaan",
+        isActive: () => jakartaMonth() === "08",
+    },
+    {
+        key: "natal",
+        stripBg: "repeating-linear-gradient(-45deg, #b3261e 0 10px, #1e7145 10px 20px)",
+        badge: "🎄 Semarak Natal",
+        color: "#1e7145", bg: "rgba(30,113,69,.09)", border: "rgba(30,113,69,.25)",
+        colorDark: "#5fd39a", bgDark: "rgba(95,211,154,.13)", borderDark: "rgba(95,211,154,.32)",
+        label: "🎄 Tema Natal",
+        isActive: () => jakartaMonth() === "12",
+    },
+];
+function seasonalThemeAllowed() {
+    try { return localStorage.getItem("ss_seasonal") !== "0"; } catch (e) { return true; }
+}
+function seasonalThemePreviewKey() {
+    try { const m = location.search.match(/[?&]theme=([a-z]+)/); return m ? m[1] : ""; } catch (e) { return ""; }
+}
+function activeSeasonalTheme() {
+    if (!seasonalThemeAllowed()) return null;
+    const preview = seasonalThemePreviewKey();
+    if (preview) return SEASONAL_THEMES.find(t => t.key === preview) || null;
+    return SEASONAL_THEMES.find(t => t.isActive()) || null;
+}
+// dipanggil ulang tiap kali tema Terang/Gelap diganti (lihat setThemePref)
+// biar warna badge-nya ikut nyocok, gak nyangkut di palet lama
+function applySeasonalTheme() {
+    const strip = document.getElementById("seasonalStrip");
+    const badge = document.getElementById("seasonalBadge");
+    const theme = activeSeasonalTheme();
+    if (strip) strip.style.display = theme ? "" : "none";
+    if (badge) badge.style.display = theme ? "" : "none";
+    if (!theme) return;
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    if (strip) strip.style.background = theme.stripBg;
+    if (badge) {
+        badge.textContent = typeof theme.badge === "function" ? theme.badge() : theme.badge;
+        badge.style.color = isDark ? theme.colorDark : theme.color;
+        badge.style.background = isDark ? theme.bgDark : theme.bg;
+        badge.style.borderColor = isDark ? theme.borderDark : theme.border;
+    }
+}
+(function initSeasonalTheme() {
+    try { applySeasonalTheme(); } catch (e) { }
+})();
 // ss_mute lama ("1" = semua senyap) tetap dihormatin sebagai fallback
 function sfxMuted() {
     try { return localStorage.getItem("ss_mute_sfx") === "1" || localStorage.getItem("ss_mute") === "1"; } catch (e) { return false; }
@@ -3179,6 +3275,7 @@ function setThemePref(dark) {
     try { localStorage.setItem("ss_theme", dark ? "dark" : "light"); } catch (e) { }
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", dark ? "#0d1526" : "#0046ff");
+    applySeasonalTheme(); // badge musiman ikut nyocok ulang ke palet terang/gelap
 }
 
 function openSettings() {
@@ -3206,6 +3303,9 @@ function openSettings() {
         seg("stSfx", [{ v: "on", t: "🔔 Nyala", on: !sfxMuted() }, { v: "off", t: "🔕 Senyap", on: sfxMuted() }]) + '</div>' +
         '<div class="st-row"><div class="st-lbl">🐾 Mochi Pelari</div>' +
         seg("stRunner", [{ v: "on", t: "Muncul", on: !runnerOff() }, { v: "off", t: "Sembunyi", on: runnerOff() }]) + '</div>' +
+        '<div class="st-row"><div class="st-lbl">🎉 Tema Musiman</div>' +
+        seg("stSeasonal", [{ v: "on", t: "Nyala", on: seasonalThemeAllowed() }, { v: "off", t: "Mati", on: !seasonalThemeAllowed() }]) +
+        '<div class="st-hint">Aksen warna + badge kecil di header pas momen spesial (Kemerdekaan, Ramadhan, Natal) — nyala otomatis sesuai kalender ✨</div></div>' +
         '<div class="st-row"><div class="st-lbl">🌍 Profil Publik</div>' +
         seg("stPublic", [
             { v: "1", t: "Tampil", on: _profile.publicOptIn === "1" },
@@ -3245,6 +3345,11 @@ function openSettings() {
     });
     pick("stRunner", v => {
         try { localStorage.setItem("ss_runner", v === "off" ? "0" : "1"); } catch (e) { }
+        playSfx("love", 0.5);
+    });
+    pick("stSeasonal", v => {
+        try { localStorage.setItem("ss_seasonal", v === "off" ? "0" : "1"); } catch (e) { }
+        applySeasonalTheme();
         playSfx("love", 0.5);
     });
     const cpl = $("stCopyLink");
