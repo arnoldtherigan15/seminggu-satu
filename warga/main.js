@@ -32,11 +32,38 @@ function jakartaYear() { return parseInt(jakartaParts({ year: "numeric" }).find(
 // Bulan Hijriah (1-12, Ramadhan = 9) -- dihitung dari kalender Islam bawaan
 // Intl, jadi otomatis geser tiap tahun ngikutin kalender bulan (nggak perlu
 // tabel tanggal manual yang wajib di-update tiap tahun kayak kalau di-hardcode).
-function hijriMonth() {
+function hijriMonth() { return hijriParts().month; }
+function hijriParts() {
     try {
-        const fmt = new Intl.DateTimeFormat("en-US-u-ca-islamic", { timeZone: "Asia/Jakarta", month: "numeric" });
-        return parseInt(fmt.format(new Date()), 10);
-    } catch (e) { return 0; }
+        const fmt = new Intl.DateTimeFormat("en-US-u-ca-islamic", { timeZone: "Asia/Jakarta", month: "numeric", day: "numeric" });
+        const p = fmt.formatToParts(new Date());
+        return { month: parseInt(p.find(x => x.type === "month").value, 10), day: parseInt(p.find(x => x.type === "day").value, 10) };
+    } catch (e) { return { month: 0, day: 0 }; }
+}
+// Kalender Tionghoa bawaan Intl -- sama kayak Hijriah, otomatis geser tiap
+// tahun ngikutin bulan lunar, gak perlu tabel manual. Imlek = bulan 1 hari 1.
+function chineseParts() {
+    try {
+        const fmt = new Intl.DateTimeFormat("en-US-u-ca-chinese", { timeZone: "Asia/Jakarta", month: "numeric", day: "numeric" });
+        const p = fmt.formatToParts(new Date());
+        return { month: parseInt(p.find(x => x.type === "month").value, 10), day: parseInt(p.find(x => x.type === "day").value, 10) };
+    } catch (e) { return { month: 0, day: 0 }; }
+}
+// Waisak (purnama Buddhis) & Nyepi (kalender Saka/Pawukon Bali) TIDAK ada di
+// kalender bawaan Intl manapun -- beda dari Hijriah/Tionghoa di atas, jadi
+// TERPAKSA diisi manual per tahun dari kalender resmi (SKB 3 Menteri).
+// PENTING: kosong by design -- isi "YYYY-MM-DD" di sini SETELAH dicek dari
+// sumber resmi, jangan asal tebak (sensitif kalau salah tanggal ke warga).
+const MANUAL_HOLIDAY_DATES = {
+    waisak: {},
+    nyepi: {},
+};
+function isManualHolidayToday(key) {
+    const dateStr = (MANUAL_HOLIDAY_DATES[key] || {})[String(jakartaYear())];
+    if (!dateStr) return false;
+    const p = jakartaParts({ year: "numeric", month: "2-digit", day: "2-digit" });
+    const today = p.find(x => x.type === "year").value + "-" + p.find(x => x.type === "month").value + "-" + p.find(x => x.type === "day").value;
+    return today === dateStr;
 }
 // Urutan = prioritas kalau kebetulan ada 2 tema yang overlap (Ramadhan geser
 // ~11 hari tiap tahun, sesekali bisa nyenggol bulan lain) -- yang pertama
@@ -50,6 +77,51 @@ const SEASONAL_THEMES = [
         colorDark: "#4fd8a5", bgDark: "rgba(79,216,165,.13)", borderDark: "rgba(79,216,165,.32)",
         label: "🌙 Tema Ramadhan",
         isActive: () => hijriMonth() === 9,
+    },
+    {
+        key: "idulfitri",
+        stripBg: "repeating-linear-gradient(-45deg, #0d9488 0 10px, #f2c14e 10px 20px)",
+        badge: "🕌 Selamat Idul Fitri",
+        color: "#0d9488", bg: "rgba(13,148,136,.09)", border: "rgba(13,148,136,.25)",
+        colorDark: "#5eead4", bgDark: "rgba(94,234,212,.13)", borderDark: "rgba(94,234,212,.32)",
+        label: "🕌 Tema Idul Fitri",
+        isActive: () => { const h = hijriParts(); return h.month === 10 && h.day <= 8; }, // Syawal 1-8 (Lebaran + cuti bersama)
+    },
+    {
+        key: "iduladha",
+        stripBg: "repeating-linear-gradient(-45deg, #7c5a2e 0 10px, #f2c14e 10px 20px)",
+        badge: "🕌 Selamat Idul Adha",
+        color: "#7c5a2e", bg: "rgba(124,90,46,.09)", border: "rgba(124,90,46,.25)",
+        colorDark: "#e0b87a", bgDark: "rgba(224,184,122,.13)", borderDark: "rgba(224,184,122,.32)",
+        label: "🕌 Tema Idul Adha",
+        isActive: () => { const h = hijriParts(); return h.month === 12 && h.day >= 8 && h.day <= 13; }, // Arafah s/d Tasyrik
+    },
+    {
+        key: "waisak",
+        stripBg: "repeating-linear-gradient(-45deg, #d4a017 0 10px, #fff 10px 20px)",
+        badge: "🪷 Selamat Hari Waisak",
+        color: "#b8860b", bg: "rgba(184,134,11,.09)", border: "rgba(184,134,11,.25)",
+        colorDark: "#f2cd6b", bgDark: "rgba(242,205,107,.13)", borderDark: "rgba(242,205,107,.32)",
+        label: "🪷 Tema Waisak",
+        isActive: () => isManualHolidayToday("waisak"), // lihat MANUAL_HOLIDAY_DATES -- kosong sampai diisi manual
+    },
+    {
+        key: "nyepi",
+        stripBg: "repeating-linear-gradient(-45deg, #4b5563 0 10px, #fff 10px 20px)",
+        badge: "🕯️ Selamat Hari Raya Nyepi",
+        color: "#4b5563", bg: "rgba(75,85,99,.09)", border: "rgba(75,85,99,.25)",
+        colorDark: "#cbd5e1", bgDark: "rgba(203,213,225,.13)", borderDark: "rgba(203,213,225,.32)",
+        label: "🕯️ Tema Nyepi",
+        isActive: () => isManualHolidayToday("nyepi"), // lihat MANUAL_HOLIDAY_DATES -- kosong sampai diisi manual
+    },
+    {
+        key: "imlek",
+        stripBg: "repeating-linear-gradient(-45deg, #c1121f 0 10px, #f2c14e 10px 20px)",
+        badge: "🧧 Gong Xi Fa Cai",
+        color: "#c1121f", bg: "rgba(193,18,31,.09)", border: "rgba(193,18,31,.25)",
+        colorDark: "#ff8f8f", bgDark: "rgba(255,143,143,.13)", borderDark: "rgba(255,143,143,.32)",
+        label: "🧧 Tema Imlek",
+        isActive: () => { const c = chineseParts(); return c.month === 1 && c.day <= 5; },
     },
     {
         key: "valentine",
@@ -3305,7 +3377,7 @@ function openSettings() {
         seg("stRunner", [{ v: "on", t: "Muncul", on: !runnerOff() }, { v: "off", t: "Sembunyi", on: runnerOff() }]) + '</div>' +
         '<div class="st-row"><div class="st-lbl">🎉 Tema Musiman</div>' +
         seg("stSeasonal", [{ v: "on", t: "Nyala", on: seasonalThemeAllowed() }, { v: "off", t: "Mati", on: !seasonalThemeAllowed() }]) +
-        '<div class="st-hint">Aksen warna + badge kecil di header pas momen spesial (Kemerdekaan, Ramadhan, Natal) — nyala otomatis sesuai kalender ✨</div></div>' +
+        '<div class="st-hint">Aksen warna + badge kecil di header pas momen spesial (Ramadhan, Lebaran, Waisak, Nyepi, Imlek, Valentine, Kemerdekaan, Natal) — nyala otomatis sesuai kalender ✨</div></div>' +
         '<div class="st-row"><div class="st-lbl">🌍 Profil Publik</div>' +
         seg("stPublic", [
             { v: "1", t: "Tampil", on: _profile.publicOptIn === "1" },
