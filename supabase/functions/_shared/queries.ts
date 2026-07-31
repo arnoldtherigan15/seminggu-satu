@@ -99,10 +99,10 @@ export async function questPointsMap(admin: SupabaseClient): Promise<Record<stri
 }
 
 // +5 poin leaderboard per aksi: check-in mingguan (journal_records), 1 entri
-// Gratitude Jar, 1 entri Jurnal Bulanan, 1 pesan Mading -- di luar poin
-// challenge (questPointsMap). Flat per aksi (bukan per minggu/bulan), biar
-// makin rajin makin nambah, sama kayak semangat "jangan di-punish" fitur2
-// itu sendiri (lihat skill seminggu-psych).
+// Gratitude Jar, 1 entri Jurnal Bulanan, 1 pesan Mading, 1 hari Cuaca Hati
+// (mood_records) -- di luar poin challenge (questPointsMap). Flat per aksi
+// (bukan per minggu/bulan), biar makin rajin makin nambah, sama kayak
+// semangat "jangan di-punish" fitur2 itu sendiri (lihat skill seminggu-psych).
 const EXTRA_POINT_VALUE = 5;
 
 export async function extraPointsMap(admin: SupabaseClient): Promise<Record<string, number>> {
@@ -113,7 +113,7 @@ export async function extraPointsMap(admin: SupabaseClient): Promise<Record<stri
     out[k] = (out[k] || 0) + n * EXTRA_POINT_VALUE;
   };
 
-  const { data: members } = await admin.from("members").select("wa, journal_records, jar_records, writing_records");
+  const { data: members } = await admin.from("members").select("wa, journal_records, jar_records, writing_records, mood_records");
   for (const m of members || []) {
     let n = 0;
     n += Object.keys(m.journal_records || {}).length; // 1 key minggu = 1 check-in
@@ -121,6 +121,11 @@ export async function extraPointsMap(admin: SupabaseClient): Promise<Record<stri
     for (const mk of Object.keys(jar)) n += Array.isArray(jar[mk]?.items) ? jar[mk].items.length : 0;
     const wr = m.writing_records || {};
     for (const mk of Object.keys(wr)) n += Array.isArray(wr[mk]?.entries) ? wr[mk].entries.length : 0;
+    // mood_records = {"YYYY-MM": {"D": "moodKey"}} -- ganti mood di hari yang
+    // sama nimpa value-nya (bukan nambah key baru), jadi ngitung Object.keys
+    // per bulan otomatis udah 1x/hari, ga perlu dedupe manual di sini.
+    const mood = m.mood_records || {};
+    for (const mk of Object.keys(mood)) n += Object.keys(mood[mk] || {}).length;
     add(m.wa, n);
   }
 

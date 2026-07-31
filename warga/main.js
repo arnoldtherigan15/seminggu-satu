@@ -1464,6 +1464,7 @@ function refreshPoinCard() {
 const POIN_SOURCES = [
     { ic: "🎯", t: "Ikut Challenge", d: "Poinnya beda-beda tiap challenge" },
     { ic: "✍️", t: "Check-in mingguan", d: "+5 poin" },
+    { ic: "🌦️", t: "Isi Cuaca Hati", d: "+5 poin" },
     { ic: "🫙", t: "Isi Gratitude Jar", d: "+5 poin" },
     { ic: "📖", t: "Isi Jurnal Bulanan", d: "+5 poin" },
     { ic: "📌", t: "Kirim pesan di Mading", d: "+5 poin" },
@@ -3020,18 +3021,10 @@ async function loadLoyalty() {
         $("scardPoin").addEventListener("click", openPoinInfo);
         loadLeaderboard().then(refreshPoinCard).catch(() => { }); // udah ada di prefetch biasanya, ini cuma jaga2 + biar angkanya keisi begitu nyampe
         $("scardEvents").addEventListener("click", openEventLog);
-        $("scardQuests").addEventListener("click", async () => {
-            // buka story karya sendiri (kayak nge-tap avatar sendiri di story bar)
-            if (!_galleryLoaded || !_galleryItems.length) {
-                showBusy("Ngambil karya kamu\u2026");
-                try { await loadGallery(); } finally { hideBusy(); }
-            }
-            if (!_storyGroups.length) _storyGroups = buildStoryGroups();
-            const mi = _storyGroups.findIndex(g => g.mine);
-            if (mi >= 0) { openStory(mi, 0); return; }
-            alert("Belum ada karya kamu di galeri \u2014 yuk mulai dari challenge pertama! \ud83c\udfaf");
-            activateTab("quest");
-        });
+        // buka buku Profil Kamu (karya-karya kamu ada di halaman dalamnya), bukan
+        // story lagi -- konsisten sama tap avatar sendiri di tempat lain (sekarang
+        // semua jalur "liat karya sendiri" nuju ke buku yang sama)
+        $("scardQuests").addEventListener("click", () => openMyProfile());
         if (bday) { wireBirthday(bday); fireConfetti("reward"); }
         else if (d.eligible) { fireConfetti("reward"); }
     } catch (e) {
@@ -4950,7 +4943,12 @@ function openMoodTracker(modal, justPicked) {
         '</div>';
     $("mpClose").addEventListener("click", closeMochiPrompt);
     modal.querySelectorAll(".mood-btn").forEach(b => b.addEventListener("click", () => {
+        const firstToday = !picked; // ganti cuaca di hari yang sama nimpa aja, bukan poin baru
         moodSave(today, b.dataset.mood);
+        if (firstToday) {
+            showPointsToast("+5 poin! 🌦️ Cuaca hati tercatat");
+            _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
+        }
         openMoodTracker(modal, true); // re-render + hadiah Mochi nge-pop
         refreshMoodWidget();          // display cuaca di Home ikut ganti
         setTimeout(() => playSfx("shine", 0.7), 150); // kilau pas hadiahnya muncul
