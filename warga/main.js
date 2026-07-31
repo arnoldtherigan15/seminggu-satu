@@ -6361,17 +6361,17 @@ function renderJournalPage(openLast) {
         page.innerHTML =
             '<div class="jp-wrap">' +
             '<div class="jp-head"><div class="jp-title">' + esc(book.name || "Jurnal Bulanan") + '</div>' +
-            '<button type="button" class="jp-close" id="jpClose">✕</button></div>' +
+            '<button type="button" class="jp-close" id="jnClose">✕</button></div>' +
             '<div class="jp-sub">' + esc(wbookMonthLabelFromKey(key)) + '</div>' +
             '<div class="jp-view-title">' + entries.length + ' catatan terkumpul</div>' +
             (entries.length
                 ? '<div class="jn-view-list">' + entries.map(e => '<div class="jn-view-entry"><b>' + esc(jnEntryDateLabel(e)) + '</b><p>' + esc(e.text) + '</p></div>').join("") + '</div>'
                 : '<div class="jp-empty">Nggak ada catatan bulan ini 🌙</div>') +
-            '<button type="button" class="jp-back-btn" id="jpBackCurrent">← Balik ke jurnal bulan ini</button>' +
+            '<button type="button" class="jp-back-btn" id="jnBackCurrent">← Balik ke jurnal bulan ini</button>' +
             wbookShelfHtml(months, key) +
             '</div>';
-        $("jpClose").addEventListener("click", () => closeJournalPage());
-        $("jpBackCurrent").addEventListener("click", () => { _wbookViewMonth = curKey; renderJournalPage(); });
+        $("jnClose").addEventListener("click", () => closeJournalPage());
+        $("jnBackCurrent").addEventListener("click", () => { _wbookViewMonth = curKey; renderJournalPage(); });
         wireJournalShelf();
         return;
     }
@@ -6381,7 +6381,7 @@ function renderJournalPage(openLast) {
     page.innerHTML =
         '<div class="jp-wrap">' +
         '<div class="jp-head"><div class="jp-title">📔 Jurnal Bulanan</div>' +
-        '<button type="button" class="jp-close" id="jpClose">✕</button></div>' +
+        '<button type="button" class="jp-close" id="jnClose">✕</button></div>' +
         '<div class="jp-sub">Luapin apa aja yang lagi dirasain, 1 catatan/hari. Ditulis buat diri sendiri, bukan buat dibaca orang lain 💙</div>' +
         '<div class="jp-dock">' +
         '<span class="jp-dock-lbl">Nama</span>' +
@@ -6418,7 +6418,7 @@ function renderJournalPage(openLast) {
         wbookShelfHtml(months, key) +
         '</div>';
 
-    $("jpClose").addEventListener("click", () => closeJournalPage());
+    $("jnClose").addEventListener("click", () => closeJournalPage());
 
     const nameInput = $("jnNameInput");
     // live pas ngetik -- 2 kemunculan .mypf-cv-name (cover statis + muka
