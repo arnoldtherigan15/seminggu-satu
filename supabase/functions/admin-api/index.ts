@@ -460,6 +460,101 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", message: "Lead dihapus." });
       }
 
+      // ---- Pesanan minum/makan per event (menu global + pesanan per batch) ----
+      case "listAllBatches": {
+        const { data: rows } = await admin.from("batches").select("id, workshop_type, label, event_date").order("event_date", { ascending: false, nullsFirst: false });
+        let nameMap: Record<string, string> = {};
+        try {
+          const cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]");
+          for (const w of cfg) if (w?.id) nameMap[w.id] = w.name;
+        } catch (_e) { /* abaikan */ }
+        const batches = (rows || []).map((b) => ({
+          id: b.id, workshopType: b.workshop_type, workshopName: nameMap[b.workshop_type] || b.workshop_type,
+          label: b.label || "", eventDate: b.event_date || "",
+        }));
+        return jsonResponse({ status: "success", batches });
+      }
+
+      case "listMenuItems": {
+        const { data: rows } = await admin.from("menu_items").select("*").order("created_at", { ascending: true });
+        const items = (rows || []).map((r) => ({ id: r.id, name: r.name, description: r.description || "", imageUrl: r.image_url || "", active: !!r.active }));
+        return jsonResponse({ status: "success", items });
+      }
+
+      case "saveMenuItem": {
+        const name = String(data.name || "").trim();
+        if (!name) return errorResponse("Nama menu wajib diisi.");
+        const description = String(data.description || "").trim();
+        const active = data.active === true || data.active === "true" || data.active === "on";
+        let image = String(data.image || "");
+        if (data.imageBase64) {
+          const uploaded = await uploadBase64(admin, "menu-photos", data.imageBase64, `menu-${name}`);
+          if (uploaded) image = uploaded;
+        }
+        const id = String(data.id || "").trim();
+        if (id) {
+          const { data: existing } = await admin.from("menu_items").select("image_url").eq("id", id).maybeSingle();
+          if (!existing) return errorResponse("Menu tidak ditemukan.");
+          const { error: updErr } = await admin.from("menu_items").update({ name, description, image_url: image || existing.image_url, active }).eq("id", id);
+          if (updErr) return errorResponse("Gagal simpan: " + updErr.message);
+          return jsonResponse({ status: "success", message: "Menu diperbarui." });
+        }
+        const { error: insErr } = await admin.from("menu_items").insert({ name, description, image_url: image, active });
+        if (insErr) return errorResponse("Gagal simpan: " + insErr.message);
+        return jsonResponse({ status: "success", message: `Menu '${name}' ditambahkan.` });
+      }
+
+      case "deleteMenuItem": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID kosong.");
+        const { error } = await admin.from("menu_items").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus -- menu ini kemungkinan masih punya riwayat pesanan. Nonaktifin aja (toggle Aktif) daripada dihapus.");
+        return jsonResponse({ status: "success", message: "Menu dihapus." });
+      }
+
+      case "listOrders": {
+        const batchId = String(data.batchId || "");
+        if (!batchId) return errorResponse("Event belum dipilih.");
+        const { data: rows } = await admin.from("event_orders").select("*").eq("batch_id", batchId).order("created_at", { ascending: true });
+        const orders = (rows || []).map((r) => ({ id: r.id, participantName: r.participant_name, menuItemId: r.menu_item_id, registrationId: r.registration_id || "", ts: r.created_at ? new Date(r.created_at).getTime() : 0 }));
+        return jsonResponse({ status: "success", orders });
+      }
+
+      case "saveOrder": {
+        const batchId = String(data.batchId || "");
+        const participantName = String(data.participantName || "").trim().slice(0, 60);
+        const menuItemId = String(data.menuItemId || "");
+        const id = String(data.id || "").trim();
+        if (!participantName || !menuItemId) return errorResponse("Nama & menu wajib diisi.");
+        if (id) {
+          const { error } = await admin.from("event_orders").update({ participant_name: participantName, menu_item_id: menuItemId }).eq("id", id);
+          if (error) return errorResponse("Pesanan tidak ditemukan.");
+          return jsonResponse({ status: "success", message: "Pesanan diperbarui." });
+        }
+        if (!batchId) return errorResponse("Event belum dipilih.");
+        const { error: ordErr } = await admin.from("event_orders").insert({ batch_id: batchId, participant_name: participantName, menu_item_id: menuItemId });
+        if (ordErr) return errorResponse("Gagal simpan: " + ordErr.message);
+        return jsonResponse({ status: "success", message: "Pesanan ditambahkan." });
+      }
+
+      case "deleteOrder": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID kosong.");
+        const { error } = await admin.from("event_orders").delete().eq("id", id);
+        if (error) return errorResponse("Pesanan tidak ditemukan.");
+        return jsonResponse({ status: "success", message: "Pesanan dihapus." });
+      }
+
+      case "getVendorWa": {
+        const wa = (await getConfigValue(admin, "ORDER_VENDOR_WA")) || "";
+        return jsonResponse({ status: "success", wa });
+      }
+
+      case "saveVendorWa": {
+        await setConfigValue(admin, "ORDER_VENDOR_WA", String(data.wa || "").replace(/\D/g, ""));
+        return jsonResponse({ status: "success", message: "Nomor vendor tersimpan." });
+      }
+
       default:
         return errorResponse("Aksi admin tidak dikenal: " + action);
     }

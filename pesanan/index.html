@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>Pesanan Minum & Makan — Seminggu Satu</title>
+    <meta name="description" content="Isi pesanan minum/makan kamu buat event Seminggu Satu.">
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400@display=swap" rel="stylesheet">
+    <script src="../env.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --blue: #0046ff; --blue-2: #0092ff; --yellow: #ffe600; --ink: #10245e; --bg: #f4f7ff; --card: #fff; --line: #e4e9f5; --muted: #6b7794; }
+        body { font-family: 'Open Sans', sans-serif; color: var(--ink); background-color: var(--bg); background-image: radial-gradient(rgba(16, 36, 94, .055) 1px, transparent 1.2px); background-size: 18px 18px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        .wrap { max-width: 480px; margin: 0 auto; padding: 1.6rem 1.1rem 4rem; }
+        h1, h2 { font-family: 'Outfit', sans-serif; }
+
+        .top { text-align: center; margin-bottom: 1.4rem; }
+        .top img { height: 44px; }
+        .top .by { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .68rem; letter-spacing: .25em; color: var(--muted); margin-top: 4px; }
+
+        .spinner { text-align: center; padding: 3.4rem 0; }
+        .ring { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--blue); border-radius: 50%; margin: 0 auto; animation: spin .8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .placeholder { text-align: center; padding: 3rem 1.2rem; background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+        .placeholder .em { font-size: 2.4rem; margin-bottom: .6rem; }
+        .placeholder h3 { font-size: 1.05rem; margin-bottom: .4rem; }
+        .placeholder p { color: var(--muted); font-size: .88rem; line-height: 1.6; }
+        .placeholder button { margin-top: 1rem; }
+
+        .hero { background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%); color: #fff; border-radius: 20px; padding: 1.4rem 1.3rem; text-align: center; box-shadow: 0 14px 34px rgba(0, 60, 200, .28); margin-bottom: 1.4rem; }
+        .hero .k { font-size: .68rem; font-weight: 800; letter-spacing: .18em; opacity: .85; text-transform: uppercase; }
+        .hero h1 { font-size: 1.2rem; font-weight: 800; margin: 6px 0 4px; line-height: 1.35; }
+        .hero .date { font-size: .82rem; opacity: .92; }
+
+        .sec-lbl { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; margin: 0 0 .8rem; }
+
+        .field { margin-bottom: 1.3rem; }
+        .field label { display: block; font-weight: 700; font-size: .85rem; margin-bottom: .5rem; }
+        .field input[type="text"] { width: 100%; padding: .85rem 1rem; border: 1.5px solid var(--line); border-radius: 13px; font-family: inherit; font-size: .95rem; background: var(--card); color: var(--ink); }
+        .field input[type="text"]:focus { outline: none; border-color: var(--blue); }
+
+        .menu-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.6rem; }
+        .menu-card { display: flex; gap: 12px; align-items: center; background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: .8rem .9rem; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease, transform .1s ease; text-align: left; }
+        .menu-card:active { transform: scale(.99); }
+        .menu-card.sel { border-color: var(--blue); box-shadow: 0 6px 16px rgba(0, 70, 255, .16); background: rgba(0, 70, 255, .04); }
+        .menu-card img { width: 52px; height: 52px; object-fit: cover; border-radius: 10px; flex-shrink: 0; background: var(--bg); }
+        .menu-card .mc-body { flex: 1; min-width: 0; }
+        .menu-card .mc-name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem; }
+        .menu-card .mc-desc { font-size: .76rem; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+        .menu-card .mc-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: .7rem; color: #fff; }
+        .menu-card.sel .mc-check { background: var(--blue); border-color: var(--blue); }
+
+        .submit-btn { width: 100%; background: var(--blue); color: #fff; border: none; border-radius: 14px; padding: 1rem; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; cursor: pointer; transition: transform .1s ease, background .15s ease; }
+        .submit-btn:hover { background: #0038cc; }
+        .submit-btn:active { transform: scale(.98); }
+        .submit-btn:disabled { background: var(--line); color: var(--muted); cursor: not-allowed; }
+
+        .msg { margin-top: .8rem; font-size: .85rem; text-align: center; min-height: 1.2em; }
+        .msg.err { color: #d92d20; font-weight: 700; }
+
+        .done { text-align: center; padding: 2.4rem 1.4rem; background: var(--card); border: 1px solid var(--line); border-radius: 20px; }
+        .done .em { font-size: 2.6rem; margin-bottom: .8rem; }
+        .done h2 { font-size: 1.15rem; margin-bottom: .5rem; }
+        .done p { color: var(--muted); font-size: .88rem; line-height: 1.65; }
+        .done .pill { display: inline-flex; align-items: center; gap: 6px; margin-top: 1rem; background: rgba(0, 70, 255, .08); color: var(--blue); border-radius: 999px; padding: 8px 16px; font-weight: 800; font-size: .82rem; }
+        .done button { margin-top: 1.4rem; }
+        .ghost-btn { background: var(--bg); border: 1.5px solid var(--line); color: var(--ink); border-radius: 13px; padding: .7rem 1.2rem; font-family: inherit; font-weight: 700; font-size: .85rem; cursor: pointer; }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="top">
+            <a href="../index.html"><img src="../logo_seminggu.png" alt="Seminggu Satu"></a>
+            <div class="by">PESANAN EVENT</div>
+        </div>
+        <div id="app"><div class="spinner"><div class="ring"></div></div></div>
+    </div>
+
+    <script>
+        function fnGet(name, qs, cb) {
+            var controller = new AbortController();
+            var timer = setTimeout(function () { controller.abort(); }, 15000);
+            fetch(SUPABASE_URL + "/functions/v1/" + name + (qs ? "?" + qs : ""), {
+                headers: { apikey: SUPABASE_ANON_KEY },
+                signal: controller.signal
+            }).then(function (res) { return res.json(); })
+              .then(function (data) { clearTimeout(timer); cb(data); })
+              .catch(function () { clearTimeout(timer); cb(null); });
+        }
+        function apiPost(name, payload, cb) {
+            var controller = new AbortController();
+            var timer = setTimeout(function () { controller.abort(); }, 15000);
+            fetch(SUPABASE_URL + "/functions/v1/" + name, {
+                method: "POST",
+                headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            }).then(function (res) { return res.json(); })
+              .then(function (data) { clearTimeout(timer); cb(data); })
+              .catch(function () { clearTimeout(timer); cb(null); });
+        }
+        function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
+        function driveThumb(url) {
+            var s = String(url || "");
+            if (!/drive\.google|docs\.google|googleusercontent/.test(s)) return s;
+            var m = s.match(/\/d\/([-\w]{20,})/) || s.match(/[?&]id=([-\w]{20,})/);
+            return m ? ("https://lh3.googleusercontent.com/d/" + m[1]) : s;
+        }
+        function fmtDate(s) {
+            if (!s) return "";
+            var d = new Date(s + "T12:00:00");
+            if (isNaN(d)) return s;
+            return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+        }
+
+        var app = document.getElementById("app");
+        var batchId = (location.search.match(/[?&]event=([a-f0-9-]{8,})/) || [])[1];
+        var rid = (location.search.match(/[?&]rid=([a-f0-9-]{8,})/) || [])[1] || "";
+        var selectedMenuId = "";
+        var DATA = null;
+
+        function renderError(msg) {
+            app.innerHTML =
+                '<div class="placeholder"><div class="em">🍃</div><h3>Ups, linknya nggak valid</h3>' +
+                '<p>' + esc(msg || "Coba cek lagi link yang dikirim, atau tanya panitia ya.") + '</p></div>';
+        }
+
+        function renderForm() {
+            var d = DATA;
+            var locked = !!d.participantName; // link personalisasi (?rid=) -> nama udah keisi, gak perlu ngetik
+            var itemsHtml = d.items.map(function (it) {
+                return '<button type="button" class="menu-card" data-id="' + esc(it.id) + '">' +
+                    (it.imageUrl ? '<img src="' + esc(driveThumb(it.imageUrl)) + '" alt="">' : '') +
+                    '<div class="mc-body"><div class="mc-name">' + esc(it.name) + '</div>' +
+                    (it.description ? '<div class="mc-desc">' + esc(it.description) + '</div>' : '') + '</div>' +
+                    '<span class="mc-check">✓</span>' +
+                    '</button>';
+            }).join("");
+
+            app.innerHTML =
+                '<div class="hero"><div class="k">Pesanan Minum & Makan</div><h1>' + esc(d.workshopName) + '</h1>' +
+                (d.eventDate ? '<div class="date">🗓 ' + esc(fmtDate(d.eventDate)) + '</div>' : '') + '</div>' +
+                (d.items.length
+                    ? (locked
+                        ? '<div class="sec-lbl">Halo, ' + esc(d.participantName) + '! 👋 Pilih menu kamu:</div>'
+                        : '<div class="field"><label>Nama kamu</label><input type="text" id="pName" placeholder="cth: Arnold" maxlength="60"></div><div class="sec-lbl">Pilih menu</div>') +
+                      '<div class="menu-list">' + itemsHtml + '</div>' +
+                      '<button type="button" class="submit-btn" id="pSubmit" disabled>Kirim Pesanan</button>' +
+                      '<div class="msg" id="pMsg"></div>'
+                    : '<div class="placeholder"><div class="em">🍵</div><h3>Menu belum tersedia</h3><p>Panitia belum nambahin menu buat event ini. Coba lagi nanti ya.</p></div>');
+
+            if (!d.items.length) return;
+
+            document.querySelectorAll(".menu-card").forEach(function (card) {
+                card.addEventListener("click", function () {
+                    document.querySelectorAll(".menu-card").forEach(function (c) { c.classList.remove("sel"); });
+                    card.classList.add("sel");
+                    selectedMenuId = card.dataset.id;
+                    checkReady();
+                });
+            });
+            var nameInput = document.getElementById("pName");
+            if (nameInput) nameInput.addEventListener("input", checkReady);
+            document.getElementById("pSubmit").addEventListener("click", submitOrder);
+        }
+
+        function currentName() {
+            if (DATA && DATA.participantName) return DATA.participantName;
+            var el = document.getElementById("pName");
+            return el ? el.value.trim() : "";
+        }
+
+        function checkReady() {
+            document.getElementById("pSubmit").disabled = !(currentName() && selectedMenuId);
+        }
+
+        function submitOrder() {
+            var btn = document.getElementById("pSubmit");
+            var msg = document.getElementById("pMsg");
+            var name = currentName();
+            if (!name || !selectedMenuId) return;
+            btn.disabled = true; btn.textContent = "Mengirim…";
+            msg.className = "msg"; msg.textContent = "";
+            apiPost("submit-order", { batchId: batchId, registrationId: rid, participantName: name, menuItemId: selectedMenuId }, function (r) {
+                if (r && r.status === "success") {
+                    renderDone(name, selectedMenuId);
+                } else {
+                    btn.disabled = false; btn.textContent = "Kirim Pesanan";
+                    msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal ngirim, coba lagi ya.";
+                }
+            });
+        }
+
+        function renderDone(name, menuId) {
+            var item = DATA.items.find(function (it) { return it.id === menuId; });
+            app.innerHTML =
+                '<div class="done"><div class="em">🎉</div><h2>Sip, pesanan kamu tercatat!</h2>' +
+                '<p>Makasih ya, ' + esc(name) + '! Sampai jumpa di ' + esc(DATA.workshopName) + ' 💙</p>' +
+                (item ? '<div class="pill">🥤 ' + esc(item.name) + '</div>' : '') +
+                '<div><button type="button" class="ghost-btn" id="pAgain">＋ Pesan lagi (buat orang lain)</button></div></div>';
+            document.getElementById("pAgain").addEventListener("click", function () {
+                selectedMenuId = "";
+                DATA.participantName = ""; // pesenan berikutnya buat orang lain -> nama ketik manual, jangan ke-lock ke nama tadi
+                renderForm();
+            });
+        }
+
+        if (!batchId) {
+            renderError("Link ini butuh kode event -- minta link yang lengkap dari panitia ya.");
+        } else {
+            fnGet("event-menu", "batchId=" + encodeURIComponent(batchId) + (rid ? "&rid=" + encodeURIComponent(rid) : ""), function (r) {
+                if (!r || r.status !== "success") { renderError(r && r.message); return; }
+                DATA = r;
+                renderForm();
+            });
+        }
+    </script>
+</body>
+
+</html>

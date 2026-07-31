@@ -3027,6 +3027,9 @@
           <button class="nav-btn" data-view="quest">
             <span class="nav-icon">⚡</span> Challenge
           </button>
+          <button class="nav-btn" data-view="pesanan">
+            <span class="nav-icon">🥤</span> Pesanan
+          </button>
         </nav>
         <div class="sidebar-footer">
           <button class="btn btn-ghost" id="logoutBtn">Keluar</button>
@@ -3276,6 +3279,92 @@
             <div class="msg" id="epMsg"></div>
           </div>
           <div id="epList" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- ===== VIEW: PESANAN (menu global + pesanan minum/makan per event) ===== -->
+        <div class="wrap view" id="viewPesanan" style="display:none;">
+          <div class="toolbar">
+            <div class="field">
+              <label for="pesEventSelect">Pilih Event</label>
+              <select id="pesEventSelect"></select>
+            </div>
+            <button class="btn btn-sm btn-ghost" id="pesReloadBtn">🔄 Muat Ulang</button>
+          </div>
+
+          <div id="pesEmpty" class="hint" style="display:none;">Belum ada batch event. Bikin batch dulu di tab Registrations ya.</div>
+
+          <div id="pesBody" style="display:none;">
+            <div class="fin-card">
+              <div class="konten-field"><label>Nomor WA Vendor</label><input type="tel" id="pesVendorWa" placeholder="cth: 0812xxxxxxx"></div>
+              <button class="btn btn-sm" id="pesVendorSaveBtn">💾 Simpan Nomor</button>
+              <div class="msg" id="pesVendorMsg"></div>
+            </div>
+
+            <div class="fin-card" style="margin-top:14px;">
+              <div style="font-weight:800;">🔗 Link Isian buat Peserta</div>
+              <p class="hint" style="margin:4px 0 8px;">Share link ini ke grup WA event — peserta isi nama & pilih menu sendiri, otomatis masuk daftar di bawah.</p>
+              <div class="reg-tools">
+                <input type="text" id="pesLinkOut" readonly>
+                <button class="btn btn-sm" id="pesCopyLinkBtn">📋 Salin Link</button>
+              </div>
+            </div>
+
+            <details id="pesRegAccordion" open style="margin:14px 0 10px;">
+              <summary style="font-weight:800;cursor:pointer;user-select:none;padding:10px 12px;background:#fff;border:1px solid var(--line,#e5e7eb);border-radius:12px;">👥 Peserta Terdaftar — link personal per orang <span id="pesRegCount" style="font-weight:600;color:#6b7280;"></span></summary>
+              <p class="hint" style="margin:8px 0;">Kirim link yang UDAH keisi nama dia — peserta tinggal buka & pilih menu, nggak perlu ngetik nama.</p>
+              <div id="pesRegList" style="margin-top:6px;"></div>
+            </details>
+
+            <div style="font-weight:800;margin:18px 0 10px;">📝 Daftar Pesanan <span id="pesOrderCount" style="font-weight:600;color:#6b7280;"></span></div>
+            <div class="fin-card">
+              <p class="hint" style="margin:0 0 10px;">Buat nambahin manual — nama bebas, gak harus yang udah daftar (bisa buat asisten, walk-in, atau backfill pesanan yang udah masuk lewat WA sebelum ada link ini).</p>
+              <input type="hidden" id="pesOrderId">
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <div class="konten-field" style="flex:1;min-width:140px;"><label>Nama (bebas, gak harus terdaftar)</label><input type="text" id="pesOrderName" placeholder="mis. Arnold, atau Asisten - Rani"></div>
+                <div class="konten-field" style="flex:1;min-width:140px;"><label>Menu</label><select id="pesOrderMenu"></select></div>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+                <button class="btn btn-sm" id="pesOrderSaveBtn">➕ Tambah Pesanan</button>
+                <button class="btn btn-sm btn-ghost" id="pesOrderCancelBtn" style="display:none;">Batal Edit</button>
+              </div>
+              <div class="msg" id="pesOrderMsg"></div>
+            </div>
+            <div id="pesOrderList" style="margin-top:10px;"></div>
+
+            <div class="fin-card" style="margin-top:14px;">
+              <div style="font-weight:800;margin-bottom:8px;">📋 Summary buat Vendor</div>
+              <textarea id="pesSummaryOut" rows="8" readonly style="width:100%;font-family:inherit;font-size:13px;padding:10px;border-radius:10px;border:1px solid var(--line,#e5e7eb);resize:vertical;"></textarea>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+                <button class="btn btn-sm" id="pesCopySummaryBtn">📋 Salin Summary</button>
+                <button class="btn btn-sm" id="pesWaBtn">💬 Buka WA Vendor</button>
+              </div>
+            </div>
+
+            <details id="pesMenuAccordion" style="margin:22px 0 10px;">
+              <summary style="font-weight:800;cursor:pointer;user-select:none;padding:10px 12px;background:#fff;border:1px solid var(--line,#e5e7eb);border-radius:12px;">⚙️ Kelola Menu <span id="pesMenuCount" style="font-weight:600;color:#6b7280;"></span></summary>
+              <div style="margin-top:10px;">
+                <div class="fin-card">
+                  <input type="hidden" id="mnId">
+                  <div class="konten-field"><label>Nama Menu</label><input type="text" id="mnName" placeholder="mis. Karak Chai Latte"></div>
+                  <div class="konten-field"><label>Deskripsi</label><textarea id="mnDesc" rows="2" placeholder="mis. Premium spiced tea blend, slow-brewed with special milk."></textarea></div>
+                  <div class="konten-field">
+                    <label>Gambar (optional)</label>
+                    <input type="file" id="mnImageFile" accept="image/*">
+                    <div id="mnImagePreview" style="margin-top:8px;"></div>
+                    <input type="hidden" id="mnImageBase64"><input type="hidden" id="mnImageExisting">
+                  </div>
+                  <label style="display:flex;gap:8px;align-items:center;font-weight:600;"><input type="checkbox" id="mnActive" checked> Aktif (bisa dipilih peserta)</label>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+                    <button class="btn btn-sm" id="mnSaveBtn">💾 Simpan Menu</button>
+                    <button class="btn btn-sm btn-ghost" id="mnNewBtn">＋ Menu Baru</button>
+                    <button class="btn btn-sm" id="mnDeleteBtn" style="background:#fee2e2;color:var(--err);display:none;">🗑️ Hapus</button>
+                  </div>
+                  <div class="msg" id="mnMsg"></div>
+                </div>
+                <div id="mnList" style="margin-top:10px;"></div>
+              </div>
+            </details>
+          </div>
         </div>
 
         <!-- ===== VIEW: MEMBER (akun /warga, ultah, aktif) ===== -->
@@ -3996,7 +4085,7 @@
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "leads", "quest", "activity", "members"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "leads", "quest", "activity", "members", "pesanan"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1]);
     }
@@ -4016,6 +4105,7 @@
       document.getElementById("viewQuest").style.display = (view === "quest") ? "block" : "none";
       document.getElementById("viewActivity").style.display = (view === "activity") ? "block" : "none";
       document.getElementById("viewMembers").style.display = (view === "members") ? "block" : "none";
+      document.getElementById("viewPesanan").style.display = (view === "pesanan") ? "block" : "none";
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") ensureFinanceLoaded();
@@ -4026,6 +4116,7 @@
       if (view === "quest") ensureQuest();
       if (view === "activity") ensureActivity();
       if (view === "members") ensureMembers();
+      if (view === "pesanan") ensurePesanan();
     }
 
     // ---------- KEUANGAN ----------
@@ -5170,6 +5261,335 @@
         if (r.status === "success") { await loadChallenges(); newChallengeForm(); }
         else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Gagal hapus."; }
       } catch (e) { msg.className = "msg err"; msg.textContent = "Gagal terhubung."; }
+    }
+
+    // ---------- PESANAN (menu global + pesanan minum/makan per event) ----------
+    let pesananInit = false;
+    let PES_BATCHES = [];
+    let PES_MENU = [];
+    let PES_ORDERS = [];
+    let PES_CUR_BATCH = null;
+    let PES_REGISTRANTS = [];
+
+    async function ensurePesanan() {
+      if (!pesananInit) {
+        pesananInit = true;
+        document.getElementById("pesReloadBtn").addEventListener("click", () => { loadPesBatches(); loadPesMenu(); });
+        document.getElementById("pesEventSelect").addEventListener("change", onPesEventChange);
+        document.getElementById("pesVendorSaveBtn").addEventListener("click", savePesVendorWa);
+        document.getElementById("pesCopyLinkBtn").addEventListener("click", () => copyToClipboard(document.getElementById("pesLinkOut").value, "pesCopyLinkBtn"));
+        document.getElementById("pesCopySummaryBtn").addEventListener("click", () => copyToClipboard(document.getElementById("pesSummaryOut").value, "pesCopySummaryBtn"));
+        document.getElementById("pesWaBtn").addEventListener("click", openPesVendorWa);
+        document.getElementById("pesOrderSaveBtn").addEventListener("click", savePesOrder);
+        document.getElementById("pesOrderCancelBtn").addEventListener("click", newOrderForm);
+        document.getElementById("mnNewBtn").addEventListener("click", newMenuForm);
+        document.getElementById("mnSaveBtn").addEventListener("click", saveMenuItem);
+        document.getElementById("mnDeleteBtn").addEventListener("click", deleteMenuItem);
+        document.getElementById("mnImageFile").addEventListener("change", onMenuImagePick);
+        loadPesVendorWa();
+        await loadPesMenu();
+        await loadPesBatches();
+      }
+    }
+
+    function fmtOrderDate(s) {
+      if (!s) return "";
+      const d = new Date(s + "T12:00:00");
+      if (isNaN(d)) return s;
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    }
+
+    function copyToClipboard(text, btnId) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        const orig = btn.textContent;
+        btn.textContent = "✓ Tersalin!";
+        setTimeout(() => { btn.textContent = orig; }, 1800);
+      }).catch(() => alert("Gagal salin otomatis, salin manual ya:\n\n" + text));
+    }
+
+    async function loadPesVendorWa() {
+      const r = await api("getVendorWa", { token: getToken() });
+      if (r && r.status === "success") document.getElementById("pesVendorWa").value = r.wa || "";
+    }
+
+    async function savePesVendorWa() {
+      const msg = document.getElementById("pesVendorMsg");
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await api("saveVendorWa", { token: getToken(), wa: document.getElementById("pesVendorWa").value });
+      if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Tersimpan ✓"; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+    }
+
+    function openPesVendorWa() {
+      const wa = waNormalize(document.getElementById("pesVendorWa").value);
+      if (!wa) { alert("Isi & simpan nomor WA vendor dulu ya."); return; }
+      const text = document.getElementById("pesSummaryOut").value;
+      if (!text) { alert("Belum ada pesanan buat dikirim."); return; }
+      window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(text), "_blank");
+    }
+
+    async function loadPesBatches() {
+      const sel = document.getElementById("pesEventSelect");
+      const prevValue = sel.value;
+      const r = await api("listAllBatches", { token: getToken() });
+      if (!r || r.status !== "success") { handleAuthError(r); return; }
+      PES_BATCHES = r.batches || [];
+      const empty = document.getElementById("pesEmpty");
+      const body = document.getElementById("pesBody");
+      if (!PES_BATCHES.length) { empty.style.display = "block"; body.style.display = "none"; return; }
+      empty.style.display = "none"; body.style.display = "block";
+      sel.innerHTML = PES_BATCHES.map(b =>
+        `<option value="${b.id}">${escapeHtml(b.workshopName)} — ${escapeHtml(b.eventDate ? fmtOrderDate(b.eventDate) : (b.label || "(tanpa tanggal)"))}</option>`
+      ).join("");
+      if (prevValue && PES_BATCHES.some(b => b.id === prevValue)) sel.value = prevValue;
+      onPesEventChange();
+    }
+
+    function onPesEventChange() {
+      const id = document.getElementById("pesEventSelect").value;
+      PES_CUR_BATCH = PES_BATCHES.find(b => b.id === id) || null;
+      document.getElementById("pesLinkOut").value = id ? (location.origin + "/pesanan/?event=" + id) : "";
+      newOrderForm();
+      loadPesOrders();
+      loadPesRegistrants();
+    }
+
+    // ---- Peserta terdaftar (link personal per orang, biar gak perlu ngetik nama) ----
+    async function loadPesRegistrants() {
+      const list = document.getElementById("pesRegList");
+      if (!PES_CUR_BATCH) { PES_REGISTRANTS = []; renderPesRegistrants(); return; }
+      list.innerHTML = skelLines(2);
+      const r = await api("getRegistrations", { token: getToken(), workshop: PES_CUR_BATCH.workshopType, batchId: PES_CUR_BATCH.id });
+      if (!r || r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
+      PES_REGISTRANTS = r.items || [];
+      renderPesRegistrants();
+    }
+
+    function renderPesRegistrants() {
+      const list = document.getElementById("pesRegList");
+      const cnt = document.getElementById("pesRegCount");
+      if (cnt) cnt.textContent = "(" + PES_REGISTRANTS.length + ")";
+      if (!list) return;
+      if (!PES_REGISTRANTS.length) { list.innerHTML = '<p class="hint">Belum ada yang daftar di batch ini.</p>'; return; }
+      list.innerHTML = PES_REGISTRANTS.map(reg => {
+        const nm = reg.nickname || reg.full_name || "Sahabat";
+        // cocokin dari registrationId (link personal) ATAU dari nama (link umum,
+        // orangnya ngetik nama sendiri) -- biar badge kedeteksi dari dua jalur
+        const nmLower = nm.toLowerCase();
+        const ordered = PES_ORDERS.some(o => o.registrationId === reg.id ||
+          (o.participantName && o.participantName.trim().toLowerCase() === nmLower));
+        return `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
+          <div style="flex:1;min-width:0;"><b>${escapeHtml(nm)}</b> ${ordered ? '<span class="loy-badge">✓ Sudah pesan</span>' : ''}</div>
+          <button class="btn btn-sm" data-sendwa="${reg.id}" style="flex-shrink:0;">💬 Kirim WA</button>
+        </div>`;
+      }).join("");
+      list.querySelectorAll("[data-sendwa]").forEach(b => b.addEventListener("click", () => sendPesWa(b.dataset.sendwa)));
+    }
+
+    function sendPesWa(regId) {
+      const reg = PES_REGISTRANTS.find(r => r.id === regId);
+      const batchId = document.getElementById("pesEventSelect").value;
+      if (!reg || !batchId) return;
+      const wa = waNormalize(reg.wa);
+      if (!wa) { alert("Nomor WA peserta ini nggak keisi/nggak valid."); return; }
+      const nm = reg.nickname || reg.full_name || "Sahabat";
+      const ev = PES_CUR_BATCH ? (PES_CUR_BATCH.workshopName + (PES_CUR_BATCH.eventDate ? " - " + fmtOrderDate(PES_CUR_BATCH.eventDate) : "")) : "event kamu";
+      const link = location.origin + "/pesanan/?event=" + batchId + "&rid=" + regId;
+      const msg = `Halo ${nm} 👋\nYuk isi pesanan minum/makan kamu buat *${ev}*, tinggal pilih menu aja di link ini ya:\n${link}`;
+      window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(msg), "_blank");
+    }
+
+    // ---- Menu (katalog global) ----
+    async function loadPesMenu() {
+      const r = await api("listMenuItems", { token: getToken() });
+      if (!r || r.status !== "success") { handleAuthError(r); return; }
+      PES_MENU = r.items || [];
+      renderPesOrderMenuSelect();
+      renderMenuList();
+      renderPesSummary();
+    }
+
+    function menuNameById(id) {
+      const m = PES_MENU.find(x => x.id === id);
+      return m ? m.name : "(menu dihapus)";
+    }
+
+    function renderPesOrderMenuSelect() {
+      const sel = document.getElementById("pesOrderMenu");
+      const active = PES_MENU.filter(m => m.active);
+      sel.innerHTML = active.length
+        ? active.map(m => `<option value="${m.id}">${escapeHtml(m.name)}</option>`).join("")
+        : '<option value="">(belum ada menu aktif)</option>';
+    }
+
+    function renderMenuList() {
+      const list = document.getElementById("mnList");
+      const cnt = document.getElementById("pesMenuCount");
+      if (cnt) cnt.textContent = "(" + PES_MENU.length + ")";
+      if (!PES_MENU.length) { list.innerHTML = '<p class="hint">Belum ada menu. Tambahin dulu di atas ya.</p>'; return; }
+      list.innerHTML = PES_MENU.map((m, i) =>
+        `<div class="konten-item" style="cursor:pointer;" data-idx="${i}">
+           <div class="konten-item-head">
+             <span class="k-num">${escapeHtml(m.name)} ${m.active ? '<span class="loy-badge">AKTIF</span>' : '<span class="loy-note-badge">nonaktif</span>'}</span>
+           </div>
+           <div style="display:flex;gap:12px;align-items:center;">
+             ${m.imageUrl ? `<img src="${escapeHtml(driveThumb(m.imageUrl))}" style="width:48px;height:48px;object-fit:cover;border-radius:10px;flex-shrink:0;">` : ""}
+             <div class="hint" style="margin:0;">${escapeHtml(m.description || "")}</div>
+           </div>
+         </div>`
+      ).join("");
+      list.querySelectorAll(".konten-item").forEach(el => el.addEventListener("click", () => editMenuItem(Number(el.dataset.idx))));
+    }
+
+    function fillMenuForm(m) {
+      document.getElementById("mnId").value = m.id || "";
+      document.getElementById("mnName").value = m.name || "";
+      document.getElementById("mnDesc").value = m.description || "";
+      document.getElementById("mnActive").checked = m.active !== false;
+      document.getElementById("mnImageBase64").value = "";
+      document.getElementById("mnImageExisting").value = m.imageUrl || "";
+      document.getElementById("mnImageFile").value = "";
+      document.getElementById("mnImagePreview").innerHTML = m.imageUrl ? '<img src="' + escapeHtml(driveThumb(m.imageUrl)) + '" style="width:100%;max-width:220px;border-radius:12px;">' : "";
+      document.getElementById("mnDeleteBtn").style.display = m.id ? "inline-flex" : "none";
+      document.getElementById("mnMsg").textContent = "";
+    }
+    function newMenuForm() { fillMenuForm({ active: true }); }
+    function editMenuItem(idx) { const m = PES_MENU[idx]; if (m) { fillMenuForm(m); document.getElementById("pesMenuAccordion").open = true; } }
+
+    async function onMenuImagePick(e) {
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 5 * 1024 * 1024) { alert("Ukuran gambar maks 5MB ya."); e.target.value = ""; return; }
+      try {
+        const dataUrl = await qCompress(f, 1000, 0.82);
+        document.getElementById("mnImageBase64").value = dataUrl.split(",")[1];
+        document.getElementById("mnImagePreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:220px;border-radius:12px;">';
+      } catch (err) { alert("Gagal memproses gambar."); }
+    }
+
+    async function saveMenuItem() {
+      const msg = document.getElementById("mnMsg");
+      const name = document.getElementById("mnName").value.trim();
+      if (!name) { msg.className = "msg err"; msg.textContent = "Nama menu wajib diisi."; return; }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await api("saveMenuItem", {
+        token: getToken(),
+        id: document.getElementById("mnId").value,
+        name, description: document.getElementById("mnDesc").value.trim(),
+        active: document.getElementById("mnActive").checked,
+        imageBase64: document.getElementById("mnImageBase64").value || "",
+        image: document.getElementById("mnImageExisting").value || "",
+      });
+      if (r && r.status === "success") {
+        msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+        await loadPesMenu();
+        newMenuForm();
+      } else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+    }
+
+    async function deleteMenuItem() {
+      const id = document.getElementById("mnId").value;
+      if (!id) return;
+      if (!confirm("Hapus menu ini?")) return;
+      const msg = document.getElementById("mnMsg");
+      msg.className = "msg"; msg.textContent = "Menghapus...";
+      const r = await api("deleteMenuItem", { token: getToken(), id });
+      if (r && r.status === "success") { await loadPesMenu(); newMenuForm(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
+    }
+
+    // ---- Pesanan (per event/batch) ----
+    async function loadPesOrders() {
+      const id = document.getElementById("pesEventSelect").value;
+      const list = document.getElementById("pesOrderList");
+      if (!id) { PES_ORDERS = []; renderPesOrders(); renderPesSummary(); return; }
+      list.innerHTML = skelLines(3);
+      const r = await api("listOrders", { token: getToken(), batchId: id });
+      if (!r || r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
+      PES_ORDERS = r.orders || [];
+      renderPesOrders();
+      renderPesSummary();
+      renderPesRegistrants(); // badge "sudah pesan" ikut ke-update
+    }
+
+    function renderPesOrders() {
+      const list = document.getElementById("pesOrderList");
+      const cnt = document.getElementById("pesOrderCount");
+      if (cnt) cnt.textContent = "(" + PES_ORDERS.length + ")";
+      if (!PES_ORDERS.length) { list.innerHTML = '<p class="hint">Belum ada pesanan masuk buat event ini.</p>'; return; }
+      list.innerHTML = PES_ORDERS.map(o =>
+        `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
+           <div style="flex:1;min-width:0;"><b>${escapeHtml(o.participantName)}</b>
+             <div style="font-size:.8rem;color:#6b7280;">${escapeHtml(menuNameById(o.menuItemId))}</div></div>
+           <button class="btn btn-sm btn-ghost" data-editorder="${o.id}" style="flex-shrink:0;">✏️</button>
+           <button class="btn btn-sm" data-delorder="${o.id}" style="background:#fee2e2;color:var(--err);flex-shrink:0;">🗑️</button>
+         </div>`
+      ).join("");
+      list.querySelectorAll("[data-editorder]").forEach(b => b.addEventListener("click", () => editOrder(b.dataset.editorder)));
+      list.querySelectorAll("[data-delorder]").forEach(b => b.addEventListener("click", () => deleteOrder(b.dataset.delorder)));
+    }
+
+    function newOrderForm() {
+      document.getElementById("pesOrderId").value = "";
+      document.getElementById("pesOrderName").value = "";
+      document.getElementById("pesOrderMenu").selectedIndex = 0;
+      document.getElementById("pesOrderSaveBtn").textContent = "➕ Tambah Pesanan";
+      document.getElementById("pesOrderCancelBtn").style.display = "none";
+      document.getElementById("pesOrderMsg").textContent = "";
+    }
+
+    function editOrder(id) {
+      const o = PES_ORDERS.find(x => x.id === id);
+      if (!o) return;
+      document.getElementById("pesOrderId").value = o.id;
+      document.getElementById("pesOrderName").value = o.participantName;
+      document.getElementById("pesOrderMenu").value = o.menuItemId;
+      document.getElementById("pesOrderSaveBtn").textContent = "💾 Simpan Perubahan";
+      document.getElementById("pesOrderCancelBtn").style.display = "inline-flex";
+    }
+
+    async function savePesOrder() {
+      const msg = document.getElementById("pesOrderMsg");
+      const batchId = document.getElementById("pesEventSelect").value;
+      const participantName = document.getElementById("pesOrderName").value.trim();
+      const menuItemId = document.getElementById("pesOrderMenu").value;
+      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih event dulu ya."; return; }
+      if (!participantName) { msg.className = "msg err"; msg.textContent = "Nama peserta wajib diisi."; return; }
+      if (!menuItemId) { msg.className = "msg err"; msg.textContent = "Pilih menu dulu (tambahin di Kelola Menu kalau masih kosong)."; return; }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await api("saveOrder", { token: getToken(), id: document.getElementById("pesOrderId").value, batchId, participantName, menuItemId });
+      if (r && r.status === "success") { newOrderForm(); await loadPesOrders(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+    }
+
+    async function deleteOrder(id) {
+      if (!confirm("Hapus pesanan ini?")) return;
+      const r = await api("deleteOrder", { token: getToken(), id });
+      if (r && r.status === "success") loadPesOrders();
+      else { handleAuthError(r); alert((r && r.message) || "Gagal hapus."); }
+    }
+
+    function renderPesSummary() {
+      const out = document.getElementById("pesSummaryOut");
+      if (!out) return;
+      if (!PES_CUR_BATCH || !PES_ORDERS.length) { out.value = ""; return; }
+      const header = PES_CUR_BATCH.workshopName + (PES_CUR_BATCH.eventDate ? " - " + fmtOrderDate(PES_CUR_BATCH.eventDate) : "");
+      const byMenu = {};
+      PES_ORDERS.forEach(o => {
+        if (!byMenu[o.menuItemId]) byMenu[o.menuItemId] = [];
+        byMenu[o.menuItemId].push(o.participantName);
+      });
+      // urutan sesuai katalog menu (predictable), skip menu yang nggak ada pesanannya
+      const groups = PES_MENU.filter(m => byMenu[m.id] && byMenu[m.id].length);
+      let lines = [header, ""];
+      groups.forEach((m, i) => {
+        lines.push(`${i + 1}. ${m.name} (${byMenu[m.id].length}) :`);
+        byMenu[m.id].forEach(nm => lines.push(`- ${nm}`));
+        lines.push("");
+      });
+      out.value = lines.join("\n").trim();
     }
 
     // ---------- LEADS / OUTREACH TRACKER ----------
