@@ -2192,7 +2192,7 @@ function persona(count) {
     if (count >= 10) { title = "DEWA JOURNALING"; tag = "Warga kehormatan Seminggu Satu 👑"; emoji = "👑"; }
     else if (count >= 6) { title = "LEGENDA JOURNALING"; tag = "Sahabat setia Seminggu Satu 🎁"; emoji = "🏆"; }
     else if (count >= 4) { title = "JOURNALING ENTHUSIAST"; tag = "Anak tongkrongan Seminggu Satu 🔥"; emoji = "🔥"; }
-    else if (count >= 2) { title = "PETUALANG KREATIF"; tag = "Mulai betah kumpul bareng kita ✨"; emoji = "✨"; }
+    else if (count >= 2) { title = "PETUALANG KREATIF"; tag = "Mulai betah kumpul bareng kita 🧭"; emoji = "🧭"; }
     else { title = "PENDATANG BARU"; tag = "Baru gabung keluarga Seminggu Satu 🌱"; emoji = "🌱"; }
     return { title, tag, emoji };
 }
@@ -5352,7 +5352,7 @@ function renderGallery() {
     const feed = $("igFeed"), grid = $("igGrid");
     if (_galleryObserver) { _galleryObserver.disconnect(); _galleryObserver = null; }
     if (!items.length) {
-        const empty = '<div class="placeholder" style="grid-column:1/-1;padding:2rem 1rem;"><div class="em">🍃</div><p>Belum ada foto di filter ini.</p></div>';
+        const empty = '<div class="placeholder" style="grid-column:1/-1;min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;"><div class="em">🍃</div><p>Belum ada foto di filter ini.</p></div>';
         feed.innerHTML = empty; grid.innerHTML = empty;
     } else {
         _galleryRenderedCount = 0; // filter/view baru ganti -> mulai dari batch pertama lagi
@@ -8399,7 +8399,7 @@ function renderStoryBar() {
     _storyGroups = buildStoryGroups();
     if (!_storyGroups.length) { wrap.innerHTML = ""; return; }
     const seen = storySeenSet();
-    let html = '<div class="story-lbl">✨ Sahabat Stories</div><div class="story-track">';
+    let html = '<div class="story-lbl">📸 Sahabat Stories</div><div class="story-track">';
     _storyGroups.forEach((g, idx) => {
         const rot = ["st-r1", "st-r2", "st-r3"][idx % 3];
         const isSeen = g.items.every(it => seen.has(it.id));
