@@ -5358,10 +5358,16 @@
       onPesEventChange();
     }
 
+    // location.origin ngaco ("null" literal) kalau halaman ini lagi dibuka
+    // lewat file:// -- link publik yang di-generate harus tetap domain asli.
+    function siteOrigin() {
+      return (location.origin && location.origin.indexOf("http") === 0) ? location.origin : "https://seminggusatu.com";
+    }
+
     function onPesEventChange() {
       const id = document.getElementById("pesEventSelect").value;
       PES_CUR_BATCH = PES_BATCHES.find(b => b.id === id) || null;
-      document.getElementById("pesLinkOut").value = id ? (location.origin + "/pesanan/?event=" + id) : "";
+      document.getElementById("pesLinkOut").value = id ? (siteOrigin() + "/pesanan/?event=" + id) : "";
       newOrderForm();
       loadPesOrders();
       loadPesRegistrants();
@@ -5444,7 +5450,7 @@
       if (!wa) { alert("Nomor WA peserta ini nggak keisi/nggak valid."); return; }
       const nm = reg.nickname || reg.full_name || "Sahabat";
       const ev = PES_CUR_BATCH ? (PES_CUR_BATCH.workshopName + (PES_CUR_BATCH.eventDate ? " - " + fmtOrderDate(PES_CUR_BATCH.eventDate) : "")) : "event kamu";
-      const link = location.origin + "/pesanan/?event=" + batchId + "&rid=" + regId;
+      const link = siteOrigin() + "/pesanan/?event=" + batchId + "&rid=" + regId;
       const msg = `Halo ${nm} 👋\nYuk isi pesanan minum/makan kamu buat *${ev}*, tinggal pilih menu aja di link ini ya:\n${link}`;
       window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(msg), "_blank");
     }
