@@ -19,18 +19,6 @@
         .wrap { max-width: 520px; margin: 0 auto; padding: 1.6rem 1.1rem 4rem; }
         h1, h2, .stat b { font-family: 'Outfit', sans-serif; }
 
-        /* ---- Mode embed (?embed=1) -- buat ditempel di iframe web/Notion lain,
-           cuma nampilin bukunya doang, chrome situs ini dibuang ---- */
-        body.embed-mode { background: transparent; }
-        body.embed-mode .wrap { padding: .6rem .6rem 1.6rem; max-width: 420px; }
-        body.embed-mode .top,
-        body.embed-mode .foot,
-        body.embed-mode .back { display: none !important; }
-        .embed-badge { display: none; text-align: center; margin-top: .8rem; }
-        body.embed-mode .embed-badge { display: block; }
-        .embed-badge a { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .68rem; color: var(--muted); text-decoration: none; opacity: .8; }
-        .embed-badge a:hover { opacity: 1; }
-
         .top { text-align: center; margin-bottom: 1.6rem; }
         .top .logo { height: 76px; max-width: 260px; object-fit: contain; display: block; margin: 0 auto .3rem; }
         .top .sub { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; letter-spacing: .3em; color: var(--muted); margin-top: 2px; }
@@ -204,7 +192,6 @@
         <div class="err hidden" id="err">Pintunya lagi macet 😅 coba refresh ya.</div>
 
         <div class="foot">Dibuat dengan 💙 (dan banyak washi tape) oleh warga Seminggu Satu<br>seminggusatu.com</div>
-        <div class="embed-badge"><a href="https://seminggusatu.com" target="_blank" rel="noopener">💙 via Seminggu Satu</a></div>
     </div>
 
     <script>
@@ -480,12 +467,6 @@
             } catch (e) { }
         }
 
-        // ?embed=1 -> mode buat ditempel di <iframe> (Notion, web lain, dst):
-        // buang header/foot/tombol back, background transparan, musik nggak
-        // autoplay (nyeletuk sendiri di iframe orang lain itu manner buruk).
-        var isEmbed = /[?&]embed=1(&|$)/.test(location.search);
-        if (isEmbed) document.body.classList.add("embed-mode");
-
         // /balai/?w=<id> -> profil publik 1 warga (ala IG, bisa di-share)
         // ret=gallery (dikirim dari story galeri app warga) -> tombol "← Balai
         // Warga" balik ke situ lagi, bukan ke homepage Balai
@@ -523,7 +504,7 @@
                         '<div class="pf-empty">Buku jurnal ini masih dikunci pemiliknya 🔒<br>Belum bisa dibuka warga lain.</div>';
                     return;
                 }
-                if (!isEmbed) playHappyMusic();
+                playHappyMusic();
                 var ava = d.p
                     ? '<img class="pf-ava" src="' + esc(driveThumb(d.p)) + '" alt="">'
                     : '<div class="pf-ava init">' + esc((d.n || "S").charAt(0).toUpperCase()) + '</div>';

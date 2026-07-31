@@ -3490,9 +3490,7 @@ function openSettings() {
             { v: "0", t: "Sembunyi", on: _profile.publicOptIn !== "1" }
         ]) +
         '<div class="st-hint">Kalau "Tampil", nama + foto + bio + karyamu dipajang di halaman publik <b>seminggusatu.com/balai</b> dan kamu dapet link profil sendiri buat ditaruh di bio IG 🌍 Default-nya sembunyi, bisa diubah kapan aja 💙</div>' +
-        (_profile.publicId ? '<button type="button" class="st-copylink" id="stCopyLink">🔗 Salin link profilku</button>' : '') +
-        (_profile.publicId ? '<button type="button" class="st-copylink" id="stCopyEmbedUrl">🔗 Salin link embed (buat Notion)</button>' : '') +
-        (_profile.publicId ? '<button type="button" class="st-copylink" id="stCopyEmbed">📋 Salin kode iframe (buat website lain)</button>' : '') + '</div>' +
+        (_profile.publicId ? '<button type="button" class="st-copylink" id="stCopyLink">🔗 Salin link profilku</button>' : '') + '</div>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();
@@ -3538,24 +3536,6 @@ function openSettings() {
         try { await navigator.clipboard.writeText(url); cpl.textContent = "✓ Tersalin! Taruh di bio IG-mu 😄"; }
         catch (e) { prompt("Salin manual ya:", url); }
         setTimeout(() => { cpl.innerHTML = "🔗 Salin link profilku"; }, 2200);
-    });
-    const cpeu = $("stCopyEmbedUrl");
-    if (cpeu) cpeu.addEventListener("click", async () => {
-        // Notion (dan situs lain yang punya fitur "Embed URL" sendiri) mau LINK
-        // polos -- dia yang bungkus jadi iframe sendiri. Kalau ditempelin tag
-        // <iframe> mentah malah nggak kebaca / balik ke preview halaman biasa.
-        const url = "https://seminggusatu.com/balai/?w=" + _profile.publicId + "&embed=1";
-        try { await navigator.clipboard.writeText(url); cpeu.textContent = "✓ Tersalin! Tempel di embed block Notion (ketik /embed dulu)"; }
-        catch (e) { prompt("Salin manual ya:", url); }
-        setTimeout(() => { cpeu.innerHTML = "🔗 Salin link embed (buat Notion)"; }, 2600);
-    });
-    const cpe = $("stCopyEmbed");
-    if (cpe) cpe.addEventListener("click", async () => {
-        // Buat website biasa yang butuh tag HTML mentah, bukan cuma link.
-        const code = '<iframe src="https://seminggusatu.com/balai/?w=' + _profile.publicId + '&embed=1" width="380" height="640" style="border:none;border-radius:16px;max-width:100%;" loading="lazy" title="Buku Jurnal ' + esc(_profile.nickname || "Warga") + '"></iframe>';
-        try { await navigator.clipboard.writeText(code); cpe.textContent = "✓ Tersalin! Tempel di HTML website kamu 😄"; }
-        catch (e) { prompt("Salin manual ya:", code); }
-        setTimeout(() => { cpe.innerHTML = "📋 Salin kode iframe (buat website lain)"; }, 2600);
     });
     pick("stPublic", v => {
         const prev = _profile.publicOptIn;
@@ -6546,13 +6526,21 @@ function renderSnailBox() {
         .sort((a, b) => String(a.publish_date).localeCompare(String(b.publish_date)))[0];
     let walk = "";
     if (nextL) {
+        const now = new Date();
         const nt = new Date(String(nextL.publish_date) + "T09:00:00").getTime();
         const lastT = avail.length ? new Date(String(avail[0].publish_date) + "T09:00:00").getTime() : nt - 30 * 86400000;
         const pct = Math.max(4, Math.min(92, Math.round(((Date.now() - lastT) / (nt - lastT)) * 100)));
-        const days = Math.max(1, Math.ceil((nt - Date.now()) / 86400000));
+        // Selisih HARI KALENDER (bukan bagi rata-rata 24 jam) -- kalau dibagi
+        // ms/86400000 terus dibulatkan ke atas, sisa BEBERAPA JAM lagi di hari
+        // yang SAMA (mis. jam 6 pagi, nyampenya jam 9 pagi ini) kebulet jadi
+        // "1 hari lagi" yang nyesatin (kesannya besok, padahal hari ini).
+        const ntDate = new Date(nt);
+        const dayDiff = Math.round((new Date(ntDate.getFullYear(), ntDate.getMonth(), ntDate.getDate()) -
+            new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
+        const whenTxt = dayDiff <= 0 ? "hari ini jam 9 pagi" : (dayDiff === 1 ? "besok" : dayDiff + " hari lagi");
         walk = '<div class="snp-walk">' +
             '<div class="snp-walk-line"><span class="snp-snail" style="left:' + pct + '%">🐌</span><span class="snp-mailbox">📮</span></div>' +
-            '<div class="snp-walk-t">Surat ' + esc(snailMonthLabel(nextL)) + ' lagi di jalan — <b>' + days + ' hari lagi</b> nyampe 💨</div>' +
+            '<div class="snp-walk-t">Surat ' + esc(snailMonthLabel(nextL)) + ' lagi di jalan — <b>' + whenTxt + '</b> nyampe 💨</div>' +
             '</div>';
     }
 
