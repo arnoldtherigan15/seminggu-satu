@@ -3491,7 +3491,8 @@ function openSettings() {
         ]) +
         '<div class="st-hint">Kalau "Tampil", nama + foto + bio + karyamu dipajang di halaman publik <b>seminggusatu.com/balai</b> dan kamu dapet link profil sendiri buat ditaruh di bio IG 🌍 Default-nya sembunyi, bisa diubah kapan aja 💙</div>' +
         (_profile.publicId ? '<button type="button" class="st-copylink" id="stCopyLink">🔗 Salin link profilku</button>' : '') +
-        (_profile.publicId ? '<button type="button" class="st-copylink" id="stCopyEmbed">📋 Salin kode embed (buat website/Notion)</button>' : '') + '</div>' +
+        (_profile.publicId ? '<button type="button" class="st-copylink" id="stCopyEmbedUrl">🔗 Salin link embed (buat Notion)</button>' : '') +
+        (_profile.publicId ? '<button type="button" class="st-copylink" id="stCopyEmbed">📋 Salin kode iframe (buat website lain)</button>' : '') + '</div>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();
@@ -3538,12 +3539,23 @@ function openSettings() {
         catch (e) { prompt("Salin manual ya:", url); }
         setTimeout(() => { cpl.innerHTML = "🔗 Salin link profilku"; }, 2200);
     });
+    const cpeu = $("stCopyEmbedUrl");
+    if (cpeu) cpeu.addEventListener("click", async () => {
+        // Notion (dan situs lain yang punya fitur "Embed URL" sendiri) mau LINK
+        // polos -- dia yang bungkus jadi iframe sendiri. Kalau ditempelin tag
+        // <iframe> mentah malah nggak kebaca / balik ke preview halaman biasa.
+        const url = "https://seminggusatu.com/balai/?w=" + _profile.publicId + "&embed=1";
+        try { await navigator.clipboard.writeText(url); cpeu.textContent = "✓ Tersalin! Tempel di embed block Notion (ketik /embed dulu)"; }
+        catch (e) { prompt("Salin manual ya:", url); }
+        setTimeout(() => { cpeu.innerHTML = "🔗 Salin link embed (buat Notion)"; }, 2600);
+    });
     const cpe = $("stCopyEmbed");
     if (cpe) cpe.addEventListener("click", async () => {
+        // Buat website biasa yang butuh tag HTML mentah, bukan cuma link.
         const code = '<iframe src="https://seminggusatu.com/balai/?w=' + _profile.publicId + '&embed=1" width="380" height="640" style="border:none;border-radius:16px;max-width:100%;" loading="lazy" title="Buku Jurnal ' + esc(_profile.nickname || "Warga") + '"></iframe>';
-        try { await navigator.clipboard.writeText(code); cpe.textContent = "✓ Tersalin! Tempel di embed block Notion/website 😄"; }
+        try { await navigator.clipboard.writeText(code); cpe.textContent = "✓ Tersalin! Tempel di HTML website kamu 😄"; }
         catch (e) { prompt("Salin manual ya:", code); }
-        setTimeout(() => { cpe.innerHTML = "📋 Salin kode embed (buat website/Notion)"; }, 2600);
+        setTimeout(() => { cpe.innerHTML = "📋 Salin kode iframe (buat website lain)"; }, 2600);
     });
     pick("stPublic", v => {
         const prev = _profile.publicOptIn;
