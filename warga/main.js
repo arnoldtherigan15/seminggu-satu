@@ -2780,7 +2780,12 @@ function renderEventTicket() {
         '</span>' +
         '<span class="evt-count">' + esc(when) + '</span>' +
         '</button>';
-    $("evTicketBtn").addEventListener("click", () => activateTab("events"));
+    // Tiket event terdekat -> langsung ke grup WA-nya (biar beneran kepake,
+    // bukan cuma nampang), fallback ke tab Event kalau link-nya belum keisi admin
+    $("evTicketBtn").addEventListener("click", () => {
+        if (ev.w.whatsappGroupLink) { window.open(ev.w.whatsappGroupLink, "_blank"); return; }
+        activateTab("events");
+    });
 }
 
 // ---------- Recap bulanan: Wrapped mini bulan lalu (nongol tanggal 1-7) ----------
