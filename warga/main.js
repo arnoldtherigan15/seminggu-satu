@@ -1277,7 +1277,7 @@ async function submitQuest(q, i, action) {
         const cell = $("questGrid") && $("questGrid").querySelector('[data-i="' + i + '"]');
         if (cell) cell.classList.add("done");
         _galleryLoaded = false;
-        _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
+        invalidateLeaderboard(); // poin nambah -> refetch di background biar kartu/modal poin ke-update
         if (typeof _qbRefresh === "function") _qbRefresh(); // sinkron halaman Quest Book
         renderQuestAction(q, i);
         try { await navigator.clipboard.writeText(questCaption(q)); } catch (e) { }
@@ -1452,6 +1452,17 @@ function loadLeaderboard() {
     return _lbLoadingPromise;
 }
 
+// Dipanggil tiap kali ada aksi yang nambah poin -- BUKAN cuma nandain data
+// basi, tapi langsung mulai refetch di background juga. Kalau cuma
+// di-invalidate tanpa refetch, ada jeda di mana kartu/modal "Poin Kamu"
+// baca _lbData yang udah null dan nunjukin 0 (bug nyata: abis check-in,
+// buka detail poin sempet nunjukin 0 padahal beneran udah nambah).
+function invalidateLeaderboard() {
+    _lbLoaded = false;
+    _lbData = null;
+    loadLeaderboard(); // refreshPoinCard() otomatis kepanggil pas ini kelar
+}
+
 // Kartu "Poin Kamu" di Home -- biar keliatan walau nggak masuk 5 besar
 // leaderboard (rank tab cuma nunjukin "Your rank" kalau > 5, gampang kelewat).
 function refreshPoinCard() {
@@ -1471,6 +1482,13 @@ const POIN_SOURCES = [
 ];
 
 function openPoinInfo() {
+    // Data lagi di-refetch di background (abis ada aksi yang nambah poin) --
+    // tunggu bentar biar ga nunjukin "0" yang nyesatin, baru buka beneran.
+    if (!_lbData) {
+        showBusy("Ngambil poin kamu…");
+        loadLeaderboard().then(() => { hideBusy(); openPoinInfo(); }).catch(() => hideBusy());
+        return;
+    }
     const modal = $("questModal");
     const me = _lbData && _lbData.me;
     const rows = POIN_SOURCES.map(s =>
@@ -2473,7 +2491,7 @@ function openCheckinModal(wa) {
             playSfx("check-in");
             fireConfetti("quest");
             showPointsToast("+5 poin! ✍️ Check-in tersimpan");
-            _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
+            invalidateLeaderboard(); // poin nambah -> refetch di background biar kartu/modal poin ke-update
             closeQuestModal();
             refreshCheckinUi();
             apiPost({ action: "memberCheckin", token: _profile.token, weekKey: cw.key, note: note }).then(r => {
@@ -2505,7 +2523,7 @@ function openCheckinModal(wa) {
             playSfx("check-in");
             fireConfetti("quest");
             showPointsToast("+5 poin! ✍️ Check-in tersimpan");
-            _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
+            invalidateLeaderboard(); // poin nambah -> refetch di background biar kartu/modal poin ke-update
             closeQuestModal();
             refreshCheckinUi();
         } catch (e) {
@@ -4947,7 +4965,7 @@ function openMoodTracker(modal, justPicked) {
         moodSave(today, b.dataset.mood);
         if (firstToday) {
             showPointsToast("+5 poin! 🌦️ Cuaca hati tercatat");
-            _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
+            invalidateLeaderboard(); // poin nambah -> refetch di background biar kartu/modal poin ke-update
         }
         openMoodTracker(modal, true); // re-render + hadiah Mochi nge-pop
         refreshMoodWidget();          // display cuaca di Home ikut ganti
@@ -6092,7 +6110,7 @@ async function jarSubmitEntry(e) {
         _profile.jarRecords = r.jarRecords || _profile.jarRecords;
         const hint = $("jpHint"); if (hint) hint.textContent = "Udah masukin 1 kali hari ini — balik lagi besok ya 💙";
         showPointsToast("+5 poin! 🫙 Kata tersimpan");
-        _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
+        invalidateLeaderboard(); // poin nambah -> refetch di background biar kartu/modal poin ke-update
         jarCtaRefresh();
     } catch (err) {
         hideBusy();
@@ -6310,7 +6328,7 @@ async function jnSubmitEntry(e) {
         _profile.writingRecords = r.writingRecords || _profile.writingRecords;
         fireConfetti("quest");
         showPointsToast("+5 poin! 📖 Jurnal tersimpan");
-        _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
+        invalidateLeaderboard(); // poin nambah -> refetch di background biar kartu/modal poin ke-update
         renderJournalPage(true); // buku ke-refresh, LANGSUNG kebuka di halaman catatan barunya
     } catch (err) {
         hideBusy();
@@ -8117,7 +8135,7 @@ function renderMadingModal() {
         playSfx("love", 0.6);
         fireConfetti("quest");
         showPointsToast("+5 poin! 📌 Pesan tertempel");
-        _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
+        invalidateLeaderboard(); // poin nambah -> refetch di background biar kartu/modal poin ke-update
         renderMadingModal();            // langsung kerender, pesan baru ikut animasi tempel
         renderBoard();
         apiPost({ action: "memberPostBoard", token: _profile.token, text: temp.text }).then(r => {
