@@ -5459,11 +5459,14 @@ function wireGalleryNodes(feedNodes, gridNodes) {
                 } else lastTap = now;
             });
         }
-        // tap avatar/nama di header feed -> kartu profil mini
+        // tap avatar/nama di header feed -> buku jurnal warga itu (bottom sheet),
+        // fallback ke kartu profil mini lama kalau belum punya publicId
         const wcard = card.querySelector("[data-wcard]");
         if (wcard) wcard.addEventListener("click", () => {
             const it = _galleryItems.find(x => x.id === wcard.dataset.wcard);
-            if (it) openWargaCard(it);
+            if (!it) return;
+            if (it.publicId) { openWargaBook(it.publicId); return; }
+            openWargaCard(it);
         });
     });
     gridNodes.forEach(g => g.addEventListener("click", () => {
@@ -5524,7 +5527,7 @@ function openGalleryLightbox(it) {
     const likeBtn = box.querySelector(".ig-btn-like");
     if (likeBtn) likeBtn.addEventListener("click", () => toggleLike(it.id));
     const wcHead = box.querySelector("[data-wcard]");
-    if (wcHead) wcHead.addEventListener("click", () => openWargaCard(it));
+    if (wcHead) wcHead.addEventListener("click", () => { if (it.publicId) openWargaBook(it.publicId); else openWargaCard(it); });
     const wrap = $("lbImg");
     let last = 0;
     if (wrap) wrap.addEventListener("click", () => {
@@ -8181,6 +8184,8 @@ function renderWargaBookBody(d) {
     });
 }
 
+let _wbSelfLocked = false; // true kalau KITA yang lockScroll (dibuka tanpa modal lain di belakang)
+
 async function openWargaBook(publicId) {
     if (!publicId) return;
     _wbPublicId = publicId;
@@ -8197,8 +8202,12 @@ async function openWargaBook(publicId) {
         '<button type="button" class="wb-close" id="wbClose" aria-label="Tutup">✕</button>' +
         '<div class="wb-body" id="wbBody"><div class="wb-loading"><img src="../images/sticker/str-6.png" alt="Lagi ambil buku..."></div></div></div>';
     sheet.classList.add("show");
-    // scroll udah dikunci sama story modal di belakangnya (satu-satunya jalur
-    // buka sheet ini) -- nggak perlu lockScroll lagi di sini
+    // Biasanya scroll udah dikunci sama modal di belakangnya (story, lightbox,
+    // kartu profil mini) -- tapi sheet ini sekarang juga bisa dibuka LANGSUNG
+    // dari tap avatar di feed galeri (nggak ada modal apa2 di belakang), jadi
+    // kita cek dulu: kalau belum ke-lock, kita yang lock & kita yang lepas.
+    _wbSelfLocked = document.body.style.position !== "fixed";
+    if (_wbSelfLocked) lockScroll();
     pauseStoryProgress();
     $("wbClose").addEventListener("click", closeWargaBook);
     try {
@@ -8216,7 +8225,8 @@ function closeWargaBook() {
     const sheet = $("wbSheet");
     if (sheet) sheet.classList.remove("show");
     _wbPublicId = null;
-    resumeStoryProgress(); // scroll lock biar tetep dipegang story modal (masih kebuka)
+    resumeStoryProgress();
+    if (_wbSelfLocked) { unlockScroll(); _wbSelfLocked = false; } // kalau modal lain masih kebuka di belakang, biar dia yang pegang lock-nya
 }
 
 const STORY_MAX_PER_PERSON = 10; // batas slide per orang di story bar, biar ga numpuk kalau udah banyak submit

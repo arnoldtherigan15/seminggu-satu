@@ -4116,7 +4116,7 @@
       if (view === "quest") ensureQuest();
       if (view === "activity") ensureActivity();
       if (view === "members") ensureMembers();
-      if (view === "pesanan") ensurePesanan();
+      if (view === "pesanan") ensurePesanan(event);
     }
 
     // ---------- KEUANGAN ----------
@@ -5271,11 +5271,14 @@
     let PES_CUR_BATCH = null;
     let PES_REGISTRANTS = [];
 
-    async function ensurePesanan() {
+    async function ensurePesanan(presetBatchId) {
       if (!pesananInit) {
         pesananInit = true;
         document.getElementById("pesReloadBtn").addEventListener("click", () => { loadPesBatches(); loadPesMenu(); });
-        document.getElementById("pesEventSelect").addEventListener("change", onPesEventChange);
+        document.getElementById("pesEventSelect").addEventListener("change", () => {
+          location.hash = "pesanan:" + document.getElementById("pesEventSelect").value; // biar ketahan pas refresh, sama pola kayak Prep
+          onPesEventChange();
+        });
         document.getElementById("pesVendorSaveBtn").addEventListener("click", savePesVendorWa);
         document.getElementById("pesCopyLinkBtn").addEventListener("click", () => copyToClipboard(document.getElementById("pesLinkOut").value, "pesCopyLinkBtn"));
         document.getElementById("pesCopySummaryBtn").addEventListener("click", () => copyToClipboard(document.getElementById("pesSummaryOut").value, "pesCopySummaryBtn"));
@@ -5289,6 +5292,13 @@
         loadPesVendorWa();
         await loadPesMenu();
         await loadPesBatches();
+      }
+      if (presetBatchId) {
+        const sel = document.getElementById("pesEventSelect");
+        if (sel && PES_BATCHES.some(b => b.id === presetBatchId)) {
+          sel.value = presetBatchId;
+          onPesEventChange();
+        }
       }
     }
 
@@ -5368,25 +5378,62 @@
       renderPesRegistrants();
     }
 
+    // Cari pesanan existing punya 1 registrant -- cocokin dari registrationId
+    // (link personal) ATAU dari nama (link umum / udah chat pribadi, admin
+    // pilihin manual) -- biar kedeteksi dari jalur mana pun pesanannya masuk.
+    function findPesOrderForReg(reg) {
+      const nmLower = (reg.nickname || reg.full_name || "").trim().toLowerCase();
+      return PES_ORDERS.find(o => o.registrationId === reg.id ||
+        (nmLower && o.participantName && o.participantName.trim().toLowerCase() === nmLower));
+    }
+
     function renderPesRegistrants() {
       const list = document.getElementById("pesRegList");
       const cnt = document.getElementById("pesRegCount");
       if (cnt) cnt.textContent = "(" + PES_REGISTRANTS.length + ")";
       if (!list) return;
       if (!PES_REGISTRANTS.length) { list.innerHTML = '<p class="hint">Belum ada yang daftar di batch ini.</p>'; return; }
+      const menuOpts = PES_MENU.filter(m => m.active).map(m => `<option value="${m.id}">${escapeHtml(m.name)}</option>`).join("");
       list.innerHTML = PES_REGISTRANTS.map(reg => {
         const nm = reg.nickname || reg.full_name || "Sahabat";
-        // cocokin dari registrationId (link personal) ATAU dari nama (link umum,
-        // orangnya ngetik nama sendiri) -- biar badge kedeteksi dari dua jalur
-        const nmLower = nm.toLowerCase();
-        const ordered = PES_ORDERS.some(o => o.registrationId === reg.id ||
-          (o.participantName && o.participantName.trim().toLowerCase() === nmLower));
-        return `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
-          <div style="flex:1;min-width:0;"><b>${escapeHtml(nm)}</b> ${ordered ? '<span class="loy-badge">✓ Sudah pesan</span>' : ''}</div>
-          <button class="btn btn-sm" data-sendwa="${reg.id}" style="flex-shrink:0;">💬 Kirim WA</button>
+        const existing = findPesOrderForReg(reg);
+        return `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
+          <div style="flex:1;min-width:100px;"><b>${escapeHtml(nm)}</b></div>
+          <select data-regmenu="${reg.id}" style="flex:1;min-width:150px;padding:7px 8px;border-radius:8px;border:1px solid #e5e7eb;font-family:inherit;font-size:.83rem;background:${existing ? '#eafaf0' : '#fff'};">
+            <option value="">${existing ? '— hapus pesanan —' : '— udah chat, pesen apa? —'}</option>
+            ${menuOpts}
+          </select>
+          <button class="btn btn-sm" data-sendwa="${reg.id}" style="flex-shrink:0;">💬 WA</button>
         </div>`;
       }).join("");
+      list.querySelectorAll("[data-regmenu]").forEach(sel => {
+        const reg = PES_REGISTRANTS.find(r => r.id === sel.dataset.regmenu);
+        const existing = reg ? findPesOrderForReg(reg) : null;
+        if (existing) sel.value = existing.menuItemId;
+        sel.addEventListener("change", () => savePesRegOrder(sel.dataset.regmenu, sel.value));
+      });
       list.querySelectorAll("[data-sendwa]").forEach(b => b.addEventListener("click", () => sendPesWa(b.dataset.sendwa)));
+    }
+
+    // Admin pilihin menu langsung buat 1 peserta terdaftar (dipake pas orangnya
+    // udah kasih tau pesanannya lewat chat pribadi) -- upsert: kalau dia udah
+    // punya pesanan, di-update; kosongin pilihan -> pesanannya dihapus.
+    async function savePesRegOrder(regId, menuItemId) {
+      const reg = PES_REGISTRANTS.find(r => r.id === regId);
+      const batchId = document.getElementById("pesEventSelect").value;
+      if (!reg || !batchId) return;
+      const nm = reg.nickname || reg.full_name || "Sahabat";
+      const existing = findPesOrderForReg(reg);
+      if (!menuItemId) {
+        if (existing) await api("deleteOrder", { token: getToken(), id: existing.id });
+        await loadPesOrders();
+        return;
+      }
+      await api("saveOrder", {
+        token: getToken(), id: existing ? existing.id : "", batchId,
+        registrationId: regId, participantName: nm, menuItemId,
+      });
+      await loadPesOrders();
     }
 
     function sendPesWa(regId) {
@@ -5991,6 +6038,9 @@
       // 1) Peserta (accordion)
       cont.appendChild(buildParticipantsAccordion());
 
+      // 1b) Pesanan minum/makan (ringkasan, link ke tab Pesanan buat kelola lengkap)
+      cont.appendChild(buildPesananAccordion());
+
       // 2) Section prep (accordion)
       PREP_SECTIONS.forEach(sec => {
         if (!Array.isArray(PREP[sec.type])) PREP[sec.type] = [];
@@ -6002,6 +6052,55 @@
       cont.appendChild(buildRichNoteAccordion());
 
       loadPrepParticipants();
+      loadPrepPesananSummary();
+    }
+
+    // ---- Ringkasan Pesanan minum/makan di dalam Prep (batch aktif workshop
+    // yang lagi dipilih) -- kelola lengkap (CRUD, link personal, dst) tetep
+    // di tab Pesanan sendiri, ini cuma cuplikan biar Arnold ga perlu pindah tab. ----
+    function buildPesananAccordion() {
+      const acc = document.createElement("div");
+      acc.className = "acc";
+      acc.innerHTML =
+        `<button class="acc-head" type="button">
+           <span class="acc-title">🥤 Pesanan Minum/Makan <span class="acc-count" id="prepPesananCount">…</span></span>
+           <span class="acc-chevron">▸</span>
+         </button>
+         <div class="acc-body">
+           <div id="prepPesananBody"><p class="hint">Memuat...</p></div>
+           <button class="btn btn-sm" id="prepPesananGoBtn" style="margin-top:10px;display:none;">Kelola Pesanan Lengkap →</button>
+         </div>`;
+      acc.querySelector(".acc-head").addEventListener("click", () => acc.classList.toggle("open"));
+      return acc;
+    }
+
+    async function loadPrepPesananSummary() {
+      const body = document.getElementById("prepPesananBody");
+      const cnt = document.getElementById("prepPesananCount");
+      const goBtn = document.getElementById("prepPesananGoBtn");
+      if (!body) return;
+      const workshop = document.getElementById("prepSelect").value;
+      try {
+        // reuse getRegistrations -- dia udah resolve batch AKTIF buat workshop ini di server
+        const r = await api("getRegistrations", { token: getToken(), workshop });
+        const batchId = r && r.batchId;
+        if (!batchId) { body.innerHTML = '<p class="hint">Belum ada batch aktif buat workshop ini.</p>'; if (cnt) cnt.textContent = ""; return; }
+        if (goBtn) { goBtn.style.display = "inline-flex"; goBtn.onclick = () => { location.hash = "pesanan:" + batchId; }; }
+        const [ordersR, menuR] = await Promise.all([
+          api("listOrders", { token: getToken(), batchId }),
+          api("listMenuItems", { token: getToken() }),
+        ]);
+        const orders = (ordersR && ordersR.orders) || [];
+        const menu = (menuR && menuR.items) || [];
+        if (cnt) cnt.textContent = "(" + orders.length + ")";
+        if (!orders.length) { body.innerHTML = '<p class="hint">Belum ada pesanan masuk buat batch aktif ini.</p>'; return; }
+        const byMenu = {};
+        orders.forEach(o => { if (!byMenu[o.menuItemId]) byMenu[o.menuItemId] = 0; byMenu[o.menuItemId]++; });
+        const rowsHtml = menu.filter(m => byMenu[m.id]).map(m =>
+          `<div style="display:flex;justify-content:space-between;padding:5px 2px;border-bottom:1px solid #f1f3f6;"><span>${escapeHtml(m.name)}</span><b>${byMenu[m.id]}</b></div>`
+        ).join("");
+        body.innerHTML = rowsHtml || '<p class="hint">Belum ada pesanan masuk.</p>';
+      } catch (e) { body.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
     }
 
     function buildRichNoteAccordion() {

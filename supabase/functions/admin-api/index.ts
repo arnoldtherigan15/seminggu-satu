@@ -525,14 +525,21 @@ Deno.serve(async (req) => {
         const participantName = String(data.participantName || "").trim().slice(0, 60);
         const menuItemId = String(data.menuItemId || "");
         const id = String(data.id || "").trim();
+        const registrationId = String(data.registrationId || "").trim() || null;
         if (!participantName || !menuItemId) return errorResponse("Nama & menu wajib diisi.");
         if (id) {
-          const { error } = await admin.from("event_orders").update({ participant_name: participantName, menu_item_id: menuItemId }).eq("id", id);
+          // registrationId cuma di-apply kalau eksplisit dikirim (dari picker inline
+          // di daftar peserta) -- form edit teks-bebas nggak ngirim ini, jangan sampe
+          // nge-null-in link yang udah ada cuma gara-gara edit dari form itu.
+          // deno-lint-ignore no-explicit-any
+          const patch: Record<string, any> = { participant_name: participantName, menu_item_id: menuItemId };
+          if (registrationId) patch.registration_id = registrationId;
+          const { error } = await admin.from("event_orders").update(patch).eq("id", id);
           if (error) return errorResponse("Pesanan tidak ditemukan.");
           return jsonResponse({ status: "success", message: "Pesanan diperbarui." });
         }
         if (!batchId) return errorResponse("Event belum dipilih.");
-        const { error: ordErr } = await admin.from("event_orders").insert({ batch_id: batchId, participant_name: participantName, menu_item_id: menuItemId });
+        const { error: ordErr } = await admin.from("event_orders").insert({ batch_id: batchId, participant_name: participantName, menu_item_id: menuItemId, registration_id: registrationId });
         if (ordErr) return errorResponse("Gagal simpan: " + ordErr.message);
         return jsonResponse({ status: "success", message: "Pesanan ditambahkan." });
       }
