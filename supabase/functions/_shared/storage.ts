@@ -13,6 +13,22 @@ import { SupabaseClient } from "npm:@supabase/supabase-js@2";
 // ke Storage). Semua Edge Function di sini udah bungkus logic-nya pake
 // try/catch di level atas yang balikin errorResponse(), jadi throw di sini
 // otomatis muncul jadi pesan error yang jujur ke caller manapun.
+
+// Prefix nama file sering diisi teks bebas manusia (judul challenge, nama
+// workshop, dst) yang bisa ada spasi/emoji/tanda baca -- Storage nolak
+// ("Invalid key") kalau dipake mentah-mentah di path. Bersihin ke karakter
+// aman aja; fallback "file" kalau abis dibersihin nggak nyisa apa-apa
+// (mis. judulnya emoji doang).
+function safeKeyPart(s: string): string {
+  const cleaned = s
+    .normalize("NFKD").replace(/[\u0300-\u036f]/g, "") // lepas diakritik (é -> e)
+    .replace(/[^\w-]+/g, "-")   // apa aja selain huruf/angka/_/- -> "-" (termasuk emoji, spasi)
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80);
+  return cleaned || "file";
+}
+
 export async function uploadBase64(
   admin: SupabaseClient,
   bucket: string,
@@ -24,7 +40,7 @@ export async function uploadBase64(
   const type = mime === "image/webp" ? "image/webp" : "image/jpeg";
   const ext = type === "image/webp" ? "webp" : "jpg";
   const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-  const path = `${fileNamePrefix}-${crypto.randomUUID()}.${ext}`;
+  const path = `${safeKeyPart(fileNamePrefix)}-${crypto.randomUUID()}.${ext}`;
 
   const { error } = await admin.storage.from(bucket).upload(path, bytes, {
     contentType: type,
