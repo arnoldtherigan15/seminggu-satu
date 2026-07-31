@@ -8,7 +8,7 @@ import { waKey } from "../_shared/auth.ts";
 import { uploadBase64 } from "../_shared/storage.ts";
 import { getConfigValue, setConfigValue } from "../_shared/config.ts";
 import { adminLogin, requireAdminAuth } from "../_shared/admin-auth.ts";
-import { loyaltyMembers, questPointsMap, memberNickMap } from "../_shared/queries.ts";
+import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
 
 const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date"];
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
@@ -228,9 +228,10 @@ Deno.serve(async (req) => {
       case "getLeaderboard": {
         const members = await loyaltyMembers(admin);
         const qp = await questPointsMap(admin);
+        const ep = await extraPointsMap(admin);
         const nickMap = await memberNickMap(admin);
         const scored = members
-          .map((m) => ({ key: m.key, nickname: nickMap[m.key] || m.nickname || m.fullName || "Sahabat", events: m.count, quests: m.questCount, poin: qp[m.key] || 0 }))
+          .map((m) => ({ key: m.key, nickname: nickMap[m.key] || m.nickname || m.fullName || "Sahabat", events: m.count, quests: m.questCount, poin: (qp[m.key] || 0) + (ep[m.key] || 0) }))
           .filter((x) => x.poin > 0)
           .sort((a, b) => b.poin - a.poin || b.events - a.events);
         const top = scored.slice(0, 50).map((x, i) => ({ rank: i + 1, nickname: x.nickname, poin: x.poin, events: x.events, quests: x.quests }));

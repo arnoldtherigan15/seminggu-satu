@@ -214,7 +214,7 @@ function fnGet(name, qs, timeoutMs) {
         headers: { apikey: SUPABASE_ANON_KEY },
         signal: controller.signal
     }).then(res => { clearTimeout(timer); return res.json(); })
-      .catch(err => { clearTimeout(timer); throw err; });
+        .catch(err => { clearTimeout(timer); throw err; });
 }
 function restGet(path, timeoutMs) {
     const controller = new AbortController();
@@ -223,7 +223,7 @@ function restGet(path, timeoutMs) {
         headers: { apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY },
         signal: controller.signal
     }).then(res => { clearTimeout(timer); return res.json(); })
-      .catch(err => { clearTimeout(timer); throw err; });
+        .catch(err => { clearTimeout(timer); throw err; });
 }
 
 const MEMBER_ACTION_FN = {
@@ -437,6 +437,28 @@ function fireConfetti(preset) {
     } else if (preset === "love") {
         confetti({ particleCount: 45, spread: 55, scalar: 0.9, startVelocity: 32, origin: { y: 0.7 }, colors: ['#ff2d55', '#ff6b8a', '#ffb3c1', '#ffe600'], zIndex: CONFETTI_Z });
     }
+}
+
+// ---------- Toast poin: feedback instan tiap dapet +5 poin leaderboard ----------
+// Reinforcement langsung > delayed (poin baru "kerasa" beneran kalau leaderboard
+// dibuka nanti) -- umpan balik seketika jauh lebih nempel buat nguatin kebiasaan
+// (operant conditioning, immediate > delayed reward). Dipasang di 4 aksi yang
+// dapet +5 poin: check-in mingguan, isi Jar, isi Jurnal Bulanan, kirim pesan Mading.
+let _ptToastTimer = null;
+function showPointsToast(msg) {
+    let el = $("ptToast");
+    if (!el) {
+        el = document.createElement("div");
+        el.id = "ptToast";
+        el.className = "pt-toast";
+        document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.remove("show");
+    void el.offsetWidth; // restart animasi kalau toast sebelumnya masih jalan
+    el.classList.add("show");
+    clearTimeout(_ptToastTimer);
+    _ptToastTimer = setTimeout(() => el.classList.remove("show"), 2200);
 }
 
 function onAuthSuccess(r) {
@@ -1255,6 +1277,7 @@ async function submitQuest(q, i, action) {
         const cell = $("questGrid") && $("questGrid").querySelector('[data-i="' + i + '"]');
         if (cell) cell.classList.add("done");
         _galleryLoaded = false;
+        _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
         if (typeof _qbRefresh === "function") _qbRefresh(); // sinkron halaman Quest Book
         renderQuestAction(q, i);
         try { await navigator.clipboard.writeText(questCaption(q)); } catch (e) { }
@@ -1290,131 +1313,186 @@ async function editQuestPhoto(q, i, box) {
 // ---------- Leaderboard pane ----------
 let _lbLoaded = false;
 let _lbData = null;      // { top, me, topEvents } — dipakai juga buat My Summary (wrapped)
-async function loadLeaderboard() {
-    if (_lbLoaded) return;
-    _lbLoaded = true;
+// _lbLoaded cuma jadi true SETELAH data beneran nyampe -- _lbLoadingPromise
+// nampung fetch yang lagi jalan biar caller yang manggil bebarengan (prefetch
+// vs kartu "Poin Kamu" di Home) ikut nunggu hasil yang SAMA, bukan dapet
+// resolve kosong duluan (bug nyata: kartu poin sempet ke-stuck di 0 padahal
+// datanya lagi otw -- sama persis kelas bug yang pernah kejadian di galeri).
+let _lbLoadingPromise = null;
+function loadLeaderboard() {
+    if (_lbLoaded) return Promise.resolve();
+    if (_lbLoadingPromise) return _lbLoadingPromise;
     const loading = $("lbLoading"), content = $("lbContent");
     loading.style.display = "none"; content.innerHTML = skeletonRank();
-    let data = { top: [], me: null };
-    try {
-        data = await fnGet("leaderboard", "wa=" + encodeURIComponent(_profile.wa), 20000);
-    } catch (e) {
+    _lbLoadingPromise = (async () => {
+        let data = { top: [], me: null };
+        try {
+            data = await fnGet("leaderboard", "wa=" + encodeURIComponent(_profile.wa), 20000);
+        } catch (e) {
+            loading.style.display = "none";
+            _lbLoadingPromise = null;
+            renderError(content, loadLeaderboard);
+            return;
+        }
         loading.style.display = "none";
-        _lbLoaded = false;
-        renderError(content, loadLeaderboard);
-        return;
-    }
-    loading.style.display = "none";
-    _lbData = data;
-    const top = (data && data.top) || [];
-    const me = (data && data.me) || null;
-    const topEvents = (data && data.topEvents) || [];
-    if (!top.length && !topEvents.length) {
-        content.innerHTML = '<div class="placeholder"><div class="em">🏆</div><h3>Belum ada peringkat</h3><p>Ikut challenge buat ngumpulin poin & masuk papan peringkat! ⚡</p></div>';
-        return;
-    }
+        _lbData = data;
+        _lbLoaded = true;
+        _lbLoadingPromise = null;
+        refreshPoinCard(); // kartu "Poin Kamu" di Home ikut ke-update begitu data beneran nyampe
+        const top = (data && data.top) || [];
+        const me = (data && data.me) || null;
+        const topEvents = (data && data.topEvents) || [];
+        if (!top.length && !topEvents.length) {
+            content.innerHTML = '<div class="placeholder"><div class="em">🏆</div><h3>Belum ada peringkat</h3><p>Ikut challenge buat ngumpulin poin & masuk papan peringkat! ⚡</p></div>';
+            return;
+        }
 
-    // ---- Board 1: Challenge Champions (biru) ----
-    let chHtml;
-    if (!top.length) {
-        chHtml = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada poin challenge</h3><p>Ikut challenge buat masuk papan peringkat!</p></div>';
-    } else {
-        const top5 = top.slice(0, 5);
-        let rows = "";
-        top5.forEach(x => {
-            const isMe = me && x.rank === me.rank && x.nickname === me.nickname;
-            const pts = '<div class="rank-pts"><b>' + x.poin + '</b> pts</div>';
-            if (x.rank === 1) {
-                // Juara 1 = kartu stiker emas + crown
-                rows += '<div class="rank-item top1' + (isMe ? ' me' : '') + '">' +
-                    '<span class="rank-num gold">1</span>' +
-                    '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span>' +
-                    '<span class="rank-tag">Top Crafter</span></div>' +
-                    '<span class="rank-crown">👑</span>' + pts + '</div>';
-            } else {
-                const numCls = x.rank === 2 ? " silver" : (x.rank === 3 ? " bronze" : "");
-                rows += '<div class="rank-item glass' + (isMe ? ' me' : '') + '">' +
-                    '<span class="rank-num' + numCls + '">' + x.rank + '</span>' +
-                    '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span></div>' + pts + '</div>';
-            }
-        });
-        const meBox = (me && me.rank > 5)
-            ? '<div class="lb-me">Your rank: #' + me.rank + ' of ' + me.total + ' · ' + me.poin + ' pts ⚡</div>'
-            : '';
-        chHtml =
-            '<div class="lb-card" id="lbCard">' +
-            '<div class="lb-tape"></div>' +
-            '<div class="lb-clip">📎</div>' +
-            '<header class="lb-header">' +
-            '<div class="lb-badge">LEADERBOARD</div>' +
-            '<h2>Challenge Champions</h2>' +
-            '<p>Points from journaling challenge ⚡</p>' +
-            '</header>' +
-            '<div class="lb-list">' + rows + '</div>' +
-            meBox +
-            '<div class="lb-foot">@seminggu_satu</div>' +
+        // ---- Board 1: Challenge Champions (biru) ----
+        let chHtml;
+        if (!top.length) {
+            chHtml = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada poin challenge</h3><p>Ikut challenge buat masuk papan peringkat!</p></div>';
+        } else {
+            const top5 = top.slice(0, 5);
+            let rows = "";
+            top5.forEach(x => {
+                const isMe = me && x.rank === me.rank && x.nickname === me.nickname;
+                const pts = '<div class="rank-pts"><b>' + x.poin + '</b> pts</div>';
+                if (x.rank === 1) {
+                    // Juara 1 = kartu stiker emas + crown
+                    rows += '<div class="rank-item top1' + (isMe ? ' me' : '') + '">' +
+                        '<span class="rank-num gold">1</span>' +
+                        '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span>' +
+                        '<span class="rank-tag">Top Crafter</span></div>' +
+                        '<span class="rank-crown">👑</span>' + pts + '</div>';
+                } else {
+                    const numCls = x.rank === 2 ? " silver" : (x.rank === 3 ? " bronze" : "");
+                    rows += '<div class="rank-item glass' + (isMe ? ' me' : '') + '">' +
+                        '<span class="rank-num' + numCls + '">' + x.rank + '</span>' +
+                        '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span></div>' + pts + '</div>';
+                }
+            });
+            const meBox = (me && me.rank > 5)
+                ? '<div class="lb-me">Your rank: #' + me.rank + ' of ' + me.total + ' · ' + me.poin + ' pts ⚡</div>'
+                : '';
+            chHtml =
+                '<div class="lb-card" id="lbCard">' +
+                '<div class="lb-tape"></div>' +
+                '<div class="lb-clip">📎</div>' +
+                '<header class="lb-header">' +
+                '<div class="lb-badge">LEADERBOARD</div>' +
+                '<h2>Challenge Champions</h2>' +
+                '<p>Points from journaling challenge ⚡</p>' +
+                '</header>' +
+                '<div class="lb-list">' + rows + '</div>' +
+                meBox +
+                '<div class="lb-foot">@seminggu_satu</div>' +
+                '</div>' +
+                '<button class="wrapped-btn" id="lbWrapped"><span class="wr-btn-tape"></span>🎁 My Summary ✨</button>' +
+                '<button class="share-ig-btn" id="lbShare">' + ICON_CAMERA + ' Share to IG Story</button>';
+        }
+
+        // ---- Board 2: Top 5 Teman Jurnal (kuning dominan, aksen biru) ----
+        let tjHtml;
+        if (!topEvents.length) {
+            tjHtml = '<div class="placeholder"><div class="em">💛</div><h3>Belum ada data</h3><p>Ikut event buat masuk Top 5 Teman Jurnal!</p></div>';
+        } else {
+            let tjRows = "";
+            topEvents.forEach(x => {
+                const cnt = '<div class="rank-pts"><b>' + x.events + '</b>×</div>';
+                if (x.rank === 1) {
+                    tjRows += '<div class="rank-item tj1' + (x.me ? ' me' : '') + '">' +
+                        '<span class="rank-num gold">1</span>' +
+                        '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span>' +
+                        '<span class="rank-tag tj-tag">Paling Setia</span></div>' +
+                        '<span class="rank-crown">👑</span>' + cnt + '</div>';
+                } else {
+                    const numCls = x.rank === 2 ? " silver" : (x.rank === 3 ? " bronze" : "");
+                    tjRows += '<div class="rank-item tjrow' + (x.me ? ' me' : '') + '">' +
+                        '<span class="rank-num' + numCls + '">' + x.rank + '</span>' +
+                        '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span></div>' + cnt + '</div>';
+                }
+            });
+            tjHtml =
+                '<div class="tj-card" id="tjCard">' +
+                '<div class="lb-tape tj-tape"></div>' +
+                '<div class="lb-clip">✂️</div>' +
+                '<header class="lb-header tj-header">' +
+                '<div class="lb-badge tj-badge">TOP 5</div>' +
+                '<h2>Teman Jurnal</h2>' +
+                '<p>Paling sering journaling bareng kita ✨</p>' +
+                '</header>' +
+                '<div class="lb-list">' + tjRows + '</div>' +
+                '<div class="lb-foot tj-foot">@seminggu_satu</div>' +
+                '</div>' +
+                '<button class="share-ig-btn" id="tjShare">' + ICON_CAMERA + ' Share to IG Story</button>';
+        }
+
+        content.innerHTML =
+            '<div class="lb-switch">' +
+            '<button class="gchip active" data-board="ch">🏆 Challenge</button>' +
+            '<button class="gchip" data-board="tj">💛 Teman Jurnal</button>' +
             '</div>' +
-            '<button class="wrapped-btn" id="lbWrapped"><span class="wr-btn-tape"></span>🎁 My Summary ✨</button>' +
-            '<button class="share-ig-btn" id="lbShare">' + ICON_CAMERA + ' Share to IG Story</button>';
-    }
+            '<div id="boardCh">' + chHtml + '</div>' +
+            '<div id="boardTj" style="display:none;">' + tjHtml + '</div>';
 
-    // ---- Board 2: Top 5 Teman Jurnal (kuning dominan, aksen biru) ----
-    let tjHtml;
-    if (!topEvents.length) {
-        tjHtml = '<div class="placeholder"><div class="em">💛</div><h3>Belum ada data</h3><p>Ikut event buat masuk Top 5 Teman Jurnal!</p></div>';
-    } else {
-        let tjRows = "";
-        topEvents.forEach(x => {
-            const cnt = '<div class="rank-pts"><b>' + x.events + '</b>×</div>';
-            if (x.rank === 1) {
-                tjRows += '<div class="rank-item tj1' + (x.me ? ' me' : '') + '">' +
-                    '<span class="rank-num gold">1</span>' +
-                    '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span>' +
-                    '<span class="rank-tag tj-tag">Paling Setia</span></div>' +
-                    '<span class="rank-crown">👑</span>' + cnt + '</div>';
-            } else {
-                const numCls = x.rank === 2 ? " silver" : (x.rank === 3 ? " bronze" : "");
-                tjRows += '<div class="rank-item tjrow' + (x.me ? ' me' : '') + '">' +
-                    '<span class="rank-num' + numCls + '">' + x.rank + '</span>' +
-                    '<div class="rank-info"><span class="rank-name">' + esc(x.nickname) + '</span></div>' + cnt + '</div>';
-            }
-        });
-        tjHtml =
-            '<div class="tj-card" id="tjCard">' +
-            '<div class="lb-tape tj-tape"></div>' +
-            '<div class="lb-clip">✂️</div>' +
-            '<header class="lb-header tj-header">' +
-            '<div class="lb-badge tj-badge">TOP 5</div>' +
-            '<h2>Teman Jurnal</h2>' +
-            '<p>Paling sering journaling bareng kita ✨</p>' +
-            '</header>' +
-            '<div class="lb-list">' + tjRows + '</div>' +
-            '<div class="lb-foot tj-foot">@seminggu_satu</div>' +
-            '</div>' +
-            '<button class="share-ig-btn" id="tjShare">' + ICON_CAMERA + ' Share to IG Story</button>';
-    }
+        // Switch board (default: Challenge) -> cuma satu tombol share yang tampil
+        content.querySelectorAll(".lb-switch .gchip").forEach(c => c.addEventListener("click", () => {
+            content.querySelectorAll(".lb-switch .gchip").forEach(x => x.classList.remove("active"));
+            c.classList.add("active");
+            $("boardCh").style.display = (c.dataset.board === "ch") ? "" : "none";
+            $("boardTj").style.display = (c.dataset.board === "tj") ? "" : "none";
+        }));
+        const shareBtn = $("lbShare");
+        if (shareBtn) shareBtn.addEventListener("click", shareLeaderboard);
+        const tjBtn = $("tjShare");
+        if (tjBtn) tjBtn.addEventListener("click", shareTopJurnal);
+        const wrBtn = $("lbWrapped");
+        if (wrBtn) wrBtn.addEventListener("click", openWrapped);
+    })();
+    return _lbLoadingPromise;
+}
 
-    content.innerHTML =
-        '<div class="lb-switch">' +
-        '<button class="gchip active" data-board="ch">🏆 Challenge</button>' +
-        '<button class="gchip" data-board="tj">💛 Teman Jurnal</button>' +
+// Kartu "Poin Kamu" di Home -- biar keliatan walau nggak masuk 5 besar
+// leaderboard (rank tab cuma nunjukin "Your rank" kalau > 5, gampang kelewat).
+function refreshPoinCard() {
+    const el = $("poinVal");
+    if (!el) return;
+    const me = _lbData && _lbData.me;
+    el.textContent = me ? me.poin : "0";
+}
+
+const POIN_SOURCES = [
+    { ic: "🎯", t: "Ikut Challenge", d: "Poinnya beda-beda tiap challenge" },
+    { ic: "✍️", t: "Check-in mingguan", d: "+5 poin" },
+    { ic: "🫙", t: "Isi Gratitude Jar", d: "+5 poin" },
+    { ic: "📖", t: "Isi Jurnal Bulanan", d: "+5 poin" },
+    { ic: "📌", t: "Kirim pesan di Mading", d: "+5 poin" },
+];
+
+function openPoinInfo() {
+    const modal = $("questModal");
+    const me = _lbData && _lbData.me;
+    const rows = POIN_SOURCES.map(s =>
+        '<div class="pi-row"><span class="pi-ic">' + s.ic + '</span><div class="pi-b"><b>' + esc(s.t) + '</b><span>' + esc(s.d) + '</span></div></div>'
+    ).join("");
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="qm-body">' +
+        '<div class="quest-game-title">🏆 Poin Kamu</div>' +
+        '<div class="pi-hero">' +
+        '<img class="pi-stk pi-stk-a" src="../images/sticker/str-9.png" alt="">' +
+        '<img class="pi-stk pi-stk-b" src="../images/sticker/str-1.png" alt="">' +
+        '<div class="pi-total">' + (me ? me.poin : "0") + '<span>poin</span></div>' +
+        (me && me.rank ? '<div class="pi-rank">Peringkat #' + me.rank + ' dari ' + me.total + ' warga</div>' : '') +
         '</div>' +
-        '<div id="boardCh">' + chHtml + '</div>' +
-        '<div id="boardTj" style="display:none;">' + tjHtml + '</div>';
-
-    // Switch board (default: Challenge) -> cuma satu tombol share yang tampil
-    content.querySelectorAll(".lb-switch .gchip").forEach(c => c.addEventListener("click", () => {
-        content.querySelectorAll(".lb-switch .gchip").forEach(x => x.classList.remove("active"));
-        c.classList.add("active");
-        $("boardCh").style.display = (c.dataset.board === "ch") ? "" : "none";
-        $("boardTj").style.display = (c.dataset.board === "tj") ? "" : "none";
-    }));
-    const shareBtn = $("lbShare");
-    if (shareBtn) shareBtn.addEventListener("click", shareLeaderboard);
-    const tjBtn = $("tjShare");
-    if (tjBtn) tjBtn.addEventListener("click", shareTopJurnal);
-    const wrBtn = $("lbWrapped");
-    if (wrBtn) wrBtn.addEventListener("click", openWrapped);
+        '<div class="quest-game-desc" style="margin-bottom:.7rem;">Cara nambah poin:</div>' +
+        '<div class="pi-list">' + rows + '</div>' +
+        '<button type="button" class="btn-primary" id="piGoRank" style="margin-top:16px;">Lihat Leaderboard Lengkap →</button>' +
+        '</div>';
+    modal.classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+    $("piGoRank").addEventListener("click", () => { closeQuestModal(); location.hash = "rank"; });
 }
 
 async function shareTopJurnal() {
@@ -1842,15 +1920,15 @@ function pspBlankPageHtml() {
 // nggak acak tiap render) + emoji kecil biar kerasa scrapbook.
 const PSP_STK = [
     ['<img class="psp-vstk" src="../images/sticker/str-1.png" style="bottom:10px;right:6px;width:46px;transform:rotate(10deg);" alt="">',
-     '<span class="psp-vemo" style="top:34px;left:6px;transform:rotate(-12deg);">✨</span>'],
+        '<span class="psp-vemo" style="top:34px;left:6px;transform:rotate(-12deg);">✨</span>'],
     ['<img class="psp-vstk" src="../images/sticker/str-2.png" style="bottom:12px;left:6px;width:44px;transform:rotate(-9deg);" alt="">',
-     '<span class="psp-vemo" style="top:38px;right:8px;transform:rotate(10deg);">🌈</span>'],
+        '<span class="psp-vemo" style="top:38px;right:8px;transform:rotate(10deg);">🌈</span>'],
     ['<img class="psp-vstk" src="../images/sticker/str-4.png" style="bottom:10px;right:8px;width:44px;transform:rotate(8deg);" alt="">',
-     '<span class="psp-vemo" style="top:36px;left:8px;transform:rotate(-8deg);">🌱</span>'],
+        '<span class="psp-vemo" style="top:36px;left:8px;transform:rotate(-8deg);">🌱</span>'],
     ['<img class="psp-vstk" src="../images/sticker/str-7.png" style="bottom:12px;left:8px;width:46px;transform:rotate(-7deg);" alt="">',
-     '<span class="psp-vemo" style="top:34px;right:6px;transform:rotate(12deg);">💌</span>'],
+        '<span class="psp-vemo" style="top:34px;right:6px;transform:rotate(12deg);">💌</span>'],
     ['<img class="psp-vstk" src="../images/sticker/str-11.png" style="bottom:10px;right:6px;width:44px;transform:rotate(9deg);" alt="">',
-     '<span class="psp-vemo" style="top:38px;left:6px;transform:rotate(-10deg);">🎈</span>']
+        '<span class="psp-vemo" style="top:38px;left:6px;transform:rotate(-10deg);">🎈</span>']
 ];
 
 function pspVisaPageHtml(evs, start, pageNo) {
@@ -2306,12 +2384,12 @@ function renderJournalTrackerHtml(wa) {
     const polaCap = currentNote ? '"' + esc(currentNote) + '"' : 'Minggu ke-' + currentWeekNum + ' kelar ✍️';
     const photoHtml = currRec.photo
         ? '<button type="button" class="jt-photo-toggle" id="jtPhotoToggle" aria-expanded="false">' +
-          '<span>📸 Memori minggu ini</span><span class="jt-chev">▾</span></button>' +
-          '<div class="jt-photo-wrap" id="jtPhotoWrap"><div class="jt-pola">' +
-          '<span class="jt-pola-tape"></span>' +
-          '<img src="' + esc(driveThumb(currRec.photo)) + '" alt="" loading="lazy" decoding="async">' +
-          '<div class="jt-pola-cap">' + polaCap + '<span class="jt-pola-date">' + esc(currMonthWeek.monthName) + ' · Week ' + currentWeekNum + '</span></div>' +
-          '</div></div>'
+        '<span>📸 Memori minggu ini</span><span class="jt-chev">▾</span></button>' +
+        '<div class="jt-photo-wrap" id="jtPhotoWrap"><div class="jt-pola">' +
+        '<span class="jt-pola-tape"></span>' +
+        '<img src="' + esc(driveThumb(currRec.photo)) + '" alt="" loading="lazy" decoding="async">' +
+        '<div class="jt-pola-cap">' + polaCap + '<span class="jt-pola-date">' + esc(currMonthWeek.monthName) + ' · Week ' + currentWeekNum + '</span></div>' +
+        '</div></div>'
         : '';
 
     return (
@@ -2393,6 +2471,8 @@ function openCheckinModal(wa) {
             pushTagCheckin(cw.key);
             playSfx("check-in");
             fireConfetti("quest");
+            showPointsToast("+5 poin! ✍️ Check-in tersimpan");
+            _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
             closeQuestModal();
             refreshCheckinUi();
             apiPost({ action: "memberCheckin", token: _profile.token, weekKey: cw.key, note: note }).then(r => {
@@ -2423,6 +2503,8 @@ function openCheckinModal(wa) {
             pushTagCheckin(cw.key); // jangan kirimi reminder mingguan lagi
             playSfx("check-in");
             fireConfetti("quest");
+            showPointsToast("+5 poin! ✍️ Check-in tersimpan");
+            _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
             closeQuestModal();
             refreshCheckinUi();
         } catch (e) {
@@ -2906,6 +2988,9 @@ async function loadLoyalty() {
             '</button>' +
             '</div>' +
             cardHtml +
+            '<button type="button" class="scard-wide" id="scardPoin">' +
+            '<div class="scard-wide-l"><b id="poinVal">' + ((_lbData && _lbData.me) ? _lbData.me.poin : "\u2026") + '</b><span>Poin Kamu</span></div>' +
+            '<span class="scard-go">Get more points \u2192</span></button>' +
             '<div class="stat-cards">' +
             '<button type="button" class="scard" id="scardEvents"><b>' + count + '</b><span>Events Joined</span><span class="scard-go">lihat \u2192</span></button>' +
             '<button type="button" class="scard" id="scardQuests"><b>' + (d.questCount || 0) + '</b><span>Challenges</span><span class="scard-go">karyaku \u2192</span></button>' +
@@ -2932,6 +3017,8 @@ async function loadLoyalty() {
         }).catch(() => { }); // kotak surat bulanan Mochi
         const rc = $("recapCard");
         if (rc) rc.addEventListener("click", openMonthlyRecap);
+        $("scardPoin").addEventListener("click", openPoinInfo);
+        loadLeaderboard().then(refreshPoinCard).catch(() => { }); // udah ada di prefetch biasanya, ini cuma jaga2 + biar angkanya keisi begitu nyampe
         $("scardEvents").addEventListener("click", openEventLog);
         $("scardQuests").addEventListener("click", async () => {
             // buka story karya sendiri (kayak nge-tap avatar sendiri di story bar)
@@ -3487,7 +3574,7 @@ function openProfileEditor() {
         '<textarea id="peBio" maxlength="160" rows="3" placeholder="Ceritain dikit tentang kamu… (max 160)">' + esc(_profile.bio || "") + '</textarea></div>' +
         (_profile.publicId
             ? '<button type="button" class="st-copylink" id="peCopyLink" style="margin-top:12px;">🔗 Salin link profil publikku</button>' +
-              (_profile.publicOptIn === "1" ? '' : '<div class="st-hint" style="text-align:left;">Profilmu masih <b>sembunyi</b> dari halaman publik — nyalain "🌍 Profil Publik" di Pengaturan dulu biar link-nya bisa dibuka orang.</div>')
+            (_profile.publicOptIn === "1" ? '' : '<div class="st-hint" style="text-align:left;">Profilmu masih <b>sembunyi</b> dari halaman publik — nyalain "🌍 Profil Publik" di Pengaturan dulu biar link-nya bisa dibuka orang.</div>')
             : '') +
         '<button class="btn-primary" id="peSave" style="margin-top:14px;">💾 Simpan Profil</button>' +
         '</div>';
@@ -5052,10 +5139,10 @@ function renderMochiEnvelope(modal, list, mode) {
         const switchable = isMyBirthdayToday(); // bisa bolak-balik dua surat
         $("mpActions").innerHTML = bday
             ? '<button class="mp-btn ghost" id="mpVoucher">🎁 Voucher Ultah</button>' +
-              (switchable ? '<button class="mp-btn" id="mpSwitch">✍️ Baca Prompt Harian</button>' : '')
+            (switchable ? '<button class="mp-btn" id="mpSwitch">✍️ Baca Prompt Harian</button>' : '')
             : '<button class="mp-btn ghost" id="mpCopy">📋 Salin</button>' +
-              '<button class="mp-btn" id="mpRandom">🎲 Prompt acak lainnya</button>' +
-              (switchable ? '<button class="mp-btn bday-btn" id="mpSwitch" style="flex:1 1 100%;">🎂 Baca Surat Ultah</button>' : '');
+            '<button class="mp-btn" id="mpRandom">🎲 Prompt acak lainnya</button>' +
+            (switchable ? '<button class="mp-btn bday-btn" id="mpSwitch" style="flex:1 1 100%;">🎂 Baca Surat Ultah</button>' : '');
         const sw = $("mpSwitch");
         if (sw) sw.addEventListener("click", () => renderMochiEnvelope(modal, list, bday ? "prompt" : "bday"));
         const vc = $("mpVoucher");
@@ -6006,6 +6093,8 @@ async function jarSubmitEntry(e) {
         }
         _profile.jarRecords = r.jarRecords || _profile.jarRecords;
         const hint = $("jpHint"); if (hint) hint.textContent = "Udah masukin 1 kali hari ini — balik lagi besok ya 💙";
+        showPointsToast("+5 poin! 🫙 Kata tersimpan");
+        _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
         jarCtaRefresh();
     } catch (err) {
         hideBusy();
@@ -6222,6 +6311,8 @@ async function jnSubmitEntry(e) {
         }
         _profile.writingRecords = r.writingRecords || _profile.writingRecords;
         fireConfetti("quest");
+        showPointsToast("+5 poin! 📖 Jurnal tersimpan");
+        _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
         renderJournalPage(true); // buku ke-refresh, LANGSUNG kebuka di halaman catatan barunya
     } catch (err) {
         hideBusy();
@@ -8027,6 +8118,8 @@ function renderMadingModal() {
         _teaserEntries = null;          // teaser di Gallery ikut keisi pesan baru
         playSfx("love", 0.6);
         fireConfetti("quest");
+        showPointsToast("+5 poin! 📌 Pesan tertempel");
+        _lbLoaded = false; _lbData = null; // poin nambah -> leaderboard basi, refetch pas dibuka lagi
         renderMadingModal();            // langsung kerender, pesan baru ikut animasi tempel
         renderBoard();
         apiPost({ action: "memberPostBoard", token: _profile.token, text: temp.text }).then(r => {

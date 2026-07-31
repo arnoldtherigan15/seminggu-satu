@@ -3,7 +3,7 @@
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { waKey } from "../_shared/auth.ts";
-import { loyaltyMembers, questPointsMap, memberNickMap } from "../_shared/queries.ts";
+import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -16,10 +16,11 @@ Deno.serve(async (req) => {
     const admin = supabaseAdmin();
     const members = await loyaltyMembers(admin);
     const qp = await questPointsMap(admin);
+    const ep = await extraPointsMap(admin);
     const nickMap = await memberNickMap(admin);
 
     const scored = members
-      .map((m) => ({ key: m.key, nickname: nickMap[m.key] || m.nickname || m.fullName || "Sahabat", events: m.count, quests: m.questCount, poin: qp[m.key] || 0 }))
+      .map((m) => ({ key: m.key, nickname: nickMap[m.key] || m.nickname || m.fullName || "Sahabat", events: m.count, quests: m.questCount, poin: (qp[m.key] || 0) + (ep[m.key] || 0) }))
       .filter((x) => x.poin > 0)
       .sort((a, b) => b.poin - a.poin || b.events - a.events);
 

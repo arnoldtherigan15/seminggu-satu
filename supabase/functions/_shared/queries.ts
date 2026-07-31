@@ -98,6 +98,38 @@ export async function questPointsMap(admin: SupabaseClient): Promise<Record<stri
   return out;
 }
 
+// +5 poin leaderboard per aksi: check-in mingguan (journal_records), 1 entri
+// Gratitude Jar, 1 entri Jurnal Bulanan, 1 pesan Mading -- di luar poin
+// challenge (questPointsMap). Flat per aksi (bukan per minggu/bulan), biar
+// makin rajin makin nambah, sama kayak semangat "jangan di-punish" fitur2
+// itu sendiri (lihat skill seminggu-psych).
+const EXTRA_POINT_VALUE = 5;
+
+export async function extraPointsMap(admin: SupabaseClient): Promise<Record<string, number>> {
+  const out: Record<string, number> = {};
+  const add = (wa: string, n: number) => {
+    const k = waKey(wa);
+    if (!k || n <= 0) return;
+    out[k] = (out[k] || 0) + n * EXTRA_POINT_VALUE;
+  };
+
+  const { data: members } = await admin.from("members").select("wa, journal_records, jar_records, writing_records");
+  for (const m of members || []) {
+    let n = 0;
+    n += Object.keys(m.journal_records || {}).length; // 1 key minggu = 1 check-in
+    const jar = m.jar_records || {};
+    for (const mk of Object.keys(jar)) n += Array.isArray(jar[mk]?.items) ? jar[mk].items.length : 0;
+    const wr = m.writing_records || {};
+    for (const mk of Object.keys(wr)) n += Array.isArray(wr[mk]?.entries) ? wr[mk].entries.length : 0;
+    add(m.wa, n);
+  }
+
+  const { data: msgs } = await admin.from("board_messages").select("wa");
+  for (const r of msgs || []) add(r.wa, 1);
+
+  return out;
+}
+
 export async function memberNickMap(admin: SupabaseClient): Promise<Record<string, string>> {
   const { data } = await admin.from("members").select("wa, nickname");
   const out: Record<string, string> = {};
