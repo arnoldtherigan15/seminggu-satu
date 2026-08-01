@@ -4,6 +4,7 @@
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { getConfigValue } from "../_shared/config.ts";
 import { sendTelegramText } from "../_shared/telegram.ts";
+import { todaysBirthdays } from "../_shared/members.ts";
 
 function parseDMY(s: string): { d: number; m: number; y: number } | null {
   const p = String(s || "").split("/");
@@ -61,6 +62,17 @@ Deno.serve(async (_req) => {
       `👥 *${count}*${w.maxQuota ? `/${w.maxQuota}` : ""} peserta terdaftar`,
     );
   }
+
+  // Ultah dikirim sebagai PESAN TERPISAH (bukan disatuin ke reminder event)
+  // -- biar gampang dibedain sekilas di chat Telegram yang isinya campur
+  // banyak jenis notif, tiap jenis punya "bentuk" sendiri yang konsisten.
+  try {
+    const bdays = await todaysBirthdays(admin);
+    if (bdays.length) {
+      const names = bdays.map((b) => `• ${b.nickname}`).join("\n");
+      await sendTelegramText(`🎂 *Ultah Hari Ini!*\n\n${names}\n\n_Jangan lupa kasih ucapan ya_ 🥳`);
+    }
+  } catch (_e) { /* jangan ganggu reminder event kalau ini gagal */ }
 
   if (!blocks.length) return new Response(JSON.stringify({ status: "success", sent: false, reason: "no events today/tomorrow" }));
 

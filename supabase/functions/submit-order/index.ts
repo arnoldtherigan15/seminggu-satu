@@ -3,6 +3,8 @@
 // 2 macem tinggal submit 2x).
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
+import { getConfigValue } from "../_shared/config.ts";
+import { sendTelegramText } from "../_shared/telegram.ts";
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -18,9 +20,9 @@ Deno.serve(async (req) => {
     if (!menuItemId) return errorResponse("Menu belum dipilih.");
 
     const admin = supabaseAdmin();
-    const { data: batch } = await admin.from("batches").select("id").eq("id", batchId).maybeSingle();
+    const { data: batch } = await admin.from("batches").select("id, workshop_type, label, event_date").eq("id", batchId).maybeSingle();
     if (!batch) return errorResponse("Event tidak ditemukan -- link mungkin udah nggak berlaku.");
-    const { data: item } = await admin.from("menu_items").select("id").eq("id", menuItemId).eq("active", true).maybeSingle();
+    const { data: item } = await admin.from("menu_items").select("id, name").eq("id", menuItemId).eq("active", true).maybeSingle();
     if (!item) return errorResponse("Menu yang dipilih nggak tersedia lagi, refresh halaman ya.");
 
     // registrationId opsional (dari link personalisasi) -- kalau ternyata
@@ -34,6 +36,22 @@ Deno.serve(async (req) => {
 
     const { error } = await admin.from("event_orders").insert({ batch_id: batchId, participant_name: participantName, menu_item_id: menuItemId, registration_id: regId });
     if (error) return errorResponse("Gagal simpan: " + error.message);
+
+    // Notif Telegram -- best-effort, jangan gagalin submit kalau ini error
+    try {
+      let workshopName = batch.workshop_type;
+      const cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]");
+      const w = cfg.find((x: { id?: string; name?: string }) => x?.id === batch.workshop_type);
+      if (w?.name) workshopName = w.name;
+      const eventLabel = batch.label || workshopName;
+      await sendTelegramText(
+        "🥤 *Pesanan Masuk!*\n\n" +
+          `🎫 Event: ${eventLabel}\n` +
+          `👤 Nama: ${participantName}\n` +
+          `🍹 Menu: ${item.name}`,
+      );
+    } catch (_e) { /* abaikan */ }
+
     return jsonResponse({ status: "success", message: "Pesanan tercatat!" });
   } catch (e) {
     return errorResponse((e as Error).message || "Terjadi kesalahan", 500);
