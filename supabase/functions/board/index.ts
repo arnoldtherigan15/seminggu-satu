@@ -20,9 +20,16 @@ Deno.serve(async (req) => {
     const myKey = waKey(myWa);
 
     const admin = supabaseAdmin();
+
+    // Mading tetap fresh -- pesan lebih dari seminggu di-auto-delete (best-effort,
+    // numpang lewat tiap kali ada yang buka board, ga perlu cron terpisah)
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    try { await admin.from("board_messages").delete().lt("created_at", weekAgo); } catch (_e) { /* abaikan */ }
+
     const { data: rows } = await admin
       .from("board_messages")
       .select("id, wa, nickname, message, created_at")
+      .gte("created_at", weekAgo)
       .order("created_at", { ascending: false })
       .limit(30);
     const nickMap = await memberNickMap(admin);
