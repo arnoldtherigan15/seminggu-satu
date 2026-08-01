@@ -2357,9 +2357,11 @@ function renderJournalTrackerHtml(wa) {
     const year = currMonthWeek.year;
     const monthStr = String(currMonthWeek.month + 1).padStart(2, "0");
 
-    // Ikon SVG (stamp & pensil) -> ga pake emoji OS biar clean
-    const SVG_CHECK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    // Ikon SVG (pensil) -> ga pake emoji OS biar clean. Minggu yang udah
+    // check-in dapet sticker beneran (bukan checkmark) -- lebih berasa
+    // "reward ditempel" kayak stiker di buku journal fisik.
     const SVG_PENCIL = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>';
+    const WEEK_STICKERS = { 1: "str-1", 2: "str-2", 3: "str-3", 4: "str-6" };
 
     let gridHtml = "";
     for (let w = 1; w <= 4; w++) {
@@ -2374,7 +2376,7 @@ function renderJournalTrackerHtml(wa) {
 
         if (isDone) {
             boxClass += " done";
-            statusHtml = '<span class="jt-stamp">' + SVG_CHECK + '</span>';
+            statusHtml = '<img class="jt-week-stk" src="../images/sticker/' + WEEK_STICKERS[w] + '.png" alt="">';
         } else if (isCurrent) {
             boxClass += " current";
             statusHtml = '<span class="jt-pencil">' + SVG_PENCIL + '</span>';
