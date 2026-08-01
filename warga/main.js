@@ -234,6 +234,7 @@ const MEMBER_ACTION_FN = {
     memberJarAdd: "member-jar-add",
     memberJarCustomize: "member-jar-customize",
     memberLogin: "member-login",
+    memberPostBarter: "member-post-barter",
     memberPostBoard: "member-post-board",
     memberPostSuggestion: "member-post-suggestion",
     memberResetPassword: "member-reset-password",
@@ -2822,7 +2823,7 @@ function openMonthlyRecap() {
     if (_galleryItems && _galleryItems.length) {
         const from = new Date(pm.year, pm.month, 1).getTime();
         const to = new Date(pm.year, pm.month + 1, 1).getTime();
-        works = _galleryItems.filter(it => it.mine && it.ts && it.ts >= from && it.ts < to);
+        works = _galleryItems.filter(it => it.mine && it.kind !== "weekly" && it.ts && it.ts >= from && it.ts < to);
     }
     const slides = [];
     // 1) Cover
@@ -5326,6 +5327,7 @@ function renderGallery() {
     pane.innerHTML =
         '<div class="story-bar" id="storyBar"></div>' +
         '<div id="wargaBoard"></div>' +
+        '<div id="wargaBarter"></div>' +
         '<div class="gallery-toolbar">' +
         '<div class="gfilters" id="galFilters">' + chips + '</div>' +
         '<div class="gtb-right">' +
@@ -5347,6 +5349,7 @@ function renderGallery() {
 
     renderStoryBar(); // bar story selalu di atas, nggak kepengaruh filter/view
     loadBoard();      // Mading Warga (papan gabus pesan semangat)
+    loadBarter();     // Barter Warga (tukeran barang, section terpisah dari Mading)
 
     const items = galFiltered();
     const feed = $("igFeed"), grid = $("igGrid");
@@ -8171,6 +8174,151 @@ function renderMadingModal() {
             alert("Gagal terhubung ke server. Pesanmu belum nempel, coba lagi ya.");
         });
     });
+}
+
+// ============================================================
+//  Barter Warga -- section TERPISAH dari Mading (bukan campur sticky
+//  notes), tempat warga tukeran barang. Foto wajib, kuota 2/minggu,
+//  auto-expire 7 hari (server-side, lihat barter/index.ts). Card
+//  diklik = buka WA orangnya langsung, pesan udah keisi otomatis.
+// ============================================================
+let _barterData = null;
+let _barterLoadingPromise = null;
+
+async function loadBarter(force) {
+    const host = $("wargaBarter");
+    if (!host) return;
+    if (_barterData && !force) { renderBarterTeaser(); return; }
+    if (_barterLoadingPromise) { await _barterLoadingPromise; renderBarterTeaser(); return; }
+    if (!_barterData) host.innerHTML = skEl("width:100%;height:92px;border-radius:14px;margin-bottom:16px;");
+    _barterLoadingPromise = (async () => {
+        try { _barterData = await fnGet("barter", "wa=" + encodeURIComponent(_profile.wa), 15000); }
+        catch (e) { _barterData = null; }
+        if (!_barterData || !Array.isArray(_barterData.items)) _barterData = { items: [] };
+        if (typeof _barterData.left !== "number") _barterData.left = 0;
+    })();
+    await _barterLoadingPromise;
+    _barterLoadingPromise = null;
+    renderBarterTeaser();
+}
+
+function barterWaMessage(item) {
+    const snippet = item.text.length > 60 ? item.text.slice(0, 60) + "…" : item.text;
+    return "Hai " + (item.nickname || "kak") + "! Aku liat postingan barter kamu \"" + snippet + "\" di Warga, aku tertarik nih! 😊";
+}
+
+// Teaser di Gallery: strip horizontal foto barang + tombol buka full section
+function renderBarterTeaser() {
+    const host = $("wargaBarter");
+    if (!host) return;
+    const items = (_barterData && _barterData.items) || [];
+    let strip = "";
+    items.slice(0, 6).forEach(it => {
+        strip += '<div class="bt-thumb"><img src="' + esc(driveThumb(it.photo)) + '" alt="" loading="lazy" decoding="async"></div>';
+    });
+    if (!strip) strip = '<div class="bt-empty-mini">Belum ada yang barter — jadilah yang pertama! 🔄</div>';
+    host.innerHTML =
+        '<div class="bt-teaser" id="btTeaser">' +
+        '<div class="bt-head">' +
+        '<div class="story-lbl" style="margin:0;">🔄 Barter Warga</div>' +
+        '<button class="wb-add bt-open" id="btOpen" type="button">Buka Barter' + (items.length ? ' (' + items.length + ')' : '') + ' →</button>' +
+        '</div>' +
+        '<div class="bt-strip">' + strip + '</div>' +
+        '</div>';
+    $("btOpen").addEventListener("click", openBarterModal);
+    const stripEl = host.querySelector(".bt-strip");
+    if (stripEl) stripEl.addEventListener("click", openBarterModal);
+}
+
+function openBarterModal() {
+    let modal = $("barterModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "barterModal";
+        modal.className = "barter-modal";
+        document.body.appendChild(modal);
+    }
+    renderBarterModal();
+    modal.classList.add("show");
+    lockScroll();
+}
+
+function closeBarter() {
+    const modal = $("barterModal");
+    if (modal) modal.classList.remove("show");
+    unlockScroll();
+}
+
+function renderBarterModal() {
+    const modal = $("barterModal");
+    if (!modal) return;
+    const items = (_barterData && _barterData.items) || [];
+    const left = _barterData ? _barterData.left : 0;
+
+    let cards = "";
+    items.forEach(it => {
+        cards += '<a class="bt-card" href="https://wa.me/' + esc(it.wa) + '?text=' + encodeURIComponent(barterWaMessage(it)) + '" target="_blank" rel="noopener">' +
+            '<div class="bt-card-photo"><img src="' + esc(driveThumb(it.photo)) + '" alt="" loading="lazy" decoding="async"></div>' +
+            '<div class="bt-card-text">' + esc(it.text) + '</div>' +
+            '<div class="bt-card-meta">— ' + esc(it.nickname) + ' · ' + esc(timeAgo(it.ts)) + '</div>' +
+            '<div class="bt-card-cta">💬 Chat buat barter</div>' +
+            '</a>';
+    });
+    const gridHtml = items.length ? '<div class="bt-grid">' + cards + '</div>' : '<div class="bt-empty">Belum ada yang post barter — jadilah yang pertama! 🔄</div>';
+    const addLabel = left <= 0
+        ? '＋ Post Barang <small>(kuota habis — minggu depan lagi 🔄)</small>'
+        : '＋ Post Barang' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '');
+
+    modal.innerHTML =
+        '<div class="bt-wrap">' +
+        '<div class="bt-modal-head">' +
+        '<div class="bt-modal-title">🔄 Barter Warga</div>' +
+        '<button class="md-close" id="btClose" aria-label="Tutup">✕</button>' +
+        '</div>' +
+        '<p class="bt-modal-sub">Ada barang nganggur? Post di sini, siapa tau ada yang mau tukeran ✨</p>' +
+        '<button class="wb-add" id="btAdd" style="width:100%;padding:11px;font-size:.85rem;"' + (left <= 0 ? ' disabled' : '') + '>' + addLabel + '</button>' +
+        '<div class="bt-compose" id="btCompose" style="display:none;">' +
+        photoPickerHtml("Foto barangnya", "Ceritain barangnya… misal: 5 washi tape, mau tukar apa aja boleh! (max 140)") +
+        '<button class="btn-primary" id="btSend" style="margin-top:8px;">🔄 Post Barter</button>' +
+        '</div>' +
+        gridHtml +
+        '</div>';
+
+    $("btClose").addEventListener("click", closeBarter);
+    $("btAdd").addEventListener("click", () => {
+        if ((_barterData ? _barterData.left : 0) <= 0) { alert("Kuota post barter kamu minggu ini habis (2/minggu). Minggu depan lagi ya! 🔄"); return; }
+        const c = $("btCompose");
+        c.style.display = c.style.display === "none" ? "block" : "none";
+    });
+    wirePhotoPicker($("btCompose"));
+    $("btSend").addEventListener("click", () => submitBarter());
+}
+
+async function submitBarter() {
+    const compose = $("btCompose");
+    const input = compose.querySelector(".qm-file-input");
+    const textInput = compose.querySelector(".qm-cap-input");
+    const photo = input && input._photo;
+    const text = textInput ? textInput.value.trim() : "";
+    if (!photo) { alert("Foto barangnya belum ada nih 📸"); return; }
+    if (text.length < 5) { alert("Ceritain barangnya dikit lagi ya 😅"); return; }
+
+    const btn = $("btSend");
+    if (btn) { btn.disabled = true; btn.textContent = "Mengirim…"; }
+    showBusy("Post barter kamu…");
+    try {
+        const r = await apiPost({ action: "memberPostBarter", token: _profile.token, text: text, photoBase64: photo.base64, photoMime: photo.mime });
+        if (r.status !== "success") { alert(r.message || "Gagal post barter."); return; }
+        playSfx("love", 0.6);
+        fireConfetti("quest");
+        await loadBarter(true); // refetch biar foto beneran (URL Storage) bukan cuma preview lokal
+        renderBarterModal();
+    } catch (e) {
+        alert("Gagal terhubung ke server. Coba lagi ya.");
+    } finally {
+        hideBusy();
+        if (btn) { btn.disabled = false; btn.textContent = "🔄 Post Barter"; }
+    }
 }
 
 // ---------- Sahabat Stories (bar di atas Gallery, ala scrapbook) ----------

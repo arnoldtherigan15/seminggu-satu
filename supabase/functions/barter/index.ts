@@ -1,15 +1,12 @@
-// Port dari boardData_() -- Mading Warga: list pesan terbaru + sisa kuota
-// nempel pesan hari ini (2/hari) buat wa yang minta.
+// List postingan Barter Warga + sisa kuota minggu ini. Section terpisah
+// dari Mading -- warga tukeran barang, bukan pesan semangat. Auto-expire
+// >7 hari (sama pola kayak board/index.ts) biar section-nya tetep fresh.
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { waKey } from "../_shared/auth.ts";
 import { memberNickMap } from "../_shared/queries.ts";
 
-const BOARD_DAILY_LIMIT = 2;
-
-function jakartaDateStr(d: Date): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(d);
-}
+const BARTER_WEEKLY_LIMIT = 2;
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -21,33 +18,31 @@ Deno.serve(async (req) => {
 
     const admin = supabaseAdmin();
 
-    // Mading tetap fresh -- pesan lebih dari seminggu di-auto-delete (best-effort,
-    // numpang lewat tiap kali ada yang buka board, ga perlu cron terpisah)
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-    try { await admin.from("board_messages").delete().lt("created_at", weekAgo); } catch (_e) { /* abaikan */ }
+    try { await admin.from("barter_posts").delete().lt("created_at", weekAgo); } catch (_e) { /* abaikan */ }
 
     const { data: rows, error } = await admin
-      .from("board_messages")
-      .select("id, wa, nickname, message, created_at")
+      .from("barter_posts")
+      .select("id, wa, nickname, item_text, photo_url, created_at")
       .gte("created_at", weekAgo)
       .order("created_at", { ascending: false })
       .limit(30);
-    if (error) return errorResponse("Gagal ambil data mading: " + error.message, 500);
+    if (error) return errorResponse("Gagal ambil data barter: " + error.message, 500);
     const nickMap = await memberNickMap(admin);
 
     const items = (rows || []).map((r) => ({
       id: r.id,
+      wa: r.wa,
       nickname: nickMap[waKey(r.wa)] || r.nickname || "Warga",
-      text: r.message,
+      text: r.item_text,
+      photo: r.photo_url,
       ts: r.created_at ? new Date(r.created_at).getTime() : 0,
     }));
 
-    let left = BOARD_DAILY_LIMIT;
+    let left = BARTER_WEEKLY_LIMIT;
     if (myKey) {
-      const today = jakartaDateStr(new Date());
-      const { data: mine } = await admin.from("board_messages").select("created_at").eq("wa", myKey).order("created_at", { ascending: false }).limit(20);
-      const countToday = (mine || []).filter((r) => jakartaDateStr(new Date(r.created_at)) === today).length;
-      left = Math.max(0, BOARD_DAILY_LIMIT - countToday);
+      const { data: mine } = await admin.from("barter_posts").select("id").eq("wa", myKey).gte("created_at", weekAgo);
+      left = Math.max(0, BARTER_WEEKLY_LIMIT - (mine || []).length);
     }
 
     return jsonResponse({ items, left });

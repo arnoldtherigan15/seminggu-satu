@@ -1785,6 +1785,36 @@
         .md-compose textarea { width: 100%; border: 1.5px dashed rgba(16, 36, 94, .3); border-radius: 8px; padding: .6rem; font-family: inherit; font-size: 16px; background: #fffdf0; color: #10245e; resize: vertical; }
         .md-compose textarea:focus { outline: none; border-color: var(--blue); }
 
+        /* ---- Barter Warga: section terpisah dari Mading (kertas dot-grid + aksen ijo, bukan cork board) ---- */
+        .bt-teaser { background-color: #fffdf6; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 12px 12px; border: 2px dashed #16a34a; border-radius: 14px; padding: 12px; margin-bottom: 16px; cursor: pointer; }
+        :root[data-theme="dark"] .bt-teaser { background-color: #142317; background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px); border-color: #22c55e; }
+        .bt-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+        .bt-open { background: #16a34a !important; box-shadow: 0 4px 10px rgba(22, 163, 74, .35) !important; }
+        .bt-strip { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+        .bt-strip::-webkit-scrollbar { display: none; }
+        .bt-thumb { flex: 0 0 auto; width: 56px; height: 56px; border-radius: 10px; overflow: hidden; border: 2px solid #fff; box-shadow: 0 3px 8px rgba(0, 30, 20, .18); }
+        .bt-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .bt-empty-mini { flex: 1; text-align: center; font-size: .78rem; font-weight: 700; color: var(--muted); padding: 8px 4px; }
+
+        .barter-modal { position: fixed; inset: 0; z-index: 1300; display: none; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; background-color: #fffdf6; background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px); background-size: 14px 14px; }
+        :root[data-theme="dark"] .barter-modal { background-color: #0f1a12; background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px); }
+        .barter-modal.show { display: block; }
+        .bt-wrap { position: relative; max-width: 480px; margin: 0 auto; padding: calc(16px + env(safe-area-inset-top)) 14px calc(44px + env(safe-area-inset-bottom)); }
+        .bt-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+        .bt-modal-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.25rem; color: var(--ink); }
+        .bt-modal-sub { font-size: .82rem; color: var(--muted); margin: 0 0 14px; }
+        .bt-compose { position: relative; margin-top: 12px; background: #eafbef; padding: 14px 12px; border-radius: 12px; border: 1.5px dashed #16a34a; }
+        :root[data-theme="dark"] .bt-compose { background: #12271a; }
+        .bt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+        .bt-card { display: block; background: var(--card); border-radius: 14px; padding: 8px; text-decoration: none; color: var(--ink); box-shadow: 0 6px 14px rgba(0, 30, 20, .12); transition: transform .15s ease; }
+        .bt-card:active { transform: scale(.97); }
+        .bt-card-photo { border-radius: 10px; overflow: hidden; aspect-ratio: 1 / 1; background: var(--line); }
+        .bt-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .bt-card-text { font-size: .76rem; font-weight: 700; margin-top: 8px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .bt-card-meta { font-size: .62rem; color: var(--muted); margin-top: 4px; }
+        .bt-card-cta { margin-top: 6px; font-size: .68rem; font-weight: 800; color: #16a34a; }
+        .bt-empty { text-align: center; font-size: .85rem; font-weight: 700; color: var(--muted); padding: 40px 12px; }
+
         /* ---- Story viewer: polaroid gede di kertas dot-grid + washi tape (scrapbook) ---- */
         .story-modal { position: fixed; inset: 0; background: rgba(16, 36, 94, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }
         .story-modal.show { display: flex; }
