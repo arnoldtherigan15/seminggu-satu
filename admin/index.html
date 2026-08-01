@@ -5323,6 +5323,16 @@
         setTimeout(() => { btn.textContent = orig; }, 1800);
       }).catch(() => alert("Gagal salin otomatis, salin manual ya:\n\n" + text));
     }
+    // Varian buat tombol di dalam list (id-nya berulang/nggak unik) -- ambil
+    // elemen tombolnya langsung, bukan lookup by id kayak copyToClipboard di atas.
+    function copyToClipboardEl(text, btn) {
+      if (!text || !btn) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = "✓ Disalin!";
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      }).catch(() => alert("Gagal salin otomatis, salin manual ya:\n\n" + text));
+    }
 
     async function loadPesVendorWa() {
       const r = await api("getVendorWa", { token: getToken() });
@@ -5380,9 +5390,11 @@
     // ---- Peserta terdaftar (link personal per orang, biar gak perlu ngetik nama) ----
     async function loadPesRegistrants() {
       const list = document.getElementById("pesRegList");
-      if (!PES_CUR_BATCH) { PES_REGISTRANTS = []; renderPesRegistrants(); return; }
+      const forBatch = PES_CUR_BATCH; // snapshot -- kalau admin ganti event pas fetch ini masih jalan, jangan timpa data event yang baru dipilih
+      if (!forBatch) { PES_REGISTRANTS = []; renderPesRegistrants(); return; }
       list.innerHTML = skelLines(2);
-      const r = await api("getRegistrations", { token: getToken(), workshop: PES_CUR_BATCH.workshopType, batchId: PES_CUR_BATCH.id });
+      const r = await api("getRegistrations", { token: getToken(), workshop: forBatch.workshopType, batchId: forBatch.id });
+      if (PES_CUR_BATCH !== forBatch) return; // udah pindah event -- respons ini basi, buang
       if (!r || r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
       PES_REGISTRANTS = r.items || [];
       renderPesRegistrants();
@@ -5406,14 +5418,19 @@
       const menuOpts = PES_MENU.filter(m => m.active).map(m => `<option value="${m.id}">${escapeHtml(m.name)}</option>`).join("");
       list.innerHTML = PES_REGISTRANTS.map(reg => {
         const nm = reg.nickname || reg.full_name || "Sahabat";
+        const ig = String(reg.ig_username || "").trim().replace(/^@/, "");
         const existing = findPesOrderForReg(reg);
         return `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
-          <div style="flex:1;min-width:100px;"><b>${escapeHtml(nm)}</b></div>
+          <div style="flex:1;min-width:100px;">
+            <b>${escapeHtml(nm)}</b>
+            ${ig ? `<div style="font-size:.74rem;color:#6b7280;">📷 @${escapeHtml(ig)}</div>` : ''}
+          </div>
           <select data-regmenu="${reg.id}" style="flex:1;min-width:150px;padding:7px 8px;border-radius:8px;border:1px solid #e5e7eb;font-family:inherit;font-size:.83rem;background:${existing ? '#eafaf0' : '#fff'};">
             <option value="">${existing ? '— hapus pesanan —' : '— udah chat, pesen apa? —'}</option>
             ${menuOpts}
           </select>
           <button class="btn btn-sm" data-sendwa="${reg.id}" style="flex-shrink:0;">💬 WA</button>
+          ${ig ? `<button class="btn btn-sm btn-ghost" data-copyig="${escapeHtml(ig)}" style="flex-shrink:0;" title="Salin username IG -- buat yang nggak bales WA">📋 IG</button>` : ''}
         </div>`;
       }).join("");
       list.querySelectorAll("[data-regmenu]").forEach(sel => {
@@ -5423,6 +5440,7 @@
         sel.addEventListener("change", () => savePesRegOrder(sel.dataset.regmenu, sel.value));
       });
       list.querySelectorAll("[data-sendwa]").forEach(b => b.addEventListener("click", () => sendPesWa(b.dataset.sendwa)));
+      list.querySelectorAll("[data-copyig]").forEach(b => b.addEventListener("click", () => copyToClipboardEl("@" + b.dataset.copyig, b)));
     }
 
     // Admin pilihin menu langsung buat 1 peserta terdaftar (dipake pas orangnya
@@ -5564,6 +5582,7 @@
       if (!id) { PES_ORDERS = []; renderPesOrders(); renderPesSummary(); return; }
       list.innerHTML = skelLines(3);
       const r = await api("listOrders", { token: getToken(), batchId: id });
+      if (document.getElementById("pesEventSelect").value !== id) return; // udah pindah event -- respons ini basi, buang
       if (!r || r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
       PES_ORDERS = r.orders || [];
       renderPesOrders();
