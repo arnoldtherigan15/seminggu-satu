@@ -4,6 +4,7 @@ import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { waKey, hashPassword, randToken } from "../_shared/auth.ts";
 import { isMemberWa, profileResponse } from "../_shared/members.ts";
+import { sendTelegramText } from "../_shared/telegram.ts";
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -56,6 +57,16 @@ Deno.serve(async (req) => {
     }
 
     if (!row) return errorResponse("Gagal bikin akun, coba lagi ya.", 500);
+
+    // Notif Telegram -- best-effort, jangan gagalin aktivasi kalau ini error
+    try {
+      await sendTelegramText(
+        "🎉 *Warga Baru Aktivasi Akun!*\n\n" +
+          `👤 Nama: ${nickname}\n` +
+          `📱 WA: ${waK}`,
+      );
+    } catch (_e) { /* abaikan */ }
+
     return jsonResponse(await profileResponse(admin, row));
   } catch (e) {
     return errorResponse((e as Error).message || "Terjadi kesalahan", 500);
