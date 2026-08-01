@@ -680,8 +680,8 @@ async function loadEvents() {
         else if (full) action = '<div class="ev-full">Fully booked 😢</div>';
         else {
             let href = "../" + (w.path || "");
-            // Event member (journaling-date): bawa WA (nggak input ulang) + flag from=member (balik ke portal)
-            if (w.id === "journaling-date") href += (href.indexOf("?") >= 0 ? "&" : "?") + "wa=" + encodeURIComponent(_profile.wa) + "&from=member";
+            // Bawa WA (nggak input ulang) + flag from=member (biar abis daftar balik ke portal warga, bukan homepage publik)
+            href += (href.indexOf("?") >= 0 ? "&" : "?") + "wa=" + encodeURIComponent(_profile.wa) + "&from=member";
             action = '<a class="btn-primary" href="' + esc(href) + '">Register →</a>';
         }
 

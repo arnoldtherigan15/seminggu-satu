@@ -27,6 +27,16 @@ let _configApplied = false;
       .catch(function () { /* diamkan, biarin user isi manual */ });
 })();
 
+// --- Kalau datang dari web warga (from=member), logo/tombol home balik
+// ke portal warga, bukan homepage publik -- biar nggak berasa "keluar" ---
+(function redirectHomeLinkToMemberPortal() {
+    if (new URLSearchParams(location.search).get("from") !== "member") return;
+    var link = document.getElementById("brandLink");
+    if (link) link.href = "../warga/";
+    var closedLink = document.getElementById("closedHomeLink");
+    if (closedLink) closedLink.href = "../warga/";
+})();
+
 // ---------- Utils ----------
 function showToast(message) {
     const c = document.getElementById('toastContainer');

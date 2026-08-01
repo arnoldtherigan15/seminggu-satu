@@ -21,6 +21,14 @@
       .catch(function () { /* diamkan, biarin user isi manual */ });
 })();
 
+// --- Kalau datang dari web warga (from=member), logo/tombol home balik
+// ke portal warga, bukan homepage publik -- biar nggak berasa "keluar" ---
+(function redirectHomeLinkToMemberPortal() {
+    if (new URLSearchParams(location.search).get("from") !== "member") return;
+    var link = document.getElementById("brandLink");
+    if (link) link.href = "../warga/";
+})();
+
 // --- Workshop Config & Pricing ---
 // Config = sumber tunggal dari server (via cache/live). Bisa null di kunjungan
 // pertama (cache kosong) -> jangan crash; placeholder "Memuat..." + listener
@@ -371,6 +379,7 @@ form.addEventListener('submit', async (e) => {
                 whatsapp: payload.whatsapp || '',
                 workshop: '3d-frame-journaling'
             });
+            if (new URLSearchParams(location.search).get('from') === 'member') params.set('from', 'member');
             window.location.href = '../success.html?' + params.toString();
         } else {
             throw new Error(result.message || "Unknown error occurred.");

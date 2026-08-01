@@ -22,6 +22,14 @@
       .catch(function () { /* diamkan, biarin user isi manual */ });
 })();
 
+// --- Kalau datang dari web warga (from=member), logo/tombol home balik
+// ke portal warga, bukan homepage publik -- biar nggak berasa "keluar" ---
+(function redirectHomeLinkToMemberPortal() {
+    if (new URLSearchParams(location.search).get("from") !== "member") return;
+    var link = document.getElementById("brandLink");
+    if (link) link.href = "../warga/";
+})();
+
 // --- Dynamic Early Bird Pricing ---
 // Config = sumber tunggal dari server (cache/live). Bisa null di kunjungan pertama
 // (cache kosong) -> jangan crash; placeholder "Memuat..." + listener 'workshops:updated'.
@@ -484,6 +492,7 @@ form.addEventListener('submit', async (e) => {
                 colorFlapHex: selectedFlapColor.hex,
                 colorStrapHex: selectedStrapColor.hex,
             });
+            if (new URLSearchParams(location.search).get('from') === 'member') params.set('from', 'member');
 
             window.location.href = '../success.html?' + params.toString();
 
