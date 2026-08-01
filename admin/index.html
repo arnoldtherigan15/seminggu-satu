@@ -4464,6 +4464,9 @@
       { key: "locationName", label: "Nama lokasi", type: "text" },
       { key: "mapsLink", label: "Link Google Maps", type: "text" },
       { key: "whatsappGroupLink", label: "Link grup WhatsApp", type: "text" },
+      { key: "bankName", label: "Nama Bank (kosong = pakai default BCA)", type: "text" },
+      { key: "bankAccountNumber", label: "Nomor Rekening (kosong = pakai default punya Arnold)", type: "text" },
+      { key: "bankAccountHolder", label: "Nama Pemilik Rekening (tanpa \"a.n\", kosong = default)", type: "text" },
       { key: "icon", label: "Icon (nama lucide)", type: "text" },
       { key: "path", label: "Path halaman", type: "text" }
     ];
@@ -4501,6 +4504,7 @@
         maxQuota: 6,
         eventDate: "", workshopDate: "", workshopTime: "",
         locationName: "", mapsLink: "", whatsappGroupLink: "",
+        bankName: "", bankAccountNumber: "", bankAccountHolder: "",
         icon: "heart", path: id + "/index.html"
       });
       sel.innerHTML = CONFIG.map((w, i) => `<option value="${i}">${escapeHtml(w.name || w.id)}</option>`).join("");

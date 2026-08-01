@@ -34,6 +34,12 @@ if (_workshopData) {
     document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
     document.getElementById('locationNameText').textContent = _workshopData.locationName;
     document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
+    // Rekening pembayaran -- bisa di-config per workshop dari admin (kerja
+    // sama pihak ketiga, bayar ke rekening mereka bukan Arnold). Fallback ke
+    // rekening default kalau workshop-nya belum di-set (config lama).
+    document.getElementById('bankNameText').textContent = _workshopData.bankName || 'BCA';
+    document.getElementById('accountNumber').textContent = _workshopData.bankAccountNumber || '6042825961';
+    document.getElementById('bankOwnerText').textContent = 'a.n ' + (_workshopData.bankAccountHolder || 'Arnold Therigan');
 }
 
 // Data Pita
@@ -431,6 +437,9 @@ window.addEventListener('workshops:updated', function () {
         var tm = document.getElementById('workshopTimeText'); if (tm) tm.textContent = w.workshopTime || '';
         var ln = document.getElementById('locationNameText'); if (ln) ln.textContent = w.locationName || '';
         var ml = document.getElementById('locationMapsLink'); if (ml && w.mapsLink) ml.href = w.mapsLink;
+        var bn = document.getElementById('bankNameText'); if (bn) bn.textContent = w.bankName || 'BCA';
+        var an = document.getElementById('accountNumber'); if (an) an.textContent = w.bankAccountNumber || '6042825961';
+        var bo = document.getElementById('bankOwnerText'); if (bo) bo.textContent = 'a.n ' + (w.bankAccountHolder || 'Arnold Therigan');
         runQuotaWhenReady();   // config baru siap -> cek kuota kalau belum
     } catch (e) { /* jangan ganggu halaman */ }
 });
