@@ -3415,6 +3415,13 @@
             </button>
             <div class="acc-body"><div id="sgList"><p class="hint">Buka buat muat usulan warga.</p></div></div>
           </div>
+          <div class="acc" id="accBarter">
+            <button class="acc-head" type="button">
+              <span class="acc-title">🔄 Barter Warga <span class="acc-count" id="btCount">…</span></span>
+              <span class="acc-chevron">▸</span>
+            </button>
+            <div class="acc-body"><div id="btList"><p class="hint">Buka buat muat postingan barter.</p></div></div>
+          </div>
         </div>
 
         <!-- ===== VIEW: NOTIFIKASI / AKTIVITAS ===== -->
@@ -4828,6 +4835,12 @@
           accSg.classList.toggle("open");
           if (accSg.classList.contains("open") && !accSg._loaded) { accSg._loaded = true; loadSuggestions(); }
         });
+        // Barter Warga: sama pola kayak Kotak Pos
+        const accBt = document.getElementById("accBarter");
+        accBt.querySelector(".acc-head").addEventListener("click", () => {
+          accBt.classList.toggle("open");
+          if (accBt.classList.contains("open") && !accBt._loaded) { accBt._loaded = true; loadBarterAdmin(); }
+        });
         membersInit = true;
       }
       loadMembers();
@@ -4868,6 +4881,43 @@
           const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.sgid });
           if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
           loadSuggestions();
+        }));
+      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+    }
+
+    // ---- Barter Warga (moderasi: tandai selesai / tolak) ----
+    async function loadBarterAdmin() {
+      const el = document.getElementById("btList");
+      el.innerHTML = skelLines(3);
+      try {
+        const r = await api("getBarterPosts", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
+        const items = r.items || [];
+        document.getElementById("btCount").textContent = items.length;
+        if (!items.length) { el.innerHTML = '<p class="hint">Belum ada yang post barter 🔄</p>'; return; }
+        el.innerHTML = items.map(it => `<div class="loy-card"><div class="loy-top">
+          <img src="${escapeHtml(it.photo)}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex:0 0 auto;">
+          <div style="min-width:0;flex:1;">
+            <div class="loy-name">${it.done ? '<span style="color:var(--muted);">✅ SELESAI · </span>' : ''}${escapeHtml(it.text)}</div>
+            <div class="loy-wa">— ${escapeHtml(it.nickname)} · ${it.ts ? new Date(it.ts).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) : ""}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            ${it.done ? "" : `<button class="sg-del" data-btdone="${escapeHtml(it.id)}" style="background:#16a34a;">✅ Selesai</button>`}
+            <button class="sg-del" data-btdel="${escapeHtml(it.id)}">🗑 Tolak</button>
+          </div>
+        </div></div>`).join("");
+        el.querySelectorAll("[data-btdone]").forEach(b => b.addEventListener("click", async () => {
+          b.disabled = true;
+          const r2 = await api("setBarterDone", { token: getToken(), id: b.dataset.btdone });
+          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          loadBarterAdmin();
+        }));
+        el.querySelectorAll("[data-btdel]").forEach(b => b.addEventListener("click", async () => {
+          if (!confirm("Hapus/tolak postingan barter ini? Nggak bisa dibalikin.")) return;
+          b.disabled = true;
+          const r2 = await api("deleteBarterPost", { token: getToken(), id: b.dataset.btdel });
+          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          loadBarterAdmin();
         }));
       } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
     }

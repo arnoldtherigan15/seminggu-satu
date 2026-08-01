@@ -233,6 +233,7 @@ const MEMBER_ACTION_FN = {
     memberEditQuest: "member-edit-quest",
     memberJarAdd: "member-jar-add",
     memberJarCustomize: "member-jar-customize",
+    memberArchiveBarter: "member-archive-barter",
     memberLogin: "member-login",
     memberPostBarter: "member-post-barter",
     memberPostBoard: "member-post-board",
@@ -8251,21 +8252,48 @@ function closeBarter() {
     unlockScroll();
 }
 
+// Sisa hari sebelum auto-expire (7 hari dari post) -- biar warga tau ini
+// bakal ilang kapan, bukan nunggu tiba-tiba nggak ada.
+function barterDaysLeft(it) {
+    return Math.max(0, Math.ceil((it.expiresAt - Date.now()) / 86400000));
+}
+
+function barterCardHtml(it) {
+    const isMine = _profile && it.wa === _profile.wa;
+    const days = barterDaysLeft(it);
+    const countdown = it.done ? "" : '<div class="bt-card-cd">⏳ ' + (days <= 1 ? "hari terakhir!" : days + " hari lagi") + '</div>';
+    const body = '<div class="bt-card-photo">' + (it.done ? '<span class="bt-done-badge">✅ Beres</span>' : '') +
+        '<img src="' + esc(driveThumb(it.photo)) + '" alt="" loading="lazy" decoding="async"></div>' +
+        '<div class="bt-card-text">' + esc(it.text) + '</div>' +
+        '<div class="bt-card-meta">— ' + esc(it.nickname) + ' · ' + esc(timeAgo(it.ts)) + '</div>' +
+        countdown;
+
+    if (it.done) return '<div class="bt-card bt-card-done">' + body + '</div>';
+    if (isMine) return '<div class="bt-card">' + body + '<button type="button" class="bt-card-archive" data-archive="' + esc(it.id) + '">📦 Tandai Beres</button></div>';
+    return '<a class="bt-card" href="https://wa.me/' + esc(it.wa) + '?text=' + encodeURIComponent(barterWaMessage(it)) + '" target="_blank" rel="noopener">' + body +
+        '<div class="bt-card-cta">💬 Chat buat barter</div>' +
+        '</a>';
+}
+
+async function archiveBarter(id) {
+    if (!confirm("Tandai postingan ini udah beres (nggak available lagi buat barter)?")) return;
+    showBusy("Menandai beres…");
+    try {
+        const r = await apiPost({ action: "memberArchiveBarter", token: _profile.token, id: id });
+        if (r.status !== "success") { alert(r.message || "Gagal."); return; }
+        await loadBarter(true);
+        renderBarterModal();
+    } catch (e) { alert("Gagal terhubung ke server."); }
+    finally { hideBusy(); }
+}
+
 function renderBarterModal() {
     const modal = $("barterModal");
     if (!modal) return;
     const items = (_barterData && _barterData.items) || [];
     const left = _barterData ? _barterData.left : 0;
 
-    let cards = "";
-    items.forEach(it => {
-        cards += '<a class="bt-card" href="https://wa.me/' + esc(it.wa) + '?text=' + encodeURIComponent(barterWaMessage(it)) + '" target="_blank" rel="noopener">' +
-            '<div class="bt-card-photo"><img src="' + esc(driveThumb(it.photo)) + '" alt="" loading="lazy" decoding="async"></div>' +
-            '<div class="bt-card-text">' + esc(it.text) + '</div>' +
-            '<div class="bt-card-meta">— ' + esc(it.nickname) + ' · ' + esc(timeAgo(it.ts)) + '</div>' +
-            '<div class="bt-card-cta">💬 Chat buat barter</div>' +
-            '</a>';
-    });
+    const cards = items.map(barterCardHtml).join("");
     const gridHtml = items.length ? '<div class="bt-grid">' + cards + '</div>' : '<div class="bt-empty">Belum ada yang post barter — jadilah yang pertama! 🔄</div>';
     const addLabel = left <= 0
         ? '＋ Post Barang <small>(kuota habis — minggu depan lagi 🔄)</small>'
@@ -8277,7 +8305,7 @@ function renderBarterModal() {
         '<div class="bt-modal-title">🔄 Barter Warga</div>' +
         '<button class="md-close" id="btClose" aria-label="Tutup">✕</button>' +
         '</div>' +
-        '<p class="bt-modal-sub">Ada barang nganggur? Post di sini, siapa tau ada yang mau tukeran ✨</p>' +
+        '<p class="bt-modal-sub">Ada barang nganggur? Post di sini, siapa tau ada yang mau tukeran ✨ Maks. 2 postingan/minggu, otomatis kehapus 7 hari kalau belum laku.</p>' +
         '<button class="wb-add" id="btAdd" style="width:100%;padding:11px;font-size:.85rem;"' + (left <= 0 ? ' disabled' : '') + '>' + addLabel + '</button>' +
         '<div class="bt-compose" id="btCompose" style="display:none;">' +
         photoPickerHtml("Foto barangnya", "Ceritain barangnya… misal: 5 washi tape, mau tukar apa aja boleh! (max 140)") +
@@ -8294,6 +8322,7 @@ function renderBarterModal() {
     });
     wirePhotoPicker($("btCompose"));
     $("btSend").addEventListener("click", () => submitBarter());
+    modal.querySelectorAll("[data-archive]").forEach(b => b.addEventListener("click", () => archiveBarter(b.dataset.archive)));
 }
 
 async function submitBarter() {

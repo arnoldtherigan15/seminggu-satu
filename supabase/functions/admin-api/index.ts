@@ -316,6 +316,33 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", message: "Usulan dihapus." });
       }
 
+      case "getBarterPosts": {
+        const { data: rows } = await admin.from("barter_posts").select("*").order("created_at", { ascending: false });
+        const nickMap = await memberNickMap(admin);
+        const items = (rows || []).map((r) => ({
+          id: r.id, wa: r.wa, nickname: nickMap[waKey(r.wa)] || r.nickname || "Warga",
+          text: r.item_text, photo: r.photo_url, done: r.status === "done",
+          ts: r.created_at ? new Date(r.created_at).getTime() : 0,
+        }));
+        return jsonResponse({ status: "success", items });
+      }
+
+      case "setBarterDone": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("Postingan tidak ditemukan.");
+        const { error } = await admin.from("barter_posts").update({ status: "done" }).eq("id", id);
+        if (error) return errorResponse("Gagal update.", 500);
+        return jsonResponse({ status: "success", message: "Ditandai selesai." });
+      }
+
+      case "deleteBarterPost": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("Postingan tidak ditemukan.");
+        const { error } = await admin.from("barter_posts").delete().eq("id", id);
+        if (error) return errorResponse("Postingan tidak ditemukan.");
+        return jsonResponse({ status: "success", message: "Postingan ditolak/dihapus." });
+      }
+
       case "getConfig": {
         const json = await getConfigValue(admin, "WORKSHOPS_JSON");
         let config = null;

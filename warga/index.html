@@ -1795,12 +1795,18 @@
         .bt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
         .bt-card { display: block; background: var(--card); border-radius: 14px; padding: 8px; text-decoration: none; color: var(--ink); box-shadow: 0 6px 14px rgba(0, 30, 20, .12); transition: transform .15s ease; }
         .bt-card:active { transform: scale(.97); }
-        .bt-card-photo { border-radius: 10px; overflow: hidden; aspect-ratio: 1 / 1; background: var(--line); }
+        .bt-card-photo { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1 / 1; background: var(--line); }
         .bt-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .bt-card-text { font-size: .76rem; font-weight: 700; margin-top: 8px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .bt-card-meta { font-size: .62rem; color: var(--muted); margin-top: 4px; }
         .bt-card-cta { margin-top: 6px; font-size: .68rem; font-weight: 800; color: #16a34a; }
+        .bt-card-cd { margin-top: 4px; font-size: .6rem; font-weight: 700; color: #b45309; }
         .bt-empty { text-align: center; font-size: .85rem; font-weight: 700; color: var(--muted); padding: 40px 12px; }
+        .bt-done-badge { position: absolute; top: 6px; left: 6px; z-index: 2; background: rgba(22, 163, 74, .92); color: #fff; font-size: .6rem; font-weight: 800; padding: 3px 8px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0, 0, 0, .2); }
+        .bt-card-done { opacity: .6; }
+        .bt-card-done .bt-card-photo img { filter: grayscale(.6); }
+        .bt-card-archive { width: 100%; margin-top: 8px; border: 1.5px dashed var(--muted); background: transparent; color: var(--muted); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .68rem; padding: 7px; border-radius: 10px; cursor: pointer; }
+        .bt-card-archive:active { transform: scale(.97); }
 
         /* ---- Story viewer: polaroid gede di kertas dot-grid + washi tape (scrapbook) ---- */
         .story-modal { position: fixed; inset: 0; background: rgba(16, 36, 94, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1300; display: none; align-items: center; justify-content: center; padding: 18px 14px; }

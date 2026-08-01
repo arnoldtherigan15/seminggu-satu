@@ -3,6 +3,7 @@
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { uploadBase64 } from "../_shared/storage.ts";
+import { sendTelegramText } from "../_shared/telegram.ts";
 
 const BARTER_WEEKLY_LIMIT = 2;
 
@@ -31,6 +32,15 @@ Deno.serve(async (req) => {
 
     const { error } = await admin.from("barter_posts").insert({ wa: prof.wa, nickname: prof.nickname, item_text: text, photo_url: photoUrl });
     if (error) return errorResponse("Gagal post barter, coba lagi ya.", 500);
+
+    // Notif Telegram -- best-effort, jangan gagalin submit kalau ini error
+    try {
+      await sendTelegramText(
+        "🔄 *Barter Baru!*\n\n" +
+          `👤 Dari: ${prof.nickname || "Sahabat"}\n` +
+          `📦 Barang: ${text}`,
+      );
+    } catch (_e) { /* abaikan */ }
 
     return jsonResponse({ status: "success", message: "Barter kamu udah kepasang! 🔄" });
   } catch (e) {

@@ -9,16 +9,23 @@
 -- Jalanin di dev DULU baru production, SQL Editor sama kayak biasa.
 -- ============================================================
 
+-- status: 'open' (masih bisa dibarter) atau 'done' (selesai/diarsip -- tetep
+-- keliatan di list biar warga lain tau, tapi ditandain "beres", bukan
+-- dihapus). Bisa diset warga sendiri (arsip punya sendiri) atau admin
+-- (tandai selesai / moderasi).
 create table if not exists barter_posts (
   id         uuid primary key default gen_random_uuid(),
   wa         text not null,
   nickname   text,
   item_text  text not null,
   photo_url  text not null default '',
+  status     text not null default 'open',
   created_at timestamptz not null default now()
 );
 alter table barter_posts enable row level security;
 create index if not exists barter_posts_wa_idx on barter_posts (wa);
+-- Jaga-jaga kalau file ini udah pernah dijalanin sebelum kolom status ada.
+alter table barter_posts add column if not exists status text not null default 'open';
 
 grant all privileges on barter_posts to service_role;
 

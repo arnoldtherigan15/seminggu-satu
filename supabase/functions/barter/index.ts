@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
 
     const { data: rows, error } = await admin
       .from("barter_posts")
-      .select("id, wa, nickname, item_text, photo_url, created_at")
+      .select("id, wa, nickname, item_text, photo_url, status, created_at")
       .gte("created_at", weekAgo)
       .order("created_at", { ascending: false })
       .limit(30);
@@ -36,7 +36,9 @@ Deno.serve(async (req) => {
       nickname: nickMap[waKey(r.wa)] || r.nickname || "Warga",
       text: r.item_text,
       photo: r.photo_url,
+      done: r.status === "done",
       ts: r.created_at ? new Date(r.created_at).getTime() : 0,
+      expiresAt: r.created_at ? new Date(r.created_at).getTime() + 7 * 24 * 60 * 60 * 1000 : 0,
     }));
 
     let left = BARTER_WEEKLY_LIMIT;
