@@ -33,7 +33,10 @@ Deno.serve(async (req) => {
     const hash = await hashPassword(salt, password);
     const token = randToken();
     const now = new Date().toISOString();
-    const nickname = existing?.nickname || "Sahabat";
+    // "Sahabat" generik cuma fallback terakhir -- utamain nama asli dari
+    // pendaftaran event terakhirnya (full_name), baru nickname lama kalau ada.
+    const { data: reg } = await admin.from("registrations").select("full_name").eq("wa", waK).order("created_at", { ascending: false }).limit(1).maybeSingle();
+    const nickname = existing?.nickname || (reg?.full_name || "").trim() || "Sahabat";
 
     let row;
     if (existing) {
