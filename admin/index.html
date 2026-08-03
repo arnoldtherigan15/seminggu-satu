@@ -3918,7 +3918,7 @@
 
         // Sembunyikan kolom Timestamp dari tampilan (tetap ada di CSV)
         const tsIdx = shaped.headers.findIndex(h => /timestamp|waktu/i.test(String(h)));
-        head.innerHTML = "<th>#</th>" + shaped.headers.map((h, i) => i === tsIdx ? "" : `<th>${h}</th>`).join("");
+        head.innerHTML = "<th>#</th>" + shaped.headers.map((h, i) => i === tsIdx ? "" : `<th>${h}</th>`).join("") + "<th>Aksi</th>";
 
         if (!shaped.rows.length) {
           body.innerHTML = "";
@@ -3926,10 +3926,19 @@
           return;
         }
         empty.style.display = "none";
+        const items = r.items || [];
         body.innerHTML = shaped.rows.map((row, i) => {
           const cells = row.map((c, idx) => idx === tsIdx ? "" : cellHtml(c)).join("");
-          return `<tr><td>${i + 1}</td>${cells}</tr>`;
+          const regId = items[i] ? items[i].id : "";
+          return `<tr><td>${i + 1}</td>${cells}<td><button class="sg-del" data-delreg="${escapeHtml(regId)}">🗑 Hapus</button></td></tr>`;
         }).join("");
+        body.querySelectorAll("[data-delreg]").forEach(b => b.addEventListener("click", async () => {
+          if (!confirm("Hapus peserta ini dari daftar? Nggak bisa dibalikin (misal karena dia cancel).")) return;
+          b.disabled = true;
+          const r2 = await api("deleteRegistration", { token: getToken(), id: b.dataset.delreg });
+          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          loadRegistrations();
+        }));
         filterReg(); // terapkan pencarian yang aktif (kalau ada)
       } catch (e) {
         body.innerHTML = `<tr><td style="padding:24px;color:#dc2626;">Gagal memuat data.</td></tr>`;

@@ -48,6 +48,14 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", workshop, batchId: batchId || null, items: rows || [], total: (rows || []).length });
       }
 
+      case "deleteRegistration": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID peserta kosong.");
+        const { error } = await admin.from("registrations").delete().eq("id", id);
+        if (error) return errorResponse("Peserta tidak ditemukan.");
+        return jsonResponse({ status: "success", message: "Peserta dihapus dari daftar." });
+      }
+
       case "getSummary": {
         const { data: activeBatches } = await admin.from("batches").select("id, workshop_type").eq("active", true);
         const summary: Record<string, number> = {};
