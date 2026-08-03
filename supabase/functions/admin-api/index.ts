@@ -51,9 +51,36 @@ Deno.serve(async (req) => {
       case "deleteRegistration": {
         const id = String(data.id || "");
         if (!id) return errorResponse("ID peserta kosong.");
+        const { data: reg } = await admin.from("registrations").select("payment_proof_url, extra").eq("id", id).maybeSingle();
+
+        // Best-effort: bersihin bukti bayar + foto karya di Storage juga --
+        // jangan sampe cuma row-nya yang ilang, fotonya nyangkut selamanya.
+        // payment_proof_url disimpen sebagai "bucket/path" (bucket private,
+        // bukan URL publik -- lihat uploadBase64() di _shared/storage.ts),
+        // sedangkan extra.photos isinya URL publik penuh.
+        try {
+          const byBucket: Record<string, string[]> = {};
+          const addRef = (u: string) => {
+            if (!u) return;
+            let bucket = "", path = "";
+            const m = u.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+            if (m) { bucket = m[1]; path = decodeURIComponent(m[2]); }
+            else if (!/^https?:\/\//.test(u) && u.indexOf("/") > 0) { const i = u.indexOf("/"); bucket = u.slice(0, i); path = u.slice(i + 1); }
+            if (!bucket || !path) return;
+            if (!byBucket[bucket]) byBucket[bucket] = [];
+            byBucket[bucket].push(path);
+          };
+          addRef(reg?.payment_proof_url || "");
+          const photos = (reg?.extra || {}).photos;
+          if (Array.isArray(photos)) photos.forEach((p: unknown) => addRef(String(p || "")));
+          for (const [bucket, paths] of Object.entries(byBucket)) {
+            await admin.storage.from(bucket).remove(paths);
+          }
+        } catch (_e) { /* abaikan, tetep lanjut hapus row-nya */ }
+
         const { error } = await admin.from("registrations").delete().eq("id", id);
         if (error) return errorResponse("Peserta tidak ditemukan.");
-        return jsonResponse({ status: "success", message: "Peserta dihapus dari daftar." });
+        return jsonResponse({ status: "success", message: "Peserta & fotonya dihapus." });
       }
 
       case "getSummary": {
