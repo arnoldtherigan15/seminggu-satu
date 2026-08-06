@@ -3893,7 +3893,18 @@
         }
         return (it.extra || {})[k] ?? "";
       }));
-      return { headers, rows, ids: items.map(it => it.id) };
+      return { headers, rows, keys: allKeys, ids: items.map(it => it.id) };
+    }
+
+    // Kolom "frame" (3D Layered Journaling) isinya teks "Tipe N" -- tampilin
+    // foto asli frame-nya (sama kayak yang peserta liat di form pendaftaran)
+    // biar admin nggak perlu nebak-nebak pas prep.
+    function frameCellHtml(val) {
+      const m = String(val || "").match(/(\d+)/);
+      if (!m) return cellHtml(val);
+      const src = `../images/frame${m[1]}.webp`;
+      return `<td><a href="${src}" target="_blank" rel="noopener" class="cell-img-link" data-full="${src}">` +
+        `<img class="cell-img" src="${src}" alt="${escapeHtml(String(val))}" loading="lazy"></a></td>`;
     }
 
     async function loadRegistrations() {
@@ -3918,6 +3929,7 @@
 
         // Sembunyikan kolom Timestamp dari tampilan (tetap ada di CSV)
         const tsIdx = shaped.headers.findIndex(h => /timestamp|waktu/i.test(String(h)));
+        const frameIdx = shaped.keys ? shaped.keys.indexOf("frame") : -1;
         head.innerHTML = "<th>#</th>" + shaped.headers.map((h, i) => i === tsIdx ? "" : `<th>${h}</th>`).join("") + "<th>Aksi</th>";
 
         if (!shaped.rows.length) {
@@ -3928,7 +3940,7 @@
         empty.style.display = "none";
         const items = r.items || [];
         body.innerHTML = shaped.rows.map((row, i) => {
-          const cells = row.map((c, idx) => idx === tsIdx ? "" : cellHtml(c)).join("");
+          const cells = row.map((c, idx) => idx === tsIdx ? "" : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).join("");
           const regId = items[i] ? items[i].id : "";
           return `<tr><td>${i + 1}</td>${cells}<td><button class="sg-del" data-delreg="${escapeHtml(regId)}">🗑 Hapus</button></td></tr>`;
         }).join("");
