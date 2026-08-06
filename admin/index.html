@@ -6372,6 +6372,7 @@
         const igIdx = headers.findIndex(h => /instagram|\big\b/i.test(h));
         const hadirIdx = headers.findIndex(h => String(h) === "Hadir");
         const tsIdx = headers.findIndex(h => /timestamp|waktu/i.test(String(h)));
+        const frameIdx = shaped.keys ? shaped.keys.indexOf("frame") : -1;
         // Nama untuk sapaan: utamakan Nickname, fallback ke Nama
         let nameIdx = headers.findIndex(h => /nickname|panggil/i.test(h));
         if (nameIdx < 0) nameIdx = headers.findIndex(h => /nama|name/i.test(h));
@@ -6388,7 +6389,7 @@
           const isHadir = hadirIdx >= 0 && String(row[hadirIdx]) === "Ya";
           if (isHadir) hadirCount++;
           const attCell = `<td><input type="checkbox" class="att-check" data-id="${escapeHtml(pesertaRegIds[i])}" ${isHadir ? "checked" : ""}/></td>`;
-          const cells = row.map((c, idx) => hideIdx(idx) ? null : cellHtml(c)).filter(x => x !== null).join("");
+          const cells = row.map((c, idx) => hideIdx(idx) ? null : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).filter(x => x !== null).join("");
           let action = "";
           if (hasAction) {
             let btns = "";
