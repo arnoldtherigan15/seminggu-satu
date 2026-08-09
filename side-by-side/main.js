@@ -63,7 +63,7 @@ function updatePriceDisplay() {
                 bits.push(`cuma buat ${w.earlyBirdMaxCount} pendaftar pertama`);
                 if (typeof _lastCount === 'number') {
                     const left = Math.max(0, w.earlyBirdMaxCount - _lastCount);
-                    counterHtml = ' <span class="eb-counter">' + (left > 0 ? left + ' slot lagi!' : 'slot terakhir!') + '</span>';
+                    counterHtml = ' <span class="eb-counter">' + (left > 0 ? left + ' tiket lagi!' : 'tiket terakhir!') + '</span>';
                 }
             }
             if (w.earlyBirdDueDate) bits.push(`sampai ${formatDateIndo(w.earlyBirdDueDate)}`);
