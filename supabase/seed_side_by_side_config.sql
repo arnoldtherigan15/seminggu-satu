@@ -34,7 +34,7 @@ set
       'workshopTime', '10.00 - 12.30',
       'locationName', 'Kopitagram Centang Biru, Ampera Jakarta Selatan',
       'mapsLink', 'https://maps.app.goo.gl/qt4cmrggjrDQHxbu7',
-      'whatsappGroupLink', 'https://chat.whatsapp.com/F2J0yH2ub4IL5h5I4Roh6O?s=cl&p=i&mlu=4&amv=0',
+      'whatsappGroupLink', 'https://chat.whatsapp.com/DH1rcLSrAzsFHhbiB52Siz?s=cl&p=i&mlu=4&amv=0',
       'bankName', '',
       'bankAccountNumber', '',
       'bankAccountHolder', '',
