@@ -79,20 +79,26 @@ function getWorkshopStatus(workshop) {
 }
 
 /**
- * Cek apakah masih dalam periode early bird.
- * `count` (opsional) = jumlah pendaftar saat ini (dari workshop-counts) --
- * kalau workshop punya earlyBirdMaxCount (early bird cuma buat N pendaftar
- * pertama) DAN count diketahui, early bird berhenti begitu count nyampe
- * batas itu, walau tanggalnya belum lewat. Count nggak dikasih (banyak
- * caller lama cuma punya tanggal) -> cek jumlah dilewatin, perilaku sama
- * kayak sebelumnya (murni tanggal).
+ * Cek apakah masih dalam periode early bird. Dua batas independen, boleh
+ * pakai salah satu atau dua-duanya (kalau dua-duanya diisi, early bird
+ * berhenti begitu SALAH SATU kelewatan):
+ *   - earlyBirdDueDate  -> batas tanggal
+ *   - earlyBirdMaxCount -> batas jumlah pendaftar pertama (butuh `count`,
+ *     dari workshop-counts; kalau count nggak dikasih tau, batas ini
+ *     dilewatin -- caller lama yang cuma pakai tanggal tetep jalan normal)
+ * Minimal salah satu batas harus diisi, kalau nggak ada dua-duanya berarti
+ * "harga early bird" nggak ada gunanya (bakal selamanya aktif) -> dianggap
+ * bukan early bird.
  */
 function isEarlyBird(workshop, count) {
-    if (!workshop.earlyBirdPrice || !workshop.earlyBirdDueDate) return false;
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const dueDate = parseDate(workshop.earlyBirdDueDate);
-    if (!dueDate || today > dueDate) return false;
+    if (!workshop.earlyBirdPrice) return false;
+    if (!workshop.earlyBirdDueDate && !workshop.earlyBirdMaxCount) return false;
+    if (workshop.earlyBirdDueDate) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const dueDate = parseDate(workshop.earlyBirdDueDate);
+        if (!dueDate || today > dueDate) return false;
+    }
     if (workshop.earlyBirdMaxCount && typeof count === "number" && count >= workshop.earlyBirdMaxCount) return false;
     return true;
 }

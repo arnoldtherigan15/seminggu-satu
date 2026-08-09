@@ -57,9 +57,13 @@ function updatePriceDisplay() {
         if (cEl) { cEl.textContent = formatRupiah(w.earlyBirdPrice); cEl.className = 'new-price'; }
         if (ebInfo) ebInfo.style.display = 'flex';
         if (ebTxt) {
-            ebTxt.textContent = w.earlyBirdMaxCount
-                ? `Harga Early Bird — cuma buat ${w.earlyBirdMaxCount} pendaftar pertama, sampai ${formatDateIndo(w.earlyBirdDueDate)}`
-                : `Harga Early Bird sampai ${formatDateIndo(w.earlyBirdDueDate)}`;
+            const bits = [];
+            if (w.earlyBirdMaxCount) {
+                const left = typeof _lastCount === 'number' ? Math.max(0, w.earlyBirdMaxCount - _lastCount) : w.earlyBirdMaxCount;
+                bits.push(`cuma buat ${w.earlyBirdMaxCount} pendaftar pertama${typeof _lastCount === 'number' ? ` (sisa ${left})` : ''}`);
+            }
+            if (w.earlyBirdDueDate) bits.push(`sampai ${formatDateIndo(w.earlyBirdDueDate)}`);
+            ebTxt.textContent = 'Harga Early Bird — ' + (bits.join(', ') || 'terbatas');
         }
     } else {
         if (dEl) dEl.style.display = 'none';
