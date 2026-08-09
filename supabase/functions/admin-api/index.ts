@@ -435,6 +435,22 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", url });
       }
 
+      case "getSignedUrl": {
+        // Bukti bayar (bucket "payment-proofs") disimpen PRIVATE (bukan URL
+        // publik) -- disimpen di DB sebagai "bucket/path" (lihat uploadBase64
+        // di _shared/storage.ts). Admin butuh link sementara buat liatnya.
+        const raw = String(data.path || "");
+        const idx = raw.indexOf("/");
+        if (idx < 0) return errorResponse("Path tidak valid.");
+        const bucket = raw.slice(0, idx);
+        const key = raw.slice(idx + 1);
+        const ALLOWED_BUCKETS = ["payment-proofs"];
+        if (!ALLOWED_BUCKETS.includes(bucket)) return errorResponse("Bucket tidak diizinkan: " + bucket);
+        const { data: signed, error } = await admin.storage.from(bucket).createSignedUrl(key, 300);
+        if (error || !signed) return errorResponse("Gagal generate link: " + (error?.message || "tidak diketahui"), 500);
+        return jsonResponse({ status: "success", url: signed.signedUrl });
+      }
+
       case "getContent": {
         const type = String(data.contentType || "");
         const { data: rows } = await admin.from("content_items").select("*").eq("content_type", type).order("created_at", { ascending: true });

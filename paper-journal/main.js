@@ -345,9 +345,9 @@ function compressImage(file, maxSize, quality) {
                 ctx.drawImage(img, 0, 0, width, height);
                 resolve(canvas.toDataURL('image/jpeg', quality));
             };
-            img.onerror = error => reject(error);
+            img.onerror = () => reject(new Error("Gagal memuat gambar buat dikompres -- coba pilih ulang fotonya."));
         };
-        reader.onerror = error => reject(error);
+        reader.onerror = () => reject(new Error("Gagal membaca file gambar -- coba pilih ulang fotonya."));
     });
 }
 

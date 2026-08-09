@@ -836,6 +836,23 @@
       cursor: zoom-in;
     }
 
+    .cell-priv-link {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink, #10245e);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .cell-priv-link:disabled {
+      opacity: .6;
+      cursor: default;
+    }
+
     .lightbox {
       position: fixed;
       inset: 0;
@@ -3810,6 +3827,11 @@
 
     function isUrl(v) { return typeof v === "string" && /^https?:\/\//i.test(v); }
 
+    // Bukti bayar disimpen PRIVATE di Storage (bucket "payment-proofs"),
+    // di DB cuma ada path-nya ("payment-proofs/xxx.jpg"), bukan URL publik
+    // -- butuh signed URL sementara (lihat action getSignedUrl) buat liatnya.
+    function isPrivateStoragePath(v) { return typeof v === "string" && /^payment-proofs\//.test(v); }
+
     // Ambil ID file dari berbagai format URL Google Drive
     function driveId(url) {
       const s = String(url);
@@ -3831,6 +3853,9 @@
 
     // Render 1 sel tabel: kalau URL gambar -> embed thumbnail + preview; else teks
     function cellHtml(c) {
+      if (isPrivateStoragePath(c)) {
+        return `<td><button type="button" class="cell-priv-link" data-privpath="${escapeHtml(c)}">🔒 Lihat Bukti Bayar</button></td>`;
+      }
       if (isUrl(c)) {
         const id = driveId(c);
         let small, big, fallback, open;
@@ -6580,6 +6605,22 @@
       if (!img) return; // gambar error -> biarkan buka link biasa
       e.preventDefault();
       openLightbox(link.dataset.full || img.src, link.dataset.full2 || "");
+    });
+    // Klik "Lihat Bukti Bayar" -> generate signed URL (bucket private), baru buka lightbox
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest(".cell-priv-link");
+      if (!btn || btn.disabled) return;
+      const orig = btn.textContent;
+      btn.disabled = true; btn.textContent = "Memuat…";
+      try {
+        const r = await api("getSignedUrl", { token: getToken(), path: btn.dataset.privpath });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal buka bukti bayar."); return; }
+        openLightbox(r.url, "");
+      } catch (err) {
+        alert("Gagal terhubung ke server.");
+      } finally {
+        btn.disabled = false; btn.textContent = orig;
+      }
     });
     document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
     document.getElementById("imgLightbox").addEventListener("click", (e) => {
