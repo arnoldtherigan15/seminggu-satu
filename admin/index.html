@@ -4665,7 +4665,7 @@
         fields: [
           { key: "id", label: "ID" },
           { key: "title", label: "Judul" },
-          { key: "image", label: "Path Gambar (mis. images/reccomendation/x.webp)" },
+          { key: "image", label: "Gambar", type: "image" },
           { key: "description", label: "Deskripsi", type: "textarea" },
           { key: "link", label: "Link toko" },
           { key: "category", label: "Kategori (tools/material/paper)" }
@@ -4762,12 +4762,46 @@
               return `<div class="konten-field"><label>${f.label}</label>
                 <textarea data-key="${f.key}" rows="3">${escapeHtml(val)}</textarea></div>`;
             }
+            if (f.type === "image") {
+              return `<div class="konten-field"><label>${f.label}</label>
+                <input type="text" data-key="${f.key}" value="${escapeHtml(val)}" placeholder="Upload di bawah, atau tempel path/URL manual"/>
+                <input type="file" accept="image/*" data-imgpick="${f.key}" style="margin-top:6px;">
+                <div data-imgprev="${f.key}" style="margin-top:8px;">${val ? `<img src="${escapeHtml(driveThumb(val))}" style="width:100%;max-width:220px;border-radius:12px;display:block;">` : ""}</div>
+                </div>`;
+            }
             return `<div class="konten-field"><label>${f.label}</label>
               <input type="text" data-key="${f.key}" value="${escapeHtml(val)}"/></div>`;
           }).join("");
         // sync input -> KONTEN
         div.querySelectorAll("[data-key]").forEach(el => {
           el.addEventListener("input", () => { KONTEN[idx][el.dataset.key] = el.value; });
+        });
+        // upload gambar per-item (khusus field type "image") -- kompres,
+        // upload langsung pas dipilih (bukan nunggu "Simpan Semua"), biar
+        // hasil URL-nya kepasang instan & nggak ilang kalau lupa save.
+        div.querySelectorAll("[data-imgpick]").forEach(input => {
+          input.addEventListener("change", async () => {
+            const key = input.dataset.imgpick;
+            const f = input.files && input.files[0];
+            if (!f) return;
+            if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maks 8MB ya."); input.value = ""; return; }
+            const prev = div.querySelector(`[data-imgprev="${key}"]`);
+            if (prev) prev.innerHTML = `<p class="hint">Mengupload…</p>`;
+            try {
+              const dataUrl = await qCompress(f, 1400, 0.82);
+              const r = await api("uploadImage", { token: getToken(), bucket: "recommendation-photos", imageBase64: dataUrl.split(",")[1], prefix: item.title || "rec" });
+              if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal upload."); if (prev) prev.innerHTML = ""; return; }
+              KONTEN[idx][key] = r.url;
+              const textInput = div.querySelector(`[data-key="${key}"]`);
+              if (textInput) textInput.value = r.url;
+              if (prev) prev.innerHTML = `<img src="${escapeHtml(r.url)}" style="width:100%;max-width:220px;border-radius:12px;display:block;">`;
+            } catch (err) {
+              alert("Gagal upload gambar: " + (err.message || ""));
+              if (prev) prev.innerHTML = "";
+            } finally {
+              input.value = "";
+            }
+          });
         });
         div.querySelector(".k-del").addEventListener("click", () => { KONTEN.splice(idx, 1); renderKonten(); });
 

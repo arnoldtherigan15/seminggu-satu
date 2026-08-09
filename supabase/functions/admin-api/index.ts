@@ -423,6 +423,18 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", message: "Ide tersimpan." });
       }
 
+      case "uploadImage": {
+        // Upload gambar generik dari admin panel (dipakai KONTEN editor,
+        // mis. foto item Rekomendasi) -- whitelist bucket biar nggak
+        // disalahgunain upload ke bucket sembarangan.
+        const ALLOWED_BUCKETS = ["recommendation-photos"];
+        const bucket = String(data.bucket || "");
+        if (!ALLOWED_BUCKETS.includes(bucket)) return errorResponse("Bucket tidak dikenal: " + bucket);
+        if (!data.imageBase64) return errorResponse("Gambar belum dipilih.");
+        const url = await uploadBase64(admin, bucket, data.imageBase64, String(data.prefix || "img"));
+        return jsonResponse({ status: "success", url });
+      }
+
       case "getContent": {
         const type = String(data.contentType || "");
         const { data: rows } = await admin.from("content_items").select("*").eq("content_type", type).order("created_at", { ascending: true });
