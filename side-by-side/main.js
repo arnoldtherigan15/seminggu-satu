@@ -58,12 +58,16 @@ function updatePriceDisplay() {
         if (ebInfo) ebInfo.style.display = 'flex';
         if (ebTxt) {
             const bits = [];
+            let counterHtml = '';
             if (w.earlyBirdMaxCount) {
-                const left = typeof _lastCount === 'number' ? Math.max(0, w.earlyBirdMaxCount - _lastCount) : w.earlyBirdMaxCount;
-                bits.push(`cuma buat ${w.earlyBirdMaxCount} pendaftar pertama${typeof _lastCount === 'number' ? ` (sisa ${left})` : ''}`);
+                bits.push(`cuma buat ${w.earlyBirdMaxCount} pendaftar pertama`);
+                if (typeof _lastCount === 'number') {
+                    const left = Math.max(0, w.earlyBirdMaxCount - _lastCount);
+                    counterHtml = ' <span class="eb-counter">' + (left > 0 ? left + ' slot lagi!' : 'slot terakhir!') + '</span>';
+                }
             }
             if (w.earlyBirdDueDate) bits.push(`sampai ${formatDateIndo(w.earlyBirdDueDate)}`);
-            ebTxt.textContent = 'Harga Early Bird — ' + (bits.join(', ') || 'terbatas');
+            ebTxt.innerHTML = 'Harga Early Bird — ' + (bits.join(', ') || 'terbatas') + counterHtml;
         }
     } else {
         if (dEl) dEl.style.display = 'none';

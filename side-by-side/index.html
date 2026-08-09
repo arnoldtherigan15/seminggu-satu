@@ -169,6 +169,25 @@
             object-fit: cover;
         }
 
+        /* Counter sisa slot early bird -- ditonjolin, bukan ngumpet di tengah kalimat */
+        .eb-counter {
+            display: inline-block;
+            background: #dc2626;
+            color: #fff;
+            font-weight: 800;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            margin-left: 2px;
+            white-space: nowrap;
+            animation: ebPulse 2s infinite;
+        }
+
+        @keyframes ebPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
         .sbs-eligibility {
             display: flex;
             align-items: flex-start;
