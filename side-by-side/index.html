@@ -146,14 +146,16 @@
         /* ---- Ilustrasi Side by Side (2 momen: bareng ibu, bareng ayah) ---- */
         .sbs-gallery {
             display: flex;
-            flex-direction: column;
-            gap: 14px;
+            flex-direction: row;
+            gap: 10px;
             margin-bottom: 1.75rem;
         }
 
         .sbs-gallery figure {
+            flex: 1 1 0;
+            min-width: 0;
             margin: 0;
-            border-radius: 18px;
+            border-radius: 14px;
             overflow: hidden;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
@@ -292,14 +294,6 @@
                     <div class="input-wrapper">
                         <i data-lucide="smile"></i>
                         <input type="text" id="childName" name="childName" placeholder="Nama Anak" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="nickname">Nickname (Nama Panggilan Orang Tua)</label>
-                    <div class="input-wrapper">
-                        <i data-lucide="type"></i>
-                        <input type="text" id="nickname" name="nickname" placeholder="Nama Panggilan" required>
                     </div>
                 </div>
 

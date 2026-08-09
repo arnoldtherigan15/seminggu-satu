@@ -160,7 +160,10 @@ Deno.serve(async (req) => {
       // member), nama anak numpang di extra.childName.
       const parentName = String(data.parentName || "");
       fullName = parentName;
-      nickname = String(data.nickname || "");
+      // Nggak ada field nickname terpisah di form ini -- dipakein nama
+      // orang tua juga, biar kolom Nickname (dipakai buat sapaan reminder
+      // WA di admin) nggak kosong.
+      nickname = parentName;
       igUsername = String(data.igUsername || "");
       consent = yn(data.consentCheck);
       paymentUrl = await uploadBase64(admin, "payment-proofs", data.paymentBase64, `payment-${workshopType}`);

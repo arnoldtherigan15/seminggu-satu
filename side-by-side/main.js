@@ -351,7 +351,6 @@ form.addEventListener('submit', async (e) => {
     const missing = [];
     if (!form.parentName.value.trim()) missing.push('Nama Orang Tua');
     if (!form.childName.value.trim()) missing.push('Nama Anak');
-    if (!form.nickname.value.trim()) missing.push('Nickname');
     if (!form.whatsapp.value.trim()) missing.push('Nomor WhatsApp');
 
     if (_workshopData.isPrintPhoto) {
