@@ -10,7 +10,7 @@ import { getConfigValue, setConfigValue } from "../_shared/config.ts";
 import { adminLogin, requireAdminAuth } from "../_shared/admin-auth.ts";
 import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
 
-const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date"];
+const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side"];
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
 const prepKey = (event: string, type: string) => `prep__${event}__${type}`;
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());

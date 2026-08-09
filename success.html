@@ -853,6 +853,8 @@
                     extraDetails = `Bookmark: Pita (${colorPita}), Rantai (${colorRantai})\n`;
                 } else if (workshopId === 'upcycle-journal') {
                     extraDetails = `Motif: Cover (${p.get('bodyBagId') || '-'}), Flap (${p.get('flapBagId') || '-'})\n`;
+                } else if (workshopId === 'side-by-side') {
+                    extraDetails = `Nama Anak: ${p.get('childName') || '-'}\n`;
                 }
 
                 const title = wsData.name || "Creative Workshop";
@@ -900,7 +902,7 @@
             }
             swatchData.push({ label: 'Tali', name: colorStrap, hex: colorStrapHex });
 
-        } else if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling' || workshopId === 'reka-rekat' || workshopId === 'journaling-date') {
+        } else if (workshopId === '3d-frame' || workshopId === '3d-frame-journaling' || workshopId === 'reka-rekat' || workshopId === 'journaling-date' || workshopId === 'side-by-side') {
             document.getElementById('colorSection').style.display = 'none';
             document.querySelector('.journal-preview-container').style.display = 'none';
         } else if (workshopId === 'bookmark-journal' || workshopId === 'bookmark-journal-sheraton') {

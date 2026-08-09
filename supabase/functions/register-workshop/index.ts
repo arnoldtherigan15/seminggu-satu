@@ -15,6 +15,7 @@ const WORKSHOP_LABELS: Record<string, string> = {
   "bookmark-journal": "Bookmark Journal",
   "reka-rekat": "Reka Rekat",
   "journaling-date": "Journaling Date",
+  "side-by-side": "Side by Side",
 };
 
 const yn = (v: unknown) => String(v || "").toLowerCase() === "on" || v === true;
@@ -153,6 +154,24 @@ Deno.serve(async (req) => {
         }
       }
       extra = { photos };
+    } else if (workshopType === "side-by-side") {
+      // Parent & Kid Journal Playdate -- 1 tiket = 1 orang tua + 1 anak.
+      // full_name diisi nama ORANG TUA (dia yang dikontak/bayar/masuk daftar
+      // member), nama anak numpang di extra.childName.
+      const parentName = String(data.parentName || "");
+      fullName = parentName;
+      nickname = String(data.nickname || "");
+      igUsername = String(data.igUsername || "");
+      consent = yn(data.consentCheck);
+      paymentUrl = await uploadBase64(admin, "payment-proofs", data.paymentBase64, `payment-${workshopType}`);
+      const photos = [];
+      if (yn(data.isPrintPhoto)) {
+        for (const k of ["photo1Base64", "photo2Base64", "photo3Base64", "photo4Base64"]) {
+          const url = await uploadBase64(admin, "registration-photos", data[k], `sidebyside-${parentName}`);
+          if (url) photos.push(url);
+        }
+      }
+      extra = { childName: String(data.childName || ""), photos };
     }
 
     const { error: insertError } = await admin.from("registrations").insert({

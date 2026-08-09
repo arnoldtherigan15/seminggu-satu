@@ -669,8 +669,8 @@ async function loadEvents() {
         if (x.status === "not-open-yet") {
             badge = '<span class="ev-badge soon">SOON</span>';
         } else {
-            const cur = (typeof getCurrentPrice === "function") ? getCurrentPrice(w) : w.normalPrice;
-            const eb = (typeof isEarlyBird === "function") && isEarlyBird(w) && w.normalPrice > cur;
+            const cur = (typeof getCurrentPrice === "function") ? getCurrentPrice(w, used) : w.normalPrice;
+            const eb = (typeof isEarlyBird === "function") && isEarlyBird(w, used) && w.normalPrice > cur;
             badge = (cur > 0)
                 ? '<span class="ev-badge price">' + (eb ? '<s>' + kIDR(w.normalPrice) + '</s> ' : '') + kIDR(cur) + ' IDR</span>'
                 : '<span class="ev-badge open">FREE 🎉</span>';

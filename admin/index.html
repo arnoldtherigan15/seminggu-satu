@@ -3782,7 +3782,7 @@
     // Daftar workshop yang punya sheet (sama dengan WORKSHOP_SHEETS di Apps Script)
     const WORKSHOP_IDS = [
       "3d-frame-journaling", "paper-journal", "upcycle-journal",
-      "bookmark-journal", "reka-rekat", "journaling-date"
+      "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side"
     ];
 
     function populateWorkshopSelect() {
@@ -3862,7 +3862,7 @@
       frame: "Frame", initial: "Inisial", frontCoverWord: "Kata di Cover",
       colorCover: "Warna Cover", colorFlap: "Warna Flap", colorStrap: "Warna Tali/Strap",
       charmUrl: "Foto Charm", coverType: "Tipe Cover (Bag)", flapType: "Tipe Flap (Bag)",
-      rantai: "Warna Rantai", pita: "Warna Pita"
+      rantai: "Warna Rantai", pita: "Warna Pita", childName: "Nama Anak"
     };
     // Ubah `items` (array objek registrations) jadi shape lama {headers, rows, ids} biar
     // semua render/cari/export tabel yang udah ada nggak perlu ditulis ulang.
@@ -4485,6 +4485,7 @@
       { key: "normalPrice", label: "Harga normal (Rp)", type: "number" },
       { key: "earlyBirdPrice", label: "Harga early bird (Rp, kosong = tidak ada)", type: "number" },
       { key: "earlyBirdDueDate", label: "Batas early bird (DD/MM/YYYY)", type: "text" },
+      { key: "earlyBirdMaxCount", label: "Early bird cuma buat N pendaftar pertama (kosong = tanpa batas jumlah)", type: "number" },
       { key: "maxQuota", label: "Kuota maksimal", type: "number" },
       { key: "eventDate", label: "Tanggal event (DD/MM/YYYY) — untuk countdown Overview", type: "text" },
       { key: "workshopDate", label: "Tanggal acara (teks bebas, tampil di web)", type: "text" },
@@ -4528,7 +4529,7 @@
         description: "",
         enabled: false, isDisplay: false, isPrintPhoto: false,
         openDate: "", closeDate: "",
-        normalPrice: 0, earlyBirdPrice: null, earlyBirdDueDate: "",
+        normalPrice: 0, earlyBirdPrice: null, earlyBirdDueDate: "", earlyBirdMaxCount: null,
         maxQuota: 6,
         eventDate: "", workshopDate: "", workshopTime: "",
         locationName: "", mapsLink: "", whatsappGroupLink: "",

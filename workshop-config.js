@@ -14,6 +14,8 @@
  *   3. closeDate → tanggal tutup pendaftaran
  *   4. earlyBirdDueDate → batas harga early bird,
  *      setelah tanggal ini otomatis pakai harga normal
+ *   5. earlyBirdMaxCount (opsional) → early bird cuma buat N pendaftar
+ *      pertama, walau tanggalnya belum lewat (kosong = tanpa batas jumlah)
  *
  * ====================================================
  */
@@ -76,13 +78,23 @@ function getWorkshopStatus(workshop) {
     return "open";
 }
 
-/** Cek apakah masih dalam periode early bird */
-function isEarlyBird(workshop) {
+/**
+ * Cek apakah masih dalam periode early bird.
+ * `count` (opsional) = jumlah pendaftar saat ini (dari workshop-counts) --
+ * kalau workshop punya earlyBirdMaxCount (early bird cuma buat N pendaftar
+ * pertama) DAN count diketahui, early bird berhenti begitu count nyampe
+ * batas itu, walau tanggalnya belum lewat. Count nggak dikasih (banyak
+ * caller lama cuma punya tanggal) -> cek jumlah dilewatin, perilaku sama
+ * kayak sebelumnya (murni tanggal).
+ */
+function isEarlyBird(workshop, count) {
     if (!workshop.earlyBirdPrice || !workshop.earlyBirdDueDate) return false;
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const dueDate = parseDate(workshop.earlyBirdDueDate);
-    return dueDate && today <= dueDate;
+    if (!dueDate || today > dueDate) return false;
+    if (workshop.earlyBirdMaxCount && typeof count === "number" && count >= workshop.earlyBirdMaxCount) return false;
+    return true;
 }
 
 /** Ambil workshop berdasarkan ID */
@@ -96,9 +108,9 @@ function formatRupiah(num) {
     return "Rp " + num.toLocaleString("id-ID");
 }
 
-/** Ambil harga aktif (early bird atau normal) */
-function getCurrentPrice(workshop) {
-    if (isEarlyBird(workshop)) return workshop.earlyBirdPrice;
+/** Ambil harga aktif (early bird atau normal). `count` opsional, lihat isEarlyBird(). */
+function getCurrentPrice(workshop, count) {
+    if (isEarlyBird(workshop, count)) return workshop.earlyBirdPrice;
     return workshop.normalPrice;
 }
 
