@@ -167,12 +167,15 @@ function activeSeasonalTheme() {
 // dipanggil ulang tiap kali tema Terang/Gelap diganti (lihat setThemePref)
 // biar warna badge-nya ikut nyocok, gak nyangkut di palet lama
 function applySeasonalTheme() {
+    const row = document.getElementById("seasonalBadgeRow");
     const strip = document.getElementById("seasonalStrip");
     const badge = document.getElementById("seasonalBadge");
+    const badgeIc = document.getElementById("seasonalBadgeIc");
     const avatarImg = document.querySelector("#mochiAvatar .mochi-img");
     const theme = activeSeasonalTheme();
     if (strip) strip.style.display = theme ? "" : "none";
-    if (badge) badge.style.display = theme ? "" : "none";
+    if (row) row.style.display = theme ? "" : "none";
+    if (badgeIc) badgeIc.style.display = (theme && theme.icon) ? "" : "none";
     if (avatarImg) {
         avatarImg.src = (theme && theme.icon) ? theme.icon : "../images/mochi_maskot_sm.png";
         avatarImg.classList.toggle("is-merdeka", !!(theme && theme.key === "merdeka"));
@@ -180,9 +183,10 @@ function applySeasonalTheme() {
     if (!theme) return;
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     if (strip) strip.style.background = theme.stripBg;
+    if (badgeIc && theme.icon) badgeIc.src = theme.icon;
     if (badge) {
         const text = typeof theme.badge === "function" ? theme.badge() : theme.badge;
-        badge.innerHTML = theme.icon ? '<img class="seasonal-badge-ic" src="' + theme.icon + '" alt="">' + text : text;
+        badge.textContent = text;
         badge.style.color = isDark ? theme.colorDark : theme.color;
         badge.style.background = isDark ? theme.bgDark : theme.bg;
         badge.style.borderColor = isDark ? theme.borderDark : theme.border;
@@ -4277,8 +4281,9 @@ function spawnMochi() {
     el.className = "mochi-run";
     el.setAttribute("aria-label", "Mochi bawa surat nyasar — tangkap!");
     const _mTheme = activeSeasonalTheme();
-    const runnerImg = (_mTheme && _mTheme.key === "merdeka") ? "../images/mochi-merdeka.png" : "../images/sticker/str-6.png";
-    el.innerHTML = '<span class="mochi-catch">💌 Tangkap aku!</span><img src="' + runnerImg + '" alt="">';
+    const isMerdeka = _mTheme && _mTheme.key === "merdeka";
+    const runnerImg = isMerdeka ? "../images/mochi_merdeka_karung.png" : "../images/sticker/str-6.png";
+    el.innerHTML = '<span class="mochi-catch">💌 Tangkap aku!</span><img class="' + (isMerdeka ? "rm-plain" : "") + '" src="' + runnerImg + '" alt="">';
     document.body.appendChild(el);
     el.addEventListener("animationend", () => {
         if (el.parentNode) el.parentNode.removeChild(el); // lolos... balik lagi nanti
@@ -8074,7 +8079,7 @@ function renderMadingModal() {
     // Agustusan: Mochi versi merdeka nyelip sebagai sticker biasa, bukan overlay ngambang
     const _mdTheme = activeSeasonalTheme();
     if (_mdTheme && _mdTheme.key === "merdeka" && entries.length) {
-        colA.push('<div class="md-in" style="--d:0s"><img class="md-stk" src="../images/mochi-merdeka.png" alt="" style="transform:rotate(-6deg);"></div>');
+        colA.push('<div class="md-in" style="--d:0s"><img class="md-stk" src="../images/mochi_merdeka_karung.png" alt="" style="transform:rotate(-6deg);"></div>');
     }
     entries.forEach((e, i) => {
         ((i % 2 === 0) ? colA : colB).push('<div class="md-in" style="--d:' + pinDelay(i) + 's">' + boardEntryHtml(e, i, false) + '</div>');
