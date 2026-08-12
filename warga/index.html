@@ -5624,6 +5624,27 @@
             margin: -2px 0;
         }
 
+        /* dua Mochi merdeka nempel di pojok card "Karya Sang Juara", kayak tape/dekor lain di card ini */
+        .mc-stk {
+            position: absolute;
+            width: 58px;
+            z-index: 3;
+            filter: drop-shadow(0 3px 5px rgba(60, 40, 10, .35));
+            pointer-events: none;
+        }
+
+        .mc-stk-bl {
+            bottom: -14px;
+            left: -12px;
+            transform: rotate(-10deg);
+        }
+
+        .mc-stk-tr {
+            top: -14px;
+            right: -12px;
+            transform: rotate(10deg);
+        }
+
         .md-deco {
             position: absolute;
             width: 66px;

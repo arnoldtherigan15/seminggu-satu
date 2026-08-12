@@ -8076,17 +8076,17 @@ function renderMadingModal() {
     // tiap item dibungkus .md-in -> animasi "ketempel" satu-satu (delay bertingkat,
     // wrapper yang dianimasikan biar rotate miring notes-nya nggak ketiban)
     const pinDelay = i => Math.min(i * 0.3, 3.6).toFixed(2); // beneran satu-satu, cap 3.6 dtk
-    // Agustusan: Mochi versi merdeka nyelip sebagai sticker biasa, bukan overlay ngambang
+    // Agustusan: dua-duanya Mochi merdeka nyelip acak di antara sticker biasa (bukan posisi tetap)
     const _mdTheme = activeSeasonalTheme();
-    if (_mdTheme && _mdTheme.key === "merdeka" && entries.length) {
-        colA.push('<div class="md-in" style="--d:0s"><img class="md-stk" src="../images/mochi_merdeka_karung.png" alt="" style="transform:rotate(-6deg);"></div>');
-    }
+    const stkPool = (_mdTheme && _mdTheme.key === "merdeka")
+        ? ["../images/mochi-merdeka.png", "../images/mochi_merdeka_karung.png", "../images/sticker/str-1.png", "../images/sticker/str-2.png", "../images/sticker/str-3.png", "../images/sticker/str-4.png", "../images/sticker/str-5.png", "../images/sticker/str-6.png", "../images/sticker/str-7.png", "../images/sticker/str-8.png", "../images/sticker/str-9.png", "../images/sticker/str-10.png", "../images/sticker/str-11.png"]
+        : null;
     entries.forEach((e, i) => {
         ((i % 2 === 0) ? colA : colB).push('<div class="md-in" style="--d:' + pinDelay(i) + 's">' + boardEntryHtml(e, i, false) + '</div>');
         if (i % 3 === 2) {
-            const n = ((i * 7) % 11) + 1;
             const rot = (i % 2 ? -1 : 1) * (6 + (i % 9));
-            ((i % 2 === 0) ? colB : colA).push('<div class="md-in" style="--d:' + pinDelay(i + 1) + 's"><img class="md-stk" src="../images/sticker/str-' + n + '.png" alt="" style="transform:rotate(' + rot + 'deg);"></div>');
+            const stkSrc = stkPool ? stkPool[(i * 7) % stkPool.length] : ("../images/sticker/str-" + (((i * 7) % 11) + 1) + ".png");
+            ((i % 2 === 0) ? colB : colA).push('<div class="md-in" style="--d:' + pinDelay(i + 1) + 's"><img class="md-stk" src="' + stkSrc + '" alt="" style="transform:rotate(' + rot + 'deg);"></div>');
         }
     });
     // 🏆 spotlight: karya challenge TERBARU dari rank #1 leaderboard (kalau datanya udah ke-load)
@@ -8098,7 +8098,13 @@ function renderMadingModal() {
                 .filter(it => it.kind === "quest" && it.nickname === top1.nickname && it.photo)
                 .sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
             if (work) {
+                // Agustusan: dua Mochi merdeka nempel di pojok card juara, kayak tape
+                const merdekaCorners = stkPool
+                    ? '<img class="mc-stk mc-stk-bl" src="../images/mochi-merdeka.png" alt="">' +
+                    '<img class="mc-stk mc-stk-tr" src="../images/mochi_merdeka_karung.png" alt="">'
+                    : "";
                 champHtml = '<div class="md-champ md-in" style="--d:.15s">' +
+                    merdekaCorners +
                     '<span class="mc-crown">👑</span>' +
                     '<span class="wb-tape2 wt-y" style="left:14px;"></span>' +
                     '<div class="mc-k">🏆 KARYA SANG JUARA · RANK #1 🎉</div>' +
