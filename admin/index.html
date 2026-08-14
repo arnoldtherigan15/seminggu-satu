@@ -1978,6 +1978,33 @@
       background: #f8fafc;
     }
 
+    /* Pesanan Minum/Makan (Prep) -- dikelompokin per menu, nama-nama pemesan
+       ditulis nyambung (bukan kartu satu-satu) biar ringkas dibaca/discan
+       pas hari-H buat absen atau ditunjukin ke vendor. */
+    .prep-order-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 13.5px;
+      color: var(--ink);
+      padding: 10px 2px 6px;
+      border-top: 1px solid var(--line);
+    }
+
+    .prep-order-group:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .prep-order-names {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      padding: 0 2px 8px;
+    }
+
     .act-cat-head {
       font-weight: 800;
       font-size: 12.5px;
@@ -7082,17 +7109,16 @@
       const body = document.createElement("div");
       body.innerHTML =
         `<div id="prepPesananSummary"><p class="hint">Memuat...</p></div>
-         <div id="prepPesananList" style="margin-top:14px;"></div>
          <button class="btn btn-sm btn-ghost" id="prepPesananGoBtn" style="margin-top:14px;display:none;">Kelola Pesanan Lengkap (tambah/edit/hapus) →</button>`;
       return { id: "pesanan-ringkas", labelHtml: icon("cup") + " Pesanan Minum/Makan", countId: "prepPesananCount", countDefault: "…", bodyEl: body };
     }
 
-    // Nampilin pesanan minum/makan LANGSUNG di Prep (bukan cuma ringkasan +
-    // link) -- biar admin ga perlu pindah tab cuma buat liat siapa pesen apa.
-    // Tetep ada tombol "Kelola Lengkap" buat yang mau tambah/edit/hapus manual.
+    // Nampilin pesanan minum/makan LANGSUNG di Prep, dikelompokin per menu
+    // (nama menu + jumlah, nama-nama pemesan di bawahnya) -- biar ringkas
+    // dipakai pas hari-H buat absen bagi minum/makan atau kasih liat vendor
+    // (vendor mau tau "Longan x5: Jenn, Annisa, ..." bukan list acak per orang).
     async function loadPrepPesananSummary() {
       const summaryEl = document.getElementById("prepPesananSummary");
-      const listEl = document.getElementById("prepPesananList");
       const cnt = document.getElementById("prepPesananCount");
       const goBtn = document.getElementById("prepPesananGoBtn");
       if (!summaryEl) return;
@@ -7100,7 +7126,6 @@
       try {
         if (!batchId) {
           summaryEl.innerHTML = '<p class="hint">Belum ada batch buat workshop ini.</p>';
-          if (listEl) listEl.innerHTML = "";
           if (cnt) cnt.textContent = "";
           return;
         }
@@ -7114,23 +7139,22 @@
         if (cnt) cnt.textContent = "(" + orders.length + ")";
         if (!orders.length) {
           summaryEl.innerHTML = '<p class="hint">Belum ada pesanan masuk buat batch ini.</p>';
-          if (listEl) listEl.innerHTML = "";
           return;
         }
-        const menuName = (id) => { const m = menu.find((x) => x.id === id); return m ? m.name : "(menu dihapus)"; };
         const byMenu = {};
-        orders.forEach(o => { if (!byMenu[o.menuItemId]) byMenu[o.menuItemId] = 0; byMenu[o.menuItemId]++; });
-        summaryEl.innerHTML = menu.filter(m => byMenu[m.id]).map(m =>
-          `<div style="display:flex;justify-content:space-between;padding:5px 2px;border-bottom:1px solid #f1f3f6;"><span>${escapeHtml(m.name)}</span><b>${byMenu[m.id]}</b></div>`
+        orders.forEach(o => {
+          if (!byMenu[o.menuItemId]) byMenu[o.menuItemId] = [];
+          byMenu[o.menuItemId].push(o.participantName || "(tanpa nama)");
+        });
+        // Menu tanpa nama (kehapus) tetep ditampilin, dikelompokin "(menu dihapus)"
+        // -- biar totalnya tetep konsisten sama badge count.
+        const knownIds = new Set(menu.map(m => m.id));
+        const groups = menu.filter(m => byMenu[m.id]).map(m => ({ name: m.name, names: byMenu[m.id] }));
+        Object.keys(byMenu).forEach(id => { if (!knownIds.has(id)) groups.push({ name: "(menu dihapus)", names: byMenu[id] }); });
+        summaryEl.innerHTML = groups.map(g =>
+          `<div class="prep-order-group"><span>${escapeHtml(g.name)}</span><span class="subtab-count">${g.names.length}</span></div>
+           <div class="prep-order-names">${g.names.map(escapeHtml).join(", ")}</div>`
         ).join("");
-        if (listEl) {
-          listEl.innerHTML = orders.map(o =>
-            `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
-               <div style="flex:1;min-width:0;"><b>${escapeHtml(o.participantName)}</b>
-                 <div style="font-size:.8rem;color:#6b7280;">${escapeHtml(menuName(o.menuItemId))}</div></div>
-             </div>`
-          ).join("");
-        }
       } catch (e) { summaryEl.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
     }
 
