@@ -1925,6 +1925,75 @@
       transform: translateY(-1px);
     }
 
+    /* Riwayat Terbaru (Notifikasi) -- baris ringkas 1-line, bukan kartu
+       gede, biar list panjang nggak makin manjangin halaman. Area-nya
+       dibatasi tinggi + scroll sendiri, bukan ikut ngescroll halaman utuh. */
+    #activityList {
+      max-height: 420px;
+      overflow-y: auto;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .act-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px;
+      border-bottom: 1px solid #f1f3f6;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background-color .12s ease;
+    }
+
+    .act-row:last-child {
+      border-bottom: none;
+    }
+
+    .act-row:hover {
+      background: #f8fafc;
+    }
+
+    .act-row-who {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .act-row-time {
+      flex-shrink: 0;
+      font-size: 11.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .act-group-head {
+      font-weight: 800;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 12px 4px;
+      background: #f8fafc;
+    }
+
+    .act-cat-head {
+      font-weight: 800;
+      font-size: 12.5px;
+      color: var(--ink);
+      padding: 10px 12px 6px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .act-cat-head:not(:first-child) {
+      margin-top: 4px;
+    }
+
     .loy-card-foot {
       display: flex;
       align-items: center;
@@ -5662,12 +5731,10 @@
         };
 
         function rowHtml(a, meta) {
-          return `<div class="loy-card act-row" data-jump="${meta.jump}" data-ws="${escapeHtml(a.workshopType || "")}"><div class="loy-top">
-             <div style="min-width:0;">
-               <div class="loy-name">${meta.row(a)}</div>
-               <div class="loy-wa">${icon("clock")} ${timeAgo(a.ts)}</div>
-             </div>
-           </div></div>`;
+          return `<div class="act-row" data-jump="${meta.jump}" data-ws="${escapeHtml(a.workshopType || "")}">
+             <span class="act-row-who">${meta.row(a)}</span>
+             <span class="act-row-time">${timeAgo(a.ts)}</span>
+           </div>`;
         }
 
         // Sub-grup per "detail" (nama workshop buat daftar, judul challenge
@@ -5688,10 +5755,10 @@
           const items = acts.filter(a => a.type === type);
           if (!items.length) return;
           const meta = ACT_META[type];
-          html += `<div style="font-weight:800;font-size:13.5px;margin:18px 0 8px;display:flex;align-items:center;gap:6px;">${icon(meta.icon)} ${meta.label} <span class="subtab-count">${items.length}</span></div>`;
+          html += `<div class="act-cat-head">${icon(meta.icon)} ${meta.label} <span class="subtab-count">${items.length}</span></div>`;
           if (meta.groupBy) {
             groupByDetail(items).forEach(g => {
-              html += `<div style="font-weight:800;font-size:12px;margin:12px 0 6px;color:var(--muted);">${escapeHtml(g.detail)} (${g.items.length})</div>`;
+              html += `<div class="act-group-head">${escapeHtml(g.detail)} (${g.items.length})</div>`;
               html += g.items.map(a => rowHtml(a, meta)).join("");
             });
           } else {
