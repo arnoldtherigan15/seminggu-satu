@@ -4387,10 +4387,19 @@
       return `<td>${c === "" ? "-" : escapeHtml(c)}</td>`;
     }
 
+    // Tanggal + jam submit (WIB) -- dipake buat cocokin sama mutasi bank kalau
+    // ada bukti bayar yang nggak jelas/meragukan.
+    function fmtDateTime(s) {
+      if (!s) return "-";
+      const d = new Date(s);
+      if (isNaN(d)) return String(s);
+      return d.toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " WIB";
+    }
+
     // Kolom `registrations.extra` beda-beda per jenis workshop -- label ramah biar tabel
     // tetap enak dibaca (dulu ini nama kolom sheet Google, sekarang key JSON).
     const REG_FIELD_LABELS = {
-      created_at: "Timestamp", full_name: "Nama Lengkap", nickname: "Nickname", wa: "WhatsApp",
+      created_at: "Waktu Daftar", full_name: "Nama Lengkap", nickname: "Nickname", wa: "WhatsApp",
       ig_username: "Instagram", consent: "Consent", payment_proof_url: "Bukti Bayar", attendance: "Hadir",
       frame: "Frame", initial: "Inisial", frontCoverWord: "Kata di Cover",
       colorCover: "Warna Cover", colorFlap: "Warna Flap", colorStrap: "Warna Tali/Strap",
@@ -4460,10 +4469,11 @@
 
         document.getElementById("exportCsvBtn").disabled = REG_DATA.rows.length === 0;
 
-        // Sembunyikan kolom Timestamp dari tampilan (tetap ada di CSV)
+        // Timestamp (tanggal+jam submit) ditampilin -- kepake buat cocokin
+        // sama mutasi bank kalau bukti bayarnya nggak jelas.
         const tsIdx = shaped.headers.findIndex(h => /timestamp|waktu/i.test(String(h)));
         const frameIdx = shaped.keys ? shaped.keys.indexOf("frame") : -1;
-        head.innerHTML = "<th>#</th>" + shaped.headers.map((h, i) => i === tsIdx ? "" : `<th>${h}</th>`).join("") + "<th>Aksi</th>";
+        head.innerHTML = "<th>#</th>" + shaped.headers.map(h => `<th>${h}</th>`).join("") + "<th>Aksi</th>";
 
         if (!shaped.rows.length) {
           body.innerHTML = "";
@@ -4473,7 +4483,7 @@
         empty.style.display = "none";
         const items = r.items || [];
         body.innerHTML = shaped.rows.map((row, i) => {
-          const cells = row.map((c, idx) => idx === tsIdx ? "" : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).join("");
+          const cells = row.map((c, idx) => idx === tsIdx ? `<td>${escapeHtml(fmtDateTime(c))}</td>` : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).join("");
           const regId = items[i] ? items[i].id : "";
           return `<tr><td>${i + 1}</td>${cells}<td><button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button></td></tr>`;
         }).join("");
