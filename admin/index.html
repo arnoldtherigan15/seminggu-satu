@@ -4482,11 +4482,31 @@
         }
         empty.style.display = "none";
         const items = r.items || [];
+        // Reka Rekat punya form isian 4 foto -- peserta suka buru-buru daftar
+        // pake foto asal dulu, nanti nyusul upload yang beneran. Link personal
+        // ini biar dia bisa GANTI foto tanpa daftar ulang.
+        const canUpdatePhoto = workshop === "reka-rekat";
         body.innerHTML = shaped.rows.map((row, i) => {
           const cells = row.map((c, idx) => idx === tsIdx ? `<td>${escapeHtml(fmtDateTime(c))}</td>` : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).join("");
-          const regId = items[i] ? items[i].id : "";
-          return `<tr><td>${i + 1}</td>${cells}<td><button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button></td></tr>`;
+          const it = items[i];
+          const regId = it ? it.id : "";
+          const nm = it ? (it.nickname || it.full_name || "") : "";
+          const photoBtn = canUpdatePhoto
+            ? `<button class="wa-copy" data-photolink="${escapeHtml(regId)}" data-photoname="${escapeHtml(nm)}" data-photowa="${escapeHtml((it && it.wa) || "")}" title="Kirim link upload ulang foto">${icon("camera")}</button>`
+            : "";
+          return `<tr><td>${i + 1}</td>${cells}<td>${photoBtn}<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button></td></tr>`;
         }).join("");
+        body.querySelectorAll("[data-photolink]").forEach(b => b.addEventListener("click", () => {
+          const link = siteOrigin() + "/reka-rekat/update-photo.html?rid=" + encodeURIComponent(b.dataset.photolink) + "&nama=" + encodeURIComponent(b.dataset.photoname || "");
+          const wa = waNormalize(b.dataset.photowa);
+          if (wa) {
+            const nm = (b.dataset.photoname || "").trim().split(/\s+/)[0] || "kak";
+            const msg = `Halo ${nm} 👋\nBoleh upload ulang foto buat Reka Rekat kamu di sini ya (kalau kemarin masih asal-asalan pas daftar):\n${link}`;
+            window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(msg), "_blank");
+          } else {
+            copyToClipboardEl(link, b);
+          }
+        }));
         body.querySelectorAll("[data-delreg]").forEach(b => b.addEventListener("click", async () => {
           if (!confirm("Hapus peserta ini dari daftar? Nggak bisa dibalikin (misal karena dia cancel).")) return;
           b.disabled = true;

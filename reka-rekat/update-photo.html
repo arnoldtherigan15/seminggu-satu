@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Ulang Foto — Reka Rekat | Seminggu Satu</title>
+    <meta name="robots" content="noindex">
+
+    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <script src="../theme.js"></script>
+    <script src="../env.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/heic2any@0.4.0/dist/heic2any.min.js"></script>
+
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .rid-missing {
+            text-align: center;
+            padding: 3rem 1.5rem;
+        }
+
+        .rid-missing i {
+            width: 48px;
+            height: 48px;
+            color: var(--error-color);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="hero">
+        <div class="brand">
+            <a href="../index.html" style="text-decoration:none;">
+                <img src="../logo_seminggu.png" alt="Seminggu Satu" class="brand-logo" style="width: auto;">
+                <p>by Arnold</p>
+            </a>
+        </div>
+        <div class="hero-content">
+            <h2>Upload Ulang Foto Reka Rekat 📸</h2>
+            <p class="subtitle" id="greetingText">Ganti 4 foto journal kamu di sini kapan aja sebelum hari-H —
+                nggak perlu daftar ulang.</p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div id="ridMissing" class="rid-missing" style="display:none;">
+            <i data-lucide="link-2-off"></i>
+            <h3>Link nggak valid</h3>
+            <p style="color:var(--text-secondary);margin-top:.5rem;">Link ini kayaknya udah nggak berlaku. Hubungi
+                admin buat dikirimin link yang baru ya.</p>
+        </div>
+
+        <section class="registration-form-section" id="formSection">
+            <div class="section-header">
+                <h3>Foto Journal Kamu</h3>
+                <p>Upload foto apapun yang mau kamu tempel di halaman journal — foto lama otomatis kegantiin sama
+                    yang baru.</p>
+            </div>
+
+            <form id="photoForm">
+
+                <div class="form-group upload-group">
+                    <label>Foto 1</label>
+                    <div class="upload-area" id="photo1UploadArea">
+                        <i data-lucide="image-plus"></i>
+                        <span>Pilih Foto 1</span>
+                        <input type="file" id="photo1" name="photo1" accept="image/*">
+                        <img id="photo1Preview" class="preview-img" src="" alt="">
+                    </div>
+                </div>
+
+                <div class="form-group upload-group">
+                    <label>Foto 2</label>
+                    <div class="upload-area" id="photo2UploadArea">
+                        <i data-lucide="image-plus"></i>
+                        <span>Pilih Foto 2</span>
+                        <input type="file" id="photo2" name="photo2" accept="image/*">
+                        <img id="photo2Preview" class="preview-img" src="" alt="">
+                    </div>
+                </div>
+
+                <div class="form-group upload-group">
+                    <label>Foto 3</label>
+                    <div class="upload-area" id="photo3UploadArea">
+                        <i data-lucide="image-plus"></i>
+                        <span>Pilih Foto 3</span>
+                        <input type="file" id="photo3" name="photo3" accept="image/*">
+                        <img id="photo3Preview" class="preview-img" src="" alt="">
+                    </div>
+                </div>
+
+                <div class="form-group upload-group">
+                    <label>Foto 4</label>
+                    <div class="upload-area" id="photo4UploadArea">
+                        <i data-lucide="image-plus"></i>
+                        <span>Pilih Foto 4</span>
+                        <input type="file" id="photo4" name="photo4" accept="image/*">
+                        <img id="photo4Preview" class="preview-img" src="" alt="">
+                    </div>
+                </div>
+
+                <p class="hint" style="font-size:.8rem;color:var(--text-secondary);margin:-.5rem 0 1rem;">Isi
+                    keempatnya ya — foto lama kamu bakal digantikan semua sama 4 foto yang baru ini.</p>
+
+                <div id="statusMessage" class="status-message"></div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span>Simpan Foto</span>
+                    <i data-lucide="check"></i>
+                </button>
+
+            </form>
+        </section>
+
+    </main>
+
+    <div id="blockerLoader">
+        <div class="blocker-content">
+            <div class="blocker-spinner"></div>
+            <p id="blockerMessage">Mengirim foto...</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
+    </footer>
+
+    <script src="update-photo.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
