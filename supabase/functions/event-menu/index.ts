@@ -32,13 +32,19 @@ Deno.serve(async (req) => {
     // Kalau rid nggak valid/nggak match batch ini, diem-diem fallback ke
     // form manual (bukan error) -- link generik lama tetep harus jalan.
     let participantName = "";
+    let existingMenuItemId = "";
     if (rid) {
       const { data: reg } = await admin.from("registrations").select("nickname, full_name").eq("id", rid).eq("batch_id", batchId).maybeSingle();
       if (reg) participantName = reg.nickname || reg.full_name || "";
+      // Pesanan yang udah ada buat orang ini (kalau ada) -- ditampilin di
+      // form biar peserta tau pesenan lamanya sebelum milih ulang (resubmit
+      // dari link ini bakal GANTI pesanan ini, bukan nambah baris baru).
+      const { data: order } = await admin.from("event_orders").select("menu_item_id").eq("batch_id", batchId).eq("registration_id", rid).maybeSingle();
+      if (order) existingMenuItemId = order.menu_item_id;
     }
 
     return jsonResponse({
-      status: "success", workshopName, label: batch.label || "", eventDate: batch.event_date || "", items, participantName,
+      status: "success", workshopName, label: batch.label || "", eventDate: batch.event_date || "", items, participantName, existingMenuItemId,
     });
   } catch (e) {
     return errorResponse((e as Error).message || "Terjadi kesalahan", 500);

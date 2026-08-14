@@ -134,8 +134,9 @@
         function renderForm() {
             var d = DATA;
             var locked = !!d.participantName; // link personalisasi (?rid=) -> nama udah keisi, gak perlu ngetik
+            var existing = d.items.find(function (it) { return it.id === d.existingMenuItemId; });
             var itemsHtml = d.items.map(function (it) {
-                return '<button type="button" class="menu-card" data-id="' + esc(it.id) + '">' +
+                return '<button type="button" class="menu-card' + (it.id === selectedMenuId ? ' sel' : '') + '" data-id="' + esc(it.id) + '">' +
                     (it.imageUrl ? '<img src="' + esc(driveThumb(it.imageUrl)) + '" alt="">' : '') +
                     '<div class="mc-body"><div class="mc-name">' + esc(it.name) + '</div>' +
                     (it.description ? '<div class="mc-desc">' + esc(it.description) + '</div>' : '') + '</div>' +
@@ -150,8 +151,9 @@
                     ? (locked
                         ? '<div class="sec-lbl">Halo, ' + esc(d.participantName) + '! 👋 Pilih menu kamu:</div>'
                         : '<div class="field"><label>Nama kamu</label><input type="text" id="pName" placeholder="cth: Arnold" maxlength="60"></div><div class="sec-lbl">Pilih menu</div>') +
+                      (existing ? '<p style="font-size:.82rem;color:var(--muted);margin:-.6rem 0 .9rem;">Kamu udah pesen <b>' + esc(existing.name) + '</b> sebelumnya — pilih menu di bawah kalau mau ganti.</p>' : '') +
                       '<div class="menu-list">' + itemsHtml + '</div>' +
-                      '<button type="button" class="submit-btn" id="pSubmit" disabled>Kirim Pesanan</button>' +
+                      '<button type="button" class="submit-btn" id="pSubmit" disabled>' + (existing ? 'Ganti Pesanan' : 'Kirim Pesanan') + '</button>' +
                       '<div class="msg" id="pMsg"></div>'
                     : '<div class="placeholder"><div class="em">🍵</div><h3>Menu belum tersedia</h3><p>Panitia belum nambahin menu buat event ini. Coba lagi nanti ya.</p></div>');
 
@@ -168,6 +170,7 @@
             var nameInput = document.getElementById("pName");
             if (nameInput) nameInput.addEventListener("input", checkReady);
             document.getElementById("pSubmit").addEventListener("click", submitOrder);
+            checkReady();
         }
 
         function currentName() {
@@ -207,6 +210,7 @@
             document.getElementById("pAgain").addEventListener("click", function () {
                 selectedMenuId = "";
                 DATA.participantName = ""; // pesenan berikutnya buat orang lain -> nama ketik manual, jangan ke-lock ke nama tadi
+                DATA.existingMenuItemId = ""; // itu pesenan lama punya orang tadi, bukan punya orang yang baru ini
                 renderForm();
             });
         }
@@ -217,6 +221,7 @@
             fnGet("event-menu", "batchId=" + encodeURIComponent(batchId) + (rid ? "&rid=" + encodeURIComponent(rid) : ""), function (r) {
                 if (!r || r.status !== "success") { renderError(r && r.message); return; }
                 DATA = r;
+                selectedMenuId = r.existingMenuItemId || ""; // udah pernah pesen -> pre-select biar keliatan pesenan lamanya
                 renderForm();
             });
         }

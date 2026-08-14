@@ -34,8 +34,23 @@ Deno.serve(async (req) => {
       if (reg) regId = reg.id;
     }
 
-    const { error } = await admin.from("event_orders").insert({ batch_id: batchId, participant_name: participantName, menu_item_id: menuItemId, registration_id: regId });
-    if (error) return errorResponse("Gagal simpan: " + error.message);
+    // Link personal (regId ada) -> orangnya udah kenal, resubmit artinya
+    // GANTI pesanan (update baris yang udah ada), bukan nambah baris baru.
+    // Link generik/grup (regId kosong) tetep insert baru tiap submit --
+    // itu emang desainnya buat pesenin banyak orang pake 1 link.
+    let isUpdate = false;
+    if (regId) {
+      const { data: existing } = await admin.from("event_orders").select("id").eq("batch_id", batchId).eq("registration_id", regId).maybeSingle();
+      if (existing) {
+        const { error } = await admin.from("event_orders").update({ participant_name: participantName, menu_item_id: menuItemId }).eq("id", existing.id);
+        if (error) return errorResponse("Gagal update: " + error.message);
+        isUpdate = true;
+      }
+    }
+    if (!isUpdate) {
+      const { error } = await admin.from("event_orders").insert({ batch_id: batchId, participant_name: participantName, menu_item_id: menuItemId, registration_id: regId });
+      if (error) return errorResponse("Gagal simpan: " + error.message);
+    }
 
     // Notif Telegram -- best-effort, jangan gagalin submit kalau ini error
     try {
@@ -45,14 +60,14 @@ Deno.serve(async (req) => {
       if (w?.name) workshopName = w.name;
       const eventLabel = batch.label || workshopName;
       await sendTelegramText(
-        "🥤 *Pesanan Masuk!*\n\n" +
+        (isUpdate ? "🔄 *Pesanan Diperbarui!*\n\n" : "🥤 *Pesanan Masuk!*\n\n") +
           `🎫 Event: ${eventLabel}\n` +
           `👤 Nama: ${participantName}\n` +
           `🍹 Menu: ${item.name}`,
       );
     } catch (_e) { /* abaikan */ }
 
-    return jsonResponse({ status: "success", message: "Pesanan tercatat!" });
+    return jsonResponse({ status: "success", message: isUpdate ? "Pesanan kamu udah diperbarui!" : "Pesanan tercatat!" });
   } catch (e) {
     return errorResponse((e as Error).message || "Terjadi kesalahan", 500);
   }
