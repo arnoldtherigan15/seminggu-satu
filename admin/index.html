@@ -3442,8 +3442,12 @@
         <div class="wrap view" id="viewPrep" style="display:none;">
           <div class="toolbar">
             <div class="field">
-              <label for="prepSelect">Pilih Event</label>
+              <label for="prepSelect">Workshop</label>
               <select class="form-control" id="prepSelect"></select>
+            </div>
+            <div class="field">
+              <label for="prepBatchSelect">Batch / Tanggal</label>
+              <select class="form-control" id="prepBatchSelect"></select>
             </div>
           </div>
           <div id="prepHeader"></div>
@@ -3569,13 +3573,17 @@
         <div class="wrap view" id="viewPesanan" style="display:none;">
           <div class="toolbar">
             <div class="field">
-              <label for="pesEventSelect">Pilih Event</label>
+              <label for="pesWorkshopSelect">Workshop</label>
+              <select class="form-control" id="pesWorkshopSelect"></select>
+            </div>
+            <div class="field">
+              <label for="pesEventSelect">Batch / Tanggal</label>
               <select class="form-control" id="pesEventSelect"></select>
             </div>
             <button class="btn btn-sm btn-ghost" id="pesReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
           </div>
 
-          <div id="pesEmpty" class="hint" style="display:none;">Belum ada batch event. Bikin batch dulu di tab Registrations ya.</div>
+          <div id="pesEmpty" class="hint" style="display:none;">Belum ada batch buat workshop ini. Bikin batch dulu di tab Registrations ya.</div>
 
           <div id="pesBody" style="display:none;">
             <div class="subtabs" id="pesSubtabs">
@@ -5920,7 +5928,10 @@
     async function ensurePesanan(presetBatchId) {
       if (!pesananInit) {
         pesananInit = true;
-        document.getElementById("pesReloadBtn").addEventListener("click", () => { loadPesBatches(); loadPesMenu(); });
+        const wsSel = document.getElementById("pesWorkshopSelect");
+        wsSel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
+        wsSel.addEventListener("change", () => loadPesBatchesForWorkshop());
+        document.getElementById("pesReloadBtn").addEventListener("click", () => { loadPesBatchesForWorkshop(); loadPesMenu(); });
         document.getElementById("pesEventSelect").addEventListener("change", () => {
           location.hash = "pesanan:" + document.getElementById("pesEventSelect").value; // biar ketahan pas refresh, sama pola kayak Prep
           onPesEventChange();
@@ -5940,15 +5951,25 @@
         pesTabsCtl = wireSubtabs(document.getElementById("pesSubtabs"));
         loadPesVendorWa();
         await loadPesMenu();
-        await loadPesBatches();
       }
-      if (presetBatchId) {
-        const sel = document.getElementById("pesEventSelect");
-        if (sel && PES_BATCHES.some(b => b.id === presetBatchId)) {
-          sel.value = presetBatchId;
-          onPesEventChange();
+      if (presetBatchId && !PES_BATCHES.some(b => b.id === presetBatchId)) {
+        // Deep-link ke batch tertentu (mis. dari tombol "Kelola Pesanan
+        // Lengkap" di Prep) -- cari tau batch ini punya workshop apa dulu,
+        // baru pilihin dropdown workshop-nya, baru muat batch-nya.
+        const r = await api("listAllBatches", { token: getToken() });
+        const match = r && r.status === "success" && (r.batches || []).find(b => b.id === presetBatchId);
+        if (match) {
+          document.getElementById("pesWorkshopSelect").value = match.workshopType;
+          await loadPesBatchesForWorkshop(presetBatchId);
+          return;
         }
+      } else if (presetBatchId) {
+        const sel = document.getElementById("pesEventSelect");
+        sel.value = presetBatchId;
+        onPesEventChange();
+        return;
       }
+      if (!PES_BATCHES.length) await loadPesBatchesForWorkshop();
     }
 
     function fmtOrderDate(s) {
@@ -6000,20 +6021,44 @@
       window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(text), "_blank");
     }
 
-    async function loadPesBatches() {
+    // Daftar batch (tanggal/volume) buat workshop yg lagi dipilih di
+    // pesWorkshopSelect -- diseragamin sama pola Registrations/Finance/Prep
+    // (pilih workshop dulu, baru batch-nya), bukan 1 dropdown flat semua
+    // event kayak sebelumnya.
+    async function loadPesBatchesForWorkshop(presetBatchId) {
+      const workshop = document.getElementById("pesWorkshopSelect").value;
       const sel = document.getElementById("pesEventSelect");
-      const prevValue = sel.value;
-      const r = await api("listAllBatches", { token: getToken() });
-      if (!r || r.status !== "success") { handleAuthError(r); return; }
-      PES_BATCHES = r.batches || [];
       const empty = document.getElementById("pesEmpty");
       const body = document.getElementById("pesBody");
-      if (!PES_BATCHES.length) { empty.style.display = "block"; body.style.display = "none"; return; }
-      empty.style.display = "none"; body.style.display = "block";
-      sel.innerHTML = PES_BATCHES.map(b =>
-        `<option value="${b.id}">${escapeHtml(b.workshopName)} — ${escapeHtml(b.eventDate ? fmtOrderDate(b.eventDate) : (b.label || "(tanpa tanggal)"))}</option>`
-      ).join("");
-      if (prevValue && PES_BATCHES.some(b => b.id === prevValue)) sel.value = prevValue;
+      const prevValue = sel.value;
+      sel.innerHTML = `<option>Memuat...</option>`;
+      try {
+        const r = await api("listBatches", { token: getToken(), workshop });
+        if (document.getElementById("pesWorkshopSelect").value !== workshop) return; // udah ganti workshop lain, buang hasil basi
+        if (!r || r.status !== "success") { handleAuthError(r); return; }
+        PES_BATCHES = (r.batches || []).map(b => ({
+          id: b.id, workshopType: workshop, workshopName: workshopName(workshop),
+          label: b.label, eventDate: b.eventDate, active: b.active,
+        }));
+        if (!PES_BATCHES.length) {
+          empty.style.display = "block"; body.style.display = "none";
+          sel.innerHTML = `<option value="">(belum ada batch)</option>`;
+          return;
+        }
+        empty.style.display = "none"; body.style.display = "block";
+        sel.innerHTML = PES_BATCHES.map(b =>
+          `<option value="${b.id}">${escapeHtml(b.label || (b.eventDate ? fmtOrderDate(b.eventDate) : "(tanpa tanggal)"))}${b.active ? " • AKTIF" : ""}</option>`
+        ).join("");
+        if (presetBatchId && PES_BATCHES.some(b => b.id === presetBatchId)) sel.value = presetBatchId;
+        else if (prevValue && PES_BATCHES.some(b => b.id === prevValue)) sel.value = prevValue;
+        else {
+          const activeIdx = PES_BATCHES.findIndex(b => b.active);
+          if (activeIdx >= 0) sel.selectedIndex = activeIdx;
+        }
+      } catch (e) {
+        sel.innerHTML = `<option value="">(gagal memuat)</option>`;
+        return;
+      }
       onPesEventChange();
     }
 
@@ -6692,13 +6737,41 @@
       if (!prepInit) {
         const sel = document.getElementById("prepSelect");
         sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
-        // Ganti dropdown -> update URL hash (biar ketahan saat refresh)
-        sel.addEventListener("change", () => { location.hash = "prep:" + sel.value; });
+        // Ganti workshop -> update URL hash (biar ketahan saat refresh) + muat ulang daftar batch-nya
+        sel.addEventListener("change", async () => { location.hash = "prep:" + sel.value; await loadPrepBatches(); await loadPrep(); });
+        // Ganti batch aja (masih workshop yg sama) -> jangan render ulang semua sub-tab,
+        // cukup refresh tab Peserta & Pesanan Ringkasan biar posisi sub-tab yg lagi
+        // dibuka nggak kepental balik ke awal.
+        document.getElementById("prepBatchSelect").addEventListener("change", () => { loadPrepParticipants(); loadPrepPesananSummary(); });
         prepInit = true;
       }
       if (event && WORKSHOP_IDS.indexOf(event) >= 0) document.getElementById("prepSelect").value = event;
       if (!Object.keys(SUMMARY).length) await loadSummary(); // buat header (jumlah pendaftar)
+      await loadPrepBatches();
       await loadPrep();
+    }
+
+    // Daftar batch (tanggal/volume) buat workshop yg lagi dipilih di prepSelect
+    // -- checklist (Todo/Barang/Notes/Alat/Catatan) tetap 1 per WORKSHOP (bukan
+    // per batch, itu emang desainnya -- lihat prepKey() di backend), tapi tab
+    // Peserta & Pesanan Ringkasan ngikutin batch yg dipilih di sini.
+    async function loadPrepBatches() {
+      const workshop = document.getElementById("prepSelect").value;
+      const sel = document.getElementById("prepBatchSelect");
+      sel.innerHTML = `<option>Memuat...</option>`;
+      try {
+        const r = await api("listBatches", { token: getToken(), workshop });
+        if (document.getElementById("prepSelect").value !== workshop) return; // udah ganti workshop lain, buang hasil basi
+        if (r.status !== "success") { handleAuthError(r); return; }
+        const batches = r.batches || [];
+        sel.innerHTML = batches.length
+          ? batches.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.active ? " • AKTIF" : ""}</option>`).join("")
+          : `<option value="">(belum ada batch)</option>`;
+        const activeIdx = batches.findIndex(b => b.active);
+        if (activeIdx >= 0) sel.selectedIndex = activeIdx;
+      } catch (e) {
+        sel.innerHTML = `<option value="">(gagal memuat)</option>`;
+      }
     }
 
     function renderPrepHeader(event) {
@@ -6796,13 +6869,10 @@
       const cnt = document.getElementById("prepPesananCount");
       const goBtn = document.getElementById("prepPesananGoBtn");
       if (!summaryEl) return;
-      const workshop = document.getElementById("prepSelect").value;
+      const batchId = document.getElementById("prepBatchSelect").value;
       try {
-        // reuse getRegistrations -- dia udah resolve batch AKTIF buat workshop ini di server
-        const r = await api("getRegistrations", { token: getToken(), workshop });
-        const batchId = r && r.batchId;
         if (!batchId) {
-          summaryEl.innerHTML = '<p class="hint">Belum ada batch aktif buat workshop ini.</p>';
+          summaryEl.innerHTML = '<p class="hint">Belum ada batch buat workshop ini.</p>';
           if (listEl) listEl.innerHTML = "";
           if (cnt) cnt.textContent = "";
           return;
@@ -6816,7 +6886,7 @@
         const menu = (menuR && menuR.items) || [];
         if (cnt) cnt.textContent = "(" + orders.length + ")";
         if (!orders.length) {
-          summaryEl.innerHTML = '<p class="hint">Belum ada pesanan masuk buat batch aktif ini.</p>';
+          summaryEl.innerHTML = '<p class="hint">Belum ada pesanan masuk buat batch ini.</p>';
           if (listEl) listEl.innerHTML = "";
           return;
         }
@@ -6967,6 +7037,7 @@
 
     async function loadPrepParticipants() {
       const event = document.getElementById("prepSelect").value;
+      const batchId = document.getElementById("prepBatchSelect").value;
       const head = document.getElementById("pesertaHead");
       const body = document.getElementById("pesertaBody");
       const empty = document.getElementById("pesertaEmpty");
@@ -6981,7 +7052,7 @@
 
       body.innerHTML = skelTableRows(4, 5);
       try {
-        const r = await api("getRegistrations", { token: getToken(), workshop: event }); // batch aktif
+        const r = await api("getRegistrations", { token: getToken(), workshop: event, batchId });
         if (r.status !== "success") { handleAuthError(r); return; }
         if (cnt) cnt.textContent = r.total || 0;
 
