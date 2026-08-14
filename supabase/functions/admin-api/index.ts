@@ -283,7 +283,7 @@ Deno.serve(async (req) => {
         } catch (_e) { /* abaikan */ }
 
         const { data: regs } = await admin.from("registrations").select("full_name, nickname, workshop_type, created_at").order("created_at", { ascending: false }).limit(8);
-        for (const r of regs || []) acts.push({ type: "daftar", who: r.nickname || r.full_name || "Peserta", detail: nameMap[r.workshop_type] || r.workshop_type, ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
+        for (const r of regs || []) acts.push({ type: "daftar", who: r.nickname || r.full_name || "Peserta", detail: nameMap[r.workshop_type] || r.workshop_type, workshopType: r.workshop_type, ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
 
         const { data: challenges } = await admin.from("challenges").select("id, title");
         const chalTitle: Record<string, string> = {};
@@ -295,7 +295,14 @@ Deno.serve(async (req) => {
         for (const r of mem || []) acts.push({ type: "member", who: r.nickname || "Warga", detail: "gabung Balai Warga", ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
 
         acts.sort((a, b) => b.ts - a.ts);
-        return jsonResponse({ status: "success", activity: acts.slice(0, 40) });
+
+        // Kotak Pos Warga yang belum ditindak (approve/tolak) -- ini yang
+        // beneran butuh keputusan admin, beda dari activity di atas yang
+        // cuma info kejadian (udah kekirim ke Telegram juga).
+        const { data: pendingRows } = await admin.from("suggestions").select("id, nickname, category, message, created_at").eq("status", "open").order("created_at", { ascending: false });
+        const pending = (pendingRows || []).map((r) => ({ id: r.id, who: r.nickname || "Warga", category: r.category, text: r.message, ts: r.created_at ? new Date(r.created_at).getTime() : 0 }));
+
+        return jsonResponse({ status: "success", activity: acts.slice(0, 40), pending });
       }
 
       case "getMembers": {

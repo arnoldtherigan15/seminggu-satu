@@ -361,6 +361,18 @@
       overflow-y: auto;
     }
 
+    .nav-badge {
+      margin-left: auto;
+      background: var(--err, #ef4444);
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 800;
+      line-height: 1;
+      padding: 3px 7px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
     .nav-section-label {
       font-size: 10.5px;
       font-weight: 800;
@@ -3266,7 +3278,7 @@
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/></svg></span> Overview
           </button>
           <button class="nav-btn" data-view="activity">
-            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg></span> Notifikasi
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg></span> Notifikasi <span class="nav-badge" id="navActBadge" style="display:none;"></span>
           </button>
           <div class="nav-section-label">Warga</div>
           <button class="nav-btn" data-view="members">
@@ -3702,9 +3714,14 @@
         <!-- ===== VIEW: NOTIFIKASI / AKTIVITAS ===== -->
         <div class="wrap view" id="viewActivity" style="display:none;">
           <div class="toolbar">
-            <div style="font-weight:800;font-size:16px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg> Aktivitas Terbaru</div>
+            <div style="font-weight:800;font-size:16px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg> Notifikasi</div>
             <button class="btn btn-sm btn-ghost" id="actReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
           </div>
+
+          <div style="font-weight:800;margin:6px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4a3 3 0 0 0-3 3v6h6V7a3 3 0 0 0-3-3m0-1h8a4 4 0 0 1 4 4v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V7a4 4 0 0 1 4-4m2.646 1A4 4 0 0 1 8 7v6h7V7a3 3 0 0 0-3-3z"/><path d="M11.793 8.5H9v-1h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.354-.146zM5 7c0 .552-.448 0-1 0s-1 .552-1 0a1 1 0 0 1 2 0"/></svg> Perlu Ditindak <span class="subtab-count" id="actPendingCount"></span></div>
+          <div id="actPendingList"></div>
+
+          <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg> Riwayat Terbaru</div>
           <div id="activityList"></div>
         </div>
 
@@ -4138,6 +4155,7 @@
       populateWorkshopSelect();
       applyHash(); // buka view sesuai URL hash (default overview)
       window.scrollTo(0, 0);
+      loadActivity(); // isi badge notifikasi di sidebar, biar keliatan walau belum buka tabnya
     }
 
     let pendaftarInit = false;
@@ -5488,25 +5506,101 @@
       loadActivity(); // selalu refresh tiap dibuka
     }
 
+    function timeAgo(ts) {
+      if (!ts) return "";
+      const min = Math.floor((Date.now() - ts) / 60000);
+      if (min < 1) return "baru aja";
+      if (min < 60) return min + " menit lalu";
+      const hr = Math.floor(min / 60);
+      if (hr < 24) return hr + " jam lalu";
+      const day = Math.floor(hr / 24);
+      if (day < 7) return day + " hari lalu";
+      return new Date(ts).toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+    }
+
+    // Badge merah di sidebar -- keliatan tanpa perlu buka tab Notifikasi.
+    function updateInboxBadge(count) {
+      const b = document.getElementById("navActBadge");
+      if (!b) return;
+      if (count > 0) { b.textContent = count; b.style.display = "inline-block"; }
+      else b.style.display = "none";
+    }
+
+    // "Perlu Ditindak" = Kotak Pos Warga yang belum di-approve/tolak -- ini
+    // beda dari activity biasa karena butuh KEPUTUSAN admin, bukan cuma info.
+    // "Riwayat Terbaru" tetep dipertahanin buat konteks, tapi barisnya bisa
+    // diklik langsung ke tab terkait (nggak cuma teks pasif kayak dulu).
     async function loadActivity() {
       const el = document.getElementById("activityList");
+      const pendEl = document.getElementById("actPendingList");
+      const pendCnt = document.getElementById("actPendingCount");
       el.innerHTML = skelLines(5);
+      if (pendEl) pendEl.innerHTML = skelLines(2);
       try {
         const r = await api("getActivity", { token: getToken() });
-        if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
+        if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; if (pendEl) pendEl.innerHTML = ""; return; }
+
+        const pending = r.pending || [];
+        updateInboxBadge(pending.length);
+        if (pendCnt) pendCnt.textContent = pending.length ? "(" + pending.length + ")" : "";
+        if (pendEl) {
+          pendEl.innerHTML = pending.length
+            ? pending.map(p =>
+              `<div class="loy-card"><div class="loy-top">
+                 <div style="min-width:0;">
+                   <div class="loy-name">${SG_CAT_LABEL[p.category] || icon("mailbox")}</div>
+                   <div style="margin:2px 0;">${escapeHtml(p.text)}</div>
+                   <div class="loy-wa">— ${escapeHtml(p.who)} · ${timeAgo(p.ts)}</div>
+                 </div>
+                 <div style="display:flex;flex-direction:column;gap:4px;">
+                   <button class="sg-approve" data-actok="${escapeHtml(p.id)}">${icon("checkCircle")} Approve</button>
+                   <button class="sg-del" data-actdel="${escapeHtml(p.id)}">${icon("trash")} Tolak</button>
+                 </div>
+               </div></div>`
+            ).join("")
+            : '<p class="hint">' + icon("checkCircle") + ' Semua udah ditindak, mantap!</p>';
+          pendEl.querySelectorAll("[data-actok]").forEach(b => b.addEventListener("click", async () => {
+            b.disabled = true;
+            const r2 = await api("setSuggestionApproved", { token: getToken(), id: b.dataset.actok });
+            if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+            loadActivity();
+          }));
+          pendEl.querySelectorAll("[data-actdel]").forEach(b => b.addEventListener("click", async () => {
+            if (!confirm("Tolak usulan ini? Nggak bisa dibalikin.")) return;
+            b.disabled = true;
+            const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.actdel });
+            if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+            loadActivity();
+          }));
+        }
+
         const acts = r.activity || [];
         if (!acts.length) { el.innerHTML = '<p class="hint">Belum ada aktivitas.</p>'; return; }
         const typeIcon = t => t === "quest" ? icon("lightning") : t === "member" ? icon("people") : icon("journal");
         const verb = t => t === "quest" ? "submit challenge" : t === "member" ? "gabung" : "daftar";
+        const jumpView = t => t === "quest" ? "quest" : t === "member" ? "members" : "pendaftar";
         el.innerHTML = acts.map(a =>
-          `<div class="loy-card"><div class="loy-top">
+          `<div class="loy-card act-row" data-jump="${jumpView(a.type)}" data-ws="${escapeHtml(a.workshopType || "")}"><div class="loy-top">
              <div style="min-width:0;">
                <div class="loy-name">${typeIcon(a.type)} ${escapeHtml(a.who)}
                  <span style="font-weight:600;color:var(--muted);">${verb(a.type)}</span> ${escapeHtml(a.detail)}</div>
-               <div class="loy-wa">${icon("clock")} ${escapeHtml(a.time || "")}</div>
+               <div class="loy-wa">${icon("clock")} ${timeAgo(a.ts)}</div>
              </div>
            </div></div>`
         ).join("");
+        el.querySelectorAll(".act-row").forEach(card => card.addEventListener("click", () => {
+          const view = card.dataset.jump;
+          const ws = card.dataset.ws;
+          if (view === "pendaftar" && ws) {
+            location.hash = "pendaftar";
+            setTimeout(() => {
+              const sel = document.getElementById("wsSelect");
+              if (sel) { sel.value = ws; loadBatches(); }
+            }, 60);
+          } else {
+            location.hash = view;
+          }
+        }));
       } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
     }
 
