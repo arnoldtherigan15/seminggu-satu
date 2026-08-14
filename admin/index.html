@@ -777,8 +777,9 @@
 
     /* --- Toolbar & Forms --- */
     .toolbar {
-      display: grid;
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
       gap: 12px;
       margin-bottom: 20px;
       background: var(--card);
@@ -788,27 +789,26 @@
       box-shadow: var(--shadow-md);
     }
 
-    @media (min-width: 576px) {
-      .toolbar {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    @media (min-width: 992px) {
-      .toolbar {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        align-items: end;
-      }
-    }
-
     .toolbar .field {
       display: flex;
       flex-direction: column;
       gap: 6px;
+      flex: 1 1 180px;
+      min-width: 160px;
+    }
+
+    /* Tombol yang nongol SETELAH field(s) atau judul -- dikumpulin ke kanan,
+       bukan disebar rata kayak dulu (grid auto-fit bikin celah gede kalau
+       isinya cuma 1-2 item). Beberapa .btn beruntun otomatis nempel bareng
+       (cuma yang pertama yang kepake margin auto-nya). */
+    .toolbar > .field ~ .btn,
+    .toolbar > *:first-child:not(.field) + .btn {
+      margin-left: auto;
     }
 
     .toolbar .btn {
       height: 40px;
+      flex: 0 0 auto;
     }
 
     .batch-info {
