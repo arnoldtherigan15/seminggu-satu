@@ -1978,33 +1978,6 @@
       background: #f8fafc;
     }
 
-    /* Pesanan Minum/Makan (Prep) -- dikelompokin per menu, nama-nama pemesan
-       ditulis nyambung (bukan kartu satu-satu) biar ringkas dibaca/discan
-       pas hari-H buat absen atau ditunjukin ke vendor. */
-    .prep-order-group {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      font-weight: 800;
-      font-size: 13.5px;
-      color: var(--ink);
-      padding: 10px 2px 6px;
-      border-top: 1px solid var(--line);
-    }
-
-    .prep-order-group:first-child {
-      border-top: none;
-      padding-top: 0;
-    }
-
-    .prep-order-names {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-      padding: 0 2px 8px;
-    }
-
     .act-cat-head {
       font-weight: 800;
       font-size: 12.5px;
@@ -7113,10 +7086,22 @@
       return { id: "pesanan-ringkas", labelHtml: icon("cup") + " Pesanan Minum/Makan", countId: "prepPesananCount", countDefault: "…", bodyEl: body };
     }
 
+    // Penanda "udah diambil" per pesanan minum/makan -- disimpen di browser
+    // aja (localStorage), pola sama kayak PRINT_KEY buat "Cetak" di Peserta.
+    const PESANAN_TAKEN_KEY = "ss_admin_pesanan_taken";
+    function getPesananTakenSet() {
+      try { return new Set(JSON.parse(localStorage.getItem(PESANAN_TAKEN_KEY) || "[]")); } catch (e) { return new Set(); }
+    }
+    function setPesananTaken(id, taken) {
+      const set = getPesananTakenSet();
+      if (taken) set.add(id); else set.delete(id);
+      try { localStorage.setItem(PESANAN_TAKEN_KEY, JSON.stringify(Array.from(set))); } catch (e) { }
+    }
+
     // Nampilin pesanan minum/makan LANGSUNG di Prep, dikelompokin per menu
-    // (nama menu + jumlah, nama-nama pemesan di bawahnya) -- biar ringkas
-    // dipakai pas hari-H buat absen bagi minum/makan atau kasih liat vendor
-    // (vendor mau tau "Longan x5: Jenn, Annisa, ..." bukan list acak per orang).
+    // jadi accordion (biar ringkas kalau menu-nya banyak) -- tiap menu bisa
+    // dibuka buat liat nama-nama pemesan + checklist "udah diambil", dipakai
+    // pas hari-H buat absen bagi minum/makan.
     async function loadPrepPesananSummary() {
       const summaryEl = document.getElementById("prepPesananSummary");
       const cnt = document.getElementById("prepPesananCount");
@@ -7144,17 +7129,48 @@
         const byMenu = {};
         orders.forEach(o => {
           if (!byMenu[o.menuItemId]) byMenu[o.menuItemId] = [];
-          byMenu[o.menuItemId].push(o.participantName || "(tanpa nama)");
+          byMenu[o.menuItemId].push(o);
         });
         // Menu tanpa nama (kehapus) tetep ditampilin, dikelompokin "(menu dihapus)"
         // -- biar totalnya tetep konsisten sama badge count.
         const knownIds = new Set(menu.map(m => m.id));
-        const groups = menu.filter(m => byMenu[m.id]).map(m => ({ name: m.name, names: byMenu[m.id] }));
-        Object.keys(byMenu).forEach(id => { if (!knownIds.has(id)) groups.push({ name: "(menu dihapus)", names: byMenu[id] }); });
-        summaryEl.innerHTML = groups.map(g =>
-          `<div class="prep-order-group"><span>${escapeHtml(g.name)}</span><span class="subtab-count">${g.names.length}</span></div>
-           <div class="prep-order-names">${g.names.map(escapeHtml).join(", ")}</div>`
-        ).join("");
+        const groups = menu.filter(m => byMenu[m.id]).map(m => ({ name: m.name, orders: byMenu[m.id] }));
+        Object.keys(byMenu).forEach(id => { if (!knownIds.has(id)) groups.push({ name: "(menu dihapus)", orders: byMenu[id] }); });
+
+        const takenSet = getPesananTakenSet();
+        summaryEl.innerHTML = groups.map((g, gi) => {
+          const takenCount = g.orders.filter(o => takenSet.has(o.id)).length;
+          return `<details class="det-acc" style="margin:0 0 8px;" data-gidx="${gi}">
+            <summary>
+              <span class="det-acc-title">${escapeHtml(g.name)} <span class="subtab-count">${g.orders.length}</span></span>
+              <span style="display:flex;align-items:center;gap:8px;">
+                <span class="prep-taken-note" style="font-size:11px;color:var(--muted);font-weight:600;">${takenCount}/${g.orders.length} diambil</span>
+                <span class="det-acc-chevron">▸</span>
+              </span>
+            </summary>
+            <div class="det-acc-body">
+              ${g.orders.map(o => `
+                <label style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f1f3f6;cursor:pointer;">
+                  <input type="checkbox" class="pesanan-taken-check" data-oid="${escapeHtml(o.id)}" ${takenSet.has(o.id) ? "checked" : ""} style="width:16px;height:16px;accent-color:var(--brand);cursor:pointer;flex-shrink:0;">
+                  <span>${escapeHtml(o.participantName || "(tanpa nama)")}</span>
+                </label>
+              `).join("")}
+            </div>
+          </details>`;
+        }).join("");
+
+        summaryEl.querySelectorAll(".pesanan-taken-check").forEach(cb => cb.addEventListener("change", () => {
+          setPesananTaken(cb.dataset.oid, cb.checked);
+          // Update angka "X/Y diambil" di summary-nya doang, jangan render ulang
+          // semua -- biar accordion yg lagi kebuka nggak balik ketutup.
+          const details = cb.closest("details");
+          const note = details.querySelector(".prep-taken-note");
+          if (note) {
+            const total = details.querySelectorAll(".pesanan-taken-check").length;
+            const taken = details.querySelectorAll(".pesanan-taken-check:checked").length;
+            note.textContent = `${taken}/${total} diambil`;
+          }
+        }));
       } catch (e) { summaryEl.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
     }
 
