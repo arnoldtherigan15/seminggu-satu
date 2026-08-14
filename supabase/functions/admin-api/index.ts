@@ -302,17 +302,26 @@ Deno.serve(async (req) => {
         const { data: pendingRows } = await admin.from("suggestions").select("id, nickname, category, message, created_at").eq("status", "open").order("created_at", { ascending: false });
         const pending = (pendingRows || []).map((r) => ({ id: r.id, who: r.nickname || "Warga", category: r.category, text: r.message, ts: r.created_at ? new Date(r.created_at).getTime() : 0 }));
 
-        // Ultah HARI INI -- biar keliatan di inbox tanpa perlu buka Member Hub.
-        const mmdd = today().slice(5); // "MM-DD"
+        // Ultah BULAN INI -- biar keliatan di inbox tanpa perlu buka Member Hub
+        // (bukan cuma hari ini -- biar ada waktu nyiapin ucapan buat yang
+        // ultahnya bentar lagi, bukan pas hari-H doang).
+        const nowMM = today().slice(5, 7);
+        const todayDD = parseInt(today().slice(8, 10), 10);
+        const bdayMonthName = new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Jakarta", month: "long" }).format(new Date());
         const { data: bdayRows } = await admin.from("members").select("wa, nickname, birth_date").not("birth_date", "is", null);
         const loyalForBday = await loyaltyMembers(admin);
         const igByKey: Record<string, string> = {};
         for (const m of loyalForBday) if (m.ig) igByKey[m.key] = m.ig;
-        const birthdaysToday = (bdayRows || [])
-          .filter((r) => r.birth_date && String(r.birth_date).slice(5, 10) === mmdd)
-          .map((r) => { const key = waKey(r.wa); return { wa: key, nickname: r.nickname || "Warga", ig: igByKey[key] || "" }; });
+        const birthdaysMonth = (bdayRows || [])
+          .filter((r) => r.birth_date && String(r.birth_date).slice(5, 7) === nowMM)
+          .map((r) => {
+            const key = waKey(r.wa);
+            const day = parseInt(String(r.birth_date).slice(8, 10), 10);
+            return { wa: key, nickname: r.nickname || "Warga", ig: igByKey[key] || "", day, isToday: day === todayDD };
+          })
+          .sort((a, b) => a.day - b.day);
 
-        return jsonResponse({ status: "success", activity: acts.slice(0, 40), pending, birthdaysToday });
+        return jsonResponse({ status: "success", activity: acts.slice(0, 40), pending, birthdaysMonth, bdayMonthName });
       }
 
       case "getMembers": {
