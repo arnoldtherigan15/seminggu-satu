@@ -245,9 +245,11 @@ const MEMBER_ACTION_FN = {
     memberJarAdd: "member-jar-add",
     memberJarCustomize: "member-jar-customize",
     memberArchiveBarter: "member-archive-barter",
+    memberDeleteJournal: "member-delete-journal",
     memberLogin: "member-login",
     memberPostBarter: "member-post-barter",
     memberPostBoard: "member-post-board",
+    memberPostJournal: "member-post-journal",
     memberPostSuggestion: "member-post-suggestion",
     memberResetPassword: "member-reset-password",
     memberSession: "member-session",
@@ -869,7 +871,7 @@ async function loadQuests() {
     pane.innerHTML = skeletonQuest();
     try {
         const [challengeRows, s] = await Promise.all([
-            restGet("challenges?active=eq.true&select=id,title,theme,description,image,points", 15000),
+            restGet("challenges?active=eq.true&select=id,title,theme,description,image,points,created_at", 15000),
             fnGet("member-quests", "wa=" + encodeURIComponent(_profile.wa), 15000)
         ]);
         _questChallenges = challengeRows || [];
@@ -886,8 +888,13 @@ async function loadQuests() {
         pane.innerHTML = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada Quest</h3><p>Pantau terus ya, challenge baru bakal muncul di sini! 🌱</p></div>';
         return;
     }
-    // Belum selesai di atas
-    _questChallenges.sort((a, b) => (_questSubmitted.indexOf(a.id) >= 0 ? 1 : 0) - (_questSubmitted.indexOf(b.id) >= 0 ? 1 : 0));
+    // Belum selesai di atas, dalam grup yang sama urut dari yang paling baru di-post
+    _questChallenges.sort((a, b) => {
+        const doneA = _questSubmitted.indexOf(a.id) >= 0 ? 1 : 0;
+        const doneB = _questSubmitted.indexOf(b.id) >= 0 ? 1 : 0;
+        if (doneA !== doneB) return doneA - doneB;
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+    });
     renderQuestBoard();
     // Galeri (sumber hitungan "karya teman" 👥) mungkin belum ke-load pas ini
     // render pertama kali -> begitu nyampe, render ulang biar badge-nya keisi
@@ -933,11 +940,19 @@ function questWorks(q) { // karya di galeri buat challenge ini (kalau galeri uda
     return (_galleryItems || []).filter(x => x && x.photo && x.title === q.title);
 }
 
+// Challenge yang di-post <=7 hari terakhir dapet badge "Baru" -- di ketiga
+// mode tampilan (buku/grid/list), biar warga ngeh ada quest anyar.
+function isQuestNew(q) {
+    if (!q.created_at) return false;
+    return (Date.now() - new Date(q.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000;
+}
+
 function qbLeftHtml(i) {
     const q = _questChallenges[i];
     const done = _questSubmitted.indexOf(q.id) >= 0;
     const stk = "str-" + ((i % 11) + 1) + ".png"; // sticker beda tiap halaman
     return '<span class="qb-xp">🪙 +' + questPoints(q) + ' XP</span>' +
+        (isQuestNew(q) ? '<span class="q-new-badge qb-new">🔥 Baru</span>' : '') +
         '<div class="qb-title">' + esc(q.title) + '</div>' +
         (q.theme ? '<div class="qb-theme">🎨 ' + esc(q.theme) + '</div>' : '') +
         (q.description ? '<div class="qb-desc">' + esc(q.description) + '</div>' : '') +
@@ -1074,7 +1089,7 @@ function renderQuestRow(q, i) {
     const works = questWorks(q).length;
     return '<div class="quest-row' + (done ? " done" : "") + '" data-i="' + i + '">' +
         '<div class="qr-main">' +
-        '<div class="qr-title">' + esc(q.title) + (done ? ' <span class="qr-done">✓ Cleared</span>' : '') + '</div>' +
+        '<div class="qr-title">' + esc(q.title) + (done ? ' <span class="qr-done">✓ Cleared</span>' : '') + (isQuestNew(q) ? ' <span class="q-new-badge qr-new">🔥 Baru</span>' : '') + '</div>' +
         (q.description ? '<div class="qr-desc">' + esc(q.description) + '</div>' : '') +
         (q.theme ? '<div class="qr-theme">🎨 ' + esc(q.theme) + '</div>' : '') +
         (works ? '<div class="qr-friends">👥 ' + works + ' karya teman 💙</div>' : '') +
@@ -1093,6 +1108,7 @@ function renderQuestCell(q, i) {
         '<img class="qg-img" src="' + esc(questImg(q)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.opacity=.25">' +
         '<span class="qg-xp">🪙 +' + questPoints(q) + '</span>' +
         (works ? '<span class="qg-count">👥 ' + works + '</span>' : '') +
+        (isQuestNew(q) ? '<span class="q-new-badge qg-new">🔥 Baru</span>' : '') +
         '</div>' +
         '<div class="qg-body">' +
         '<div class="qg-title">' + esc(q.title) + '</div>' +
@@ -5367,6 +5383,7 @@ function renderGallery() {
     renderStoryBar(); // bar story selalu di atas, nggak kepengaruh filter/view
     loadBoard();      // Mading Warga (papan gabus pesan semangat)
     loadBarter();     // Barter Warga (tukeran barang, section terpisah dari Mading)
+    loadJournal();    // Selipan Jurnal (foto journal pribadi, di dalam Mading)
 
     const items = galFiltered();
     const feed = $("igFeed"), grid = $("igGrid");
@@ -7694,13 +7711,17 @@ function renderPbPanel() {
     SG_CATS.forEach(c => {
         chips += '<button type="button" class="pb-cat' + (_sgCat === c.k ? " on" : "") + '" data-cat="' + c.k + '">' + c.e + ' ' + c.t + '</button>';
     });
-    // urut: vote terbanyak dulu, seri -> terbaru
-    const items = _sgData.items.slice().sort((a, b) => (b.votes - a.votes) || (b.ts - a.ts));
+    // urut: yang udah disetujui admin ditaro paling bawah (udah "kelar"),
+    // sisanya vote terbanyak dulu, seri -> terbaru
+    const items = _sgData.items.slice().sort((a, b) => {
+        if (!!a.approved !== !!b.approved) return (a.approved ? 1 : 0) - (b.approved ? 1 : 0);
+        return (b.votes - a.votes) || (b.ts - a.ts);
+    });
     let list = "";
     items.forEach(it => {
         const c = sgCatInfo(it.category);
         list += '<div class="pb-item">' +
-            '<div class="pb-item-top"><span class="pb-item-cat">' + c.e + ' ' + esc(c.t) + '</span>' +
+            '<div class="pb-item-top"><span class="pb-item-cat">' + c.e + ' ' + esc(c.t) + (it.approved ? ' <span class="pb-approved">✅ Disetujui</span>' : '') + '</span>' +
             '<button type="button" class="pb-vote' + (it.voted ? " on" : "") + '" data-sgv="' + esc(it.id) + '">📮 ' + it.votes + '</button></div>' +
             '<div class="pb-item-text">' + esc(it.text) + '</div>' +
             '<div class="pb-item-by">— ' + esc(it.nickname) + (it.mine ? ' <span class="me-star">⭐</span>' : '') + ' · ' + esc(timeAgo(it.ts)) + '</div>' +
@@ -7897,6 +7918,22 @@ async function loadBoard(force) {
     renderBoard();
 }
 
+// ---------- Selipan Jurnal: foto journal pribadi (buku sendiri, bukan tema
+// drive bareng) yang tetep mau di-share -- nempel DI DALAM Mading, tapi
+// terpisah dari sticky notes & TERPISAH dari Challenge/poin/leaderboard.
+// Murni opt-in, max 1 postingan aktif per warga, auto-expire 7 hari
+// (sama pola kayak sticky notes & Barter). ----------
+let _journalData = null;
+
+async function loadJournal(force) {
+    if (_journalData && !force) return;
+    try {
+        _journalData = await fnGet("mading-journal", "wa=" + encodeURIComponent(_profile.wa), 15000);
+    } catch (e) { _journalData = null; }
+    if (!_journalData || !Array.isArray(_journalData.items)) _journalData = { items: [] };
+    if (typeof _journalData.canPost !== "boolean") _journalData.canPost = true;
+}
+
 // Foto weekly tracker minggu BERJALAN (dari data galeri; id weekly = "jw_<wa>_<weekKey>")
 // -> otomatis "reset" tiap ganti minggu tanpa perlu server
 function weeklyPhotosThisWeek() {
@@ -8047,6 +8084,12 @@ function openMadingModal() {
         modal.id = "madingModal";
         modal.className = "mading-modal";
         document.body.appendChild(modal);
+        // foto Karya Sang Juara & Selipan Jurnal bisa diklik buat liat lebih gede
+        // (delegasi di modal sekali aja pas dibikin -- innerHTML-nya diganti-ganti tiap render)
+        modal.addEventListener("click", (e) => {
+            const img = e.target.closest(".mc-frame img, .jn-card-photo img");
+            if (img) openPhotoLightbox(img.src);
+        });
     }
     renderMadingModal();
     modal.classList.add("show");
@@ -8123,6 +8166,7 @@ function renderMadingModal() {
     const addLabel = left <= 0
         ? '＋ Tempel Pesan <small>(kuota habis — besok lagi 🌙)</small>'
         : '＋ Tempel Pesan' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '');
+    const journalSectionHtml = buildJournalSectionHtml();
     modal.innerHTML =
         '<div class="md-wrap">' +
 
@@ -8148,6 +8192,7 @@ function renderMadingModal() {
         '<div id="balaiWeatherSlot"></div>' +
         champHtml +
         boardHtml +
+        journalSectionHtml +
         '</div>' +
         '<button type="button" class="md-pbfab" id="mdPostbox" aria-label="Kotak Pos Warga — kirim aspirasimu">' +
         '<span class="pbf-lbl">POS</span><span class="pbf-slot"></span><span class="pbf-hint">📮 kirim surat</span>' +
@@ -8202,6 +8247,93 @@ function renderMadingModal() {
             alert("Gagal terhubung ke server. Pesanmu belum nempel, coba lagi ya.");
         });
     });
+    const jnAddBtn = $("jnAdd");
+    if (jnAddBtn) jnAddBtn.addEventListener("click", () => {
+        const c = $("jnCompose");
+        c.style.display = c.style.display === "none" ? "block" : "none";
+    });
+    wirePhotoPicker($("jnCompose"));
+    const jnSendBtn = $("jnSend");
+    if (jnSendBtn) jnSendBtn.addEventListener("click", () => submitJournalShare());
+    modal.querySelectorAll("[data-jndel]").forEach(b => b.addEventListener("click", () => deleteJournalShare(b.dataset.jndel)));
+}
+
+// Sisa hari sebelum auto-expire (7 hari dari post) -- sama pola kayak Barter.
+function journalDaysLeft(it) {
+    return Math.max(0, Math.ceil((it.expiresAt - Date.now()) / 86400000));
+}
+
+function journalCardHtml(it) {
+    const days = journalDaysLeft(it);
+    const countdown = '<div class="jn-card-cd">⏳ ' + (days <= 1 ? "hari terakhir!" : days + " hari lagi") + '</div>';
+    const body = '<div class="jn-card-photo"><img src="' + esc(driveThumb(it.photo)) + '" alt="" loading="lazy" decoding="async"></div>' +
+        (it.caption ? '<div class="jn-card-cap">' + esc(it.caption) + '</div>' : "") +
+        '<div class="jn-card-meta">— ' + esc(it.nickname) + ' · ' + esc(timeAgo(it.ts)) + '</div>' +
+        countdown;
+    if (it.mine) return '<div class="jn-card">' + body + '<button type="button" class="jn-card-del" data-jndel="' + esc(it.id) + '">🗑️ Hapus</button></div>';
+    return '<div class="jn-card">' + body + '</div>';
+}
+
+// Terpisah dari Challenge/poin/leaderboard -- murni opt-in share, max 1
+// postingan aktif per warga (lihat member-post-journal/index.ts).
+function buildJournalSectionHtml() {
+    const items = (_journalData && _journalData.items) || [];
+    const canPost = _journalData ? _journalData.canPost !== false : true;
+    const grid = items.length
+        ? '<div class="jn-grid">' + items.map(journalCardHtml).join("") + '</div>'
+        : '<div class="jn-empty">Belum ada yang share halaman jurnalnya — jadilah yang pertama! 📖</div>';
+    const addArea = canPost
+        ? '<button class="wb-add" id="jnAdd" style="width:100%;padding:11px;font-size:.85rem;">＋ Bagikan Jurnal</button>' +
+        '<div class="jn-compose" id="jnCompose" style="display:none;">' +
+        photoPickerHtml("Foto halaman jurnalmu", "Cerita dikit soal halaman ini… (opsional, max 140)") +
+        '<button class="btn-primary" id="jnSend" style="margin-top:8px;">📖 Share ke Mading</button>' +
+        '</div>'
+        : '<div class="jn-locked">Kamu masih punya 1 Selipan Jurnal aktif — hapus dulu yang lama kalau mau ganti 📖</div>';
+    return '<div class="jn-section md-in" style="--d:.2s">' +
+        '<div class="jn-head"><div class="jn-title">📖 Selipan Jurnal</div></div>' +
+        '<div class="jn-sub">Journaling di buku sendiri? Boleh diselipin ke sini — bukan buat challenge/poin, cuma buat cerita ke sesama warga ✨</div>' +
+        addArea +
+        grid +
+        '</div>';
+}
+
+async function submitJournalShare() {
+    const compose = $("jnCompose");
+    if (!compose) return;
+    const input = compose.querySelector(".qm-file-input");
+    const capInput = compose.querySelector(".qm-cap-input");
+    const photo = input && input._photo;
+    const caption = capInput ? capInput.value.trim() : "";
+    if (!photo) { alert("Foto halaman jurnalnya belum ada nih 📸"); return; }
+
+    const btn = $("jnSend");
+    if (btn) { btn.disabled = true; btn.textContent = "Mengirim…"; }
+    showBusy("Nempelin Selipan Jurnal kamu…");
+    try {
+        const r = await apiPost({ action: "memberPostJournal", token: _profile.token, caption: caption, photoBase64: photo.base64, photoMime: photo.mime });
+        if (r.status !== "success") { alert(r.message || "Gagal share Selipan Jurnal."); return; }
+        playSfx("love", 0.6);
+        fireConfetti("quest");
+        await loadJournal(true); // refetch biar foto beneran (URL Storage) bukan cuma preview lokal
+        renderMadingModal();
+    } catch (e) {
+        alert("Gagal terhubung ke server. Coba lagi ya.");
+    } finally {
+        hideBusy();
+        if (btn) { btn.disabled = false; btn.textContent = "📖 Share ke Mading"; }
+    }
+}
+
+async function deleteJournalShare(id) {
+    if (!confirm("Hapus Selipan Jurnal ini dari Mading?")) return;
+    showBusy("Menghapus…");
+    try {
+        const r = await apiPost({ action: "memberDeleteJournal", token: _profile.token, id: id });
+        if (r.status !== "success") { alert(r.message || "Gagal hapus."); return; }
+        await loadJournal(true);
+        renderMadingModal();
+    } catch (e) { alert("Gagal terhubung ke server."); }
+    finally { hideBusy(); }
 }
 
 // ============================================================

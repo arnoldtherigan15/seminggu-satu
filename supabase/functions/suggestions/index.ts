@@ -19,9 +19,17 @@ Deno.serve(async (req) => {
     const myKey = waKey(myWa);
 
     const admin = supabaseAdmin();
+
+    // Usulan yang UDAH disetujui admin auto-kehapus 7 hari setelah approved
+    // (bukan dari created_at) -- kasih jeda biar badge "Disetujui" sempat
+    // keliatan dulu sebelum dibersihin. Usulan yang belum di-approve nggak
+    // expire, nunggu admin approve/tolak manual.
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    try { await admin.from("suggestions").delete().eq("status", "approved").lt("approved_at", weekAgo); } catch (_e) { /* abaikan */ }
+
     const { data: rows } = await admin
       .from("suggestions")
-      .select("id, wa, nickname, category, message, created_at")
+      .select("id, wa, nickname, category, message, status, created_at")
       .order("created_at", { ascending: false })
       .limit(60);
     const { data: votes } = await admin.from("suggestion_votes").select("suggestion_id, wa");
@@ -41,6 +49,7 @@ Deno.serve(async (req) => {
       votes: voteCount[r.id] || 0,
       voted: !!(myKey && votedBy[r.id]?.has(myKey)),
       mine: !!(myKey && waKey(r.wa) === myKey),
+      approved: r.status === "approved",
       ts: r.created_at ? new Date(r.created_at).getTime() : 0,
     }));
 

@@ -2299,6 +2299,38 @@
             z-index: 2;
         }
 
+        /* Badge "Baru" -- challenge yang di-post <=7 hari terakhir (isQuestNew()),
+           dipake di ketiga mode tampilan (buku/grid/list). */
+        .q-new-badge {
+            display: inline-block;
+            background: rgba(225, 29, 72, .1);
+            color: #be123c;
+            border: 1.5px solid rgba(225, 29, 72, .35);
+            font-family: 'Outfit', sans-serif;
+            font-size: .6rem;
+            font-weight: 800;
+            letter-spacing: .3px;
+            padding: 1px 7px;
+            border-radius: 6px;
+            transform: rotate(-2deg);
+        }
+
+        .qg-new {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            z-index: 2;
+        }
+
+        .qr-new {
+            margin-left: 4px;
+        }
+
+        .qb-new {
+            margin-top: 6px;
+            margin-left: 6px;
+        }
+
         /* jumlah karya teman yg udah ikut (chip di pojok bawah foto) */
         .qg-count {
             position: absolute;
@@ -5248,6 +5280,21 @@
             text-transform: uppercase;
         }
 
+        .pb-approved {
+            display: inline-block;
+            background: rgba(22, 163, 74, .1);
+            color: #16a34a;
+            border: 1.5px solid rgba(22, 163, 74, .35);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: .58rem;
+            letter-spacing: .3px;
+            padding: 1px 7px;
+            border-radius: 6px;
+            text-transform: none;
+            margin-left: 4px;
+        }
+
         .pb-vote {
             flex: none;
             border: 1.5px dashed rgba(16, 36, 94, .35);
@@ -5399,12 +5446,13 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, .18);
             transform: rotate(.8deg);
             overflow: hidden;
+            cursor: pointer;
         }
 
         .mc-frame img {
             width: 100%;
             display: block;
-            aspect-ratio: 4 / 3;
+            aspect-ratio: 16 / 9;
             object-fit: cover;
         }
 
@@ -6034,6 +6082,148 @@
 
         .bt-card-archive:active {
             transform: scale(.97);
+        }
+
+        /* ---- Selipan Jurnal: warga journaling di buku sendiri (bukan tema
+           drive bareng) tetep bisa share ke Mading -- opt-in, TERPISAH dari
+           Challenge/poin/leaderboard, max 1 aktif per warga. ---- */
+        .jn-section {
+            position: relative;
+            margin-top: 18px;
+            background-color: #fffdf6;
+            border-radius: 10px;
+            padding: 14px 12px;
+            box-shadow: 0 1px 2px rgba(60, 40, 10, .18), 0 7px 14px rgba(60, 40, 10, .22);
+        }
+
+        .jn-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .jn-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: .95rem;
+            color: #4d3310;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
+        }
+
+        .jn-sub {
+            font-size: .74rem;
+            color: #6b5330;
+            margin: -2px 0 10px;
+            line-height: 1.4;
+        }
+
+        .bt-compose,
+        .jn-compose {
+            position: relative;
+            margin-top: 12px;
+            background: #eafbef;
+            padding: 14px 12px;
+            border-radius: 12px;
+            border: 1.5px dashed #16a34a;
+        }
+
+        :root[data-theme="dark"] .bt-compose,
+        :root[data-theme="dark"] .jn-compose {
+            background: #12271a;
+        }
+
+        .jn-locked {
+            font-size: .76rem;
+            font-weight: 700;
+            color: #6b5330;
+            background: rgba(255, 255, 255, .6);
+            border: 1.5px dashed #c9a876;
+            border-radius: 12px;
+            padding: 10px 12px;
+            text-align: center;
+        }
+
+        :root[data-theme="dark"] .jn-locked {
+            background: rgba(0, 0, 0, .2);
+        }
+
+        .jn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .jn-card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 8px;
+            box-shadow: 0 6px 14px rgba(0, 30, 20, .12);
+        }
+
+        .jn-card-photo {
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            background: var(--line);
+            cursor: pointer;
+        }
+
+        .jn-card-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .jn-card-cap {
+            font-size: .76rem;
+            font-weight: 700;
+            margin-top: 8px;
+            line-height: 1.35;
+            white-space: pre-line;
+            word-break: break-word;
+        }
+
+        .jn-card-meta {
+            font-size: .62rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .jn-card-cd {
+            margin-top: 4px;
+            font-size: .6rem;
+            font-weight: 700;
+            color: #b45309;
+        }
+
+        .jn-card-del {
+            width: 100%;
+            margin-top: 8px;
+            border: 1.5px dashed var(--muted);
+            background: transparent;
+            color: var(--muted);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: .68rem;
+            padding: 7px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .jn-card-del:active {
+            transform: scale(.97);
+        }
+
+        .jn-empty {
+            text-align: center;
+            font-size: .8rem;
+            font-weight: 700;
+            color: #6b5330;
+            padding: 18px 12px;
         }
 
         /* ---- Story viewer: polaroid gede di kertas dot-grid + washi tape (scrapbook) ---- */

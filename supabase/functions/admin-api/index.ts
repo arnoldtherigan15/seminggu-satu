@@ -339,8 +339,16 @@ Deno.serve(async (req) => {
         const { data: votes } = await admin.from("suggestion_votes").select("suggestion_id");
         const voteCount: Record<string, number> = {};
         for (const v of votes || []) voteCount[v.suggestion_id] = (voteCount[v.suggestion_id] || 0) + 1;
-        const items = (rows || []).map((r) => ({ id: r.id, wa: r.wa, nickname: r.nickname || "Warga", category: r.category, text: r.message, votes: voteCount[r.id] || 0, ts: r.created_at ? new Date(r.created_at).getTime() : 0 }));
+        const items = (rows || []).map((r) => ({ id: r.id, wa: r.wa, nickname: r.nickname || "Warga", category: r.category, text: r.message, votes: voteCount[r.id] || 0, approved: r.status === "approved", ts: r.created_at ? new Date(r.created_at).getTime() : 0 }));
         return jsonResponse({ status: "success", items });
+      }
+
+      case "setSuggestionApproved": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("Usulan tidak ditemukan.");
+        const { error } = await admin.from("suggestions").update({ status: "approved", approved_at: new Date().toISOString() }).eq("id", id);
+        if (error) return errorResponse("Gagal update.", 500);
+        return jsonResponse({ status: "success", message: "Usulan ditandai disetujui." });
       }
 
       case "deleteSuggestion": {

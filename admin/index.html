@@ -1809,6 +1809,8 @@
     .sg-votes { display: inline-block; background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 1px 8px; margin-right: 4px; vertical-align: 1px; }
     .sg-del { border: 1px solid #fecaca; background: #fff5f5; color: #b91c1c; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
     .sg-del:hover { background: #fee2e2; }
+    .sg-approve { border: 1px solid #bbf7d0; background: #f0fdf4; color: #16a34a; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+    .sg-approve:hover { background: #dcfce7; }
 
     .loy-note-badge {
       font-size: 11px;
@@ -4995,15 +4997,24 @@
           group.forEach(it => {
             html += `<div class="loy-card"><div class="loy-top">
               <div style="min-width:0;">
-                <div class="loy-name"><span class="sg-votes">📮 ${it.votes}</span> ${escapeHtml(it.text)}</div>
+                <div class="loy-name">${it.approved ? '<span style="color:#16a34a;">✅ DISETUJUI · </span>' : ''}<span class="sg-votes">📮 ${it.votes}</span> ${escapeHtml(it.text)}</div>
                 <div class="loy-wa">— ${escapeHtml(it.nickname)} · ${it.ts ? new Date(it.ts).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) : ""}</div>
               </div>
-              <button class="sg-del" data-sgid="${escapeHtml(it.id)}">🗑 Tolak</button>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                ${it.approved ? "" : `<button class="sg-approve" data-sgok="${escapeHtml(it.id)}">✅ Approve</button>`}
+                <button class="sg-del" data-sgid="${escapeHtml(it.id)}">🗑 Tolak</button>
+              </div>
             </div></div>`;
           });
         });
         el.innerHTML = html;
-        el.querySelectorAll(".sg-del").forEach(b => b.addEventListener("click", async () => {
+        el.querySelectorAll("[data-sgok]").forEach(b => b.addEventListener("click", async () => {
+          b.disabled = true;
+          const r2 = await api("setSuggestionApproved", { token: getToken(), id: b.dataset.sgok });
+          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          loadSuggestions();
+        }));
+        el.querySelectorAll("[data-sgid]").forEach(b => b.addEventListener("click", async () => {
           if (!confirm("Hapus usulan ini? Nggak bisa dibalikin.")) return;
           b.disabled = true;
           const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.sgid });
@@ -5030,7 +5041,7 @@
             <div class="loy-wa">— ${escapeHtml(it.nickname)} · ${it.ts ? new Date(it.ts).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) : ""}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:4px;">
-            ${it.done ? "" : `<button class="sg-del" data-btdone="${escapeHtml(it.id)}" style="background:#16a34a;">✅ Selesai</button>`}
+            ${it.done ? "" : `<button class="sg-approve" data-btdone="${escapeHtml(it.id)}">✅ Selesai</button>`}
             <button class="sg-del" data-btdel="${escapeHtml(it.id)}">🗑 Tolak</button>
           </div>
         </div></div>`).join("");
