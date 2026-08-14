@@ -302,7 +302,17 @@ Deno.serve(async (req) => {
         const { data: pendingRows } = await admin.from("suggestions").select("id, nickname, category, message, created_at").eq("status", "open").order("created_at", { ascending: false });
         const pending = (pendingRows || []).map((r) => ({ id: r.id, who: r.nickname || "Warga", category: r.category, text: r.message, ts: r.created_at ? new Date(r.created_at).getTime() : 0 }));
 
-        return jsonResponse({ status: "success", activity: acts.slice(0, 40), pending });
+        // Ultah HARI INI -- biar keliatan di inbox tanpa perlu buka Member Hub.
+        const mmdd = today().slice(5); // "MM-DD"
+        const { data: bdayRows } = await admin.from("members").select("wa, nickname, birth_date").not("birth_date", "is", null);
+        const loyalForBday = await loyaltyMembers(admin);
+        const igByKey: Record<string, string> = {};
+        for (const m of loyalForBday) if (m.ig) igByKey[m.key] = m.ig;
+        const birthdaysToday = (bdayRows || [])
+          .filter((r) => r.birth_date && String(r.birth_date).slice(5, 10) === mmdd)
+          .map((r) => { const key = waKey(r.wa); return { wa: key, nickname: r.nickname || "Warga", ig: igByKey[key] || "" }; });
+
+        return jsonResponse({ status: "success", activity: acts.slice(0, 40), pending, birthdaysToday });
       }
 
       case "getMembers": {
