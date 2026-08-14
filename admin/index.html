@@ -2776,6 +2776,38 @@
       background: #fca5a5;
     }
 
+    .prep-move {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .prep-move button {
+      width: 22px;
+      height: 17px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 10px;
+      line-height: 1;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+    }
+
+    .prep-move button:hover:not(:disabled) {
+      background: var(--line);
+    }
+
+    .prep-move button:disabled {
+      opacity: .35;
+      cursor: default;
+    }
+
     /* --- Config editor --- */
     .cfg-form {
       display: grid;
@@ -6354,7 +6386,8 @@
            <span class="acc-chevron">▸</span>
          </button>
          <div class="acc-body">
-           <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+           <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:8px;">
+             ${sec.check ? `<button class="btn btn-sm btn-ghost" data-reset="${sec.type}">↺ Reset</button>` : ""}
              <button class="btn btn-sm" data-add="${sec.type}">＋ Tambah</button>
            </div>
            <div class="prep-list" id="prep-list-${sec.type}"></div>
@@ -6366,6 +6399,15 @@
       acc.querySelector(".acc-head").addEventListener("click", () => acc.classList.toggle("open"));
       acc.querySelector(`[data-add="${sec.type}"]`).addEventListener("click", () => { PREP[sec.type].push({}); renderPrepList(sec); markPrepDirty(sec.type); });
       acc.querySelector(`[data-save="${sec.type}"]`).addEventListener("click", () => savePrep(sec.type));
+      const resetBtn = acc.querySelector(`[data-reset="${sec.type}"]`);
+      if (resetBtn) resetBtn.addEventListener("click", () => {
+        const items = PREP[sec.type] || [];
+        if (!items.length || !items.some(it => it.done)) return;
+        if (!confirm(`Uncentang semua item di "${sec.title}"?`)) return;
+        items.forEach(it => { it.done = false; });
+        renderPrepList(sec);
+        markPrepDirty(sec.type);
+      });
       return acc;
     }
 
@@ -6536,13 +6578,26 @@
       items.forEach((item, idx) => {
         const row = document.createElement("div");
         row.className = "prep-row" + (sec.check ? " prep-row-check" : "");
-        let html = "";
+        let html = `<div class="prep-move">
+             <button type="button" class="move-up" ${idx === 0 ? "disabled" : ""} title="Naik">▲</button>
+             <button type="button" class="move-down" ${idx === items.length - 1 ? "disabled" : ""} title="Turun">▼</button>
+           </div>`;
         if (sec.check) html += `<input type="checkbox" class="prep-check" ${item.done ? "checked" : ""}/>`;
         html += `<div class="prep-fields">` + sec.fields.map(f =>
           `<input type="text" class="prep-input${f.narrow ? " narrow" : ""}" data-key="${f.key}" placeholder="${f.ph}" value="${item[f.key] != null ? escapeHtml(item[f.key]) : ""}"/>`
         ).join("") + `</div>`;
         html += `<button class="del" title="Hapus">&times;</button>`;
         row.innerHTML = html;
+        row.querySelector(".move-up").addEventListener("click", () => {
+          if (idx === 0) return;
+          [items[idx - 1], items[idx]] = [items[idx], items[idx - 1]];
+          renderPrepList(sec); markPrepDirty(sec.type);
+        });
+        row.querySelector(".move-down").addEventListener("click", () => {
+          if (idx === items.length - 1) return;
+          [items[idx + 1], items[idx]] = [items[idx], items[idx + 1]];
+          renderPrepList(sec); markPrepDirty(sec.type);
+        });
         if (sec.check) row.querySelector(".prep-check").addEventListener("change", e => { item.done = e.target.checked; markPrepDirty(sec.type); updatePrepCount(sec); });
         row.querySelectorAll(".prep-input").forEach(el => el.addEventListener("input", () => { item[el.dataset.key] = el.value; markPrepDirty(sec.type); }));
         row.querySelector(".del").addEventListener("click", () => { items.splice(idx, 1); renderPrepList(sec); markPrepDirty(sec.type); });
