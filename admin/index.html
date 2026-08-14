@@ -1536,6 +1536,21 @@
       cursor: pointer;
     }
 
+    .print-check {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--ink);
+    }
+
+    #pesertaBody tr.row-printed td {
+      background: #d1d5db;
+    }
+
+    #pesertaBody tr.row-printed:hover td {
+      background: #c7ccd3;
+    }
+
     /* --- Cari & Export (Registrations) --- */
     .reg-tools {
       display: flex;
@@ -6482,10 +6497,11 @@
         const hasAction = waIdx >= 0 || igIdx >= 0;
         const hideIdx = (idx) => idx === hadirIdx || idx === tsIdx; // Hadir & Timestamp disembunyikan dari tampilan
         const dataHeaders = headers.map((h, idx) => hideIdx(idx) ? null : `<th>${h}</th>`).filter(Boolean).join("");
-        head.innerHTML = "<th>#</th><th>Absen</th>" + (hasAction ? "<th>Aksi</th>" : "") + dataHeaders;
+        head.innerHTML = "<th>#</th><th>Absen</th>" + (hasAction ? "<th>Aksi</th>" : "") + dataHeaders + "<th>Cetak</th>";
         if (!shaped.rows.length) { body.innerHTML = ""; empty.style.display = "block"; renderHadirSummary(0, 0); return; }
         empty.style.display = "none";
 
+        const printedSet = getPrintedSet();
         let hadirCount = 0;
         body.innerHTML = shaped.rows.map((row, i) => {
           const isHadir = hadirIdx >= 0 && String(row[hadirIdx]) === "Ya";
@@ -6509,7 +6525,9 @@
             }
             action = `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>`;
           }
-          return `<tr><td>${i + 1}</td>${attCell}${action}${cells}</tr>`;
+          const isPrinted = printedSet.has(pesertaRegIds[i]);
+          const printCell = `<td><input type="checkbox" class="print-check" data-id="${escapeHtml(pesertaRegIds[i])}" ${isPrinted ? "checked" : ""} title="Tandai udah dicetak fotonya"/></td>`;
+          return `<tr class="${isPrinted ? "row-printed" : ""}"><td>${i + 1}</td>${attCell}${action}${cells}${printCell}</tr>`;
         }).join("");
         renderHadirSummary(hadirCount, shaped.rows.length);
 
@@ -6536,7 +6554,13 @@
             return;
           }
           const att = e.target.closest(".att-check");
-          if (att) { setAttendance(att.dataset.id, att.checked, att); }
+          if (att) { setAttendance(att.dataset.id, att.checked, att); return; }
+          const pr = e.target.closest(".print-check");
+          if (pr) {
+            setPrinted(pr.dataset.id, pr.checked);
+            const tr = pr.closest("tr");
+            if (tr) tr.classList.toggle("row-printed", pr.checked);
+          }
         };
       } catch (e) {
         body.innerHTML = `<tr><td style="padding:16px;color:#dc2626;">Gagal memuat.</td></tr>`;
@@ -6544,6 +6568,19 @@
     }
 
     let pesertaRegIds = [];
+
+    // Penanda "udah dicetak fotonya" -- cuma buat pengingat pribadi pas nyetak,
+    // disimpen di browser aja (localStorage), ga perlu nyambung ke server/API.
+    const PRINT_KEY = "ss_admin_printed";
+    function getPrintedSet() {
+      try { return new Set(JSON.parse(localStorage.getItem(PRINT_KEY) || "[]")); } catch (e) { return new Set(); }
+    }
+    function setPrinted(id, printed) {
+      const set = getPrintedSet();
+      if (printed) set.add(id); else set.delete(id);
+      try { localStorage.setItem(PRINT_KEY, JSON.stringify(Array.from(set))); } catch (e) { }
+    }
+
     function renderHadirSummary(hadir, total) {
       const el = document.getElementById("hadirSummary");
       if (el) el.innerHTML = total ? `✅ Hadir: <b>${hadir}</b> / ${total} peserta` : "";
