@@ -1994,6 +1994,60 @@
       margin-top: 4px;
     }
 
+    /* Bar chart ringkas (perbandingan jumlah per workshop/challenge) --
+       1 seri/warna aja (brand hue), jadi ga perlu legend; nilai ditulis
+       langsung di ujung bar (bukan di dalam), track abu netral. */
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .bar-label {
+      flex: 0 0 132px;
+      font-size: 12.5px;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 16px;
+      background: #eef0f4;
+      border-radius: 8px;
+      overflow: hidden;
+      min-width: 40px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--brand);
+      border-radius: 0 8px 8px 0;
+      min-width: 6px;
+      transition: width .3s ease;
+    }
+
+    .bar-row:hover .bar-fill {
+      filter: brightness(1.08);
+    }
+
+    .bar-value {
+      flex: 0 0 22px;
+      text-align: right;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
     .loy-card-foot {
       display: flex;
       align-items: center;
@@ -3801,8 +3855,13 @@
           <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4a3 3 0 0 0-3 3v6h6V7a3 3 0 0 0-3-3m0-1h8a4 4 0 0 1 4 4v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V7a4 4 0 0 1 4-4m2.646 1A4 4 0 0 1 8 7v6h7V7a3 3 0 0 0-3-3z"/><path d="M11.793 8.5H9v-1h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.354-.146zM5 7c0 .552-.448 0-1 0s-1 .552-1 0a1 1 0 0 1 2 0"/></svg> Perlu Ditindak <span class="subtab-count" id="actPendingCount"></span></div>
           <div id="actPendingList"></div>
 
-          <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg> Riwayat Terbaru</div>
-          <div id="activityList"></div>
+          <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg> Riwayat Terbaru <span id="actWindowLabel" style="font-weight:600;color:var(--muted);font-size:12px;"></span></div>
+          <div id="actStats" class="loyalty-stats"></div>
+          <div id="actCharts"></div>
+          <details class="det-acc" id="actDetailAcc" style="margin-top:14px;">
+            <summary><span class="det-acc-title">Detail Lengkap (siapa aja) <span class="acc-count" id="actDetailCount"></span></span><span class="det-acc-chevron">▸</span></summary>
+            <div class="det-acc-body"><div id="activityList"></div></div>
+          </details>
         </div>
 
         <!-- ===== VIEW: LEADS / OUTREACH TRACKER ===== -->
@@ -5718,7 +5777,18 @@
         }
 
         const acts = r.activity || [];
-        if (!acts.length) { el.innerHTML = '<p class="hint">Belum ada aktivitas.</p>'; return; }
+        const windowLabel = document.getElementById("actWindowLabel");
+        if (windowLabel) windowLabel.textContent = r.activityWindowDays ? `(${r.activityWindowDays} hari terakhir)` : "";
+        const statsEl = document.getElementById("actStats");
+        const chartsEl = document.getElementById("actCharts");
+        const detailCnt = document.getElementById("actDetailCount");
+        if (!acts.length) {
+          if (statsEl) statsEl.innerHTML = "";
+          if (chartsEl) chartsEl.innerHTML = "";
+          if (detailCnt) detailCnt.textContent = "";
+          el.innerHTML = '<p class="hint">Belum ada aktivitas.</p>';
+          return;
+        }
 
         // Dikelompokin per kategori (daftar/quest/member), dan di dalam
         // Pendaftaran & Quest dikelompokin lagi per event/challenge --
@@ -5738,18 +5808,58 @@
         }
 
         // Sub-grup per "detail" (nama workshop buat daftar, judul challenge
-        // buat quest) -- diurut dari grup yg paling BARU ada aktivitasnya.
+        // buat quest) -- dipake bareng buat list detail (diurut RECENCY) &
+        // buat bar chart (diurut JUMLAH, biar kebaca perbandingannya).
         function groupByDetail(items) {
           const groups = {}; const order = [];
           items.forEach(a => {
             const key = a.detail || "-";
-            if (!groups[key]) { groups[key] = { detail: a.detail || "-", items: [], latestTs: 0 }; order.push(key); }
+            if (!groups[key]) { groups[key] = { detail: a.detail || "-", workshopType: a.workshopType || "", items: [], latestTs: 0 }; order.push(key); }
             groups[key].items.push(a);
             if (a.ts > groups[key].latestTs) groups[key].latestTs = a.ts;
           });
-          return order.map(k => groups[k]).sort((x, y) => y.latestTs - x.latestTs);
+          return order.map(k => groups[k]);
         }
 
+        // ---- Stat ringkas (3 angka besar, glanceable) ----
+        if (statsEl) {
+          statsEl.innerHTML = ["daftar", "quest", "member"].map(type => {
+            const n = acts.filter(a => a.type === type).length;
+            return `<div class="stat"><div class="stat-n">${n}</div><div class="stat-l">${icon(ACT_META[type].icon)} ${ACT_META[type].label}</div></div>`;
+          }).join("");
+        }
+
+        // ---- Bar chart: perbandingan jumlah per workshop / challenge ----
+        // (1 seri warna = brand hue, ga perlu legend; nilai langsung di ujung bar)
+        function barChartHtml(groups, jump) {
+          const sorted = groups.slice().sort((x, y) => y.items.length - x.items.length);
+          const max = Math.max(...sorted.map(g => g.items.length), 1);
+          return `<div class="bar-chart">` + sorted.map(g => {
+            const pct = Math.max(6, Math.round((g.items.length / max) * 100));
+            return `<div class="bar-row" data-jump="${jump}" data-ws="${escapeHtml(g.workshopType || "")}" title="${escapeHtml(g.detail)}">
+               <span class="bar-label">${escapeHtml(g.detail)}</span>
+               <span class="bar-track"><span class="bar-fill" style="width:${pct}%"></span></span>
+               <span class="bar-value">${g.items.length}</span>
+             </div>`;
+          }).join("") + `</div>`;
+        }
+
+        if (chartsEl) {
+          let chartsHtml = "";
+          const daftarGroups = groupByDetail(acts.filter(a => a.type === "daftar"));
+          if (daftarGroups.length) {
+            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;">Pendaftaran per Workshop</div>` + barChartHtml(daftarGroups, "pendaftar");
+          }
+          const questGroups = groupByDetail(acts.filter(a => a.type === "quest"));
+          if (questGroups.length) {
+            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;margin-top:16px;">Submission per Challenge</div>` + barChartHtml(questGroups, "quest");
+          }
+          chartsEl.innerHTML = chartsHtml;
+          chartsEl.querySelectorAll(".bar-row").forEach(row => row.addEventListener("click", () => jumpFromActivity(row.dataset.jump, row.dataset.ws)));
+        }
+
+        // ---- Detail lengkap (siapa aja, dikelompokin, di dalam <details>) ----
+        if (detailCnt) detailCnt.textContent = "(" + acts.length + ")";
         let html = "";
         ["daftar", "quest", "member"].forEach(type => {
           const items = acts.filter(a => a.type === type);
@@ -5757,7 +5867,7 @@
           const meta = ACT_META[type];
           html += `<div class="act-cat-head">${icon(meta.icon)} ${meta.label} <span class="subtab-count">${items.length}</span></div>`;
           if (meta.groupBy) {
-            groupByDetail(items).forEach(g => {
+            groupByDetail(items).sort((x, y) => y.latestTs - x.latestTs).forEach(g => {
               html += `<div class="act-group-head">${escapeHtml(g.detail)} (${g.items.length})</div>`;
               html += g.items.map(a => rowHtml(a, meta)).join("");
             });
@@ -5766,20 +5876,21 @@
           }
         });
         el.innerHTML = html;
-        el.querySelectorAll(".act-row").forEach(card => card.addEventListener("click", () => {
-          const view = card.dataset.jump;
-          const ws = card.dataset.ws;
-          if (view === "pendaftar" && ws) {
-            location.hash = "pendaftar";
-            setTimeout(() => {
-              const sel = document.getElementById("wsSelect");
-              if (sel) { sel.value = ws; loadBatches(); }
-            }, 60);
-          } else {
-            location.hash = view;
-          }
-        }));
+        el.querySelectorAll(".act-row").forEach(card => card.addEventListener("click", () => jumpFromActivity(card.dataset.jump, card.dataset.ws)));
       } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+    }
+
+    // Lompat dari Notifikasi ke tab terkait -- dipake bareng sama bar chart & list detail.
+    function jumpFromActivity(view, ws) {
+      if (view === "pendaftar" && ws) {
+        location.hash = "pendaftar";
+        setTimeout(() => {
+          const sel = document.getElementById("wsSelect");
+          if (sel) { sel.value = ws; loadBatches(); }
+        }, 60);
+      } else {
+        location.hash = view;
+      }
     }
 
     // ---------- SIDE QUEST (admin) ----------
