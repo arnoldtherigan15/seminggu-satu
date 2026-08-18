@@ -15,6 +15,33 @@ const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
 const prepKey = (event: string, type: string) => `prep__${event}__${type}`;
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
 
+// Admin ngetik tanggal event manual via prompt() di dashboard, format yang
+// dicontohin ("11 Juli 2026") pake nama bulan BAHASA INDONESIA -- Postgres cuma
+// ngerti nama bulan Inggris, jadi kalau langsung di-insert ke kolom `date`
+// (mis. "11 Oktober 2026") DB-nya nolak. Dulu error ini nggak ketangkep sama
+// sekali (insert()/update() nggak dicek errornya) jadi APInya bilang "sukses"
+// padahal batch-nya nggak pernah kesimpen -- parser ini nerjemahin bulan
+// Indonesia -> ISO (YYYY-MM-DD) dulu sebelum nyampe ke DB.
+const ID_MONTHS: Record<string, number> = {
+  januari: 1, februari: 2, maret: 3, april: 4, mei: 5, juni: 6,
+  juli: 7, agustus: 8, september: 9, oktober: 10, november: 11, desember: 12,
+};
+function parseIdDate(input: string): string | null {
+  const s = String(input || "").trim();
+  if (!s) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; // udah ISO
+  const m = s.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/); // "11 Juli 2026"
+  if (m) {
+    const month = ID_MONTHS[m[2].toLowerCase()];
+    if (month) {
+      const dd = String(parseInt(m[1], 10)).padStart(2, "0");
+      const mm = String(month).padStart(2, "0");
+      return `${m[3]}-${mm}-${dd}`;
+    }
+  }
+  return null; // format nggak dikenal -- biar caller yang mutusin
+}
+
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
   if (opt) return opt;
@@ -166,8 +193,15 @@ Deno.serve(async (req) => {
         if (!WORKSHOP_TYPES.includes(workshop)) return errorResponse("Workshop tidak dikenal: " + workshop);
         const label = String(data.label || "").trim();
         if (!label) return errorResponse("Label batch wajib diisi.");
-        await admin.from("batches").update({ active: false }).eq("workshop_type", workshop);
-        await admin.from("batches").insert({ workshop_type: workshop, label, active: true, event_date: data.eventDate || null });
+        let eventDate: string | null = null;
+        if (data.eventDate) {
+          eventDate = parseIdDate(data.eventDate);
+          if (!eventDate) return errorResponse(`Format tanggal "${data.eventDate}" nggak dikenali. Coba format "11 Juli 2026" atau "2026-07-11".`);
+        }
+        const { error: updErr } = await admin.from("batches").update({ active: false }).eq("workshop_type", workshop);
+        if (updErr) return errorResponse("Gagal mengarsipkan batch lama: " + updErr.message);
+        const { error: insErr } = await admin.from("batches").insert({ workshop_type: workshop, label, active: true, event_date: eventDate });
+        if (insErr) return errorResponse("Gagal bikin batch baru: " + insErr.message);
         return jsonResponse({ status: "success", message: `Batch baru '${label}' dibuat & jadi aktif.` });
       }
 
@@ -188,10 +222,18 @@ Deno.serve(async (req) => {
         // deno-lint-ignore no-explicit-any
         const patch: Record<string, any> = {};
         if (data.label != null && String(data.label).trim() !== "") patch.label = String(data.label).trim();
-        if (data.eventDate != null) patch.event_date = String(data.eventDate).trim() || null;
+        if (data.eventDate != null) {
+          const raw = String(data.eventDate).trim();
+          if (!raw) patch.event_date = null;
+          else {
+            const parsed = parseIdDate(raw);
+            if (!parsed) return errorResponse(`Format tanggal "${raw}" nggak dikenali. Coba format "11 Juli 2026" atau "2026-07-11".`);
+            patch.event_date = parsed;
+          }
+        }
         if (!Object.keys(patch).length) return errorResponse("Nggak ada yang diubah.");
         const { error } = await admin.from("batches").update(patch).eq("id", batchId);
-        if (error) return errorResponse("Batch tidak ditemukan.");
+        if (error) return errorResponse("Gagal menyimpan perubahan: " + error.message);
         return jsonResponse({ status: "success", message: "Batch diperbarui." });
       }
 
