@@ -181,7 +181,15 @@ const RECOMMENDATION_CATEGORIES = {
         var cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
             var parsed = JSON.parse(cached);
-            if (Array.isArray(parsed) && parsed.length) RECOMMENDATIONS = parsed;
+            // Validasi tiap item punya title -- cache lama (sebelum fix) bisa
+            // kesimpen tanpa title (bug: refreshCache() dulu nge-drop field
+            // title-nya), yang bikin RECOMMENDATIONS.filter(it => it.title) di
+            // warga/main.js jadi ngosongin semuanya. Cache rusak kayak gitu
+            // di-skip aja, biar fallback ke data statis di atas sampai
+            // refreshCache() di bawah berhasil nyimpen ulang yang bener.
+            if (Array.isArray(parsed) && parsed.length && parsed.every(function (it) { return it && it.title; })) {
+                RECOMMENDATIONS = parsed;
+            }
         }
     } catch (e) { /* pakai statis */ }
 
@@ -194,7 +202,7 @@ const RECOMMENDATION_CATEGORIES = {
             .then(function (rows) {
                 if (!Array.isArray(rows) || !rows.length) return;
                 var data = rows.map(function (r) {
-                    return Object.assign({ id: r.id }, r.extra || {});
+                    return Object.assign({ id: r.id, title: r.title }, r.extra || {});
                 });
                 localStorage.setItem(CACHE_KEY, JSON.stringify(data));
             })
