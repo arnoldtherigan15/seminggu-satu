@@ -4482,27 +4482,31 @@
         }
         empty.style.display = "none";
         const items = r.items || [];
-        // Reka Rekat punya form isian 4 foto -- peserta suka buru-buru daftar
-        // pake foto asal dulu, nanti nyusul upload yang beneran. Link personal
-        // ini biar dia bisa GANTI foto tanpa daftar ulang.
-        const canUpdatePhoto = workshop === "reka-rekat";
+        // Reka Rekat & Journaling Date punya form isian foto -- peserta suka
+        // buru-buru daftar pake foto asal dulu, nanti nyusul upload yang
+        // beneran. Link personal ini biar dia bisa GANTI foto tanpa daftar ulang.
+        const UPDATE_PHOTO_CFG = {
+          "reka-rekat": { path: "/reka-rekat/update-photo.html", msg: (nm, link) => `Halo ${nm} 👋\nBoleh upload ulang foto buat Reka Rekat kamu di sini ya (kalau kemarin masih asal-asalan pas daftar):\n${link}` },
+          "journaling-date": { path: "/journaling-date/update-photo.html", msg: (nm, link) => `Halo ${nm} 👋\nMau nambah/ganti foto kenang-kenangan buat Journaling Date? Tinggal upload di sini ya (opsional kok):\n${link}` },
+        };
+        const photoCfg = UPDATE_PHOTO_CFG[workshop];
         body.innerHTML = shaped.rows.map((row, i) => {
           const cells = row.map((c, idx) => idx === tsIdx ? `<td>${escapeHtml(fmtDateTime(c))}</td>` : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).join("");
           const it = items[i];
           const regId = it ? it.id : "";
           const nm = it ? (it.nickname || it.full_name || "") : "";
-          const photoBtn = canUpdatePhoto
+          const photoBtn = photoCfg
             ? `<button class="wa-copy" data-photolink="${escapeHtml(regId)}" data-photoname="${escapeHtml(nm)}" data-photowa="${escapeHtml((it && it.wa) || "")}" title="Kirim link upload ulang foto">${icon("camera")}</button>`
             : "";
           return `<tr><td>${i + 1}</td>${cells}<td>${photoBtn}<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button></td></tr>`;
         }).join("");
         body.querySelectorAll("[data-photolink]").forEach(b => b.addEventListener("click", () => {
-          const link = siteOrigin() + "/reka-rekat/update-photo.html?rid=" + encodeURIComponent(b.dataset.photolink) + "&nama=" + encodeURIComponent(b.dataset.photoname || "");
+          if (!photoCfg) return;
+          const link = siteOrigin() + photoCfg.path + "?rid=" + encodeURIComponent(b.dataset.photolink) + "&nama=" + encodeURIComponent(b.dataset.photoname || "");
           const wa = waNormalize(b.dataset.photowa);
           if (wa) {
             const nm = (b.dataset.photoname || "").trim().split(/\s+/)[0] || "kak";
-            const msg = `Halo ${nm} 👋\nBoleh upload ulang foto buat Reka Rekat kamu di sini ya (kalau kemarin masih asal-asalan pas daftar):\n${link}`;
-            window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(msg), "_blank");
+            window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(photoCfg.msg(nm, link)), "_blank");
           } else {
             copyToClipboardEl(link, b);
           }
