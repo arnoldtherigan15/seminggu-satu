@@ -4650,9 +4650,17 @@
       if (!label) return;
       const eventDate = prompt("Tanggal event (mis. '11 Juli 2026') — tampil di loyalty peserta:", "");
       if (eventDate === null) return;
-      const r = await api("newBatch", { token: getToken(), workshop, label, eventDate: (eventDate || "").trim() });
-      alert(r.message || r.status);
-      if (r.status === "success") { await loadBatches(); loadSummary(); }
+      // Dulu kalau api() gagal (network error/timeout dll) exception-nya nggak
+      // ketangkep -- fungsi berhenti diam-diam, kelihatan kayak nggak kejadian
+      // apa-apa padahal batch-nya beneran nggak kesimpen. Sekarang minimal ada
+      // alert yang jelas walau gagalnya bukan dari server (mis. koneksi putus).
+      try {
+        const r = await api("newBatch", { token: getToken(), workshop, label, eventDate: (eventDate || "").trim() });
+        alert(r.message || r.status);
+        if (r.status === "success") { await loadBatches(); loadSummary(); }
+      } catch (e) {
+        alert("Gagal bikin batch baru: " + (e && e.message ? e.message : "nggak bisa terhubung ke server.") + "\n\nCoba lagi ya.");
+      }
     }
 
     async function setActiveBatch() {
