@@ -144,6 +144,12 @@
             color: var(--text-secondary);
         }
 
+        .closed-mochi {
+            width: 110px;
+            margin: 0 auto 1.25rem;
+            display: block;
+        }
+
         h2 {
             font-size: 1.4rem;
             margin-bottom: 0.75rem;
@@ -339,10 +345,14 @@
                 break;
         }
 
+        // Pendaftaran ditutup/kuota penuh (icon-closed) -- ganti ikon bulet
+        // jadi Mochi sedih, lebih "kena" daripada ikon doang buat momen nolak orang.
+        const iconOrMochi = iconClass === 'icon-closed'
+            ? `<img class="closed-mochi" src="images/sticker/mochi_sad.png" alt="">`
+            : `<div class="icon-wrap ${iconClass}"><i data-lucide="${iconName}"></i></div>`;
+
         card.innerHTML = `
-            <div class="icon-wrap ${iconClass}">
-                <i data-lucide="${iconName}"></i>
-            </div>
+            ${iconOrMochi}
             <h2>${title}</h2>
             <div class="divider ${dividerClass}"></div>
             <p class="desc">${description}</p>

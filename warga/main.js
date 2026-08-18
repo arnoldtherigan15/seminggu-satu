@@ -563,7 +563,7 @@ async function prefetchTabs() {
 function renderError(container, retryFn, msg) {
     if (!container) return;
     container.innerHTML =
-        '<div class="placeholder"><div class="em">📡</div><h3>Gagal memuat</h3>' +
+        '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_sad.png" alt=""></div><h3>Gagal memuat</h3>' +
         '<p>' + (msg || "Cek koneksi internetmu, lalu coba lagi ya.") + '</p>' +
         '<button class="btn-primary retry-btn" style="margin:14px auto 0;max-width:220px;">🔄 Coba lagi</button></div>';
     const b = container.querySelector(".retry-btn");
@@ -654,7 +654,7 @@ async function loadEvents() {
         .filter(x => x.status === "open" || x.status === "not-open-yet");
 
     if (!items.length) {
-        pane.innerHTML = '<div class="placeholder"><div class="em">📅</div><h3>Belum ada event buka</h3><p>Pantau terus ya, event baru bakal muncul di sini 🌱</p></div>';
+        pane.innerHTML = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Belum ada event buka</h3><p>Pantau terus ya, event baru bakal muncul di sini 🌱</p></div>';
         return;
     }
 
@@ -689,10 +689,13 @@ async function loadEvents() {
                 : '<span class="ev-badge open">FREE 🎉</span>';
         }
 
-        let action;
+        let action, fullMochi = "";
         if (isReg) action = '<div class="ev-done">✅ You\'re in — see you there! 💙</div>';
         else if (x.status === "not-open-yet") action = '<div class="ev-meta">Registration opens soon</div>';
-        else if (full) action = '<div class="ev-full">Fully booked 😢</div>';
+        else if (full) {
+            action = '<div class="ev-full">Fully booked</div>';
+            fullMochi = '<img class="ev-full-mochi" src="../images/sticker/mochi_sad.png" alt="">';
+        }
         else {
             let href = "../" + (w.path || "");
             // Bawa WA (nggak input ulang) + flag from=member (biar abis daftar balik ke portal warga, bukan homepage publik)
@@ -706,6 +709,7 @@ async function loadEvents() {
             '<div class="ev-top"><div class="ev-name">' + esc(w.name || w.id) + '</div>' + badge + '</div>' +
             (meta ? '<div class="ev-meta">' + esc(meta) + '</div>' : '') +
             '<div class="ev-action">' + action + '</div>' +
+            fullMochi +
             '</div>';
     });
     pane.innerHTML = html;
@@ -721,7 +725,7 @@ function loadRec() {
     const pane = $("pane-rec");
     const list = (typeof RECOMMENDATIONS !== "undefined" && Array.isArray(RECOMMENDATIONS)) ? RECOMMENDATIONS.filter(it => it && it.title) : [];
     if (!list.length) {
-        pane.innerHTML = '<div class="placeholder"><div class="em">🛍️</div><h3>Belum ada rekomendasi</h3><p>Segera nyusul ya!</p></div>';
+        pane.innerHTML = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Belum ada rekomendasi</h3><p>Segera nyusul ya!</p></div>';
         return;
     }
     // Filter tabs: Semua + kategori yang dipakai (label dari RECOMMENDATION_CATEGORIES)
@@ -885,7 +889,7 @@ async function loadQuests() {
     }
 
     if (!_questChallenges.length) {
-        pane.innerHTML = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada Quest</h3><p>Pantau terus ya, challenge baru bakal muncul di sini! 🌱</p></div>';
+        pane.innerHTML = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Belum ada Quest</h3><p>Pantau terus ya, challenge baru bakal muncul di sini! 🌱</p></div>';
         return;
     }
     // Belum selesai di atas, dalam grup yang sama urut dari yang paling baru di-post
@@ -1372,14 +1376,14 @@ function loadLeaderboard() {
         const me = (data && data.me) || null;
         const topEvents = (data && data.topEvents) || [];
         if (!top.length && !topEvents.length) {
-            content.innerHTML = '<div class="placeholder"><div class="em">🏆</div><h3>Belum ada peringkat</h3><p>Ikut challenge buat ngumpulin poin & masuk papan peringkat! ⚡</p></div>';
+            content.innerHTML = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Belum ada peringkat</h3><p>Ikut challenge buat ngumpulin poin & masuk papan peringkat! ⚡</p></div>';
             return;
         }
 
         // ---- Board 1: Challenge Champions (biru) ----
         let chHtml;
         if (!top.length) {
-            chHtml = '<div class="placeholder"><div class="em">⚡</div><h3>Belum ada poin challenge</h3><p>Ikut challenge buat masuk papan peringkat!</p></div>';
+            chHtml = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Belum ada poin challenge</h3><p>Ikut challenge buat masuk papan peringkat!</p></div>';
         } else {
             const top5 = top.slice(0, 5);
             let rows = "";
@@ -1423,7 +1427,7 @@ function loadLeaderboard() {
         // ---- Board 2: Top 5 Teman Jurnal (kuning dominan, aksen biru) ----
         let tjHtml;
         if (!topEvents.length) {
-            tjHtml = '<div class="placeholder"><div class="em">💛</div><h3>Belum ada data</h3><p>Ikut event buat masuk Top 5 Teman Jurnal!</p></div>';
+            tjHtml = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Belum ada data</h3><p>Ikut event buat masuk Top 5 Teman Jurnal!</p></div>';
         } else {
             let tjRows = "";
             topEvents.forEach(x => {
@@ -2657,7 +2661,7 @@ function buildBirthdayHtml(b) {
         '<span class="v-tape a"></span>' +
         '<span class="v-cut">✂️</span>' +
         '<span class="v-notch l"></span><span class="v-notch r"></span>' +
-        '<img class="v-stk" src="../images/sticker/str-8.png" alt="">' +
+        '<img class="v-stk" src="../images/sticker/mochi_birthday.png" alt="">' +
         '<div class="v-off">' + b.age + '<small>%</small></div>' +
         '<div><span class="v-lbl">🎂 Voucher Ulang Tahun</span></div>' +
         '<div class="v-desc">Diskon ' + b.age + '% buat event journaling apa aja 💙</div>' +
@@ -2705,7 +2709,7 @@ function openEventLog() {
     const modal = $("questModal");
     let inner;
     if (!evs.length) {
-        inner = '<div class="placeholder" style="padding:1.5rem 0;"><div class="em">\ud83c\udf31</div>' +
+        inner = '<div class="placeholder" style="padding:1.5rem 0;"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div>' +
             '<h3>Belum ada jejak event</h3><p>Yuk mulai petualangan pertamamu!</p></div>' +
             '<button class="btn-primary" id="elogNext">Lihat event yang lagi buka \ud83c\udfaa</button>';
     } else {
@@ -2938,7 +2942,7 @@ async function loadLoyalty() {
         const d = await fnGet("loyalty", "wa=" + encodeURIComponent(_profile.wa), 20000);
         loading.style.display = "none";
         if (!d || !d.found) {
-            content.innerHTML = '<div class="placeholder"><div class="em">🌱</div><h3>Belum ada riwayat</h3><p>Yuk ikut event pertamamu!</p></div>';
+            content.innerHTML = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Belum ada riwayat</h3><p>Yuk ikut event pertamamu!</p></div>';
             return;
         }
         const count = d.count || 0, target = d.target || 6, progress = d.progress || 0;
@@ -4754,7 +4758,7 @@ function renderTeras(modal) {
         '<div class="mp-sub">Nggak perlu ngapa-ngapain. Dengerin hujannya aja.</div>' +
         '<div class="tr-scene" id="trScene">' +
         '<div class="tr-rainbox" id="trRainbox"></div>' +
-        '<img class="tr-mochi" src="../images/sticker/str-6.png" alt="">' +
+        '<img class="tr-mochi" src="../images/sticker/mochi_rain.png" alt="">' +
         '<button type="button" class="tr-cup" id="trCup" aria-label="Seruput cokelat anget">☕</button>' +
         '<div class="tr-line" id="trLine"></div>' +
         '</div>' +
@@ -5338,7 +5342,7 @@ function galFiltered() {
 function renderGallery() {
     const pane = $("pane-gallery");
     if (!_galleryItems.length) {
-        pane.innerHTML = '<div class="placeholder"><div class="em">📸</div><h3>Galeri masih kosong</h3><p>Ikut challenge & upload foto spread-mu — nanti muncul di sini! ✨</p></div>';
+        pane.innerHTML = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Galeri masih kosong</h3><p>Ikut challenge & upload foto spread-mu — nanti muncul di sini! ✨</p></div>';
         return;
     }
     // Urutan chip WAJIB: All, Mine, Workshop, Reka-Rekat, Temu-Warga, baru sisanya (challenge/weekly, dst)
@@ -5389,7 +5393,7 @@ function renderGallery() {
     const feed = $("igFeed"), grid = $("igGrid");
     if (_galleryObserver) { _galleryObserver.disconnect(); _galleryObserver = null; }
     if (!items.length) {
-        const empty = '<div class="placeholder" style="grid-column:1/-1;min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;"><div class="em">🍃</div><p>Belum ada foto di filter ini.</p></div>';
+        const empty = '<div class="placeholder" style="grid-column:1/-1;min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><p>Belum ada foto di filter ini.</p></div>';
         feed.innerHTML = empty; grid.innerHTML = empty;
     } else {
         _galleryRenderedCount = 0; // filter/view baru ganti -> mulai dari batch pertama lagi
@@ -5797,7 +5801,7 @@ function openSnailBox(setHash) {
     if (setHash !== false) { try { if (location.hash !== "#snail-mail") location.hash = "snail-mail"; } catch (e) { } }
     loadSnailMail().then(renderSnailBox).catch(() => {
         const b = $("snpBody");
-        if (b) b.innerHTML = '<div class="placeholder"><div class="em">📭</div><p>Gagal ngambil surat. Coba lagi ya.</p></div>';
+        if (b) b.innerHTML = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_sad.png" alt=""></div><p>Gagal ngambil surat. Coba lagi ya.</p></div>';
     });
 }
 
@@ -6608,7 +6612,7 @@ function renderSnailBox() {
 
     body.innerHTML = hero + sugg +
         (coll ? '<div class="snp-sec">📚 Koleksi Suratmu (' + avail.length + ')</div><div class="snp-grid">' + coll + '</div>'
-            : '<div class="placeholder" style="padding:1.4rem 0;"><div class="em">📭</div><p>Belum ada surat yang nyampe.</p></div>') +
+            : '<div class="placeholder" style="padding:1.4rem 0;"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><p>Belum ada surat yang nyampe.</p></div>') +
         walk;
 
     const heroEl = $("snHero");
@@ -7736,7 +7740,7 @@ function renderPbPanel() {
         (left <= 0 ? "Kuota hari ini habis — besok lagi 🌙" : "📮 Masukin ke Kotak Pos" + (left < 2 ? " (" + left + " lagi)" : "")) + '</button>' +
         '</div>' +
         (list ? '<div class="pb-list-t">📬 Aspirasi warga — dukung yang kamu suka!</div>' + list
-            : '<div class="pb-empty">Belum ada usulan — jadilah yang pertama! ✨</div>');
+            : '<div class="pb-empty"><img src="../images/sticker/mochi_shock.png" alt="" style="width:32px;display:block;margin:0 auto 6px;">Belum ada usulan — jadilah yang pertama! ✨</div>');
 
     panel.querySelectorAll(".pb-cat").forEach(b => b.addEventListener("click", () => {
         _sgCat = b.dataset.cat;
@@ -7844,7 +7848,7 @@ function openPostboxPage() {
     $("pbClose").addEventListener("click", closePostboxPage);
     loadSuggestions().then(renderPbPanel).catch(() => {
         const b = $("pbBody");
-        if (b) b.innerHTML = '<div class="pb-empty">Gagal ngambil isi kotak pos — coba lagi ya 🙏</div>';
+        if (b) b.innerHTML = '<div class="pb-empty"><img src="../images/sticker/mochi_sad.png" alt="" style="width:32px;display:block;margin:0 auto 6px;">Gagal ngambil isi kotak pos — coba lagi ya 🙏</div>';
     });
 }
 
@@ -8162,7 +8166,7 @@ function renderMadingModal() {
 
     const boardHtml = entries.length
         ? '<div class="md-cols"><div class="md-col">' + colA.join("") + '</div><div class="md-col">' + colB.join("") + '</div></div>'
-        : '<div class="wb-empty" style="margin-top:14px;">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
+        : '<div class="wb-empty" style="margin-top:14px;"><img src="../images/sticker/mochi_shock.png" alt="" style="width:36px;display:block;margin:0 auto 6px;">Belum ada pesan — jadilah yang pertama nempel! ✨</div>';
     const addLabel = left <= 0
         ? '＋ Tempel Pesan <small>(kuota habis — besok lagi 🌙)</small>'
         : '＋ Tempel Pesan' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '');
@@ -8281,7 +8285,7 @@ function buildJournalSectionHtml() {
     const canPost = _journalData ? _journalData.canPost !== false : true;
     const grid = items.length
         ? '<div class="jn-grid">' + items.map(journalCardHtml).join("") + '</div>'
-        : '<div class="jn-empty">Belum ada yang share halaman jurnalnya — jadilah yang pertama! 📖</div>';
+        : '<div class="jn-empty"><img src="../images/sticker/mochi_shock.png" alt="" style="width:36px;display:block;margin:0 auto 6px;">Belum ada yang share halaman jurnalnya — jadilah yang pertama! 📖</div>';
     const addArea = canPost
         ? '<button class="wb-add" id="jnAdd" style="width:100%;padding:11px;font-size:.85rem;">＋ Bagikan Jurnal</button>' +
         '<div class="jn-compose" id="jnCompose" style="display:none;">' +
@@ -8451,7 +8455,7 @@ function renderBarterModal() {
     const left = _barterData ? _barterData.left : 0;
 
     const cards = items.map(barterCardHtml).join("");
-    const gridHtml = items.length ? '<div class="bt-grid">' + cards + '</div>' : '<div class="bt-empty">Belum ada yang post barter — jadilah yang pertama! 🔄</div>';
+    const gridHtml = items.length ? '<div class="bt-grid">' + cards + '</div>' : '<div class="bt-empty"><img src="../images/sticker/mochi_shock.png" alt="" style="width:36px;display:block;margin:0 auto 6px;">Belum ada yang post barter — jadilah yang pertama! 🔄</div>';
     const addLabel = left <= 0
         ? '＋ Post Barang <small>(kuota habis — minggu depan lagi 🔄)</small>'
         : '＋ Post Barang' + (left < 2 ? ' <small>(' + left + ' lagi)</small>' : '');
@@ -8604,7 +8608,7 @@ function renderWargaBookBody(d) {
     const body = $("wbBody");
     if (!body) return;
     if (!d || !d.found) {
-        body.innerHTML = '<div class="mypf-empty">Profil ini nggak ketemu 🌙</div>';
+        body.innerHTML = '<div class="mypf-empty"><img src="../images/sticker/mochi_sad.png" alt="" style="width:36px;display:block;margin:0 auto 8px;">Profil ini nggak ketemu 🌙</div>';
         return;
     }
     // Sengaja nggak ada state "locked" di sini kayak di /balai/ -- public_opt_in
@@ -8675,7 +8679,7 @@ async function openWargaBook(publicId) {
     } catch (e) {
         if (_wbPublicId !== publicId) return;
         const b = $("wbBody");
-        if (b) b.innerHTML = '<div class="mypf-empty">Gagal memuat profil 📡<br><span>Coba lagi ya.</span></div>';
+        if (b) b.innerHTML = '<div class="mypf-empty"><img src="../images/sticker/mochi_sad.png" alt="" style="width:36px;display:block;margin:0 auto 8px;">Gagal memuat profil<br><span>Coba lagi ya.</span></div>';
     }
 }
 

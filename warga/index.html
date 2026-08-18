@@ -1019,9 +1019,9 @@
 
         .voucher .v-stk {
             position: absolute;
-            bottom: 8px;
-            right: 6px;
-            width: 58px;
+            bottom: -12px;
+            right: -25px;
+            width: 60px;
             transform: rotate(9deg);
             filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .18));
             z-index: 2;
@@ -1685,6 +1685,18 @@
             font-size: 0.88rem;
             font-weight: 700;
             text-align: center;
+        }
+
+        /* Mochi sedih ngambang di pojok kartu pas full -- ilustrasi gede
+           biar kerasa, bukan cuma emoji kecil nempel di teks. */
+        .ev-full-mochi {
+            position: absolute;
+            right: -8px;
+            bottom: -10px;
+            width: 92px;
+            pointer-events: none;
+            filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .18));
+            z-index: 2;
         }
 
         :root[data-theme="dark"] .ev::before {
@@ -6230,9 +6242,7 @@
         .story-modal {
             position: fixed;
             inset: 0;
-            background: rgba(16, 36, 94, .72);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            background: rgba(16, 36, 94, .82);
             z-index: 1300;
             display: none;
             align-items: center;
@@ -7572,6 +7582,12 @@
 
         .placeholder .em {
             font-size: 2.2rem;
+        }
+
+        .placeholder .em img {
+            width: 84px;
+            display: block;
+            margin: 0 auto;
         }
 
         .placeholder h3 {
