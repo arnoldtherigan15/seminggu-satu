@@ -108,7 +108,7 @@ async function refreshSlot() {
             el.textContent = "Slot penuh 😢";
             sub.disabled = true; sub.innerHTML = "Slot Penuh";
         } else {
-            el.textContent = "Sisa " + left + " dari " + max + " slot";
+            el.textContent = "Sisa " + left + " slot";
             sub.disabled = false;
         }
     } catch (e) {
