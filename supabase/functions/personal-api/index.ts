@@ -232,6 +232,9 @@ Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, 
           if (!res.ok) {
             return errorResponse("Gagal memproses gambar: " + (json?.error?.message || res.statusText));
           }
+          // Kuota Gemini kepake begitu res.ok, dicatat di sini terlepas dari
+          // hasil parse JSON di bawah berhasil atau nggak.
+          await admin.from("ai_usage_log").insert({});
           const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (!text) return errorResponse("AI tidak mengembalikan hasil yang bisa dibaca.");
           let parsed: { transactions?: unknown };
@@ -245,6 +248,12 @@ Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, 
         } catch (e) {
           return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
         }
+      }
+
+      case "getAiUsageToday": {
+        const todayWib = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
+        const { count } = await admin.from("ai_usage_log").select("id", { count: "exact", head: true }).eq("usage_date", todayWib);
+        return jsonResponse({ status: "success", count: count || 0 });
       }
 
       case "savePersonalBudget": {
