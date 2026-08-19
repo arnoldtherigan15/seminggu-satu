@@ -3435,6 +3435,10 @@
           <button class="nav-btn" data-view="quest">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09zM4.157 8.5H7a.5.5 0 0 1 .478.647L6.11 13.59l5.732-6.09H9a.5.5 0 0 1-.478-.647L9.89 2.41z"/></svg></span> Challenge
           </button>
+          <div class="nav-section-label">Pribadi</div>
+          <button class="nav-btn" data-view="personal">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/></svg></span> Personal
+          </button>
         </nav>
         <div class="sidebar-footer">
           <button class="btn btn-ghost" id="logoutBtn">Keluar</button>
@@ -3801,6 +3805,124 @@
           </div>
         </div>
 
+        <!-- ===== VIEW: PERSONAL (keuangan pribadi Arnold, GA terkait bisnis Seminggu Satu) ===== -->
+        <div class="wrap view" id="viewPersonal" style="display:none;">
+          <div class="toolbar">
+            <button class="btn btn-sm btn-ghost" id="perReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
+          </div>
+
+          <div class="subtabs" id="perSubtabs">
+            <div class="subtab-bar">
+              <button class="subtab-btn" type="button" data-tab="ringkasan"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/><path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/></svg> <span>Ringkasan</span></button>
+              <button class="subtab-btn" type="button" data-tab="transaksi"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5m14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5"/></svg> <span>Transaksi</span> <span class="subtab-count" id="perTxCount"></span></button>
+              <button class="subtab-btn" type="button" data-tab="kategori"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2v4.586l7 7L14.586 9l-7-7zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586z"/><path d="M5.5 5a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m0 1a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M1 7.086a1 1 0 0 0 .293.707L8.75 15.25l-.043.043a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 0 7.586V3a1 1 0 0 1 1-1z"/></svg> <span>Kategori</span></button>
+              <button class="subtab-btn" type="button" data-tab="akun"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/></svg> <span>Akun</span></button>
+            </div>
+
+            <div class="subtab-panel" data-tab="ringkasan">
+              <div class="ov-income">
+                <div class="ov-income-head"><span class="ov-income-title">Ringkasan Keuangan Pribadi</span></div>
+                <div class="ov-income-body">
+                  <div class="ov-income-item"><span>Total Saldo</span><b id="perTotalBalance">Rp 0</b></div>
+                  <div class="ov-income-item"><span>Pemasukan Bulan Ini</span><b id="perMonthIncome">Rp 0</b></div>
+                  <div class="ov-income-item"><span>Pengeluaran Bulan Ini</span><b id="perMonthExpense">Rp 0</b></div>
+                </div>
+              </div>
+              <h3 class="ov-section-title">Pengeluaran per Kategori — Bulan Ini</h3>
+              <div id="perCatChart" class="fin-card"></div>
+              <h3 class="ov-section-title" style="margin-top:20px;">Transaksi Terbaru</h3>
+              <div id="perRecentList"></div>
+            </div>
+
+            <div class="subtab-panel" data-tab="transaksi">
+              <div class="fin-card">
+                <input type="hidden" id="txId">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="txDate"></div>
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Tipe</label>
+                    <select class="form-control" id="txType">
+                      <option value="expense">Pengeluaran</option>
+                      <option value="income">Pemasukan</option>
+                      <option value="transfer">Transfer Antar Akun</option>
+                    </select>
+                  </div>
+                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Jumlah (Rp)</label><input class="form-control" type="number" id="txAmount" min="0" step="1" placeholder="mis. 50000"></div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:130px;"><label id="txAccountLabel">Akun</label><select class="form-control" id="txAccount"></select></div>
+                  <div class="konten-field" style="flex:1;min-width:130px;" id="txCategoryWrap"><label>Kategori</label><select class="form-control" id="txCategory"></select></div>
+                  <div class="konten-field" style="flex:1;min-width:130px;display:none;" id="txToAccountWrap"><label>Akun Tujuan</label><select class="form-control" id="txToAccount"></select></div>
+                </div>
+                <div class="konten-field"><label>Catatan (opsional)</label><input class="form-control" type="text" id="txNote" maxlength="300" placeholder="mis. Makan siang sama tim"></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+                  <button class="btn btn-sm" id="txSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Transaksi</button>
+                  <button class="btn btn-sm btn-ghost" id="txCancelBtn" style="display:none;">Batal Edit</button>
+                </div>
+                <div class="msg" id="txMsg"></div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;">
+                <select class="form-control" id="txFilterType" style="max-width:170px;">
+                  <option value="">Semua tipe</option>
+                  <option value="expense">Pengeluaran</option>
+                  <option value="income">Pemasukan</option>
+                  <option value="transfer">Transfer</option>
+                </select>
+                <select class="form-control" id="txFilterAccount" style="max-width:200px;"><option value="">Semua akun</option></select>
+              </div>
+              <div id="perTxList" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="subtab-panel" data-tab="kategori">
+              <div class="fin-card">
+                <input type="hidden" id="catId">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Nama Kategori</label><input class="form-control" type="text" id="catName" placeholder="mis. Transport"></div>
+                  <div class="konten-field" style="flex:1;min-width:120px;"><label>Tipe</label>
+                    <select class="form-control" id="catType">
+                      <option value="expense">Pengeluaran</option>
+                      <option value="income">Pemasukan</option>
+                    </select>
+                  </div>
+                  <div class="konten-field" style="flex:1;min-width:120px;"><label>Ikon</label><select class="form-control" id="catIcon"></select></div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+                  <button class="btn btn-sm" id="catSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Kategori</button>
+                  <button class="btn btn-sm btn-ghost" id="catNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Kategori Baru</button>
+                  <button class="btn btn-sm" id="catDeleteBtn" style="background:#fee2e2;color:var(--err);display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Hapus</button>
+                </div>
+                <div class="msg" id="catMsg"></div>
+              </div>
+              <div id="perCatList" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="subtab-panel" data-tab="akun">
+              <div class="fin-card">
+                <input type="hidden" id="accId">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Nama Akun</label><input class="form-control" type="text" id="accName" placeholder="mis. BCA, Dompet Cash, GoPay"></div>
+                  <div class="konten-field" style="flex:1;min-width:120px;"><label>Tipe</label>
+                    <select class="form-control" id="accType">
+                      <option value="cash">Tunai</option>
+                      <option value="bank">Bank</option>
+                      <option value="ewallet">E-Wallet</option>
+                      <option value="other">Lainnya</option>
+                    </select>
+                  </div>
+                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Saldo Awal (Rp)</label><input class="form-control" type="number" id="accInitial" min="0" step="1" placeholder="0"></div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+                  <button class="btn btn-sm" id="accSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Akun</button>
+                  <button class="btn btn-sm btn-ghost" id="accNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Akun Baru</button>
+                  <button class="btn btn-sm" id="accDeleteBtn" style="background:#fee2e2;color:var(--err);display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Hapus</button>
+                </div>
+                <div class="msg" id="accMsg"></div>
+              </div>
+              <div id="perAccList" style="margin-top:10px;"></div>
+            </div>
+          </div>
+        </div>
+
         <!-- ===== VIEW: MEMBER (akun /warga, ultah, aktif) ===== -->
         <div class="wrap view" id="viewMembers" style="display:none;">
           <div class="toolbar">
@@ -4127,6 +4249,13 @@
       clock: '<path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>',
       warning: '<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>',
       archive: '<path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/>',
+      wallet: '<path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/>',
+      piggy: '<path d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962"/><path fill-rule="evenodd" d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199"/>',
+      swap: '<path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5m14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5"/>',
+      tags: '<path d="M3 2v4.586l7 7L14.586 9l-7-7zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586z"/><path d="M5.5 5a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m0 1a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M1 7.086a1 1 0 0 0 .293.707L8.75 15.25l-.043.043a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 0 7.586V3a1 1 0 0 1 1-1z"/>',
+      star: '<path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>',
+      receipt: '<path d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .801.13l.5 1A.5.5 0 0 1 15 2v12a.5.5 0 0 1-.053.224l-.5 1a.5.5 0 0 1-.8.13L13 14.707l-.646.647a.5.5 0 0 1-.708 0L11 14.707l-.646.647a.5.5 0 0 1-.708 0L9 14.707l-.646.647a.5.5 0 0 1-.708 0L7 14.707l-.646.647a.5.5 0 0 1-.708 0L5 14.707l-.646.647a.5.5 0 0 1-.708 0L3 14.707l-.646.647a.5.5 0 0 1-.801-.13l-.5-1A.5.5 0 0 1 1 14V2a.5.5 0 0 1 .053-.224l.5-1a.5.5 0 0 1 .367-.27m.217 1.338L2 2.118v11.764l.137.274.51-.51a.5.5 0 0 1 .707 0l.646.647.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.509.509.137-.274V2.118l-.137-.274-.51.51a.5.5 0 0 1-.707 0L12 1.707l-.646.647a.5.5 0 0 1-.708 0L10 1.707l-.646.647a.5.5 0 0 1-.708 0L8 1.707l-.646.647a.5.5 0 0 1-.708 0L6 1.707l-.646.647a.5.5 0 0 1-.708 0L4 1.707l-.646.647a.5.5 0 0 1-.708 0z"/><path d="M3 4.5a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5"/>',
+      heart: '<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>',
     };
     // icon("trash") -> <svg> string. cls: class tambahan (mis. buat ukuran/warna).
     function icon(name, cls) {
@@ -4197,6 +4326,24 @@
           }
         }
         throw lastErr || new Error("Gagal terhubung ke server.");
+      } finally {
+        _bar(false);
+      }
+    }
+
+    // Personal finance numpang auth admin yang sama, tapi function Supabase-nya
+    // beda (personal-api) -- makanya butuh helper fetch terpisah dari api().
+    async function personalApi(action, payload = {}) {
+      _bar(true);
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/personal-api`, {
+          method: "POST",
+          headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify(Object.assign({ action }, payload)),
+        });
+        return await res.json();
+      } catch (e) {
+        return { status: "error", message: "Gagal terhubung ke server." };
       } finally {
         _bar(false);
       }
@@ -4688,7 +4835,7 @@
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "leads", "quest", "activity", "members", "pesanan"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "leads", "quest", "activity", "members", "pesanan", "personal"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1]);
     }
@@ -4709,6 +4856,7 @@
       document.getElementById("viewActivity").style.display = (view === "activity") ? "block" : "none";
       document.getElementById("viewMembers").style.display = (view === "members") ? "block" : "none";
       document.getElementById("viewPesanan").style.display = (view === "pesanan") ? "block" : "none";
+      document.getElementById("viewPersonal").style.display = (view === "personal") ? "block" : "none";
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") ensureFinanceLoaded();
@@ -4720,6 +4868,7 @@
       if (view === "activity") ensureActivity();
       if (view === "members") ensureMembers();
       if (view === "pesanan") ensurePesanan(event);
+      if (view === "personal") ensurePersonal();
     }
 
     // ---------- KEUANGAN ----------
@@ -6652,6 +6801,396 @@
         lines.push("");
       });
       out.value = lines.join("\n").trim();
+    }
+
+    // ---------- PERSONAL (keuangan pribadi Arnold, GA terkait bisnis Seminggu Satu) ----------
+    let personalInit = false;
+    let PER_ACCOUNTS = [];
+    let PER_CATEGORIES = [];
+    let PER_TRANSACTIONS = [];
+    let perTabsCtl = null;
+    let perTxFilterType = "";
+    let perTxFilterAccount = "";
+
+    const PER_ICON_CHOICES = ["cash", "wallet", "piggy", "cart", "cup", "geo", "receipt", "stars", "heart", "gift", "star", "tag", "plus", "swap", "archive"];
+    const PER_ICON_LABELS = {
+      cash: "Uang", wallet: "Dompet", piggy: "Tabungan", cart: "Belanja", cup: "Makan/Minum",
+      geo: "Transport", receipt: "Tagihan", stars: "Hiburan", heart: "Kesehatan", gift: "Hadiah",
+      star: "Bonus", tag: "Label", plus: "Lainnya", swap: "Transfer", archive: "Arsip"
+    };
+
+    function todayStr() {
+      const d = new Date();
+      const tz = d.getTimezoneOffset() * 60000;
+      return new Date(d.getTime() - tz).toISOString().slice(0, 10);
+    }
+
+    function perAccountById(id) { return PER_ACCOUNTS.find(a => a.id === id); }
+    function perCategoryById(id) { return PER_CATEGORIES.find(c => c.id === id); }
+
+    // Saldo dihitung dari initial_balance + transaksi -- lihat catatan di
+    // supabase/personal_finance_schema.sql kenapa nggak disimpen sebagai kolom.
+    function perAccountBalance(acc) {
+      let bal = Number(acc.initial_balance) || 0;
+      PER_TRANSACTIONS.forEach(t => {
+        const amt = Number(t.amount) || 0;
+        if (t.type === "income" && t.account_id === acc.id) bal += amt;
+        else if (t.type === "expense" && t.account_id === acc.id) bal -= amt;
+        else if (t.type === "transfer") {
+          if (t.account_id === acc.id) bal -= amt;
+          if (t.to_account_id === acc.id) bal += amt;
+        }
+      });
+      return bal;
+    }
+
+    async function ensurePersonal() {
+      if (!personalInit) {
+        personalInit = true;
+        document.getElementById("perReloadBtn").addEventListener("click", loadPersonalData);
+        document.getElementById("txType").addEventListener("change", onTxTypeChange);
+        document.getElementById("txSaveBtn").addEventListener("click", saveTx);
+        document.getElementById("txCancelBtn").addEventListener("click", newTxForm);
+        document.getElementById("txFilterType").addEventListener("change", (e) => { perTxFilterType = e.target.value; renderPersonalTransactions(); });
+        document.getElementById("txFilterAccount").addEventListener("change", (e) => { perTxFilterAccount = e.target.value; renderPersonalTransactions(); });
+        document.getElementById("catSaveBtn").addEventListener("click", saveCat);
+        document.getElementById("catNewBtn").addEventListener("click", newCatForm);
+        document.getElementById("catDeleteBtn").addEventListener("click", deleteCat);
+        document.getElementById("accSaveBtn").addEventListener("click", saveAcc);
+        document.getElementById("accNewBtn").addEventListener("click", newAccForm);
+        document.getElementById("accDeleteBtn").addEventListener("click", deleteAcc);
+        document.getElementById("catIcon").innerHTML = PER_ICON_CHOICES.map(name => `<option value="${name}">${PER_ICON_LABELS[name] || name}</option>`).join("");
+        perTabsCtl = wireSubtabs(document.getElementById("perSubtabs"));
+        newTxForm();
+        newCatForm();
+        newAccForm();
+        await loadPersonalData();
+      }
+    }
+
+    async function loadPersonalData() {
+      const r = await personalApi("getPersonalData", { token: getToken() });
+      if (!r || r.status !== "success") { handleAuthError(r); return; }
+      PER_ACCOUNTS = r.accounts || [];
+      PER_CATEGORIES = r.categories || [];
+      PER_TRANSACTIONS = r.transactions || [];
+      populatePersonalSelects();
+      renderPersonalSummary();
+      renderPersonalTransactions();
+      renderPersonalCategories();
+      renderPersonalAccounts();
+    }
+
+    function populatePersonalSelects() {
+      const accOptions = PER_ACCOUNTS.filter(a => !a.archived).map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join("");
+      document.getElementById("txAccount").innerHTML = accOptions;
+      document.getElementById("txToAccount").innerHTML = accOptions;
+      document.getElementById("txFilterAccount").innerHTML = '<option value="">Semua akun</option>' +
+        PER_ACCOUNTS.map(a => `<option value="${a.id}">${escapeHtml(a.name)}${a.archived ? " (arsip)" : ""}</option>`).join("");
+      document.getElementById("txFilterAccount").value = perTxFilterAccount;
+      onTxTypeChange();
+    }
+
+    function onTxTypeChange() {
+      const type = document.getElementById("txType").value;
+      const isTransfer = type === "transfer";
+      document.getElementById("txToAccountWrap").style.display = isTransfer ? "" : "none";
+      document.getElementById("txCategoryWrap").style.display = isTransfer ? "none" : "";
+      document.getElementById("txAccountLabel").textContent = isTransfer ? "Dari Akun" : "Akun";
+      if (!isTransfer) {
+        document.getElementById("txCategory").innerHTML = PER_CATEGORIES.filter(c => c.type === type && !c.archived)
+          .map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+      }
+    }
+
+    function fmtTxDate(s) {
+      if (!s) return "";
+      const d = new Date(s + "T12:00:00");
+      if (isNaN(d)) return s;
+      return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    function perTxLabel(t) {
+      if (t.type === "transfer") {
+        const from = (perAccountById(t.account_id) || {}).name || "?";
+        const to = (perAccountById(t.to_account_id) || {}).name || "?";
+        return `Transfer: ${escapeHtml(from)} → ${escapeHtml(to)}`;
+      }
+      const acc = (perAccountById(t.account_id) || {}).name || "?";
+      const cat = t.category_id ? ((perCategoryById(t.category_id) || {}).name || "Tanpa kategori") : "Tanpa kategori";
+      return `${escapeHtml(cat)} · ${escapeHtml(acc)}`;
+    }
+
+    function perTxRowHtml(t, withActions) {
+      const sign = t.type === "income" ? "+" : (t.type === "expense" ? "-" : "");
+      const color = t.type === "income" ? "var(--ok)" : (t.type === "expense" ? "var(--err)" : "var(--ink)");
+      const actions = withActions ? `
+        <button class="btn btn-sm btn-ghost" data-edittx="${t.id}" style="flex-shrink:0;">${icon("pencil")}</button>
+        <button class="btn btn-sm" data-deltx="${t.id}" style="background:#fee2e2;color:var(--err);flex-shrink:0;">${icon("trash")}</button>` : "";
+      return `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
+        <div style="flex:1;min-width:0;">
+          <b>${perTxLabel(t)}</b>
+          <div style="font-size:.8rem;color:#6b7280;">${fmtTxDate(t.date)}${t.note ? " · " + escapeHtml(t.note) : ""}</div>
+        </div>
+        <div style="font-weight:800;color:${color};flex-shrink:0;">${sign}${rupiah(t.amount)}</div>
+        ${actions}
+      </div>`;
+    }
+
+    function renderPersonalSummary() {
+      const totalBalance = PER_ACCOUNTS.reduce((sum, a) => sum + perAccountBalance(a), 0);
+      document.getElementById("perTotalBalance").textContent = rupiah(totalBalance);
+
+      const ym = todayStr().slice(0, 7);
+      let monthIncome = 0, monthExpense = 0;
+      const catTotals = {};
+      PER_TRANSACTIONS.forEach(t => {
+        if (!t.date || t.date.slice(0, 7) !== ym) return;
+        const amt = Number(t.amount) || 0;
+        if (t.type === "income") monthIncome += amt;
+        else if (t.type === "expense") {
+          monthExpense += amt;
+          const key = t.category_id || "__none__";
+          catTotals[key] = (catTotals[key] || 0) + amt;
+        }
+      });
+      document.getElementById("perMonthIncome").textContent = rupiah(monthIncome);
+      document.getElementById("perMonthExpense").textContent = rupiah(monthExpense);
+
+      const chart = document.getElementById("perCatChart");
+      const rows = Object.keys(catTotals).map(catId => ({
+        name: catId === "__none__" ? "Tanpa kategori" : ((perCategoryById(catId) || {}).name || "Tanpa kategori"),
+        amount: catTotals[catId]
+      })).sort((a, b) => b.amount - a.amount);
+      if (!rows.length) {
+        chart.innerHTML = '<p class="hint" style="margin:0;">Belum ada pengeluaran bulan ini.</p>';
+      } else {
+        const max = rows[0].amount || 1;
+        chart.innerHTML = '<div class="bar-chart">' + rows.map(row => {
+          const pct = Math.max(6, Math.round((row.amount / max) * 100));
+          return `<div class="bar-row" style="cursor:default;">
+            <span class="bar-label">${escapeHtml(row.name)}</span>
+            <span class="bar-track"><span class="bar-fill" style="width:${pct}%"></span></span>
+            <span class="bar-value" style="flex:0 0 auto;">${rupiah(row.amount)}</span>
+          </div>`;
+        }).join("") + '</div>';
+      }
+
+      const recent = document.getElementById("perRecentList");
+      if (!PER_TRANSACTIONS.length) recent.innerHTML = '<p class="hint">Belum ada transaksi.</p>';
+      else recent.innerHTML = PER_TRANSACTIONS.slice(0, 8).map(t => perTxRowHtml(t, false)).join("");
+    }
+
+    function renderPersonalTransactions() {
+      const list = document.getElementById("perTxList");
+      const cnt = document.getElementById("perTxCount");
+      if (cnt) cnt.textContent = "(" + PER_TRANSACTIONS.length + ")";
+      let filtered = PER_TRANSACTIONS;
+      if (perTxFilterType) filtered = filtered.filter(t => t.type === perTxFilterType);
+      if (perTxFilterAccount) filtered = filtered.filter(t => t.account_id === perTxFilterAccount || t.to_account_id === perTxFilterAccount);
+      if (!filtered.length) { list.innerHTML = '<p class="hint">Belum ada transaksi.</p>'; return; }
+      list.innerHTML = filtered.map(t => perTxRowHtml(t, true)).join("");
+      list.querySelectorAll("[data-edittx]").forEach(b => b.addEventListener("click", () => editTx(b.dataset.edittx)));
+      list.querySelectorAll("[data-deltx]").forEach(b => b.addEventListener("click", () => deleteTx(b.dataset.deltx)));
+    }
+
+    function newTxForm() {
+      document.getElementById("txId").value = "";
+      document.getElementById("txDate").value = todayStr();
+      document.getElementById("txType").value = "expense";
+      document.getElementById("txAmount").value = "";
+      document.getElementById("txNote").value = "";
+      onTxTypeChange();
+      if (document.getElementById("txAccount").options.length) document.getElementById("txAccount").selectedIndex = 0;
+      if (document.getElementById("txToAccount").options.length) document.getElementById("txToAccount").selectedIndex = 0;
+      document.getElementById("txSaveBtn").innerHTML = icon("save") + " Simpan Transaksi";
+      document.getElementById("txCancelBtn").style.display = "none";
+      document.getElementById("txMsg").textContent = "";
+    }
+
+    function editTx(id) {
+      const t = PER_TRANSACTIONS.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById("txId").value = t.id;
+      document.getElementById("txDate").value = t.date;
+      document.getElementById("txType").value = t.type;
+      onTxTypeChange();
+      document.getElementById("txAmount").value = t.amount;
+      document.getElementById("txAccount").value = t.account_id;
+      if (t.type === "transfer") document.getElementById("txToAccount").value = t.to_account_id || "";
+      else document.getElementById("txCategory").value = t.category_id || "";
+      document.getElementById("txNote").value = t.note || "";
+      document.getElementById("txSaveBtn").innerHTML = icon("save") + " Simpan Perubahan";
+      document.getElementById("txCancelBtn").style.display = "inline-flex";
+      document.getElementById("txMsg").textContent = "";
+      if (perTabsCtl) perTabsCtl.show("transaksi");
+    }
+
+    async function saveTx() {
+      const msg = document.getElementById("txMsg");
+      const type = document.getElementById("txType").value;
+      const amount = Number(document.getElementById("txAmount").value) || 0;
+      const accountId = document.getElementById("txAccount").value;
+      const date = document.getElementById("txDate").value;
+      if (!date) { msg.className = "msg err"; msg.textContent = "Tanggal wajib diisi."; return; }
+      if (amount <= 0) { msg.className = "msg err"; msg.textContent = "Jumlah harus lebih dari 0."; return; }
+      if (!accountId) { msg.className = "msg err"; msg.textContent = "Akun wajib dipilih."; return; }
+      const payload = { token: getToken(), id: document.getElementById("txId").value, type, amount, accountId, date, note: document.getElementById("txNote").value.trim() };
+      if (type === "transfer") {
+        payload.toAccountId = document.getElementById("txToAccount").value;
+        if (!payload.toAccountId) { msg.className = "msg err"; msg.textContent = "Akun tujuan wajib dipilih."; return; }
+      } else {
+        payload.categoryId = document.getElementById("txCategory").value || "";
+      }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await personalApi("savePersonalTransaction", payload);
+      if (r && r.status === "success") { newTxForm(); await loadPersonalData(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+    }
+
+    async function deleteTx(id) {
+      if (!confirm("Hapus transaksi ini?")) return;
+      const r = await personalApi("deletePersonalTransaction", { token: getToken(), id });
+      if (r && r.status === "success") await loadPersonalData();
+      else { handleAuthError(r); alert((r && r.message) || "Gagal hapus."); }
+    }
+
+    function renderPersonalCategories() {
+      const list = document.getElementById("perCatList");
+      if (!PER_CATEGORIES.length) { list.innerHTML = '<p class="hint">Belum ada kategori.</p>'; return; }
+      const groups = [{ label: "Pemasukan", type: "income" }, { label: "Pengeluaran", type: "expense" }];
+      list.innerHTML = groups.map(g => {
+        const items = PER_CATEGORIES.filter(c => c.type === g.type);
+        if (!items.length) return "";
+        return `<div style="font-weight:800;margin:10px 0 6px;">${g.label}</div>` + items.map(c => `
+          <div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;${c.archived ? "opacity:.55;" : ""}">
+            <div style="flex-shrink:0;">${icon(c.icon || "tag")}</div>
+            <div style="flex:1;min-width:0;"><b>${escapeHtml(c.name)}</b>${c.archived ? ' <span class="subtab-count">arsip</span>' : ""}</div>
+            <button class="btn btn-sm btn-ghost" data-editcat="${c.id}" style="flex-shrink:0;">${icon("pencil")}</button>
+            <button class="btn btn-sm btn-ghost" data-archivecat="${c.id}" data-archived="${c.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
+          </div>`).join("");
+      }).join("");
+      list.querySelectorAll("[data-editcat]").forEach(b => b.addEventListener("click", () => editCat(b.dataset.editcat)));
+      list.querySelectorAll("[data-archivecat]").forEach(b => b.addEventListener("click", () => archiveCat(b.dataset.archivecat, b.dataset.archived === "1")));
+    }
+
+    function newCatForm() {
+      document.getElementById("catId").value = "";
+      document.getElementById("catName").value = "";
+      document.getElementById("catType").value = "expense";
+      document.getElementById("catIcon").value = "tag";
+      document.getElementById("catDeleteBtn").style.display = "none";
+      document.getElementById("catMsg").textContent = "";
+    }
+
+    function editCat(id) {
+      const c = perCategoryById(id);
+      if (!c) return;
+      document.getElementById("catId").value = c.id;
+      document.getElementById("catName").value = c.name;
+      document.getElementById("catType").value = c.type;
+      document.getElementById("catIcon").value = c.icon || "tag";
+      document.getElementById("catDeleteBtn").style.display = "inline-flex";
+      document.getElementById("catMsg").textContent = "";
+      if (perTabsCtl) perTabsCtl.show("kategori");
+    }
+
+    async function saveCat() {
+      const msg = document.getElementById("catMsg");
+      const name = document.getElementById("catName").value.trim();
+      if (!name) { msg.className = "msg err"; msg.textContent = "Nama kategori wajib diisi."; return; }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await personalApi("savePersonalCategory", {
+        token: getToken(), id: document.getElementById("catId").value, name,
+        type: document.getElementById("catType").value, icon: document.getElementById("catIcon").value
+      });
+      if (r && r.status === "success") { newCatForm(); await loadPersonalData(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+    }
+
+    async function archiveCat(id, archived) {
+      const r = await personalApi("archivePersonalCategory", { token: getToken(), id, archived });
+      if (r && r.status === "success") await loadPersonalData();
+      else { handleAuthError(r); alert((r && r.message) || "Gagal update."); }
+    }
+
+    async function deleteCat() {
+      const id = document.getElementById("catId").value;
+      if (!id) return;
+      if (!confirm("Hapus kategori ini?")) return;
+      const msg = document.getElementById("catMsg");
+      const r = await personalApi("deletePersonalCategory", { token: getToken(), id });
+      if (r && r.status === "success") { newCatForm(); await loadPersonalData(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
+    }
+
+    function renderPersonalAccounts() {
+      const list = document.getElementById("perAccList");
+      if (!PER_ACCOUNTS.length) { list.innerHTML = '<p class="hint">Belum ada akun.</p>'; return; }
+      const typeLabel = { cash: "Tunai", bank: "Bank", ewallet: "E-Wallet", other: "Lainnya" };
+      list.innerHTML = PER_ACCOUNTS.map(a => `
+        <div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;${a.archived ? "opacity:.55;" : ""}">
+          <div style="flex:1;min-width:0;">
+            <b>${escapeHtml(a.name)}</b>${a.archived ? ' <span class="subtab-count">arsip</span>' : ""}
+            <div style="font-size:.8rem;color:#6b7280;">${typeLabel[a.type] || a.type}</div>
+          </div>
+          <div style="font-weight:800;flex-shrink:0;">${rupiah(perAccountBalance(a))}</div>
+          <button class="btn btn-sm btn-ghost" data-editacc="${a.id}" style="flex-shrink:0;">${icon("pencil")}</button>
+          <button class="btn btn-sm btn-ghost" data-archiveacc="${a.id}" data-archived="${a.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
+        </div>`).join("");
+      list.querySelectorAll("[data-editacc]").forEach(b => b.addEventListener("click", () => editAcc(b.dataset.editacc)));
+      list.querySelectorAll("[data-archiveacc]").forEach(b => b.addEventListener("click", () => archiveAcc(b.dataset.archiveacc, b.dataset.archived === "1")));
+    }
+
+    function newAccForm() {
+      document.getElementById("accId").value = "";
+      document.getElementById("accName").value = "";
+      document.getElementById("accType").value = "cash";
+      document.getElementById("accInitial").value = "";
+      document.getElementById("accDeleteBtn").style.display = "none";
+      document.getElementById("accMsg").textContent = "";
+    }
+
+    function editAcc(id) {
+      const a = perAccountById(id);
+      if (!a) return;
+      document.getElementById("accId").value = a.id;
+      document.getElementById("accName").value = a.name;
+      document.getElementById("accType").value = a.type;
+      document.getElementById("accInitial").value = a.initial_balance;
+      document.getElementById("accDeleteBtn").style.display = "inline-flex";
+      document.getElementById("accMsg").textContent = "";
+      if (perTabsCtl) perTabsCtl.show("akun");
+    }
+
+    async function saveAcc() {
+      const msg = document.getElementById("accMsg");
+      const name = document.getElementById("accName").value.trim();
+      if (!name) { msg.className = "msg err"; msg.textContent = "Nama akun wajib diisi."; return; }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await personalApi("savePersonalAccount", {
+        token: getToken(), id: document.getElementById("accId").value, name,
+        type: document.getElementById("accType").value,
+        initialBalance: Number(document.getElementById("accInitial").value) || 0
+      });
+      if (r && r.status === "success") { newAccForm(); await loadPersonalData(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+    }
+
+    async function archiveAcc(id, archived) {
+      const r = await personalApi("archivePersonalAccount", { token: getToken(), id, archived });
+      if (r && r.status === "success") await loadPersonalData();
+      else { handleAuthError(r); alert((r && r.message) || "Gagal update."); }
+    }
+
+    async function deleteAcc() {
+      const id = document.getElementById("accId").value;
+      if (!id) return;
+      if (!confirm("Hapus akun ini?")) return;
+      const msg = document.getElementById("accMsg");
+      const r = await personalApi("deletePersonalAccount", { token: getToken(), id });
+      if (r && r.status === "success") { newAccForm(); await loadPersonalData(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
     }
 
     // ---------- LEADS / OUTREACH TRACKER ----------
