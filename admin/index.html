@@ -1329,6 +1329,28 @@
       margin-bottom: 0;
     }
 
+    .cost-row-top {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .cost-row-top .c-nama {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cost-row-bottom {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .cost-row-bottom > * {
+      flex: 1;
+      min-width: 0;
+    }
+
     .cost-row-thumb {
       width: 40px;
       height: 40px;
@@ -5733,15 +5755,17 @@
       const div = document.createElement("div");
       div.className = "cost-row";
       div.innerHTML = `
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <div class="cost-row-top">
           <div class="cost-row-thumb"></div>
-          <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" style="flex:2;min-width:140px;" />
-          <input type="text" inputmode="numeric" class="c-biaya form-control" placeholder="0" value="${item ? formatRibuan(item.biaya) : ""}" style="flex:1;min-width:100px;" />
-          <select class="c-tipe form-control" style="flex:1;min-width:120px;">
+          <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" />
+          <button class="del" title="Hapus">&times;</button>
+        </div>
+        <div class="cost-row-bottom">
+          <input type="text" inputmode="numeric" class="c-biaya form-control" placeholder="0" value="${item ? formatRibuan(item.biaya) : ""}" />
+          <select class="c-tipe form-control">
             <option value="per-peserta">per-peserta</option>
             <option value="tetap">tetap</option>
           </select>
-          <button class="del" title="Hapus">&times;</button>
         </div>
         <div class="cost-row-link" style="display:none;margin-top:8px;padding-left:50px;"></div>`;
       if (item && item.tipe === "tetap") div.querySelector(".c-tipe").value = "tetap";
