@@ -3353,6 +3353,34 @@
       background: #fca5a5;
     }
 
+    .prep-supply-thumb {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #eef0f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      color: var(--brand);
+    }
+
+    .prep-supply-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .prep-supply-open {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .prep-move {
       display: flex;
       flex-direction: column;
@@ -8738,7 +8766,7 @@
       { type: "todos", title: icon("checkCircle") + " Todo Persiapan", check: true, fields: [{ key: "text", ph: "mis. Beli bahan, konfirmasi lokasi" }] },
       { type: "bring", title: icon("backpack") + " Barang Bawaan", check: true, fields: [{ key: "text", ph: "Nama barang (mis. Gunting)" }, { key: "qty", ph: "Jumlah", narrow: true }] },
       { type: "notes", title: icon("sticky") + " Notes & Link", check: false, fields: [{ key: "title", ph: "Judul" }, { key: "url", ph: "https://youtube/artikel..." }, { key: "note", ph: "Catatan (opsional)" }] },
-      { type: "supplies", title: icon("cart") + " Alat & Bahan", check: false, fields: [{ key: "name", ph: "Nama alat/bahan" }, { key: "link", ph: "Link beli (Shopee, dll)" }, { key: "note", ph: "Catatan (opsional)" }] }
+      { type: "supplies", title: icon("cart") + " Alat & Bahan", check: true, fields: [{ key: "name", ph: "Nama alat/bahan", datalist: "costItemsList" }, { key: "link", ph: "Link beli (Shopee, dll)" }, { key: "note", ph: "Catatan (opsional)" }] }
     ];
 
     let PREP = {};
@@ -8758,6 +8786,7 @@
       }
       if (event && WORKSHOP_IDS.indexOf(event) >= 0) document.getElementById("prepSelect").value = event;
       if (!Object.keys(SUMMARY).length) await loadSummary(); // buat header (jumlah pendaftar)
+      if (!COST_ITEMS.length) await loadCostItems(); // buat autocomplete+foto di Alat & Bahan (numpang Database Item punya Keuangan)
       await loadPrepBatches();
       await loadPrep();
     }
@@ -9238,6 +9267,31 @@
       cEl.textContent = sec.check ? `${items.filter(i => i.done).length}/${items.length}` : `${items.length}`;
     }
 
+    // Alat & Bahan (type "supplies") numpang autocomplete dari Database Item
+    // (tab Keuangan) -- ketik nama yang persis cocok, link beli-nya otomatis
+    // keisi (kalau field link masih kosong) + foto item-nya ditampilin. Checkbox
+    // "done" dipakai generic buat semua section, di supplies artinya "sudah dibeli".
+    function updatePrepSupplyOpenBtn(row, item) {
+      const btn = row.querySelector(".prep-supply-open");
+      if (!btn) return;
+      if (item.link) { btn.href = item.link; btn.style.display = ""; }
+      else btn.style.display = "none";
+    }
+
+    function updatePrepSupplyPreview(row, item, sec) {
+      const thumb = row.querySelector(".prep-supply-thumb");
+      if (!thumb) return;
+      const match = COST_ITEMS.find(it => it.name === item.name);
+      thumb.innerHTML = (match && match.image_url) ? `<img src="${escapeHtml(match.image_url)}">` : icon("cart");
+      if (match && match.link && !item.link) {
+        item.link = match.link;
+        const linkInput = row.querySelector('.prep-input[data-key="link"]');
+        if (linkInput) linkInput.value = match.link;
+        markPrepDirty(sec.type);
+      }
+      updatePrepSupplyOpenBtn(row, item);
+    }
+
     function renderPrepList(sec) {
       const box = document.getElementById("prep-list-" + sec.type);
       if (!box) return;
@@ -9245,6 +9299,7 @@
       updatePrepCount(sec);
       if (!items.length) { box.innerHTML = `<p class="hint">Belum ada. Klik "＋ Tambah".</p>`; return; }
       box.innerHTML = "";
+      const isSupplies = sec.type === "supplies";
       items.forEach((item, idx) => {
         const row = document.createElement("div");
         row.className = "prep-row" + (sec.check ? " prep-row-check" : "");
@@ -9252,10 +9307,12 @@
              <button type="button" class="move-up" ${idx === 0 ? "disabled" : ""} title="Naik">▲</button>
              <button type="button" class="move-down" ${idx === items.length - 1 ? "disabled" : ""} title="Turun">▼</button>
            </div>`;
-        if (sec.check) html += `<input type="checkbox" class="prep-check" ${item.done ? "checked" : ""}/>`;
+        if (sec.check) html += `<input type="checkbox" class="prep-check" ${item.done ? "checked" : ""} title="${isSupplies ? "Sudah dibeli" : ""}"/>`;
+        if (isSupplies) html += `<div class="prep-supply-thumb"></div>`;
         html += `<div class="prep-fields">` + sec.fields.map(f =>
-          `<input type="text" class="prep-input form-control${f.narrow ? " narrow" : ""}" data-key="${f.key}" placeholder="${f.ph}" value="${item[f.key] != null ? escapeHtml(item[f.key]) : ""}"/>`
+          `<input type="text" class="prep-input form-control${f.narrow ? " narrow" : ""}" data-key="${f.key}"${f.datalist ? ` list="${f.datalist}"` : ""} placeholder="${f.ph}" value="${item[f.key] != null ? escapeHtml(item[f.key]) : ""}"/>`
         ).join("") + `</div>`;
+        if (isSupplies) html += `<a class="prep-supply-open btn btn-sm btn-ghost" href="${item.link ? escapeHtml(item.link) : "#"}" target="_blank" rel="noopener" title="Buka link beli" style="${item.link ? "" : "display:none;"}">${icon("link")}</a>`;
         html += `<button class="del" title="Hapus">&times;</button>`;
         row.innerHTML = html;
         row.querySelector(".move-up").addEventListener("click", () => {
@@ -9269,7 +9326,12 @@
           renderPrepList(sec); markPrepDirty(sec.type);
         });
         if (sec.check) row.querySelector(".prep-check").addEventListener("change", e => { item.done = e.target.checked; markPrepDirty(sec.type); updatePrepCount(sec); });
-        row.querySelectorAll(".prep-input").forEach(el => el.addEventListener("input", () => { item[el.dataset.key] = el.value; markPrepDirty(sec.type); }));
+        row.querySelectorAll(".prep-input").forEach(el => el.addEventListener("input", () => {
+          item[el.dataset.key] = el.value; markPrepDirty(sec.type);
+          if (isSupplies && el.dataset.key === "name") updatePrepSupplyPreview(row, item, sec);
+          if (isSupplies && el.dataset.key === "link") updatePrepSupplyOpenBtn(row, item);
+        }));
+        if (isSupplies) updatePrepSupplyPreview(row, item, sec);
         row.querySelector(".del").addEventListener("click", () => { items.splice(idx, 1); renderPrepList(sec); markPrepDirty(sec.type); });
         box.appendChild(row);
       });
