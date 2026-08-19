@@ -3817,6 +3817,7 @@
               <button class="subtab-btn" type="button" data-tab="transaksi"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5m14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5"/></svg> <span>Transaksi</span> <span class="subtab-count" id="perTxCount"></span></button>
               <button class="subtab-btn" type="button" data-tab="kategori"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2v4.586l7 7L14.586 9l-7-7zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586z"/><path d="M5.5 5a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m0 1a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M1 7.086a1 1 0 0 0 .293.707L8.75 15.25l-.043.043a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 0 7.586V3a1 1 0 0 1 1-1z"/></svg> <span>Kategori</span></button>
               <button class="subtab-btn" type="button" data-tab="akun"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/></svg> <span>Akun</span></button>
+              <button class="subtab-btn" type="button" data-tab="impor"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/></svg> <span>Impor AI</span></button>
             </div>
 
             <div class="subtab-panel" data-tab="ringkasan">
@@ -3923,6 +3924,29 @@
                 <div class="msg" id="accMsg"></div>
               </div>
               <div id="perAccList" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="subtab-panel" data-tab="impor">
+              <div class="fin-card">
+                <p class="hint" style="margin:0 0 10px;">Upload screenshot riwayat transaksi atau struk (boleh banyak transaksi sekaligus dalam 1 gambar) — AI bakal coba baca & susun jadi daftar transaksi yang bisa kamu cek/edit dulu sebelum disimpan.</p>
+                <input type="hidden" id="impImageBase64">
+                <input type="hidden" id="impImageMime">
+                <div class="konten-field"><label>Screenshot / Foto</label><input class="form-control" type="file" id="impFile" accept="image/*"></div>
+                <div id="impPreview" style="margin:8px 0;"></div>
+                <div class="konten-field"><label>Masukkan semua transaksi ke akun</label><select class="form-control" id="impAccount"></select></div>
+                <button class="btn btn-sm" id="impProcessBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Proses dengan AI</button>
+                <div class="msg" id="impMsg"></div>
+              </div>
+              <div id="impResultsWrap" style="display:none;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;">
+                  <div style="font-weight:800;">Hasil Ekstrak (<span id="impResultCount">0</span>)</div>
+                  <button class="btn btn-sm btn-ghost" id="impSelectAllBtn">Pilih/Batal Semua</button>
+                </div>
+                <p class="hint" style="margin:6px 0;">Cek dulu tanggal/jumlah/kategorinya — AI kadang salah baca. Yang nggak dicentang nggak bakal diimport.</p>
+                <div id="impResultsList" style="margin-top:6px;"></div>
+                <button class="btn btn-sm" id="impSaveBtn" style="margin-top:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Import yang Dicentang</button>
+                <div class="msg" id="impSaveMsg"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -6872,6 +6896,10 @@
         document.getElementById("accSaveBtn").addEventListener("click", saveAcc);
         document.getElementById("accNewBtn").addEventListener("click", newAccForm);
         document.getElementById("accDeleteBtn").addEventListener("click", deleteAcc);
+        document.getElementById("impFile").addEventListener("change", onImpFilePick);
+        document.getElementById("impProcessBtn").addEventListener("click", processImport);
+        document.getElementById("impSelectAllBtn").addEventListener("click", toggleImpSelectAll);
+        document.getElementById("impSaveBtn").addEventListener("click", saveImpSelected);
         document.getElementById("catIcon").innerHTML = PER_ICON_CHOICES.map(name => `<option value="${name}">${PER_ICON_LABELS[name] || name}</option>`).join("");
         perPeriod = todayStr().slice(0, 7);
         document.getElementById("perPeriod").value = perPeriod;
@@ -6904,6 +6932,7 @@
       const accOptions = PER_ACCOUNTS.filter(a => !a.archived).map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join("");
       document.getElementById("txAccount").innerHTML = accOptions;
       document.getElementById("txToAccount").innerHTML = accOptions;
+      document.getElementById("impAccount").innerHTML = accOptions;
       document.getElementById("txFilterAccount").innerHTML = '<option value="">Semua akun</option>' +
         PER_ACCOUNTS.map(a => `<option value="${a.id}">${escapeHtml(a.name)}${a.archived ? " (arsip)" : ""}</option>`).join("");
       document.getElementById("txFilterAccount").value = perTxFilterAccount;
@@ -7214,6 +7243,135 @@
       const r = await personalApi("deletePersonalAccount", { token: getToken(), id });
       if (r && r.status === "success") { newAccForm(); await loadPersonalData(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
+    }
+
+    // ---- Impor AI (baca screenshot riwayat transaksi/struk pakai Gemini) ----
+    let IMP_ROWS = [];
+
+    async function onImpFilePick(e) {
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maks 8MB ya."); e.target.value = ""; return; }
+      try {
+        // maxSize digedein (2000) dibanding upload lain -- ini screenshot panjang
+        // isi teks kecil-kecil, kalau dikompres kekecilan AI-nya jadi salah baca.
+        const dataUrl = await qCompress(f, 2000, 0.85);
+        document.getElementById("impImageBase64").value = dataUrl.split(",")[1];
+        document.getElementById("impImageMime").value = "image/jpeg";
+        document.getElementById("impPreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:280px;border-radius:12px;">';
+      } catch (err) { alert("Gagal memproses gambar."); }
+    }
+
+    async function processImport() {
+      const msg = document.getElementById("impMsg");
+      const imageBase64 = document.getElementById("impImageBase64").value;
+      if (!imageBase64) { msg.className = "msg err"; msg.textContent = "Upload gambar dulu ya."; return; }
+      if (!document.getElementById("impAccount").value) { msg.className = "msg err"; msg.textContent = "Pilih akun tujuan dulu."; return; }
+      msg.className = "msg"; msg.textContent = "Membaca gambar pakai AI... (bisa 10-30 detik)";
+      document.getElementById("impProcessBtn").disabled = true;
+      const r = await personalApi("parseImportImage", {
+        token: getToken(), imageBase64, mimeType: document.getElementById("impImageMime").value || "image/jpeg"
+      });
+      document.getElementById("impProcessBtn").disabled = false;
+      if (!r || r.status !== "success") {
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal memproses gambar.";
+        return;
+      }
+      const found = r.transactions || [];
+      if (!found.length) {
+        msg.className = "msg err"; msg.textContent = "AI nggak nemu transaksi apapun di gambar ini.";
+        IMP_ROWS = []; renderImpResults();
+        return;
+      }
+      IMP_ROWS = found.map(t => {
+        const type = t.type === "income" ? "income" : "expense";
+        const guess = t.categoryGuess ? PER_CATEGORIES.find(c => c.type === type && c.name === t.categoryGuess && !c.archived) : null;
+        return {
+          selected: true,
+          date: /^\d{4}-\d{2}-\d{2}$/.test(t.date) ? t.date : todayStr(),
+          description: String(t.description || "").slice(0, 300),
+          amount: Math.round(Number(t.amount)) || 0,
+          type,
+          categoryId: guess ? guess.id : ""
+        };
+      });
+      msg.className = "msg ok"; msg.textContent = `Ketemu ${IMP_ROWS.length} transaksi. Cek dulu di bawah sebelum diimport ya.`;
+      renderImpResults();
+    }
+
+    function renderImpResults() {
+      const wrap = document.getElementById("impResultsWrap");
+      const list = document.getElementById("impResultsList");
+      document.getElementById("impResultCount").textContent = IMP_ROWS.length;
+      if (!IMP_ROWS.length) { wrap.style.display = "none"; return; }
+      wrap.style.display = "block";
+      list.innerHTML = IMP_ROWS.map((row, idx) => {
+        const catOptions = PER_CATEGORIES.filter(c => c.type === row.type && !c.archived)
+          .map(c => `<option value="${c.id}" ${c.id === row.categoryId ? "selected" : ""}>${escapeHtml(c.name)}</option>`).join("");
+        return `<div class="fin-card" style="margin-bottom:8px;padding:12px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <input type="checkbox" data-impcheck="${idx}" ${row.selected ? "checked" : ""} style="margin-top:10px;width:16px;height:16px;accent-color:var(--brand);cursor:pointer;flex-shrink:0;">
+            <div style="flex:1;min-width:0;display:flex;gap:8px;flex-wrap:wrap;">
+              <input class="form-control" type="date" data-impfield="date" data-impidx="${idx}" value="${escapeHtml(row.date)}" style="flex:1;min-width:120px;">
+              <select class="form-control" data-impfield="type" data-impidx="${idx}" style="flex:1;min-width:110px;">
+                <option value="expense" ${row.type === "expense" ? "selected" : ""}>Pengeluaran</option>
+                <option value="income" ${row.type === "income" ? "selected" : ""}>Pemasukan</option>
+              </select>
+              <input class="form-control" type="number" min="0" step="1" data-impfield="amount" data-impidx="${idx}" value="${row.amount}" style="flex:1;min-width:110px;">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+            <input class="form-control" type="text" data-impfield="description" data-impidx="${idx}" value="${escapeHtml(row.description)}" placeholder="Keterangan" style="flex:2;min-width:150px;">
+            <select class="form-control" data-impfield="categoryId" data-impidx="${idx}" style="flex:1;min-width:130px;">
+              <option value="">Tanpa kategori</option>
+              ${catOptions}
+            </select>
+          </div>
+        </div>`;
+      }).join("");
+      list.querySelectorAll("[data-impcheck]").forEach(cb => cb.addEventListener("change", (e) => {
+        IMP_ROWS[Number(e.target.dataset.impcheck)].selected = e.target.checked;
+      }));
+      list.querySelectorAll("[data-impfield]").forEach(el => el.addEventListener("change", (e) => {
+        const idx = Number(e.target.dataset.impidx);
+        const field = e.target.dataset.impfield;
+        const val = field === "amount" ? (Number(e.target.value) || 0) : e.target.value;
+        IMP_ROWS[idx][field] = val;
+        if (field === "type") renderImpResults(); // opsi kategori ikut berubah sesuai tipe baru
+      }));
+    }
+
+    function toggleImpSelectAll() {
+      const allSelected = IMP_ROWS.length && IMP_ROWS.every(r => r.selected);
+      IMP_ROWS.forEach(r => { r.selected = !allSelected; });
+      renderImpResults();
+    }
+
+    async function saveImpSelected() {
+      const msg = document.getElementById("impSaveMsg");
+      const accountId = document.getElementById("impAccount").value;
+      const selected = IMP_ROWS.filter(r => r.selected);
+      if (!selected.length) { msg.className = "msg err"; msg.textContent = "Nggak ada transaksi yang dicentang."; return; }
+      if (!accountId) { msg.className = "msg err"; msg.textContent = "Pilih akun tujuan dulu."; return; }
+      msg.className = "msg"; msg.textContent = `Menyimpan 0/${selected.length}...`;
+      let ok = 0, fail = 0;
+      for (let i = 0; i < selected.length; i++) {
+        const row = selected[i];
+        if (!row.date || row.amount <= 0) { fail++; continue; }
+        const r = await personalApi("savePersonalTransaction", {
+          token: getToken(), type: row.type, amount: row.amount, accountId, date: row.date,
+          categoryId: row.categoryId || "", note: row.description
+        });
+        if (r && r.status === "success") ok++; else fail++;
+        msg.textContent = `Menyimpan ${i + 1}/${selected.length}...`;
+      }
+      msg.className = fail ? "msg err" : "msg ok";
+      msg.textContent = `Selesai: ${ok} tersimpan${fail ? ", " + fail + " gagal" : ""}.`;
+      IMP_ROWS = IMP_ROWS.filter(r => !r.selected); // sisain yang tadi nggak dicentang, biar bisa diimport nanti
+      document.getElementById("impFile").value = "";
+      document.getElementById("impImageBase64").value = "";
+      document.getElementById("impPreview").innerHTML = "";
+      renderImpResults();
+      await loadPersonalData();
     }
 
     // ---------- LEADS / OUTREACH TRACKER ----------

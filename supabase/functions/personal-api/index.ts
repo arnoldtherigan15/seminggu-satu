@@ -152,6 +152,92 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", message: "Transaksi tersimpan." });
       }
 
+      case "parseImportImage": {
+        const imageBase64 = String(data.imageBase64 || "");
+        const mimeType = String(data.mimeType || "image/jpeg");
+        if (!imageBase64) return errorResponse("Gambar kosong.");
+
+        const geminiKey = Deno.env.get("GEMINI_API_KEY");
+        if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
+
+        const catRes = await admin.from("personal_categories").select("name,type").eq("archived", false);
+        const categories = catRes.data || [];
+        const incomeNames = categories.filter((c) => c.type === "income").map((c) => c.name);
+        const expenseNames = categories.filter((c) => c.type === "expense").map((c) => c.name);
+
+        const prompt = `Kamu bertugas membaca screenshot riwayat transaksi atau struk pembayaran (e-wallet/bank/marketplace) dan mengekstrak SEMUA transaksi yang terlihat di gambar ini menjadi data terstruktur.
+
+Untuk setiap transaksi, tentukan:
+- date: tanggal transaksi format YYYY-MM-DD. Kalau tahun tidak terlihat langsung di baris transaksi tapi terlihat di header grup di atasnya (mis. "Agustus 2026"), pakai tahun itu.
+- description: deskripsi singkat (nama merchant/keterangan transaksi apa adanya dari gambar)
+- amount: jumlah dalam Rupiah, angka bulat POSITIF saja (tanpa "Rp", tanpa titik/koma pemisah ribuan)
+- type: "income" kalau dana MASUK (biasanya ditandai warna hijau / tanda "+"), "expense" kalau dana KELUAR (biasanya warna hitam/merah / tanda "-")
+- categoryGuess: tebak kategori yang PALING cocok dari daftar berikut (harus sama persis salah satu dari daftar sesuai tipenya, atau null kalau tidak yakin):
+  Kategori income: ${JSON.stringify(incomeNames)}
+  Kategori expense: ${JSON.stringify(expenseNames)}
+
+Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, saldo, dsb). Kalau gambar tidak berisi transaksi finansial sama sekali, kembalikan array kosong.`;
+
+        const schema = {
+          type: "OBJECT",
+          properties: {
+            transactions: {
+              type: "ARRAY",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  date: { type: "STRING" },
+                  description: { type: "STRING" },
+                  amount: { type: "NUMBER" },
+                  type: { type: "STRING", enum: ["income", "expense"] },
+                  categoryGuess: { type: "STRING", nullable: true },
+                },
+                required: ["date", "description", "amount", "type"],
+              },
+            },
+          },
+          required: ["transactions"],
+        };
+
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [
+                    { inlineData: { mimeType, data: imageBase64 } },
+                    { text: prompt },
+                  ],
+                }],
+                generationConfig: {
+                  responseMimeType: "application/json",
+                  responseSchema: schema,
+                },
+              }),
+            },
+          );
+          const json = await res.json();
+          if (!res.ok) {
+            return errorResponse("Gagal memproses gambar: " + (json?.error?.message || res.statusText));
+          }
+          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!text) return errorResponse("AI tidak mengembalikan hasil yang bisa dibaca.");
+          let parsed: { transactions?: unknown };
+          try {
+            parsed = JSON.parse(text);
+          } catch {
+            return errorResponse("Gagal baca hasil dari AI.");
+          }
+          const transactions = Array.isArray(parsed.transactions) ? parsed.transactions : [];
+          return jsonResponse({ status: "success", transactions });
+        } catch (e) {
+          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
+        }
+      }
+
       case "deletePersonalTransaction": {
         const id = String(data.id || "");
         if (!id) return errorResponse("ID transaksi kosong.");
