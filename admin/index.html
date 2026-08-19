@@ -8810,6 +8810,7 @@
       cont.innerHTML = skelLines(5);
       try {
         const r = await api("getPrep", { token: getToken(), event });
+        if (document.getElementById("prepSelect").value !== event) return; // udah ganti workshop lain, buang hasil basi
         if (r.status !== "success") { handleAuthError(r); cont.innerHTML = ""; return; }
         PREP = r.prep || {};
         renderPrep();
@@ -8903,6 +8904,9 @@
           api("listOrders", { token: getToken(), batchId }),
           api("listMenuItems", { token: getToken() }),
         ]);
+        // Sama kayak di loadPrepParticipants() -- buang hasil basi kalau batch-nya
+        // udah keburu ganti lagi pas request ini masih jalan.
+        if (document.getElementById("prepBatchSelect").value !== batchId) return;
         const orders = (ordersR && ordersR.orders) || [];
         const menu = (menuR && menuR.items) || [];
         if (cnt) cnt.textContent = "(" + orders.length + ")";
@@ -9104,6 +9108,10 @@
       body.innerHTML = skelTableRows(4, 5);
       try {
         const r = await api("getRegistrations", { token: getToken(), workshop: event, batchId });
+        // Udah ganti workshop/batch lagi sebelum request ini kelar -> buang hasil
+        // basi (kalau nggak, request lama yg baru kelar belakangan bisa nimpa
+        // data batch yg baru dipilih -- ini penyebab "data lama nyangkut").
+        if (document.getElementById("prepSelect").value !== event || document.getElementById("prepBatchSelect").value !== batchId) return;
         if (r.status !== "success") { handleAuthError(r); return; }
         if (cnt) cnt.textContent = r.total || 0;
 
