@@ -5010,15 +5010,23 @@
     function renderOverview() {
       const ids = openWorkshopIds();
 
-      // Pemasukan & untung dari workshop aktif (modal general per workshop)
+      // Pemasukan & untung -- dari SEMUA workshop yang batch aktifnya punya
+      // peserta, BUKAN cuma yang lagi buka pendaftaran (openWorkshopIds()).
+      // Dulu ini bug: begitu pendaftaran ditutup (wajar kejadian pas mepet
+      // acara/pas hari-H -- justru pas Arnold paling butuh liat untungnya),
+      // batch itu ilang total dari hitungan ini padahal pesertanya beneran
+      // ada. Cost-nya juga sekarang ikut modal KHUSUS batch aktif kalau ada
+      // (bukan cuma modal General terus), sama kayak yang dipake di Finance.
       let revenue = 0, profit = 0;
-      ids.forEach(id => {
+      WORKSHOP_IDS.forEach(id => {
         const w = getWorkshopById(id);
         if (!w) return;
-        const price = (typeof getCurrentPrice === "function" ? getCurrentPrice(w) : w.normalPrice) || 0;
         const count = SUMMARY[id] || 0;
+        if (!count) return; // batch aktifnya kosong -> ga nyumbang apa2
+        const price = (typeof getCurrentPrice === "function" ? getCurrentPrice(w) : w.normalPrice) || 0;
         const rev = price * count;
-        const items = (MODAL[id] && MODAL[id][""]) || [];
+        const batchKey = ACTIVE_SHEETS[id] || "";
+        const items = (MODAL[id] && (MODAL[id][batchKey] || MODAL[id][""])) || [];
         let cost = 0;
         items.forEach(it => { cost += (it.tipe === "tetap") ? (Number(it.biaya) || 0) : (Number(it.biaya) || 0) * count; });
         revenue += rev; profit += (rev - cost);
@@ -5026,7 +5034,7 @@
       lastIncome = { revenue, profit };
       renderIncome();
 
-      // Kartu workshop aktif
+      // Kartu workshop aktif (cuma yang lagi buka pendaftaran)
       const box = document.getElementById("ovCards");
       if (!ids.length) { box.innerHTML = `<p class="hint">Belum ada workshop yang sedang buka pendaftaran.</p>`; return; }
       box.innerHTML = ids.map(id => {
