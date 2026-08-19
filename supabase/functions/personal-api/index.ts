@@ -23,16 +23,18 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case "getPersonalData": {
-        const [accRes, catRes, txRes] = await Promise.all([
+        const [accRes, catRes, txRes, budRes] = await Promise.all([
           admin.from("personal_accounts").select("*").order("created_at", { ascending: true }),
           admin.from("personal_categories").select("*").order("created_at", { ascending: true }),
           admin.from("personal_transactions").select("*").order("date", { ascending: false }).order("created_at", { ascending: false }),
+          admin.from("personal_budgets").select("*"),
         ]);
         return jsonResponse({
           status: "success",
           accounts: accRes.data || [],
           categories: catRes.data || [],
           transactions: txRes.data || [],
+          budgets: budRes.data || [],
         });
       }
 
@@ -239,6 +241,48 @@ Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, 
         } catch (e) {
           return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
         }
+      }
+
+      case "savePersonalBudget": {
+        const categoryId = String(data.categoryId || "");
+        const period = String(data.period || "");
+        const amount = Math.round(Number(data.amount) || 0);
+        if (!categoryId) return errorResponse("Kategori wajib dipilih.");
+        if (!/^\d{4}-\d{2}$/.test(period)) return errorResponse("Periode nggak valid.");
+        if (amount <= 0) return errorResponse("Jumlah harus lebih dari 0.");
+        const { error } = await admin.from("personal_budgets")
+          .upsert({ category_id: categoryId, period, amount }, { onConflict: "category_id,period" });
+        if (error) return errorResponse("Gagal simpan budget: " + error.message);
+        return jsonResponse({ status: "success", message: "Budget tersimpan." });
+      }
+
+      case "deletePersonalBudget": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID budget kosong.");
+        const { error } = await admin.from("personal_budgets").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus budget: " + error.message);
+        return jsonResponse({ status: "success" });
+      }
+
+      case "copyBudgetsFromPreviousMonth": {
+        const period = String(data.period || "");
+        if (!/^\d{4}-\d{2}$/.test(period)) return errorResponse("Periode nggak valid.");
+        const [y, m] = period.split("-").map(Number);
+        const prevDate = new Date(y, m - 2, 1); // m 1-indexed -> m-2 = bulan sebelumnya (0-indexed)
+        const prevPeriod = prevDate.getFullYear() + "-" + String(prevDate.getMonth() + 1).padStart(2, "0");
+        const { data: prevBudgets, error: fetchErr } = await admin.from("personal_budgets")
+          .select("category_id,amount").eq("period", prevPeriod);
+        if (fetchErr) return errorResponse("Gagal ambil budget bulan lalu: " + fetchErr.message);
+        if (!prevBudgets || !prevBudgets.length) {
+          return jsonResponse({ status: "success", copied: 0, message: "Nggak ada budget di bulan sebelumnya buat disalin." });
+        }
+        const rows = prevBudgets.map((b) => ({ category_id: b.category_id, period, amount: b.amount }));
+        // ignoreDuplicates: budget yang UDAH diset manual di bulan target ga ketimpa,
+        // cuma ngisi kategori yang belum ada budget-nya di bulan ini.
+        const { error } = await admin.from("personal_budgets")
+          .upsert(rows, { onConflict: "category_id,period", ignoreDuplicates: true });
+        if (error) return errorResponse("Gagal salin budget: " + error.message);
+        return jsonResponse({ status: "success", copied: rows.length, message: `${rows.length} budget disalin dari bulan lalu.` });
       }
 
       case "deletePersonalTransaction": {
