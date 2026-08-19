@@ -7732,12 +7732,14 @@
         document.getElementById("txCancelBtn").addEventListener("click", newTxForm);
         document.getElementById("txFilterType").addEventListener("change", (e) => { perTxFilterType = e.target.value; renderPersonalTransactions(); });
         document.getElementById("txFilterAccount").addEventListener("change", (e) => { perTxFilterAccount = e.target.value; renderPersonalTransactions(); });
+        perTxFilterPeriod = todayStr().slice(0, 7); // default: bulan berjalan, bukan "semua bulan"
+        document.getElementById("txFilterPeriod").value = perTxFilterPeriod;
         document.getElementById("txFilterPeriod").addEventListener("change", (e) => { perTxFilterPeriod = e.target.value; renderPersonalTransactions(); });
         document.getElementById("txFilterClearBtn").addEventListener("click", () => {
-          perTxFilterType = ""; perTxFilterAccount = ""; perTxFilterPeriod = "";
+          perTxFilterType = ""; perTxFilterAccount = ""; perTxFilterPeriod = todayStr().slice(0, 7);
           document.getElementById("txFilterType").value = "";
           document.getElementById("txFilterAccount").value = "";
-          document.getElementById("txFilterPeriod").value = "";
+          document.getElementById("txFilterPeriod").value = perTxFilterPeriod;
           renderPersonalTransactions();
         });
         document.getElementById("catSaveBtn").addEventListener("click", saveCat);
