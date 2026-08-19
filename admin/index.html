@@ -3769,7 +3769,7 @@
                 <div class="fin-col">
                   <div class="fin-card">
                     <label for="finPrice">Harga per peserta (Rp)</label>
-                    <input class="form-control" type="number" id="finPrice" min="0" />
+                    <input class="form-control" type="text" inputmode="numeric" id="finPrice" />
                     <p class="hint">Jumlah pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
                   </div>
 
@@ -3790,7 +3790,7 @@
                 <!-- Kanan: hasil -->
                 <div class="fin-col">
                   <div class="per-hero">
-                    <div class="per-hero-label">Keuntungan</div>
+                    <div class="per-hero-label" id="resProfitLabel">Keuntungan</div>
                     <div class="per-hero-amount" id="resProfit">Rp 0</div>
                     <div class="per-hero-sub" id="resMargin">0% margin</div>
                     <div class="per-hero-mini">
@@ -3818,7 +3818,7 @@
                 <input type="hidden" id="ciId">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:2;min-width:160px;"><label>Nama Item</label><input class="form-control" type="text" id="ciName" placeholder="mis. Lem Uhu"></div>
-                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Harga Default (Rp)</label><input class="form-control" type="number" id="ciPrice" min="0" step="1" placeholder="0"></div>
+                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Harga Default (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="ciPrice" placeholder="0"></div>
                 </div>
                 <div class="konten-field"><label>Link Toko (opsional)</label><input class="form-control" type="url" id="ciLink" placeholder="https://..."></div>
                 <div class="konten-field">
@@ -4180,7 +4180,7 @@
                       <option value="transfer">Transfer Antar Akun</option>
                     </select>
                   </div>
-                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Jumlah (Rp)</label><input class="form-control" type="number" id="txAmount" min="0" step="1" placeholder="mis. 50000"></div>
+                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="txAmount" placeholder="mis. 50.000"></div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:1;min-width:130px;"><label id="txAccountLabel">Akun</label><select class="form-control" id="txAccount"></select></div>
@@ -4245,7 +4245,7 @@
                       <option value="other">Lainnya</option>
                     </select>
                   </div>
-                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Saldo Awal (Rp)</label><input class="form-control" type="number" id="accInitial" min="0" step="1" placeholder="0"></div>
+                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Saldo Awal (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="accInitial" placeholder="0"></div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
                   <button class="btn btn-sm" id="accSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Akun</button>
@@ -4278,7 +4278,7 @@
                 <input type="hidden" id="goalId">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:2;min-width:160px;"><label>Nama Target</label><input class="form-control" type="text" id="goalName" placeholder="mis. Laptop baru"></div>
-                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Target Nominal (Rp)</label><input class="form-control" type="number" id="goalTarget" min="0" step="1" placeholder="15000000"></div>
+                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Target Nominal (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="goalTarget" placeholder="15.000.000"></div>
                   <div class="konten-field" style="flex:1;min-width:120px;"><label>Ikon</label><select class="form-control" id="goalIcon"></select></div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
@@ -4296,7 +4296,7 @@
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:1;min-width:150px;"><label>Target</label><select class="form-control" id="contribGoal"></select></div>
                   <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="contribDate"></div>
-                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Jumlah (Rp, minus buat tarik)</label><input class="form-control" type="number" step="1" id="contribAmount" placeholder="mis. 500000"></div>
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Jumlah (Rp, minus buat tarik)</label><input class="form-control" type="text" inputmode="numeric" id="contribAmount" placeholder="mis. 500.000"></div>
                 </div>
                 <div class="konten-field"><label>Catatan (opsional)</label><input class="form-control" type="text" id="contribNote" maxlength="300" placeholder="mis. Sisa THR"></div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
@@ -5284,6 +5284,35 @@
     // ---------- KEUANGAN ----------
     function rupiah(n) { return "Rp " + (Number(n) || 0).toLocaleString("id-ID"); }
 
+    // Input harga bertitik-ribuan (mis. "100.000") -- input tetap type="text"
+    // (browser ga bisa format type="number" pakai separator), digit non-angka
+    // dibuang pas dibaca. Minus di depan didukung (buat kasus penarikan setoran).
+    function formatRibuan(v) {
+      const str = String(v == null ? "" : v).trim();
+      const neg = str.startsWith("-");
+      const digits = str.replace(/[^\d]/g, "");
+      if (!digits) return neg ? "-" : "";
+      return (neg ? "-" : "") + Number(digits).toLocaleString("id-ID");
+    }
+    function parseRibuan(v) {
+      const str = String(v == null ? "" : v).trim();
+      const neg = str.startsWith("-");
+      const digits = str.replace(/[^\d]/g, "");
+      const n = Number(digits) || 0;
+      return neg ? -n : n;
+    }
+    // Format ulang tiap ketikan, jaga posisi kursor pakai jarak-dari-akhir
+    // (simpel, cukup akurat buat pola ngetik angka yang lazim: nambah/hapus
+    // di akhir atau tengah dari kanan).
+    function wireRibuanInput(el) {
+      el.addEventListener("input", () => {
+        const distFromEnd = el.value.length - (el.selectionStart ?? el.value.length);
+        el.value = formatRibuan(el.value);
+        const pos = Math.max(0, el.value.length - distFromEnd);
+        el.setSelectionRange(pos, pos);
+      });
+    }
+
     let FIN_BATCHES = [];   // batch (dengan count) untuk workshop keuangan yg dipilih
 
     async function ensureFinanceLoaded() {
@@ -5294,11 +5323,13 @@
         document.getElementById("finBatchSelect").addEventListener("change", renderFinance);
         document.getElementById("addCostBtn").addEventListener("click", () => { addCostRow(); recalc(); });
         document.getElementById("saveModalBtn").addEventListener("click", saveModal);
+        wireRibuanInput(document.getElementById("finPrice"));
         document.getElementById("finPrice").addEventListener("input", recalc);
         document.getElementById("ciSaveBtn").addEventListener("click", saveCostItemForm);
         document.getElementById("ciNewBtn").addEventListener("click", newCostItemForm);
         document.getElementById("ciDeleteBtn").addEventListener("click", deleteCostItemForm);
         document.getElementById("ciImageFile").addEventListener("change", onCostItemImagePick);
+        wireRibuanInput(document.getElementById("ciPrice"));
         wireSubtabs(document.getElementById("finSubtabs"));
         if (!Object.keys(SUMMARY).length) await loadSummary();
         await Promise.all([loadModal(), loadCostItems()]);
@@ -5359,7 +5390,7 @@
       if (!it) return;
       document.getElementById("ciId").value = it.id;
       document.getElementById("ciName").value = it.name;
-      document.getElementById("ciPrice").value = it.default_price;
+      document.getElementById("ciPrice").value = formatRibuan(it.default_price);
       document.getElementById("ciLink").value = it.link || "";
       document.getElementById("ciImageFile").value = "";
       document.getElementById("ciImageBase64").value = "";
@@ -5394,7 +5425,7 @@
       }
       const r = await api("saveCostItem", {
         token: getToken(), id: document.getElementById("ciId").value, name,
-        defaultPrice: Number(document.getElementById("ciPrice").value) || 0,
+        defaultPrice: parseRibuan(document.getElementById("ciPrice").value),
         link: document.getElementById("ciLink").value.trim(), imageUrl
       });
       if (r && r.status === "success") { newCostItemForm(); await loadCostItems(); }
@@ -5444,13 +5475,19 @@
       const batchKey = document.getElementById("finBatchSelect").value; // "" = general
       const w = (typeof WORKSHOPS !== "undefined") ? WORKSHOPS.find(x => x.id === id) : null;
       const price = w ? (typeof getCurrentPrice === "function" ? getCurrentPrice(w) : w.normalPrice) : 0;
-      document.getElementById("finPrice").value = price || 0;
+      document.getElementById("finPrice").value = formatRibuan(price || 0);
 
       // Jumlah pendaftar: general -> batch aktif; batch -> count batch itu
       let count;
       if (batchKey === "") count = SUMMARY[id] || 0;
       else { const b = FIN_BATCHES.find(x => x.id === batchKey); count = b ? b.count : 0; }
       document.getElementById("finCount").textContent = count;
+
+      // Label kartu "Keuntungan" -- eksplisit nunjukin workshop+batch mana
+      // yang lagi dihitung, biar ga dikira total keseluruhan (angka ini
+      // KHUSUS workshop/batch yang lagi dipilih di dropdown atas).
+      const batchLabel = batchKey ? ((FIN_BATCHES.find(b => b.id === batchKey) || {}).label || "Batch") : "General";
+      document.getElementById("resProfitLabel").textContent = `Keuntungan — ${workshopName(id)} (${batchLabel})`;
 
       // Resolusi item modal: batch spesifik -> pakai; kalau belum ada -> warisi general
       const wsModal = MODAL[id] || {};
@@ -5489,7 +5526,7 @@
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <div class="cost-row-thumb"></div>
           <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" style="flex:2;min-width:140px;" />
-          <input type="number" class="c-biaya form-control" placeholder="0" min="0" value="${item ? item.biaya : ""}" style="flex:1;min-width:100px;" />
+          <input type="text" inputmode="numeric" class="c-biaya form-control" placeholder="0" value="${item ? formatRibuan(item.biaya) : ""}" style="flex:1;min-width:100px;" />
           <select class="c-tipe form-control" style="flex:1;min-width:120px;">
             <option value="per-peserta">per-peserta</option>
             <option value="tetap">tetap</option>
@@ -5518,19 +5555,20 @@
       }
       namaEl.addEventListener("input", () => {
         const match = updateCostRowPreview();
-        if (match) div.querySelector(".c-biaya").value = match.default_price;
+        if (match) div.querySelector(".c-biaya").value = formatRibuan(match.default_price);
       });
       updateCostRowPreview();
+      wireRibuanInput(div.querySelector(".c-biaya"));
       div.querySelectorAll("input, select").forEach(el => el.addEventListener("input", recalc));
       box.appendChild(div);
     }
 
     function recalc() {
-      const price = Number(document.getElementById("finPrice").value) || 0;
+      const price = parseRibuan(document.getElementById("finPrice").value);
       const count = Number(document.getElementById("finCount").textContent) || 0;
       let costFixed = 0, costVar = 0;
       document.querySelectorAll("#costRows .cost-row").forEach(row => {
-        const biaya = Number(row.querySelector(".c-biaya").value) || 0;
+        const biaya = parseRibuan(row.querySelector(".c-biaya").value);
         const tipe = row.querySelector(".c-tipe").value;
         if (tipe === "tetap") costFixed += biaya; else costVar += biaya * count;
       });
@@ -5557,7 +5595,7 @@
         if (!nama) return;
         items.push({
           nama,
-          biaya: Number(row.querySelector(".c-biaya").value) || 0,
+          biaya: parseRibuan(row.querySelector(".c-biaya").value),
           tipe: row.querySelector(".c-tipe").value
         });
       });
@@ -7503,6 +7541,10 @@
         document.getElementById("impSelectAllBtn").addEventListener("click", toggleImpSelectAll);
         document.getElementById("impSaveBtn").addEventListener("click", saveImpSelected);
         document.getElementById("catIcon").innerHTML = PER_ICON_CHOICES.map(name => `<option value="${name}">${PER_ICON_LABELS[name] || name}</option>`).join("");
+        wireRibuanInput(document.getElementById("txAmount"));
+        wireRibuanInput(document.getElementById("accInitial"));
+        wireRibuanInput(document.getElementById("goalTarget"));
+        wireRibuanInput(document.getElementById("contribAmount"));
         perPeriod = todayStr().slice(0, 7);
         document.getElementById("perPeriod").value = perPeriod;
         document.getElementById("perPeriod").addEventListener("change", (e) => {
@@ -7806,13 +7848,16 @@
               <div style="flex:1;min-width:120px;font-weight:700;">${escapeHtml(c.name)}</div>
               <div style="display:flex;align-items:center;gap:6px;">
                 <span style="font-size:12.5px;color:#6b7280;">Rp</span>
-                <input class="form-control" type="number" min="0" step="1" data-budcat="${c.id}" value="${budgetAmount || ""}" placeholder="Belum diset" style="max-width:150px;">
+                <input class="form-control" type="text" inputmode="numeric" data-budcat="${c.id}" value="${budgetAmount ? formatRibuan(budgetAmount) : ""}" placeholder="Belum diset" style="max-width:150px;">
               </div>
             </div>
             ${progress}
           </div>`;
         }).join("");
-        list.querySelectorAll("[data-budcat]").forEach(inp => inp.addEventListener("change", (e) => saveBudgetRow(e.target.dataset.budcat, e.target.value)));
+        list.querySelectorAll("[data-budcat]").forEach(inp => {
+          wireRibuanInput(inp);
+          inp.addEventListener("change", (e) => saveBudgetRow(e.target.dataset.budcat, e.target.value));
+        });
       }
       document.getElementById("budTotalBudget").textContent = rupiah(totalBudget);
       document.getElementById("budTotalSpent").textContent = rupiah(totalSpent);
@@ -7821,7 +7866,7 @@
     async function saveBudgetRow(categoryId, rawValue) {
       const period = budPeriod || todayStr().slice(0, 7);
       const msg = document.getElementById("budMsg");
-      const amount = Math.round(Number(rawValue)) || 0;
+      const amount = parseRibuan(rawValue);
       const existing = perBudgetFor(categoryId, period);
       let r;
       if (amount <= 0) {
@@ -7897,7 +7942,7 @@
       if (!g) return;
       document.getElementById("goalId").value = g.id;
       document.getElementById("goalName").value = g.name;
-      document.getElementById("goalTarget").value = g.target_amount;
+      document.getElementById("goalTarget").value = formatRibuan(g.target_amount);
       document.getElementById("goalIcon").value = g.icon || "piggy";
       document.getElementById("goalDeleteBtn").style.display = "inline-flex";
       document.getElementById("goalMsg").textContent = "";
@@ -7906,7 +7951,7 @@
     async function saveGoal() {
       const msg = document.getElementById("goalMsg");
       const name = document.getElementById("goalName").value.trim();
-      const targetAmount = Number(document.getElementById("goalTarget").value) || 0;
+      const targetAmount = parseRibuan(document.getElementById("goalTarget").value);
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama target wajib diisi."; return; }
       if (targetAmount <= 0) { msg.className = "msg err"; msg.textContent = "Target harus lebih dari 0."; return; }
       msg.className = "msg"; msg.textContent = "Menyimpan...";
@@ -7964,7 +8009,7 @@
     async function saveContrib() {
       const msg = document.getElementById("contribMsg");
       const goalId = document.getElementById("contribGoal").value;
-      const amount = Math.round(Number(document.getElementById("contribAmount").value)) || 0;
+      const amount = parseRibuan(document.getElementById("contribAmount").value);
       const date = document.getElementById("contribDate").value;
       if (!goalId) { msg.className = "msg err"; msg.textContent = "Pilih target dulu ya (bikin dulu kalau belum ada)."; return; }
       if (!amount) { msg.className = "msg err"; msg.textContent = "Jumlah nggak boleh 0."; return; }
@@ -8045,7 +8090,7 @@
       document.getElementById("txDate").value = t.date;
       document.getElementById("txType").value = t.type;
       onTxTypeChange();
-      document.getElementById("txAmount").value = t.amount;
+      document.getElementById("txAmount").value = formatRibuan(t.amount);
       document.getElementById("txAccount").value = t.account_id;
       if (t.type === "transfer") document.getElementById("txToAccount").value = t.to_account_id || "";
       else document.getElementById("txCategory").value = t.category_id || "";
@@ -8059,7 +8104,7 @@
     async function saveTx() {
       const msg = document.getElementById("txMsg");
       const type = document.getElementById("txType").value;
-      const amount = Number(document.getElementById("txAmount").value) || 0;
+      const amount = parseRibuan(document.getElementById("txAmount").value);
       const accountId = document.getElementById("txAccount").value;
       const date = document.getElementById("txDate").value;
       if (!date) { msg.className = "msg err"; msg.textContent = "Tanggal wajib diisi."; return; }
@@ -8187,7 +8232,7 @@
       document.getElementById("accId").value = a.id;
       document.getElementById("accName").value = a.name;
       document.getElementById("accType").value = a.type;
-      document.getElementById("accInitial").value = a.initial_balance;
+      document.getElementById("accInitial").value = formatRibuan(a.initial_balance);
       document.getElementById("accDeleteBtn").style.display = "inline-flex";
       document.getElementById("accMsg").textContent = "";
       if (perTabsCtl) perTabsCtl.show("akun");
@@ -8201,7 +8246,7 @@
       const r = await personalApi("savePersonalAccount", {
         token: getToken(), id: document.getElementById("accId").value, name,
         type: document.getElementById("accType").value,
-        initialBalance: Number(document.getElementById("accInitial").value) || 0
+        initialBalance: parseRibuan(document.getElementById("accInitial").value)
       });
       if (r && r.status === "success") { newAccForm(); await loadPersonalData(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
@@ -8294,7 +8339,7 @@
                 <option value="expense" ${row.type === "expense" ? "selected" : ""}>Pengeluaran</option>
                 <option value="income" ${row.type === "income" ? "selected" : ""}>Pemasukan</option>
               </select>
-              <input class="form-control" type="number" min="0" step="1" data-impfield="amount" data-impidx="${idx}" value="${row.amount}" style="flex:1;min-width:110px;">
+              <input class="form-control" type="text" inputmode="numeric" data-impfield="amount" data-impidx="${idx}" value="${formatRibuan(row.amount)}" style="flex:1;min-width:110px;">
             </div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
@@ -8309,10 +8354,11 @@
       list.querySelectorAll("[data-impcheck]").forEach(cb => cb.addEventListener("change", (e) => {
         IMP_ROWS[Number(e.target.dataset.impcheck)].selected = e.target.checked;
       }));
+      list.querySelectorAll('[data-impfield="amount"]').forEach(el => wireRibuanInput(el));
       list.querySelectorAll("[data-impfield]").forEach(el => el.addEventListener("change", (e) => {
         const idx = Number(e.target.dataset.impidx);
         const field = e.target.dataset.impfield;
-        const val = field === "amount" ? (Number(e.target.value) || 0) : e.target.value;
+        const val = field === "amount" ? parseRibuan(e.target.value) : e.target.value;
         IMP_ROWS[idx][field] = val;
         if (field === "type") renderImpResults(); // opsi kategori ikut berubah sesuai tipe baru
       }));
