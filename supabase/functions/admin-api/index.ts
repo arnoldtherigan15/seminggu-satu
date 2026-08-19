@@ -509,7 +509,7 @@ Deno.serve(async (req) => {
         // Upload gambar generik dari admin panel (dipakai KONTEN editor,
         // mis. foto item Rekomendasi) -- whitelist bucket biar nggak
         // disalahgunain upload ke bucket sembarangan.
-        const ALLOWED_BUCKETS = ["recommendation-photos"];
+        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos"];
         const bucket = String(data.bucket || "");
         if (!ALLOWED_BUCKETS.includes(bucket)) return errorResponse("Bucket tidak dikenal: " + bucket);
         if (!data.imageBase64) return errorResponse("Gambar belum dipilih.");
@@ -581,6 +581,39 @@ Deno.serve(async (req) => {
           await admin.from("workshop_costs").insert(rows);
         }
         return jsonResponse({ status: "success", message: "Tersimpan." });
+      }
+
+      case "getCostItems": {
+        const { data: rows } = await admin.from("cost_items").select("*").order("name", { ascending: true });
+        return jsonResponse({ status: "success", items: rows || [] });
+      }
+
+      case "saveCostItem": {
+        const id = String(data.id || "");
+        const name = String(data.name || "").trim();
+        if (!name) return errorResponse("Nama item wajib diisi.");
+        const payload = {
+          name,
+          default_price: Math.round(Number(data.defaultPrice) || 0),
+          image_url: data.imageUrl ? String(data.imageUrl) : null,
+          link: data.link ? String(data.link) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("cost_items").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update item: " + error.message);
+        } else {
+          const { error } = await admin.from("cost_items").insert(payload);
+          if (error) return errorResponse("Gagal bikin item: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Item tersimpan." });
+      }
+
+      case "deleteCostItem": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID item kosong.");
+        const { error } = await admin.from("cost_items").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus item: " + error.message);
+        return jsonResponse({ status: "success", message: "Item dihapus." });
       }
 
       case "setAttendance": {

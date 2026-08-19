@@ -3776,49 +3776,84 @@
 
         <!-- ===== VIEW: KEUANGAN ===== -->
         <div class="wrap view" id="viewKeuangan" style="display:none;">
-          <div class="toolbar">
-            <div class="field">
-              <label for="finSelect">Pilih Workshop</label>
-              <select class="form-control" id="finSelect"></select>
+          <div class="subtabs" id="finSubtabs">
+            <div class="subtab-bar">
+              <button class="subtab-btn" type="button" data-tab="modal"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/></svg> <span>Modal & Biaya</span></button>
+              <button class="subtab-btn" type="button" data-tab="items"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg> <span>Database Item</span></button>
             </div>
-            <div class="field">
-              <label for="finBatchSelect">Batch</label>
-              <select class="form-control" id="finBatchSelect"></select>
-            </div>
-          </div>
-          <div id="finBatchInfo" class="batch-info"></div>
 
-          <div class="fin-grid">
-            <!-- Kiri: input -->
-            <div class="fin-col">
-              <div class="fin-card">
-                <label for="finPrice">Harga per peserta (Rp)</label>
-                <input class="form-control" type="number" id="finPrice" min="0" />
-                <p class="hint">Jumlah pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
-              </div>
-
-              <div class="fin-card">
-                <div class="fin-card-head">
-                  <h3>Komponen Modal / Biaya</h3>
-                  <button class="btn btn-sm" id="addCostBtn">+ Tambah</button>
+            <div class="subtab-panel" data-tab="modal">
+              <div class="toolbar">
+                <div class="field">
+                  <label for="finSelect">Pilih Workshop</label>
+                  <select class="form-control" id="finSelect"></select>
                 </div>
-                <div id="costRows"></div>
-                <p class="hint">Tipe <b>per-peserta</b> otomatis dikali jumlah pendaftar. <b>tetap</b> = sekali saja.
-                </p>
-                <button class="btn" id="saveModalBtn" style="margin-top:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Modal</button>
-                <div class="msg" id="finMsg"></div>
+                <div class="field">
+                  <label for="finBatchSelect">Batch</label>
+                  <select class="form-control" id="finBatchSelect"></select>
+                </div>
+              </div>
+              <div id="finBatchInfo" class="batch-info"></div>
+
+              <div class="fin-grid">
+                <!-- Kiri: input -->
+                <div class="fin-col">
+                  <div class="fin-card">
+                    <label for="finPrice">Harga per peserta (Rp)</label>
+                    <input class="form-control" type="number" id="finPrice" min="0" />
+                    <p class="hint">Jumlah pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
+                  </div>
+
+                  <div class="fin-card">
+                    <div class="fin-card-head">
+                      <h3>Komponen Modal / Biaya</h3>
+                      <button class="btn btn-sm" id="addCostBtn">+ Tambah</button>
+                    </div>
+                    <datalist id="costItemsList"></datalist>
+                    <div id="costRows"></div>
+                    <p class="hint">Tipe <b>per-peserta</b> otomatis dikali jumlah pendaftar. <b>tetap</b> = sekali saja. Ketik nama biaya buat lihat saran dari <b>Database Item</b> (harganya otomatis keisi, tetep bisa di-adjust).
+                    </p>
+                    <button class="btn" id="saveModalBtn" style="margin-top:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Modal</button>
+                    <div class="msg" id="finMsg"></div>
+                  </div>
+                </div>
+
+                <!-- Kanan: hasil -->
+                <div class="fin-col">
+                  <div class="fin-card result">
+                    <h3>Ringkasan</h3>
+                    <div class="res-row"><span>Pemasukan</span><b id="resRevenue">Rp 0</b></div>
+                    <div class="res-row"><span>Total Modal</span><b id="resCost">Rp 0</b></div>
+                    <hr />
+                    <div class="res-row big"><span>Untung</span><b id="resProfit">Rp 0</b></div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Kanan: hasil -->
-            <div class="fin-col">
-              <div class="fin-card result">
-                <h3>Ringkasan</h3>
-                <div class="res-row"><span>Pemasukan</span><b id="resRevenue">Rp 0</b></div>
-                <div class="res-row"><span>Total Modal</span><b id="resCost">Rp 0</b></div>
-                <hr />
-                <div class="res-row big"><span>Untung</span><b id="resProfit">Rp 0</b></div>
+            <div class="subtab-panel" data-tab="items">
+              <div class="fin-card">
+                <p class="hint" style="margin:0 0 10px;">Item biaya yang sering dipakai ulang lintas workshop/batch (mis. Lem Uhu, Print 4R) -- simpen di sini sekali, nanti tinggal ketik namanya di tab Modal & Biaya buat autocomplete + harga kesisi otomatis.</p>
+                <input type="hidden" id="ciId">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:2;min-width:160px;"><label>Nama Item</label><input class="form-control" type="text" id="ciName" placeholder="mis. Lem Uhu"></div>
+                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Harga Default (Rp)</label><input class="form-control" type="number" id="ciPrice" min="0" step="1" placeholder="0"></div>
+                </div>
+                <div class="konten-field"><label>Link Toko (opsional)</label><input class="form-control" type="url" id="ciLink" placeholder="https://..."></div>
+                <div class="konten-field">
+                  <label>Foto (opsional)</label>
+                  <input class="form-control" type="file" id="ciImageFile" accept="image/*">
+                  <div id="ciImagePreview" style="margin-top:8px;"></div>
+                  <input type="hidden" id="ciImageBase64"><input type="hidden" id="ciImageExisting">
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+                  <button class="btn btn-sm" id="ciSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Item</button>
+                  <button class="btn btn-sm btn-ghost" id="ciNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Item Baru</button>
+                  <button class="btn btn-sm" id="ciDeleteBtn" style="background:#fee2e2;color:var(--err);display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Hapus</button>
+                </div>
+                <div class="msg" id="ciMsg"></div>
               </div>
+              <div id="ciList" style="margin-top:10px;"></div>
             </div>
           </div>
         </div>
@@ -5279,11 +5314,120 @@
         document.getElementById("addCostBtn").addEventListener("click", () => { addCostRow(); recalc(); });
         document.getElementById("saveModalBtn").addEventListener("click", saveModal);
         document.getElementById("finPrice").addEventListener("input", recalc);
+        document.getElementById("ciSaveBtn").addEventListener("click", saveCostItemForm);
+        document.getElementById("ciNewBtn").addEventListener("click", newCostItemForm);
+        document.getElementById("ciDeleteBtn").addEventListener("click", deleteCostItemForm);
+        document.getElementById("ciImageFile").addEventListener("change", onCostItemImagePick);
+        wireSubtabs(document.getElementById("finSubtabs"));
         if (!Object.keys(SUMMARY).length) await loadSummary();
-        await loadModal();
+        await Promise.all([loadModal(), loadCostItems()]);
         financeInit = true;
       }
       await onFinanceWorkshopChange();
+    }
+
+    let COST_ITEMS = [];
+
+    async function loadCostItems() {
+      const r = await api("getCostItems", { token: getToken() });
+      if (r && r.status === "success") COST_ITEMS = r.items || [];
+      else handleAuthError(r);
+      populateCostItemsDatalist();
+      renderCostItemsList();
+    }
+
+    function populateCostItemsDatalist() {
+      const dl = document.getElementById("costItemsList");
+      if (!dl) return;
+      dl.innerHTML = COST_ITEMS.map(it => `<option value="${escapeHtml(it.name)}"></option>`).join("");
+    }
+
+    function renderCostItemsList() {
+      const box = document.getElementById("ciList");
+      if (!box) return;
+      if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">Belum ada item di database. Tambahin dulu di form atas.</p>'; return; }
+      box.innerHTML = COST_ITEMS.map(it => `
+        <div class="fin-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px;">
+          ${it.image_url
+          ? `<img src="${escapeHtml(it.image_url)}" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+          : `<div style="width:52px;height:52px;border-radius:10px;background:#eef0f4;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand);">${icon("cart")}</div>`}
+          <div style="flex:1;min-width:0;">
+            <b>${escapeHtml(it.name)}</b>
+            <div class="hint" style="margin:2px 0 0;">${rupiah(it.default_price)}${it.link ? ` · <a href="${escapeHtml(it.link)}" target="_blank" rel="noopener">Link toko</a>` : ""}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-editci="${it.id}" style="flex-shrink:0;">${icon("pencil")}</button>
+        </div>`).join("");
+      box.querySelectorAll("[data-editci]").forEach(b => b.addEventListener("click", () => editCostItemForm(b.dataset.editci)));
+    }
+
+    function newCostItemForm() {
+      document.getElementById("ciId").value = "";
+      document.getElementById("ciName").value = "";
+      document.getElementById("ciPrice").value = "";
+      document.getElementById("ciLink").value = "";
+      document.getElementById("ciImageFile").value = "";
+      document.getElementById("ciImageBase64").value = "";
+      document.getElementById("ciImageExisting").value = "";
+      document.getElementById("ciImagePreview").innerHTML = "";
+      document.getElementById("ciDeleteBtn").style.display = "none";
+      document.getElementById("ciMsg").textContent = "";
+    }
+
+    function editCostItemForm(id) {
+      const it = COST_ITEMS.find(x => x.id === id);
+      if (!it) return;
+      document.getElementById("ciId").value = it.id;
+      document.getElementById("ciName").value = it.name;
+      document.getElementById("ciPrice").value = it.default_price;
+      document.getElementById("ciLink").value = it.link || "";
+      document.getElementById("ciImageFile").value = "";
+      document.getElementById("ciImageBase64").value = "";
+      document.getElementById("ciImageExisting").value = it.image_url || "";
+      document.getElementById("ciImagePreview").innerHTML = it.image_url
+        ? `<img src="${escapeHtml(it.image_url)}" style="width:100%;max-width:160px;border-radius:12px;">` : "";
+      document.getElementById("ciDeleteBtn").style.display = "inline-flex";
+      document.getElementById("ciMsg").textContent = "";
+    }
+
+    async function onCostItemImagePick(e) {
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 5 * 1024 * 1024) { alert("Ukuran gambar maks 5MB ya."); e.target.value = ""; return; }
+      try {
+        const dataUrl = await qCompress(f, 1000, 0.82);
+        document.getElementById("ciImageBase64").value = dataUrl.split(",")[1];
+        document.getElementById("ciImagePreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:160px;border-radius:12px;">';
+      } catch (err) { alert("Gagal memproses gambar."); }
+    }
+
+    async function saveCostItemForm() {
+      const msg = document.getElementById("ciMsg");
+      const name = document.getElementById("ciName").value.trim();
+      if (!name) { msg.className = "msg err"; msg.textContent = "Nama item wajib diisi."; return; }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      let imageUrl = document.getElementById("ciImageExisting").value || "";
+      const imageBase64 = document.getElementById("ciImageBase64").value;
+      if (imageBase64) {
+        const up = await api("uploadImage", { token: getToken(), bucket: "cost-item-photos", imageBase64, prefix: name || "item" });
+        if (up && up.status === "success") imageUrl = up.url;
+        else { handleAuthError(up); msg.className = "msg err"; msg.textContent = (up && up.message) || "Gagal upload foto."; return; }
+      }
+      const r = await api("saveCostItem", {
+        token: getToken(), id: document.getElementById("ciId").value, name,
+        defaultPrice: Number(document.getElementById("ciPrice").value) || 0,
+        link: document.getElementById("ciLink").value.trim(), imageUrl
+      });
+      if (r && r.status === "success") { newCostItemForm(); await loadCostItems(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+    }
+
+    async function deleteCostItemForm() {
+      const id = document.getElementById("ciId").value;
+      if (!id) return;
+      if (!confirm("Hapus item ini dari database? Biaya yang udah kesimpen di workshop/batch lain nggak ikut kehapus.")) return;
+      const msg = document.getElementById("ciMsg");
+      const r = await api("deleteCostItem", { token: getToken(), id });
+      if (r && r.status === "success") { newCostItemForm(); await loadCostItems(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
     }
 
     async function loadModal() {
@@ -5361,7 +5505,7 @@
       const div = document.createElement("div");
       div.className = "cost-row";
       div.innerHTML = `
-        <input type="text" class="c-nama form-control" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" />
+        <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" />
         <input type="number" class="c-biaya form-control" placeholder="0" min="0" value="${item ? item.biaya : ""}" />
         <select class="c-tipe form-control">
           <option value="per-peserta">per-peserta</option>
@@ -5370,6 +5514,14 @@
         <button class="del" title="Hapus">&times;</button>`;
       if (item && item.tipe === "tetap") div.querySelector(".c-tipe").value = "tetap";
       div.querySelector(".del").addEventListener("click", () => { div.remove(); recalc(); });
+      // Ketik/pilih nama yang PERSIS sama kayak item di Database Item ->
+      // harganya otomatis keisi dari default_price (tetep bisa di-adjust manual
+      // abis itu, ini cuma titik awal biar ga input ulang harga tiap event).
+      const namaEl = div.querySelector(".c-nama");
+      namaEl.addEventListener("input", () => {
+        const match = COST_ITEMS.find(it => it.name === namaEl.value);
+        if (match) div.querySelector(".c-biaya").value = match.default_price;
+      });
       div.querySelectorAll("input, select").forEach(el => el.addEventListener("input", recalc));
       box.appendChild(div);
     }
