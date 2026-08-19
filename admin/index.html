@@ -1318,23 +1318,48 @@
     }
 
     .cost-row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--line);
-      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
     }
 
     .cost-row:last-child {
-      border-bottom: none;
       margin-bottom: 0;
-      padding-bottom: 0;
     }
 
-    .cost-row select {
-      background: #fff;
+    .cost-row-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #eef0f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      color: var(--brand);
+    }
+
+    .cost-row-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cost-row-link a {
+      font-size: 12px;
+      color: var(--brand);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .cost-row-link a:hover {
+      text-decoration: underline;
     }
 
     .cost-row .del {
@@ -1342,77 +1367,21 @@
       color: var(--err);
       border: none;
       border-radius: 8px;
+      width: 40px;
       height: 40px;
       cursor: pointer;
       font-size: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
       transition: background-color 0.15s ease;
-      width: 100%;
     }
 
     .cost-row .del:hover {
       background: #fca5a5;
     }
 
-    @media (min-width: 640px) {
-      .cost-row {
-        grid-template-columns: 2fr 1.2fr 1.2fr 44px;
-        gap: 8px;
-        padding-bottom: 0;
-        border-bottom: none;
-        margin-bottom: 10px;
-      }
-
-      .cost-row .del {
-        width: auto;
-      }
-    }
-
-    .result h3 {
-      margin-bottom: 16px;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 12px;
-    }
-
-    .res-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      font-size: 14px;
-    }
-
-    .res-row span {
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .res-row b {
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .res-row.big {
-      font-size: 18px;
-      margin-top: 8px;
-    }
-
-    .res-row.big b {
-      color: var(--ok);
-      font-weight: 700;
-    }
-
-    .result hr {
-      border: none;
-      border-top: 1px solid var(--line);
-      margin: 8px 0;
-    }
-
-    .profit-neg {
-      color: var(--err) !important;
-    }
 
     /* --- Accordion --- */
     .acc {
@@ -3820,12 +3789,24 @@
 
                 <!-- Kanan: hasil -->
                 <div class="fin-col">
-                  <div class="fin-card result">
-                    <h3>Ringkasan</h3>
-                    <div class="res-row"><span>Pemasukan</span><b id="resRevenue">Rp 0</b></div>
-                    <div class="res-row"><span>Total Modal</span><b id="resCost">Rp 0</b></div>
-                    <hr />
-                    <div class="res-row big"><span>Untung</span><b id="resProfit">Rp 0</b></div>
+                  <div class="per-hero">
+                    <div class="per-hero-label">Keuntungan</div>
+                    <div class="per-hero-amount" id="resProfit">Rp 0</div>
+                    <div class="per-hero-sub" id="resMargin">0% margin</div>
+                    <div class="per-hero-mini">
+                      <div class="per-hero-mini-item"><span>Pemasukan</span><b id="resRevenue" style="color:#4ade80;">Rp 0</b></div>
+                      <div class="per-hero-mini-item"><span>Total Modal</span><b id="resCost" style="color:#fb7185;">Rp 0</b></div>
+                    </div>
+                  </div>
+                  <div class="per-stat-row" style="margin-top:14px;">
+                    <div class="per-stat-card">
+                      <div class="per-hero-label">Biaya Tetap</div>
+                      <div class="per-hero-amount" id="resCostFixed" style="font-size:18px;">Rp 0</div>
+                    </div>
+                    <div class="per-stat-card">
+                      <div class="per-hero-label">Biaya per Peserta</div>
+                      <div class="per-hero-amount" id="resCostVar" style="font-size:18px;">Rp 0</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -5505,23 +5486,41 @@
       const div = document.createElement("div");
       div.className = "cost-row";
       div.innerHTML = `
-        <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" />
-        <input type="number" class="c-biaya form-control" placeholder="0" min="0" value="${item ? item.biaya : ""}" />
-        <select class="c-tipe form-control">
-          <option value="per-peserta">per-peserta</option>
-          <option value="tetap">tetap</option>
-        </select>
-        <button class="del" title="Hapus">&times;</button>`;
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <div class="cost-row-thumb"></div>
+          <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" style="flex:2;min-width:140px;" />
+          <input type="number" class="c-biaya form-control" placeholder="0" min="0" value="${item ? item.biaya : ""}" style="flex:1;min-width:100px;" />
+          <select class="c-tipe form-control" style="flex:1;min-width:120px;">
+            <option value="per-peserta">per-peserta</option>
+            <option value="tetap">tetap</option>
+          </select>
+          <button class="del" title="Hapus">&times;</button>
+        </div>
+        <div class="cost-row-link" style="display:none;margin-top:8px;padding-left:50px;"></div>`;
       if (item && item.tipe === "tetap") div.querySelector(".c-tipe").value = "tetap";
       div.querySelector(".del").addEventListener("click", () => { div.remove(); recalc(); });
-      // Ketik/pilih nama yang PERSIS sama kayak item di Database Item ->
-      // harganya otomatis keisi dari default_price (tetep bisa di-adjust manual
-      // abis itu, ini cuma titik awal biar ga input ulang harga tiap event).
+      // Ketik/pilih nama yang PERSIS sama kayak item di Database Item -> harganya
+      // otomatis keisi dari default_price (tetep bisa di-adjust manual abis itu,
+      // ini cuma titik awal), plus foto/link item-nya ditampilin di baris ini.
       const namaEl = div.querySelector(".c-nama");
-      namaEl.addEventListener("input", () => {
+      function updateCostRowPreview() {
         const match = COST_ITEMS.find(it => it.name === namaEl.value);
+        div.querySelector(".cost-row-thumb").innerHTML = (match && match.image_url)
+          ? `<img src="${escapeHtml(match.image_url)}">` : icon("cart");
+        const linkRow = div.querySelector(".cost-row-link");
+        if (match && match.link) {
+          linkRow.style.display = "block";
+          linkRow.innerHTML = `<a href="${escapeHtml(match.link)}" target="_blank" rel="noopener">${icon("link")} Lihat di toko</a>`;
+        } else {
+          linkRow.style.display = "none";
+        }
+        return match;
+      }
+      namaEl.addEventListener("input", () => {
+        const match = updateCostRowPreview();
         if (match) div.querySelector(".c-biaya").value = match.default_price;
       });
+      updateCostRowPreview();
       div.querySelectorAll("input, select").forEach(el => el.addEventListener("input", recalc));
       box.appendChild(div);
     }
@@ -5529,19 +5528,24 @@
     function recalc() {
       const price = Number(document.getElementById("finPrice").value) || 0;
       const count = Number(document.getElementById("finCount").textContent) || 0;
-      let cost = 0;
+      let costFixed = 0, costVar = 0;
       document.querySelectorAll("#costRows .cost-row").forEach(row => {
         const biaya = Number(row.querySelector(".c-biaya").value) || 0;
         const tipe = row.querySelector(".c-tipe").value;
-        cost += (tipe === "tetap") ? biaya : biaya * count;
+        if (tipe === "tetap") costFixed += biaya; else costVar += biaya * count;
       });
+      const cost = costFixed + costVar;
       const revenue = price * count;
       const profit = revenue - cost;
+      const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0;
       document.getElementById("resRevenue").textContent = rupiah(revenue);
       document.getElementById("resCost").textContent = rupiah(cost);
+      document.getElementById("resCostFixed").textContent = rupiah(costFixed);
+      document.getElementById("resCostVar").textContent = rupiah(costVar);
       const profitEl = document.getElementById("resProfit");
       profitEl.textContent = rupiah(profit);
-      profitEl.classList.toggle("profit-neg", profit < 0);
+      profitEl.style.color = profit < 0 ? "#fb7185" : "#4ade80";
+      document.getElementById("resMargin").textContent = revenue > 0 ? margin + "% margin" : "Belum ada pendaftar";
     }
 
     async function saveModal() {
