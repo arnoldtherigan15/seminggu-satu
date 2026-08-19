@@ -3777,6 +3777,7 @@
             <div class="subtab-bar">
               <button class="subtab-btn" type="button" data-tab="modal"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/></svg> <span>Modal & Biaya</span></button>
               <button class="subtab-btn" type="button" data-tab="items"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg> <span>Database Item</span></button>
+              <button class="subtab-btn" type="button" data-tab="inventaris"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> <span>Inventaris</span></button>
             </div>
 
             <div class="subtab-panel" data-tab="modal">
@@ -3863,6 +3864,44 @@
                 <div class="msg" id="ciMsg"></div>
               </div>
               <div id="ciList" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="subtab-panel" data-tab="inventaris">
+              <div class="fin-card">
+                <p class="hint" style="margin:0 0 10px;">Catat stok masuk (beli) & keluar (pakai di event) per item -- sisa stok dihitung otomatis dari riwayat ini, bukan angka yang diedit manual.</p>
+                <input type="hidden" id="invId">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:2;min-width:180px;"><label>Item</label><select class="form-control" id="invItem"></select></div>
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Tipe</label>
+                    <select class="form-control" id="invType">
+                      <option value="beli">Beli (stok masuk)</option>
+                      <option value="pakai">Pakai (stok keluar)</option>
+                      <option value="adjust">Koreksi manual</option>
+                    </select>
+                  </div>
+                  <div class="konten-field" style="flex:1;min-width:100px;"><label>Jumlah</label><input class="form-control" type="number" id="invQty" placeholder="mis. 10"></div>
+                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="invDate"></div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:170px;"><label>Dipakai buat Workshop (opsional)</label><select class="form-control" id="invWorkshop"><option value="">-</option></select></div>
+                  <div class="konten-field" style="flex:2;min-width:170px;"><label>Catatan (opsional)</label><input class="form-control" type="text" id="invNote" maxlength="300"></div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+                  <button class="btn btn-sm" id="invSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Catat Transaksi</button>
+                </div>
+                <div class="msg" id="invMsg"></div>
+              </div>
+
+              <div class="fin-card" style="margin-top:14px;">
+                <div style="font-weight:800;margin-bottom:8px;">Stok Saat Ini</div>
+                <div id="invStockList"></div>
+              </div>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px;">
+                <h3 class="ov-section-title" style="margin:0;">Riwayat Transaksi Stok</h3>
+                <select class="form-control" id="invFilterItem" style="max-width:220px;"><option value="">Semua item</option></select>
+              </div>
+              <div id="invTxList" style="margin-top:8px;"></div>
             </div>
           </div>
         </div>
@@ -5358,9 +5397,13 @@
         document.getElementById("ciDeleteBtn").addEventListener("click", deleteCostItemForm);
         document.getElementById("ciImageFile").addEventListener("change", onCostItemImagePick);
         wireRibuanInput(document.getElementById("ciPrice"));
+        document.getElementById("invSaveBtn").addEventListener("click", saveInvTx);
+        document.getElementById("invFilterItem").addEventListener("change", (e) => { invFilterItemId = e.target.value; renderInvTxList(); });
+        document.getElementById("invWorkshop").innerHTML = '<option value="">-</option>' + WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
+        newInvForm();
         wireSubtabs(document.getElementById("finSubtabs"));
         if (!Object.keys(SUMMARY).length) await loadSummary();
-        await Promise.all([loadModal(), loadCostItems()]);
+        await Promise.all([loadModal(), loadCostItems(), loadInventoryTx()]);
         financeInit = true;
       }
       await onFinanceWorkshopChange();
@@ -5373,6 +5416,7 @@
       if (r && r.status === "success") COST_ITEMS = r.items || [];
       else handleAuthError(r);
       populateCostItemsDatalist();
+      populateInvItemSelects();
       renderCostItemsList();
     }
 
@@ -5386,7 +5430,9 @@
       const box = document.getElementById("ciList");
       if (!box) return;
       if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">Belum ada item di database. Tambahin dulu di form atas.</p>'; return; }
-      box.innerHTML = COST_ITEMS.map(it => `
+      box.innerHTML = COST_ITEMS.map(it => {
+        const stock = itemStock(it.id);
+        return `
         <div class="fin-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px;">
           ${it.image_url
           ? `<img src="${escapeHtml(it.image_url)}" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
@@ -5395,8 +5441,13 @@
             <b>${escapeHtml(it.name)}</b>
             <div class="hint" style="margin:2px 0 0;">${rupiah(it.default_price)}${it.link ? ` · <a href="${escapeHtml(it.link)}" target="_blank" rel="noopener">Link toko</a>` : ""}</div>
           </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="hint" style="margin:0;">Stok</div>
+            <b style="color:${stock <= 0 ? "var(--err)" : "var(--ok)"};">${stock}</b>
+          </div>
           <button class="btn btn-sm btn-ghost" data-editci="${it.id}" style="flex-shrink:0;">${icon("pencil")}</button>
-        </div>`).join("");
+        </div>`;
+      }).join("");
       box.querySelectorAll("[data-editci]").forEach(b => b.addEventListener("click", () => editCostItemForm(b.dataset.editci)));
     }
 
@@ -5468,6 +5519,113 @@
       const r = await api("deleteCostItem", { token: getToken(), id });
       if (r && r.status === "success") { newCostItemForm(); await loadCostItems(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
+    }
+
+    // ---- Inventaris (riwayat stok per item Database Item) ----
+    let INVENTORY_TX = [];
+    let invFilterItemId = "";
+
+    function itemStock(itemId) {
+      return INVENTORY_TX.filter(t => t.item_id === itemId).reduce((sum, t) => {
+        if (t.type === "beli") return sum + t.qty;
+        if (t.type === "pakai") return sum - t.qty;
+        return sum + t.qty; // adjust -- qty udah signed
+      }, 0);
+    }
+
+    function populateInvItemSelects() {
+      const opts = COST_ITEMS.map(it => `<option value="${it.id}">${escapeHtml(it.name)}</option>`).join("");
+      const itemSel = document.getElementById("invItem");
+      const filterSel = document.getElementById("invFilterItem");
+      if (itemSel) itemSel.innerHTML = opts;
+      if (filterSel) filterSel.innerHTML = '<option value="">Semua item</option>' + opts;
+    }
+
+    async function loadInventoryTx() {
+      const r = await api("getInventoryTransactions", { token: getToken() });
+      if (r && r.status === "success") INVENTORY_TX = r.transactions || [];
+      else handleAuthError(r);
+      renderInvStockList();
+      renderInvTxList();
+      renderCostItemsList(); // badge stok ikut kepasi di Database Item
+    }
+
+    function renderInvStockList() {
+      const box = document.getElementById("invStockList");
+      if (!box) return;
+      if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">Belum ada item di Database Item.</p>'; return; }
+      box.innerHTML = COST_ITEMS.map(it => {
+        const stock = itemStock(it.id);
+        const color = stock <= 0 ? "var(--err)" : "var(--ok)";
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f3f6;">
+          <span>${escapeHtml(it.name)}</span>
+          <b style="color:${color};">${stock}</b>
+        </div>`;
+      }).join("");
+    }
+
+    function invTxLabel(t) {
+      const labels = { beli: "Beli", pakai: "Pakai", adjust: "Koreksi" };
+      return labels[t.type] || t.type;
+    }
+
+    function renderInvTxList() {
+      const box = document.getElementById("invTxList");
+      if (!box) return;
+      let filtered = INVENTORY_TX;
+      if (invFilterItemId) filtered = filtered.filter(t => t.item_id === invFilterItemId);
+      if (!filtered.length) { box.innerHTML = '<p class="hint">Belum ada transaksi stok.</p>'; return; }
+      box.innerHTML = filtered.map(t => {
+        const itemName = (COST_ITEMS.find(it => it.id === t.item_id) || {}).name || "(item dihapus)";
+        const sign = t.type === "pakai" ? "-" : (t.qty < 0 ? "" : "+");
+        const color = t.type === "pakai" || t.qty < 0 ? "var(--err)" : "var(--ok)";
+        const wsName = t.workshop_type ? workshopName(t.workshop_type) : "";
+        return `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
+          <div style="flex:1;min-width:0;">
+            <b>${escapeHtml(itemName)}</b> <span class="per-badge ${t.type === "beli" ? "income" : (t.type === "pakai" ? "expense" : "transfer")}">${invTxLabel(t)}</span>
+            <div style="font-size:.8rem;color:#6b7280;margin-top:2px;">${fmtTxDate(t.date)}${wsName ? " · " + escapeHtml(wsName) : ""}${t.note ? " · " + escapeHtml(t.note) : ""}</div>
+          </div>
+          <div style="font-weight:800;color:${color};flex-shrink:0;">${sign}${Math.abs(t.qty)}</div>
+          <button class="btn btn-sm" data-delinv="${t.id}" style="background:#fee2e2;color:var(--err);flex-shrink:0;">${icon("trash")}</button>
+        </div>`;
+      }).join("");
+      box.querySelectorAll("[data-delinv]").forEach(b => b.addEventListener("click", () => deleteInvTx(b.dataset.delinv)));
+    }
+
+    function newInvForm() {
+      document.getElementById("invId").value = "";
+      document.getElementById("invType").value = "beli";
+      document.getElementById("invQty").value = "";
+      document.getElementById("invDate").value = todayStr();
+      document.getElementById("invWorkshop").value = "";
+      document.getElementById("invNote").value = "";
+      document.getElementById("invMsg").textContent = "";
+    }
+
+    async function saveInvTx() {
+      const msg = document.getElementById("invMsg");
+      const itemId = document.getElementById("invItem").value;
+      if (!itemId) { msg.className = "msg err"; msg.textContent = "Pilih item dulu (bikin dulu di Database Item kalau belum ada)."; return; }
+      const type = document.getElementById("invType").value;
+      const qty = Math.round(Number(document.getElementById("invQty").value)) || 0;
+      if (!qty) { msg.className = "msg err"; msg.textContent = "Jumlah nggak boleh 0."; return; }
+      if (type !== "adjust" && qty < 0) { msg.className = "msg err"; msg.textContent = "Jumlah harus positif buat Beli/Pakai."; return; }
+      const date = document.getElementById("invDate").value;
+      if (!date) { msg.className = "msg err"; msg.textContent = "Tanggal wajib diisi."; return; }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await api("saveInventoryTransaction", {
+        token: getToken(), id: document.getElementById("invId").value, itemId, type, qty, date,
+        workshopType: document.getElementById("invWorkshop").value, note: document.getElementById("invNote").value.trim()
+      });
+      if (r && r.status === "success") { newInvForm(); await loadInventoryTx(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+    }
+
+    async function deleteInvTx(id) {
+      if (!confirm("Hapus transaksi stok ini?")) return;
+      const r = await api("deleteInventoryTransaction", { token: getToken(), id });
+      if (r && r.status === "success") await loadInventoryTx();
+      else { handleAuthError(r); alert((r && r.message) || "Gagal hapus."); }
     }
 
     async function loadModal() {

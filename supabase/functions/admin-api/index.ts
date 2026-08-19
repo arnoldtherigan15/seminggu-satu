@@ -616,6 +616,46 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", message: "Item dihapus." });
       }
 
+      case "getInventoryTransactions": {
+        const { data: rows } = await admin.from("inventory_transactions").select("*")
+          .order("date", { ascending: false }).order("created_at", { ascending: false });
+        return jsonResponse({ status: "success", transactions: rows || [] });
+      }
+
+      case "saveInventoryTransaction": {
+        const id = String(data.id || "");
+        const itemId = String(data.itemId || "");
+        if (!itemId) return errorResponse("Item wajib dipilih.");
+        const type = String(data.type || "");
+        if (!["beli", "pakai", "adjust"].includes(type)) return errorResponse("Tipe transaksi nggak dikenal.");
+        const qty = Math.round(Number(data.qty) || 0);
+        if (!qty) return errorResponse("Jumlah nggak boleh 0.");
+        if (type !== "adjust" && qty < 0) return errorResponse("Jumlah harus positif buat beli/pakai.");
+        const date = String(data.date || "").trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return errorResponse("Tanggal nggak valid.");
+        const payload = {
+          item_id: itemId, type, qty, date,
+          workshop_type: data.workshopType ? String(data.workshopType) : null,
+          note: data.note ? String(data.note).slice(0, 300) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("inventory_transactions").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update transaksi stok: " + error.message);
+        } else {
+          const { error } = await admin.from("inventory_transactions").insert(payload);
+          if (error) return errorResponse("Gagal simpan transaksi stok: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Transaksi stok tersimpan." });
+      }
+
+      case "deleteInventoryTransaction": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID transaksi kosong.");
+        const { error } = await admin.from("inventory_transactions").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus transaksi stok: " + error.message);
+        return jsonResponse({ status: "success", message: "Transaksi stok dihapus." });
+      }
+
       case "setAttendance": {
         const id = String(data.registrationId || "");
         if (!id) return errorResponse("Parameter kurang.");
