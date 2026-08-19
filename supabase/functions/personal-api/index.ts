@@ -143,10 +143,13 @@ Deno.serve(async (req) => {
           note: data.note ? String(data.note).slice(0, 300) : null,
         };
         if (id) {
+          // "source" sengaja NGGAK ikut di-update -- biar transaksi yang asalnya
+          // dari Impor AI tetap kecatat provenance-nya walau isinya diedit manual.
           const { error } = await admin.from("personal_transactions").update(payload).eq("id", id);
           if (error) return errorResponse("Gagal update transaksi: " + error.message);
         } else {
-          const { error } = await admin.from("personal_transactions").insert(payload);
+          const source = data.source === "screenshot" ? "screenshot" : "manual";
+          const { error } = await admin.from("personal_transactions").insert({ ...payload, source });
           if (error) return errorResponse("Gagal simpan transaksi: " + error.message);
         }
         return jsonResponse({ status: "success", message: "Transaksi tersimpan." });
