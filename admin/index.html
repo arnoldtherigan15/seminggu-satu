@@ -4180,6 +4180,7 @@
               </div>
 
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;">
+                <input class="form-control" type="month" id="txFilterPeriod" title="Semua bulan kalau dikosongin" style="max-width:170px;">
                 <select class="form-control" id="txFilterType" style="max-width:170px;">
                   <option value="">Semua tipe</option>
                   <option value="expense">Pengeluaran</option>
@@ -4187,6 +4188,7 @@
                   <option value="transfer">Transfer</option>
                 </select>
                 <select class="form-control" id="txFilterAccount" style="max-width:200px;"><option value="">Semua akun</option></select>
+                <button class="btn btn-sm btn-ghost" id="txFilterClearBtn">Reset filter</button>
               </div>
               <div id="perTxList" style="margin-top:10px;"></div>
             </div>
@@ -7206,6 +7208,7 @@
     let perTabsCtl = null;
     let perTxFilterType = "";
     let perTxFilterAccount = "";
+    let perTxFilterPeriod = "";
     let perPeriod = ""; // "YYYY-MM" -- periode yang lagi dilihat di tab Ringkasan
 
     const PER_MONTH_NAMES = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -7325,6 +7328,14 @@
         document.getElementById("txCancelBtn").addEventListener("click", newTxForm);
         document.getElementById("txFilterType").addEventListener("change", (e) => { perTxFilterType = e.target.value; renderPersonalTransactions(); });
         document.getElementById("txFilterAccount").addEventListener("change", (e) => { perTxFilterAccount = e.target.value; renderPersonalTransactions(); });
+        document.getElementById("txFilterPeriod").addEventListener("change", (e) => { perTxFilterPeriod = e.target.value; renderPersonalTransactions(); });
+        document.getElementById("txFilterClearBtn").addEventListener("click", () => {
+          perTxFilterType = ""; perTxFilterAccount = ""; perTxFilterPeriod = "";
+          document.getElementById("txFilterType").value = "";
+          document.getElementById("txFilterAccount").value = "";
+          document.getElementById("txFilterPeriod").value = "";
+          renderPersonalTransactions();
+        });
         document.getElementById("catSaveBtn").addEventListener("click", saveCat);
         document.getElementById("catNewBtn").addEventListener("click", newCatForm);
         document.getElementById("catDeleteBtn").addEventListener("click", deleteCat);
@@ -7818,6 +7829,14 @@
       else { handleAuthError(r); alert((r && r.message) || "Gagal hapus."); }
     }
 
+    function fmtGroupDate(s) {
+      if (!s) return "";
+      const d = new Date(s + "T12:00:00");
+      if (isNaN(d)) return s;
+      const label = d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      return label.charAt(0).toUpperCase() + label.slice(1);
+    }
+
     function renderPersonalTransactions() {
       const list = document.getElementById("perTxList");
       const cnt = document.getElementById("perTxCount");
@@ -7825,8 +7844,26 @@
       let filtered = PER_TRANSACTIONS;
       if (perTxFilterType) filtered = filtered.filter(t => t.type === perTxFilterType);
       if (perTxFilterAccount) filtered = filtered.filter(t => t.account_id === perTxFilterAccount || t.to_account_id === perTxFilterAccount);
-      if (!filtered.length) { list.innerHTML = '<p class="hint">Belum ada transaksi.</p>'; return; }
-      list.innerHTML = filtered.map(t => perTxRowHtml(t, true)).join("");
+      if (perTxFilterPeriod) filtered = filtered.filter(t => t.date && t.date.slice(0, 7) === perTxFilterPeriod);
+      if (!filtered.length) { list.innerHTML = '<p class="hint">Nggak ada transaksi yang cocok sama filter ini.</p>'; return; }
+
+      // Data udah keurut desc (date, created_at) dari backend, jadi grouping
+      // sambil iterasi 1x aman -- baris tanggal sama otomatis nempel.
+      const groups = [];
+      let curDate = null, curGroup = null;
+      filtered.forEach(t => {
+        if (t.date !== curDate) {
+          curDate = t.date;
+          curGroup = { date: t.date, items: [] };
+          groups.push(curGroup);
+        }
+        curGroup.items.push(t);
+      });
+
+      list.innerHTML = groups.map(g => `
+        <div style="font-weight:800;font-size:13px;color:var(--ink);opacity:.65;margin:14px 0 8px;">${escapeHtml(fmtGroupDate(g.date))}</div>
+        ${g.items.map(t => perTxRowHtml(t, true)).join("")}
+      `).join("");
       list.querySelectorAll("[data-edittx]").forEach(b => b.addEventListener("click", () => editTx(b.dataset.edittx)));
       list.querySelectorAll("[data-deltx]").forEach(b => b.addEventListener("click", () => deleteTx(b.dataset.deltx)));
     }
