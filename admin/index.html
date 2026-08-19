@@ -5575,19 +5575,42 @@
       let filtered = INVENTORY_TX;
       if (invFilterItemId) filtered = filtered.filter(t => t.item_id === invFilterItemId);
       if (!filtered.length) { box.innerHTML = '<p class="hint">Belum ada transaksi stok.</p>'; return; }
-      box.innerHTML = filtered.map(t => {
-        const itemName = (COST_ITEMS.find(it => it.id === t.item_id) || {}).name || "(item dihapus)";
-        const sign = t.type === "pakai" ? "-" : (t.qty < 0 ? "" : "+");
-        const color = t.type === "pakai" || t.qty < 0 ? "var(--err)" : "var(--ok)";
-        const wsName = t.workshop_type ? workshopName(t.workshop_type) : "";
-        return `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
-          <div style="flex:1;min-width:0;">
-            <b>${escapeHtml(itemName)}</b> <span class="per-badge ${t.type === "beli" ? "income" : (t.type === "pakai" ? "expense" : "transfer")}">${invTxLabel(t)}</span>
-            <div style="font-size:.8rem;color:#6b7280;margin-top:2px;">${fmtTxDate(t.date)}${wsName ? " · " + escapeHtml(wsName) : ""}${t.note ? " · " + escapeHtml(t.note) : ""}</div>
-          </div>
-          <div style="font-weight:800;color:${color};flex-shrink:0;">${sign}${Math.abs(t.qty)}</div>
-          <button class="btn btn-sm" data-delinv="${t.id}" style="background:#fee2e2;color:var(--err);flex-shrink:0;">${icon("trash")}</button>
-        </div>`;
+
+      // Dikelompokin per item (bukan list rata) -- nama item diulang-ulang tiap
+      // baris bikin susah discan begitu riwayatnya panjang. Data udah urut desc
+      // dari backend, jadi urutan grup ngikutin item mana yg paling baru ada
+      // transaksinya. Ditutup default (native <details>), tinggal klik buat buka.
+      const groups = [];
+      const byItem = {};
+      filtered.forEach(t => {
+        if (!byItem[t.item_id]) { byItem[t.item_id] = { itemId: t.item_id, items: [] }; groups.push(byItem[t.item_id]); }
+        byItem[t.item_id].items.push(t);
+      });
+
+      box.innerHTML = groups.map(g => {
+        const itemName = (COST_ITEMS.find(it => it.id === g.itemId) || {}).name || "(item dihapus)";
+        const stock = itemStock(g.itemId);
+        const rows = g.items.map(t => {
+          const sign = t.type === "pakai" ? "-" : (t.qty < 0 ? "" : "+");
+          const color = t.type === "pakai" || t.qty < 0 ? "var(--err)" : "var(--ok)";
+          const wsName = t.workshop_type ? workshopName(t.workshop_type) : "";
+          return `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
+            <span class="per-badge ${t.type === "beli" ? "income" : (t.type === "pakai" ? "expense" : "transfer")}">${invTxLabel(t)}</span>
+            <div style="flex:1;min-width:0;font-size:.85rem;color:#6b7280;">${fmtTxDate(t.date)}${wsName ? " · " + escapeHtml(wsName) : ""}${t.note ? " · " + escapeHtml(t.note) : ""}</div>
+            <div style="font-weight:800;color:${color};flex-shrink:0;">${sign}${Math.abs(t.qty)}</div>
+            <button class="btn btn-sm" data-delinv="${t.id}" style="background:#fee2e2;color:var(--err);flex-shrink:0;">${icon("trash")}</button>
+          </div>`;
+        }).join("");
+        return `<details class="det-acc">
+          <summary>
+            <span class="det-acc-title">${escapeHtml(itemName)} <span class="subtab-count">${g.items.length}x</span></span>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <b style="color:${stock <= 0 ? "var(--err)" : "var(--ok)"};">Stok: ${stock}</b>
+              <span class="det-acc-chevron">▸</span>
+            </span>
+          </summary>
+          <div class="det-acc-body">${rows}</div>
+        </details>`;
       }).join("");
       box.querySelectorAll("[data-delinv]").forEach(b => b.addEventListener("click", () => deleteInvTx(b.dataset.delinv)));
     }
