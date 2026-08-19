@@ -23,11 +23,13 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case "getPersonalData": {
-        const [accRes, catRes, txRes, budRes] = await Promise.all([
+        const [accRes, catRes, txRes, budRes, goalRes, contribRes] = await Promise.all([
           admin.from("personal_accounts").select("*").order("created_at", { ascending: true }),
           admin.from("personal_categories").select("*").order("created_at", { ascending: true }),
           admin.from("personal_transactions").select("*").order("date", { ascending: false }).order("created_at", { ascending: false }),
           admin.from("personal_budgets").select("*"),
+          admin.from("personal_savings_goals").select("*").order("created_at", { ascending: true }),
+          admin.from("personal_savings_contributions").select("*").order("date", { ascending: false }).order("created_at", { ascending: false }),
         ]);
         return jsonResponse({
           status: "success",
@@ -35,6 +37,8 @@ Deno.serve(async (req) => {
           categories: catRes.data || [],
           transactions: txRes.data || [],
           budgets: budRes.data || [],
+          savingsGoals: goalRes.data || [],
+          savingsContributions: contribRes.data || [],
         });
       }
 
@@ -283,6 +287,76 @@ Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, 
           .upsert(rows, { onConflict: "category_id,period", ignoreDuplicates: true });
         if (error) return errorResponse("Gagal salin budget: " + error.message);
         return jsonResponse({ status: "success", copied: rows.length, message: `${rows.length} budget disalin dari bulan lalu.` });
+      }
+
+      case "saveSavingsGoal": {
+        const id = String(data.id || "");
+        const name = String(data.name || "").trim();
+        const targetAmount = Math.round(Number(data.targetAmount) || 0);
+        if (!name) return errorResponse("Nama target wajib diisi.");
+        if (targetAmount <= 0) return errorResponse("Target harus lebih dari 0.");
+        const payload = {
+          name,
+          target_amount: targetAmount,
+          icon: data.icon ? String(data.icon) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("personal_savings_goals").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update target: " + error.message);
+        } else {
+          const { error } = await admin.from("personal_savings_goals").insert(payload);
+          if (error) return errorResponse("Gagal bikin target: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Target tersimpan." });
+      }
+
+      case "archiveSavingsGoal": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID target kosong.");
+        const { error } = await admin.from("personal_savings_goals").update({ archived: !!data.archived }).eq("id", id);
+        if (error) return errorResponse("Gagal update target: " + error.message);
+        return jsonResponse({ status: "success" });
+      }
+
+      case "deleteSavingsGoal": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID target kosong.");
+        // contributions ikut kehapus otomatis (on delete cascade)
+        const { error } = await admin.from("personal_savings_goals").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus target: " + error.message);
+        return jsonResponse({ status: "success", message: "Target dihapus." });
+      }
+
+      case "saveSavingsContribution": {
+        const id = String(data.id || "");
+        const goalId = String(data.goalId || "");
+        if (!goalId) return errorResponse("Target tabungan wajib dipilih.");
+        const amount = Math.round(Number(data.amount) || 0);
+        if (!amount) return errorResponse("Jumlah nggak boleh 0.");
+        const date = String(data.date || "").trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return errorResponse("Tanggal nggak valid.");
+        const payload = {
+          goal_id: goalId,
+          amount,
+          date,
+          note: data.note ? String(data.note).slice(0, 300) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("personal_savings_contributions").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update setoran: " + error.message);
+        } else {
+          const { error } = await admin.from("personal_savings_contributions").insert(payload);
+          if (error) return errorResponse("Gagal simpan setoran: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Setoran tersimpan." });
+      }
+
+      case "deleteSavingsContribution": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID setoran kosong.");
+        const { error } = await admin.from("personal_savings_contributions").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus setoran: " + error.message);
+        return jsonResponse({ status: "success", message: "Setoran dihapus." });
       }
 
       case "deletePersonalTransaction": {
