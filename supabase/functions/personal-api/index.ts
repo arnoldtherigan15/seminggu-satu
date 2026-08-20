@@ -210,7 +210,7 @@ Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, 
 
         try {
           const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -251,8 +251,11 @@ Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, 
       }
 
       case "getAiUsageToday": {
-        const todayWib = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
-        const { count } = await admin.from("ai_usage_log").select("id", { count: "exact", head: true }).eq("usage_date", todayWib);
+        // Kuota Gemini reset di tengah malam PACIFIC TIME (bukan WIB) --
+        // usage_date-nya juga dihitung di zona itu (lihat add_ai_usage_log.sql),
+        // biar "hari ini" di tracker ini sinkron sama kapan Google beneran reset.
+        const todayPt = new Date().toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
+        const { count } = await admin.from("ai_usage_log").select("id", { count: "exact", head: true }).eq("usage_date", todayPt);
         return jsonResponse({ status: "success", count: count || 0 });
       }
 
