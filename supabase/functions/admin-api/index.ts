@@ -10,7 +10,7 @@ import { getConfigValue, setConfigValue } from "../_shared/config.ts";
 import { adminLogin, requireAdminAuth } from "../_shared/admin-auth.ts";
 import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
 import { callGemini } from "../_shared/gemini.ts";
-import { mergeBatchConfig, currentPrice } from "../_shared/batch-merge.ts";
+import { mergeBatchConfig, currentPrice, isBatchOpen } from "../_shared/batch-merge.ts";
 
 const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side"];
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
@@ -139,34 +139,49 @@ Deno.serve(async (req) => {
         try { cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
         const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
 
-        const summary: Record<string, number> = {};
-        for (const id of WORKSHOP_TYPES) summary[id] = 0;
-        // openBatches: 1 entri per batch yang lagi buka (bukan per tipe) --
-        // ini yang dipake Overview buat render 1 card per batch, biar batch
-        // yang buka bareng (mis. Vol 6 & Vol 7) kelihatan sebagai 2 card
-        // terpisah dengan data masing-masing, bukan ketumpuk jadi 1 angka.
-        const openBatches: Record<string, unknown>[] = [];
-        for (const b of activeBatches || []) {
-          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
-          summary[b.workshop_type] = (summary[b.workshop_type] || 0) + (count ?? 0);
-          const typeConfig = cfgByType.get(b.workshop_type) || {};
-          const merged = mergeBatchConfig(b, typeConfig);
-          openBatches.push({
-            workshopType: b.workshop_type,
-            workshopName: (typeConfig as Record<string, unknown>).name || b.workshop_type,
-            batchId: b.id, label: merged.label, count: count ?? 0,
-            maxQuota: merged.maxQuota, eventDateIso: merged.eventDateIso, displayDate: merged.displayDate,
-            workshopTime: merged.workshopTime, locationName: merged.locationName,
-            currentPrice: currentPrice(merged, count ?? 0),
-          });
-        }
-        const members = await loyaltyMembers(admin);
         const { data: costs } = await admin.from("workshop_costs").select("*");
         const modal: Record<string, Record<string, { nama: string; biaya: number; tipe: string }[]>> = {};
         for (const c of costs || []) {
           (modal[c.workshop_type] ||= {})[c.batch] ||= [];
           modal[c.workshop_type][c.batch].push({ nama: c.name, biaya: Number(c.amount) || 0, tipe: c.kind === "tetap" ? "tetap" : "per-peserta" });
         }
+
+        const summary: Record<string, number> = {};
+        for (const id of WORKSHOP_TYPES) summary[id] = 0;
+        // openBatches: 1 entri per batch yang BENERAN masih buka pendaftaran
+        // (isBatchOpen -- dulu semua batch active=true masuk sini apa adanya,
+        // jadi batch yang acaranya udah lewat & lupa ditutup manual nyangkut
+        // terus "kelihatan buka" di Overview). Revenue/profit di bawah TETAP
+        // dihitung dari SEMUA batch aktif (bukan cuma yang openBatches) --
+        // pendaftaran ditutup bukan berarti duitnya ilang, itu tetap
+        // pemasukan beneran yang harus kelihatan di Overview.
+        const openBatches: Record<string, unknown>[] = [];
+        let revenue = 0, profit = 0;
+        for (const b of activeBatches || []) {
+          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
+          const usedCount = count ?? 0;
+          summary[b.workshop_type] = (summary[b.workshop_type] || 0) + usedCount;
+          const typeConfig = cfgByType.get(b.workshop_type) || {};
+          const merged = mergeBatchConfig(b, typeConfig);
+
+          const price = currentPrice(merged, usedCount);
+          const rev = price * usedCount;
+          const items = (modal[b.workshop_type] && (modal[b.workshop_type][b.id] || modal[b.workshop_type][""])) || [];
+          let cost = 0;
+          for (const it of items) cost += it.tipe === "tetap" ? it.biaya : it.biaya * usedCount;
+          revenue += rev; profit += (rev - cost);
+
+          if (!isBatchOpen(merged)) continue;
+          openBatches.push({
+            workshopType: b.workshop_type,
+            workshopName: (typeConfig as Record<string, unknown>).name || b.workshop_type,
+            batchId: b.id, label: merged.label, count: usedCount,
+            maxQuota: merged.maxQuota, eventDateIso: merged.eventDateIso, displayDate: merged.displayDate,
+            workshopTime: merged.workshopTime, locationName: merged.locationName,
+            currentPrice: price,
+          });
+        }
+        const members = await loyaltyMembers(admin);
         let ideas: unknown[] = [];
         try { ideas = JSON.parse((await getConfigValue(admin, "IDEAS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
         // activeSheets: dipertahankan buat back-compat (siapa tau ada consumer
@@ -175,7 +190,7 @@ Deno.serve(async (req) => {
         // sumber data yang lengkap/akurat buat tipe yang punya 2+ batch buka.
         const activeSheets: Record<string, string> = {};
         for (const b of activeBatches || []) if (!activeSheets[b.workshop_type]) activeSheets[b.workshop_type] = b.id;
-        return jsonResponse({ status: "success", summary, modal, ideas, members, activeSheets, openBatches });
+        return jsonResponse({ status: "success", summary, modal, ideas, members, activeSheets, openBatches, revenue, profit });
       }
 
       case "claimReward": {

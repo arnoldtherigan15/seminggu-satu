@@ -97,6 +97,15 @@ export function isBatchOpen(m: MergedBatch): boolean {
   if (m.closeDateIso) {
     const close = new Date(m.closeDateIso + "T00:00:00");
     if (today > close) return false;
+  } else if (m.eventDateIso) {
+    // Nggak ada closeDate eksplisit -- default aman: pendaftaran otomatis
+    // ketutup begitu tanggal ACARANYA SENDIRI udah lewat. Tanpa ini, batch
+    // yang lupa ditutup manual abis acaranya jalan bakal nyangkut terus
+    // dianggap "buka" selamanya -- muncul di Overview admin sebagai "sedang
+    // buka" padahal udah lewat, DAN (lebih parah) tetep nawarin orang
+    // daftar ke event yang udah kejadian di halaman publik.
+    const event = new Date(m.eventDateIso + "T00:00:00");
+    if (today > event) return false;
   }
   return true;
 }

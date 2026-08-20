@@ -6158,6 +6158,7 @@
             WRAP_MEMBERS = r.members || [];
             ACTIVE_SHEETS = r.activeSheets || {};
             OPEN_BATCHES = r.openBatches || [];
+            lastIncome = { revenue: r.revenue || 0, profit: r.profit || 0 };
             STATS = computeStats(WRAP_MEMBERS);
             overviewDataLoaded = true;
             renderIdeas();
@@ -6238,22 +6239,17 @@
     }
 
     function renderOverview() {
-      // Sekarang iterasi per BATCH yang lagi buka (OPEN_BATCHES), bukan per
-      // tipe workshop -- biar batch yang buka bareng (mis. Vol 6 & Vol 7)
-      // kelihatan sebagai 2 card terpisah dengan data masing-masing (harga,
-      // kuota, lokasi bisa beda), bukan ketumpuk jadi 1 angka per tipe.
-      let revenue = 0, profit = 0;
-      OPEN_BATCHES.forEach(b => {
-        if (!b.count) return; // batch ini kosong -> ga nyumbang apa2
-        const rev = (b.currentPrice || 0) * b.count;
-        const items = (MODAL[b.workshopType] && (MODAL[b.workshopType][b.batchId] || MODAL[b.workshopType][""])) || [];
-        let cost = 0;
-        items.forEach(it => { cost += (it.tipe === "tetap") ? (Number(it.biaya) || 0) : (Number(it.biaya) || 0) * b.count; });
-        revenue += rev; profit += (rev - cost);
-      });
-      lastIncome = { revenue, profit };
+      // Revenue/profit dihitung SERVER-SIDE (getOverview) dari SEMUA batch
+      // aktif (bukan cuma yang lagi buka pendaftaran) -- pendaftaran ditutup
+      // bukan berarti duitnya ilang. lastIncome udah diisi pas data overview
+      // dimuat, di sini cuma tinggal render.
       renderIncome();
 
+      // Kartu 1 per BATCH yang BENERAN masih buka pendaftaran (OPEN_BATCHES
+      // dari server udah difilter isBatchOpen -- batch yang acaranya udah
+      // lewat & lupa ditutup manual nggak nyangkut nongol di sini lagi).
+      // Beda dari revenue di atas: batch yg buka bareng (mis. Vol 6 & Vol 7)
+      // kelihatan sebagai 2 card terpisah dengan data masing-masing.
       const box = document.getElementById("ovCards");
       if (!OPEN_BATCHES.length) { box.innerHTML = `<p class="hint">Belum ada workshop yang sedang buka pendaftaran.</p>`; return; }
       box.innerHTML = OPEN_BATCHES.map(b => {
@@ -6275,7 +6271,7 @@
 
     // ---------- CONFIG EDITOR ----------
     // Field tanggal/harga/kuota/lokasi/dll udah PINDAH jadi milik batch
-    // (edit di Prep > FAQ & Respon Cepat > "Detail Acara (batch ini)"),
+    // (edit di dropdown "Batch" di tab Config ini juga, lihat cfgBatchCard),
     // karena itu emang bisa beda-beda tiap batch (Vol 1/Vol 2/dst), bukan
     // satu nilai yang dipake semua batch tipe workshop yang sama. CFG_FIELDS
     // sekarang cuma yang beneran soal PRODUK/HALAMAN-nya, bukan soal 1
