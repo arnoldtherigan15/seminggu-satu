@@ -3891,6 +3891,7 @@
                 </div>
                 <div class="msg" id="ciMsg"></div>
               </div>
+              <input class="form-control" type="text" id="ciSearchInput" placeholder="Cari nama item..." style="margin-top:14px;">
               <div id="ciList" style="margin-top:10px;"></div>
             </div>
 
@@ -3922,6 +3923,7 @@
 
               <div class="fin-card" style="margin-top:14px;">
                 <div style="font-weight:800;margin-bottom:8px;">Stok Saat Ini</div>
+                <input class="form-control" type="text" id="invStockSearch" placeholder="Cari nama item..." style="margin-bottom:8px;">
                 <div id="invStockList"></div>
               </div>
 
@@ -5448,6 +5450,8 @@
         document.getElementById("ciDeleteBtn").addEventListener("click", deleteCostItemForm);
         document.getElementById("ciImageFile").addEventListener("change", onCostItemImagePick);
         document.getElementById("ciFetchNameBtn").addEventListener("click", fetchNameFromLink);
+        document.getElementById("ciSearchInput").addEventListener("input", (e) => { ciSearchQuery = e.target.value.trim().toLowerCase(); renderCostItemsList(); });
+        document.getElementById("invStockSearch").addEventListener("input", (e) => { invStockSearchQuery = e.target.value.trim().toLowerCase(); renderInvStockList(); });
         wireRibuanInput(document.getElementById("ciPrice"));
         document.getElementById("invSaveBtn").addEventListener("click", saveInvTx);
         document.getElementById("invFilterItem").addEventListener("change", (e) => { invFilterItemId = e.target.value; renderInvTxList(); });
@@ -5466,6 +5470,8 @@
     }
 
     let COST_ITEMS = [];
+    let ciSearchQuery = "";
+    let invStockSearchQuery = "";
 
     async function loadCostItems() {
       const r = await api("getCostItems", { token: getToken() });
@@ -5486,7 +5492,9 @@
       const box = document.getElementById("ciList");
       if (!box) return;
       if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">Belum ada item di database. Tambahin dulu di form atas.</p>'; return; }
-      box.innerHTML = COST_ITEMS.map(it => {
+      const filtered = ciSearchQuery ? COST_ITEMS.filter(it => it.name.toLowerCase().includes(ciSearchQuery)) : COST_ITEMS;
+      if (!filtered.length) { box.innerHTML = '<p class="hint">Nggak ada item yang cocok sama pencarian ini.</p>'; return; }
+      box.innerHTML = filtered.map(it => {
         const stock = itemStock(it.id);
         return `
         <div class="fin-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px;">
@@ -5501,10 +5509,12 @@
             <div class="hint" style="margin:0;">Stok</div>
             <b style="color:${stock <= 0 ? "var(--err)" : "var(--ok)"};">${stock}</b>
           </div>
+          <button class="btn btn-sm btn-ghost" data-copyci="${escapeHtml(it.name)}" title="Salin nama item" style="flex-shrink:0;">${icon("clipboard")}</button>
           <button class="btn btn-sm btn-ghost" data-editci="${it.id}" style="flex-shrink:0;">${icon("pencil")}</button>
         </div>`;
       }).join("");
       box.querySelectorAll("[data-editci]").forEach(b => b.addEventListener("click", () => editCostItemForm(b.dataset.editci)));
+      box.querySelectorAll("[data-copyci]").forEach(b => b.addEventListener("click", () => copyToClipboardEl(b.dataset.copyci, b)));
     }
 
     function newCostItemForm() {
@@ -5628,7 +5638,9 @@
       const box = document.getElementById("invStockList");
       if (!box) return;
       if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">Belum ada item di Database Item.</p>'; return; }
-      box.innerHTML = COST_ITEMS.map(it => {
+      const filtered = invStockSearchQuery ? COST_ITEMS.filter(it => it.name.toLowerCase().includes(invStockSearchQuery)) : COST_ITEMS;
+      if (!filtered.length) { box.innerHTML = '<p class="hint">Nggak ada item yang cocok sama pencarian ini.</p>'; return; }
+      box.innerHTML = filtered.map(it => {
         const stock = itemStock(it.id);
         const color = stock <= 0 ? "var(--err)" : "var(--ok)";
         return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f3f6;">
