@@ -3982,11 +3982,16 @@
               <label for="cfgSelect">Pilih Workshop</label>
               <select class="form-control" id="cfgSelect"></select>
             </div>
+            <div class="field">
+              <label for="cfgBatchSelect">Batch</label>
+              <select class="form-control" id="cfgBatchSelect"></select>
+            </div>
             <button class="btn btn-sm btn-ghost" id="cfgNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Workshop Baru</button>
             <button class="btn btn-sm btn-ghost" id="cfgReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
           </div>
-          <div class="fin-card">
-            <p class="hint" style="margin:0 0 10px;">Tanggal/jam/lokasi/harga/kuota/link WA sekarang diatur PER BATCH (bisa beda-beda tiap Vol), bukan di sini lagi -- edit di <b>Prep &gt; FAQ &amp; Respon Cepat &gt; "Detail Acara (batch ini)"</b>, pilih dulu workshop + batch-nya di tab Prep.</p>
+
+          <div class="fin-card" id="cfgGeneralCard">
+            <p class="hint" style="margin:0 0 10px;">Data PRODUK/HALAMAN workshop (nama, deskripsi, rekening, dst) -- berlaku buat SEMUA batch tipe ini. Tanggal/jam/lokasi/harga/kuota/link WA yang bisa beda tiap batch, pilih batch-nya di dropdown "Batch" di atas.</p>
             <div id="cfgForm" class="cfg-form"></div>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
               <button class="btn" id="cfgSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Config</button>
@@ -3994,7 +3999,36 @@
                 workshop ini</button>
             </div>
             <div class="msg" id="cfgMsg"></div>
-            <p class="hint">Perubahan langsung tersimpan. Efek di web publik aktif setelah wiring Fase 3 bagian 2.</p>
+            <p class="hint">Perubahan langsung tersimpan & langsung aktif di web publik.</p>
+          </div>
+
+          <div class="fin-card" id="cfgBatchCard" style="display:none;">
+            <div style="font-weight:800;margin-bottom:4px;">Detail Batch: <span id="cfgBatchLabel"></span></div>
+            <p class="hint" style="margin:0 0 8px;">Default-nya ikut Config Umum di atas. Isi salah satu/beberapa DI SINI cuma kalau batch ini beda (mis. venue/harga/kuota beda dari batch lain tipe yang sama) -- kosongin buat balik ikut Config Umum. Batch baru otomatis nyontek isian ini dari batch terakhir yang dibikin, tinggal edit yang beda aja.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Lokasi</label><input class="form-control" type="text" id="batchLoc" placeholder="ikut Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Jam</label><input class="form-control" type="text" id="batchTime" placeholder="ikut Config"></div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Link Maps</label><input class="form-control" type="text" id="batchMapsLink" placeholder="ikut Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Link Grup WhatsApp</label><input class="form-control" type="text" id="batchWaLink" placeholder="ikut Config"></div>
+            </div>
+            <div class="konten-field"><label>Tanggal acara (teks tampilan, mis. "Sabtu, 12 September 2026")</label><input class="form-control" type="text" id="batchWorkshopDate" placeholder="ikut Config"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Harga Normal (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchNormalPrice" placeholder="ikut Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Kuota Maksimal</label><input class="form-control" type="text" inputmode="numeric" id="batchMaxQuota" placeholder="ikut Config"></div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Harga Early Bird (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdPrice" placeholder="ikut Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Batas Jumlah Early Bird</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdMaxCount" placeholder="ikut Config"></div>
+            </div>
+            <div class="konten-field"><label>Batas Tanggal Early Bird</label><input class="form-control" type="text" id="batchEarlyBirdDueDate" placeholder="ikut Config, mis. 11 Juli 2026"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal Buka Pendaftaran</label><input class="form-control" type="text" id="batchOpenDate" placeholder="ikut Config, mis. 1 Juli 2026"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal Tutup Pendaftaran</label><input class="form-control" type="text" id="batchCloseDate" placeholder="ikut Config, mis. 10 Juli 2026"></div>
+            </div>
+            <button class="btn btn-sm" id="batchDetailSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Detail Batch</button>
+            <div class="msg" id="batchDetailMsg"></div>
           </div>
         </div>
 
@@ -4718,6 +4752,7 @@
     let MODAL = {};                   // { workshopId: { batchKey: [ {nama,biaya,tipe} ] } } ("" = general)
     let BATCHES = [];                 // batch untuk workshop yang sedang dipilih
     let CONFIG = null;                // array config workshop (editor)
+    let CFG_BATCHES = [];              // batch untuk workshop yang lagi dipilih di tab Config
     let financeInit = false;
     let configInit = false;
     let kontenInit = false;
@@ -6260,13 +6295,131 @@
 
     async function ensureConfigLoaded() {
       if (!configInit) {
-        document.getElementById("cfgSelect").addEventListener("change", renderConfigForm);
+        document.getElementById("cfgSelect").addEventListener("change", async () => {
+          renderConfigForm();
+          await loadCfgBatches();
+        });
+        document.getElementById("cfgBatchSelect").addEventListener("change", onCfgBatchChange);
         document.getElementById("cfgSaveBtn").addEventListener("click", saveConfig);
         document.getElementById("cfgDeleteBtn").addEventListener("click", deleteWorkshopConfig);
         document.getElementById("cfgReloadBtn").addEventListener("click", loadConfig);
         document.getElementById("cfgNewBtn").addEventListener("click", createNewWorkshopConfig);
+        document.getElementById("batchDetailSaveBtn").addEventListener("click", saveCfgBatchDetailFn);
+        wireRibuanInput(document.getElementById("batchNormalPrice"));
+        wireRibuanInput(document.getElementById("batchEarlyBirdPrice"));
         await loadConfig();
         configInit = true;
+      }
+    }
+
+    // Daftar batch buat workshop yang lagi dipilih di Config -- ngisi
+    // dropdown "Batch" (opsi pertama = "Config Umum" alias nggak ada
+    // batch spesifik yang dipilih).
+    async function loadCfgBatches() {
+      if (!CONFIG) return;
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG[idx];
+      const sel = document.getElementById("cfgBatchSelect");
+      if (!w) { sel.innerHTML = ""; CFG_BATCHES = []; return; }
+      const r = await api("listBatches", { token: getToken(), workshop: w.id });
+      CFG_BATCHES = (r && r.status === "success") ? (r.batches || []) : [];
+      sel.innerHTML = `<option value="">— Config Umum (semua batch) —</option>` +
+        CFG_BATCHES.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.active ? " • Buka" : ""}</option>`).join("");
+      onCfgBatchChange();
+    }
+
+    function onCfgBatchChange() {
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      const generalCard = document.getElementById("cfgGeneralCard");
+      const batchCard = document.getElementById("cfgBatchCard");
+      if (!batchId) {
+        generalCard.style.display = "block";
+        batchCard.style.display = "none";
+      } else {
+        generalCard.style.display = "none";
+        batchCard.style.display = "block";
+        const b = CFG_BATCHES.find(x => x.id === batchId);
+        document.getElementById("cfgBatchLabel").textContent = (b && b.label) || "";
+        loadCfgBatchDetail();
+      }
+    }
+
+    // Isi form "Detail Batch" dari override batch yang lagi kepilih --
+    // placeholder nunjukin nilai Config Umum yang bakal kepake kalau
+    // dikosongin, biar Arnold tau apa yang lagi dipakai walau field-nya kosong.
+    function loadCfgBatchDetail() {
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG ? CONFIG[idx] : null;
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      const b = CFG_BATCHES.find(x => x.id === batchId);
+      document.getElementById("batchDetailMsg").textContent = "";
+
+      const textField = (elId, batchKey, cfgKey, cfgLabelFn) => {
+        const el = document.getElementById(elId);
+        el.value = (b && b[batchKey]) || "";
+        const cfgVal = w && w[cfgKey];
+        el.placeholder = "ikut Config" + (cfgVal ? ` (${cfgLabelFn ? cfgLabelFn(cfgVal) : cfgVal})` : "");
+      };
+      textField("batchLoc", "locationName", "locationName");
+      textField("batchTime", "workshopTime", "workshopTime");
+      textField("batchMapsLink", "mapsLink", "mapsLink", () => "ada di Config");
+      textField("batchWaLink", "whatsappGroupLink", "whatsappGroupLink", () => "ada di Config");
+      textField("batchWorkshopDate", "workshopDate", "workshopDate");
+
+      const priceField = (elId, batchKey, cfgKey) => {
+        const el = document.getElementById(elId);
+        el.value = (b && b[batchKey] != null) ? formatRibuan(b[batchKey]) : "";
+        const cfgVal = w && w[cfgKey];
+        el.placeholder = "ikut Config" + (cfgVal ? ` (Rp ${formatRibuan(cfgVal)})` : "");
+      };
+      priceField("batchNormalPrice", "normalPrice", "normalPrice");
+      priceField("batchEarlyBirdPrice", "earlyBirdPrice", "earlyBirdPrice");
+
+      const numField = (elId, batchKey, cfgKey) => {
+        const el = document.getElementById(elId);
+        el.value = (b && b[batchKey] != null) ? String(b[batchKey]) : "";
+        const cfgVal = w && w[cfgKey];
+        el.placeholder = "ikut Config" + (cfgVal ? ` (${cfgVal})` : "");
+      };
+      numField("batchMaxQuota", "maxQuota", "maxQuota");
+      numField("batchEarlyBirdMaxCount", "earlyBirdMaxCount", "earlyBirdMaxCount");
+
+      textField("batchEarlyBirdDueDate", "earlyBirdDueDate", "earlyBirdDueDate");
+      textField("batchOpenDate", "openDate", "openDate");
+      textField("batchCloseDate", "closeDate", "closeDate");
+    }
+
+    async function saveCfgBatchDetailFn() {
+      const msg = document.getElementById("batchDetailMsg");
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu ya."; return; }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await api("renameBatch", {
+        token: getToken(), batchId,
+        locationName: document.getElementById("batchLoc").value,
+        workshopTime: document.getElementById("batchTime").value,
+        mapsLink: document.getElementById("batchMapsLink").value,
+        whatsappGroupLink: document.getElementById("batchWaLink").value,
+        workshopDate: document.getElementById("batchWorkshopDate").value,
+        normalPrice: parseRibuan(document.getElementById("batchNormalPrice").value) || "",
+        earlyBirdPrice: parseRibuan(document.getElementById("batchEarlyBirdPrice").value) || "",
+        earlyBirdMaxCount: document.getElementById("batchEarlyBirdMaxCount").value,
+        maxQuota: document.getElementById("batchMaxQuota").value,
+        earlyBirdDueDate: document.getElementById("batchEarlyBirdDueDate").value,
+        openDate: document.getElementById("batchOpenDate").value,
+        closeDate: document.getElementById("batchCloseDate").value,
+      });
+      if (r && r.status === "success") {
+        // Refresh CFG_BATCHES TANPA reset pilihan dropdown (beda dari
+        // loadCfgBatches() yang ngisi ulang <select> dari nol).
+        const idx = Number(document.getElementById("cfgSelect").value) || 0;
+        const w = CONFIG[idx];
+        const rr = await api("listBatches", { token: getToken(), workshop: w.id });
+        if (rr && rr.status === "success") CFG_BATCHES = rr.batches || [];
+        loadCfgBatchDetail();
+        msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+      } else {
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan.";
       }
     }
 
@@ -6297,6 +6450,7 @@
       sel.innerHTML = CONFIG.map((w, i) => `<option value="${i}">${escapeHtml(w.name || w.id)}</option>`).join("");
       sel.value = CONFIG.length - 1;
       renderConfigForm();
+      loadCfgBatches();
       alert("Workshop '" + id + "' ditambahkan. Isi detailnya, lalu klik 💾 Simpan Config ya.");
     }
 
@@ -6314,6 +6468,7 @@
         sel.innerHTML = CONFIG.map((w, i) => `<option value="${i}">${escapeHtml(w.name || w.id)}</option>`).join("");
         if (prev !== "" && CONFIG[Number(prev)]) sel.value = prev;
         renderConfigForm();
+        await loadCfgBatches();
       } catch (e) { /* diamkan */ }
     }
 
@@ -9267,7 +9422,7 @@
         // dibuka nggak kepental balik ke awal.
         document.getElementById("prepBatchSelect").addEventListener("change", () => {
           renderPrepHeader(document.getElementById("prepSelect").value);
-          loadPrepParticipants(); loadPrepPesananSummary(); loadPrepFaqContext(); loadPrepBatchDetail();
+          loadPrepParticipants(); loadPrepPesananSummary(); loadPrepFaqContext();
         });
         prepInit = true;
       }
@@ -9427,7 +9582,6 @@
       loadPrepParticipants();
       loadPrepPesananSummary();
       loadPrepFaqContext();
-      loadPrepBatchDetail();
     }
 
     // ---- Ringkasan Pesanan minum/makan di dalam Prep (batch aktif workshop
@@ -9450,35 +9604,6 @@
       const body = document.createElement("div");
       body.innerHTML = `
         <div class="fin-card">
-          <div style="font-weight:800;margin-bottom:4px;">Detail Acara (batch ini)</div>
-          <p class="hint" style="margin:0 0 8px;">Default-nya ikut data Config workshop. Isi salah satu/beberapa DI SINI cuma kalau batch ini beda (mis. batch ini venue/harga/kuotanya lain dari batch lain tipe yang sama) -- kosongin buat balik ikut Config. Batch baru otomatis nyontek isian ini dari batch terakhir yang dibikin, tinggal edit yang beda aja.</p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Lokasi</label><input class="form-control" type="text" id="batchLoc" placeholder="ikut Config"></div>
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Jam</label><input class="form-control" type="text" id="batchTime" placeholder="ikut Config"></div>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Link Maps</label><input class="form-control" type="text" id="batchMapsLink" placeholder="ikut Config"></div>
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Link Grup WhatsApp</label><input class="form-control" type="text" id="batchWaLink" placeholder="ikut Config"></div>
-          </div>
-          <div class="konten-field"><label>Tanggal acara (teks tampilan, mis. "Sabtu, 12 September 2026")</label><input class="form-control" type="text" id="batchWorkshopDate" placeholder="ikut Config"></div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Harga Normal (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchNormalPrice" placeholder="ikut Config"></div>
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Kuota Maksimal</label><input class="form-control" type="text" inputmode="numeric" id="batchMaxQuota" placeholder="ikut Config"></div>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Harga Early Bird (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdPrice" placeholder="ikut Config"></div>
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Batas Jumlah Early Bird</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdMaxCount" placeholder="ikut Config"></div>
-          </div>
-          <div class="konten-field"><label>Batas Tanggal Early Bird</label><input class="form-control" type="text" id="batchEarlyBirdDueDate" placeholder="ikut Config, mis. 11 Juli 2026"></div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal Buka Pendaftaran</label><input class="form-control" type="text" id="batchOpenDate" placeholder="ikut Config, mis. 1 Juli 2026"></div>
-            <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal Tutup Pendaftaran</label><input class="form-control" type="text" id="batchCloseDate" placeholder="ikut Config, mis. 10 Juli 2026"></div>
-          </div>
-          <button class="btn btn-sm" id="batchDetailSaveBtn">${icon("save")} Simpan Detail Batch</button>
-          <div class="msg" id="batchDetailMsg"></div>
-        </div>
-
-        <div class="fin-card" style="margin-top:14px;">
           <div style="font-weight:800;margin-bottom:4px;">Konteks Acara (batch ini)</div>
           <p class="hint" style="margin:0 0 8px;">Isi detail yang sering ditanyain peserta -- venue persisnya di mana, patokan/pintu masuk, rute transport umum, apa aja yang perlu dibawa, dsb. AI bakal jawab pertanyaan peserta PAKAI info ini aja (nggak ngarang).</p>
           <textarea class="form-control" id="faqContext" rows="6" placeholder="Contoh:
@@ -9507,10 +9632,6 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
           <button class="btn btn-sm btn-ghost" id="faqCopyAnswerBtn" style="margin-top:8px;display:none;">${icon("clipboard")} Salin Jawaban</button>
           <div class="msg" id="faqAnswerMsg"></div>
         </div>`;
-      const batchDetailSaveBtn = body.querySelector("#batchDetailSaveBtn");
-      if (batchDetailSaveBtn) batchDetailSaveBtn.addEventListener("click", saveBatchDetailFn);
-      wireRibuanInput(body.querySelector("#batchNormalPrice"));
-      wireRibuanInput(body.querySelector("#batchEarlyBirdPrice"));
       const saveBtn = body.querySelector("#faqSaveContextBtn");
       if (saveBtn) saveBtn.addEventListener("click", saveFaqContext);
       const genBlockBtn = body.querySelector("#faqGenerateBlockBtn");
@@ -9561,92 +9682,6 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const r = await api("savePrepFaqContext", { token: getToken(), event, batchId, context });
       if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Tersimpan ✓"; }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
-    }
-
-    // Isi form "Detail Acara (batch ini)" dari override batch yang lagi
-    // kepilih -- placeholder nunjukin nilai Config yang bakal kepake kalau
-    // dikosongin, biar Arnold tau apa yang lagi dipakai walau field-nya kosong.
-    function loadPrepBatchDetail() {
-      const locEl = document.getElementById("batchLoc");
-      if (!locEl) return;
-      const event = document.getElementById("prepSelect").value;
-      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
-      const b = getSelectedPrepBatch();
-      document.getElementById("batchDetailMsg").textContent = "";
-
-      const textField = (elId, batchKey, cfgKey, cfgLabelFn) => {
-        const el = document.getElementById(elId);
-        el.value = (b && b[batchKey]) || "";
-        const cfgVal = w && w[cfgKey];
-        el.placeholder = "ikut Config" + (cfgVal ? ` (${cfgLabelFn ? cfgLabelFn(cfgVal) : cfgVal})` : "");
-      };
-      textField("batchLoc", "locationName", "locationName");
-      textField("batchTime", "workshopTime", "workshopTime");
-      textField("batchMapsLink", "mapsLink", "mapsLink", () => "ada di Config");
-      textField("batchWaLink", "whatsappGroupLink", "whatsappGroupLink", () => "ada di Config");
-      textField("batchWorkshopDate", "workshopDate", "workshopDate");
-
-      const priceField = (elId, batchKey, cfgKey) => {
-        const el = document.getElementById(elId);
-        el.value = (b && b[batchKey] != null) ? formatRibuan(b[batchKey]) : "";
-        const cfgVal = w && w[cfgKey];
-        el.placeholder = "ikut Config" + (cfgVal ? ` (Rp ${formatRibuan(cfgVal)})` : "");
-      };
-      priceField("batchNormalPrice", "normalPrice", "normalPrice");
-      priceField("batchEarlyBirdPrice", "earlyBirdPrice", "earlyBirdPrice");
-
-      const numField = (elId, batchKey, cfgKey) => {
-        const el = document.getElementById(elId);
-        el.value = (b && b[batchKey] != null) ? String(b[batchKey]) : "";
-        const cfgVal = w && w[cfgKey];
-        el.placeholder = "ikut Config" + (cfgVal ? ` (${cfgVal})` : "");
-      };
-      numField("batchMaxQuota", "maxQuota", "maxQuota");
-      numField("batchEarlyBirdMaxCount", "earlyBirdMaxCount", "earlyBirdMaxCount");
-
-      textField("batchEarlyBirdDueDate", "earlyBirdDueDate", "earlyBirdDueDate");
-      textField("batchOpenDate", "openDate", "openDate");
-      textField("batchCloseDate", "closeDate", "closeDate");
-    }
-
-    // Refresh PREP_BATCHES doang, TANPA reset pilihan batch di dropdown --
-    // beda dari loadPrepBatches() yang selalu lompat balik ke batch AKTIF
-    // (nggak cocok dipanggil abis nyimpen detail batch yang lagi diedit,
-    // apalagi kalau itu batch lama/arsip, bukan yang aktif sekarang).
-    async function refreshPrepBatchesQuiet() {
-      const workshop = document.getElementById("prepSelect").value;
-      const r = await api("listBatches", { token: getToken(), workshop });
-      if (r && r.status === "success") PREP_BATCHES = r.batches || [];
-    }
-
-    async function saveBatchDetailFn() {
-      const msg = document.getElementById("batchDetailMsg");
-      const batchId = document.getElementById("prepBatchSelect").value;
-      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu ya."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
-      const r = await api("renameBatch", {
-        token: getToken(), batchId,
-        locationName: document.getElementById("batchLoc").value,
-        workshopTime: document.getElementById("batchTime").value,
-        mapsLink: document.getElementById("batchMapsLink").value,
-        whatsappGroupLink: document.getElementById("batchWaLink").value,
-        workshopDate: document.getElementById("batchWorkshopDate").value,
-        normalPrice: parseRibuan(document.getElementById("batchNormalPrice").value) || "",
-        earlyBirdPrice: parseRibuan(document.getElementById("batchEarlyBirdPrice").value) || "",
-        earlyBirdMaxCount: document.getElementById("batchEarlyBirdMaxCount").value,
-        maxQuota: document.getElementById("batchMaxQuota").value,
-        earlyBirdDueDate: document.getElementById("batchEarlyBirdDueDate").value,
-        openDate: document.getElementById("batchOpenDate").value,
-        closeDate: document.getElementById("batchCloseDate").value,
-      });
-      if (r && r.status === "success") {
-        await refreshPrepBatchesQuiet();
-        renderPrepHeader(document.getElementById("prepSelect").value);
-        loadPrepBatchDetail();
-        msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
-      } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan.";
-      }
     }
 
     // Data dasar event (tanggal/jam/lokasi/harga/link grup WA) udah ada dari
