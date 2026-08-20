@@ -13,6 +13,9 @@ import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from ".
 const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side"];
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
 const prepKey = (event: string, type: string) => `prep__${event}__${type}`;
+// Konteks FAQ per BATCH (bukan per workshop kayak prepKey lainnya) --
+// venue/rute/bawaan beda tiap batch/volume event yang sama.
+const prepFaqKey = (event: string, batchId: string) => `prep__${event}__faqcontext__${batchId || "general"}`;
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
 
 // Admin ngetik tanggal event manual via prompt() di dashboard, format yang
@@ -491,6 +494,101 @@ Deno.serve(async (req) => {
         if (!PREP_TYPES.includes(type)) return errorResponse("Tipe prep tidak dikenal: " + type);
         await setConfigValue(admin, prepKey(event, type), JSON.stringify(Array.isArray(data.items) ? data.items : []));
         return jsonResponse({ status: "success", message: "Tersimpan." });
+      }
+
+      case "getPrepFaqContext": {
+        const event = String(data.event || "");
+        if (!WORKSHOP_TYPES.includes(event)) return errorResponse("Event tidak dikenal: " + event);
+        const batchId = String(data.batchId || "");
+        const context = (await getConfigValue(admin, prepFaqKey(event, batchId))) || "";
+        return jsonResponse({ status: "success", context });
+      }
+
+      case "savePrepFaqContext": {
+        const event = String(data.event || "");
+        if (!WORKSHOP_TYPES.includes(event)) return errorResponse("Event tidak dikenal: " + event);
+        const batchId = String(data.batchId || "");
+        await setConfigValue(admin, prepFaqKey(event, batchId), String(data.context || "").slice(0, 4000));
+        return jsonResponse({ status: "success", message: "Konteks tersimpan." });
+      }
+
+      case "generateFaqBlock": {
+        const context = String(data.context || "").trim();
+        const wsName = String(data.workshopName || "workshop ini");
+        if (!context) return errorResponse("Isi konteks acara dulu ya sebelum generate FAQ.");
+        const geminiKey = Deno.env.get("GEMINI_API_KEY");
+        if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
+
+        const prompt = `Konteks acara workshop "${wsName}" (batch ini):
+"""
+${context}
+"""
+
+Buatin daftar FAQ (tanya-jawab) yang mengantisipasi pertanyaan paling umum yang bakal ditanyain peserta terkait info di atas (venue/lokasi persis, cara ke sana/rute transport, apa yang perlu dibawa, dsb) -- SESUAIKAN PERSIS sama apa yang ada di konteks, JANGAN NGARANG info yang nggak disebut di konteks.
+
+Format tiap FAQ:
+Q: [pertanyaan]
+A: [jawaban]
+
+Pisahkan tiap FAQ dengan baris kosong. Gaya jawaban santai & akrab (bukan formal kayak surat resmi), boleh emoji secukupnya. Balas HANYA daftar FAQ-nya, tanpa kalimat pembuka/penutup tambahan.`;
+
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+            },
+          );
+          const json = await res.json();
+          if (!res.ok) return errorResponse("Gagal generate FAQ: " + (json?.error?.message || res.statusText));
+          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          const block = String(text || "").trim();
+          if (!block) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
+          return jsonResponse({ status: "success", block });
+        } catch (e) {
+          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
+        }
+      }
+
+      case "generateFaqAnswer": {
+        const context = String(data.context || "").trim();
+        const question = String(data.question || "").trim();
+        const wsName = String(data.workshopName || "workshop ini");
+        if (!question) return errorResponse("Isi dulu pertanyaan yang mau dijawab.");
+        const geminiKey = Deno.env.get("GEMINI_API_KEY");
+        if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
+
+        const prompt = `Konteks acara workshop "${wsName}" (batch ini):
+"""
+${context || "(belum ada konteks yang diisi)"}
+"""
+
+Peserta nanya: "${question}"
+
+Jawab pertanyaan itu PAKAI INFO DARI KONTEKS DI ATAS AJA. Kalau infonya nggak ada/nggak cukup di konteks, jawab jujur kayak "belum ada infonya nih, nanti Arnold infoin lagi ya" -- JANGAN NGARANG jawaban yang nggak ada dasarnya di konteks (misal ngarang alamat/rute yang nggak disebut).
+
+Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), sesekali boleh sebut "Arnold" di orang ketiga buat nada personal, emoji secukupnya jangan berlebihan. Balas HANYA jawabannya aja, tanpa pembuka/penutup tambahan.`;
+
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+            },
+          );
+          const json = await res.json();
+          if (!res.ok) return errorResponse("Gagal generate jawaban: " + (json?.error?.message || res.statusText));
+          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          const answer = String(text || "").trim();
+          if (!answer) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
+          return jsonResponse({ status: "success", answer });
+        } catch (e) {
+          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
+        }
       }
 
       case "getIdeas": {
