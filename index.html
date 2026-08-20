@@ -696,7 +696,6 @@
                 // Skip if not meant to be displayed
                 if (ws.hasOwnProperty('isDisplay') && ws.isDisplay === false) return;
 
-                displayedCount++;
                 const currentCount = (counts && counts[ws.id]) || 0;
                 const isFull = currentCount >= (ws.maxQuota || 12);
                 let status = getWorkshopStatus(ws);
@@ -705,6 +704,14 @@
                 if (status === 'open' && isFull) {
                     status = 'full';
                 }
+
+                // Yang udah ditutup/penuh nggak usah nampil sama sekali -- jangan
+                // bikin pengunjung baru mikir "oh ada workshop nih" terus kecewa pas
+                // ternyata udah nggak bisa didaftarin. "Belum dibuka"/"segera hadir"
+                // tetap ditampilin (masih relevan buat bikin orang nunggu).
+                if (status === 'closed' || status === 'full') return;
+
+                displayedCount++;
 
                 // "checking" = tiket/kuota belum selesai dicek (config sudah ada dari
                 // cache/live). Selama checking, kartu tampil netral "Cek tiket…".
@@ -726,7 +733,7 @@
                                 <span class="price-original">${formatRupiah(ws.normalPrice)}</span>
                                 <span class="price-current">${formatRupiah(ws.earlyBirdPrice)}</span>
                             </div>`;
-                    } else if (status === 'open' || status === 'full') {
+                    } else if (status === 'open') {
                         priceHTML = `
                             <div class="price-row">
                                 <span class="price-normal-only">${formatRupiah(ws.normalPrice)}</span>
@@ -734,18 +741,15 @@
                     }
                 }
 
-                // Build status badge
+                // Build status badge (closed/full udah di-skip di atas, jadi cuma
+                // open/not-open-yet/coming-soon yang bisa nyampe sini)
                 let badgeHTML = '';
                 if (checking) {
                     badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="loader"></i> Cek tiket…</span>';
                 } else if (status === 'open') {
                     badgeHTML = '<span class="status-badge badge-open"><i data-lucide="circle-check"></i> Buka</span>';
-                } else if (status === 'full') {
-                    badgeHTML = '<span class="status-badge badge-closed"><i data-lucide="x-circle"></i> PENUH</span>';
                 } else if (status === 'not-open-yet') {
                     badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="clock"></i> Segera Dibuka</span>';
-                } else if (status === 'closed') {
-                    badgeHTML = '<span class="status-badge badge-closed"><i data-lucide="x-circle"></i> Ditutup</span>';
                 } else {
                     badgeHTML = '<span class="status-badge badge-coming-soon"><i data-lucide="sparkles"></i> Segera Hadir</span>';
                 }
@@ -756,10 +760,8 @@
                     ctaHTML = `<div class="cta-btn disabled-btn">Mengecek ketersediaan…</div>`;
                 } else if (status === 'open') {
                     ctaHTML = `<a href="${ws.path}" class="cta-btn" id="cta-${ws.id}">Daftar Sekarang <i data-lucide="arrow-right"></i></a>`;
-                } else if (status === 'full') {
-                    ctaHTML = `<div class="cta-btn disabled-btn">Pendaftaran Penuh</div>`;
                 } else {
-                    ctaHTML = `<div class="cta-btn disabled-btn">${status === 'not-open-yet' ? 'Belum Dibuka' : status === 'closed' ? 'Pendaftaran Ditutup' : 'Segera Hadir'}</div>`;
+                    ctaHTML = `<div class="cta-btn disabled-btn">${status === 'not-open-yet' ? 'Belum Dibuka' : 'Segera Hadir'}</div>`;
                 }
 
                 card.innerHTML = `
