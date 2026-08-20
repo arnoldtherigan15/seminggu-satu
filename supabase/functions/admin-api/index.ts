@@ -10,6 +10,7 @@ import { getConfigValue, setConfigValue } from "../_shared/config.ts";
 import { adminLogin, requireAdminAuth } from "../_shared/admin-auth.ts";
 import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
 import { callGemini } from "../_shared/gemini.ts";
+import { mergeBatchConfig, currentPrice } from "../_shared/batch-merge.ts";
 
 const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side"];
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
@@ -118,9 +119,11 @@ Deno.serve(async (req) => {
         const { data: activeBatches } = await admin.from("batches").select("id, workshop_type").eq("active", true);
         const summary: Record<string, number> = {};
         for (const id of WORKSHOP_TYPES) summary[id] = 0;
+        // Sekarang DIJUMLAH dari semua batch aktif tipe itu (bisa lebih dari 1
+        // buka bareng), bukan ketimpa jadi cuma nunjukin 1 batch doang.
         for (const b of activeBatches || []) {
           const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
-          summary[b.workshop_type] = count ?? 0;
+          summary[b.workshop_type] = (summary[b.workshop_type] || 0) + (count ?? 0);
         }
         return jsonResponse({ status: "success", summary });
       }
@@ -131,12 +134,31 @@ Deno.serve(async (req) => {
       }
 
       case "getOverview": {
-        const { data: activeBatches } = await admin.from("batches").select("id, workshop_type").eq("active", true);
+        const { data: activeBatches } = await admin.from("batches").select("*").eq("active", true);
+        let cfg: Record<string, unknown>[] = [];
+        try { cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
+        const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
+
         const summary: Record<string, number> = {};
         for (const id of WORKSHOP_TYPES) summary[id] = 0;
+        // openBatches: 1 entri per batch yang lagi buka (bukan per tipe) --
+        // ini yang dipake Overview buat render 1 card per batch, biar batch
+        // yang buka bareng (mis. Vol 6 & Vol 7) kelihatan sebagai 2 card
+        // terpisah dengan data masing-masing, bukan ketumpuk jadi 1 angka.
+        const openBatches: Record<string, unknown>[] = [];
         for (const b of activeBatches || []) {
           const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
-          summary[b.workshop_type] = count ?? 0;
+          summary[b.workshop_type] = (summary[b.workshop_type] || 0) + (count ?? 0);
+          const typeConfig = cfgByType.get(b.workshop_type) || {};
+          const merged = mergeBatchConfig(b, typeConfig);
+          openBatches.push({
+            workshopType: b.workshop_type,
+            workshopName: (typeConfig as Record<string, unknown>).name || b.workshop_type,
+            batchId: b.id, label: merged.label, count: count ?? 0,
+            maxQuota: merged.maxQuota, eventDateIso: merged.eventDateIso, displayDate: merged.displayDate,
+            workshopTime: merged.workshopTime, locationName: merged.locationName,
+            currentPrice: currentPrice(merged, count ?? 0),
+          });
         }
         const members = await loyaltyMembers(admin);
         const { data: costs } = await admin.from("workshop_costs").select("*");
@@ -147,9 +169,13 @@ Deno.serve(async (req) => {
         }
         let ideas: unknown[] = [];
         try { ideas = JSON.parse((await getConfigValue(admin, "IDEAS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
+        // activeSheets: dipertahankan buat back-compat (siapa tau ada consumer
+        // lama) -- sekarang cuma nunjukin SATU batch (yang pertama ketemu)
+        // per tipe kalau ada lebih dari 1 aktif; `openBatches` di atas adalah
+        // sumber data yang lengkap/akurat buat tipe yang punya 2+ batch buka.
         const activeSheets: Record<string, string> = {};
-        for (const b of activeBatches || []) activeSheets[b.workshop_type] = b.id;
-        return jsonResponse({ status: "success", summary, modal, ideas, members, activeSheets });
+        for (const b of activeBatches || []) if (!activeSheets[b.workshop_type]) activeSheets[b.workshop_type] = b.id;
+        return jsonResponse({ status: "success", summary, modal, ideas, members, activeSheets, openBatches });
       }
 
       case "claimReward": {
@@ -191,6 +217,10 @@ Deno.serve(async (req) => {
             id: b.id, label: b.label || "", active: !!b.active, eventDate: b.event_date || "", count: count ?? 0,
             locationName: b.location_name || "", mapsLink: b.maps_link || "",
             workshopTime: b.workshop_time || "", whatsappGroupLink: b.whatsapp_group_link || "",
+            workshopDate: b.workshop_date || "",
+            normalPrice: b.normal_price, earlyBirdPrice: b.early_bird_price,
+            earlyBirdDueDate: b.early_bird_due_date || "", earlyBirdMaxCount: b.early_bird_max_count,
+            maxQuota: b.max_quota, openDate: b.open_date || "", closeDate: b.close_date || "",
           });
         }
         return jsonResponse({ status: "success", workshop, batches });
@@ -206,22 +236,43 @@ Deno.serve(async (req) => {
           eventDate = parseIdDate(data.eventDate);
           if (!eventDate) return errorResponse(`Format tanggal "${data.eventDate}" nggak dikenali. Coba format "11 Juli 2026" atau "2026-07-11".`);
         }
-        const { error: updErr } = await admin.from("batches").update({ active: false }).eq("workshop_type", workshop);
-        if (updErr) return errorResponse("Gagal mengarsipkan batch lama: " + updErr.message);
-        const { error: insErr } = await admin.from("batches").insert({ workshop_type: workshop, label, active: true, event_date: eventDate });
+        // Batch baru SELALU jadi aktif (buka), batch lain DIBIARIN apa adanya
+        // -- bikin batch baru itu keputusan "buka sesi baru", bukan "ganti
+        // satu-satunya sesi yang buka". Mau nutup batch lain? itu tindakan
+        // terpisah lewat setActiveBatch, bukan efek samping di sini.
+        //
+        // Warisan data: batch baru nyontek 12 field override dari batch
+        // TERBARU (created_at DESC) tipe ini, termasuk yang masih null (null
+        // tetep null -- kalau batch sebelumnya ikut Config di suatu field,
+        // batch baru juga tetep ikut Config, BUKAN dibekukan ke nilai Config
+        // saat ini). Jadi Arnold cuma pernah nyentuh field yang emang udah
+        // pernah menyimpang di riwayat batch tipe ini.
+        const { data: prevBatch } = await admin.from("batches").select("*")
+          .eq("workshop_type", workshop).order("created_at", { ascending: false }).limit(1).maybeSingle();
+        const inherited = prevBatch ? {
+          location_name: prevBatch.location_name, maps_link: prevBatch.maps_link,
+          workshop_time: prevBatch.workshop_time, whatsapp_group_link: prevBatch.whatsapp_group_link,
+          normal_price: prevBatch.normal_price, early_bird_price: prevBatch.early_bird_price,
+          early_bird_due_date: prevBatch.early_bird_due_date, early_bird_max_count: prevBatch.early_bird_max_count,
+          max_quota: prevBatch.max_quota, open_date: prevBatch.open_date, close_date: prevBatch.close_date,
+          workshop_date: prevBatch.workshop_date,
+        } : {};
+        const { error: insErr } = await admin.from("batches").insert({
+          workshop_type: workshop, label, active: true, event_date: eventDate, ...inherited,
+        });
         if (insErr) return errorResponse("Gagal bikin batch baru: " + insErr.message);
         return jsonResponse({ status: "success", message: `Batch baru '${label}' dibuat & jadi aktif.` });
       }
 
       case "setActiveBatch": {
-        const workshop = String(data.workshop || "");
         const batchId = String(data.batchId || "");
-        if (!WORKSHOP_TYPES.includes(workshop)) return errorResponse("Workshop tidak dikenal: " + workshop);
         if (!batchId) return errorResponse("Batch wajib dipilih.");
-        await admin.from("batches").update({ active: false }).eq("workshop_type", workshop);
-        const { error } = await admin.from("batches").update({ active: true }).eq("id", batchId).eq("workshop_type", workshop);
-        if (error) return errorResponse("Batch tidak ditemukan untuk workshop ini.");
-        return jsonResponse({ status: "success", message: "Batch aktif diubah." });
+        // Toggle per-baris murni -- nggak lagi matiin batch lain otomatis,
+        // jadi bisa ada 0..N batch `active` bersamaan per tipe workshop.
+        const open = data.open != null ? !!data.open : true;
+        const { error } = await admin.from("batches").update({ active: open }).eq("id", batchId);
+        if (error) return errorResponse("Batch tidak ditemukan.");
+        return jsonResponse({ status: "success", message: open ? "Batch dibuka." : "Batch ditutup." });
       }
 
       case "renameBatch": {
@@ -239,13 +290,38 @@ Deno.serve(async (req) => {
             patch.event_date = parsed;
           }
         }
-        // 4 field ini override opsional PER BATCH (kosong = balik ikut Config
-        // workshop, kayak sebelumnya) -- buat batch lama yang venue/jam/link-nya
-        // beda dari batch yang lagi aktif sekarang.
+        // Field-field ini override opsional PER BATCH (kosong = balik ikut
+        // Config workshop) -- buat batch yang harga/kuota/jadwal/venue-nya
+        // beda dari batch lain tipe yang sama.
         if (data.locationName != null) patch.location_name = String(data.locationName).trim() || null;
         if (data.mapsLink != null) patch.maps_link = String(data.mapsLink).trim() || null;
         if (data.workshopTime != null) patch.workshop_time = String(data.workshopTime).trim() || null;
         if (data.whatsappGroupLink != null) patch.whatsapp_group_link = String(data.whatsappGroupLink).trim() || null;
+        if (data.workshopDate != null) patch.workshop_date = String(data.workshopDate).trim() || null;
+        if (data.normalPrice != null) {
+          const raw = String(data.normalPrice).trim();
+          patch.normal_price = raw ? Number(raw) : null;
+        }
+        if (data.earlyBirdPrice != null) {
+          const raw = String(data.earlyBirdPrice).trim();
+          patch.early_bird_price = raw ? Number(raw) : null;
+        }
+        if (data.earlyBirdMaxCount != null) {
+          const raw = String(data.earlyBirdMaxCount).trim();
+          patch.early_bird_max_count = raw ? Number(raw) : null;
+        }
+        if (data.maxQuota != null) {
+          const raw = String(data.maxQuota).trim();
+          patch.max_quota = raw ? Number(raw) : null;
+        }
+        for (const [key, col] of [["earlyBirdDueDate", "early_bird_due_date"], ["openDate", "open_date"], ["closeDate", "close_date"]] as const) {
+          if (data[key] == null) continue;
+          const raw = String(data[key]).trim();
+          if (!raw) { patch[col] = null; continue; }
+          const parsed = parseIdDate(raw);
+          if (!parsed) return errorResponse(`Format tanggal "${raw}" nggak dikenali. Coba format "11 Juli 2026" atau "2026-07-11".`);
+          patch[col] = parsed;
+        }
         if (!Object.keys(patch).length) return errorResponse("Nggak ada yang diubah.");
         const { error } = await admin.from("batches").update(patch).eq("id", batchId);
         if (error) return errorResponse("Gagal menyimpan perubahan: " + error.message);

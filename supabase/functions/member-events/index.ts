@@ -24,10 +24,13 @@ Deno.serve(async (req) => {
       .eq("wa", key)
       .in("batch_id", activeBatches.map((b) => b.id));
 
-    const activeByType: Record<string, string> = {};
-    for (const b of activeBatches) activeByType[b.workshop_type] = b.id;
+    // Bisa ada LEBIH DARI 1 batch aktif per tipe sekarang (mis. Vol 6 & Vol 7
+    // buka bareng) -- dianggap "udah daftar" kalau dia kedaftar di SALAH SATU
+    // dari batch-batch aktif tipe itu, bukan cuma yang terakhir di-iterasi.
+    const activeByType: Record<string, Set<string>> = {};
+    for (const b of activeBatches) (activeByType[b.workshop_type] ||= new Set()).add(b.id);
     for (const r of regs || []) {
-      if (r.batch_id === activeByType[r.workshop_type]) registered[r.workshop_type] = true;
+      if (activeByType[r.workshop_type]?.has(r.batch_id)) registered[r.workshop_type] = true;
     }
 
     return jsonResponse({ registered });

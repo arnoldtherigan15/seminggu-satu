@@ -69,52 +69,77 @@ function fnGet(name, qs, timeoutMs) {
       .catch(err => { clearTimeout(timer); throw err; });
 }
 
-// ---------- Config sesi (dari server, via workshop-config.js) ----------
-function applyConfig() {
-    const w = (typeof getWorkshopById === "function") ? getWorkshopById(ID) : null;
-    if (!w) return; // config belum ada -> biarin default
+// ---------- Sesi/batch yang lagi buka (bisa lebih dari 1 barengan) ----------
+// Ganti applyConfig()+refreshSlot() lama yang baca Config doang (1 nilai per
+// tipe workshop) -- sekarang ambil dari workshop-batches, yang udah gabungin
+// data batch (override) sama Config server-side, per SESI yang beneran buka.
+let _openBatches = [];
+let _selectedBatchId = null;
+
+async function loadOpenBatches() {
     _configApplied = true;
-
-    // Kalau di-set tutup dari config -> tampilkan closed
-    if (typeof getWorkshopStatus === "function") {
-        const st = getWorkshopStatus(w);
-        if (st !== "open") {
-            document.getElementById("gateSection").style.display = "none";
-            document.getElementById("formSection").style.display = "none";
-            document.getElementById("closedSection").style.display = "block";
-            return;
-        }
+    let all;
+    try {
+        all = await fnGet("workshop-batches", "", 10000);
+    } catch (e) {
+        // Gagal cek -- fail-open (server tetap validasi ulang saat submit,
+        // dan submit tanpa batchId eksplisit otomatis kepilih server kalau
+        // cuma 1 sesi yang buka).
+        const el = document.getElementById("jdSlotText");
+        if (el) el.textContent = "Slot terbatas (" + MAX_SLOT + " orang)";
+        return;
     }
-    // Isi detail sesi (kalau form udah kebuka)
-    const dt = document.getElementById("jdDate"); if (dt) dt.textContent = w.workshopDate || "-";
-    const tm = document.getElementById("jdTime"); if (tm) tm.textContent = w.workshopTime || "-";
-    const ln = document.getElementById("jdLoc");
-    if (ln) { ln.textContent = w.locationName || "-"; if (w.mapsLink) ln.href = w.mapsLink; }
+    _openBatches = (all && all[ID]) || [];
+    if (!_openBatches.length) {
+        document.getElementById("gateSection").style.display = "none";
+        document.getElementById("formSection").style.display = "none";
+        document.getElementById("closedSection").style.display = "block";
+        return;
+    }
+    if (!_selectedBatchId || !_openBatches.find(b => b.id === _selectedBatchId)) {
+        _selectedBatchId = _openBatches[0].id;
+    }
+    renderBatchPicker();
+    applyBatchSelection();
 }
-applyConfig();
-window.addEventListener("workshops:updated", applyConfig);
+loadOpenBatches();
+window.addEventListener("workshops:updated", loadOpenBatches);
 
-// ---------- Slot / kuota ----------
-async function refreshSlot() {
+function renderBatchPicker() {
+    const box = document.getElementById("jdBatchPicker");
+    if (!box) return;
+    if (_openBatches.length < 2) { box.style.display = "none"; box.innerHTML = ""; return; }
+    box.style.display = "block";
+    box.innerHTML = `<p style="font-size:0.85rem;font-weight:600;margin:0 0 8px;">Pilih sesi:</p>` +
+        _openBatches.map(b => `
+        <div class="jd-batch-opt" data-batch="${b.id}" style="border:2px solid ${b.id === _selectedBatchId ? "var(--brand,#5e72e4)" : "#e5e7eb"};border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;">
+            <div style="font-weight:700;">${b.label || "Sesi"}</div>
+            <div style="font-size:0.82rem;color:#6b7280;">${b.displayDate || "-"}${b.workshopTime ? " · " + b.workshopTime : ""} — sisa ${b.remaining == null ? "?" : b.remaining} slot</div>
+        </div>`).join("");
+    box.querySelectorAll("[data-batch]").forEach(el => el.addEventListener("click", () => {
+        _selectedBatchId = el.dataset.batch;
+        renderBatchPicker();
+        applyBatchSelection();
+    }));
+}
+
+function applyBatchSelection() {
+    const b = _openBatches.find(x => x.id === _selectedBatchId);
+    const dt = document.getElementById("jdDate"); if (dt) dt.textContent = (b && b.displayDate) || "-";
+    const tm = document.getElementById("jdTime"); if (tm) tm.textContent = (b && b.workshopTime) || "-";
+    const ln = document.getElementById("jdLoc");
+    if (ln) { ln.textContent = (b && b.locationName) || "-"; if (b && b.mapsLink) ln.href = b.mapsLink; }
     const el = document.getElementById("jdSlotText");
     const sub = document.getElementById("submitBtn");
-    try {
-        const counts = await fnGet("workshop-counts", "", 10000);
-        const w = (typeof getWorkshopById === "function") ? getWorkshopById(ID) : null;
-        const max = (w && w.maxQuota) ? w.maxQuota : MAX_SLOT;
-        const used = (counts && counts[ID]) || 0;
-        const left = Math.max(0, max - used);
-        if (left <= 0) {
+    if (b && el && sub) {
+        const left = b.remaining;
+        if (left != null && left <= 0) {
             el.textContent = "Slot penuh 😢";
             sub.disabled = true; sub.innerHTML = "Slot Penuh";
         } else {
-            el.textContent = "Sisa " + left + " slot";
+            el.textContent = left == null ? "Slot terbatas" : ("Sisa " + left + " slot");
             sub.disabled = false;
         }
-    } catch (e) {
-        // Gagal cek: fail-open (server tetap validasi ulang saat submit)
-        el.textContent = "Slot terbatas (" + MAX_SLOT + " orang)";
-        sub.disabled = false;
     }
 }
 
@@ -140,10 +165,10 @@ async function checkMember() {
             document.getElementById("formSection").style.display = "block";
             document.getElementById("greetName").textContent = "Hai, " + _member.nickname + "! 👋";
             document.getElementById("submitBtn").disabled = true; // kunci sampai tiket dicek
-            applyConfig();
-            // Cek tiket dengan blocker biar user nggak submit duluan
+            // Cek tiket dengan blocker biar user nggak submit duluan -- fetch
+            // ulang biar sisa slot & daftar sesi buka paling fresh pas mau daftar.
             showBlocker("Mengecek tiket…");
-            await refreshSlot();
+            await loadOpenBatches();
         } else {
             msg.className = "jd-msg err";
             msg.innerHTML = "Nomor ini belum terdaftar sebagai member 🌱<br>Journaling Date khusus alumni event. Yuk ikut salah satu event kami dulu!";
@@ -211,6 +236,7 @@ document.getElementById("jdForm").addEventListener("submit", async (e) => {
 
     const payload = {
         workshopType: ID,
+        batchId: _selectedBatchId || "",
         whatsapp: _member.wa,
         nickname: _member.nickname,
         photo1Base64: document.getElementById("photo1Base64").value || "",

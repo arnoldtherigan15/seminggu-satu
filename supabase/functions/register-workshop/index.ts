@@ -7,6 +7,8 @@ import { corsHeaders, jsonResponse, errorResponse, handleOptions } from "../_sha
 import { uploadBase64 } from "../_shared/storage.ts";
 import { waKey } from "../_shared/auth.ts";
 import { notifyRegistration } from "../_shared/telegram.ts";
+import { getConfigValue } from "../_shared/config.ts";
+import { mergeBatchConfig } from "../_shared/batch-merge.ts";
 
 const WORKSHOP_LABELS: Record<string, string> = {
   "3d-frame-journaling": "3D Frame Journaling",
@@ -32,13 +34,57 @@ Deno.serve(async (req) => {
 
     const admin = supabaseAdmin();
 
-    // Batch aktif buat workshop ini (ganti getActiveSheetName)
-    const { data: batch } = await admin
-      .from("batches")
-      .select("id")
-      .eq("workshop_type", workshopType)
-      .eq("active", true)
-      .maybeSingle();
+    // Batch buat workshop ini (ganti getActiveSheetName). Sekarang bisa ada
+    // LEBIH DARI 1 batch `active=true` bersamaan (mis. Vol 6 & Vol 7 buka
+    // bareng) -- kalau klien udah tau mau daftar ke batch yang mana, kirim
+    // batchId eksplisit. Kalau nggak (halaman lama yang belum di-update),
+    // fallback ke cara lama: cuma jalan kalau PERSIS 1 batch yang lagi buka.
+    const batchIdParam = String(data.batchId || "").trim();
+    let batch: Record<string, unknown> | null = null;
+    if (batchIdParam) {
+      const { data: b } = await admin
+        .from("batches")
+        .select("*")
+        .eq("id", batchIdParam)
+        .eq("workshop_type", workshopType)
+        .eq("active", true)
+        .maybeSingle();
+      if (!b) return errorResponse("Sesi ini udah nggak buka, refresh halaman ya.");
+      batch = b;
+    } else {
+      const { data: rows } = await admin
+        .from("batches")
+        .select("*")
+        .eq("workshop_type", workshopType)
+        .eq("active", true)
+        .limit(2);
+      if (!rows || rows.length === 0) batch = null;
+      else if (rows.length === 1) batch = rows[0];
+      else return errorResponse("Workshop ini punya beberapa sesi terbuka, pilih salah satu dulu ya.");
+    }
+
+    // Cek kuota generik per-batch -- berlaku ke SEMUA tipe workshop (dulu
+    // cuma journaling-date yang divalidasi server-side, tipe lain cuma
+    // dicek di UI doang). Kuota efektif = override batch kalau diisi, else
+    // Config tipe workshop. Kosong/0 di dua-duanya = dianggap tanpa batas
+    // (biar workshop yang emang belum pernah diisi kuotanya nggak ketutup).
+    if (batch) {
+      let typeConfig: Record<string, unknown> = {};
+      try {
+        const rows = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]");
+        typeConfig = (Array.isArray(rows) ? rows : []).find((w: { id?: string }) => w?.id === workshopType) || {};
+      } catch (_e) { /* abaikan, kuota dianggap tanpa batas */ }
+      const merged = mergeBatchConfig(batch, typeConfig);
+      if (merged.maxQuota > 0) {
+        const { count } = await admin
+          .from("registrations")
+          .select("id", { count: "exact", head: true })
+          .eq("batch_id", batch.id as string);
+        if ((count ?? 0) >= merged.maxQuota) {
+          return errorResponse(`Maaf, slot sesi ini udah penuh (max ${merged.maxQuota} orang) 😢`);
+        }
+      }
+    }
 
     let extra: Record<string, unknown> = {};
     let fullName = "";
@@ -62,24 +108,16 @@ Deno.serve(async (req) => {
         return errorResponse("Nomor ini belum terdaftar sebagai warga. Yuk ikut salah satu event kami dulu ya ✨");
       }
 
-      // Cegah dobel daftar di sesi/batch yang sama
+      // Cegah dobel daftar di sesi/batch yang sama (cek kuota generik udah
+      // dilakuin di atas, sebelum percabangan tipe workshop ini)
       if (batch) {
         const { data: dup } = await admin
           .from("registrations")
           .select("id")
-          .eq("batch_id", batch.id)
+          .eq("batch_id", batch.id as string)
           .eq("wa", key)
           .maybeSingle();
         if (dup) return errorResponse("Kamu udah kedaftar di sesi ini kok 😊 Sampai ketemu ya!");
-
-        const { count } = await admin
-          .from("registrations")
-          .select("id", { count: "exact", head: true })
-          .eq("batch_id", batch.id);
-        const MAX_JD = 6;
-        if ((count ?? 0) >= MAX_JD) {
-          return errorResponse(`Maaf, slot sesi ini udah penuh (max ${MAX_JD} orang) 😢`);
-        }
       }
 
       nickname = String(data.nickname || "Sahabat");

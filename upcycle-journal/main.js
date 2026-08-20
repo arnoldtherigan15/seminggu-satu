@@ -30,48 +30,82 @@
     if (link) link.href = "../warga/";
 })();
 
-// --- Dynamic Early Bird Pricing ---
-// Config = sumber tunggal dari server (cache/live). Bisa null di kunjungan pertama
-// (cache kosong) -> jangan crash; placeholder "Memuat..." + listener 'workshops:updated'.
-let _workshopData = getWorkshopById("upcycle-journal");
-let _isEarlyBird = _workshopData ? isEarlyBird(_workshopData) : false;
-let _currentPrice = _workshopData ? getCurrentPrice(_workshopData) : 0;
+// --- Sesi/batch yang lagi buka + harga (bisa beda per batch) ---
+// Ganti logic lama yang baca Config doang (getWorkshopById, 1 nilai per tipe)
+// -- sekarang ambil dari workshop-batches, override batch > Config udah
+// digabung server-side, per SESI yang beneran buka (bisa 2+ barengan).
+// Warna bag yang udah abis (takenBags) juga di-scope per batch sekarang --
+// stok fisik itu punya 1 sesi, bukan digabung semua sesi.
+let _workshopData = getWorkshopById("upcycle-journal"); // fallback rekening bank dkk (tetap type-level)
+let _openBatches = [];
+let _selectedBatchId = null;
+let _isEarlyBird = false;
+let _currentPrice = 0;
 
-// Update price display in hero
 const discountPriceEl = document.getElementById('discountPriceEl');
 const currentPriceEl = document.getElementById('currentPriceEl');
 const paymentAmountEl = document.getElementById('paymentAmount');
 const earlyBirdInfoEl = document.getElementById('earlyBirdInfo');
 const earlyBirdTextEl = document.getElementById('earlyBirdText');
 
-if (_workshopData) {
+function getSelectedBatch() { return _openBatches.find(function (b) { return b.id === _selectedBatchId; }) || null; }
+
+function renderBatchPicker() {
+    const box = document.getElementById('batchPicker');
+    if (!box) return;
+    if (_openBatches.length < 2) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    box.style.display = 'block';
+    box.innerHTML = '<p style="font-size:0.85rem;font-weight:600;margin:0 0 8px;">Pilih sesi:</p>' +
+        _openBatches.map(function (b) {
+            return '<div class="batch-opt" data-batch="' + b.id + '" style="border:2px solid ' + (b.id === _selectedBatchId ? 'var(--brand,#5e72e4)' : '#e5e7eb') + ';border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;">' +
+                '<div style="font-weight:700;">' + (b.label || 'Sesi') + '</div>' +
+                '<div style="font-size:0.82rem;color:#6b7280;">' + (b.displayDate || '-') + (b.workshopTime ? ' · ' + b.workshopTime : '') + ' — sisa ' + (b.remaining == null ? '?' : b.remaining) + ' slot</div></div>';
+        }).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('[data-batch]'), function (el) {
+        el.addEventListener('click', function () {
+            _selectedBatchId = el.dataset.batch;
+            renderBatchPicker();
+            applyBatchDisplay();
+        });
+    });
+}
+
+function applyBatchDisplay() {
+    const b = getSelectedBatch();
+    if (!b) return;
+    _isEarlyBird = b.earlyBirdPrice != null && b.currentPrice < b.normalPrice;
+    _currentPrice = b.currentPrice || 0;
     if (_isEarlyBird) {
-        discountPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
+        discountPriceEl.textContent = formatRupiah(b.normalPrice);
         discountPriceEl.style.display = '';
-        currentPriceEl.textContent = formatRupiah(_workshopData.earlyBirdPrice);
+        currentPriceEl.textContent = formatRupiah(b.earlyBirdPrice);
         currentPriceEl.className = 'new-price';
         earlyBirdInfoEl.style.display = 'flex';
-        earlyBirdTextEl.textContent = `Harga Early Bird sampai ${formatDateIndo(_workshopData.earlyBirdDueDate)}`;
+        earlyBirdTextEl.textContent = `Harga Early Bird sampai ${formatDateIndo(b.earlyBirdDueDate)}`;
     } else {
         discountPriceEl.style.display = 'none';
-        currentPriceEl.textContent = formatRupiah(_workshopData.normalPrice);
+        currentPriceEl.textContent = formatRupiah(b.normalPrice);
         currentPriceEl.className = 'new-price';
         currentPriceEl.style.color = 'var(--text-primary)';
     }
-
     paymentAmountEl.textContent = formatRupiah(_currentPrice);
 
-    // --- Populate Dynamic Workshop Info ---
-    document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
-    document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
-    document.getElementById('locationNameText').textContent = _workshopData.locationName;
-    document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
-    // Rekening pembayaran -- bisa di-config per workshop dari admin (kerja
-    // sama pihak ketiga, bayar ke rekening mereka bukan Arnold). Fallback ke
-    // rekening default kalau workshop-nya belum di-set (config lama).
-    document.getElementById('bankNameText').textContent = _workshopData.bankName || 'BCA';
-    document.getElementById('accountNumber').textContent = _workshopData.bankAccountNumber || '6042825961';
-    document.getElementById('bankOwnerText').textContent = 'a.n ' + (_workshopData.bankAccountHolder || 'Arnold Therigan');
+    document.getElementById('workshopDateText').textContent = b.displayDate || '';
+    document.getElementById('workshopTimeText').textContent = b.workshopTime || '';
+    document.getElementById('locationNameText').textContent = b.locationName || '';
+    if (b.mapsLink) document.getElementById('locationMapsLink').href = b.mapsLink;
+    // Rekening pembayaran -- tetap type-level (kerja sama pihak ketiga bisa
+    // beda rekening per WORKSHOP, tapi ga masuk akal beda per batch/sesi).
+    const w = _workshopData;
+    document.getElementById('bankNameText').textContent = (w && w.bankName) || 'BCA';
+    document.getElementById('accountNumber').textContent = (w && w.bankAccountNumber) || '6042825961';
+    document.getElementById('bankOwnerText').textContent = 'a.n ' + ((w && w.bankAccountHolder) || 'Arnold Therigan');
+
+    // Warna bag yang udah abis -- khusus sesi ini
+    takenBags = b.takenBags || [];
+    renderBagSliders();
+    renderStrapColors();
+    if (window.lucide) lucide.createIcons();
 }
 
 // ============================================================
@@ -188,52 +222,36 @@ function hideBlockerLoader() {
     if (blocker) blocker.classList.remove('visible');
 }
 
-// --- Helper: cek kuota + stok bag (Edge Function workshop-counts) ---
-function fetchWorkshopCounts(timeoutMs) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
-    return fetch(`${SUPABASE_URL}/functions/v1/workshop-counts`, {
-        headers: { apikey: SUPABASE_ANON_KEY },
-        signal: controller.signal
-    }).then(res => { clearTimeout(timer); return res.json(); })
-      .catch(err => { clearTimeout(timer); throw err; });
-}
-
-async function checkStock() {
+// Ambil daftar sesi yang lagi buka + stok bag masing-masing -- ganti
+// checkStock()/fetchWorkshopCounts() lama. Dipanggil pas load & pas config
+// server ke-refresh ('workshops:updated').
+async function loadOpenBatches() {
     showBlockerLoader('Mengecek ketersediaan stok bag...');
-    // Coba beberapa kali — Apps Script kadang lambat/dingin. Timeout per percobaan 9 dtk.
-    let result = null;
-    for (let attempt = 1; attempt <= 2 && !result; attempt++) {
-        try {
-            result = await fetchWorkshopCounts(8000);
-        } catch (err) {
-            console.error(`Cek stok gagal (percobaan ${attempt}/2):`, err);
-        }
-    }
     try {
-        if (result) {
-            const currentCount = result['upcycle-journal'] || 0;
-            const maxQuota = _workshopData.maxQuota || 12;
-            const sisa = Math.max(0, maxQuota - currentCount);
-
-            // Bag yang sudah terjual (dari spreadsheet)
-            takenBags = result.takenBags || [];
-
-            if (sisa <= 0) {
-                window.location.replace('../closed.html?workshop=' + _workshopData.id + '&reason=sold-out');
-                return;
-            }
-            urgencyBadge.classList.add('show');
-            urgencyText.textContent = `Sisa ${sisa} Tiket!`;
-        }
-        // Semua percobaan gagal: tetap tampilkan halaman (takenBags kosong);
-        // ketersediaan & bag divalidasi ulang di server saat submit.
-        renderBagSliders();
-        renderStrapColors();
-        lucide.createIcons();
-    } finally {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10000);
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/workshop-batches`, { headers: { apikey: SUPABASE_ANON_KEY }, signal: controller.signal });
+        clearTimeout(timer);
+        const all = await res.json();
+        _openBatches = (all && all['upcycle-journal']) || [];
+    } catch (err) {
+        console.error('Cek sesi gagal:', err);
         hideBlockerLoader();
+        return; // fail-open -- server tetap validasi ulang pas submit
     }
+    hideBlockerLoader();
+    if (!_openBatches.length) {
+        window.location.replace('../closed.html?workshop=upcycle-journal&reason=sold-out');
+        return;
+    }
+    if (!_selectedBatchId || !_openBatches.find(function (b) { return b.id === _selectedBatchId; })) {
+        _selectedBatchId = _openBatches[0].id;
+    }
+    renderBatchPicker();
+    applyBatchDisplay(); // ini juga yang manggil renderBagSliders/renderStrapColors
+    urgencyBadge.classList.add('show');
+    const left = getSelectedBatch().remaining;
+    urgencyText.textContent = left == null ? 'Tiket tersedia' : `Sisa ${left} Tiket!`;
 }
 
 // --- Initialize Bag Sliders ---
@@ -553,6 +571,7 @@ if (form) {
         const formData = new FormData(form);
         const payload = Object.fromEntries(formData.entries());
         payload.workshopType = 'upcycle-journal';
+        payload.batchId = _selectedBatchId || '';
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000);
@@ -617,52 +636,14 @@ function showToast(msg) {
     }
 }
 
-// Cek stok HANYA kalau config udah ada (butuh maxQuota & id). Kalau belum,
-// dijalanin nanti pas config live masuk (lihat listener 'workshops:updated').
-let _stockChecked = false;
-function runStockWhenReady() {
-    if (_stockChecked || !_workshopData) return;
-    _stockChecked = true;
-    checkStock();
-}
-runStockWhenReady();
+loadOpenBatches();
 setupImageUpload('charmPhoto', 'charmUploadArea', 'charmPreview', 'charmBase64', 'charmMimeType');
 setupImageUpload('paymentPhoto', 'paymentUploadArea', 'paymentPreview', 'paymentBase64', 'paymentMimeType');
 
-
 // ============================================================
-//  AUTO-UPDATE saat config server datang (biar harga/tanggal SELALU terbaru,
-//  nggak pernah nampilin cache/statis lama). Aman: pakai guard if(el).
+//  AUTO-UPDATE saat config server datang (biar harga/tanggal SELALU terbaru).
 // ============================================================
 window.addEventListener('workshops:updated', function () {
-    try {
-        var w = getWorkshopById("upcycle-journal"); if (!w) return;
-        var eb = (typeof isEarlyBird === 'function') && isEarlyBird(w);
-        var cur = getCurrentPrice(w);
-        _workshopData = w; _isEarlyBird = eb; _currentPrice = cur;   // simpan buat checkStock & submit
-        var dEl = document.getElementById('discountPriceEl');
-        var cEl = document.getElementById('currentPriceEl');
-        var pEl = document.getElementById('paymentAmount');
-        var ebInfo = document.getElementById('earlyBirdInfo');
-        var ebTxt = document.getElementById('earlyBirdText');
-        if (eb) {
-            if (dEl) { dEl.textContent = formatRupiah(w.normalPrice); dEl.style.display = ''; }
-            if (cEl) { cEl.textContent = formatRupiah(w.earlyBirdPrice); cEl.className = 'new-price'; }
-            if (ebInfo) ebInfo.style.display = 'flex';
-            if (ebTxt) ebTxt.textContent = 'Harga Early Bird sampai ' + formatDateIndo(w.earlyBirdDueDate);
-        } else {
-            if (dEl) dEl.style.display = 'none';
-            if (cEl) { cEl.textContent = formatRupiah(w.normalPrice); cEl.className = 'new-price'; cEl.style.color = 'var(--text-primary)'; }
-            if (ebInfo) ebInfo.style.display = 'none';
-        }
-        if (pEl) pEl.textContent = formatRupiah(cur);
-        var dt = document.getElementById('workshopDateText'); if (dt) dt.textContent = w.workshopDate || '';
-        var tm = document.getElementById('workshopTimeText'); if (tm) tm.textContent = w.workshopTime || '';
-        var ln = document.getElementById('locationNameText'); if (ln) ln.textContent = w.locationName || '';
-        var ml = document.getElementById('locationMapsLink'); if (ml && w.mapsLink) ml.href = w.mapsLink;
-        var bn = document.getElementById('bankNameText'); if (bn) bn.textContent = w.bankName || 'BCA';
-        var an = document.getElementById('accountNumber'); if (an) an.textContent = w.bankAccountNumber || '6042825961';
-        var bo = document.getElementById('bankOwnerText'); if (bo) bo.textContent = 'a.n ' + (w.bankAccountHolder || 'Arnold Therigan');
-        runStockWhenReady();   // config baru siap -> cek stok kalau belum
-    } catch (e) { /* jangan ganggu halaman */ }
+    _workshopData = getWorkshopById('upcycle-journal');
+    loadOpenBatches();
 });

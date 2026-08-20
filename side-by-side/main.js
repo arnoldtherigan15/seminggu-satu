@@ -30,21 +30,44 @@
     if (link) link.href = "../warga/";
 })();
 
-// Config = sumber tunggal dari server (cache/live). Bisa null di kunjungan pertama
-// (cache kosong) -> jangan crash; placeholder "Memuat..." + listener 'workshops:updated'.
-let _workshopData = getWorkshopById("side-by-side");
+// --- Sesi/batch yang lagi buka + harga (bisa beda per batch) ---
+// Ganti logic lama yang baca Config doang (getWorkshopById, 1 nilai per tipe)
+// -- sekarang ambil dari workshop-batches, override batch > Config udah
+// digabung server-side, per SESI yang beneran buka (bisa 2+ barengan).
+// Beda dari workshop lain: early bird di sini bisa DIBATASI JUMLAH
+// (earlyBirdMaxCount, mis. cuma 3 pendaftar pertama) -- harga efektifnya
+// (currentPrice) UDAH dihitung server pakai count batch itu, jadi nggak
+// perlu nunggu/hitung ulang count di sini kayak dulu.
+let _workshopData = getWorkshopById("side-by-side"); // fallback rekening bank & isPrintPhoto (tetap type-level)
+let _openBatches = [];
+let _selectedBatchId = null;
 
-// Beda dari workshop lain: early bird di sini bisa DIBATASI JUMLAH (earlyBirdMaxCount,
-// mis. cuma 3 pendaftar pertama), bukan cuma tanggal. Jadi harga BARU final setelah
-// kita tau jumlah pendaftar saat ini (dari workshop-counts) -- makanya harga
-// nggak ditampilin optimis di awal kayak workshop lain, nunggu checkQuota() dulu.
-let _lastCount = null;
+function getSelectedBatch() { return _openBatches.find(function (b) { return b.id === _selectedBatchId; }) || null; }
+
+function renderBatchPicker() {
+    const box = document.getElementById('batchPicker');
+    if (!box) return;
+    if (_openBatches.length < 2) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    box.style.display = 'block';
+    box.innerHTML = '<p style="font-size:0.85rem;font-weight:600;margin:0 0 8px;">Pilih sesi:</p>' +
+        _openBatches.map(function (b) {
+            return '<div class="batch-opt" data-batch="' + b.id + '" style="border:2px solid ' + (b.id === _selectedBatchId ? 'var(--brand,#5e72e4)' : '#e5e7eb') + ';border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;">' +
+                '<div style="font-weight:700;">' + (b.label || 'Sesi') + '</div>' +
+                '<div style="font-size:0.82rem;color:#6b7280;">' + (b.displayDate || '-') + (b.workshopTime ? ' · ' + b.workshopTime : '') + ' — sisa ' + (b.remaining == null ? '?' : b.remaining) + ' slot</div></div>';
+        }).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('[data-batch]'), function (el) {
+        el.addEventListener('click', function () {
+            _selectedBatchId = el.dataset.batch;
+            renderBatchPicker();
+            applyBatchDisplay();
+        });
+    });
+}
 
 function updatePriceDisplay() {
-    const w = _workshopData;
-    if (!w) return;
-    const cur = getCurrentPrice(w, _lastCount);
-    const eb = isEarlyBird(w, _lastCount) && w.normalPrice > cur;
+    const b = getSelectedBatch();
+    if (!b) return;
+    const eb = b.earlyBirdPrice != null && b.currentPrice < b.normalPrice;
 
     const dEl = document.getElementById('discountPriceEl');
     const cEl = document.getElementById('currentPriceEl');
@@ -53,28 +76,26 @@ function updatePriceDisplay() {
     const ebTxt = document.getElementById('earlyBirdText');
 
     if (eb) {
-        if (dEl) { dEl.textContent = formatRupiah(w.normalPrice); dEl.style.display = ''; }
-        if (cEl) { cEl.textContent = formatRupiah(w.earlyBirdPrice); cEl.className = 'new-price'; }
+        if (dEl) { dEl.textContent = formatRupiah(b.normalPrice); dEl.style.display = ''; }
+        if (cEl) { cEl.textContent = formatRupiah(b.earlyBirdPrice); cEl.className = 'new-price'; }
         if (ebInfo) ebInfo.style.display = 'flex';
         if (ebTxt) {
             const bits = [];
             let counterHtml = '';
-            if (w.earlyBirdMaxCount) {
-                bits.push(`cuma buat ${w.earlyBirdMaxCount} pendaftar pertama`);
-                if (typeof _lastCount === 'number') {
-                    const left = Math.max(0, w.earlyBirdMaxCount - _lastCount);
-                    counterHtml = ' <span class="eb-counter">' + (left > 0 ? left + ' tiket lagi!' : 'tiket terakhir!') + '</span>';
-                }
+            if (b.earlyBirdMaxCount) {
+                bits.push(`cuma buat ${b.earlyBirdMaxCount} pendaftar pertama`);
+                const left = Math.max(0, b.earlyBirdMaxCount - b.count);
+                counterHtml = ' <span class="eb-counter">' + (left > 0 ? left + ' tiket lagi!' : 'tiket terakhir!') + '</span>';
             }
-            if (w.earlyBirdDueDate) bits.push(`sampai ${formatDateIndo(w.earlyBirdDueDate)}`);
+            if (b.earlyBirdDueDate) bits.push(`sampai ${formatDateIndo(b.earlyBirdDueDate)}`);
             ebTxt.innerHTML = 'Harga Early Bird — ' + (bits.join(', ') || 'terbatas') + counterHtml;
         }
     } else {
         if (dEl) dEl.style.display = 'none';
-        if (cEl) { cEl.textContent = formatRupiah(w.normalPrice); cEl.className = 'new-price'; }
+        if (cEl) { cEl.textContent = formatRupiah(b.normalPrice); cEl.className = 'new-price'; }
         if (ebInfo) ebInfo.style.display = 'none';
     }
-    if (pEl) pEl.textContent = formatRupiah(cur);
+    if (pEl) pEl.textContent = formatRupiah(b.currentPrice);
 }
 
 // Nampilin/kunci section foto berdasarkan config -- dipanggil di load AWAL *dan* tiap
@@ -91,24 +112,22 @@ function applyPrintPhotoConfig(w) {
         if (el) el.required = true;
     });
 }
+applyPrintPhotoConfig(_workshopData);
 
-if (_workshopData) {
-    document.getElementById('workshopDateText').textContent = _workshopData.workshopDate;
-    document.getElementById('workshopTimeText').textContent = _workshopData.workshopTime;
-    document.getElementById('locationNameText').textContent = _workshopData.locationName;
-    document.getElementById('locationMapsLink').href = _workshopData.mapsLink;
-    // Rekening pembayaran -- bisa di-config per workshop dari admin (kerja
-    // sama pihak ketiga, bayar ke rekening mereka bukan Arnold). Fallback ke
-    // rekening default kalau workshop-nya belum di-set (config lama).
-    document.getElementById('bankNameText').textContent = _workshopData.bankName || 'BCA';
-    document.getElementById('accountNumber').textContent = _workshopData.bankAccountNumber || '6042825961';
-    document.getElementById('bankOwnerText').textContent = 'a.n ' + (_workshopData.bankAccountHolder || 'Arnold Therigan');
-
-    applyPrintPhotoConfig(_workshopData);
-    // Harga final nunggu checkQuota() (butuh count buat earlyBirdMaxCount) --
-    // tapi kalau workshop ini nggak pake earlyBirdMaxCount, tampilin langsung
-    // biar nggak nunggu-nunggu tanpa alasan.
-    if (!_workshopData.earlyBirdMaxCount) updatePriceDisplay();
+function applyBatchDisplay() {
+    const b = getSelectedBatch();
+    if (!b) return;
+    document.getElementById('workshopDateText').textContent = b.displayDate || '';
+    document.getElementById('workshopTimeText').textContent = b.workshopTime || '';
+    document.getElementById('locationNameText').textContent = b.locationName || '';
+    if (b.mapsLink) document.getElementById('locationMapsLink').href = b.mapsLink;
+    // Rekening pembayaran -- tetap type-level (kerja sama pihak ketiga bisa
+    // beda rekening per WORKSHOP, tapi ga masuk akal beda per batch/sesi).
+    const w = _workshopData;
+    document.getElementById('bankNameText').textContent = (w && w.bankName) || 'BCA';
+    document.getElementById('accountNumber').textContent = (w && w.bankAccountNumber) || '6042825961';
+    document.getElementById('bankOwnerText').textContent = 'a.n ' + ((w && w.bankAccountHolder) || 'Arnold Therigan');
+    updatePriceDisplay();
 }
 
 // DOM Elements
@@ -129,64 +148,38 @@ function hideBlockerLoader() {
     if (blocker) blocker.classList.remove('visible');
 }
 
-// --- Helper: cek kuota tiap workshop (Edge Function workshop-counts) ---
-function fetchWorkshopCounts(timeoutMs) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
-    return fetch(`${SUPABASE_URL}/functions/v1/workshop-counts`, {
-        headers: { apikey: SUPABASE_ANON_KEY },
-        signal: controller.signal
-    }).then(res => { clearTimeout(timer); return res.json(); })
-      .catch(err => { clearTimeout(timer); throw err; });
-}
-
-async function checkQuota() {
+// Ambil daftar sesi yang lagi buka -- ganti checkQuota()/fetchWorkshopCounts()
+// lama (yang cuma baca total per TIPE). Dipanggil pas load & pas config
+// server ke-refresh ('workshops:updated').
+async function loadOpenBatches() {
     showBlockerLoader('Mengecek ketersediaan tiket...');
-    // Coba beberapa kali — Apps Script kadang lambat/dingin. Timeout per percobaan 9 dtk.
-    let counts = null;
-    for (let attempt = 1; attempt <= 2 && !counts; attempt++) {
-        try {
-            counts = await fetchWorkshopCounts(8000);
-        } catch (err) {
-            console.error(`Cek kuota gagal (percobaan ${attempt}/2):`, err);
-        }
-    }
     try {
-        if (counts) {
-            const currentCount = counts['side-by-side'] || 0;
-            _lastCount = currentCount;
-            updatePriceDisplay();
-
-            const maxQuota = _workshopData.maxQuota || 15;
-            const sisa = Math.max(0, maxQuota - currentCount);
-
-            if (sisa <= 0) {
-                // Blokir penuh — redirect ke closed.html, user tidak bisa lihat/scroll halaman
-                window.location.replace('../closed.html?workshop=' + _workshopData.id + '&reason=sold-out');
-                return;
-            }
-            urgencyBadge.classList.add('show');
-            urgencyText.textContent = `Sisa ${sisa} Tiket!`;
-        }
-        // Kalau semua percobaan gagal (counts null): halaman tetap jalan, TAPI kuota
-        // divalidasi ulang di server saat submit (handlePreSubmit) — jadi tetap aman.
-        // Harga tetap tampil (fallback ke harga normal) biar nggak nge-block form selamanya.
-        else if (_workshopData.earlyBirdMaxCount) {
-            updatePriceDisplay();
-        }
-    } finally {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10000);
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/workshop-batches`, { headers: { apikey: SUPABASE_ANON_KEY }, signal: controller.signal });
+        clearTimeout(timer);
+        const all = await res.json();
+        _openBatches = (all && all['side-by-side']) || [];
+    } catch (err) {
+        console.error('Cek sesi gagal:', err);
         hideBlockerLoader();
+        return; // fail-open -- server tetap validasi ulang pas submit
     }
+    hideBlockerLoader();
+    if (!_openBatches.length) {
+        window.location.replace('../closed.html?workshop=side-by-side&reason=sold-out');
+        return;
+    }
+    if (!_selectedBatchId || !_openBatches.find(function (b) { return b.id === _selectedBatchId; })) {
+        _selectedBatchId = _openBatches[0].id;
+    }
+    renderBatchPicker();
+    applyBatchDisplay();
+    urgencyBadge.classList.add('show');
+    const left = getSelectedBatch().remaining;
+    urgencyText.textContent = left == null ? 'Tiket tersedia' : `Sisa ${left} Tiket!`;
 }
-// Cek kuota HANYA kalau config udah ada (butuh maxQuota & id). Kalau belum,
-// dijalanin nanti pas config live masuk (lihat listener 'workshops:updated').
-let _quotaChecked = false;
-function runQuotaWhenReady() {
-    if (_quotaChecked || !_workshopData) return;
-    _quotaChecked = true;
-    checkQuota();
-}
-runQuotaWhenReady();
+loadOpenBatches();
 
 // --- Image Compression ---
 function compressImage(file, maxSize, quality) {
@@ -425,15 +418,14 @@ form.addEventListener('submit', async (e) => {
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
     payload.workshopType = 'side-by-side';
+    payload.batchId = _selectedBatchId || '';
     payload.isPrintPhoto = _workshopData.isPrintPhoto;
 
-    // Double check quota before submitting
+    // Double check quota before submitting (sesi yang DIPILIH)
     try {
-        const counts = await fetchWorkshopCounts();
-        const currentCount = counts['side-by-side'] || 0;
-        const maxQuota = _workshopData.maxQuota || 15;
-
-        if (currentCount >= maxQuota) {
+        await loadOpenBatches();
+        const b = getSelectedBatch();
+        if (b && b.remaining != null && b.remaining <= 0) {
             hideBlockerLoader();
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i data-lucide="x-circle"></i> <span>Pendaftaran Penuh</span>';
@@ -441,6 +433,7 @@ form.addEventListener('submit', async (e) => {
             alert("Maaf, kuota baru saja penuh. Pendaftaran Anda tidak dapat dilanjutkan.");
             return;
         }
+        payload.batchId = _selectedBatchId || '';
     } catch (err) {
         console.warn('Quota re-check failed, continuing submit:', err);
     }
@@ -497,22 +490,10 @@ setupImageUpload('paymentPhoto', 'paymentUploadArea', 'paymentPreview');
 
 
 // ============================================================
-//  AUTO-UPDATE saat config server datang (biar harga/tanggal SELALU terbaru,
-//  nggak pernah nampilin cache/statis lama). Aman: pakai guard if(el).
+//  AUTO-UPDATE saat config server datang (biar harga/tanggal SELALU terbaru).
 // ============================================================
 window.addEventListener('workshops:updated', function () {
-    try {
-        var w = getWorkshopById("side-by-side"); if (!w) return;
-        _workshopData = w;
-        applyPrintPhotoConfig(w);
-        updatePriceDisplay();
-        var dt = document.getElementById('workshopDateText'); if (dt) dt.textContent = w.workshopDate || '';
-        var tm = document.getElementById('workshopTimeText'); if (tm) tm.textContent = w.workshopTime || '';
-        var ln = document.getElementById('locationNameText'); if (ln) ln.textContent = w.locationName || '';
-        var ml = document.getElementById('locationMapsLink'); if (ml && w.mapsLink) ml.href = w.mapsLink;
-        var bn = document.getElementById('bankNameText'); if (bn) bn.textContent = w.bankName || 'BCA';
-        var an = document.getElementById('accountNumber'); if (an) an.textContent = w.bankAccountNumber || '6042825961';
-        var bo = document.getElementById('bankOwnerText'); if (bo) bo.textContent = 'a.n ' + (w.bankAccountHolder || 'Arnold Therigan');
-        runQuotaWhenReady();   // config baru siap -> cek kuota kalau belum
-    } catch (e) { /* jangan ganggu halaman */ }
+    _workshopData = getWorkshopById('side-by-side');
+    applyPrintPhotoConfig(_workshopData);
+    loadOpenBatches();
 });
