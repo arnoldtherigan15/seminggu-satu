@@ -9255,6 +9255,7 @@
 
     let PREP = {};
     let prepInit = false;
+    let PREP_BATCHES = [];
 
     async function ensurePrep(event) {
       if (!prepInit) {
@@ -9265,7 +9266,10 @@
         // Ganti batch aja (masih workshop yg sama) -> jangan render ulang semua sub-tab,
         // cukup refresh tab Peserta & Pesanan Ringkasan biar posisi sub-tab yg lagi
         // dibuka nggak kepental balik ke awal.
-        document.getElementById("prepBatchSelect").addEventListener("change", () => { loadPrepParticipants(); loadPrepPesananSummary(); loadPrepFaqContext(); });
+        document.getElementById("prepBatchSelect").addEventListener("change", () => {
+          renderPrepHeader(document.getElementById("prepSelect").value);
+          loadPrepParticipants(); loadPrepPesananSummary(); loadPrepFaqContext(); loadPrepBatchDetail();
+        });
         prepInit = true;
       }
       if (event && WORKSHOP_IDS.indexOf(event) >= 0) document.getElementById("prepSelect").value = event;
@@ -9288,6 +9292,7 @@
         if (document.getElementById("prepSelect").value !== workshop) return; // udah ganti workshop lain, buang hasil basi
         if (r.status !== "success") { handleAuthError(r); return; }
         const batches = r.batches || [];
+        PREP_BATCHES = batches;
         sel.innerHTML = batches.length
           ? batches.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.active ? " • AKTIF" : ""}</option>`).join("")
           : `<option value="">(belum ada batch)</option>`;
@@ -9298,21 +9303,60 @@
       }
     }
 
+    function getSelectedPrepBatch() {
+      const batchId = document.getElementById("prepBatchSelect").value;
+      return PREP_BATCHES.find(b => b.id === batchId) || null;
+    }
+
+    // "2026-09-12" (format batches.eventDate dari server) -> "12/09/2026"
+    // (format yang dipahami parseDate/formatDateIndo punya workshop-config.js).
+    function isoToIdDate(iso) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+      return m ? `${m[3]}/${m[2]}/${m[1]}` : "";
+    }
+
+    // Gabungin data Config (1 nilai per TIPE workshop) sama data batch yang lagi
+    // dipilih (event_date + override lokasi/jam/link WA per batch, kalau diisi) --
+    // batch menang kalau ada, kalau kosong balik pakai Config. Dipakai bareng
+    // sama header Prep, WA reminder, & FAQ generator biar nggak ada 3 versi logic
+    // yang beda-beda (dan biar nggak ketuker kayak sebelumnya, batch lama nunjukin
+    // data batch yang lagi aktif).
+    function getPrepEventInfo(event) {
+      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
+      const b = getSelectedPrepBatch();
+      const batchDateId = b && b.eventDate ? isoToIdDate(b.eventDate) : "";
+      const eventDateId = batchDateId || (w && w.eventDate) || "";
+      const displayDate = batchDateId
+        ? (typeof formatDateIndo === "function" ? formatDateIndo(batchDateId) : batchDateId)
+        : ((w && w.workshopDate) || "");
+      return {
+        w, b,
+        name: (w && w.name) || workshopName(event),
+        eventDateId,
+        displayDate,
+        workshopTime: (b && b.workshopTime) || (w && w.workshopTime) || "",
+        locationName: (b && b.locationName) || (w && w.locationName) || "",
+        mapsLink: (b && b.mapsLink) || (w && w.mapsLink) || "",
+        whatsappGroupLink: (b && b.whatsappGroupLink) || (w && w.whatsappGroupLink) || "",
+        price: (w && typeof getCurrentPrice === "function") ? getCurrentPrice(w) : 0,
+        count: b ? (b.count || 0) : (SUMMARY[event] || 0),
+        quota: (w && Number(w.maxQuota)) || 0,
+      };
+    }
+
     function renderPrepHeader(event) {
       const el = document.getElementById("prepHeader");
-      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
-      if (!w) { el.innerHTML = ""; return; }
-      const count = SUMMARY[event] || 0;
-      const quota = Number(w.maxQuota) || 0;
-      const pct = quota ? Math.min(100, Math.round(count / quota * 100)) : 0;
-      const badge = countdownBadge(w.eventDate || w.closeDate);
+      const info = getPrepEventInfo(event);
+      if (!info.w) { el.innerHTML = ""; return; }
+      const pct = info.quota ? Math.min(100, Math.round(info.count / info.quota * 100)) : 0;
+      const badge = countdownBadge(info.eventDateId || (info.w && info.w.closeDate));
       el.innerHTML =
         `<div class="ov-card" style="margin-bottom:16px;">
-          <div class="ov-card-top"><div class="ov-card-name">${escapeHtml(w.name || event)}</div>${badge}</div>
-          <div class="ov-meta">${icon("calendar")} ${escapeHtml(w.workshopDate || "-")}${w.workshopTime ? " · " + escapeHtml(w.workshopTime) : ""}</div>
-          <div class="ov-meta">${icon("geo")} ${escapeHtml(w.locationName || "-")}</div>
+          <div class="ov-card-top"><div class="ov-card-name">${escapeHtml(info.name)}</div>${badge}</div>
+          <div class="ov-meta">${icon("calendar")} ${escapeHtml(info.displayDate || "-")}${info.workshopTime ? " · " + escapeHtml(info.workshopTime) : ""}</div>
+          <div class="ov-meta">${icon("geo")} ${escapeHtml(info.locationName || "-")}</div>
           <div class="ov-progress"><div class="ov-progress-bar" style="width:${pct}%"></div></div>
-          <div class="ov-progress-label">${count} / ${quota || "?"} peserta (${pct}%)</div>
+          <div class="ov-progress-label">${info.count} / ${info.quota || "?"} peserta (${pct}%)</div>
         </div>`;
     }
 
@@ -9373,6 +9417,7 @@
       loadPrepParticipants();
       loadPrepPesananSummary();
       loadPrepFaqContext();
+      loadPrepBatchDetail();
     }
 
     // ---- Ringkasan Pesanan minum/makan di dalam Prep (batch aktif workshop
@@ -9395,6 +9440,21 @@
       const body = document.createElement("div");
       body.innerHTML = `
         <div class="fin-card">
+          <div style="font-weight:800;margin-bottom:4px;">Detail Acara (batch ini)</div>
+          <p class="hint" style="margin:0 0 8px;">Default-nya ikut data Config workshop. Isi salah satu/beberapa DI SINI cuma kalau batch ini beda (mis. batch lama venue-nya lain dari batch yang aktif sekarang) -- kosongin buat balik ikut Config.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <div class="konten-field" style="flex:1;min-width:180px;"><label>Lokasi</label><input class="form-control" type="text" id="batchLoc" placeholder="ikut Config"></div>
+            <div class="konten-field" style="flex:1;min-width:180px;"><label>Jam</label><input class="form-control" type="text" id="batchTime" placeholder="ikut Config"></div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <div class="konten-field" style="flex:1;min-width:180px;"><label>Link Maps</label><input class="form-control" type="text" id="batchMapsLink" placeholder="ikut Config"></div>
+            <div class="konten-field" style="flex:1;min-width:180px;"><label>Link Grup WhatsApp</label><input class="form-control" type="text" id="batchWaLink" placeholder="ikut Config"></div>
+          </div>
+          <button class="btn btn-sm" id="batchDetailSaveBtn">${icon("save")} Simpan Detail Batch</button>
+          <div class="msg" id="batchDetailMsg"></div>
+        </div>
+
+        <div class="fin-card" style="margin-top:14px;">
           <div style="font-weight:800;margin-bottom:4px;">Konteks Acara (batch ini)</div>
           <p class="hint" style="margin:0 0 8px;">Isi detail yang sering ditanyain peserta -- venue persisnya di mana, patokan/pintu masuk, rute transport umum, apa aja yang perlu dibawa, dsb. AI bakal jawab pertanyaan peserta PAKAI info ini aja (nggak ngarang).</p>
           <textarea class="form-control" id="faqContext" rows="6" placeholder="Contoh:
@@ -9423,6 +9483,8 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
           <button class="btn btn-sm btn-ghost" id="faqCopyAnswerBtn" style="margin-top:8px;display:none;">${icon("clipboard")} Salin Jawaban</button>
           <div class="msg" id="faqAnswerMsg"></div>
         </div>`;
+      const batchDetailSaveBtn = body.querySelector("#batchDetailSaveBtn");
+      if (batchDetailSaveBtn) batchDetailSaveBtn.addEventListener("click", saveBatchDetailFn);
       const saveBtn = body.querySelector("#faqSaveContextBtn");
       if (saveBtn) saveBtn.addEventListener("click", saveFaqContext);
       const genBlockBtn = body.querySelector("#faqGenerateBlockBtn");
@@ -9475,21 +9537,75 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
     }
 
+    // Isi form "Detail Acara (batch ini)" dari override batch yang lagi
+    // kepilih -- placeholder nunjukin nilai Config yang bakal kepake kalau
+    // dikosongin, biar Arnold tau apa yang lagi dipakai walau field-nya kosong.
+    function loadPrepBatchDetail() {
+      const locEl = document.getElementById("batchLoc");
+      if (!locEl) return;
+      const event = document.getElementById("prepSelect").value;
+      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
+      const b = getSelectedPrepBatch();
+      document.getElementById("batchDetailMsg").textContent = "";
+      locEl.value = (b && b.locationName) || "";
+      locEl.placeholder = "ikut Config" + (w && w.locationName ? ` (${w.locationName})` : "");
+      const timeEl = document.getElementById("batchTime");
+      timeEl.value = (b && b.workshopTime) || "";
+      timeEl.placeholder = "ikut Config" + (w && w.workshopTime ? ` (${w.workshopTime})` : "");
+      const mapsEl = document.getElementById("batchMapsLink");
+      mapsEl.value = (b && b.mapsLink) || "";
+      mapsEl.placeholder = "ikut Config" + (w && w.mapsLink ? " (ada di Config)" : "");
+      const waEl = document.getElementById("batchWaLink");
+      waEl.value = (b && b.whatsappGroupLink) || "";
+      waEl.placeholder = "ikut Config" + (w && w.whatsappGroupLink ? " (ada di Config)" : "");
+    }
+
+    // Refresh PREP_BATCHES doang, TANPA reset pilihan batch di dropdown --
+    // beda dari loadPrepBatches() yang selalu lompat balik ke batch AKTIF
+    // (nggak cocok dipanggil abis nyimpen detail batch yang lagi diedit,
+    // apalagi kalau itu batch lama/arsip, bukan yang aktif sekarang).
+    async function refreshPrepBatchesQuiet() {
+      const workshop = document.getElementById("prepSelect").value;
+      const r = await api("listBatches", { token: getToken(), workshop });
+      if (r && r.status === "success") PREP_BATCHES = r.batches || [];
+    }
+
+    async function saveBatchDetailFn() {
+      const msg = document.getElementById("batchDetailMsg");
+      const batchId = document.getElementById("prepBatchSelect").value;
+      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu ya."; return; }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await api("renameBatch", {
+        token: getToken(), batchId,
+        locationName: document.getElementById("batchLoc").value,
+        workshopTime: document.getElementById("batchTime").value,
+        mapsLink: document.getElementById("batchMapsLink").value,
+        whatsappGroupLink: document.getElementById("batchWaLink").value,
+      });
+      if (r && r.status === "success") {
+        await refreshPrepBatchesQuiet();
+        renderPrepHeader(document.getElementById("prepSelect").value);
+        loadPrepBatchDetail();
+        msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+      } else {
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan.";
+      }
+    }
+
     // Data dasar event (tanggal/jam/lokasi/harga/link grup WA) udah ada dari
     // Config -- jangan sampai Arnold disuruh ketik ulang itu di Konteks Acara.
     // Ini otomatis ditempelin ke tiap panggilan AI di FAQ, di luar konteks
     // manual yang dia isi sendiri (venue detail/rute/dst yang sistem GA tau).
-    function buildPrepKnownFacts(w) {
-      if (!w) return "";
+    function buildPrepKnownFacts(info) {
+      if (!info) return "";
       const lines = [];
-      if (w.name) lines.push(`Nama event: ${w.name}`);
-      if (w.workshopDate) lines.push(`Tanggal: ${w.workshopDate}`);
-      if (w.workshopTime) lines.push(`Jam: ${w.workshopTime}`);
-      if (w.locationName) lines.push(`Lokasi: ${w.locationName}`);
-      if (w.mapsLink) lines.push(`Link Maps: ${w.mapsLink}`);
-      const price = (typeof getCurrentPrice === "function" ? getCurrentPrice(w) : w.normalPrice) || 0;
-      if (price) lines.push(`Harga: ${rupiah(price)}`);
-      if (w.whatsappGroupLink) lines.push(`Link Grup WhatsApp: ${w.whatsappGroupLink}`);
+      if (info.name) lines.push(`Nama event: ${info.name}`);
+      if (info.displayDate) lines.push(`Tanggal: ${info.displayDate}`);
+      if (info.workshopTime) lines.push(`Jam: ${info.workshopTime}`);
+      if (info.locationName) lines.push(`Lokasi: ${info.locationName}`);
+      if (info.mapsLink) lines.push(`Link Maps: ${info.mapsLink}`);
+      if (info.price) lines.push(`Harga: ${rupiah(info.price)}`);
+      if (info.whatsappGroupLink) lines.push(`Link Grup WhatsApp: ${info.whatsappGroupLink}`);
       return lines.join("\n");
     }
 
@@ -9497,13 +9613,13 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const msg = document.getElementById("faqBlockMsg");
       const btn = document.getElementById("faqGenerateBlockBtn");
       const event = document.getElementById("prepSelect").value;
-      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
+      const info = getPrepEventInfo(event);
       const context = document.getElementById("faqContext").value.trim();
-      const knownFacts = buildPrepKnownFacts(w);
+      const knownFacts = buildPrepKnownFacts(info);
       if (!context && !knownFacts) { msg.className = "msg err"; msg.textContent = "Belum ada info apapun buat event ini -- isi Konteks Acara atau lengkapin data workshop di Config dulu ya."; return; }
       btn.disabled = true;
       msg.className = "msg"; msg.textContent = "Nulis FAQ...";
-      const r = await api("generateFaqBlock", { token: getToken(), context, knownFacts, workshopName: (w && w.name) || workshopName(event) });
+      const r = await api("generateFaqBlock", { token: getToken(), context, knownFacts, workshopName: info.name });
       btn.disabled = false;
       if (r && r.status === "success" && r.block) {
         const out = document.getElementById("faqBlockOut");
@@ -9519,14 +9635,14 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const msg = document.getElementById("faqAnswerMsg");
       const btn = document.getElementById("faqAnswerBtn");
       const event = document.getElementById("prepSelect").value;
-      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
+      const info = getPrepEventInfo(event);
       const context = document.getElementById("faqContext").value.trim();
-      const knownFacts = buildPrepKnownFacts(w);
+      const knownFacts = buildPrepKnownFacts(info);
       const question = document.getElementById("faqQuestion").value.trim();
       if (!question) { msg.className = "msg err"; msg.textContent = "Isi dulu pertanyaannya."; return; }
       btn.disabled = true;
       msg.className = "msg"; msg.textContent = "Nulis jawaban...";
-      const r = await api("generateFaqAnswer", { token: getToken(), context, knownFacts, question, workshopName: (w && w.name) || workshopName(event) });
+      const r = await api("generateFaqAnswer", { token: getToken(), context, knownFacts, question, workshopName: info.name });
       btn.disabled = false;
       if (r && r.status === "success" && r.answer) {
         const out = document.getElementById("faqAnswerOut");
@@ -9742,9 +9858,9 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
     };
 
     function detectPrepMessagePhase(event) {
-      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
-      if (!w || typeof parseDate !== "function") return "reminder";
-      const d = parseDate(w.eventDate || w.closeDate);
+      const info = getPrepEventInfo(event);
+      if (!info.w || typeof parseDate !== "function") return "reminder";
+      const d = parseDate(info.eventDateId || (info.w && info.w.closeDate));
       if (!d) return "reminder";
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
@@ -9767,14 +9883,14 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const msg = document.getElementById("waGenMsg");
       const msgEl = document.getElementById("waMessage");
       const event = document.getElementById("prepSelect").value;
-      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
+      const info = getPrepEventInfo(event);
       const phase = detectPrepMessagePhase(event);
       btn.disabled = true;
       msg.className = "msg"; msg.textContent = "Lagi nulis draft pesan...";
       const r = await api("generateReminderMessage", {
         token: getToken(), phase,
-        workshopName: (w && w.name) || workshopName(event),
-        groupLink: (w && w.whatsappGroupLink) || "",
+        workshopName: info.name,
+        groupLink: info.whatsappGroupLink || "",
       });
       btn.disabled = false;
       if (r && r.status === "success" && r.message) {

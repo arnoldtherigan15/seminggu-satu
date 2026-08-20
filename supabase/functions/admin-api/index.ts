@@ -187,7 +187,11 @@ Deno.serve(async (req) => {
         const batches = [];
         for (const b of rows || []) {
           const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
-          batches.push({ id: b.id, label: b.label || "", active: !!b.active, eventDate: b.event_date || "", count: count ?? 0 });
+          batches.push({
+            id: b.id, label: b.label || "", active: !!b.active, eventDate: b.event_date || "", count: count ?? 0,
+            locationName: b.location_name || "", mapsLink: b.maps_link || "",
+            workshopTime: b.workshop_time || "", whatsappGroupLink: b.whatsapp_group_link || "",
+          });
         }
         return jsonResponse({ status: "success", workshop, batches });
       }
@@ -235,6 +239,13 @@ Deno.serve(async (req) => {
             patch.event_date = parsed;
           }
         }
+        // 4 field ini override opsional PER BATCH (kosong = balik ikut Config
+        // workshop, kayak sebelumnya) -- buat batch lama yang venue/jam/link-nya
+        // beda dari batch yang lagi aktif sekarang.
+        if (data.locationName != null) patch.location_name = String(data.locationName).trim() || null;
+        if (data.mapsLink != null) patch.maps_link = String(data.mapsLink).trim() || null;
+        if (data.workshopTime != null) patch.workshop_time = String(data.workshopTime).trim() || null;
+        if (data.whatsappGroupLink != null) patch.whatsapp_group_link = String(data.whatsappGroupLink).trim() || null;
         if (!Object.keys(patch).length) return errorResponse("Nggak ada yang diubah.");
         const { error } = await admin.from("batches").update(patch).eq("id", batchId);
         if (error) return errorResponse("Gagal menyimpan perubahan: " + error.message);
