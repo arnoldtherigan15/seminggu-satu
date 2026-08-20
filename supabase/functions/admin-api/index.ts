@@ -741,6 +741,55 @@ Abaikan info yang bukan item produk (alamat pengiriman, status pengiriman, subto
         }
       }
 
+      case "generateReminderMessage": {
+        // Pesan WA ke peserta beda isinya tergantung fase (jauh dari event ->
+        // ajakan gabung grup, mepet -> reminder, udah lewat -> makasih) -- fase-nya
+        // udah ditentuin di frontend (dari jarak hari ke event), di sini cuma
+        // generate teksnya biar nggak template itu-itu terus tiap dipakai.
+        const phase = String(data.phase || "reminder");
+        if (!["welcome", "reminder", "thanks"].includes(phase)) return errorResponse("Fase pesan nggak dikenal.");
+        const wsName = String(data.workshopName || "workshop ini");
+        const groupLink = String(data.groupLink || "");
+
+        const geminiKey = Deno.env.get("GEMINI_API_KEY");
+        if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
+
+        let intent = "";
+        if (phase === "welcome") {
+          intent = `Tulis pesan WhatsApp singkat buat peserta yang BARU AJA DAFTAR workshop "${wsName}". Ucapin terima kasih udah daftar, kasih semangat/antusiasme, dan ajak join grup WhatsApp event biar nggak ketinggalan info${groupLink ? ` (linknya: ${groupLink})` : " (bilang link grup-nya nanti dikirim menyusul, jangan sebut ada link kalau linknya belum ada)"}.`;
+        } else if (phase === "reminder") {
+          intent = `Tulis pesan WhatsApp singkat buat REMINDER peserta workshop "${wsName}" yang acaranya bentar lagi berlangsung (H-1/H-2). Ingetin acara mau mulai, ajak semangat, minta datang tepat waktu.`;
+        } else {
+          intent = `Tulis pesan WhatsApp singkat buat UCAPAN TERIMA KASIH ke peserta yang UDAH IKUT workshop "${wsName}" yang acaranya udah selesai. Ucapin terima kasih udah ikut, harap seneng & dapet manfaat, ajak dateng lagi ke event berikutnya.`;
+        }
+
+        const prompt = `${intent}
+
+Gaya bahasa: hangat, ramah, santai (bahasa Indonesia sehari-hari, boleh pakai emoji secukupnya, JANGAN berlebihan), personal -- bukan kaku/formal kayak surat resmi. WAJIB pakai placeholder "{nama}" persis di bagian sapaan awal (buat nama peserta, bakal diganti otomatis nanti) -- jangan tulis nama asli siapapun. Panjang 2-4 kalimat, jangan kepanjangan. Variasikan gaya penulisannya (jangan selalu mulai dengan pola yang sama). Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tanpa embel-embel semacam "Berikut pesannya:".`;
+
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 1.1 }, // variasi lebih tinggi biar ga kerasa template-mirip terus
+              }),
+            },
+          );
+          const json = await res.json();
+          if (!res.ok) return errorResponse("Gagal generate pesan: " + (json?.error?.message || res.statusText));
+          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          const message = String(text || "").trim().replace(/^["']|["']$/g, "");
+          if (!message) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
+          return jsonResponse({ status: "success", message, phase });
+        } catch (e) {
+          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
+        }
+      }
+
       case "getInventoryTransactions": {
         const { data: rows } = await admin.from("inventory_transactions").select("*")
           .order("date", { ascending: false }).order("created_at", { ascending: false });

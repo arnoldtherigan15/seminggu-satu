@@ -9527,6 +9527,60 @@
     const WA_MSG_KEY = "ss_wa_reminder_msg";
     const WA_MSG_DEFAULT = "Halo {nama} 👋\nReminder ya, workshop kamu akan segera berlangsung. Sampai jumpa & jangan lupa datang tepat waktu! 🎨";
 
+    // Fase pesan ditentuin dari jarak hari ke event (sama logic date-diff kayak
+    // countdownBadge()): masih jauh -> ajakan gabung grup, H-2/H-1 -> reminder,
+    // hari-H/udah lewat -> ucapan terima kasih.
+    const PREP_PHASE_LABELS = {
+      welcome: "Fase: Ajakan Gabung Grup WA",
+      reminder: "Fase: Reminder (bentar lagi)",
+      thanks: "Fase: Terima Kasih (udah selesai)",
+    };
+
+    function detectPrepMessagePhase(event) {
+      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
+      if (!w || typeof parseDate !== "function") return "reminder";
+      const d = parseDate(w.eventDate || w.closeDate);
+      if (!d) return "reminder";
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+      if (diff > 2) return "welcome";
+      if (diff >= 1) return "reminder";
+      return "thanks";
+    }
+
+    function updateWaPhaseBadge() {
+      const badge = document.getElementById("waPhaseBadge");
+      if (!badge) return;
+      const event = document.getElementById("prepSelect").value;
+      const phase = detectPrepMessagePhase(event);
+      badge.textContent = PREP_PHASE_LABELS[phase] || "";
+      badge.dataset.phase = phase;
+    }
+
+    async function generateWaMessage() {
+      const btn = document.getElementById("waGenerateBtn");
+      const msg = document.getElementById("waGenMsg");
+      const msgEl = document.getElementById("waMessage");
+      const event = document.getElementById("prepSelect").value;
+      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
+      const phase = detectPrepMessagePhase(event);
+      btn.disabled = true;
+      msg.className = "msg"; msg.textContent = "Lagi nulis draft pesan...";
+      const r = await api("generateReminderMessage", {
+        token: getToken(), phase,
+        workshopName: (w && w.name) || workshopName(event),
+        groupLink: (w && w.whatsappGroupLink) || "",
+      });
+      btn.disabled = false;
+      if (r && r.status === "success" && r.message) {
+        msgEl.value = r.message;
+        localStorage.setItem(WA_MSG_KEY, r.message);
+        msg.className = "msg ok"; msg.textContent = "Draft baru keisi ✓ (cek dulu sebelum kirim, tetep bisa diedit manual)";
+      } else {
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal generate pesan.";
+      }
+    }
+
     // Ubah nomor jadi format internasional untuk wa.me (Indonesia)
     function waNormalize(raw) {
       let d = String(raw || "").replace(/\D/g, "");
@@ -9542,8 +9596,13 @@
       body.innerHTML =
         `<div class="wa-reminder">
            <label for="waMessage">${icon("chat")} Pesan reminder <span style="font-weight:400;color:var(--muted)">— tulis {nama} untuk nama peserta</span></label>
+           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+             <span class="ov-badge gray" id="waPhaseBadge"></span>
+             <button type="button" class="btn btn-sm btn-ghost" id="waGenerateBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate dengan AI</button>
+           </div>
            <textarea class="form-control" id="waMessage" rows="3"></textarea>
            <p class="hint">Klik <b>Chat WA</b> di tiap baris → WhatsApp kebuka dengan pesan ini (nama otomatis terisi). Tinggal Kirim.</p>
+           <div class="msg" id="waGenMsg"></div>
          </div>
          <div id="hadirSummary" class="hadir-summary"></div>
          <div class="table-box"><div class="table-scroll">
@@ -9562,10 +9621,17 @@
 
       // Setup pesan reminder (persist di browser)
       const msgEl = document.getElementById("waMessage");
-      if (msgEl) {
+      if (msgEl && !msgEl.dataset.wired) {
         msgEl.value = localStorage.getItem(WA_MSG_KEY) || WA_MSG_DEFAULT;
         msgEl.addEventListener("input", () => localStorage.setItem(WA_MSG_KEY, msgEl.value));
+        msgEl.dataset.wired = "1";
       }
+      const genBtn = document.getElementById("waGenerateBtn");
+      if (genBtn && !genBtn.dataset.wired) {
+        genBtn.addEventListener("click", generateWaMessage);
+        genBtn.dataset.wired = "1";
+      }
+      updateWaPhaseBadge();
 
       body.innerHTML = skelTableRows(4, 5);
       try {
