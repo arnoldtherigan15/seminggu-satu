@@ -717,7 +717,12 @@
                 // cache/live). Selama checking, kartu tampil netral "Cek tiket…".
                 const checking = (status === 'open' && !countsReady);
 
-                const earlyBird = isEarlyBird(ws);
+                // currentCount WAJIB dikasih -- earlyBirdMaxCount ("cuma buat N
+                // pendaftar pertama") baru bisa dicek kalau isEarlyBird tau udah
+                // berapa yang daftar. Tanpa ini, early bird nggak pernah otomatis
+                // berhenti begitu kuota early bird-nya penuh (cuma berhenti kalau
+                // pake batas TANGGAL).
+                const earlyBird = isEarlyBird(ws, currentCount);
                 const card = document.createElement('div');
                 card.className = `workshop-card${(checking || status !== 'open') ? ' disabled' : ''}`;
                 if (animate) card.style.animationDelay = `${0.4 + index * 0.1}s`;
