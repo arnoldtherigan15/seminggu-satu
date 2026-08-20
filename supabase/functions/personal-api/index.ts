@@ -165,7 +165,7 @@ Deno.serve(async (req) => {
       case "parseImportImage": {
         const imageBase64 = String(data.imageBase64 || "");
         const mimeType = String(data.mimeType || "image/jpeg");
-        if (!imageBase64) return errorResponse("Gambar kosong.");
+        if (!imageBase64) return errorResponse("File kosong.");
 
         const geminiKey = Deno.env.get("GEMINI_API_KEY");
         if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
@@ -175,18 +175,26 @@ Deno.serve(async (req) => {
         const incomeNames = categories.filter((c) => c.type === "income").map((c) => c.name);
         const expenseNames = categories.filter((c) => c.type === "expense").map((c) => c.name);
 
-        const prompt = `Kamu bertugas membaca screenshot riwayat transaksi atau struk pembayaran (e-wallet/bank/marketplace) dan mengekstrak SEMUA transaksi yang terlihat di gambar ini menjadi data terstruktur.
+        const prompt = `Kamu bertugas membaca dokumen keuangan yang di-upload -- bisa berupa screenshot riwayat transaksi/struk (e-wallet/bank/marketplace), ATAU file PDF rekening koran/statement bank/e-wallet yang bisa berhalaman banyak -- dan mengekstrak SEMUA transaksi yang ada di dalamnya menjadi data terstruktur. Kalau dokumennya PDF multi-halaman, baca SEMUA halaman, jangan cuma halaman pertama.
+
+Kalau dokumennya rekening koran/statement PDF (format tabel kolom TANGGAL, KETERANGAN, MUTASI, SALDO -- gaya BCA/bank lain):
+- Setiap baris mutasi adalah 1 transaksi.
+- Kode "DB" nempel di sebelah nominal MUTASI artinya dana KELUAR (expense). Nominal TANPA kode "DB" (polos atau berkode "CR") artinya dana MASUK (income).
+- "BIAYA ADM", "BI-FAST BIAYA TXN", atau biaya sejenis tetap dihitung transaksi expense. "BUNGA" dihitung transaksi income.
+- Baris "SALDO AWAL", "SALDO AKHIR", dan baris ringkasan total (mis. "MUTASI CR"/"MUTASI DB" di footer/akhir laporan) BUKAN transaksi -- jangan dimasukin.
+- Kolom KETERANGAN sering multi-baris (nama pengirim/penerima, kode referensi, dsb) -- ringkas jadi description yang jelas (mis. "Transfer dari Nurul Fatimah", "QR FMI Bintaro", "Biaya Admin Bank").
+- Nominal di statement kadang pakai pemisah ribuan koma dan desimal titik (mis. "175,000.00") -- baca nilainya dengan benar, abaikan ".00" di belakang.
 
 Untuk setiap transaksi, tentukan:
-- date: tanggal transaksi format YYYY-MM-DD. Kalau tahun tidak terlihat langsung di baris transaksi tapi terlihat di header grup di atasnya (mis. "Agustus 2026"), pakai tahun itu.
-- description: deskripsi singkat (nama merchant/keterangan transaksi apa adanya dari gambar)
+- date: tanggal transaksi format YYYY-MM-DD. Kalau tahun tidak terlihat langsung di baris transaksi tapi terlihat di header/judul dokumen di atasnya (mis. "Agustus 2026" atau periode laporan), pakai tahun itu.
+- description: deskripsi singkat (nama merchant/keterangan transaksi apa adanya dari dokumen)
 - amount: jumlah dalam Rupiah, angka bulat POSITIF saja (tanpa "Rp", tanpa titik/koma pemisah ribuan)
-- type: "income" kalau dana MASUK (biasanya ditandai warna hijau / tanda "+"), "expense" kalau dana KELUAR (biasanya warna hitam/merah / tanda "-")
+- type: "income" kalau dana MASUK (di screenshot app biasanya ditandai warna hijau / tanda "+"; di statement PDF lihat aturan DB/CR di atas), "expense" kalau dana KELUAR (di screenshot app biasanya warna hitam/merah / tanda "-")
 - categoryGuess: tebak kategori yang PALING cocok dari daftar berikut (harus sama persis salah satu dari daftar sesuai tipenya, atau null kalau tidak yakin):
   Kategori income: ${JSON.stringify(incomeNames)}
   Kategori expense: ${JSON.stringify(expenseNames)}
 
-Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, saldo, dsb). Kalau gambar tidak berisi transaksi finansial sama sekali, kembalikan array kosong.`;
+Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, saldo berjalan, header/footer laporan, dsb). Kalau dokumen tidak berisi transaksi finansial sama sekali, kembalikan array kosong.`;
 
         const schema = {
           type: "OBJECT",
@@ -210,7 +218,7 @@ Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, 
         };
 
         const result = await callGemini(geminiKey, prompt, { imageBase64, mimeType, responseSchema: schema });
-        if (!result.ok) return errorResponse("Gagal memproses gambar: " + result.error);
+        if (!result.ok) return errorResponse("Gagal memproses file: " + result.error);
         // Kuota AI kepake begitu salah satu model berhasil jawab, dicatat di
         // sini terlepas dari hasil parse JSON di bawah berhasil atau nggak.
         await admin.from("ai_usage_log").insert({});

@@ -4430,10 +4430,10 @@
 
             <div class="subtab-panel" data-tab="impor">
               <div class="fin-card">
-                <p class="hint" style="margin:0 0 10px;">Upload screenshot riwayat transaksi atau struk (boleh banyak transaksi sekaligus dalam 1 gambar) — AI bakal coba baca & susun jadi daftar transaksi yang bisa kamu cek/edit dulu sebelum disimpan.</p>
+                <p class="hint" style="margin:0 0 10px;">Upload screenshot riwayat transaksi/struk, ATAU PDF rekening koran/statement (boleh banyak halaman & banyak transaksi sekaligus) — AI bakal coba baca & susun jadi daftar transaksi yang bisa kamu cek/edit dulu sebelum disimpan.</p>
                 <input type="hidden" id="impImageBase64">
                 <input type="hidden" id="impImageMime">
-                <div class="konten-field"><label>Screenshot / Foto</label><input class="form-control" type="file" id="impFile" accept="image/*"></div>
+                <div class="konten-field"><label>Screenshot / Foto / PDF</label><input class="form-control" type="file" id="impFile" accept="image/*,application/pdf,.pdf"></div>
                 <div id="impPreview" style="margin:8px 0;"></div>
                 <div class="konten-field"><label>Masukkan semua transaksi ke akun</label><select class="form-control" id="impAccount"></select></div>
                 <div id="impQuota" class="hint" style="margin:0 0 10px;"></div>
@@ -7259,6 +7259,15 @@
       });
     }
 
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     async function onQuestImagePick(e) {
       const f = e.target.files[0]; if (!f) return;
       if (f.size > 5 * 1024 * 1024) { alert("Ukuran gambar maks 5MB ya."); e.target.value = ""; return; }
@@ -8760,36 +8769,50 @@
 
     async function onImpFilePick(e) {
       const f = e.target.files[0]; if (!f) return;
-      if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maks 8MB ya."); e.target.value = ""; return; }
+      const isPdf = f.type === "application/pdf" || /\.pdf$/i.test(f.name);
+      const maxBytes = (isPdf ? 15 : 8) * 1024 * 1024;
+      if (f.size > maxBytes) { alert(`Ukuran file maks ${isPdf ? 15 : 8}MB ya.`); e.target.value = ""; return; }
       try {
-        // maxSize digedein (2000) dibanding upload lain -- ini screenshot panjang
-        // isi teks kecil-kecil, kalau dikompres kekecilan AI-nya jadi salah baca.
-        const dataUrl = await qCompress(f, 2000, 0.85);
-        document.getElementById("impImageBase64").value = dataUrl.split(",")[1];
-        document.getElementById("impImageMime").value = "image/jpeg";
-        document.getElementById("impPreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:280px;border-radius:12px;">';
+        if (isPdf) {
+          // PDF nggak lewat qCompress (itu berbasis canvas/Image, cuma buat gambar) --
+          // dikirim mentah-mentah base64, Gemini bisa baca PDF native (multi-halaman sekalian).
+          const dataUrl = await readFileAsDataUrl(f);
+          document.getElementById("impImageBase64").value = dataUrl.split(",")[1];
+          document.getElementById("impImageMime").value = "application/pdf";
+          document.getElementById("impPreview").innerHTML =
+            '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg2,#f8f9fa);border-radius:12px;max-width:280px;">'
+            + icon("receipt") + '<span style="font-size:13px;word-break:break-all;">' + escapeHtml(f.name) + '</span></div>';
+        } else {
+          // maxSize digedein (2000) dibanding upload lain -- ini screenshot panjang
+          // isi teks kecil-kecil, kalau dikompres kekecilan AI-nya jadi salah baca.
+          const dataUrl = await qCompress(f, 2000, 0.85);
+          document.getElementById("impImageBase64").value = dataUrl.split(",")[1];
+          document.getElementById("impImageMime").value = "image/jpeg";
+          document.getElementById("impPreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:280px;border-radius:12px;">';
+        }
         document.getElementById("impProcessBtn").disabled = false;
-      } catch (err) { alert("Gagal memproses gambar."); }
+      } catch (err) { alert("Gagal memproses file."); }
     }
 
     async function processImport() {
       const msg = document.getElementById("impMsg");
       const imageBase64 = document.getElementById("impImageBase64").value;
-      if (!imageBase64) { msg.className = "msg err"; msg.textContent = "Upload gambar dulu ya."; return; }
+      if (!imageBase64) { msg.className = "msg err"; msg.textContent = "Upload gambar/PDF dulu ya."; return; }
       if (!document.getElementById("impAccount").value) { msg.className = "msg err"; msg.textContent = "Pilih akun tujuan dulu."; return; }
-      msg.className = "msg"; msg.textContent = "Membaca gambar pakai AI... (bisa 10-30 detik)";
+      const isPdf = document.getElementById("impImageMime").value === "application/pdf";
+      msg.className = "msg"; msg.textContent = isPdf ? "Membaca PDF pakai AI... (dokumen panjang bisa 1-2 menit)" : "Membaca gambar pakai AI... (bisa 10-30 detik)";
       document.getElementById("impProcessBtn").disabled = true;
       const r = await personalApi("parseImportImage", {
         token: getToken(), imageBase64, mimeType: document.getElementById("impImageMime").value || "image/jpeg"
       });
       await loadAiUsageToday(); // refresh sisa kuota abis manggil AI (juga ngurusin re-enable tombolnya)
       if (!r || r.status !== "success") {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal memproses gambar.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal memproses file.";
         return;
       }
       const found = r.transactions || [];
       if (!found.length) {
-        msg.className = "msg err"; msg.textContent = "AI nggak nemu transaksi apapun di gambar ini.";
+        msg.className = "msg err"; msg.textContent = "AI nggak nemu transaksi apapun di file ini.";
         IMP_ROWS = []; renderImpResults();
         return;
       }
