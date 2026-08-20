@@ -692,6 +692,19 @@
                 return;
             }
 
+            // Config udah ada, tapi kuota (counts) belum -- JANGAN render kartu asli
+            // dulu. Sebelum ini kartu sempet muncul duluan pakai status/harga yang
+            // belum final (mis. early bird kelihatan aktif padahal kuotanya udah abis,
+            // atau workshop yang ternyata penuh kelihatan dulu baru ilang) -- glitchy
+            // & bikin bingung. Shimmer dulu sampai kuota beneran ke-tau, baru render
+            // sekali dengan status final yang udah benar.
+            const displayableCount = _workshops.filter(w => !(w.hasOwnProperty('isDisplay') && w.isDisplay === false)).length;
+            if (!countsReady) {
+                listEl.innerHTML = shimmerCardsHTML(Math.max(1, displayableCount));
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
             _workshops.forEach((ws, index) => {
                 // Skip if not meant to be displayed
                 if (ws.hasOwnProperty('isDisplay') && ws.isDisplay === false) return;
@@ -713,10 +726,6 @@
 
                 displayedCount++;
 
-                // "checking" = tiket/kuota belum selesai dicek (config sudah ada dari
-                // cache/live). Selama checking, kartu tampil netral "Cek tiket…".
-                const checking = (status === 'open' && !countsReady);
-
                 // currentCount WAJIB dikasih -- earlyBirdMaxCount ("cuma buat N
                 // pendaftar pertama") baru bisa dicek kalau isEarlyBird tau udah
                 // berapa yang daftar. Tanpa ini, early bird nggak pernah otomatis
@@ -724,7 +733,7 @@
                 // pake batas TANGGAL).
                 const earlyBird = isEarlyBird(ws, currentCount);
                 const card = document.createElement('div');
-                card.className = `workshop-card${(checking || status !== 'open') ? ' disabled' : ''}`;
+                card.className = `workshop-card${status !== 'open' ? ' disabled' : ''}`;
                 if (animate) card.style.animationDelay = `${0.4 + index * 0.1}s`;
                 else card.style.animation = 'none';
 
@@ -749,9 +758,7 @@
                 // Build status badge (closed/full udah di-skip di atas, jadi cuma
                 // open/not-open-yet/coming-soon yang bisa nyampe sini)
                 let badgeHTML = '';
-                if (checking) {
-                    badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="loader"></i> Cek tiket…</span>';
-                } else if (status === 'open') {
+                if (status === 'open') {
                     badgeHTML = '<span class="status-badge badge-open"><i data-lucide="circle-check"></i> Buka</span>';
                 } else if (status === 'not-open-yet') {
                     badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="clock"></i> Segera Dibuka</span>';
@@ -761,9 +768,7 @@
 
                 // Build CTA
                 let ctaHTML = '';
-                if (checking) {
-                    ctaHTML = `<div class="cta-btn disabled-btn">Mengecek ketersediaan…</div>`;
-                } else if (status === 'open') {
+                if (status === 'open') {
                     ctaHTML = `<a href="${ws.path}" class="cta-btn" id="cta-${ws.id}">Daftar Sekarang <i data-lucide="arrow-right"></i></a>`;
                 } else {
                     ctaHTML = `<div class="cta-btn disabled-btn">${status === 'not-open-yet' ? 'Belum Dibuka' : 'Segera Hadir'}</div>`;
