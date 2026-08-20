@@ -5441,7 +5441,7 @@
         sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
         sel.addEventListener("change", onFinanceWorkshopChange);
         document.getElementById("finBatchSelect").addEventListener("change", renderFinance);
-        document.getElementById("addCostBtn").addEventListener("click", () => { addCostRow(); recalc(); });
+        document.getElementById("addCostBtn").addEventListener("click", () => { addCostRow(null, true); recalc(); });
         document.getElementById("saveModalBtn").addEventListener("click", saveModal);
         wireRibuanInput(document.getElementById("finPrice"));
         document.getElementById("finPrice").addEventListener("input", recalc);
@@ -5930,7 +5930,20 @@
       recalc();
     }
 
-    function addCostRow(item) {
+    async function pasteIntoNama(namaEl) {
+      try {
+        const text = (await navigator.clipboard.readText()).trim();
+        if (!text) return;
+        namaEl.value = text;
+        // Trigger listener "input" yang udah nempel (auto-fill harga + recalc),
+        // ga perlu duplikasi logicnya di sini.
+        namaEl.dispatchEvent(new Event("input", { bubbles: true }));
+      } catch (err) {
+        alert("Gagal baca clipboard -- coba tempel manual (tap & tahan di field, pilih Paste).");
+      }
+    }
+
+    function addCostRow(item, prepend) {
       const box = document.getElementById("costRows");
       const div = document.createElement("div");
       div.className = "cost-row";
@@ -5938,6 +5951,7 @@
         <div class="cost-row-top">
           <div class="cost-row-thumb"></div>
           <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" />
+          <button type="button" class="btn btn-sm btn-ghost c-paste" title="Tempel nama item dari clipboard">${icon("clipboard")}</button>
           <button class="del" title="Hapus">&times;</button>
         </div>
         <div class="cost-row-bottom">
@@ -5954,6 +5968,7 @@
       // otomatis keisi dari default_price (tetep bisa di-adjust manual abis itu,
       // ini cuma titik awal), plus foto/link item-nya ditampilin di baris ini.
       const namaEl = div.querySelector(".c-nama");
+      div.querySelector(".c-paste").addEventListener("click", () => pasteIntoNama(namaEl));
       function updateCostRowPreview() {
         const match = COST_ITEMS.find(it => it.name === namaEl.value);
         div.querySelector(".cost-row-thumb").innerHTML = (match && match.image_url)
@@ -5974,7 +5989,11 @@
       updateCostRowPreview();
       wireRibuanInput(div.querySelector(".c-biaya"));
       div.querySelectorAll("input, select").forEach(el => el.addEventListener("input", recalc));
-      box.appendChild(div);
+      // Item baru (klik "+ Tambah") ditaruh PALING ATAS biar langsung keliatan
+      // tanpa scroll -- item yang dimuat dari data tersimpan tetep di-append
+      // biasa biar urutannya ga kebalik.
+      if (prepend) box.insertBefore(div, box.firstChild);
+      else box.appendChild(div);
     }
 
     function recalc() {
