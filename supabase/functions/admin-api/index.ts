@@ -662,6 +662,85 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", name });
       }
 
+      case "parseReceiptImage": {
+        // Halaman order/struk Shopee/Tokopedia itu butuh login akun sendiri --
+        // server nggak punya akses session-nya, jadi nggak bisa di-fetch. Solusinya
+        // sama kayak Impor AI di Personal Finance: user screenshot halamannya
+        // sendiri (udah login), AI vision baca isinya dari gambar.
+        const imageBase64 = String(data.imageBase64 || "");
+        const mimeType = String(data.mimeType || "image/jpeg");
+        if (!imageBase64) return errorResponse("Gambar kosong.");
+
+        const geminiKey = Deno.env.get("GEMINI_API_KEY");
+        if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
+
+        const prompt = `Kamu bertugas membaca screenshot struk/detail pesanan/riwayat pembelian dari marketplace (Shopee/Tokopedia/dll) dan mengekstrak SEMUA item/produk yang dibeli di dalamnya.
+
+Untuk setiap item, tentukan:
+- name: nama produk apa adanya dari gambar (boleh dipersingkat kalau terlalu panjang/bertele-tele, tapi tetap jelas produknya apa)
+- price: harga SATUAN per item dalam Rupiah, angka bulat POSITIF (BUKAN subtotal -- kalau yang keliatan di gambar cuma subtotal dan quantity, bagi subtotal dengan quantity buat dapetin harga satuannya)
+- qty: jumlah/kuantitas item tersebut yang dibeli (angka bulat, minimal 1)
+
+Abaikan info yang bukan item produk (alamat pengiriman, status pengiriman, subtotal keseluruhan/ongkir/voucher/biaya layanan, info kurir, riwayat tracking, dsb). Kalau gambar tidak berisi daftar item pembelian sama sekali, kembalikan array kosong.`;
+
+        const schema = {
+          type: "OBJECT",
+          properties: {
+            items: {
+              type: "ARRAY",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  name: { type: "STRING" },
+                  price: { type: "NUMBER" },
+                  qty: { type: "NUMBER" },
+                },
+                required: ["name", "price", "qty"],
+              },
+            },
+          },
+          required: ["items"],
+        };
+
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [
+                    { inlineData: { mimeType, data: imageBase64 } },
+                    { text: prompt },
+                  ],
+                }],
+                generationConfig: {
+                  responseMimeType: "application/json",
+                  responseSchema: schema,
+                },
+              }),
+            },
+          );
+          const json = await res.json();
+          if (!res.ok) {
+            return errorResponse("Gagal memproses gambar: " + (json?.error?.message || res.statusText));
+          }
+          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!text) return errorResponse("AI tidak mengembalikan hasil yang bisa dibaca.");
+          let parsed: { items?: unknown };
+          try {
+            parsed = JSON.parse(text);
+          } catch {
+            return errorResponse("Gagal baca hasil dari AI.");
+          }
+          const items = Array.isArray(parsed.items) ? parsed.items : [];
+          return jsonResponse({ status: "success", items });
+        } catch (e) {
+          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
+        }
+      }
+
       case "getInventoryTransactions": {
         const { data: rows } = await admin.from("inventory_transactions").select("*")
           .order("date", { ascending: false }).order("created_at", { ascending: false });

@@ -3800,6 +3800,7 @@
               <button class="subtab-btn" type="button" data-tab="modal"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/></svg> <span>Modal & Biaya</span></button>
               <button class="subtab-btn" type="button" data-tab="items"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg> <span>Database Item</span></button>
               <button class="subtab-btn" type="button" data-tab="inventaris"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> <span>Inventaris</span></button>
+              <button class="subtab-btn" type="button" data-tab="imporstruk"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/></svg> <span>Impor Struk</span></button>
             </div>
 
             <div class="subtab-panel" data-tab="modal">
@@ -3929,6 +3930,28 @@
                 <select class="form-control" id="invFilterItem" style="max-width:220px;"><option value="">Semua item</option></select>
               </div>
               <div id="invTxList" style="margin-top:8px;"></div>
+            </div>
+
+            <div class="subtab-panel" data-tab="imporstruk">
+              <div class="fin-card">
+                <p class="hint" style="margin:0 0 10px;">Upload screenshot struk/detail pesanan (boleh banyak item sekaligus dalam 1 gambar) -- item yang belum ada di Database Item bakal ditambahin otomatis, yang udah ada bakal digabung, dan stok masing-masing item ke-log otomatis di Inventaris (tipe Beli) sesuai jumlahnya.</p>
+                <input type="hidden" id="riImageBase64">
+                <input type="hidden" id="riImageMime">
+                <div class="konten-field"><label>Screenshot Struk / Detail Pesanan</label><input class="form-control" type="file" id="riFile" accept="image/*"></div>
+                <div id="riPreview" style="margin:8px 0;"></div>
+                <button class="btn btn-sm" id="riProcessBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Proses dengan AI</button>
+                <div class="msg" id="riMsg"></div>
+              </div>
+              <div id="riResultsWrap" style="display:none;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;">
+                  <div style="font-weight:800;">Hasil Ekstrak (<span id="riResultCount">0</span>)</div>
+                  <button class="btn btn-sm btn-ghost" id="riSelectAllBtn">Pilih/Batal Semua</button>
+                </div>
+                <p class="hint" style="margin:6px 0;">Cek dulu nama/harga/jumlahnya -- AI kadang salah baca. Yang nggak dicentang nggak bakal diimport.</p>
+                <div id="riResultsList" style="margin-top:6px;"></div>
+                <button class="btn btn-sm" id="riSaveBtn" style="margin-top:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Import yang Dicentang</button>
+                <div class="msg" id="riSaveMsg"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -5430,6 +5453,10 @@
         document.getElementById("invFilterItem").addEventListener("change", (e) => { invFilterItemId = e.target.value; renderInvTxList(); });
         document.getElementById("invWorkshop").innerHTML = '<option value="">-</option>' + WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
         newInvForm();
+        document.getElementById("riFile").addEventListener("change", onRiFilePick);
+        document.getElementById("riProcessBtn").addEventListener("click", processReceiptImport);
+        document.getElementById("riSelectAllBtn").addEventListener("click", toggleRiSelectAll);
+        document.getElementById("riSaveBtn").addEventListener("click", saveRiSelected);
         wireSubtabs(document.getElementById("finSubtabs"));
         if (!Object.keys(SUMMARY).length) await loadSummary();
         await Promise.all([loadModal(), loadCostItems(), loadInventoryTx()]);
@@ -5696,6 +5723,123 @@
       const r = await api("deleteInventoryTransaction", { token: getToken(), id });
       if (r && r.status === "success") await loadInventoryTx();
       else { handleAuthError(r); alert((r && r.message) || "Gagal hapus."); }
+    }
+
+    // ---- Impor Struk (baca screenshot struk/pesanan pakai AI -> Database Item + Inventaris) ----
+    let RI_ROWS = [];
+
+    async function onRiFilePick(e) {
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maks 8MB ya."); e.target.value = ""; return; }
+      try {
+        const dataUrl = await qCompress(f, 2000, 0.85);
+        document.getElementById("riImageBase64").value = dataUrl.split(",")[1];
+        document.getElementById("riImageMime").value = "image/jpeg";
+        document.getElementById("riPreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:280px;border-radius:12px;">';
+      } catch (err) { alert("Gagal memproses gambar."); }
+    }
+
+    async function processReceiptImport() {
+      const msg = document.getElementById("riMsg");
+      const imageBase64 = document.getElementById("riImageBase64").value;
+      if (!imageBase64) { msg.className = "msg err"; msg.textContent = "Upload gambar dulu ya."; return; }
+      msg.className = "msg"; msg.textContent = "Membaca struk pakai AI... (bisa 10-30 detik)";
+      document.getElementById("riProcessBtn").disabled = true;
+      const r = await api("parseReceiptImage", {
+        token: getToken(), imageBase64, mimeType: document.getElementById("riImageMime").value || "image/jpeg"
+      });
+      document.getElementById("riProcessBtn").disabled = false;
+      if (!r || r.status !== "success") {
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal memproses gambar.";
+        return;
+      }
+      const found = r.items || [];
+      if (!found.length) {
+        msg.className = "msg err"; msg.textContent = "AI nggak nemu item apapun di struk ini.";
+        RI_ROWS = []; renderRiResults();
+        return;
+      }
+      RI_ROWS = found.map(it => ({
+        selected: true,
+        name: String(it.name || "").slice(0, 200),
+        price: Math.round(Number(it.price)) || 0,
+        qty: Math.max(1, Math.round(Number(it.qty)) || 1),
+      }));
+      msg.className = "msg ok"; msg.textContent = `Ketemu ${RI_ROWS.length} item. Cek dulu di bawah sebelum diimport ya.`;
+      renderRiResults();
+    }
+
+    function renderRiResults() {
+      const wrap = document.getElementById("riResultsWrap");
+      const list = document.getElementById("riResultsList");
+      document.getElementById("riResultCount").textContent = RI_ROWS.length;
+      if (!RI_ROWS.length) { wrap.style.display = "none"; return; }
+      wrap.style.display = "block";
+      list.innerHTML = RI_ROWS.map((row, idx) => {
+        const exists = COST_ITEMS.some(it => it.name.toLowerCase() === row.name.toLowerCase());
+        return `<div class="fin-card" style="margin-bottom:8px;padding:12px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <input type="checkbox" data-richeck="${idx}" ${row.selected ? "checked" : ""} style="margin-top:10px;width:16px;height:16px;accent-color:var(--brand);cursor:pointer;flex-shrink:0;">
+            <div style="flex:1;min-width:0;display:flex;gap:8px;flex-wrap:wrap;">
+              <input class="form-control" type="text" data-rifield="name" data-riidx="${idx}" value="${escapeHtml(row.name)}" placeholder="Nama item" style="flex:2;min-width:160px;">
+              <input class="form-control" type="text" inputmode="numeric" data-rifield="price" data-riidx="${idx}" value="${formatRibuan(row.price)}" placeholder="Harga satuan" style="flex:1;min-width:110px;">
+              <input class="form-control" type="number" min="1" step="1" data-rifield="qty" data-riidx="${idx}" value="${row.qty}" placeholder="Qty" style="flex:0 0 80px;">
+            </div>
+          </div>
+          <div style="font-size:11.5px;color:#6b7280;margin:6px 0 0 26px;">${exists ? "Item udah ada di Database Item -- stoknya bakal ditambah." : "Item baru -- bakal ditambahin ke Database Item."}</div>
+        </div>`;
+      }).join("");
+      list.querySelectorAll("[data-richeck]").forEach(cb => cb.addEventListener("change", (e) => {
+        RI_ROWS[Number(e.target.dataset.richeck)].selected = e.target.checked;
+      }));
+      list.querySelectorAll('[data-rifield="price"]').forEach(el => wireRibuanInput(el));
+      list.querySelectorAll("[data-rifield]").forEach(el => el.addEventListener("change", (e) => {
+        const idx = Number(e.target.dataset.riidx);
+        const field = e.target.dataset.rifield;
+        const val = field === "price" ? parseRibuan(e.target.value) : (field === "qty" ? (Math.max(1, Math.round(Number(e.target.value)) || 1)) : e.target.value);
+        RI_ROWS[idx][field] = val;
+        if (field === "name") renderRiResults(); // status "item baru/udah ada" ikut berubah
+      }));
+    }
+
+    function toggleRiSelectAll() {
+      const allSelected = RI_ROWS.length && RI_ROWS.every(r => r.selected);
+      RI_ROWS.forEach(r => { r.selected = !allSelected; });
+      renderRiResults();
+    }
+
+    async function saveRiSelected() {
+      const msg = document.getElementById("riSaveMsg");
+      const selected = RI_ROWS.filter(r => r.selected);
+      if (!selected.length) { msg.className = "msg err"; msg.textContent = "Nggak ada item yang dicentang."; return; }
+      msg.className = "msg"; msg.textContent = `Menyimpan 0/${selected.length}...`;
+      let ok = 0, fail = 0;
+      for (let i = 0; i < selected.length; i++) {
+        const row = selected[i];
+        if (!row.name || row.price <= 0) { fail++; continue; }
+        let existing = COST_ITEMS.find(it => it.name.toLowerCase() === row.name.toLowerCase());
+        if (!existing) {
+          const r1 = await api("saveCostItem", { token: getToken(), name: row.name, defaultPrice: row.price, link: "" });
+          if (!r1 || r1.status !== "success") { fail++; continue; }
+          await loadCostItems(); // refresh biar COST_ITEMS keisi item barunya
+          existing = COST_ITEMS.find(it => it.name.toLowerCase() === row.name.toLowerCase());
+        }
+        if (!existing) { fail++; continue; }
+        const r2 = await api("saveInventoryTransaction", {
+          token: getToken(), itemId: existing.id, type: "beli", qty: row.qty, date: todayStr(), note: "Impor struk"
+        });
+        if (r2 && r2.status === "success") ok++; else fail++;
+        msg.textContent = `Menyimpan ${i + 1}/${selected.length}...`;
+      }
+      msg.className = fail ? "msg err" : "msg ok";
+      msg.textContent = `Selesai: ${ok} item tersimpan${fail ? ", " + fail + " gagal" : ""}.`;
+      RI_ROWS = RI_ROWS.filter(r => !r.selected); // sisain yang tadi nggak dicentang
+      document.getElementById("riFile").value = "";
+      document.getElementById("riImageBase64").value = "";
+      document.getElementById("riPreview").innerHTML = "";
+      renderRiResults();
+      await loadCostItems();
+      await loadInventoryTx();
     }
 
     async function loadModal() {
