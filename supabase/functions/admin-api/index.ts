@@ -245,6 +245,71 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", challenges: rows || [] });
       }
 
+      case "generateChallengeIdea": {
+        const existingTitles = Array.isArray(data.existingTitles)
+          // deno-lint-ignore no-explicit-any
+          ? data.existingTitles.map((t: any) => String(t || "")).filter(Boolean)
+          : [];
+
+        const geminiKey = Deno.env.get("GEMINI_API_KEY");
+        if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
+
+        const prompt = `Kamu bantu bikinin ide "Challenge" baru buat komunitas journaling "Seminggu Satu" -- member ngerjain challenge ini di journal pribadi mereka (bikin spread/halaman sesuai tema), difoto, di-post buat dapet poin.
+
+Challenge yang UDAH ADA (JANGAN bikin ide yang mirip/sama):
+${existingTitles.length ? existingTitles.map((t) => `- ${t}`).join("\n") : "(belum ada challenge lain)"}
+
+Bikin SATU ide challenge baru yang seru & gampang dikerjain siapa aja (nggak butuh skill gambar/seni khusus), temanya seputar journaling/refleksi diri/kreativitas sehari-hari -- fokus ke ekspresi diri & having fun, BUKAN kompetisi/perbandingan sama orang lain.
+
+Kasih:
+- title: judul singkat & catchy (2-5 kata)
+- theme: label tema pendek buat badge kecil, boleh tambahin 1 emoji relevan di akhir (mis. "Movie Night 🎬")
+- description: instruksi 1-2 kalimat, jelas apa yang perlu dikerjain, nada ramah & ngajak (bukan perintah kaku)
+- points: saran poin (angka bulat 5-20, makin butuh effort/waktu ngerjain makin tinggi)`;
+
+        const schema = {
+          type: "OBJECT",
+          properties: {
+            title: { type: "STRING" },
+            theme: { type: "STRING" },
+            description: { type: "STRING" },
+            points: { type: "NUMBER" },
+          },
+          required: ["title", "theme", "description", "points"],
+        };
+
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                  responseMimeType: "application/json",
+                  responseSchema: schema,
+                  temperature: 1.1,
+                },
+              }),
+            },
+          );
+          const json = await res.json();
+          if (!res.ok) return errorResponse("Gagal generate ide: " + (json?.error?.message || res.statusText));
+          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!text) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
+          let idea: { title?: string; theme?: string; description?: string; points?: number };
+          try {
+            idea = JSON.parse(text);
+          } catch {
+            return errorResponse("Gagal baca hasil dari AI.");
+          }
+          return jsonResponse({ status: "success", idea });
+        } catch (e) {
+          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
+        }
+      }
+
       case "saveChallenge": {
         const title = String(data.title || "").trim();
         if (!title) return errorResponse("Judul challenge wajib diisi.");
