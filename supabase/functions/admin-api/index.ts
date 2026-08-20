@@ -755,17 +755,34 @@ Abaikan info yang bukan item produk (alamat pengiriman, status pengiriman, subto
         if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
 
         let intent = "";
+        let example = "";
         if (phase === "welcome") {
           intent = `Tulis pesan WhatsApp singkat buat peserta yang BARU AJA DAFTAR workshop "${wsName}". Ucapin terima kasih udah daftar, kasih semangat/antusiasme, dan ajak join grup WhatsApp event biar nggak ketinggalan info${groupLink ? ` (linknya: ${groupLink})` : " (bilang link grup-nya nanti dikirim menyusul, jangan sebut ada link kalau linknya belum ada)"}.`;
+          example = `Hai ka {nama}, makasih banyak udah daftar workshop "${wsName}" ya! Arnold seneng banget kamu mau join. Biar ga ketinggalan info, gabung yuk ke grup WA-nya${groupLink ? ` di sini: ${groupLink}` : ""} 🥰`;
         } else if (phase === "reminder") {
           intent = `Tulis pesan WhatsApp singkat buat REMINDER peserta workshop "${wsName}" yang acaranya bentar lagi berlangsung (H-1/H-2). Ingetin acara mau mulai, ajak semangat, minta datang tepat waktu.`;
+          example = `Hai ka {nama}, workshop "${wsName}" udah deket nih! Jangan lupa dateng tepat waktu ya, Arnold udah nungguin kamu 🎨`;
         } else {
           intent = `Tulis pesan WhatsApp singkat buat UCAPAN TERIMA KASIH ke peserta yang UDAH IKUT workshop "${wsName}" yang acaranya udah selesai. Ucapin terima kasih udah ikut, harap seneng & dapet manfaat, ajak dateng lagi ke event berikutnya.`;
+          example = `Hai ka {nama}, makasih banyak udah seru-seruan bareng di "${wsName}" kemarin! Arnold seneng banget. Semoga next kita bisa ketemu lagi ya 🥰`;
         }
 
         const prompt = `${intent}
 
-Gaya bahasa: hangat, ramah, santai (bahasa Indonesia sehari-hari, boleh pakai emoji secukupnya, JANGAN berlebihan), personal -- bukan kaku/formal kayak surat resmi. WAJIB pakai placeholder "{nama}" persis di bagian sapaan awal (buat nama peserta, bakal diganti otomatis nanti) -- jangan tulis nama asli siapapun. Panjang 2-4 kalimat, jangan kepanjangan. Variasikan gaya penulisannya (jangan selalu mulai dengan pola yang sama). Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tanpa embel-embel semacam "Berikut pesannya:".`;
+Contoh gaya yang HARUS ditiru persis nada & rasanya (JANGAN disalin kata-katanya mentah-mentah, bikin variasi baru dengan nada yang sama):
+"${example}"
+
+Ciri gaya itu yang wajib dipegang:
+- Sapaan santai "Hai ka {nama}" atau variasinya (bukan "Halo {nama}" doang, apalagi sapaan formal kayak "Yth. {nama}")
+- Bahasa sehari-hari yang casual & akrab, boleh selipin kata gaul (misal "seru-seruan", "next", "yuk", dst) secukupnya -- JANGAN kaku/formal kayak pesan broadcast perusahaan
+- Sesekali sebut "Arnold" (penyelenggaranya) di orang ketiga buat ekspresiin perasaan personal (misal "Arnold seneng banget"), BUKAN "kami"/"tim kami" yang kesannya korporat
+- Kesannya kayak chat personal dari temen deket, bukan pesan resmi/broadcast massal
+- WAJIB pakai placeholder "{nama}" persis (buat nama peserta, bakal diganti otomatis nanti) -- jangan tulis nama asli siapapun
+- Panjang 2-4 kalimat, jangan kepanjangan
+- Variasikan kalimatnya tiap kali (jangan selalu mulai dengan pola kalimat yang sama)
+- Emoji boleh dipakai secukupnya, jangan berlebihan
+
+Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tanpa embel-embel semacam "Berikut pesannya:".`;
 
         try {
           const res = await fetch(
