@@ -640,38 +640,26 @@ Deno.serve(async (req) => {
         } catch {
           return errorResponse("Link nggak valid.");
         }
-        slug = slug.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+        slug = slug.replace(/[-_~!()]+/g, " ").replace(/\s+/g, " ").trim();
         if (!slug) return errorResponse("Nggak nemu nama produk dari link ini.");
 
-        const geminiKey = Deno.env.get("GEMINI_API_KEY");
-        if (!geminiKey) {
-          // Fallback tanpa AI: judul kasar hasil parse slug doang.
-          return jsonResponse({ status: "success", name: slug, aiCleaned: false });
+        // String logic biasa, ga perlu manggil AI buat kerjaan sesimpel ini --
+        // buang kata promosi + rapiin kapitalisasi.
+        const PROMO_WORDS = [
+          "free", "gratis", "promo", "termurah", "terlaris", "terlaku", "cuci gudang",
+          "diskon", "sale", "flash sale", "flashsale", "ready stock", "readystock",
+          "grosir", "murah", "best seller", "bestseller", "ongkir", "gratis ongkir",
+          "cod", "limited", "terbaru", "original", "ori", "termurah se-indonesia",
+          "termurah sejabodetabek", "hot sale", "hemat",
+        ].sort((a, b) => b.length - a.length); // frasa panjang duluan biar ga kepotong separuh
+        let cleaned = slug;
+        for (const w of PROMO_WORDS) {
+          cleaned = cleaned.replace(new RegExp(`\\b${w.replace(/\s+/g, "\\s+")}\\b`, "gi"), " ");
         }
-
-        const prompt = `Ini teks mentah hasil parsing dari slug URL produk toko online (Shopee/Tokopedia), tanda hubung sudah diganti spasi:
-
-"${slug}"
-
-Ubah jadi nama produk yang singkat, jelas, pantas dipakai sebagai label item di daftar belanja/inventaris (contoh gaya: "Lem UHU Stick 21g", bukan "LEM UHU STICK 21G TERMURAH FREE ONGKIR PROMO GRATIS"). Buang kata-kata promosi (FREE, TERMURAH, PROMO, CUCI GUDANG, GRATIS ONGKIR, dst), buang kode SKU/nomor acak yang nggak relevan, rapikan kapitalisasi jadi wajar. Balas HANYA dengan nama produknya saja, tanpa tanda kutip, tanpa penjelasan tambahan.`;
-
-        try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-            },
-          );
-          const json = await res.json();
-          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-          const cleaned = String(text || "").trim().replace(/^["']|["']$/g, "");
-          return jsonResponse({ status: "success", name: cleaned || slug, aiCleaned: !!cleaned });
-        } catch {
-          // Gagal manggil AI -- tetep balikin hasil parse slug mentah, jangan gagal total.
-          return jsonResponse({ status: "success", name: slug, aiCleaned: false });
-        }
+        cleaned = cleaned.replace(/\s+/g, " ").trim();
+        if (!cleaned) cleaned = slug; // kalau abis dibersihin malah kosong, pakai slug asli aja
+        const name = cleaned.split(" ").map((w) => w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w).join(" ");
+        return jsonResponse({ status: "success", name });
       }
 
       case "getInventoryTransactions": {

@@ -3874,7 +3874,7 @@
                 <div class="konten-field"><label>Link Toko (opsional)</label>
                   <div style="display:flex;gap:8px;">
                     <input class="form-control" type="url" id="ciLink" placeholder="https://..." style="flex:1;">
-                    <button type="button" class="btn btn-sm btn-ghost" id="ciFetchNameBtn" title="Ambil nama produk dari link pakai AI" style="flex-shrink:0;white-space:nowrap;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Ambil Nama</button>
+                    <button type="button" class="btn btn-sm btn-ghost" id="ciFetchNameBtn" title="Ambil nama produk dari link" style="flex-shrink:0;white-space:nowrap;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/></svg> Ambil Nama</button>
                   </div>
                 </div>
                 <div class="konten-field">
@@ -5531,7 +5531,7 @@
       if (r && r.status === "success" && r.name) {
         document.getElementById("ciName").value = r.name;
         msg.className = "msg ok";
-        msg.textContent = r.aiCleaned ? "Nama produk keisi ✓ (dirapiin AI, cek dulu sebelum simpan)" : "Nama produk keisi ✓ (dari URL langsung, cek dulu sebelum simpan)";
+        msg.textContent = "Nama produk keisi ✓ (dari URL, cek dulu sebelum simpan)";
       } else {
         handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal ambil nama dari link ini -- isi manual aja ya.";
       }
