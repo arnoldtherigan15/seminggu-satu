@@ -616,6 +616,64 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", message: "Item dihapus." });
       }
 
+      case "parseProductLink": {
+        // Shopee/Tokopedia itu SPA -- fetch server-side cuma dapet shell JS
+        // kosong (dites: 200 OK tapi nggak ada <title>/OG tag sama sekali).
+        // Nama produknya justru udah ke-embed di slug URL-nya sendiri
+        // (mis. shopee.co.id/Lem-Uhu-Stick-21g-i.123.456), jadi cukup di-parse
+        // dari situ -- ga perlu fetch/render halamannya sama sekali.
+        const link = String(data.link || "").trim();
+        if (!link) return errorResponse("Link kosong.");
+
+        let slug = "";
+        try {
+          const path = decodeURIComponent(new URL(link).pathname);
+          // Shopee: /{slug}-i.{shopId}.{itemId}
+          const shopeeMatch = path.match(/^\/(.+)-i\.\d+\.\d+$/);
+          if (shopeeMatch) {
+            slug = shopeeMatch[1];
+          } else {
+            // Tokopedia & lainnya: ambil segmen path terakhir yang bukan angka/query doang
+            const segments = path.split("/").filter(Boolean);
+            slug = segments[segments.length - 1] || "";
+          }
+        } catch {
+          return errorResponse("Link nggak valid.");
+        }
+        slug = slug.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+        if (!slug) return errorResponse("Nggak nemu nama produk dari link ini.");
+
+        const geminiKey = Deno.env.get("GEMINI_API_KEY");
+        if (!geminiKey) {
+          // Fallback tanpa AI: judul kasar hasil parse slug doang.
+          return jsonResponse({ status: "success", name: slug, aiCleaned: false });
+        }
+
+        const prompt = `Ini teks mentah hasil parsing dari slug URL produk toko online (Shopee/Tokopedia), tanda hubung sudah diganti spasi:
+
+"${slug}"
+
+Ubah jadi nama produk yang singkat, jelas, pantas dipakai sebagai label item di daftar belanja/inventaris (contoh gaya: "Lem UHU Stick 21g", bukan "LEM UHU STICK 21G TERMURAH FREE ONGKIR PROMO GRATIS"). Buang kata-kata promosi (FREE, TERMURAH, PROMO, CUCI GUDANG, GRATIS ONGKIR, dst), buang kode SKU/nomor acak yang nggak relevan, rapikan kapitalisasi jadi wajar. Balas HANYA dengan nama produknya saja, tanpa tanda kutip, tanpa penjelasan tambahan.`;
+
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+            },
+          );
+          const json = await res.json();
+          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          const cleaned = String(text || "").trim().replace(/^["']|["']$/g, "");
+          return jsonResponse({ status: "success", name: cleaned || slug, aiCleaned: !!cleaned });
+        } catch {
+          // Gagal manggil AI -- tetep balikin hasil parse slug mentah, jangan gagal total.
+          return jsonResponse({ status: "success", name: slug, aiCleaned: false });
+        }
+      }
+
       case "getInventoryTransactions": {
         const { data: rows } = await admin.from("inventory_transactions").select("*")
           .order("date", { ascending: false }).order("created_at", { ascending: false });
