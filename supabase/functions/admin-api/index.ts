@@ -514,17 +514,23 @@ Deno.serve(async (req) => {
 
       case "generateFaqBlock": {
         const context = String(data.context || "").trim();
+        const knownFacts = String(data.knownFacts || "").trim();
         const wsName = String(data.workshopName || "workshop ini");
-        if (!context) return errorResponse("Isi konteks acara dulu ya sebelum generate FAQ.");
+        if (!context && !knownFacts) return errorResponse("Belum ada info apapun buat event ini.");
         const geminiKey = Deno.env.get("GEMINI_API_KEY");
         if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
 
-        const prompt = `Konteks acara workshop "${wsName}" (batch ini):
+        const prompt = `Info dasar event "${wsName}" (data yang udah pasti akurat dari sistem):
 """
-${context}
+${knownFacts || "(nggak ada info dasar tersedia)"}
 """
 
-Buatin daftar FAQ (tanya-jawab) yang mengantisipasi pertanyaan paling umum yang bakal ditanyain peserta terkait info di atas (venue/lokasi persis, cara ke sana/rute transport, apa yang perlu dibawa, dsb) -- SESUAIKAN PERSIS sama apa yang ada di konteks, JANGAN NGARANG info yang nggak disebut di konteks.
+Konteks tambahan yang diisi manual (venue detail/rute transport/apa yang perlu dibawa/dst, yang sistem GA tau otomatis):
+"""
+${context || "(belum ada konteks tambahan yang diisi)"}
+"""
+
+Buatin daftar FAQ (tanya-jawab) yang mengantisipasi pertanyaan paling umum yang bakal ditanyain peserta terkait KEDUA info di atas (jadwal, lokasi, harga, cara ke sana/rute transport, apa yang perlu dibawa, dsb) -- SESUAIKAN PERSIS sama apa yang ada di kedua blok itu, JANGAN NGARANG info yang nggak disebut di sana.
 
 Format tiap FAQ:
 Q: [pertanyaan]
@@ -554,20 +560,26 @@ Pisahkan tiap FAQ dengan baris kosong. Gaya jawaban santai & akrab (bukan formal
 
       case "generateFaqAnswer": {
         const context = String(data.context || "").trim();
+        const knownFacts = String(data.knownFacts || "").trim();
         const question = String(data.question || "").trim();
         const wsName = String(data.workshopName || "workshop ini");
         if (!question) return errorResponse("Isi dulu pertanyaan yang mau dijawab.");
         const geminiKey = Deno.env.get("GEMINI_API_KEY");
         if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
 
-        const prompt = `Konteks acara workshop "${wsName}" (batch ini):
+        const prompt = `Info dasar event "${wsName}" (data yang udah pasti akurat dari sistem):
 """
-${context || "(belum ada konteks yang diisi)"}
+${knownFacts || "(nggak ada info dasar tersedia)"}
+"""
+
+Konteks tambahan yang diisi manual (venue detail/rute transport/apa yang perlu dibawa/dst, yang sistem GA tau otomatis):
+"""
+${context || "(belum ada konteks tambahan yang diisi)"}
 """
 
 Peserta nanya: "${question}"
 
-Jawab pertanyaan itu PAKAI INFO DARI KONTEKS DI ATAS AJA. Kalau infonya nggak ada/nggak cukup di konteks, jawab jujur kayak "belum ada infonya nih, nanti Arnold infoin lagi ya" -- JANGAN NGARANG jawaban yang nggak ada dasarnya di konteks (misal ngarang alamat/rute yang nggak disebut).
+Jawab pertanyaan itu PAKAI INFO DARI KEDUA BLOK DI ATAS AJA (info dasar + konteks tambahan). Kalau infonya nggak ada/nggak cukup di kedua blok itu, jawab jujur kayak "belum ada infonya nih, nanti Arnold infoin lagi ya" -- JANGAN NGARANG jawaban yang nggak ada dasarnya di sana (misal ngarang alamat/rute/jam yang nggak disebut).
 
 Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), sesekali boleh sebut "Arnold" di orang ketiga buat nada personal, emoji secukupnya jangan berlebihan. Balas HANYA jawabannya aja, tanpa pembuka/penutup tambahan.`;
 

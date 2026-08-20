@@ -9422,15 +9422,35 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
     }
 
+    // Data dasar event (tanggal/jam/lokasi/harga/link grup WA) udah ada dari
+    // Config -- jangan sampai Arnold disuruh ketik ulang itu di Konteks Acara.
+    // Ini otomatis ditempelin ke tiap panggilan AI di FAQ, di luar konteks
+    // manual yang dia isi sendiri (venue detail/rute/dst yang sistem GA tau).
+    function buildPrepKnownFacts(w) {
+      if (!w) return "";
+      const lines = [];
+      if (w.name) lines.push(`Nama event: ${w.name}`);
+      if (w.workshopDate) lines.push(`Tanggal: ${w.workshopDate}`);
+      if (w.workshopTime) lines.push(`Jam: ${w.workshopTime}`);
+      if (w.locationName) lines.push(`Lokasi: ${w.locationName}`);
+      if (w.mapsLink) lines.push(`Link Maps: ${w.mapsLink}`);
+      const price = (typeof getCurrentPrice === "function" ? getCurrentPrice(w) : w.normalPrice) || 0;
+      if (price) lines.push(`Harga: ${rupiah(price)}`);
+      if (w.whatsappGroupLink) lines.push(`Link Grup WhatsApp: ${w.whatsappGroupLink}`);
+      return lines.join("\n");
+    }
+
     async function generateFaqBlockFn() {
       const msg = document.getElementById("faqBlockMsg");
       const btn = document.getElementById("faqGenerateBlockBtn");
       const event = document.getElementById("prepSelect").value;
+      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
       const context = document.getElementById("faqContext").value.trim();
-      if (!context) { msg.className = "msg err"; msg.textContent = "Isi & simpan konteks acara dulu ya."; return; }
+      const knownFacts = buildPrepKnownFacts(w);
+      if (!context && !knownFacts) { msg.className = "msg err"; msg.textContent = "Belum ada info apapun buat event ini -- isi Konteks Acara atau lengkapin data workshop di Config dulu ya."; return; }
       btn.disabled = true;
       msg.className = "msg"; msg.textContent = "Nulis FAQ...";
-      const r = await api("generateFaqBlock", { token: getToken(), context, workshopName: workshopName(event) });
+      const r = await api("generateFaqBlock", { token: getToken(), context, knownFacts, workshopName: (w && w.name) || workshopName(event) });
       btn.disabled = false;
       if (r && r.status === "success" && r.block) {
         const out = document.getElementById("faqBlockOut");
@@ -9446,12 +9466,14 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const msg = document.getElementById("faqAnswerMsg");
       const btn = document.getElementById("faqAnswerBtn");
       const event = document.getElementById("prepSelect").value;
+      const w = (typeof getWorkshopById === "function") ? getWorkshopById(event) : null;
       const context = document.getElementById("faqContext").value.trim();
+      const knownFacts = buildPrepKnownFacts(w);
       const question = document.getElementById("faqQuestion").value.trim();
       if (!question) { msg.className = "msg err"; msg.textContent = "Isi dulu pertanyaannya."; return; }
       btn.disabled = true;
       msg.className = "msg"; msg.textContent = "Nulis jawaban...";
-      const r = await api("generateFaqAnswer", { token: getToken(), context, question, workshopName: workshopName(event) });
+      const r = await api("generateFaqAnswer", { token: getToken(), context, knownFacts, question, workshopName: (w && w.name) || workshopName(event) });
       btn.disabled = false;
       if (r && r.status === "success" && r.answer) {
         const out = document.getElementById("faqAnswerOut");
