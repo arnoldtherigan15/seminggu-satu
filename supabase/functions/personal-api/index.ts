@@ -5,6 +5,7 @@
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { requireAdminAuth } from "../_shared/admin-auth.ts";
+import { callGemini } from "../_shared/gemini.ts";
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -208,46 +209,19 @@ Abaikan elemen UI yang bukan transaksi (judul halaman, filter, tombol navigasi, 
           required: ["transactions"],
         };
 
+        const result = await callGemini(geminiKey, prompt, { imageBase64, mimeType, responseSchema: schema });
+        if (!result.ok) return errorResponse("Gagal memproses gambar: " + result.error);
+        // Kuota AI kepake begitu salah satu model berhasil jawab, dicatat di
+        // sini terlepas dari hasil parse JSON di bawah berhasil atau nggak.
+        await admin.from("ai_usage_log").insert({});
+        let parsed: { transactions?: unknown };
         try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [{
-                  parts: [
-                    { inlineData: { mimeType, data: imageBase64 } },
-                    { text: prompt },
-                  ],
-                }],
-                generationConfig: {
-                  responseMimeType: "application/json",
-                  responseSchema: schema,
-                },
-              }),
-            },
-          );
-          const json = await res.json();
-          if (!res.ok) {
-            return errorResponse("Gagal memproses gambar: " + (json?.error?.message || res.statusText));
-          }
-          // Kuota Gemini kepake begitu res.ok, dicatat di sini terlepas dari
-          // hasil parse JSON di bawah berhasil atau nggak.
-          await admin.from("ai_usage_log").insert({});
-          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!text) return errorResponse("AI tidak mengembalikan hasil yang bisa dibaca.");
-          let parsed: { transactions?: unknown };
-          try {
-            parsed = JSON.parse(text);
-          } catch {
-            return errorResponse("Gagal baca hasil dari AI.");
-          }
-          const transactions = Array.isArray(parsed.transactions) ? parsed.transactions : [];
-          return jsonResponse({ status: "success", transactions });
-        } catch (e) {
-          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
+          parsed = JSON.parse(result.text || "");
+        } catch {
+          return errorResponse("Gagal baca hasil dari AI.");
         }
+        const transactions = Array.isArray(parsed.transactions) ? parsed.transactions : [];
+        return jsonResponse({ status: "success", transactions });
       }
 
       case "getAiUsageToday": {

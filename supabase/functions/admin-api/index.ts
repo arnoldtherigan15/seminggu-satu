@@ -9,6 +9,7 @@ import { uploadBase64 } from "../_shared/storage.ts";
 import { getConfigValue, setConfigValue } from "../_shared/config.ts";
 import { adminLogin, requireAdminAuth } from "../_shared/admin-auth.ts";
 import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
+import { callGemini } from "../_shared/gemini.ts";
 
 const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side"];
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
@@ -278,36 +279,15 @@ Kasih:
           required: ["title", "theme", "description", "points"],
         };
 
+        const result = await callGemini(geminiKey, prompt, { responseSchema: schema, temperature: 1.1 });
+        if (!result.ok) return errorResponse("Gagal generate ide: " + result.error);
+        let idea: { title?: string; theme?: string; description?: string; points?: number };
         try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                  responseMimeType: "application/json",
-                  responseSchema: schema,
-                  temperature: 1.1,
-                },
-              }),
-            },
-          );
-          const json = await res.json();
-          if (!res.ok) return errorResponse("Gagal generate ide: " + (json?.error?.message || res.statusText));
-          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!text) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
-          let idea: { title?: string; theme?: string; description?: string; points?: number };
-          try {
-            idea = JSON.parse(text);
-          } catch {
-            return errorResponse("Gagal baca hasil dari AI.");
-          }
-          return jsonResponse({ status: "success", idea });
-        } catch (e) {
-          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
+          idea = JSON.parse(result.text || "");
+        } catch {
+          return errorResponse("Gagal baca hasil dari AI.");
         }
+        return jsonResponse({ status: "success", idea });
       }
 
       case "saveChallenge": {
@@ -603,24 +583,11 @@ A: [jawaban]
 
 Pisahkan tiap FAQ dengan baris kosong. Gaya jawaban santai & akrab (bukan formal kayak surat resmi), boleh emoji secukupnya. Balas HANYA daftar FAQ-nya, tanpa kalimat pembuka/penutup tambahan.`;
 
-        try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-            },
-          );
-          const json = await res.json();
-          if (!res.ok) return errorResponse("Gagal generate FAQ: " + (json?.error?.message || res.statusText));
-          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-          const block = String(text || "").trim();
-          if (!block) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
-          return jsonResponse({ status: "success", block });
-        } catch (e) {
-          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
-        }
+        const result = await callGemini(geminiKey, prompt);
+        if (!result.ok) return errorResponse("Gagal generate FAQ: " + result.error);
+        const block = String(result.text || "").trim();
+        if (!block) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
+        return jsonResponse({ status: "success", block });
       }
 
       case "generateFaqAnswer": {
@@ -648,24 +615,11 @@ Jawab pertanyaan itu PAKAI INFO DARI KEDUA BLOK DI ATAS AJA (info dasar + kontek
 
 Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), sesekali boleh sebut "Arnold" di orang ketiga buat nada personal, emoji secukupnya jangan berlebihan. Balas HANYA jawabannya aja, tanpa pembuka/penutup tambahan.`;
 
-        try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-            },
-          );
-          const json = await res.json();
-          if (!res.ok) return errorResponse("Gagal generate jawaban: " + (json?.error?.message || res.statusText));
-          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-          const answer = String(text || "").trim();
-          if (!answer) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
-          return jsonResponse({ status: "success", answer });
-        } catch (e) {
-          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
-        }
+        const result = await callGemini(geminiKey, prompt);
+        if (!result.ok) return errorResponse("Gagal generate jawaban: " + result.error);
+        const answer = String(result.text || "").trim();
+        if (!answer) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
+        return jsonResponse({ status: "success", answer });
       }
 
       case "getIdeas": {
@@ -877,43 +831,16 @@ Abaikan info yang bukan item produk (alamat pengiriman, status pengiriman, subto
           required: ["items"],
         };
 
+        const result = await callGemini(geminiKey, prompt, { imageBase64, mimeType, responseSchema: schema });
+        if (!result.ok) return errorResponse("Gagal memproses gambar: " + result.error);
+        let parsed: { items?: unknown };
         try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [{
-                  parts: [
-                    { inlineData: { mimeType, data: imageBase64 } },
-                    { text: prompt },
-                  ],
-                }],
-                generationConfig: {
-                  responseMimeType: "application/json",
-                  responseSchema: schema,
-                },
-              }),
-            },
-          );
-          const json = await res.json();
-          if (!res.ok) {
-            return errorResponse("Gagal memproses gambar: " + (json?.error?.message || res.statusText));
-          }
-          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!text) return errorResponse("AI tidak mengembalikan hasil yang bisa dibaca.");
-          let parsed: { items?: unknown };
-          try {
-            parsed = JSON.parse(text);
-          } catch {
-            return errorResponse("Gagal baca hasil dari AI.");
-          }
-          const items = Array.isArray(parsed.items) ? parsed.items : [];
-          return jsonResponse({ status: "success", items });
-        } catch (e) {
-          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
+          parsed = JSON.parse(result.text || "");
+        } catch {
+          return errorResponse("Gagal baca hasil dari AI.");
         }
+        const items = Array.isArray(parsed.items) ? parsed.items : [];
+        return jsonResponse({ status: "success", items });
       }
 
       case "generateReminderMessage": {
@@ -959,27 +886,11 @@ Ciri gaya itu yang wajib dipegang:
 
 Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tanpa embel-embel semacam "Berikut pesannya:".`;
 
-        try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 1.1 }, // variasi lebih tinggi biar ga kerasa template-mirip terus
-              }),
-            },
-          );
-          const json = await res.json();
-          if (!res.ok) return errorResponse("Gagal generate pesan: " + (json?.error?.message || res.statusText));
-          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-          const message = String(text || "").trim().replace(/^["']|["']$/g, "");
-          if (!message) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
-          return jsonResponse({ status: "success", message, phase });
-        } catch (e) {
-          return errorResponse("Gagal terhubung ke layanan AI: " + (e as Error).message);
-        }
+        const result = await callGemini(geminiKey, prompt, { temperature: 1.1 }); // variasi lebih tinggi biar ga kerasa template-mirip terus
+        if (!result.ok) return errorResponse("Gagal generate pesan: " + result.error);
+        const message = String(result.text || "").trim().replace(/^["']|["']$/g, "");
+        if (!message) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
+        return jsonResponse({ status: "success", message, phase });
       }
 
       case "getInventoryTransactions": {
