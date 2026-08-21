@@ -42,7 +42,7 @@ export async function notifyRegistration(
   // bukan cuma workshop_type -- kalau nggak, angkanya jadi total SEMUA batch
   // sepanjang masa (bug yang sempet kejadian: nunjukkin 47 padahal batch aktif
   // baru 9 orang).
-  let q = admin.from("registrations").select("id", { count: "exact", head: true }).eq("workshop_type", info.workshopType);
+  let q = admin.from("registrations").select("id", { count: "exact", head: true }).eq("workshop_type", info.workshopType).eq("archived", false);
   if (info.batchId) q = q.eq("batch_id", info.batchId);
   const { count } = await q;
 

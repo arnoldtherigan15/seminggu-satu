@@ -30,7 +30,8 @@ Deno.serve(async (req) => {
     const { count } = await admin
       .from("registrations")
       .select("id", { count: "exact", head: true })
-      .eq("batch_id", b.id);
+      .eq("batch_id", b.id)
+      .eq("archived", false);
     counts[b.workshop_type] = (counts[b.workshop_type] || 0) + (count ?? 0);
     perBatch[b.id] = count ?? 0;
     if (b.workshop_type === "upcycle-journal") upcycleBatchIds.push(b.id);
@@ -44,7 +45,8 @@ Deno.serve(async (req) => {
     const { data: regs } = await admin
       .from("registrations")
       .select("extra")
-      .eq("batch_id", batchId);
+      .eq("batch_id", batchId)
+      .eq("archived", false);
     const taken = new Set<string>();
     for (const r of regs || []) {
       const coverType = r.extra?.coverType;

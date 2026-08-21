@@ -16,7 +16,8 @@ export async function loyaltyMembers(admin: SupabaseClient): Promise<LoyaltyMemb
   const { data: regs } = await admin
     .from("registrations")
     .select("wa, full_name, nickname, ig_username, created_at, workshop_type, batches(label, event_date)")
-    .neq("workshop_type", "journaling-date");
+    .neq("workshop_type", "journaling-date")
+    .eq("archived", false);
 
   const { data: claimsRow } = await admin.from("app_config").select("value").eq("key", "LOYALTY_CLAIMS_JSON").maybeSingle();
   const { data: notesRow } = await admin.from("app_config").select("value").eq("key", "LOYALTY_NOTES_JSON").maybeSingle();

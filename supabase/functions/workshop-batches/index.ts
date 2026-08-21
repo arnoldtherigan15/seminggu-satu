@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
     const merged = mergeBatchConfig(b, typeConfig);
     if (!isBatchOpen(merged)) continue;
 
-    const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
+    const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id).eq("archived", false);
     const usedCount = count ?? 0;
     const remaining = merged.maxQuota > 0 ? Math.max(0, merged.maxQuota - usedCount) : null;
     if (remaining !== null && remaining <= 0) continue; // penuh -- jangan ditawarin
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     };
 
     if (b.workshop_type === "upcycle-journal") {
-      const { data: regs } = await admin.from("registrations").select("extra").eq("batch_id", b.id);
+      const { data: regs } = await admin.from("registrations").select("extra").eq("batch_id", b.id).eq("archived", false);
       const taken = new Set<string>();
       for (const r of regs || []) {
         if (r.extra?.coverType) taken.add(String(r.extra.coverType));

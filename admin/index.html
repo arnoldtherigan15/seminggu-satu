@@ -2517,6 +2517,9 @@
     .sg-votes { display: inline-block; background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 1px 8px; margin-right: 4px; vertical-align: 1px; }
     .sg-del { border: 1px solid #fecaca; background: #fff5f5; color: #b91c1c; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
     .sg-del:hover { background: #fee2e2; }
+    .sg-archive { border: 1px solid #fde68a; background: #fffbeb; color: #92400e; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap; margin-right: 6px; }
+    .sg-archive:hover { background: #fef3c7; }
+    .sg-archive.is-archived { border-color: #c7d2fe; background: #eef2ff; color: #3730a3; }
     .sg-approve { border: 1px solid #bbf7d0; background: #f0fdf4; color: #16a34a; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
     .sg-approve:hover { background: #dcfce7; }
 
@@ -5507,10 +5510,12 @@
           const it = items[i];
           const regId = it ? it.id : "";
           const nm = it ? (it.nickname || it.full_name || "") : "";
+          const isArchived = !!(it && it.archived);
           const photoBtn = photoCfg
             ? `<button class="wa-copy" data-photolink="${escapeHtml(regId)}" data-photoname="${escapeHtml(nm)}" data-photowa="${escapeHtml((it && it.wa) || "")}" title="Kirim link upload ulang foto">${icon("camera")}</button>`
             : "";
-          return `<tr><td>${i + 1}</td>${cells}<td>${photoBtn}<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button></td></tr>`;
+          const archiveBtn = `<button class="sg-archive${isArchived ? " is-archived" : ""}" data-archivereg="${escapeHtml(regId)}" data-archived="${isArchived ? "0" : "1"}" title="${isArchived ? "Batal jadi ikut, tapi tetep kehitung di kuota/loyalty/profit -- klik buat buka arsip lagi" : "Daftar tapi nggak jadi ikut & udah dikasih slot gratis di event lain -- arsipkan biar nggak kehitung di kuota/loyalty/profit, row-nya tetep kesimpen"}">${icon("archive")} ${isArchived ? "Diarsipkan" : "Arsip"}</button>`;
+          return `<tr style="${isArchived ? "opacity:.55;" : ""}"><td>${i + 1}</td>${cells}<td>${photoBtn}${archiveBtn}<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button></td></tr>`;
         }).join("");
         body.querySelectorAll("[data-photolink]").forEach(b => b.addEventListener("click", () => {
           if (!photoCfg) return;
@@ -5522,6 +5527,14 @@
           } else {
             copyToClipboardEl(link, b);
           }
+        }));
+        body.querySelectorAll("[data-archivereg]").forEach(b => b.addEventListener("click", async () => {
+          const willArchive = b.dataset.archived === "1";
+          if (willArchive && !confirm("Arsipkan peserta ini? Row-nya tetep kesimpen, tapi nggak lagi kehitung di kuota batch, revenue/profit, & stamp loyalty.")) return;
+          b.disabled = true;
+          const r2 = await api("archiveRegistration", { token: getToken(), id: b.dataset.archivereg, archived: willArchive });
+          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          loadRegistrations();
         }));
         body.querySelectorAll("[data-delreg]").forEach(b => b.addEventListener("click", async () => {
           if (!confirm("Hapus peserta ini dari daftar? Nggak bisa dibalikin (misal karena dia cancel).")) return;
@@ -10747,9 +10760,12 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
         // data batch yg baru dipilih -- ini penyebab "data lama nyangkut").
         if (document.getElementById("prepSelect").value !== event || document.getElementById("prepBatchSelect").value !== batchId) return;
         if (r.status !== "success") { handleAuthError(r); return; }
-        if (cnt) cnt.textContent = r.total || 0;
+        // Peserta yang diarsipkan (daftar tapi nggak jadi ikut) nggak
+        // ditampilin di checklist prep -- prep itu buat yang BENERAN dateng.
+        const activeItems = (r.items || []).filter(it => !it.archived);
+        if (cnt) cnt.textContent = activeItems.length;
 
-        const shaped = itemsToSheetShape(r.items || []);
+        const shaped = itemsToSheetShape(activeItems);
         const headers = shaped.headers;
         pesertaRegIds = shaped.ids;
         const waIdx = headers.findIndex(h => /whats?app|nomor|\bwa\b|hp|telp/i.test(h));

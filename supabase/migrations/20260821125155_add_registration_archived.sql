@@ -1,0 +1,12 @@
+-- ============================================================
+-- Arsip pendaftaran -- kasus: orang daftar & bayar tapi akhirnya nggak
+-- jadi ikut, kebijakan nggak ada refund, jadi solusinya dikasih slot
+-- gratis di event berikutnya sebagai gantinya. Row pendaftarannya TETAP
+-- disimpan (bukan dihapus -- masih perlu jadi bukti/riwayat), tapi
+-- dikecualikan dari: hitungan kuota batch, revenue/profit, dan stamp
+-- loyalty (biar nggak keitung dobel -- yang beneran ikut event
+-- berikutnya itu yang bakal keitung, bukan pendaftaran lama ini).
+-- Pola sama kayak `archived` di personal_accounts/personal_categories/
+-- personal_savings_goals.
+-- ============================================================
+alter table registrations add column archived boolean not null default false;

@@ -115,6 +115,23 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", message: "Peserta & fotonya dihapus." });
       }
 
+      // Beda dari deleteRegistration: row-nya TETAP disimpan (bukan
+      // dihapus) -- buat kasus daftar-tapi-nggak-jadi-ikut & nggak ada
+      // refund, jadi dikasih slot gratis di event berikutnya sebagai
+      // gantinya. Diarsipkan -> dikecualikan dari kuota batch, revenue/
+      // profit, dan stamp loyalty (liat filter archived=false di
+      // getSummary/getOverview/getAnalytics/listBatches/loyaltyMembers +
+      // register-workshop/workshop-counts/workshop-batches), tapi rownya
+      // masih kelihatan di tabel Pendaftar buat riwayat/rujukan.
+      case "archiveRegistration": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID peserta kosong.");
+        const archived = data.archived != null ? !!data.archived : true;
+        const { error } = await admin.from("registrations").update({ archived }).eq("id", id);
+        if (error) return errorResponse("Peserta tidak ditemukan.");
+        return jsonResponse({ status: "success", message: archived ? "Peserta diarsipkan." : "Arsip dibuka lagi." });
+      }
+
       case "getSummary": {
         const { data: activeBatches } = await admin.from("batches").select("id, workshop_type").eq("active", true);
         const summary: Record<string, number> = {};
@@ -122,7 +139,7 @@ Deno.serve(async (req) => {
         // Sekarang DIJUMLAH dari semua batch aktif tipe itu (bisa lebih dari 1
         // buka bareng), bukan ketimpa jadi cuma nunjukin 1 batch doang.
         for (const b of activeBatches || []) {
-          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
+          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id).eq("archived", false);
           summary[b.workshop_type] = (summary[b.workshop_type] || 0) + (count ?? 0);
         }
         return jsonResponse({ status: "success", summary });
@@ -168,7 +185,7 @@ Deno.serve(async (req) => {
         // getAnalytics, biar konsisten antar 2 angka ini).
         const REVENUE_EXCLUDED_TYPES = new Set(["journaling-date"]);
         for (const b of allBatches || []) {
-          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
+          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id).eq("archived", false);
           const usedCount = count ?? 0;
           if (b.active) summary[b.workshop_type] = (summary[b.workshop_type] || 0) + usedCount;
           const typeConfig = cfgByType.get(b.workshop_type) || {};
@@ -249,7 +266,7 @@ Deno.serve(async (req) => {
           if (ANALYTICS_EXCLUDED_TYPES.has(b.workshop_type)) continue;
           const typeConfig = cfgByType.get(b.workshop_type) || {};
           const workshopName = String((typeConfig as Record<string, unknown>).name || b.workshop_type);
-          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
+          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id).eq("archived", false);
           const usedCount = count ?? 0;
           const merged = mergeBatchConfig(b, typeConfig);
           const price = currentPrice(merged, usedCount);
@@ -336,7 +353,7 @@ Deno.serve(async (req) => {
         const { data: rows } = await admin.from("batches").select("*").eq("workshop_type", workshop).order("created_at", { ascending: false });
         const batches = [];
         for (const b of rows || []) {
-          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
+          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id).eq("archived", false);
           batches.push({
             id: b.id, label: b.label || "", active: !!b.active, eventDate: b.event_date || "", count: count ?? 0,
             locationName: b.location_name || "", mapsLink: b.maps_link || "",

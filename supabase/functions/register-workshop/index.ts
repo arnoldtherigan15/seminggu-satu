@@ -79,7 +79,8 @@ Deno.serve(async (req) => {
         const { count } = await admin
           .from("registrations")
           .select("id", { count: "exact", head: true })
-          .eq("batch_id", batch.id as string);
+          .eq("batch_id", batch.id as string)
+          .eq("archived", false);
         if ((count ?? 0) >= merged.maxQuota) {
           return errorResponse(`Maaf, slot sesi ini udah penuh (max ${merged.maxQuota} orang) 😢`);
         }

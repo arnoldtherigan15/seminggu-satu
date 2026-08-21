@@ -42,7 +42,7 @@ Deno.serve(async (_req) => {
     else if (merged.eventDateIso === todayIso) when = "HARI INI";
     if (!when) continue;
 
-    const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", batch.id);
+    const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", batch.id).eq("archived", false);
     const workshopName = String(typeConfig.name || batch.workshop_type);
     const batchLabel = merged.label ? ` (${merged.label})` : "";
 
