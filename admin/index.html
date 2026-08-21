@@ -4449,39 +4449,8 @@
             </div>
 
             <div class="subtab-panel" data-tab="transaksi">
-              <details class="det-acc" id="txFormAcc">
-                <summary>
-                  <span class="det-acc-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Transaksi</span>
-                  <span class="det-acc-chevron">&#9656;</span>
-                </summary>
-                <div class="det-acc-body">
-                  <input type="hidden" id="txId">
-                  <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="txDate"></div>
-                    <div class="konten-field" style="flex:1;min-width:150px;"><label>Tipe</label>
-                      <select class="form-control" id="txType">
-                        <option value="expense">Pengeluaran</option>
-                        <option value="income">Pemasukan</option>
-                        <option value="transfer">Transfer Antar Akun</option>
-                      </select>
-                    </div>
-                    <div class="konten-field" style="flex:1;min-width:130px;"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="txAmount" placeholder="mis. 50.000"></div>
-                  </div>
-                  <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <div class="konten-field" style="flex:1;min-width:130px;"><label id="txAccountLabel">Akun</label><select class="form-control" id="txAccount"></select></div>
-                    <div class="konten-field" style="flex:1;min-width:130px;" id="txCategoryWrap"><label>Kategori</label><select class="form-control" id="txCategory"></select></div>
-                    <div class="konten-field" style="flex:1;min-width:130px;display:none;" id="txToAccountWrap"><label>Akun Tujuan</label><select class="form-control" id="txToAccount"></select></div>
-                  </div>
-                  <div class="konten-field"><label>Catatan (opsional)</label><input class="form-control" type="text" id="txNote" maxlength="300" placeholder="mis. Makan siang sama tim"></div>
-                  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
-                    <button class="btn btn-sm" id="txSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Transaksi</button>
-                    <button class="btn btn-sm btn-ghost" id="txCancelBtn" style="display:none;">Batal Edit</button>
-                  </div>
-                  <div class="msg" id="txMsg"></div>
-                </div>
-              </details>
-
-              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-sm" id="txAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Transaksi</button>
                 <button class="btn btn-sm btn-ghost" id="txFilterOpenBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5"/></svg> Filter<span class="subtab-count" id="txFilterCount" style="display:none;"></span></button>
               </div>
               <div id="perTxList" style="margin-top:10px;"></div>
@@ -4894,6 +4863,41 @@
       </div>
       <div class="filter-overlay-foot">
         <button class="btn" id="txFilterApplyBtn" style="width:100%;">Terapkan Filter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit transaksi Personal Finance (full-screen di mobile) -->
+  <div id="txFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="txFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="txFormTitle">Tambah Transaksi</div>
+        <button class="filter-reset-link" id="txFormDeleteBtn" style="display:none;color:var(--err);">Hapus</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="txId">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="txDate"></div>
+          <div class="konten-field" style="flex:1;min-width:150px;"><label>Tipe</label>
+            <select class="form-control" id="txType">
+              <option value="expense">Pengeluaran</option>
+              <option value="income">Pemasukan</option>
+              <option value="transfer">Transfer Antar Akun</option>
+            </select>
+          </div>
+          <div class="konten-field" style="flex:1;min-width:130px;"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="txAmount" placeholder="mis. 50.000"></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:130px;"><label id="txAccountLabel">Akun</label><select class="form-control" id="txAccount"></select></div>
+          <div class="konten-field" style="flex:1;min-width:130px;" id="txCategoryWrap"><label>Kategori</label><select class="form-control" id="txCategory"></select></div>
+          <div class="konten-field" style="flex:1;min-width:130px;display:none;" id="txToAccountWrap"><label>Akun Tujuan</label><select class="form-control" id="txToAccount"></select></div>
+        </div>
+        <div class="konten-field"><label>Catatan (opsional)</label><input class="form-control" type="text" id="txNote" maxlength="300" placeholder="mis. Makan siang sama tim"></div>
+        <div class="msg" id="txMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="txSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Transaksi</button>
       </div>
     </div>
   </div>
@@ -8308,7 +8312,15 @@
         document.getElementById("perReloadBtn").addEventListener("click", () => { showPersonalSkeletons(); loadPersonalData(); renderBizProfitCard(); });
         document.getElementById("txType").addEventListener("change", onTxTypeChange);
         document.getElementById("txSaveBtn").addEventListener("click", saveTx);
-        document.getElementById("txCancelBtn").addEventListener("click", newTxForm);
+        document.getElementById("txAddBtn").addEventListener("click", () => { newTxForm(); openTxForm(false); });
+        document.getElementById("txFormBackBtn").addEventListener("click", closeTxForm);
+        document.getElementById("txFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("txId").value;
+          if (id && await deleteTx(id)) closeTxForm();
+        });
+        document.getElementById("txFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "txFormOverlay") closeTxForm();
+        });
         // Default filter: bulan berjalan (1 s/d hari ini), bukan "semua waktu" --
         // 258+ transaksi sekaligus bakal berat/susah dibaca kalau nggak dipersempit.
         perTxFilterFrom = todayStr().slice(0, 8) + "01";
@@ -8453,7 +8465,7 @@
       if (t.note) subParts.push(t.note);
       const sourceBadge = t.source === "screenshot" ? '<span class="per-badge source">Screenshot</span>'
         : t.source === "adjustment" ? '<span class="per-badge source">Penyesuaian Saldo</span>' : "";
-      return `<div class="per-activity-row" style="align-items:flex-start;">
+      return `<div class="per-activity-row" style="align-items:flex-start;cursor:pointer;" data-edittx="${t.id}">
         <div class="per-activity-icon ${t.type}">${icon(iconName)}</div>
         <div style="flex:1;min-width:0;">
           <b style="font-size:13.5px;">${perTxLabel(t)}</b>
@@ -8462,10 +8474,7 @@
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-weight:800;color:${color};">${sign}${rupiah(t.amount)}</div>
-          <div style="display:flex;gap:4px;margin-top:4px;justify-content:flex-end;">
-            <button class="btn btn-sm btn-ghost" data-edittx="${t.id}" style="padding:3px 6px;">${icon("pencil")}</button>
-            <button class="btn btn-sm btn-ghost" data-deltx="${t.id}" style="padding:3px 6px;color:var(--err);">${icon("trash")}</button>
-          </div>
+          <button class="btn btn-sm btn-ghost" data-deltx="${t.id}" style="padding:3px 6px;color:var(--err);margin-top:4px;">${icon("trash")}</button>
         </div>
       </div>`;
     }
@@ -8984,8 +8993,21 @@
       document.getElementById("perTxList").insertAdjacentHTML("beforeend", html);
       perTxGroupsRendered += slice.length;
       document.querySelectorAll("#perTxList [data-edittx]:not([data-wired])").forEach(b => { b.dataset.wired = "1"; b.addEventListener("click", () => editTx(b.dataset.edittx)); });
-      document.querySelectorAll("#perTxList [data-deltx]:not([data-wired])").forEach(b => { b.dataset.wired = "1"; b.addEventListener("click", () => deleteTx(b.dataset.deltx)); });
+      document.querySelectorAll("#perTxList [data-deltx]:not([data-wired])").forEach(b => { b.dataset.wired = "1"; b.addEventListener("click", (e) => { e.stopPropagation(); deleteTx(b.dataset.deltx); }); });
       if (perTxGroupsRendered >= perTxGroupsCache.length && perTxObserver) { perTxObserver.disconnect(); perTxObserver = null; }
+    }
+
+    // Layar Tambah/Edit transaksi -- full-screen di mobile (dipakai bareng
+    // buat tombol "+ Tambah Transaksi" & tap-row buat edit, biar nggak perlu
+    // scroll balik ke atas kayak form inline yang lama.
+    function openTxForm(isEdit) {
+      document.getElementById("txFormTitle").textContent = isEdit ? "Edit Transaksi" : "Tambah Transaksi";
+      document.getElementById("txFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("txFormOverlay").style.display = "flex";
+    }
+
+    function closeTxForm() {
+      document.getElementById("txFormOverlay").style.display = "none";
     }
 
     function newTxForm() {
@@ -8998,12 +9020,7 @@
       if (document.getElementById("txAccount").options.length) document.getElementById("txAccount").selectedIndex = 0;
       if (document.getElementById("txToAccount").options.length) document.getElementById("txToAccount").selectedIndex = 0;
       document.getElementById("txSaveBtn").innerHTML = icon("save") + " Simpan Transaksi";
-      document.getElementById("txCancelBtn").style.display = "none";
       document.getElementById("txMsg").textContent = "";
-      // Abis simpan/batal, form nutup lagi -- list yang jadi fokus utama,
-      // bukan form (tinggal tap "+ Tambah Transaksi" lagi kalau mau nambah lagi).
-      const formAcc = document.getElementById("txFormAcc");
-      if (formAcc) formAcc.open = false;
     }
 
     function editTx(id) {
@@ -9019,11 +9036,8 @@
       else document.getElementById("txCategory").value = t.category_id || "";
       document.getElementById("txNote").value = t.note || "";
       document.getElementById("txSaveBtn").innerHTML = icon("save") + " Simpan Perubahan";
-      document.getElementById("txCancelBtn").style.display = "inline-flex";
       document.getElementById("txMsg").textContent = "";
-      if (perTabsCtl) perTabsCtl.show("transaksi");
-      const formAcc = document.getElementById("txFormAcc");
-      if (formAcc) { formAcc.open = true; formAcc.scrollIntoView({ behavior: "smooth", block: "start" }); }
+      openTxForm(true);
     }
 
     async function saveTx() {
@@ -9044,15 +9058,15 @@
       }
       msg.className = "msg"; msg.textContent = "Menyimpan...";
       const r = await personalApi("savePersonalTransaction", payload);
-      if (r && r.status === "success") { newTxForm(); await loadPersonalData(); }
+      if (r && r.status === "success") { closeTxForm(); await loadPersonalData(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
     }
 
     async function deleteTx(id) {
-      if (!confirm("Hapus transaksi ini?")) return;
+      if (!confirm("Hapus transaksi ini?")) return false;
       const r = await personalApi("deletePersonalTransaction", { token: getToken(), id });
-      if (r && r.status === "success") await loadPersonalData();
-      else { handleAuthError(r); alert((r && r.message) || "Gagal hapus."); }
+      if (r && r.status === "success") { await loadPersonalData(); return true; }
+      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
     }
 
     function renderPersonalCategories() {
