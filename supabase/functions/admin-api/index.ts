@@ -1279,6 +1279,111 @@ Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tan
         return jsonResponse({ status: "success", message: "Lead dihapus." });
       }
 
+      // ---- Partners (List Partner / MOU / Invoice) ----
+      case "listPartners": {
+        const { data: rows } = await admin.from("partners").select("*").order("name", { ascending: true });
+        const { data: docRows } = await admin.from("partner_documents").select("partner_id, type");
+        const counts: Record<string, { mou: number; invoice: number }> = {};
+        (docRows || []).forEach((d) => {
+          if (!d.partner_id) return;
+          if (!counts[d.partner_id]) counts[d.partner_id] = { mou: 0, invoice: 0 };
+          if (d.type === "mou") counts[d.partner_id].mou++;
+          else if (d.type === "invoice") counts[d.partner_id].invoice++;
+        });
+        const partners = (rows || []).map((p) => ({ ...p, mouCount: counts[p.id]?.mou || 0, invoiceCount: counts[p.id]?.invoice || 0 }));
+        return jsonResponse({ status: "success", partners });
+      }
+
+      case "savePartner": {
+        const id = String(data.id || "");
+        const name = String(data.name || "").trim();
+        if (!name) return errorResponse("Partner name is required.");
+        const payload = {
+          name,
+          pic_name: data.picName ? String(data.picName) : null,
+          pic_role: data.picRole ? String(data.picRole) : null,
+          email: data.email ? String(data.email) : null,
+          phone: data.phone ? String(data.phone) : null,
+          notes: data.notes ? String(data.notes) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("partners").update(payload).eq("id", id);
+          if (error) return errorResponse("Failed to update partner: " + error.message);
+        } else {
+          const { error } = await admin.from("partners").insert(payload);
+          if (error) return errorResponse("Failed to create partner: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Partner saved." });
+      }
+
+      case "archivePartner": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("Missing partner ID.");
+        const { error } = await admin.from("partners").update({ archived: !!data.archived }).eq("id", id);
+        if (error) return errorResponse("Failed to update partner: " + error.message);
+        return jsonResponse({ status: "success" });
+      }
+
+      case "deletePartner": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("Missing partner ID.");
+        const { error } = await admin.from("partners").delete().eq("id", id);
+        if (error) return errorResponse("Failed to delete partner: " + error.message);
+        return jsonResponse({ status: "success", message: "Partner deleted." });
+      }
+
+      case "listPartnerDocs": {
+        const type = String(data.type || "");
+        if (type !== "mou" && type !== "invoice") return errorResponse("Unknown document type: " + type);
+        let q = admin.from("partner_documents").select("*, partners(name)").eq("type", type).order("doc_date", { ascending: false });
+        if (data.partnerId) q = q.eq("partner_id", String(data.partnerId));
+        const { data: rows } = await q;
+        // deno-lint-ignore no-explicit-any
+        const docs = (rows || []).map((r: any) => ({ ...r, partnerName: r.partners?.name || "", partners: undefined }));
+        return jsonResponse({ status: "success", docs });
+      }
+
+      case "getPartnerDoc": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("Missing document ID.");
+        const { data: row, error } = await admin.from("partner_documents").select("*").eq("id", id).maybeSingle();
+        if (error || !row) return errorResponse("Document not found.");
+        return jsonResponse({ status: "success", doc: row });
+      }
+
+      case "savePartnerDoc": {
+        const id = String(data.id || "");
+        const type = String(data.type || "");
+        if (type !== "mou" && type !== "invoice") return errorResponse("Unknown document type: " + type);
+        const title = String(data.title || "").trim();
+        if (!title) return errorResponse("Document title is required.");
+        const payload = {
+          partner_id: data.partnerId ? String(data.partnerId) : null,
+          type,
+          title,
+          doc_date: data.docDate ? String(data.docDate) : today(),
+          status: String(data.status || "draft"),
+          data: data.data && typeof data.data === "object" ? data.data : {},
+          updated_at: new Date().toISOString(),
+        };
+        if (id) {
+          const { error } = await admin.from("partner_documents").update(payload).eq("id", id);
+          if (error) return errorResponse("Failed to update document: " + error.message);
+        } else {
+          const { error } = await admin.from("partner_documents").insert(payload);
+          if (error) return errorResponse("Failed to create document: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Document saved." });
+      }
+
+      case "deletePartnerDoc": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("Missing document ID.");
+        const { error } = await admin.from("partner_documents").delete().eq("id", id);
+        if (error) return errorResponse("Failed to delete document: " + error.message);
+        return jsonResponse({ status: "success", message: "Document deleted." });
+      }
+
       // ---- Pesanan minum/makan per event (menu global + pesanan per batch) ----
       case "listAllBatches": {
         const { data: rows } = await admin.from("batches").select("id, workshop_type, label, event_date").eq("archived", false).order("event_date", { ascending: false, nullsFirst: false });

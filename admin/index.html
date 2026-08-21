@@ -2652,6 +2652,32 @@
       line-height: 1;
     }
 
+    /* --- Print/PDF export buat MOU & Invoice (Partners) -- diisi JS pas
+       "Download PDF" diklik, lalu window.print() dipanggil. Semua elemen
+       LAIN disembunyiin pas @media print biar cuma dokumennya yang keprint,
+       browser native print-dialog "Save as PDF" yang ngasilin PDF-nya
+       (nggak nambah dependency JS baru, dan multi-halaman-nya bener). */
+    #docPrintArea { display: none; }
+    @media print {
+      body > *:not(#docPrintArea) { display: none !important; }
+      #docPrintArea { display: block !important; }
+    }
+    .doc-print { font-family: Georgia, 'Times New Roman', serif; color: #111; max-width: 720px; margin: 0 auto; padding: 24px; line-height: 1.5; }
+    .doc-print h1 { font-size: 20px; text-align: center; margin: 0 0 16px; }
+    .doc-print h2 { font-size: 15px; margin: 20px 0 8px; }
+    .doc-print p, .doc-print li { font-size: 13px; }
+    .doc-print ol, .doc-print ul { padding-left: 22px; }
+    .doc-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
+    .doc-table th, .doc-table td { border: 1px solid #999; padding: 6px 8px; text-align: left; vertical-align: top; }
+    .doc-table th { background: #f0f0f0; }
+    .doc-sign-table { width: 100%; margin-top: 24px; font-size: 13px; }
+    .doc-sign-table td { width: 50%; padding: 6px 10px; vertical-align: top; }
+    .doc-sign-space td { height: 60px; }
+    .doc-page-break { page-break-before: always; }
+    .doc-print-invoice h1 { color: #4f46e5; }
+    .doc-invoice-total { text-align: right; font-size: 15px; margin-top: 10px; }
+    .doc-invoice-bank, .doc-invoice-sign { margin-top: 24px; }
+
     /* --- Layar Filter full-screen (dipakai tab Transaksi Personal Finance) --- */
     .filter-overlay {
       position: fixed;
@@ -3946,6 +3972,10 @@
           <button class="nav-btn" data-view="config">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1z"/></svg></span> Config
           </button>
+          <div class="nav-section-label">Partners</div>
+          <button class="nav-btn" data-view="partners">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zM10 3H6v-.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5zM1.5 4h13a.5.5 0 0 1 .5.5V6H1v-1.5a.5.5 0 0 1 .5-.5M1 7h5v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5V7h5v5.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5z"/></svg></span> Partners
+          </button>
           <div class="nav-section-label">Content &amp; Programs</div>
           <button class="nav-btn" data-view="konten">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg></span> Content
@@ -4278,6 +4308,40 @@
                 <button class="btn btn-sm btn-ghost" id="batchMoveBtn">Move</button>
               </div>
               <div class="msg" id="batchMoveMsg"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== VIEW: PARTNERS (List Partner / MOU / Invoice) ===== -->
+        <div class="wrap view" id="viewPartners" style="display:none;">
+          <div class="subtabs" id="partnersSubtabs">
+            <div class="subtab-bar">
+              <button class="subtab-btn" type="button" data-tab="list"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg> <span>List Partner</span> <span class="subtab-count" id="partnerCount">…</span></button>
+              <button class="subtab-btn" type="button" data-tab="mou"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0"/><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> <span>MOU</span> <span class="subtab-count" id="mouCount">…</span></button>
+              <button class="subtab-btn" type="button" data-tab="invoice"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/></svg> <span>Invoice</span> <span class="subtab-count" id="invoiceCount">…</span></button>
+            </div>
+
+            <div class="subtab-panel" data-tab="list">
+              <button class="btn btn-sm" id="partnerAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Partner</button>
+              <div id="partnerList" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="subtab-panel" data-tab="mou">
+              <button class="btn btn-sm" id="mouAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New MOU</button>
+              <div class="table-box mobile-table-box" style="margin-top:10px;"><div class="table-scroll">
+                <table><thead><tr><th>Partner</th><th>Event</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="mouBody"></tbody></table>
+              </div></div>
+              <div id="mouCards" class="mobile-cards"></div>
+              <div class="empty" id="mouEmpty" style="display:none;">No MOUs yet.</div>
+            </div>
+
+            <div class="subtab-panel" data-tab="invoice">
+              <button class="btn btn-sm" id="invoiceAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Invoice</button>
+              <div class="table-box mobile-table-box" style="margin-top:10px;"><div class="table-scroll">
+                <table><thead><tr><th>To</th><th>Description</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="invoiceBody"></tbody></table>
+              </div></div>
+              <div id="invoiceCards" class="mobile-cards"></div>
+              <div class="empty" id="invoiceEmpty" style="display:none;">No invoices yet.</div>
             </div>
           </div>
         </div>
@@ -5122,6 +5186,141 @@
     </div>
   </div>
 
+  <!-- Layar Tambah/Edit Partner -->
+  <div id="partnerFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="partnerFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="partnerFormTitle">New Partner</div>
+        <button class="filter-reset-link" id="partnerFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="partnerId">
+        <div class="konten-field"><label>Partner / Company Name</label><input class="form-control" type="text" id="partnerName" placeholder="e.g. PT Bumi Wiyasa Nusantara"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:180px;"><label>PIC Name</label><input class="form-control" type="text" id="partnerPicName" placeholder="e.g. Ayu Aprilianti"></div>
+          <div class="konten-field" style="flex:1;min-width:180px;"><label>PIC Role</label><input class="form-control" type="text" id="partnerPicRole" placeholder="e.g. Strategic & Growth Marketing Manager"></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:180px;"><label>Email</label><input class="form-control" type="email" id="partnerEmail"></div>
+          <div class="konten-field" style="flex:1;min-width:180px;"><label>Phone</label><input class="form-control" type="tel" id="partnerPhone"></div>
+        </div>
+        <div class="konten-field"><label>Notes</label><textarea class="form-control" id="partnerNotes" rows="3"></textarea></div>
+        <div class="msg" id="partnerMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="partnerSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Partner</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit MOU -->
+  <div id="mouFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="mouFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="mouFormTitle">New MOU</div>
+        <button class="filter-reset-link" id="mouFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="mouId">
+        <div class="konten-field"><label>Title (for your list, e.g. "MOU Essens x Side by Side Sept 2026")</label><input class="form-control" type="text" id="mouTitle" placeholder="MOU [Partner] x [Event]"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:2;min-width:200px;"><label>Partner</label><select class="form-control" id="mouPartnerSelect"></select></div>
+          <div class="konten-field" style="flex:1;min-width:150px;"><label>Document Date</label><input class="form-control" type="date" id="mouDocDate"></div>
+          <div class="konten-field" style="flex:1;min-width:130px;"><label>Status</label>
+            <select class="form-control" id="mouStatus">
+              <option value="draft">Draft</option>
+              <option value="sent">Sent</option>
+              <option value="signed">Signed</option>
+            </select>
+          </div>
+        </div>
+        <p class="hint" style="margin:0 0 4px;">Pasal 1: Ruang Lingkup dan Jadwal Acara</p>
+        <div class="konten-field"><label>Event Name</label><input class="form-control" type="text" id="mouEventName" placeholder="e.g. Side by Side, Parent & Kid Journal Playdate by seminggu satu"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Day & Date</label><input class="form-control" type="text" id="mouEventDate" placeholder="e.g. Sabtu, 5 September 2026"></div>
+          <div class="konten-field" style="flex:1;min-width:150px;"><label>Time</label><input class="form-control" type="text" id="mouEventTime" placeholder="e.g. 10.00 - 12.30 WIB"></div>
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Target Participants</label><input class="form-control" type="text" id="mouTargetPeserta" placeholder="e.g. 15 (Couple : 1 Orang Tua dan 1 Anak) Peserta"></div>
+        </div>
+        <p class="hint" style="margin:8px 0 4px;">Pasal 2: Bentuk Dukungan Pihak Kedua</p>
+        <div class="konten-field"><textarea class="form-control" id="mouSupportText" rows="3" placeholder="1. Produk Full Size: Penyediaan produk ... yang akan dibagikan kepada seluruh peserta yang hadir."></textarea></div>
+        <p class="hint" style="margin:8px 0 4px;">Pasal 3: Kewajiban Pihak Pertama (Output Konten & Publikasi)</p>
+        <div class="konten-field"><textarea class="form-control" id="mouObligationText" rows="4" placeholder="1. Konten Reels Instagram (1 Video Utama): ...&#10;2. Instagram Stories (On-Event): ...&#10;3. Fasilitasi Kreatif: ..."></textarea></div>
+        <p class="hint" style="margin:8px 0 4px;">Pasal 4: Jangka Waktu</p>
+        <div class="konten-field"><textarea class="form-control" id="mouDurationText" rows="2"></textarea></div>
+        <p class="hint" style="margin:8px 0 4px;">Lampiran (optional)</p>
+        <div id="mouAttachRows"></div>
+        <button type="button" class="btn btn-sm btn-ghost" id="mouAttachAddBtn" style="margin-bottom:8px;">+ Add Row</button>
+        <p class="hint" style="margin:8px 0 4px;">Signatures</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Pihak Pertama Name</label><input class="form-control" type="text" id="mouP1Name" value="Arnold Therigan"></div>
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Pihak Pertama Role</label><input class="form-control" type="text" id="mouP1Role" value="Founder dan Perwakilan"></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Pihak Kedua Name</label><input class="form-control" type="text" id="mouP2Name" placeholder="e.g. Ayu Aprilianti"></div>
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Pihak Kedua Role</label><input class="form-control" type="text" id="mouP2Role" placeholder="e.g. CHRO"></div>
+        </div>
+        <div class="msg" id="mouMsg"></div>
+      </div>
+      <div class="filter-overlay-foot" style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" id="mouDownloadBtn" style="flex:1;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Download PDF</button>
+        <button class="btn" id="mouSaveBtn" style="flex:1;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save MOU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit Invoice -->
+  <div id="invoiceFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="invoiceFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="invoiceFormTitle">New Invoice</div>
+        <button class="filter-reset-link" id="invoiceFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="invoiceId">
+        <div class="konten-field"><label>Title (for your list)</label><input class="form-control" type="text" id="invoiceTitle" placeholder="e.g. Invoice - K MALL - Aug 2026"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:2;min-width:180px;"><label>Partner (optional)</label><select class="form-control" id="invoicePartnerSelect"><option value="">-</option></select></div>
+          <div class="konten-field" style="flex:1;min-width:150px;"><label>Document Date</label><input class="form-control" type="date" id="invoiceDocDate"></div>
+          <div class="konten-field" style="flex:1;min-width:130px;"><label>Status</label>
+            <select class="form-control" id="invoiceStatus">
+              <option value="draft">Draft</option>
+              <option value="sent">Sent</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
+        </div>
+        <div class="konten-field"><label>To</label><input class="form-control" type="text" id="invoiceToName" placeholder="e.g. PT Mandiri Andal Sejahtera (K MALL)"></div>
+        <p class="hint" style="margin:8px 0 4px;">Line Items</p>
+        <div id="invoiceItemRows"></div>
+        <button type="button" class="btn btn-sm btn-ghost" id="invoiceItemAddBtn" style="margin-bottom:4px;">+ Add Item</button>
+        <div class="hint" style="text-align:right;font-weight:700;color:var(--ink);margin-bottom:8px;">Total: <span id="invoiceTotalOut">Rp 0</span></div>
+        <p class="hint" style="margin:8px 0 4px;">Bank Transfer</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:120px;"><label>Bank Name</label><input class="form-control" type="text" id="invoiceBankName" value="BCA"></div>
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Account Name</label><input class="form-control" type="text" id="invoiceBankAccountName" value="Arnold Therigan"></div>
+          <div class="konten-field" style="flex:1;min-width:150px;"><label>Account No</label><input class="form-control" type="text" id="invoiceBankAccountNo" value="6042825961"></div>
+        </div>
+        <p class="hint" style="margin:8px 0 4px;">Signature</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Signer Name</label><input class="form-control" type="text" id="invoiceSignerName" value="Arnold Therigan"></div>
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Signer Role</label><input class="form-control" type="text" id="invoiceSignerRole" value="Founder Seminggu Satu"></div>
+        </div>
+        <div class="msg" id="invoiceMsg"></div>
+      </div>
+      <div class="filter-overlay-foot" style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" id="invoiceDownloadBtn" style="flex:1;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Download PDF</button>
+        <button class="btn" id="invoiceSaveBtn" style="flex:1;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Invoice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden print area buat Download PDF (MOU & Invoice) -- di luar dashboard-container
+       biar gampang di-hide semua elemen LAIN pas @media print, cuma ini yang keliatan. -->
+  <div id="docPrintArea"></div>
+
   <!-- Config global: SUPABASE_URL/SUPABASE_ANON_KEY & data statis (untuk seed awal editor) -->
   <script src="../env.js"></script>
   <script src="../workshop-config.js"></script>
@@ -5880,7 +6079,7 @@
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "konten", "leads", "quest", "activity", "members", "pesanan", "personal"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partners", "konten", "leads", "quest", "activity", "members", "pesanan", "personal"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1]);
     }
@@ -5895,6 +6094,7 @@
       document.getElementById("viewKeuangan").style.display = (view === "keuangan") ? "block" : "none";
       document.getElementById("viewPrep").style.display = (view === "prep") ? "block" : "none";
       document.getElementById("viewConfig").style.display = (view === "config") ? "block" : "none";
+      document.getElementById("viewPartners").style.display = (view === "partners") ? "block" : "none";
       document.getElementById("viewKonten").style.display = (view === "konten") ? "block" : "none";
       document.getElementById("viewLeads").style.display = (view === "leads") ? "block" : "none";
       document.getElementById("viewQuest").style.display = (view === "quest") ? "block" : "none";
@@ -5909,6 +6109,7 @@
       if (view === "keuangan") ensureFinanceLoaded();
       if (view === "prep") ensurePrep(event);
       if (view === "config") ensureConfigLoaded();
+      if (view === "partners") ensurePartners();
       if (view === "konten") ensureKontenLoaded();
       if (view === "leads") ensureLeads();
       if (view === "quest") ensureQuest();
@@ -7177,6 +7378,617 @@
       } finally {
         btn.disabled = false;
       }
+    }
+
+    // ---------- PARTNERS (List Partner / MOU / Invoice) ----------
+    let PARTNERS = [];
+    let PARTNER_DOCS_MOU = [];
+    let PARTNER_DOCS_INVOICE = [];
+    let partnersInit = false;
+
+    async function ensurePartners() {
+      if (!partnersInit) {
+        partnersInit = true;
+        wireSubtabs(document.getElementById("partnersSubtabs"));
+
+        document.getElementById("partnerAddBtn").addEventListener("click", () => { newPartnerForm(); openPartnerForm(false); });
+        document.getElementById("partnerFormBackBtn").addEventListener("click", closePartnerForm);
+        document.getElementById("partnerFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("partnerId").value;
+          if (id && await deletePartner(id)) closePartnerForm();
+        });
+        document.getElementById("partnerFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "partnerFormOverlay") closePartnerForm();
+        });
+        document.getElementById("partnerSaveBtn").addEventListener("click", savePartner);
+
+        document.getElementById("mouAddBtn").addEventListener("click", () => { newMouForm(); openMouForm(false); });
+        document.getElementById("mouFormBackBtn").addEventListener("click", closeMouForm);
+        document.getElementById("mouFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("mouId").value;
+          if (id && await deletePartnerDoc(id, "mou")) closeMouForm();
+        });
+        document.getElementById("mouFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "mouFormOverlay") closeMouForm();
+        });
+        document.getElementById("mouSaveBtn").addEventListener("click", saveMouDoc);
+        document.getElementById("mouAttachAddBtn").addEventListener("click", () => addMouAttachRow({}));
+        document.getElementById("mouDownloadBtn").addEventListener("click", downloadCurrentMouPdf);
+
+        document.getElementById("invoiceAddBtn").addEventListener("click", () => { newInvoiceForm(); openInvoiceForm(false); });
+        document.getElementById("invoiceFormBackBtn").addEventListener("click", closeInvoiceForm);
+        document.getElementById("invoiceFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("invoiceId").value;
+          if (id && await deletePartnerDoc(id, "invoice")) closeInvoiceForm();
+        });
+        document.getElementById("invoiceFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "invoiceFormOverlay") closeInvoiceForm();
+        });
+        document.getElementById("invoiceSaveBtn").addEventListener("click", saveInvoiceDoc);
+        document.getElementById("invoiceItemAddBtn").addEventListener("click", () => addInvoiceItemRow({}));
+        document.getElementById("invoiceDownloadBtn").addEventListener("click", downloadCurrentInvoicePdf);
+      }
+      await loadPartners();
+      await loadPartnerDocs("mou");
+      await loadPartnerDocs("invoice");
+    }
+
+    // ---- List Partner ----
+    async function loadPartners() {
+      const r = await api("listPartners", { token: getToken() });
+      if (r.status !== "success") { handleAuthError(r); return; }
+      PARTNERS = r.partners || [];
+      renderPartnerList();
+      populatePartnerSelects();
+    }
+
+    function populatePartnerSelects() {
+      const active = PARTNERS.filter(p => !p.archived);
+      const opts = active.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
+      const mouSel = document.getElementById("mouPartnerSelect");
+      if (mouSel) { const cur = mouSel.value; mouSel.innerHTML = opts || '<option value="">(add a partner first)</option>'; mouSel.value = cur; }
+      const invSel = document.getElementById("invoicePartnerSelect");
+      if (invSel) { const cur = invSel.value; invSel.innerHTML = '<option value="">-</option>' + opts; invSel.value = cur; }
+    }
+
+    function renderPartnerList() {
+      const list = document.getElementById("partnerList");
+      const cnt = document.getElementById("partnerCount");
+      if (cnt) cnt.textContent = PARTNERS.length;
+      if (!PARTNERS.length) { list.innerHTML = '<p class="hint">No partners yet.</p>'; return; }
+      list.innerHTML = PARTNERS.map(p => `
+        <div class="per-activity-row" style="align-items:flex-start;cursor:pointer;${p.archived ? "opacity:.55;" : ""}" data-editpartner="${p.id}">
+          <div class="per-activity-icon transfer">${icon("people")}</div>
+          <div style="flex:1;min-width:0;">
+            <b style="font-size:13.5px;">${escapeHtml(p.name)}</b>${p.archived ? ' <span class="subtab-count">archived</span>' : ""}
+            <div class="per-tx-sub">${escapeHtml(p.pic_name || "-")}${p.pic_role ? " · " + escapeHtml(p.pic_role) : ""}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="hint" style="margin:0;">${p.mouCount || 0} MOU · ${p.invoiceCount || 0} Invoice</div>
+            <div style="display:flex;gap:4px;margin-top:4px;justify-content:flex-end;">
+              <button class="btn btn-sm btn-ghost" data-archivepartner="${p.id}" data-archived="${p.archived ? "0" : "1"}" style="padding:3px 6px;">${icon("archive")}</button>
+            </div>
+          </div>
+        </div>`).join("");
+      list.querySelectorAll("[data-editpartner]").forEach(el => el.addEventListener("click", () => editPartner(el.dataset.editpartner)));
+      list.querySelectorAll("[data-archivepartner]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archivePartner(b.dataset.archivepartner, b.dataset.archived === "1"); }));
+    }
+
+    function openPartnerForm(isEdit) {
+      document.getElementById("partnerFormTitle").textContent = isEdit ? "Edit Partner" : "New Partner";
+      document.getElementById("partnerFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("partnerFormOverlay").style.display = "flex";
+    }
+    function closePartnerForm() { document.getElementById("partnerFormOverlay").style.display = "none"; }
+
+    function newPartnerForm() {
+      document.getElementById("partnerId").value = "";
+      document.getElementById("partnerName").value = "";
+      document.getElementById("partnerPicName").value = "";
+      document.getElementById("partnerPicRole").value = "";
+      document.getElementById("partnerEmail").value = "";
+      document.getElementById("partnerPhone").value = "";
+      document.getElementById("partnerNotes").value = "";
+      document.getElementById("partnerMsg").textContent = "";
+    }
+
+    function editPartner(id) {
+      const p = PARTNERS.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById("partnerId").value = p.id;
+      document.getElementById("partnerName").value = p.name || "";
+      document.getElementById("partnerPicName").value = p.pic_name || "";
+      document.getElementById("partnerPicRole").value = p.pic_role || "";
+      document.getElementById("partnerEmail").value = p.email || "";
+      document.getElementById("partnerPhone").value = p.phone || "";
+      document.getElementById("partnerNotes").value = p.notes || "";
+      document.getElementById("partnerMsg").textContent = "";
+      openPartnerForm(true);
+    }
+
+    async function savePartner() {
+      const msg = document.getElementById("partnerMsg");
+      const name = document.getElementById("partnerName").value.trim();
+      if (!name) { msg.className = "msg err"; msg.textContent = "Partner name is required."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await api("savePartner", {
+        token: getToken(), id: document.getElementById("partnerId").value, name,
+        picName: document.getElementById("partnerPicName").value.trim(),
+        picRole: document.getElementById("partnerPicRole").value.trim(),
+        email: document.getElementById("partnerEmail").value.trim(),
+        phone: document.getElementById("partnerPhone").value.trim(),
+        notes: document.getElementById("partnerNotes").value.trim(),
+      });
+      if (r.status === "success") { closePartnerForm(); await loadPartners(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to save."; }
+    }
+
+    async function archivePartner(id, archived) {
+      const r = await api("archivePartner", { token: getToken(), id, archived });
+      if (r.status === "success") await loadPartners();
+      else { handleAuthError(r); alert(r.message || "Failed to update."); }
+    }
+
+    async function deletePartner(id) {
+      if (!confirm("Delete this partner? Any MOU/Invoice history stays saved, just unlinked from this partner.")) return false;
+      const r = await api("deletePartner", { token: getToken(), id });
+      if (r.status === "success") { await loadPartners(); return true; }
+      handleAuthError(r); alert(r.message || "Failed to delete."); return false;
+    }
+
+    // ---- MOU / Invoice shared loading ----
+    async function loadPartnerDocs(type) {
+      const r = await api("listPartnerDocs", { token: getToken(), type });
+      if (r.status !== "success") { handleAuthError(r); return; }
+      if (type === "mou") { PARTNER_DOCS_MOU = r.docs || []; renderMouList(); }
+      else { PARTNER_DOCS_INVOICE = r.docs || []; renderInvoiceList(); }
+    }
+
+    async function deletePartnerDoc(id, type) {
+      if (!confirm("Delete this document? This can't be undone.")) return false;
+      const r = await api("deletePartnerDoc", { token: getToken(), id });
+      if (r.status === "success") { await loadPartnerDocs(type); await loadPartners(); return true; }
+      handleAuthError(r); alert(r.message || "Failed to delete."); return false;
+    }
+
+    // ---- MOU list + form ----
+    function mouStatusLabel(s) { return s === "signed" ? "Signed" : s === "sent" ? "Sent" : "Draft"; }
+
+    function renderMouList() {
+      const body = document.getElementById("mouBody");
+      const cardsEl = document.getElementById("mouCards");
+      const empty = document.getElementById("mouEmpty");
+      const cnt = document.getElementById("mouCount");
+      if (cnt) cnt.textContent = PARTNER_DOCS_MOU.length;
+      if (!PARTNER_DOCS_MOU.length) {
+        body.innerHTML = ""; if (cardsEl) cardsEl.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      const rows = [];
+      const cards = [];
+      PARTNER_DOCS_MOU.forEach(doc => {
+        const d = doc.data || {};
+        rows.push(`<tr data-editmou="${doc.id}" style="cursor:pointer;">
+          <td>${escapeHtml(doc.partnerName || "-")}</td>
+          <td>${escapeHtml(d.eventName || "-")}</td>
+          <td>${escapeHtml(doc.doc_date || "")}</td>
+          <td>${mouStatusLabel(doc.status)}</td>
+          <td><button class="btn btn-sm btn-ghost" data-dlmou="${doc.id}" title="Download PDF">${icon("download")}</button></td>
+        </tr>`);
+        cards.push(`<div class="mobile-card" data-editmou="${doc.id}" style="cursor:pointer;">
+          <div class="mobile-card-top"><span class="mobile-card-name">${escapeHtml(doc.title)}</span></div>
+          <div class="mobile-card-fields">
+            <div class="mobile-card-field"><b>Partner:</b> ${escapeHtml(doc.partnerName || "-")}</div>
+            <div class="mobile-card-field"><b>Event:</b> ${escapeHtml(d.eventName || "-")}</div>
+            <div class="mobile-card-field"><b>Date:</b> ${escapeHtml(doc.doc_date || "")}</div>
+            <div class="mobile-card-field"><b>Status:</b> ${mouStatusLabel(doc.status)}</div>
+          </div>
+          <div class="mobile-card-actions"><button class="btn btn-sm btn-ghost" data-dlmou="${doc.id}">${icon("download")} Download PDF</button></div>
+        </div>`);
+      });
+      body.innerHTML = rows.join("");
+      if (cardsEl) cardsEl.innerHTML = cards.join("");
+      const wireRoot = (root) => {
+        if (!root) return;
+        root.querySelectorAll("[data-editmou]").forEach(el => el.addEventListener("click", (e) => {
+          if (e.target.closest("[data-dlmou]")) return;
+          editMouDoc(el.dataset.editmou);
+        }));
+        root.querySelectorAll("[data-dlmou]").forEach(b => b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const doc = PARTNER_DOCS_MOU.find(x => x.id === b.dataset.dlmou);
+          if (doc) downloadMouPdf(doc);
+        }));
+      };
+      wireRoot(body);
+      wireRoot(cardsEl);
+    }
+
+    function addMouAttachRow(item) {
+      const container = document.getElementById("mouAttachRows");
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;align-items:center;";
+      row.innerHTML = `
+        <input type="text" class="form-control mou-attach-jenis" placeholder="Jenis Dukungan" value="${escapeHtml(item.jenis || "")}" style="flex:2;min-width:150px;">
+        <input type="text" class="form-control mou-attach-jumlah" placeholder="Jumlah" value="${escapeHtml(item.jumlah || "")}" style="flex:1;min-width:90px;">
+        <input type="text" class="form-control mou-attach-ket" placeholder="Keterangan" value="${escapeHtml(item.keterangan || "")}" style="flex:2;min-width:150px;">
+        <button type="button" class="btn btn-sm btn-ghost mou-attach-del" style="flex-shrink:0;">${icon("trash")}</button>`;
+      row.querySelector(".mou-attach-del").addEventListener("click", () => row.remove());
+      container.appendChild(row);
+    }
+    function collectMouAttachRows() {
+      return Array.from(document.querySelectorAll("#mouAttachRows > div")).map(row => ({
+        jenis: row.querySelector(".mou-attach-jenis").value.trim(),
+        jumlah: row.querySelector(".mou-attach-jumlah").value.trim(),
+        keterangan: row.querySelector(".mou-attach-ket").value.trim(),
+      })).filter(it => it.jenis || it.jumlah || it.keterangan);
+    }
+
+    function openMouForm(isEdit) {
+      document.getElementById("mouFormTitle").textContent = isEdit ? "Edit MOU" : "New MOU";
+      document.getElementById("mouFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("mouFormOverlay").style.display = "flex";
+    }
+    function closeMouForm() { document.getElementById("mouFormOverlay").style.display = "none"; }
+
+    function newMouForm() {
+      document.getElementById("mouId").value = "";
+      document.getElementById("mouTitle").value = "";
+      populatePartnerSelects();
+      document.getElementById("mouPartnerSelect").value = "";
+      document.getElementById("mouDocDate").value = todayStr();
+      document.getElementById("mouStatus").value = "draft";
+      document.getElementById("mouEventName").value = "";
+      document.getElementById("mouEventDate").value = "";
+      document.getElementById("mouEventTime").value = "";
+      document.getElementById("mouTargetPeserta").value = "";
+      document.getElementById("mouSupportText").value = "";
+      document.getElementById("mouObligationText").value = "";
+      document.getElementById("mouDurationText").value = "Nota kesepahaman ini berlaku efektif sejak tanggal ditandatangani oleh PARA PIHAK hingga seluruh output konten selesai diunggah dan tanggung jawab pelaporan kerjasama terpenuhi.";
+      document.getElementById("mouAttachRows").innerHTML = "";
+      document.getElementById("mouP1Name").value = "Arnold Therigan";
+      document.getElementById("mouP1Role").value = "Founder dan Perwakilan";
+      document.getElementById("mouP2Name").value = "";
+      document.getElementById("mouP2Role").value = "";
+      document.getElementById("mouMsg").textContent = "";
+    }
+
+    function editMouDoc(id) {
+      const doc = PARTNER_DOCS_MOU.find(x => x.id === id);
+      if (!doc) return;
+      const d = doc.data || {};
+      document.getElementById("mouId").value = doc.id;
+      document.getElementById("mouTitle").value = doc.title || "";
+      populatePartnerSelects();
+      document.getElementById("mouPartnerSelect").value = doc.partner_id || "";
+      document.getElementById("mouDocDate").value = doc.doc_date || todayStr();
+      document.getElementById("mouStatus").value = doc.status || "draft";
+      document.getElementById("mouEventName").value = d.eventName || "";
+      document.getElementById("mouEventDate").value = d.eventDate || "";
+      document.getElementById("mouEventTime").value = d.eventTime || "";
+      document.getElementById("mouTargetPeserta").value = d.targetPeserta || "";
+      document.getElementById("mouSupportText").value = d.supportText || "";
+      document.getElementById("mouObligationText").value = d.obligationText || "";
+      document.getElementById("mouDurationText").value = d.durationText || "";
+      document.getElementById("mouAttachRows").innerHTML = "";
+      (d.attachments || []).forEach(a => addMouAttachRow(a));
+      document.getElementById("mouP1Name").value = d.pihakPertamaName || "Arnold Therigan";
+      document.getElementById("mouP1Role").value = d.pihakPertamaRole || "Founder dan Perwakilan";
+      document.getElementById("mouP2Name").value = d.pihakKeduaName || "";
+      document.getElementById("mouP2Role").value = d.pihakKeduaRole || "";
+      document.getElementById("mouMsg").textContent = "";
+      openMouForm(true);
+    }
+
+    function collectMouFormData() {
+      const partnerId = document.getElementById("mouPartnerSelect").value;
+      const partner = PARTNERS.find(p => p.id === partnerId);
+      return {
+        id: document.getElementById("mouId").value,
+        partnerId,
+        partnerName: partner ? partner.name : "",
+        title: document.getElementById("mouTitle").value.trim(),
+        docDate: document.getElementById("mouDocDate").value || todayStr(),
+        status: document.getElementById("mouStatus").value,
+        data: {
+          eventName: document.getElementById("mouEventName").value.trim(),
+          eventDate: document.getElementById("mouEventDate").value.trim(),
+          eventTime: document.getElementById("mouEventTime").value.trim(),
+          targetPeserta: document.getElementById("mouTargetPeserta").value.trim(),
+          supportText: document.getElementById("mouSupportText").value.trim(),
+          obligationText: document.getElementById("mouObligationText").value.trim(),
+          durationText: document.getElementById("mouDurationText").value.trim(),
+          attachments: collectMouAttachRows(),
+          pihakPertamaName: document.getElementById("mouP1Name").value.trim(),
+          pihakPertamaRole: document.getElementById("mouP1Role").value.trim(),
+          pihakKeduaName: document.getElementById("mouP2Name").value.trim(),
+          pihakKeduaRole: document.getElementById("mouP2Role").value.trim(),
+          pihakKeduaCompany: partner ? partner.name : "",
+        },
+      };
+    }
+
+    async function saveMouDoc() {
+      const msg = document.getElementById("mouMsg");
+      const f = collectMouFormData();
+      if (!f.title) { msg.className = "msg err"; msg.textContent = "Title is required."; return; }
+      if (!f.partnerId) { msg.className = "msg err"; msg.textContent = "Please select a partner."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await api("savePartnerDoc", { token: getToken(), id: f.id, type: "mou", partnerId: f.partnerId, title: f.title, docDate: f.docDate, status: f.status, data: f.data });
+      if (r.status === "success") { closeMouForm(); await loadPartnerDocs("mou"); await loadPartners(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to save."; }
+    }
+
+    // ---- Invoice list + form ----
+    function invoiceTotal(doc) {
+      const items = (doc.data && doc.data.items) || [];
+      return items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+    }
+    function invoiceStatusLabel(s) { return s === "paid" ? "Paid" : s === "sent" ? "Sent" : "Draft"; }
+
+    function renderInvoiceList() {
+      const body = document.getElementById("invoiceBody");
+      const cardsEl = document.getElementById("invoiceCards");
+      const empty = document.getElementById("invoiceEmpty");
+      const cnt = document.getElementById("invoiceCount");
+      if (cnt) cnt.textContent = PARTNER_DOCS_INVOICE.length;
+      if (!PARTNER_DOCS_INVOICE.length) {
+        body.innerHTML = ""; if (cardsEl) cardsEl.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      const rows = [];
+      const cards = [];
+      PARTNER_DOCS_INVOICE.forEach(doc => {
+        const d = doc.data || {};
+        const items = d.items || [];
+        const desc = (items[0] && items[0].description) || "-";
+        const more = items.length > 1 ? ` (+${items.length - 1})` : "";
+        const total = invoiceTotal(doc);
+        rows.push(`<tr data-editinvoice="${doc.id}" style="cursor:pointer;">
+          <td>${escapeHtml(d.toName || "-")}</td>
+          <td>${escapeHtml(desc)}${more}</td>
+          <td>${rupiah(total)}</td>
+          <td>${escapeHtml(doc.doc_date || "")}</td>
+          <td>${invoiceStatusLabel(doc.status)}</td>
+          <td><button class="btn btn-sm btn-ghost" data-dlinvoice="${doc.id}" title="Download PDF">${icon("download")}</button></td>
+        </tr>`);
+        cards.push(`<div class="mobile-card" data-editinvoice="${doc.id}" style="cursor:pointer;">
+          <div class="mobile-card-top"><span class="mobile-card-name">${escapeHtml(doc.title)}</span></div>
+          <div class="mobile-card-fields">
+            <div class="mobile-card-field"><b>To:</b> ${escapeHtml(d.toName || "-")}</div>
+            <div class="mobile-card-field"><b>Total:</b> ${rupiah(total)}</div>
+            <div class="mobile-card-field"><b>Date:</b> ${escapeHtml(doc.doc_date || "")}</div>
+            <div class="mobile-card-field"><b>Status:</b> ${invoiceStatusLabel(doc.status)}</div>
+          </div>
+          <div class="mobile-card-actions"><button class="btn btn-sm btn-ghost" data-dlinvoice="${doc.id}">${icon("download")} Download PDF</button></div>
+        </div>`);
+      });
+      body.innerHTML = rows.join("");
+      if (cardsEl) cardsEl.innerHTML = cards.join("");
+      const wireRoot = (root) => {
+        if (!root) return;
+        root.querySelectorAll("[data-editinvoice]").forEach(el => el.addEventListener("click", (e) => {
+          if (e.target.closest("[data-dlinvoice]")) return;
+          editInvoiceDoc(el.dataset.editinvoice);
+        }));
+        root.querySelectorAll("[data-dlinvoice]").forEach(b => b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const doc = PARTNER_DOCS_INVOICE.find(x => x.id === b.dataset.dlinvoice);
+          if (doc) downloadInvoicePdf(doc);
+        }));
+      };
+      wireRoot(body);
+      wireRoot(cardsEl);
+    }
+
+    function addInvoiceItemRow(item) {
+      const container = document.getElementById("invoiceItemRows");
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;align-items:center;";
+      row.innerHTML = `
+        <input type="text" class="form-control inv-item-desc" placeholder="Description" value="${escapeHtml(item.description || "")}" style="flex:3;min-width:180px;">
+        <input type="text" inputmode="numeric" class="form-control inv-item-amount" placeholder="Amount" value="${item.amount ? formatRibuan(item.amount) : ""}" style="flex:1;min-width:110px;">
+        <button type="button" class="btn btn-sm btn-ghost inv-item-del" style="flex-shrink:0;">${icon("trash")}</button>`;
+      row.querySelector(".inv-item-del").addEventListener("click", () => { row.remove(); updateInvoiceTotalOut(); });
+      row.querySelector(".inv-item-amount").addEventListener("input", updateInvoiceTotalOut);
+      container.appendChild(row);
+      updateInvoiceTotalOut();
+    }
+    function collectInvoiceItemRows() {
+      return Array.from(document.querySelectorAll("#invoiceItemRows > div")).map(row => ({
+        description: row.querySelector(".inv-item-desc").value.trim(),
+        amount: parseRibuan(row.querySelector(".inv-item-amount").value),
+      })).filter(it => it.description || it.amount);
+    }
+    function updateInvoiceTotalOut() {
+      const total = collectInvoiceItemRows().reduce((s, it) => s + (Number(it.amount) || 0), 0);
+      const out = document.getElementById("invoiceTotalOut");
+      if (out) out.textContent = rupiah(total);
+    }
+
+    function openInvoiceForm(isEdit) {
+      document.getElementById("invoiceFormTitle").textContent = isEdit ? "Edit Invoice" : "New Invoice";
+      document.getElementById("invoiceFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("invoiceFormOverlay").style.display = "flex";
+    }
+    function closeInvoiceForm() { document.getElementById("invoiceFormOverlay").style.display = "none"; }
+
+    function newInvoiceForm() {
+      document.getElementById("invoiceId").value = "";
+      document.getElementById("invoiceTitle").value = "";
+      populatePartnerSelects();
+      document.getElementById("invoicePartnerSelect").value = "";
+      document.getElementById("invoiceDocDate").value = todayStr();
+      document.getElementById("invoiceStatus").value = "draft";
+      document.getElementById("invoiceToName").value = "";
+      document.getElementById("invoiceItemRows").innerHTML = "";
+      addInvoiceItemRow({});
+      document.getElementById("invoiceBankName").value = "BCA";
+      document.getElementById("invoiceBankAccountName").value = "Arnold Therigan";
+      document.getElementById("invoiceBankAccountNo").value = "6042825961";
+      document.getElementById("invoiceSignerName").value = "Arnold Therigan";
+      document.getElementById("invoiceSignerRole").value = "Founder Seminggu Satu";
+      document.getElementById("invoiceMsg").textContent = "";
+    }
+
+    function editInvoiceDoc(id) {
+      const doc = PARTNER_DOCS_INVOICE.find(x => x.id === id);
+      if (!doc) return;
+      const d = doc.data || {};
+      document.getElementById("invoiceId").value = doc.id;
+      document.getElementById("invoiceTitle").value = doc.title || "";
+      populatePartnerSelects();
+      document.getElementById("invoicePartnerSelect").value = doc.partner_id || "";
+      document.getElementById("invoiceDocDate").value = doc.doc_date || todayStr();
+      document.getElementById("invoiceStatus").value = doc.status || "draft";
+      document.getElementById("invoiceToName").value = d.toName || "";
+      document.getElementById("invoiceItemRows").innerHTML = "";
+      (d.items && d.items.length ? d.items : [{}]).forEach(it => addInvoiceItemRow(it));
+      document.getElementById("invoiceBankName").value = d.bankName || "BCA";
+      document.getElementById("invoiceBankAccountName").value = d.bankAccountName || "Arnold Therigan";
+      document.getElementById("invoiceBankAccountNo").value = d.bankAccountNo || "6042825961";
+      document.getElementById("invoiceSignerName").value = d.signerName || "Arnold Therigan";
+      document.getElementById("invoiceSignerRole").value = d.signerRole || "Founder Seminggu Satu";
+      document.getElementById("invoiceMsg").textContent = "";
+      openInvoiceForm(true);
+    }
+
+    function collectInvoiceFormData() {
+      const partnerId = document.getElementById("invoicePartnerSelect").value;
+      return {
+        id: document.getElementById("invoiceId").value,
+        partnerId: partnerId || null,
+        title: document.getElementById("invoiceTitle").value.trim(),
+        docDate: document.getElementById("invoiceDocDate").value || todayStr(),
+        status: document.getElementById("invoiceStatus").value,
+        data: {
+          toName: document.getElementById("invoiceToName").value.trim(),
+          items: collectInvoiceItemRows(),
+          bankName: document.getElementById("invoiceBankName").value.trim(),
+          bankAccountName: document.getElementById("invoiceBankAccountName").value.trim(),
+          bankAccountNo: document.getElementById("invoiceBankAccountNo").value.trim(),
+          signerName: document.getElementById("invoiceSignerName").value.trim(),
+          signerRole: document.getElementById("invoiceSignerRole").value.trim(),
+        },
+      };
+    }
+
+    async function saveInvoiceDoc() {
+      const msg = document.getElementById("invoiceMsg");
+      const f = collectInvoiceFormData();
+      if (!f.title) { msg.className = "msg err"; msg.textContent = "Title is required."; return; }
+      if (!f.data.items.length) { msg.className = "msg err"; msg.textContent = "Add at least one line item."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await api("savePartnerDoc", { token: getToken(), id: f.id, type: "invoice", partnerId: f.partnerId, title: f.title, docDate: f.docDate, status: f.status, data: f.data });
+      if (r.status === "success") { closeInvoiceForm(); await loadPartnerDocs("invoice"); await loadPartners(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to save."; }
+    }
+
+    // ---- PDF export (print-to-PDF via the browser, no JS lib) ----
+    function formatDateIndoLong(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr + "T00:00:00");
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    }
+
+    function openDocPrint(html) {
+      const area = document.getElementById("docPrintArea");
+      area.innerHTML = html;
+      setTimeout(() => window.print(), 50);
+    }
+
+    function downloadCurrentMouPdf() {
+      const f = collectMouFormData();
+      downloadMouPdf({ title: f.title, doc_date: f.docDate, partnerName: f.partnerName, data: f.data });
+    }
+
+    function downloadMouPdf(doc) {
+      const d = doc.data || {};
+      const dateId = doc.doc_date ? formatDateIndoLong(doc.doc_date) : "";
+      const attachHtml = (d.attachments && d.attachments.length) ? `
+        <div class="doc-page-break"></div>
+        <h2>LAMPIRAN DOKUMEN KERJASAMA</h2>
+        <table class="doc-table">
+          <thead><tr><th>No.</th><th>Jenis Dukungan</th><th>Jumlah/Kuota</th><th>Keterangan</th></tr></thead>
+          <tbody>${d.attachments.map((a, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(a.jenis || "-")}</td><td>${escapeHtml(a.jumlah || "-")}</td><td>${escapeHtml(a.keterangan || "-")}</td></tr>`).join("")}</tbody>
+        </table>` : "";
+      const html = `
+        <div class="doc-print doc-print-mou">
+          <h1>MEMORANDUM OF UNDERSTANDING (MOU)<br>NOTA KESEPAHAMAN KERJASAMA</h1>
+          <p style="text-align:center;">Antara<br><b>Komunitas Seminggu Satu</b><br>dan<br><b>${escapeHtml(d.pihakKeduaCompany || doc.partnerName || "-")}</b></p>
+          <p>Pada hari ini, ${escapeHtml(dateId)}, yang bertanda tangan di bawah ini:</p>
+          <ol>
+            <li><b>${escapeHtml(d.pihakPertamaName || "Arnold Therigan")}</b>, selaku ${escapeHtml(d.pihakPertamaRole || "Founder dan Perwakilan")} dari Komunitas Seminggu Satu, selanjutnya disebut sebagai <b>PIHAK PERTAMA</b>.</li>
+            <li><b>${escapeHtml(d.pihakKeduaName || "-")}</b>, selaku ${escapeHtml(d.pihakKeduaRole || "-")} dan Perwakilan Resmi dari ${escapeHtml(d.pihakKeduaCompany || doc.partnerName || "-")}, selanjutnya disebut sebagai <b>PIHAK KEDUA</b>.</li>
+          </ol>
+          <p>PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama disebut sebagai <b>PARA PIHAK</b>. PARA PIHAK sepakat untuk mengadakan kerjasama dalam rangka mendukung kegiatan yang diselenggarakan oleh Komunitas Seminggu Satu dengan ketentuan sebagai berikut:</p>
+
+          <h2>PASAL 1: RUANG LINGKUP DAN JADWAL ACARA</h2>
+          <p>Kerjasama ini berlaku khusus untuk 1 (satu) agenda acara yang diselenggarakan oleh PIHAK PERTAMA dengan rincian sebagai berikut:</p>
+          <ul>
+            <li><b>Nama Acara:</b> ${escapeHtml(d.eventName || "-")}</li>
+            <li><b>Hari & Tanggal:</b> ${escapeHtml(d.eventDate || "-")}</li>
+            <li><b>Waktu:</b> ${escapeHtml(d.eventTime || "-")}</li>
+            <li><b>Target Peserta:</b> ${escapeHtml(d.targetPeserta || "-")}</li>
+          </ul>
+
+          <h2>PASAL 2: BENTUK DUKUNGAN (SUPPORT) PIHAK KEDUA</h2>
+          <p style="white-space:pre-wrap;">${escapeHtml(d.supportText || "-")}</p>
+
+          <h2>PASAL 3: KEWAJIBAN PIHAK PERTAMA (OUTPUT KONTEN & PUBLIKASI)</h2>
+          <p style="white-space:pre-wrap;">${escapeHtml(d.obligationText || "-")}</p>
+
+          <h2>PASAL 4: JANGKA WAKTU</h2>
+          <p style="white-space:pre-wrap;">${escapeHtml(d.durationText || "-")}</p>
+
+          <h2>PASAL 5: PENUTUP</h2>
+          <p>MOU ini dibuat dalam rangkap 2 (dua) asli yang masing-masing memiliki kekuatan hukum yang sama, ditandatangani oleh PARA PIHAK dengan penuh kesadaran dan tanggung jawab demi kesuksesan kolaborasi bersama.</p>
+
+          <table class="doc-sign-table">
+            <tr><td><b>PIHAK PERTAMA</b><br>Komunitas Seminggu Satu</td><td><b>PIHAK KEDUA</b><br>${escapeHtml(d.pihakKeduaCompany || doc.partnerName || "-")}</td></tr>
+            <tr class="doc-sign-space"><td></td><td></td></tr>
+            <tr><td>( ${escapeHtml(d.pihakPertamaName || "Arnold Therigan")} )<br>${escapeHtml(d.pihakPertamaRole || "Founder dan Perwakilan")}</td><td>( ${escapeHtml(d.pihakKeduaName || "-")} )<br>${escapeHtml(d.pihakKeduaRole || "-")}</td></tr>
+          </table>
+          ${attachHtml}
+        </div>`;
+      openDocPrint(html);
+    }
+
+    function downloadCurrentInvoicePdf() {
+      const f = collectInvoiceFormData();
+      downloadInvoicePdf({ title: f.title, doc_date: f.docDate, data: f.data });
+    }
+
+    function downloadInvoicePdf(doc) {
+      const d = doc.data || {};
+      const items = d.items || [];
+      const total = items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+      const html = `
+        <div class="doc-print doc-print-invoice">
+          <h1>INVOICE</h1>
+          <p>To : ${escapeHtml(d.toName || "-")}</p>
+          <table class="doc-table">
+            <thead><tr><th>Description</th><th style="text-align:right;">Total</th></tr></thead>
+            <tbody>${items.map(it => `<tr><td>${escapeHtml(it.description || "-")}</td><td style="text-align:right;">${rupiah(it.amount)}</td></tr>`).join("")}</tbody>
+          </table>
+          <div class="doc-invoice-total">Total : <b>${rupiah(total)}</b></div>
+          <div class="doc-invoice-bank">
+            <p><b>Bank Transfer</b><br>
+            Bank Name : ${escapeHtml(d.bankName || "-")}<br>
+            Account Name : ${escapeHtml(d.bankAccountName || "-")}<br>
+            Account No : ${escapeHtml(d.bankAccountNo || "-")}</p>
+          </div>
+          <div class="doc-invoice-sign">
+            <p>${escapeHtml(d.signerRole || "-")}</p>
+            <p style="margin-top:40px;"><b>${escapeHtml(d.signerName || "-")}</b></p>
+          </div>
+        </div>`;
+      openDocPrint(html);
     }
 
     // ---------- KONTEN EDITOR (galeri/testimoni/rekomendasi) ----------
