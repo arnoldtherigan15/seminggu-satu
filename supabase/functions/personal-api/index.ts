@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
           const { error } = await admin.from("personal_transactions").update(payload).eq("id", id);
           if (error) return errorResponse("Gagal update transaksi: " + error.message);
         } else {
-          const source = data.source === "screenshot" ? "screenshot" : "manual";
+          const source = ["screenshot", "adjustment"].includes(String(data.source)) ? String(data.source) : "manual";
           const { error } = await admin.from("personal_transactions").insert({ ...payload, source });
           if (error) return errorResponse("Gagal simpan transaksi: " + error.message);
         }

@@ -8276,6 +8276,7 @@
       const accName = (perAccountById(t.account_id) || {}).name || "?";
       let badges = `<span class="per-badge ${t.type}">${PER_TYPE_LABELS[t.type] || t.type}</span><span class="per-badge account">${escapeHtml(accName)}</span>`;
       if (t.source === "screenshot") badges += `<span class="per-badge source">Screenshot</span>`;
+      else if (t.source === "adjustment") badges += `<span class="per-badge source">Penyesuaian Saldo</span>`;
       return badges;
     }
 
@@ -8832,11 +8833,39 @@
             <div style="font-size:.8rem;color:#6b7280;">${typeLabel[a.type] || a.type}</div>
           </div>
           <div style="font-weight:800;flex-shrink:0;">${rupiah(perAccountBalance(a))}</div>
+          <button class="btn btn-sm btn-ghost" data-adjustacc="${a.id}" title="Sesuaikan saldo" style="flex-shrink:0;">${icon("sliders")}</button>
           <button class="btn btn-sm btn-ghost" data-editacc="${a.id}" style="flex-shrink:0;">${icon("pencil")}</button>
           <button class="btn btn-sm btn-ghost" data-archiveacc="${a.id}" data-archived="${a.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
         </div>`).join("");
       list.querySelectorAll("[data-editacc]").forEach(b => b.addEventListener("click", () => editAcc(b.dataset.editacc)));
       list.querySelectorAll("[data-archiveacc]").forEach(b => b.addEventListener("click", () => archiveAcc(b.dataset.archiveacc, b.dataset.archived === "1")));
+      list.querySelectorAll("[data-adjustacc]").forEach(b => b.addEventListener("click", () => adjustAccBalance(b.dataset.adjustacc)));
+    }
+
+    // "Sesuaikan Saldo" -- buat kalau saldo tercatat udah nggak cocok sama
+    // kenyataan (mis. abis cek langsung di app bank). Bukan edit initial_balance
+    // (itu ngubah histori dari awal) -- ini nyatet SELISIHNYA sebagai 1 transaksi
+    // baru (income/expense sesuai arah selisih, source="adjustment"), persis
+    // pola "Balance Adjustment" yang dipake m-BCA & bank app lain: kelihatan di
+    // riwayat, bukan saldo yang diam-diam berubah tanpa jejak.
+    async function adjustAccBalance(accountId) {
+      const a = perAccountById(accountId);
+      if (!a) return;
+      const current = perAccountBalance(a);
+      const raw = prompt(`Saldo "${a.name}" sekarang tercatat: ${rupiah(current)}\n\nMasukkan saldo yang SEBENARNYA (cek di app bank/e-wallet):`, formatRibuan(current));
+      if (raw === null) return;
+      const target = parseRibuan(raw);
+      const delta = target - current;
+      if (delta === 0) { alert("Sama kayak yang tercatat, nggak ada yang perlu disesuaikan."); return; }
+      const type = delta > 0 ? "income" : "expense";
+      const amount = Math.abs(delta);
+      if (!confirm(`Saldo bakal disesuaikan dari ${rupiah(current)} ke ${rupiah(target)}.\n\nBakal kecatat 1 transaksi ${type === "income" ? "pemasukan" : "pengeluaran"} sebesar ${rupiah(amount)} berjudul "Penyesuaian Saldo". Lanjut?`)) return;
+      const r = await personalApi("savePersonalTransaction", {
+        token: getToken(), type, amount, accountId, date: todayStr(),
+        categoryId: "", note: "Penyesuaian saldo", source: "adjustment"
+      });
+      if (r && r.status === "success") await loadPersonalData();
+      else { handleAuthError(r); alert((r && r.message) || "Gagal menyesuaikan saldo."); }
     }
 
     function newAccForm() {
