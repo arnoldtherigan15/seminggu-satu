@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Dashboard Admin — Seminggu Satu</title>
+  <title>Admin Dashboard — Seminggu Satu</title>
 
   <!-- Untuk render passport jadi gambar (download) -->
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -848,6 +848,74 @@
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
+
+    /* Tabel yang kolomnya kebanyakan buat layar HP (Peserta di Prep,
+       Pendaftar) -- enak dibaca di desktop tapi kepotong horizontal di HP.
+       Di bawah breakpoint, tabelnya diganti kartu per-baris (.mobile-cards,
+       diisi JS di loadPrepParticipants/loadRegistrations) -- data yang
+       sama, cuma layoutnya vertikal. */
+    .mobile-cards { display: none; }
+
+    @media (max-width: 680px) {
+      .mobile-table-box { display: none; }
+      .mobile-cards { display: block; }
+    }
+
+    .mobile-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .mobile-card.row-printed { opacity: .55; }
+
+    .mobile-card-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .mobile-card-num { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+    .mobile-card-name { flex: 1; min-width: 0; font-size: 14.5px; }
+
+    .mobile-card-hadir {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .mobile-card-hadir input { width: 18px; height: 18px; accent-color: var(--ok); cursor: pointer; }
+
+    .mobile-card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+
+    .mobile-card-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      padding-top: 8px;
+    }
+
+    .mobile-card-field b { color: var(--muted); font-weight: 700; margin-right: 4px; }
+
+    .mobile-card-print {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .mobile-card-print input { width: 16px; height: 16px; cursor: pointer; }
 
     table {
       border-collapse: collapse;
@@ -3821,12 +3889,12 @@
   <!-- ============ LOGIN ============ -->
   <div id="loginScreen">
     <div class="login-card">
-      <h1>Dashboard Admin</h1>
-      <p>Seminggu Satu — khusus admin</p>
+      <h1>Admin Dashboard</h1>
+      <p>Seminggu Satu — admin only</p>
       <label for="pwd">Password</label>
-      <input class="form-control" type="password" id="pwd" placeholder="Masukkan password" autocomplete="current-password" />
+      <input class="form-control" type="password" id="pwd" placeholder="Enter password" autocomplete="current-password" />
       <div style="height:14px"></div>
-      <button class="btn" id="loginBtn">Masuk</button>
+      <button class="btn" id="loginBtn">Log In</button>
       <div class="msg" id="loginMsg"></div>
     </div>
   </div>
@@ -3837,25 +3905,25 @@
     <!-- Mobile top bar -->
     <header class="mobile-header">
       <button class="menu-toggle-btn" id="menuToggleBtn"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/></svg></button>
-      <h1 class="mobile-title"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/><path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/></svg> Dashboard Admin</h1>
+      <h1 class="mobile-title"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/><path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/></svg> Admin Dashboard</h1>
     </header>
 
     <div class="dashboard-container">
       <!-- Responsive Sidebar -->
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-          <h2><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/><path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/></svg> Dashboard Admin</h2>
+          <h2><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/><path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/></svg> Admin Dashboard</h2>
           <p>Seminggu Satu</p>
         </div>
         <nav class="sidebar-nav">
-          <div class="nav-section-label">Utama</div>
+          <div class="nav-section-label">Main</div>
           <button class="nav-btn active" data-view="overview">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/></svg></span> Overview
           </button>
           <button class="nav-btn" data-view="activity">
-            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg></span> Notifikasi <span class="nav-badge" id="navActBadge" style="display:none;"></span>
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg></span> Notifications <span class="nav-badge" id="navActBadge" style="display:none;"></span>
           </button>
-          <div class="nav-section-label">Warga</div>
+          <div class="nav-section-label">Community</div>
           <button class="nav-btn" data-view="members">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg></span> Member
           </button>
@@ -3870,7 +3938,7 @@
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/></svg></span> Prep
           </button>
           <button class="nav-btn" data-view="pesanan">
-            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.902.334a.5.5 0 0 1-.28.65l-2.254.902-.4 1.927c.376.095.715.215.972.367.228.135.56.396.56.82q0 .069-.011.132l-.962 9.068a1.28 1.28 0 0 1-.524.93c-.488.34-1.494.87-3.01.87s-2.522-.53-3.01-.87a1.28 1.28 0 0 1-.524-.93L3.51 5.132A1 1 0 0 1 3.5 5c0-.424.332-.685.56-.82.262-.154.607-.276.99-.372C5.824 3.614 6.867 3.5 8 3.5c.712 0 1.389.045 1.985.127l.464-2.215a.5.5 0 0 1 .303-.356l2.5-1a.5.5 0 0 1 .65.278M9.768 4.607A14 14 0 0 0 8 4.5c-1.076 0-2.033.11-2.707.278A3.3 3.3 0 0 0 4.645 5c.146.073.362.15.648.222C5.967 5.39 6.924 5.5 8 5.5c.571 0 1.109-.03 1.588-.085zm.292 1.756C9.445 6.45 8.742 6.5 8 6.5c-1.133 0-2.176-.114-2.95-.308a6 6 0 0 1-.435-.127l.838 8.03c.013.121.06.186.102.215.357.249 1.168.69 2.438.69s2.081-.441 2.438-.69c.042-.029.09-.094.102-.215l.852-8.03a6 6 0 0 1-.435.127 9 9 0 0 1-.89.17zM4.467 4.884s.003.002.005.006zm7.066 0-.005.006zM11.354 5a3 3 0 0 0-.604-.21l-.099.445.055-.013c.286-.072.502-.149.648-.222"/></svg></span> Pesanan
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.902.334a.5.5 0 0 1-.28.65l-2.254.902-.4 1.927c.376.095.715.215.972.367.228.135.56.396.56.82q0 .069-.011.132l-.962 9.068a1.28 1.28 0 0 1-.524.93c-.488.34-1.494.87-3.01.87s-2.522-.53-3.01-.87a1.28 1.28 0 0 1-.524-.93L3.51 5.132A1 1 0 0 1 3.5 5c0-.424.332-.685.56-.82.262-.154.607-.276.99-.372C5.824 3.614 6.867 3.5 8 3.5c.712 0 1.389.045 1.985.127l.464-2.215a.5.5 0 0 1 .303-.356l2.5-1a.5.5 0 0 1 .65.278M9.768 4.607A14 14 0 0 0 8 4.5c-1.076 0-2.033.11-2.707.278A3.3 3.3 0 0 0 4.645 5c.146.073.362.15.648.222C5.967 5.39 6.924 5.5 8 5.5c.571 0 1.109-.03 1.588-.085zm.292 1.756C9.445 6.45 8.742 6.5 8 6.5c-1.133 0-2.176-.114-2.95-.308a6 6 0 0 1-.435-.127l.838 8.03c.013.121.06.186.102.215.357.249 1.168.69 2.438.69s2.081-.441 2.438-.69c.042-.029.09-.094.102-.215l.852-8.03a6 6 0 0 1-.435.127 9 9 0 0 1-.89.17zM4.467 4.884s.003.002.005.006zm7.066 0-.005.006zM11.354 5a3 3 0 0 0-.604-.21l-.099.445.055-.013c.286-.072.502-.149.648-.222"/></svg></span> Orders
           </button>
           <button class="nav-btn" data-view="keuangan">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/></svg></span> Finance
@@ -3878,14 +3946,14 @@
           <button class="nav-btn" data-view="config">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1z"/></svg></span> Config
           </button>
-          <div class="nav-section-label">Konten &amp; Program</div>
+          <div class="nav-section-label">Content &amp; Programs</div>
           <button class="nav-btn" data-view="konten">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg></span> Content
           </button>
           <button class="nav-btn" data-view="quest">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09zM4.157 8.5H7a.5.5 0 0 1 .478.647L6.11 13.59l5.732-6.09H9a.5.5 0 0 1-.478-.647L9.89 2.41z"/></svg></span> Challenge
           </button>
-          <div class="nav-section-label">Pribadi</div>
+          <div class="nav-section-label">Personal</div>
           <button class="nav-btn" data-view="personal">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/></svg></span> Personal
           </button>
@@ -3905,32 +3973,32 @@
         <div class="wrap view" id="viewOverview">
           <div class="ov-income">
             <div class="ov-income-head">
-              <span class="ov-income-title">Pemasukan Total — Semua Event</span>
-              <button class="ov-eye" id="incomeToggle" title="Tampilkan/sembunyikan"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg></button>
+              <span class="ov-income-title">Total Income — All Events</span>
+              <button class="ov-eye" id="incomeToggle" title="Show/hide"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg></button>
             </div>
             <div class="ov-income-body">
-              <div class="ov-income-item"><span>Pemasukan</span><b id="ovRevenue">Rp •••••••</b></div>
-              <div class="ov-income-item"><span>Perkiraan Untung</span><b id="ovProfit">Rp •••••••</b></div>
+              <div class="ov-income-item"><span>Income</span><b id="ovRevenue">Rp •••••••</b></div>
+              <div class="ov-income-item"><span>Estimated Profit</span><b id="ovProfit">Rp •••••••</b></div>
             </div>
-            <button type="button" id="ovIncomeDetailToggle" style="background:none;border:none;color:rgba(255,255,255,.85);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:10px 0 0;">Lihat rincian per batch</button>
+            <button type="button" id="ovIncomeDetailToggle" style="background:none;border:none;color:rgba(255,255,255,.85);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:10px 0 0;">View per-batch breakdown</button>
             <div id="ovIncomeBreakdown" style="display:none;margin-top:8px;"></div>
           </div>
 
-          <h3 class="ov-section-title">Event Sedang Buka</h3>
+          <h3 class="ov-section-title">Currently Open Events</h3>
           <div id="ovCards" class="ov-cards"></div>
 
           <div class="ach-headrow" style="margin:28px 0;">
-            <h3 class="ov-section-title" style="margin:0;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/></svg> Analitik Workshop</h3>
-            <button class="btn btn-sm" id="recapBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .07 0 .27-.038.494H15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 14.5V7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h2.038A3 3 0 0 1 3 2.506zm1.068.5H7v-.5a1.5 1.5 0 1 0-3 0c0 .085.002.274.045.43zM9 3h2.932l.023-.07c.043-.156.045-.345.045-.43a1.5 1.5 0 0 0-3 0zM1 4v2h6V4zm8 0v2h6V4zm5 3H9v8h4.5a.5.5 0 0 0 .5-.5zm-7 8V7H2v7.5a.5.5 0 0 0 .5.5z"/></svg> Buat Wrapped</button>
+            <h3 class="ov-section-title" style="margin:0;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/></svg> Workshop Analytics</h3>
+            <button class="btn btn-sm" id="recapBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .07 0 .27-.038.494H15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 14.5V7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h2.038A3 3 0 0 1 3 2.506zm1.068.5H7v-.5a1.5 1.5 0 1 0-3 0c0 .085.002.274.045.43zM9 3h2.932l.023-.07c.043-.156.045-.345.045-.43a1.5 1.5 0 0 0-3 0zM1 4v2h6V4zm8 0v2h6V4zm5 3H9v8h4.5a.5.5 0 0 0 .5-.5zm-7 8V7H2v7.5a.5.5 0 0 0 .5.5z"/></svg> Create Wrapped</button>
           </div>
           <div id="analytics"></div>
 
-          <h3 class="ov-section-title" style="margin-top:28px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg> Ide Workshop Berikutnya</h3>
+          <h3 class="ov-section-title" style="margin-top:28px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg> Next Workshop Ideas</h3>
           <div class="fin-card">
             <div id="ideaList"></div>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-              <button class="btn btn-sm btn-ghost" id="ideaAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Ide</button>
-              <button class="btn btn-sm" id="ideaSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Ide</button>
+              <button class="btn btn-sm btn-ghost" id="ideaAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Add Idea</button>
+              <button class="btn btn-sm" id="ideaSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Idea</button>
             </div>
             <div class="msg" id="ideaMsg"></div>
           </div>
@@ -3947,17 +4015,17 @@
               <label for="batchSelect">Batch / Volume</label>
               <select class="form-control" id="batchSelect"></select>
             </div>
-            <button class="btn btn-sm" id="refreshBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
-            <button class="btn btn-sm btn-ghost" id="newBatchBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Batch Baru</button>
+            <button class="btn btn-sm" id="refreshBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+            <button class="btn btn-sm btn-ghost" id="newBatchBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Batch</button>
           </div>
           <div id="batchInfo" class="batch-info"></div>
 
           <div class="reg-tools">
-            <input class="form-control" type="text" id="regSearch" placeholder="🔍 Cari nama / WA / apa aja..." />
+            <input class="form-control" type="text" id="regSearch" placeholder="🔍 Search name / WA / anything..." />
             <button class="btn btn-sm btn-ghost" id="exportCsvBtn" disabled><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Export CSV</button>
           </div>
 
-          <div class="table-box">
+          <div class="table-box mobile-table-box">
             <div class="table-scroll">
               <table id="dataTable">
                 <thead>
@@ -3966,24 +4034,25 @@
                 <tbody id="tableBody"></tbody>
               </table>
             </div>
-            <div class="empty" id="tableEmpty" style="display:none;">Belum ada data.</div>
           </div>
+          <div id="regCards" class="mobile-cards"></div>
+          <div class="empty" id="tableEmpty" style="display:none;">No data yet.</div>
         </div>
 
         <!-- ===== VIEW: KEUANGAN ===== -->
         <div class="wrap view" id="viewKeuangan" style="display:none;">
           <div class="subtabs" id="finSubtabs">
             <div class="subtab-bar">
-              <button class="subtab-btn" type="button" data-tab="modal"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/></svg> <span>Modal & Biaya</span></button>
-              <button class="subtab-btn" type="button" data-tab="items"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg> <span>Database Item</span></button>
-              <button class="subtab-btn" type="button" data-tab="inventaris"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> <span>Inventaris</span></button>
-              <button class="subtab-btn" type="button" data-tab="imporstruk"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/></svg> <span>Impor Struk</span></button>
+              <button class="subtab-btn" type="button" data-tab="modal"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/></svg> <span>Costs &amp; Budget</span></button>
+              <button class="subtab-btn" type="button" data-tab="items"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg> <span>Item Database</span></button>
+              <button class="subtab-btn" type="button" data-tab="inventaris"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> <span>Inventory</span></button>
+              <button class="subtab-btn" type="button" data-tab="imporstruk"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/></svg> <span>Import Receipt</span></button>
             </div>
 
             <div class="subtab-panel" data-tab="modal">
               <div class="toolbar">
                 <div class="field">
-                  <label for="finSelect">Pilih Event</label>
+                  <label for="finSelect">Select Event</label>
                   <select class="form-control" id="finSelect"></select>
                 </div>
                 <div class="field">
@@ -3997,22 +4066,22 @@
                 <!-- Kiri: input -->
                 <div class="fin-col">
                   <div class="fin-card">
-                    <label for="finPrice">Harga per peserta (Rp)</label>
+                    <label for="finPrice">Price per participant (Rp)</label>
                     <input class="form-control" type="text" inputmode="numeric" id="finPrice" readonly style="background:#f8f9fa;" />
-                    <p class="hint">Ikut harga batch ini (atau Config Umum kalau batch-nya belum punya harga sendiri). Mau ubah? Edit di <b>Config &gt; pilih Event + Batch-nya</b>.</p>
-                    <p class="hint">Jumlah pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
+                    <p class="hint">Follows this batch's price (or General Config if the batch doesn't have its own price yet). Want to change it? Edit it in <b>Config &gt; select the Event + Batch</b>.</p>
+                    <p class="hint">Registrants: <b id="finCount">0</b> people (automatic)</p>
                   </div>
 
                   <div class="fin-card">
                     <div class="fin-card-head">
-                      <h3>Komponen Modal / Biaya</h3>
-                      <button class="btn btn-sm" id="addCostBtn">+ Tambah</button>
+                      <h3>Cost / Budget Components</h3>
+                      <button class="btn btn-sm" id="addCostBtn">+ Add</button>
                     </div>
                     <datalist id="costItemsList"></datalist>
                     <div id="costRows"></div>
-                    <p class="hint">Tipe <b>per-peserta</b> otomatis dikali jumlah pendaftar. <b>tetap</b> = sekali saja. Ketik nama biaya buat lihat saran dari <b>Database Item</b> (harganya otomatis keisi, tetep bisa di-adjust).
+                    <p class="hint">The <b>per-participant</b> type is automatically multiplied by the number of registrants. <b>fixed</b> = one-time only. Type the cost name to see suggestions from the <b>Item Database</b> (the price auto-fills, still adjustable).
                     </p>
-                    <button class="btn" id="saveModalBtn" style="margin-top:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Modal</button>
+                    <button class="btn" id="saveModalBtn" style="margin-top:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Costs</button>
                     <div class="msg" id="finMsg"></div>
                   </div>
                 </div>
@@ -4020,21 +4089,21 @@
                 <!-- Kanan: hasil -->
                 <div class="fin-col">
                   <div class="per-hero">
-                    <div class="per-hero-label" id="resProfitLabel">Keuntungan</div>
+                    <div class="per-hero-label" id="resProfitLabel">Profit</div>
                     <div class="per-hero-amount" id="resProfit">Rp 0</div>
                     <div class="per-hero-sub" id="resMargin">0% margin</div>
                     <div class="per-hero-mini">
-                      <div class="per-hero-mini-item"><span>Pemasukan</span><b id="resRevenue" style="color:#4ade80;">Rp 0</b></div>
-                      <div class="per-hero-mini-item"><span>Total Modal</span><b id="resCost" style="color:#fb7185;">Rp 0</b></div>
+                      <div class="per-hero-mini-item"><span>Income</span><b id="resRevenue" style="color:#4ade80;">Rp 0</b></div>
+                      <div class="per-hero-mini-item"><span>Total Costs</span><b id="resCost" style="color:#fb7185;">Rp 0</b></div>
                     </div>
                   </div>
                   <div class="per-stat-row" style="margin-top:14px;">
                     <div class="per-stat-card">
-                      <div class="per-hero-label">Biaya Tetap</div>
+                      <div class="per-hero-label">Fixed Costs</div>
                       <div class="per-hero-amount" id="resCostFixed" style="font-size:18px;">Rp 0</div>
                     </div>
                     <div class="per-stat-card">
-                      <div class="per-hero-label">Biaya per Peserta</div>
+                      <div class="per-hero-label">Cost per Participant</div>
                       <div class="per-hero-amount" id="resCostVar" style="font-size:18px;">Rp 0</div>
                     </div>
                   </div>
@@ -4043,71 +4112,71 @@
             </div>
 
             <div class="subtab-panel" data-tab="items">
-              <p class="hint" style="margin:0 0 10px;">Item biaya yang sering dipakai ulang lintas workshop/batch (mis. Lem Uhu, Print 4R) -- simpen di sini sekali, nanti tinggal ketik namanya di tab Modal & Biaya buat autocomplete + harga kesisi otomatis.</p>
+              <p class="hint" style="margin:0 0 10px;">Cost items reused often across workshops/batches (e.g. Glue, 4R Print) -- save them here once, then just type the name in the Costs & Budget tab for autocomplete + auto-filled price.</p>
               <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                <button class="btn btn-sm" id="ciAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Item Baru</button>
-                <input class="form-control" type="text" id="ciSearchInput" placeholder="Cari nama item..." style="flex:1;min-width:180px;">
+                <button class="btn btn-sm" id="ciAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Item</button>
+                <input class="form-control" type="text" id="ciSearchInput" placeholder="Search item name..." style="flex:1;min-width:180px;">
               </div>
               <div id="ciList" style="margin-top:10px;"></div>
             </div>
 
             <div class="subtab-panel" data-tab="inventaris">
               <div class="fin-card">
-                <p class="hint" style="margin:0 0 10px;">Catat stok masuk (beli) & keluar (pakai di event) per item -- sisa stok dihitung otomatis dari riwayat ini, bukan angka yang diedit manual.</p>
+                <p class="hint" style="margin:0 0 10px;">Log stock in (buy) & out (used at an event) per item -- remaining stock is calculated automatically from this history, not a manually-edited number.</p>
                 <input type="hidden" id="invId">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:2;min-width:180px;"><label>Item</label><select class="form-control" id="invItem"></select></div>
-                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Tipe</label>
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Type</label>
                     <select class="form-control" id="invType">
-                      <option value="beli">Beli (stok masuk)</option>
-                      <option value="pakai">Pakai (stok keluar)</option>
-                      <option value="adjust">Koreksi manual</option>
+                      <option value="beli">Buy (stock in)</option>
+                      <option value="pakai">Use (stock out)</option>
+                      <option value="adjust">Manual correction</option>
                     </select>
                   </div>
-                  <div class="konten-field" style="flex:1;min-width:100px;"><label>Jumlah</label><input class="form-control" type="number" id="invQty" placeholder="mis. 10"></div>
-                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="invDate"></div>
+                  <div class="konten-field" style="flex:1;min-width:100px;"><label>Quantity</label><input class="form-control" type="number" id="invQty" placeholder="e.g. 10"></div>
+                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Date</label><input class="form-control" type="date" id="invDate"></div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <div class="konten-field" style="flex:1;min-width:170px;"><label>Dipakai buat Event (opsional)</label><select class="form-control" id="invWorkshop"><option value="">-</option></select></div>
-                  <div class="konten-field" style="flex:2;min-width:170px;"><label>Catatan (opsional)</label><input class="form-control" type="text" id="invNote" maxlength="300"></div>
+                  <div class="konten-field" style="flex:1;min-width:170px;"><label>Used for Event (optional)</label><select class="form-control" id="invWorkshop"><option value="">-</option></select></div>
+                  <div class="konten-field" style="flex:2;min-width:170px;"><label>Note (optional)</label><input class="form-control" type="text" id="invNote" maxlength="300"></div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
-                  <button class="btn btn-sm" id="invSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Catat Transaksi</button>
+                  <button class="btn btn-sm" id="invSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Log Transaction</button>
                 </div>
                 <div class="msg" id="invMsg"></div>
               </div>
 
               <div class="fin-card" style="margin-top:14px;">
-                <div style="font-weight:800;margin-bottom:8px;">Stok Saat Ini</div>
-                <input class="form-control" type="text" id="invStockSearch" placeholder="Cari nama item..." style="margin-bottom:8px;">
+                <div style="font-weight:800;margin-bottom:8px;">Current Stock</div>
+                <input class="form-control" type="text" id="invStockSearch" placeholder="Search item name..." style="margin-bottom:8px;">
                 <div id="invStockList"></div>
               </div>
 
               <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px;">
-                <h3 class="ov-section-title" style="margin:0;">Riwayat Transaksi Stok</h3>
-                <select class="form-control" id="invFilterItem" style="max-width:220px;"><option value="">Semua item</option></select>
+                <h3 class="ov-section-title" style="margin:0;">Stock Transaction History</h3>
+                <select class="form-control" id="invFilterItem" style="max-width:220px;"><option value="">All items</option></select>
               </div>
               <div id="invTxList" style="margin-top:8px;"></div>
             </div>
 
             <div class="subtab-panel" data-tab="imporstruk">
               <div class="fin-card">
-                <p class="hint" style="margin:0 0 10px;">Upload screenshot struk/detail pesanan (boleh banyak item sekaligus dalam 1 gambar) -- item yang belum ada di Database Item bakal ditambahin otomatis, yang udah ada bakal digabung, dan stok masing-masing item ke-log otomatis di Inventaris (tipe Beli) sesuai jumlahnya.</p>
+                <p class="hint" style="margin:0 0 10px;">Upload a receipt/order detail screenshot (can have many items in 1 image) -- items not yet in the Item Database get added automatically, existing ones get merged, and each item's stock is logged automatically in Inventory (Buy type) matching the quantity.</p>
                 <input type="hidden" id="riImageBase64">
                 <input type="hidden" id="riImageMime">
-                <div class="konten-field"><label>Screenshot Struk / Detail Pesanan</label><input class="form-control" type="file" id="riFile" accept="image/*"></div>
+                <div class="konten-field"><label>Receipt Screenshot / Order Detail</label><input class="form-control" type="file" id="riFile" accept="image/*"></div>
                 <div id="riPreview" style="margin:8px 0;"></div>
-                <button class="btn btn-sm" id="riProcessBtn" disabled><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Proses dengan AI</button>
+                <button class="btn btn-sm" id="riProcessBtn" disabled><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Process with AI</button>
                 <div class="msg" id="riMsg"></div>
               </div>
               <div id="riResultsWrap" style="display:none;">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;">
-                  <div style="font-weight:800;">Hasil Ekstrak (<span id="riResultCount">0</span>)</div>
-                  <button class="btn btn-sm btn-ghost" id="riSelectAllBtn">Pilih/Batal Semua</button>
+                  <div style="font-weight:800;">Extracted Results (<span id="riResultCount">0</span>)</div>
+                  <button class="btn btn-sm btn-ghost" id="riSelectAllBtn">Select/Deselect All</button>
                 </div>
-                <p class="hint" style="margin:6px 0;">Cek dulu nama/harga/jumlahnya -- AI kadang salah baca. Yang nggak dicentang nggak bakal diimport.</p>
+                <p class="hint" style="margin:6px 0;">Double-check the name/price/quantity first -- AI can misread sometimes. Unchecked items won't be imported.</p>
                 <div id="riResultsList" style="margin-top:6px;"></div>
-                <button class="btn btn-sm" id="riSaveBtn" style="margin-top:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Import yang Dicentang</button>
+                <button class="btn btn-sm" id="riSaveBtn" style="margin-top:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Import Selected</button>
                 <div class="msg" id="riSaveMsg"></div>
               </div>
             </div>
@@ -4122,7 +4191,7 @@
               <select class="form-control" id="prepSelect"></select>
             </div>
             <div class="field">
-              <label for="prepBatchSelect">Batch / Tanggal</label>
+              <label for="prepBatchSelect">Batch / Date</label>
               <select class="form-control" id="prepBatchSelect"></select>
             </div>
           </div>
@@ -4134,79 +4203,79 @@
         <div class="wrap view" id="viewConfig" style="display:none;">
           <div class="toolbar">
             <div class="field">
-              <label for="cfgSelect">Pilih Event</label>
+              <label for="cfgSelect">Select Event</label>
               <select class="form-control" id="cfgSelect"></select>
             </div>
             <div class="field">
               <label for="cfgBatchSelect">Batch</label>
               <select class="form-control" id="cfgBatchSelect"></select>
             </div>
-            <button class="btn btn-sm btn-ghost" id="cfgNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Event Baru</button>
-            <button class="btn btn-sm btn-ghost" id="cfgReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
+            <button class="btn btn-sm btn-ghost" id="cfgNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Event</button>
+            <button class="btn btn-sm btn-ghost" id="cfgReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
 
           <div class="fin-card" id="cfgGeneralCard">
-            <p class="hint" style="margin:0 0 10px;">Data PRODUK/HALAMAN event (nama, deskripsi, rekening, dst) -- berlaku buat SEMUA batch tipe ini. Tanggal/jam/lokasi/harga/kuota/link WA yang bisa beda tiap batch, pilih batch-nya di dropdown "Batch" di atas.</p>
+            <p class="hint" style="margin:0 0 10px;">PRODUCT/PAGE data for the event (name, description, bank account, etc.) -- applies to ALL batches of this type. Date/time/location/price/quota/WA link can differ per batch -- pick the batch in the "Batch" dropdown above.</p>
             <div id="cfgForm" class="cfg-form"></div>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-              <button class="btn" id="cfgSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Config</button>
-              <button class="btn btn-sm" id="cfgDeleteBtn" style="background:#fee2e2;color:var(--err);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Hapus
-                event ini</button>
+              <button class="btn" id="cfgSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Config</button>
+              <button class="btn btn-sm" id="cfgDeleteBtn" style="background:#fee2e2;color:var(--err);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Delete
+                this event</button>
             </div>
             <div class="msg" id="cfgMsg"></div>
-            <p class="hint">Perubahan langsung tersimpan & langsung aktif di web publik.</p>
+            <p class="hint">Changes are saved immediately & go live on the public site right away.</p>
           </div>
 
           <div class="fin-card" id="cfgBatchCard" style="display:none;">
-            <div style="font-weight:800;margin-bottom:4px;">Detail Batch: <span id="cfgBatchLabel"></span></div>
-            <p class="hint" style="margin:0 0 8px;">Default-nya ikut Config Umum di atas. Isi salah satu/beberapa DI SINI cuma kalau batch ini beda (mis. venue/harga/kuota beda dari batch lain tipe yang sama) -- kosongin buat balik ikut Config Umum. Batch baru otomatis nyontek isian ini dari batch terakhir yang dibikin, tinggal edit yang beda aja.</p>
-            <div class="konten-field"><label>Nama Batch</label><input class="form-control" type="text" id="batchLabelInput" placeholder="mis. Vol 1"></div>
+            <div style="font-weight:800;margin-bottom:4px;">Batch Detail: <span id="cfgBatchLabel"></span></div>
+            <p class="hint" style="margin:0 0 8px;">Defaults follow General Config above. Fill in one/several fields HERE only if this batch differs (e.g. venue/price/quota different from other batches of the same type) -- leave blank to follow General Config. New batches automatically copy this from the last batch created -- just edit what's different.</p>
+            <div class="konten-field"><label>Batch Name</label><input class="form-control" type="text" id="batchLabelInput" placeholder="e.g. Vol 1"></div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Lokasi</label><input class="form-control" type="text" id="batchLoc" placeholder="ikut Config"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Jam</label><input class="form-control" type="text" id="batchTime" placeholder="ikut Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Location</label><input class="form-control" type="text" id="batchLoc" placeholder="follows Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Time</label><input class="form-control" type="text" id="batchTime" placeholder="follows Config"></div>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Link Maps</label><input class="form-control" type="text" id="batchMapsLink" placeholder="ikut Config"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Link Grup WhatsApp</label><input class="form-control" type="text" id="batchWaLink" placeholder="ikut Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Maps Link</label><input class="form-control" type="text" id="batchMapsLink" placeholder="follows Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>WhatsApp Group Link</label><input class="form-control" type="text" id="batchWaLink" placeholder="follows Config"></div>
             </div>
-            <div class="konten-field"><label>Tanggal acara (teks tampilan, mis. "Sabtu, 12 September 2026")</label><input class="form-control" type="text" id="batchWorkshopDate" placeholder="ikut Config"></div>
+            <div class="konten-field"><label>Event date (display text, e.g. "Saturday, September 12, 2026")</label><input class="form-control" type="text" id="batchWorkshopDate" placeholder="follows Config"></div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Harga Normal (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchNormalPrice" placeholder="ikut Config"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Kuota Maksimal</label><input class="form-control" type="text" inputmode="numeric" id="batchMaxQuota" placeholder="ikut Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Regular Price (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchNormalPrice" placeholder="follows Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Max Quota</label><input class="form-control" type="text" inputmode="numeric" id="batchMaxQuota" placeholder="follows Config"></div>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Harga Early Bird (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdPrice" placeholder="ikut Config"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Batas Jumlah Early Bird</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdMaxCount" placeholder="ikut Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Early Bird Price (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdPrice" placeholder="follows Config"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Early Bird Count Limit</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdMaxCount" placeholder="follows Config"></div>
             </div>
-            <div class="konten-field"><label>Batas Tanggal Early Bird</label><input class="form-control" type="text" id="batchEarlyBirdDueDate" placeholder="ikut Config, mis. 11 Juli 2026"></div>
+            <div class="konten-field"><label>Early Bird Deadline</label><input class="form-control" type="text" id="batchEarlyBirdDueDate" placeholder="follows Config, e.g. July 11, 2026"></div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal Buka Pendaftaran</label><input class="form-control" type="text" id="batchOpenDate" placeholder="ikut Config, mis. 1 Juli 2026"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal Tutup Pendaftaran</label><input class="form-control" type="text" id="batchCloseDate" placeholder="ikut Config, mis. 10 Juli 2026"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Open Date</label><input class="form-control" type="text" id="batchOpenDate" placeholder="follows Config, e.g. July 1, 2026"></div>
+              <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Close Date</label><input class="form-control" type="text" id="batchCloseDate" placeholder="follows Config, e.g. July 10, 2026"></div>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-              <button class="btn btn-sm" id="batchDetailSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Detail Batch</button>
-              <button class="btn btn-sm btn-ghost" id="batchArchiveBtn" style="margin-left:auto;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Arsipkan Batch</button>
+              <button class="btn btn-sm" id="batchDetailSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Batch Detail</button>
+              <button class="btn btn-sm btn-ghost" id="batchArchiveBtn" style="margin-left:auto;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Archive Batch</button>
             </div>
             <p class="hint" id="batchArchiveHint" style="margin-top:6px;"></p>
             <div class="msg" id="batchDetailMsg"></div>
 
             <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
-              <div style="font-weight:800;margin-bottom:4px;">Data Peserta Manual (Void)</div>
-              <p class="hint" style="margin:0 0 8px;">Buat batch dari SEBELUM sistem ini ada (dulu manual/dicatat di WA) -- kalau tau kira-kira jumlah pesertanya tapi nggak ada data orangnya satu-satu, tambahin di sini biar kuota/revenue/profit-nya kehitung bener. Row-nya nongol di tabel Pendaftar (bertanda "Void"), bisa dihapus/diarsipkan kayak pendaftar biasa.</p>
+              <div style="font-weight:800;margin-bottom:4px;">Manual Participant Data (Void)</div>
+              <p class="hint" style="margin:0 0 8px;">For batches from BEFORE this system existed (used to be tracked manually/via WA) -- if you roughly know the participant count but don't have individual data, add it here so quota/revenue/profit are counted correctly. The row shows up in the Registrations table (marked "Void"), and can be deleted/archived like a regular registrant.</p>
               <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-                <div class="konten-field" style="flex:1;min-width:100px;max-width:140px;"><label>Jumlah</label><input class="form-control" type="text" inputmode="numeric" id="batchVoidCount" placeholder="mis. 20"></div>
-                <div class="konten-field" style="flex:2;min-width:180px;"><label>Catatan (opsional)</label><input class="form-control" type="text" id="batchVoidNote" placeholder="mis. Data lama dari WA"></div>
-                <button class="btn btn-sm btn-ghost" id="batchVoidAddBtn">+ Tambah</button>
+                <div class="konten-field" style="flex:1;min-width:100px;max-width:140px;"><label>Count</label><input class="form-control" type="text" inputmode="numeric" id="batchVoidCount" placeholder="e.g. 20"></div>
+                <div class="konten-field" style="flex:2;min-width:180px;"><label>Note (optional)</label><input class="form-control" type="text" id="batchVoidNote" placeholder="e.g. Old data from WA"></div>
+                <button class="btn btn-sm btn-ghost" id="batchVoidAddBtn">+ Add</button>
               </div>
               <div class="msg" id="batchVoidMsg"></div>
             </div>
 
             <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
-              <div style="font-weight:800;margin-bottom:4px;">Pindahkan Batch ke Event Lain</div>
-              <p class="hint" style="margin:0 0 8px;">Buat batch yang kejebak nyangkut di event yang salah dari dulu (mis. sempet dibikinin event terpisah padahal harusnya cuma jadi 1 batch di event yang bener). Pendaftar & biaya batch ini ikut dipindah juga.</p>
+              <div style="font-weight:800;margin-bottom:4px;">Move Batch to Another Event</div>
+              <p class="hint" style="margin:0 0 8px;">For a batch that ended up stuck under the wrong event (e.g. it was accidentally given its own separate event when it should just be 1 batch under the right event). This batch's registrants & costs move along with it.</p>
               <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-                <div class="konten-field" style="flex:1;min-width:200px;"><label>Pindahkan ke</label><select class="form-control" id="batchMoveTarget"></select></div>
-                <button class="btn btn-sm btn-ghost" id="batchMoveBtn">Pindahkan</button>
+                <div class="konten-field" style="flex:1;min-width:200px;"><label>Move to</label><select class="form-control" id="batchMoveTarget"></select></div>
+                <button class="btn btn-sm btn-ghost" id="batchMoveBtn">Move</button>
               </div>
               <div class="msg" id="batchMoveMsg"></div>
             </div>
@@ -4376,7 +4445,7 @@
               <button class="subtab-btn" type="button" data-tab="ringkasan"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/><path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/></svg> <span>Ringkasan</span></button>
               <button class="subtab-btn" type="button" data-tab="transaksi"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5m14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5"/></svg> <span>Transaksi</span></button>
               <button class="subtab-btn" type="button" data-tab="kategori"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2v4.586l7 7L14.586 9l-7-7zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586z"/><path d="M5.5 5a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m0 1a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M1 7.086a1 1 0 0 0 .293.707L8.75 15.25l-.043.043a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 0 7.586V3a1 1 0 0 1 1-1z"/></svg> <span>Kategori</span></button>
-              <button class="subtab-btn" type="button" data-tab="akun"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/></svg> <span>Akun</span></button>
+              <button class="subtab-btn" type="button" data-tab="akun"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/></svg> <span>Accounts</span></button>
               <button class="subtab-btn" type="button" data-tab="budget"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M8 13A5 5 0 1 1 8 3a5 5 0 0 1 0 10m0 1A6 6 0 1 0 8 2a6 6 0 0 0 0 12"/><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/><path d="M9.5 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/></svg> <span>Budget</span></button>
               <button class="subtab-btn" type="button" data-tab="target"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962"/><path fill-rule="evenodd" d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199"/></svg> <span>Target</span></button>
               <button class="subtab-btn" type="button" data-tab="impor"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/></svg> <span>Impor AI</span></button>
@@ -4476,7 +4545,7 @@
             </div>
 
             <div class="subtab-panel" data-tab="akun">
-              <button class="btn btn-sm" id="accAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Akun Baru</button>
+              <button class="btn btn-sm" id="accAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Account</button>
               <div id="perAccList" style="margin-top:10px;"></div>
             </div>
 
@@ -4811,7 +4880,7 @@
           <div id="txFilterTypeChecks" class="filter-check-list"></div>
         </div>
         <div class="filter-section">
-          <div class="filter-section-title">Akun</div>
+          <div class="filter-section-title">Accounts</div>
           <div id="txFilterAccountChecks" class="filter-check-list"></div>
         </div>
         <div class="filter-section">
@@ -4841,15 +4910,15 @@
             <select class="form-control" id="txType">
               <option value="expense">Pengeluaran</option>
               <option value="income">Pemasukan</option>
-              <option value="transfer">Transfer Antar Akun</option>
+              <option value="transfer">Transfer Between Accounts</option>
             </select>
           </div>
           <div class="konten-field" style="flex:1;min-width:130px;"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="txAmount" placeholder="mis. 50.000"></div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div class="konten-field" style="flex:1;min-width:130px;"><label id="txAccountLabel">Akun</label><select class="form-control" id="txAccount"></select></div>
+          <div class="konten-field" style="flex:1;min-width:130px;"><label id="txAccountLabel">Account</label><select class="form-control" id="txAccount"></select></div>
           <div class="konten-field" style="flex:1;min-width:130px;" id="txCategoryWrap"><label>Kategori</label><select class="form-control" id="txCategory"></select></div>
-          <div class="konten-field" style="flex:1;min-width:130px;display:none;" id="txToAccountWrap"><label>Akun Tujuan</label><select class="form-control" id="txToAccount"></select></div>
+          <div class="konten-field" style="flex:1;min-width:130px;display:none;" id="txToAccountWrap"><label>Destination Account</label><select class="form-control" id="txToAccount"></select></div>
         </div>
         <div class="konten-field"><label>Catatan (opsional)</label><input class="form-control" type="text" id="txNote" maxlength="300" placeholder="mis. Makan siang sama tim"></div>
         <div class="msg" id="txMsg"></div>
@@ -4865,12 +4934,18 @@
     <div class="filter-overlay-box">
       <div class="filter-overlay-head">
         <button class="filter-back" id="accFormBackBtn" aria-label="Tutup">&larr;</button>
-        <div class="filter-overlay-title" id="accFormTitle">Akun Baru</div>
-        <button class="filter-reset-link" id="accFormDeleteBtn" style="display:none;color:var(--err);">Hapus</button>
+        <div class="filter-overlay-title" id="accFormTitle">New Account</div>
+        <button class="filter-reset-link" id="accFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="accId">
-        <div class="konten-field"><label>Nama Akun</label><input class="form-control" type="text" id="accName" placeholder="mis. BCA, Dompet Cash, GoPay"></div>
+        <div class="konten-field"><label>Account Name</label><input class="form-control" type="text" id="accName" placeholder="e.g. BCA, Cash Wallet, GoPay"></div>
+        <div class="konten-field">
+          <label>Photo</label>
+          <input type="hidden" id="accPhotoUrl">
+          <input class="form-control" type="file" accept="image/*" id="accPhotoPick">
+          <div id="accPhotoPreview" style="margin-top:8px;"></div>
+        </div>
         <div class="konten-field"><label>Tipe</label>
           <select class="form-control" id="accType">
             <option value="cash">Tunai</option>
@@ -4883,7 +4958,7 @@
         <div class="msg" id="accMsg"></div>
       </div>
       <div class="filter-overlay-foot">
-        <button class="btn" id="accSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Akun</button>
+        <button class="btn" id="accSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Account</button>
       </div>
     </div>
   </div>
@@ -5202,7 +5277,7 @@
             // coba lagi (khusus read-only) kalau masih ada jatah
           }
         }
-        throw lastErr || new Error("Gagal terhubung ke server.");
+        throw lastErr || new Error("Failed to connect to the server.");
       } finally {
         _bar(false);
       }
@@ -5220,7 +5295,7 @@
         });
         return await res.json();
       } catch (e) {
-        return { status: "error", message: "Gagal terhubung ke server." };
+        return { status: "error", message: "Failed to connect to the server." };
       } finally {
         _bar(false);
       }
@@ -5268,7 +5343,7 @@
         }
       } catch (e) {
         loginMsg.className = "msg err";
-        loginMsg.textContent = "Gagal terhubung ke server.";
+        loginMsg.textContent = "Failed to connect to the server.";
       } finally {
         loginBtn.disabled = false;
       }
@@ -5424,9 +5499,11 @@
     }
 
     // Render 1 sel tabel: kalau URL gambar -> embed thumbnail + preview; else teks
-    function cellHtml(c) {
+    // Isi 1 cell (tanpa wrapper <td>) -- dipisah dari cellHtml() biar bisa
+    // dipakai ulang di layout non-tabel juga (mis. kartu peserta di mobile).
+    function cellValueHtml(c) {
       if (isPrivateStoragePath(c)) {
-        return `<td><button type="button" class="cell-priv-link" data-privpath="${escapeHtml(c)}">${icon("lock")} Lihat Bukti Bayar</button></td>`;
+        return `<button type="button" class="cell-priv-link" data-privpath="${escapeHtml(c)}">${icon("lock")} Lihat Bukti Bayar</button>`;
       }
       if (isUrl(c)) {
         const id = driveId(c);
@@ -5444,12 +5521,13 @@
         const onerr = fallback
           ? `if(!this.dataset.fb){this.dataset.fb=1;this.src='${fallback}';}else{this.onerror=null;this.parentNode.classList.add('img-failed');this.parentNode.textContent='Lihat ↗';}`
           : `this.onerror=null;this.parentNode.classList.add('img-failed');this.parentNode.textContent='Lihat ↗';`;
-        return `<td><a href="${escapeHtml(open)}" target="_blank" rel="noopener" class="cell-img-link" data-full="${escapeHtml(big)}" data-full2="${escapeHtml(fallback)}">` +
+        return `<a href="${escapeHtml(open)}" target="_blank" rel="noopener" class="cell-img-link" data-full="${escapeHtml(big)}" data-full2="${escapeHtml(fallback)}">` +
           `<img class="cell-img" src="${escapeHtml(small)}" alt="foto" loading="lazy" referrerpolicy="no-referrer" ` +
-          `onerror="${onerr}"></a></td>`;
+          `onerror="${onerr}"></a>`;
       }
-      return `<td>${c === "" ? "-" : escapeHtml(c)}</td>`;
+      return c === "" ? "-" : escapeHtml(c);
     }
+    function cellHtml(c) { return `<td>${cellValueHtml(c)}</td>`; }
 
     // Tanggal + jam submit (WIB) -- dipake buat cocokin sama mutasi bank kalau
     // ada bukti bayar yang nggak jelas/meragukan.
@@ -5463,12 +5541,12 @@
     // Kolom `registrations.extra` beda-beda per jenis workshop -- label ramah biar tabel
     // tetap enak dibaca (dulu ini nama kolom sheet Google, sekarang key JSON).
     const REG_FIELD_LABELS = {
-      created_at: "Waktu Daftar", full_name: "Nama Lengkap", nickname: "Nickname", wa: "WhatsApp",
-      ig_username: "Instagram", consent: "Consent", payment_proof_url: "Bukti Bayar", attendance: "Hadir",
-      frame: "Frame", initial: "Inisial", frontCoverWord: "Kata di Cover",
-      colorCover: "Warna Cover", colorFlap: "Warna Flap", colorStrap: "Warna Tali/Strap",
-      charmUrl: "Foto Charm", coverType: "Tipe Cover (Bag)", flapType: "Tipe Flap (Bag)",
-      rantai: "Warna Rantai", pita: "Warna Pita", childName: "Nama Anak"
+      created_at: "Registered At", full_name: "Full Name", nickname: "Nickname", wa: "WhatsApp",
+      ig_username: "Instagram", consent: "Consent", payment_proof_url: "Payment Proof", attendance: "Attendance",
+      frame: "Frame", initial: "Initials", frontCoverWord: "Cover Word",
+      colorCover: "Cover Color", colorFlap: "Flap Color", colorStrap: "Strap Color",
+      charmUrl: "Charm Photo", coverType: "Cover Type (Bag)", flapType: "Flap Type (Bag)",
+      rantai: "Chain Color", pita: "Ribbon Color", childName: "Child's Name"
     };
     // Ubah `items` (array objek registrations) jadi shape lama {headers, rows, ids} biar
     // semua render/cari/export tabel yang udah ada nggak perlu ditulis ulang.
@@ -5485,11 +5563,11 @@
       const photoKeys = Array.from({ length: maxPhotos }, (_, i) => "photos." + i);
       const allKeys = [...baseKeys, ...extraKeys, ...photoKeys, "payment_proof_url", "attendance"];
       const headers = allKeys.map(k => k.indexOf("photos.") === 0
-        ? "Foto " + (parseInt(k.split(".")[1], 10) + 1)
+        ? "Photo " + (parseInt(k.split(".")[1], 10) + 1)
         : (REG_FIELD_LABELS[k] || k));
       const rows = items.map(it => allKeys.map(k => {
-        if (k === "attendance") return it.attendance ? "Ya" : "";
-        if (k === "consent") return it.consent ? "Ya" : "Tidak";
+        if (k === "attendance") return it.attendance ? "Yes" : "";
+        if (k === "consent") return it.consent ? "Yes" : "No";
         if (k === "payment_proof_url") return it.payment_proof_url || "";
         if (baseKeys.includes(k)) return it[k] ?? "";
         if (k.indexOf("photos.") === 0) {
@@ -5505,22 +5583,25 @@
     // Kolom "frame" (3D Layered Journaling) isinya teks "Tipe N" -- tampilin
     // foto asli frame-nya (sama kayak yang peserta liat di form pendaftaran)
     // biar admin nggak perlu nebak-nebak pas prep.
-    function frameCellHtml(val) {
+    function frameValueHtml(val) {
       const m = String(val || "").match(/(\d+)/);
-      if (!m) return cellHtml(val);
+      if (!m) return cellValueHtml(val);
       const src = `../images/frame${m[1]}.webp`;
-      return `<td><a href="${src}" target="_blank" rel="noopener" class="cell-img-link" data-full="${src}">` +
-        `<img class="cell-img" src="${src}" alt="${escapeHtml(String(val))}" loading="lazy"></a></td>`;
+      return `<a href="${src}" target="_blank" rel="noopener" class="cell-img-link" data-full="${src}">` +
+        `<img class="cell-img" src="${src}" alt="${escapeHtml(String(val))}" loading="lazy"></a>`;
     }
+    function frameCellHtml(val) { return `<td>${frameValueHtml(val)}</td>`; }
 
     async function loadRegistrations() {
       const workshop = document.getElementById("wsSelect").value;
       const batchId = document.getElementById("batchSelect").value; // batch terpilih (kosong = batch aktif)
       const head = document.getElementById("tableHead");
       const body = document.getElementById("tableBody");
+      const cardsEl = document.getElementById("regCards");
       const empty = document.getElementById("tableEmpty");
       head.innerHTML = "";
       body.innerHTML = skelTableRows(5, 6);
+      if (cardsEl) cardsEl.innerHTML = "";
       empty.style.display = "none";
       document.getElementById("exportCsvBtn").disabled = true; // aktif lagi kalau data berhasil dimuat
 
@@ -5535,12 +5616,13 @@
 
         // Timestamp (tanggal+jam submit) ditampilin -- kepake buat cocokin
         // sama mutasi bank kalau bukti bayarnya nggak jelas.
-        const tsIdx = shaped.headers.findIndex(h => /timestamp|waktu/i.test(String(h)));
+        const tsIdx = shaped.headers.findIndex(h => /timestamp|waktu|registered/i.test(String(h)));
         const frameIdx = shaped.keys ? shaped.keys.indexOf("frame") : -1;
         head.innerHTML = "<th>#</th>" + shaped.headers.map(h => `<th>${h}</th>`).join("") + "<th>Aksi</th>";
 
         if (!shaped.rows.length) {
           body.innerHTML = "";
+          if (cardsEl) cardsEl.innerHTML = "";
           empty.style.display = "block";
           return;
         }
@@ -5554,46 +5636,73 @@
           "journaling-date": { path: "/journaling-date/update-photo.html", msg: (nm, link) => `Halo ${nm} 👋\nMau nambah/ganti foto kenang-kenangan buat Journaling Date? Tinggal upload di sini ya (opsional kok):\n${link}` },
         };
         const photoCfg = UPDATE_PHOTO_CFG[workshop];
-        body.innerHTML = shaped.rows.map((row, i) => {
-          const cells = row.map((c, idx) => idx === tsIdx ? `<td>${escapeHtml(fmtDateTime(c))}</td>` : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).join("");
+        const tableRows = [];
+        const cardRows = [];
+        shaped.rows.forEach((row, i) => {
           const it = items[i];
           const regId = it ? it.id : "";
           const nm = it ? (it.nickname || it.full_name || "") : "";
           const isArchived = !!(it && it.archived);
           const isVoid = !!(it && it.extra && it.extra.void);
           const photoBtn = photoCfg
-            ? `<button class="wa-copy" data-photolink="${escapeHtml(regId)}" data-photoname="${escapeHtml(nm)}" data-photowa="${escapeHtml((it && it.wa) || "")}" title="Kirim link upload ulang foto">${icon("camera")}</button>`
+            ? `<button class="wa-copy" data-photolink="${escapeHtml(regId)}" data-photoname="${escapeHtml(nm)}" data-photowa="${escapeHtml((it && it.wa) || "")}" title="Send photo re-upload link">${icon("camera")}</button>`
             : "";
-          const voidBadge = isVoid ? `<span class="subtab-count" title="Data manual, bukan pendaftar beneran -- dibuat lewat Config > Detail Batch" style="margin-right:6px;">Void</span>` : "";
-          const archiveBtn = `<button class="sg-archive${isArchived ? " is-archived" : ""}" data-archivereg="${escapeHtml(regId)}" data-archived="${isArchived ? "0" : "1"}" title="${isArchived ? "Batal jadi ikut, tapi tetep kehitung di kuota/loyalty/profit -- klik buat buka arsip lagi" : "Daftar tapi nggak jadi ikut & udah dikasih slot gratis di event lain -- arsipkan biar nggak kehitung di kuota/loyalty/profit, row-nya tetep kesimpen"}">${icon("archive")} ${isArchived ? "Diarsipkan" : "Arsip"}</button>`;
-          return `<tr style="${isArchived ? "opacity:.55;" : ""}"><td>${i + 1}</td>${cells}<td>${voidBadge}${photoBtn}${archiveBtn}<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button></td></tr>`;
-        }).join("");
-        body.querySelectorAll("[data-photolink]").forEach(b => b.addEventListener("click", () => {
-          if (!photoCfg) return;
-          const link = siteOrigin() + photoCfg.path + "?rid=" + encodeURIComponent(b.dataset.photolink) + "&nama=" + encodeURIComponent(b.dataset.photoname || "");
-          const wa = waNormalize(b.dataset.photowa);
-          if (wa) {
-            const nm = (b.dataset.photoname || "").trim().split(/\s+/)[0] || "kak";
-            window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(photoCfg.msg(nm, link)), "_blank");
-          } else {
-            copyToClipboardEl(link, b);
-          }
-        }));
-        body.querySelectorAll("[data-archivereg]").forEach(b => b.addEventListener("click", async () => {
-          const willArchive = b.dataset.archived === "1";
-          if (willArchive && !confirm("Arsipkan peserta ini? Row-nya tetep kesimpen, tapi nggak lagi kehitung di kuota batch, revenue/profit, & stamp loyalty.")) return;
-          b.disabled = true;
-          const r2 = await api("archiveRegistration", { token: getToken(), id: b.dataset.archivereg, archived: willArchive });
-          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
-          loadRegistrations();
-        }));
-        body.querySelectorAll("[data-delreg]").forEach(b => b.addEventListener("click", async () => {
-          if (!confirm("Hapus peserta ini dari daftar? Nggak bisa dibalikin (misal karena dia cancel).")) return;
-          b.disabled = true;
-          const r2 = await api("deleteRegistration", { token: getToken(), id: b.dataset.delreg });
-          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
-          loadRegistrations();
-        }));
+          const voidBadge = isVoid ? `<span class="subtab-count" title="Manual placeholder data, not a real registrant -- created via Config > Batch Detail" style="margin-right:6px;">Void</span>` : "";
+          const archiveBtn = `<button class="sg-archive${isArchived ? " is-archived" : ""}" data-archivereg="${escapeHtml(regId)}" data-archived="${isArchived ? "0" : "1"}" title="${isArchived ? "Cancel their spot, but still counted in quota/loyalty/profit -- click to unarchive" : "Registered but not attending & already given a free slot at another event -- archive so it's excluded from quota/loyalty/profit, row stays saved"}">${icon("archive")} ${isArchived ? "Archived" : "Archive"}</button>`;
+          const delBtn = `<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Delete</button>`;
+
+          const cells = row.map((c, idx) => idx === tsIdx ? `<td>${escapeHtml(fmtDateTime(c))}</td>` : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).join("");
+          tableRows.push(`<tr style="${isArchived ? "opacity:.55;" : ""}"><td>${i + 1}</td>${cells}<td>${voidBadge}${photoBtn}${archiveBtn}${delBtn}</td></tr>`);
+
+          const fieldsHtml = row.map((c, idx) => {
+            const val = idx === tsIdx ? escapeHtml(fmtDateTime(c)) : idx === frameIdx ? frameValueHtml(c) : cellValueHtml(c);
+            if (val === "" || val == null) return null;
+            return `<div class="mobile-card-field"><b>${escapeHtml(shaped.headers[idx])}:</b> ${val}</div>`;
+          }).filter(Boolean).join("");
+          cardRows.push(`<div class="mobile-card" style="${isArchived ? "opacity:.55;" : ""}">
+            <div class="mobile-card-top">
+              <span class="mobile-card-num">#${i + 1}</span>
+              <span class="mobile-card-name">${escapeHtml(nm || `Peserta #${i + 1}`)}</span>
+              ${voidBadge}
+            </div>
+            <div class="mobile-card-actions">${photoBtn}${archiveBtn}${delBtn}</div>
+            <div class="mobile-card-fields">${fieldsHtml}</div>
+          </div>`);
+        });
+        body.innerHTML = tableRows.join("");
+        if (cardsEl) cardsEl.innerHTML = cardRows.join("");
+
+        const wireRegActions = (root) => {
+          if (!root) return;
+          root.querySelectorAll("[data-photolink]").forEach(b => b.addEventListener("click", () => {
+            if (!photoCfg) return;
+            const link = siteOrigin() + photoCfg.path + "?rid=" + encodeURIComponent(b.dataset.photolink) + "&nama=" + encodeURIComponent(b.dataset.photoname || "");
+            const wa = waNormalize(b.dataset.photowa);
+            if (wa) {
+              const nm = (b.dataset.photoname || "").trim().split(/\s+/)[0] || "kak";
+              window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(photoCfg.msg(nm, link)), "_blank");
+            } else {
+              copyToClipboardEl(link, b);
+            }
+          }));
+          root.querySelectorAll("[data-archivereg]").forEach(b => b.addEventListener("click", async () => {
+            const willArchive = b.dataset.archived === "1";
+            if (willArchive && !confirm("Archive this participant? The row stays saved, but it's excluded from the batch quota, revenue/profit, & loyalty stamp.")) return;
+            b.disabled = true;
+            const r2 = await api("archiveRegistration", { token: getToken(), id: b.dataset.archivereg, archived: willArchive });
+            if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
+            loadRegistrations();
+          }));
+          root.querySelectorAll("[data-delreg]").forEach(b => b.addEventListener("click", async () => {
+            if (!confirm("Delete this participant from the list? This can't be undone (e.g. if they cancelled).")) return;
+            b.disabled = true;
+            const r2 = await api("deleteRegistration", { token: getToken(), id: b.dataset.delreg });
+            if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
+            loadRegistrations();
+          }));
+        };
+        wireRegActions(body);
+        wireRegActions(cardsEl);
         filterReg(); // terapkan pencarian yang aktif (kalau ada)
       } catch (e) {
         body.innerHTML = `<tr><td style="padding:24px;color:#dc2626;">Gagal memuat data.</td></tr>`;
@@ -5608,10 +5717,13 @@
       document.querySelectorAll("#tableBody tr").forEach(tr => {
         tr.style.display = (!q || tr.textContent.toLowerCase().includes(q)) ? "" : "none";
       });
+      document.querySelectorAll("#regCards .mobile-card").forEach(c => {
+        c.style.display = (!q || c.textContent.toLowerCase().includes(q)) ? "" : "none";
+      });
     }
 
     function exportReg() {
-      if (!REG_DATA.rows.length) { alert("Belum ada data untuk diekspor."); return; }
+      if (!REG_DATA.rows.length) { alert("No data to export yet."); return; }
       const esc = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
       const lines = [REG_DATA.headers.map(esc).join(",")];
       REG_DATA.rows.forEach(row => lines.push(row.map(esc).join(",")));
@@ -5717,7 +5829,7 @@
     async function renameBatch() {
       const batchId = document.getElementById("batchSelect").value;
       const b = BATCHES.find(x => x.id === batchId);
-      if (!b) { alert("Pilih batch dulu ya."); return; }
+      if (!b) { alert("Please select a batch first."); return; }
       const label = prompt("Nama/label batch (mis. 'Vol 2'):", b.label || "");
       if (label === null) return;
       const eventDate = prompt("Tanggal event (mis. '11 Juli 2026') — ini yang tampil di loyalty peserta:", b.eventDate || "");
@@ -5973,12 +6085,12 @@
 
     async function onCostItemImagePick(e) {
       const f = e.target.files[0]; if (!f) return;
-      if (f.size > 5 * 1024 * 1024) { alert("Ukuran gambar maks 5MB ya."); e.target.value = ""; return; }
+      if (f.size > 5 * 1024 * 1024) { alert("Image size must be max 5MB."); e.target.value = ""; return; }
       try {
         const dataUrl = await qCompress(f, 1000, 0.82);
         document.getElementById("ciImageBase64").value = dataUrl.split(",")[1];
         document.getElementById("ciImagePreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:160px;border-radius:12px;">';
-      } catch (err) { alert("Gagal memproses gambar."); }
+      } catch (err) { alert("Failed to process image."); }
     }
 
     async function fetchNameFromLink() {
@@ -6003,7 +6115,7 @@
       const msg = document.getElementById("ciMsg");
       const name = document.getElementById("ciName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama item wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       let imageUrl = document.getElementById("ciImageExisting").value || "";
       const imageBase64 = document.getElementById("ciImageBase64").value;
       if (imageBase64) {
@@ -6017,7 +6129,7 @@
         link: document.getElementById("ciLink").value.trim(), imageUrl
       });
       if (r && r.status === "success") { closeCostItemForm(); await loadCostItems(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     async function deleteCostItemForm(id) {
@@ -6025,7 +6137,7 @@
       if (!confirm("Hapus item ini dari database? Biaya yang udah kesimpen di event/batch lain nggak ikut kehapus.")) return false;
       const r = await api("deleteCostItem", { token: getToken(), id });
       if (r && r.status === "success") { await loadCostItems(); return true; }
-      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
+      handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
     }
 
     // ---- Inventaris (riwayat stok per item Database Item) ----
@@ -6140,24 +6252,24 @@
       if (!itemId) { msg.className = "msg err"; msg.textContent = "Pilih item dulu (bikin dulu di Database Item kalau belum ada)."; return; }
       const type = document.getElementById("invType").value;
       const qty = Math.round(Number(document.getElementById("invQty").value)) || 0;
-      if (!qty) { msg.className = "msg err"; msg.textContent = "Jumlah nggak boleh 0."; return; }
+      if (!qty) { msg.className = "msg err"; msg.textContent = "Amount can't be 0."; return; }
       if (type !== "adjust" && qty < 0) { msg.className = "msg err"; msg.textContent = "Jumlah harus positif buat Beli/Pakai."; return; }
       const date = document.getElementById("invDate").value;
-      if (!date) { msg.className = "msg err"; msg.textContent = "Tanggal wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      if (!date) { msg.className = "msg err"; msg.textContent = "Date is required."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("saveInventoryTransaction", {
         token: getToken(), id: document.getElementById("invId").value, itemId, type, qty, date,
         workshopType: document.getElementById("invWorkshop").value, note: document.getElementById("invNote").value.trim()
       });
       if (r && r.status === "success") { newInvForm(); await loadInventoryTx(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     async function deleteInvTx(id) {
       if (!confirm("Hapus transaksi stok ini?")) return;
       const r = await api("deleteInventoryTransaction", { token: getToken(), id });
       if (r && r.status === "success") await loadInventoryTx();
-      else { handleAuthError(r); alert((r && r.message) || "Gagal hapus."); }
+      else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
     }
 
     // ---- Impor Struk (baca screenshot struk/pesanan pakai AI -> Database Item + Inventaris) ----
@@ -6165,14 +6277,14 @@
 
     async function onRiFilePick(e) {
       const f = e.target.files[0]; if (!f) return;
-      if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maks 8MB ya."); e.target.value = ""; return; }
+      if (f.size > 8 * 1024 * 1024) { alert("Image size must be max 8MB."); e.target.value = ""; return; }
       try {
         const dataUrl = await qCompress(f, 2000, 0.85);
         document.getElementById("riImageBase64").value = dataUrl.split(",")[1];
         document.getElementById("riImageMime").value = "image/jpeg";
         document.getElementById("riPreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:280px;border-radius:12px;">';
         document.getElementById("riProcessBtn").disabled = false;
-      } catch (err) { alert("Gagal memproses gambar."); }
+      } catch (err) { alert("Failed to process image."); }
     }
 
     async function processReceiptImport() {
@@ -6186,7 +6298,7 @@
       });
       document.getElementById("riProcessBtn").disabled = false;
       if (!r || r.status !== "success") {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal memproses gambar.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to process image.";
         return;
       }
       const found = r.items || [];
@@ -6471,20 +6583,20 @@
       });
       const btn = document.getElementById("saveModalBtn");
       const msg = document.getElementById("finMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
       try {
         const r = await api("saveModal", { token: getToken(), workshop: id, batch: batchKey, items });
         if (r.status === "success") {
           if (!MODAL[id]) MODAL[id] = {};
           MODAL[id][batchKey] = items;
-          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
           renderFinance(); // refresh status badge (warisan -> khusus)
         } else {
           handleAuthError(r);
-          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
         }
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       } finally {
         btn.disabled = false;
       }
@@ -6508,7 +6620,7 @@
           const box = document.getElementById("ovIncomeBreakdown");
           const open = box.style.display !== "none";
           box.style.display = open ? "none" : "block";
-          e.target.textContent = open ? "Lihat rincian per batch" : "Sembunyikan rincian";
+          e.target.textContent = open ? "View per-batch breakdown" : "Hide breakdown";
           if (!open) renderIncomeBreakdown();
         });
         document.getElementById("ideaAddBtn").addEventListener("click", () => {
@@ -6587,18 +6699,18 @@
       const ideas = IDEAS.map(s => (s || "").trim()).filter(Boolean);
       const btn = document.getElementById("ideaSaveBtn");
       const msg = document.getElementById("ideaMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
       try {
         const r = await api("saveIdeas", { token: getToken(), ideas });
         if (r.status === "success") {
           IDEAS = ideas; renderIdeas();
-          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
         } else {
           handleAuthError(r);
-          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
         }
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       } finally {
         btn.disabled = false;
       }
@@ -6770,7 +6882,7 @@
       btn.disabled = true;
       const r = await api("archiveBatch", { token: getToken(), batchId, archived: willArchive });
       btn.disabled = false;
-      if (!r || r.status !== "success") { alert((r && r.message) || "Gagal."); return; }
+      if (!r || r.status !== "success") { alert((r && r.message) || "Failed."); return; }
       await loadCfgBatches();
       document.getElementById("cfgBatchSelect").value = batchId;
       onCfgBatchChange();
@@ -6811,15 +6923,15 @@
     async function addCfgBatchVoidRegistrations() {
       const batchId = document.getElementById("cfgBatchSelect").value;
       const msg = document.getElementById("batchVoidMsg");
-      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu ya."; return; }
+      if (!batchId) { msg.className = "msg err"; msg.textContent = "Please select a batch first."; return; }
       const count = parseInt(document.getElementById("batchVoidCount").value, 10) || 0;
       if (count <= 0) { msg.className = "msg err"; msg.textContent = "Isi jumlah dulu ya."; return; }
       const note = document.getElementById("batchVoidNote").value.trim();
       if (!confirm(`Tambahin ${count} data peserta manual (void) ke batch ini? Bakal kehitung normal di kuota/revenue/profit.`)) return;
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("addVoidRegistrations", { token: getToken(), batchId, count, note });
       if (r && r.status === "success") {
-        msg.className = "msg ok"; msg.textContent = r.message || "Tersimpan ✓";
+        msg.className = "msg ok"; msg.textContent = r.message || "Saved ✓";
         document.getElementById("batchVoidCount").value = "";
         document.getElementById("batchVoidNote").value = "";
         const idx = Number(document.getElementById("cfgSelect").value) || 0;
@@ -6827,14 +6939,14 @@
         const rr = await api("listBatches", { token: getToken(), workshop: w.id });
         if (rr && rr.status === "success") CFG_BATCHES = rr.batches || [];
       } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save.";
       }
     }
 
     async function moveCfgBatchToWorkshop() {
       const batchId = document.getElementById("cfgBatchSelect").value;
       const msg = document.getElementById("batchMoveMsg");
-      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu ya."; return; }
+      if (!batchId) { msg.className = "msg err"; msg.textContent = "Please select a batch first."; return; }
       const target = document.getElementById("batchMoveTarget").value;
       if (!target) { msg.className = "msg err"; msg.textContent = "Pilih event tujuan dulu ya."; return; }
       const targetName = (CONFIG.find(w => w.id === target) || {}).name || target;
@@ -6843,7 +6955,7 @@
       msg.className = "msg"; msg.textContent = "Memindahkan...";
       const r = await api("moveBatchToWorkshop", { token: getToken(), batchId, workshop: target });
       if (r && r.status === "success") {
-        msg.className = "msg ok"; msg.textContent = r.message || "Tersimpan ✓";
+        msg.className = "msg ok"; msg.textContent = r.message || "Saved ✓";
         // Batch-nya udah pindah tipe -- reload daftar batch tipe ini (batch
         // yang dipindah bakal ilang dari sini, itu bener, dia sekarang
         // muncul di daftar batch event tujuan).
@@ -6902,10 +7014,10 @@
     async function saveCfgBatchDetailFn() {
       const msg = document.getElementById("batchDetailMsg");
       const batchId = document.getElementById("cfgBatchSelect").value;
-      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu ya."; return; }
+      if (!batchId) { msg.className = "msg err"; msg.textContent = "Please select a batch first."; return; }
       const label = document.getElementById("batchLabelInput").value.trim();
       if (!label) { msg.className = "msg err"; msg.textContent = "Nama batch nggak boleh kosong."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("renameBatch", {
         token: getToken(), batchId, label,
         locationName: document.getElementById("batchLoc").value,
@@ -6935,9 +7047,9 @@
           const b = CFG_BATCHES.find(x => x.id === batchId);
           opt.textContent = label + (b && b.archived ? " • Diarsipkan" : (b && b.active ? " • Buka" : ""));
         }
-        msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+        msg.className = "msg ok"; msg.textContent = "Saved ✓";
       } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save.";
       }
     }
 
@@ -7035,7 +7147,7 @@
           msg.className = "msg err"; msg.textContent = r.message || "Gagal menghapus.";
         }
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       }
     }
 
@@ -7051,17 +7163,17 @@
       });
       const btn = document.getElementById("cfgSaveBtn");
       const msg = document.getElementById("cfgMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
       try {
         const r = await api("saveConfig", { token: getToken(), config: CONFIG });
         if (r.status === "success") {
-          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
         } else {
           handleAuthError(r);
-          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
         }
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       } finally {
         btn.disabled = false;
       }
@@ -7228,13 +7340,13 @@
             const key = input.dataset.imgpick;
             const f = input.files && input.files[0];
             if (!f) return;
-            if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maks 8MB ya."); input.value = ""; return; }
+            if (f.size > 8 * 1024 * 1024) { alert("Image size must be max 8MB."); input.value = ""; return; }
             const prev = div.querySelector(`[data-imgprev="${key}"]`);
             if (prev) prev.innerHTML = `<p class="hint">Mengupload…</p>`;
             try {
               const dataUrl = await qCompress(f, 1400, 0.82);
               const r = await api("uploadImage", { token: getToken(), bucket: "recommendation-photos", imageBase64: dataUrl.split(",")[1], prefix: item.title || "rec" });
-              if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal upload."); if (prev) prev.innerHTML = ""; return; }
+              if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to upload."); if (prev) prev.innerHTML = ""; return; }
               KONTEN[idx][key] = r.url;
               const textInput = div.querySelector(`[data-key="${key}"]`);
               if (textInput) textInput.value = r.url;
@@ -7302,17 +7414,17 @@
       }
       const btn = document.getElementById("kontenSaveBtn");
       const msg = document.getElementById("kontenMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
       try {
         const r = await api("saveContent", { token: getToken(), contentType: type, items });
         if (r.status === "success") {
-          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
         } else {
           handleAuthError(r);
-          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
         }
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       } finally {
         btn.disabled = false;
       }
@@ -7374,14 +7486,14 @@
         el.querySelectorAll("[data-sgok]").forEach(b => b.addEventListener("click", async () => {
           b.disabled = true;
           const r2 = await api("setSuggestionApproved", { token: getToken(), id: b.dataset.sgok });
-          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
           loadSuggestions();
         }));
         el.querySelectorAll("[data-sgid]").forEach(b => b.addEventListener("click", async () => {
           if (!confirm("Hapus usulan ini? Nggak bisa dibalikin.")) return;
           b.disabled = true;
           const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.sgid });
-          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
           loadSuggestions();
         }));
       } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
@@ -7411,14 +7523,14 @@
         el.querySelectorAll("[data-btdone]").forEach(b => b.addEventListener("click", async () => {
           b.disabled = true;
           const r2 = await api("setBarterDone", { token: getToken(), id: b.dataset.btdone });
-          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
           loadBarterAdmin();
         }));
         el.querySelectorAll("[data-btdel]").forEach(b => b.addEventListener("click", async () => {
           if (!confirm("Hapus/tolak postingan barter ini? Nggak bisa dibalikin.")) return;
           b.disabled = true;
           const r2 = await api("deleteBarterPost", { token: getToken(), id: b.dataset.btdel });
-          if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+          if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
           loadBarterAdmin();
         }));
       } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
@@ -7525,7 +7637,7 @@
           else when = "udah lewat ✓";
           return memRow(b.nickname, icon("cake") + " " + b.day + " " + escapeHtml(r.monthName) + " · " + when + (jadi ? " · jadi " + jadi + " thn" : ""), b.wa, "Ucapin 🎉", "bday", b.ig, cls, badge);
         }).join("")
-        : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Nggak ada yang ultah bulan ini.") + '</p>';
+        : '<p class="hint">' + (q ? "No matches found." : "Nggak ada yang ultah bulan ini.") + '</p>';
 
       const accs = r.accounts.filter(hit);
       document.getElementById("memActive").innerHTML = accs.length
@@ -7535,20 +7647,20 @@
             (a.birthDate ? "🎂 " + escapeHtml(memBdayShort(a.birthDate)) + (age !== null ? " · <b>" + age + " thn</b>" : "") + " · " : "") + "login terakhir: " + escapeHtml(a.lastLogin || "-");
           return memRow(a.nickname, sub, a.wa, "Chat", "chat", a.ig);
         }).join("")
-        : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Belum ada yang daftar /warga.") + '</p>';
+        : '<p class="hint">' + (q ? "No matches found." : "Belum ada yang daftar /warga.") + '</p>';
       document.getElementById("memActiveCount").textContent = accs.length + (q ? "/" + r.accounts.length : "");
 
       const inacts = r.notRegistered.filter(hit);
       document.getElementById("memInactive").innerHTML = inacts.length
         ? inacts.map(m => memRow(m.nickname, m.count + " event · belum daftar /warga", m.wa, "Ajak daftar", "nudge", m.ig)).join("")
-        : '<p class="hint">' + (q ? "Nggak ada yang cocok." : "Semua member udah daftar 🎉") + '</p>';
+        : '<p class="hint">' + (q ? "No matches found." : "Semua member udah daftar 🎉") + '</p>';
       document.getElementById("memInactiveCount").textContent = inacts.length + (q ? "/" + r.notRegistered.length : "");
       const memStatusCount = document.getElementById("memStatusCount");
       if (memStatusCount) memStatusCount.textContent = accs.length + inacts.length;
 
       document.querySelectorAll(".mem-wa").forEach(b => b.addEventListener("click", () => {
         const num = waNormalize(b.dataset.memwa);
-        if (!num) { alert("Nomor WA nggak valid."); return; }
+        if (!num) { alert("Invalid WA number."); return; }
         const nm = (String(b.dataset.memname || "").trim().split(/\s+/)[0]) || "kak";
         window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(memWaMsg(b.dataset.memtype, nm)), "_blank");
         if (b.dataset.memtype === "bday") { markBdayWished(num); renderMembers(); }
@@ -7649,7 +7761,7 @@
             : '<p class="hint">Nggak ada yang ultah bulan ini.</p>';
           bdEl.querySelectorAll("[data-bdaywa]").forEach(btn => btn.addEventListener("click", () => {
             const wa = waNormalize(btn.dataset.bdaywa);
-            if (!wa) { alert("Nomor WA nggak valid."); return; }
+            if (!wa) { alert("Invalid WA number."); return; }
             const nm = (btn.dataset.bdayname || "").trim().split(/\s+/)[0] || "kak";
             window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(memWaMsg("bday", nm)), "_blank");
             markBdayWished(btn.dataset.bdaywa);
@@ -7680,14 +7792,14 @@
           pendEl.querySelectorAll("[data-actok]").forEach(b => b.addEventListener("click", async () => {
             b.disabled = true;
             const r2 = await api("setSuggestionApproved", { token: getToken(), id: b.dataset.actok });
-            if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+            if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
             loadActivity();
           }));
           pendEl.querySelectorAll("[data-actdel]").forEach(b => b.addEventListener("click", async () => {
             if (!confirm("Tolak usulan ini? Nggak bisa dibalikin.")) return;
             b.disabled = true;
             const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.actdel });
-            if (r2.status !== "success") { alert(r2.message || "Gagal."); b.disabled = false; return; }
+            if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
             loadActivity();
           }));
         }
@@ -7844,7 +7956,7 @@
 
     async function onEventPhotoPick(e) {
       const f = e.target.files[0]; if (!f) return;
-      if (f.size > 5 * 1024 * 1024) { alert("Ukuran gambar maks 5MB ya."); e.target.value = ""; return; }
+      if (f.size > 5 * 1024 * 1024) { alert("Image size must be max 5MB."); e.target.value = ""; return; }
       try {
         const dataUrl = await qCompress(f, 1400, 0.8);
         _epBase64 = dataUrl.split(",")[1];
@@ -7966,12 +8078,12 @@
 
     async function onQuestImagePick(e) {
       const f = e.target.files[0]; if (!f) return;
-      if (f.size > 5 * 1024 * 1024) { alert("Ukuran gambar maks 5MB ya."); e.target.value = ""; return; }
+      if (f.size > 5 * 1024 * 1024) { alert("Image size must be max 5MB."); e.target.value = ""; return; }
       try {
         const dataUrl = await qCompress(f, 1400, 0.82);
         document.getElementById("qImageBase64").value = dataUrl.split(",")[1];
         document.getElementById("qImagePreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:320px;border-radius:12px;">';
-      } catch (err) { alert("Gagal memproses gambar."); }
+      } catch (err) { alert("Failed to process image."); }
     }
 
     async function generateChallengeIdeaFn() {
@@ -8058,7 +8170,7 @@
       const msg = document.getElementById("qMsg");
       const title = document.getElementById("qTitle").value.trim();
       if (!title) { msg.className = "msg err"; msg.textContent = "Judul wajib diisi."; return; }
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
       try {
         const r = await api("saveChallenge", {
           token: getToken(),
@@ -8074,8 +8186,8 @@
         if (r.status === "success") {
           closeQuestForm();
           await loadChallenges();
-        } else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan."; }
-      } catch (e) { msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server."; }
+        } else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to save."; }
+      } catch (e) { msg.className = "msg err"; msg.textContent = "Failed to connect to the server."; }
       finally { btn.disabled = false; }
     }
 
@@ -8085,8 +8197,8 @@
       try {
         const r = await api("deleteChallenge", { token: getToken(), id });
         if (r.status === "success") { await loadChallenges(); return true; }
-        handleAuthError(r); alert(r.message || "Gagal hapus."); return false;
-      } catch (e) { alert("Gagal terhubung."); return false; }
+        handleAuthError(r); alert(r.message || "Failed to delete."); return false;
+      } catch (e) { alert("Failed to connect."); return false; }
     }
 
     // ---------- PESANAN (menu global + pesanan minum/makan per event) ----------
@@ -8193,10 +8305,10 @@
 
     async function savePesVendorWa() {
       const msg = document.getElementById("pesVendorMsg");
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("saveVendorWa", { token: getToken(), wa: document.getElementById("pesVendorWa").value });
-      if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Tersimpan ✓"; }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Saved ✓"; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     function openPesVendorWa() {
@@ -8457,19 +8569,19 @@
 
     async function onMenuImagePick(e) {
       const f = e.target.files[0]; if (!f) return;
-      if (f.size > 5 * 1024 * 1024) { alert("Ukuran gambar maks 5MB ya."); e.target.value = ""; return; }
+      if (f.size > 5 * 1024 * 1024) { alert("Image size must be max 5MB."); e.target.value = ""; return; }
       try {
         const dataUrl = await qCompress(f, 1000, 0.82);
         document.getElementById("mnImageBase64").value = dataUrl.split(",")[1];
         document.getElementById("mnImagePreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:220px;border-radius:12px;">';
-      } catch (err) { alert("Gagal memproses gambar."); }
+      } catch (err) { alert("Failed to process image."); }
     }
 
     async function saveMenuItem() {
       const msg = document.getElementById("mnMsg");
       const name = document.getElementById("mnName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama menu wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("saveMenuItem", {
         token: getToken(),
         id: document.getElementById("mnId").value,
@@ -8481,7 +8593,7 @@
       if (r && r.status === "success") {
         closeMenuForm();
         await loadPesMenu();
-      } else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      } else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     async function deleteMenuItem(id) {
@@ -8489,7 +8601,7 @@
       if (!confirm("Hapus menu ini?")) return false;
       const r = await api("deleteMenuItem", { token: getToken(), id });
       if (r && r.status === "success") { await loadPesMenu(); return true; }
-      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
+      handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
     }
 
     // ---- Pesanan (per event/batch) ----
@@ -8563,17 +8675,17 @@
       if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih event dulu ya."; return; }
       if (!participantName) { msg.className = "msg err"; msg.textContent = "Nama peserta wajib diisi."; return; }
       if (!menuItemId) { msg.className = "msg err"; msg.textContent = "Pilih menu dulu (tambahin di Kelola Menu kalau masih kosong)."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("saveOrder", { token: getToken(), id: document.getElementById("pesOrderId").value, batchId, participantName, menuItemId });
       if (r && r.status === "success") { closePesOrderForm(); await loadPesOrders(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     async function deleteOrder(id) {
       if (!confirm("Hapus pesanan ini?")) return;
       const r = await api("deleteOrder", { token: getToken(), id });
       if (r && r.status === "success") loadPesOrders();
-      else { handleAuthError(r); alert((r && r.message) || "Gagal hapus."); }
+      else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
     }
 
     function renderPesSummary() {
@@ -8694,7 +8806,7 @@
     // Shimmer placeholder per komponen -- dipasang sebelum getPersonalData
     // kelar (pertama kali buka tab, atau pas klik Muat Ulang), BUKAN tiap
     // habis simpan/hapus (biar ga kedip-kedip full skeleton tiap 1 field
-    // diedit -- loadPersonalData() abis save udah cukup ditandain msg "Menyimpan...").
+    // diedit -- loadPersonalData() abis save udah cukup ditandain msg "Saving...").
     function skelText(w, h) {
       return `<span class="skel-line" style="display:inline-block;width:${w}px;height:${h || 16}px;vertical-align:middle;"></span>`;
     }
@@ -8806,6 +8918,26 @@
         document.getElementById("accFormOverlay").addEventListener("click", (e) => {
           if (e.target.id === "accFormOverlay") closeAccForm();
         });
+        document.getElementById("accPhotoPick").addEventListener("change", async () => {
+          const input = document.getElementById("accPhotoPick");
+          const f = input.files && input.files[0];
+          if (!f) return;
+          if (f.size > 8 * 1024 * 1024) { alert("Image size must be max 8MB."); input.value = ""; return; }
+          const preview = document.getElementById("accPhotoPreview");
+          preview.innerHTML = `<p class="hint">Mengupload…</p>`;
+          try {
+            const dataUrl = await qCompress(f, 600, 0.85);
+            const r = await api("uploadImage", { token: getToken(), bucket: "account-photos", imageBase64: dataUrl.split(",")[1], prefix: document.getElementById("accName").value || "account" });
+            if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to upload."); preview.innerHTML = ""; return; }
+            document.getElementById("accPhotoUrl").value = r.url;
+            preview.innerHTML = `<img src="${escapeHtml(r.url)}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;">`;
+          } catch (err) {
+            alert("Gagal upload gambar: " + (err.message || ""));
+            preview.innerHTML = "";
+          } finally {
+            input.value = "";
+          }
+        });
         document.getElementById("impFile").addEventListener("change", onImpFilePick);
         document.getElementById("impProcessBtn").addEventListener("click", processImport);
         document.getElementById("impSelectAllBtn").addEventListener("click", toggleImpSelectAll);
@@ -8906,7 +9038,7 @@
       const isTransfer = type === "transfer";
       document.getElementById("txToAccountWrap").style.display = isTransfer ? "" : "none";
       document.getElementById("txCategoryWrap").style.display = isTransfer ? "none" : "";
-      document.getElementById("txAccountLabel").textContent = isTransfer ? "Dari Akun" : "Akun";
+      document.getElementById("txAccountLabel").textContent = isTransfer ? "From Account" : "Account";
       if (!isTransfer) {
         document.getElementById("txCategory").innerHTML = PER_CATEGORIES.filter(c => c.type === type && !c.archived)
           .map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
@@ -9256,19 +9388,19 @@
       const targetAmount = parseRibuan(document.getElementById("goalTarget").value);
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama target wajib diisi."; return; }
       if (targetAmount <= 0) { msg.className = "msg err"; msg.textContent = "Target harus lebih dari 0."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await personalApi("saveSavingsGoal", {
         token: getToken(), id: document.getElementById("goalId").value, name, targetAmount,
         icon: document.getElementById("goalIcon").value
       });
       if (r && r.status === "success") { closeGoalForm(); await loadPersonalData(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     async function archiveGoal(id, archived) {
       const r = await personalApi("archiveSavingsGoal", { token: getToken(), id, archived });
       if (r && r.status === "success") await loadPersonalData();
-      else { handleAuthError(r); alert((r && r.message) || "Gagal update."); }
+      else { handleAuthError(r); alert((r && r.message) || "Failed to update."); }
     }
 
     async function deleteGoal(id) {
@@ -9276,7 +9408,7 @@
       if (!confirm("Hapus target ini? Semua riwayat setorannya ikut kehapus.")) return false;
       const r = await personalApi("deleteSavingsGoal", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
-      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
+      handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
     }
 
     function renderContributions() {
@@ -9312,22 +9444,22 @@
       const amount = parseRibuan(document.getElementById("contribAmount").value);
       const date = document.getElementById("contribDate").value;
       if (!goalId) { msg.className = "msg err"; msg.textContent = "Pilih target dulu ya (bikin dulu kalau belum ada)."; return; }
-      if (!amount) { msg.className = "msg err"; msg.textContent = "Jumlah nggak boleh 0."; return; }
-      if (!date) { msg.className = "msg err"; msg.textContent = "Tanggal wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      if (!amount) { msg.className = "msg err"; msg.textContent = "Amount can't be 0."; return; }
+      if (!date) { msg.className = "msg err"; msg.textContent = "Date is required."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await personalApi("saveSavingsContribution", {
         token: getToken(), id: document.getElementById("contribId").value, goalId, amount, date,
         note: document.getElementById("contribNote").value.trim()
       });
       if (r && r.status === "success") { newContribForm(); await loadPersonalData(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     async function deleteContrib(id) {
       if (!confirm("Hapus setoran ini?")) return;
       const r = await personalApi("deleteSavingsContribution", { token: getToken(), id });
       if (r && r.status === "success") await loadPersonalData();
-      else { handleAuthError(r); alert((r && r.message) || "Gagal hapus."); }
+      else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
     }
 
     function fmtGroupDate(s) {
@@ -9537,27 +9669,27 @@
       const amount = parseRibuan(document.getElementById("txAmount").value);
       const accountId = document.getElementById("txAccount").value;
       const date = document.getElementById("txDate").value;
-      if (!date) { msg.className = "msg err"; msg.textContent = "Tanggal wajib diisi."; return; }
+      if (!date) { msg.className = "msg err"; msg.textContent = "Date is required."; return; }
       if (amount <= 0) { msg.className = "msg err"; msg.textContent = "Jumlah harus lebih dari 0."; return; }
-      if (!accountId) { msg.className = "msg err"; msg.textContent = "Akun wajib dipilih."; return; }
+      if (!accountId) { msg.className = "msg err"; msg.textContent = "Please select an account."; return; }
       const payload = { token: getToken(), id: document.getElementById("txId").value, type, amount, accountId, date, note: document.getElementById("txNote").value.trim() };
       if (type === "transfer") {
         payload.toAccountId = document.getElementById("txToAccount").value;
-        if (!payload.toAccountId) { msg.className = "msg err"; msg.textContent = "Akun tujuan wajib dipilih."; return; }
+        if (!payload.toAccountId) { msg.className = "msg err"; msg.textContent = "Please select a destination account."; return; }
       } else {
         payload.categoryId = document.getElementById("txCategory").value || "";
       }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await personalApi("savePersonalTransaction", payload);
       if (r && r.status === "success") { closeTxForm(); await loadPersonalData(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     async function deleteTx(id) {
       if (!confirm("Hapus transaksi ini?")) return false;
       const r = await personalApi("deletePersonalTransaction", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
-      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
+      handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
     }
 
     function renderPersonalCategories() {
@@ -9613,19 +9745,19 @@
       const msg = document.getElementById("catMsg");
       const name = document.getElementById("catName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama kategori wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await personalApi("savePersonalCategory", {
         token: getToken(), id: document.getElementById("catId").value, name,
         type: document.getElementById("catType").value, icon: document.getElementById("catIcon").value
       });
       if (r && r.status === "success") { closeCatForm(); await loadPersonalData(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     async function archiveCat(id, archived) {
       const r = await personalApi("archivePersonalCategory", { token: getToken(), id, archived });
       if (r && r.status === "success") await loadPersonalData();
-      else { handleAuthError(r); alert((r && r.message) || "Gagal update."); }
+      else { handleAuthError(r); alert((r && r.message) || "Failed to update."); }
     }
 
     async function deleteCat(id) {
@@ -9633,16 +9765,18 @@
       if (!confirm("Hapus kategori ini?")) return false;
       const r = await personalApi("deletePersonalCategory", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
-      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
+      handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
     }
 
     function renderPersonalAccounts() {
       const list = document.getElementById("perAccList");
-      if (!PER_ACCOUNTS.length) { list.innerHTML = '<p class="hint">Belum ada akun.</p>'; return; }
+      if (!PER_ACCOUNTS.length) { list.innerHTML = '<p class="hint">No accounts yet.</p>'; return; }
       const typeLabel = { cash: "Tunai", bank: "Bank", ewallet: "E-Wallet", other: "Lainnya" };
       list.innerHTML = PER_ACCOUNTS.map(a => `
         <div class="per-activity-row" style="align-items:flex-start;cursor:pointer;${a.archived ? "opacity:.55;" : ""}" data-editacc="${a.id}">
-          <div class="per-activity-icon transfer">${icon("wallet")}</div>
+          ${a.photo_url
+            ? `<img src="${escapeHtml(a.photo_url)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+            : `<div class="per-activity-icon transfer">${icon("wallet")}</div>`}
           <div style="flex:1;min-width:0;">
             <b style="font-size:13.5px;">${escapeHtml(a.name)}</b>${a.archived ? ' <span class="subtab-count">arsip</span>' : ""}
             <div class="per-tx-sub">${typeLabel[a.type] || a.type}</div>
@@ -9690,7 +9824,7 @@
     // Transaksi: dibuka lewat tap-row (edit) atau tombol "Akun Baru" (tambah),
     // bukan form inline yang harus discroll balik ke atas.
     function openAccForm(isEdit) {
-      document.getElementById("accFormTitle").textContent = isEdit ? "Edit Akun" : "Akun Baru";
+      document.getElementById("accFormTitle").textContent = isEdit ? "Edit Account" : "New Account";
       document.getElementById("accFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
       document.getElementById("accFormOverlay").style.display = "flex";
     }
@@ -9704,6 +9838,8 @@
       document.getElementById("accName").value = "";
       document.getElementById("accType").value = "cash";
       document.getElementById("accInitial").value = "";
+      document.getElementById("accPhotoUrl").value = "";
+      document.getElementById("accPhotoPreview").innerHTML = "";
       document.getElementById("accMsg").textContent = "";
     }
 
@@ -9714,6 +9850,9 @@
       document.getElementById("accName").value = a.name;
       document.getElementById("accType").value = a.type;
       document.getElementById("accInitial").value = formatRibuan(a.initial_balance);
+      document.getElementById("accPhotoUrl").value = a.photo_url || "";
+      document.getElementById("accPhotoPreview").innerHTML = a.photo_url
+        ? `<img src="${escapeHtml(a.photo_url)}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;">` : "";
       document.getElementById("accMsg").textContent = "";
       if (perTabsCtl) perTabsCtl.show("akun");
       openAccForm(true);
@@ -9722,29 +9861,30 @@
     async function saveAcc() {
       const msg = document.getElementById("accMsg");
       const name = document.getElementById("accName").value.trim();
-      if (!name) { msg.className = "msg err"; msg.textContent = "Nama akun wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      if (!name) { msg.className = "msg err"; msg.textContent = "Account name is required."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await personalApi("savePersonalAccount", {
         token: getToken(), id: document.getElementById("accId").value, name,
         type: document.getElementById("accType").value,
-        initialBalance: parseRibuan(document.getElementById("accInitial").value)
+        initialBalance: parseRibuan(document.getElementById("accInitial").value),
+        photoUrl: document.getElementById("accPhotoUrl").value || ""
       });
       if (r && r.status === "success") { closeAccForm(); await loadPersonalData(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     async function archiveAcc(id, archived) {
       const r = await personalApi("archivePersonalAccount", { token: getToken(), id, archived });
       if (r && r.status === "success") await loadPersonalData();
-      else { handleAuthError(r); alert((r && r.message) || "Gagal update."); }
+      else { handleAuthError(r); alert((r && r.message) || "Failed to update."); }
     }
 
     async function deleteAcc(id) {
       if (!id) return false;
-      if (!confirm("Hapus akun ini?")) return false;
+      if (!confirm("Delete this account?")) return false;
       const r = await personalApi("deletePersonalAccount", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
-      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
+      handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
     }
 
     // ---- Impor AI (baca screenshot riwayat transaksi/struk pakai Gemini) ----
@@ -9798,14 +9938,14 @@
           document.getElementById("impPreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:280px;border-radius:12px;">';
         }
         document.getElementById("impProcessBtn").disabled = false;
-      } catch (err) { alert("Gagal memproses file."); }
+      } catch (err) { alert("Failed to process file."); }
     }
 
     async function processImport() {
       const msg = document.getElementById("impMsg");
       const imageBase64 = document.getElementById("impImageBase64").value;
       if (!imageBase64) { msg.className = "msg err"; msg.textContent = "Upload gambar/PDF dulu ya."; return; }
-      if (!document.getElementById("impAccount").value) { msg.className = "msg err"; msg.textContent = "Pilih akun tujuan dulu."; return; }
+      if (!document.getElementById("impAccount").value) { msg.className = "msg err"; msg.textContent = "Please select a destination account first."; return; }
       const isPdf = document.getElementById("impImageMime").value === "application/pdf";
       msg.className = "msg"; msg.textContent = isPdf ? "Membaca PDF pakai AI... (dokumen panjang bisa 1-2 menit)" : "Membaca gambar pakai AI... (bisa 10-30 detik)";
       document.getElementById("impProcessBtn").disabled = true;
@@ -9814,7 +9954,7 @@
       });
       await loadAiUsageToday(); // refresh sisa kuota abis manggil AI (juga ngurusin re-enable tombolnya)
       if (!r || r.status !== "success") {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal memproses file.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to process file.";
         return;
       }
       const found = r.transactions || [];
@@ -9893,7 +10033,7 @@
       const accountId = document.getElementById("impAccount").value;
       const selected = IMP_ROWS.filter(r => r.selected);
       if (!selected.length) { msg.className = "msg err"; msg.textContent = "Nggak ada transaksi yang dicentang."; return; }
-      if (!accountId) { msg.className = "msg err"; msg.textContent = "Pilih akun tujuan dulu."; return; }
+      if (!accountId) { msg.className = "msg err"; msg.textContent = "Please select a destination account first."; return; }
       msg.className = "msg"; msg.textContent = `Menyimpan 0/${selected.length}...`;
       let ok = 0, fail = 0;
       for (let i = 0; i < selected.length; i++) {
@@ -9967,7 +10107,7 @@
         renderStats();
         renderLeads();
       } catch (e) {
-        tbody.innerHTML = ""; empty.style.display = "block"; empty.textContent = "Gagal terhubung ke server.";
+        tbody.innerHTML = ""; empty.style.display = "block"; empty.textContent = "Failed to connect to the server.";
       }
     }
 
@@ -10060,7 +10200,7 @@
       const msg = document.getElementById("leadAddMsg");
       if (!username) { msg.className = "msg err"; msg.textContent = "Username kosong."; return; }
       const btn = document.getElementById("addLeadBtn");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
       try {
         const r = await api("addLead", { token: getToken(), platform, username, status, following });
         if (r.status === "success" && r.lead) {
@@ -10069,10 +10209,10 @@
           msg.className = "msg ok"; msg.textContent = "Ditambahkan ✓";
           renderStats(); renderLeads();
         } else {
-          handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Gagal.";
+          handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed.";
         }
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       } finally {
         btn.disabled = false;
       }
@@ -10186,7 +10326,7 @@
         msg.className = "msg ok"; msg.textContent = "Selesai dianalisa ✓";
         renderIgResult(following.size, followers.size, notBack, followerFileCount);
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = e.message || "Gagal memproses file.";
+        msg.className = "msg err"; msg.textContent = e.message || "Failed to process file.";
       }
     }
 
@@ -10245,10 +10385,10 @@
           renderStats();
           btn.textContent = "✓ Ditambah"; btn.classList.add("added");
         } else {
-          handleAuthError(r); btn.disabled = false; btn.textContent = "+ Leads"; alert(r.message || "Gagal.");
+          handleAuthError(r); btn.disabled = false; btn.textContent = "+ Leads"; alert(r.message || "Failed.");
         }
       } catch (e) {
-        btn.disabled = false; btn.textContent = "+ Leads"; alert("Gagal terhubung ke server.");
+        btn.disabled = false; btn.textContent = "+ Leads"; alert("Failed to connect to the server.");
       }
     }
 
@@ -10531,10 +10671,10 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const event = document.getElementById("prepSelect").value;
       const batchId = document.getElementById("prepBatchSelect").value;
       const context = document.getElementById("faqContext").value;
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("savePrepFaqContext", { token: getToken(), event, batchId, context });
-      if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Tersimpan ✓"; }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+      if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Saved ✓"; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
     }
 
     // Data dasar event (tanggal/jam/lokasi/harga/link grup WA) udah ada dari
@@ -10748,19 +10888,19 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const msg = document.getElementById("rnMsg");
       const html = editor.innerHTML.trim();
       const items = (html && html !== "<br>") ? [{ html: html }] : [];
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       try {
         const r = await api("savePrep", { token: getToken(), event, prepType: "richnote", items });
         if (r.status === "success") {
           PREP.richnote = items;
           saveBtn.disabled = true;
-          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
         } else {
           handleAuthError(r);
-          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
         }
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       }
     }
 
@@ -10885,9 +11025,11 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
            <div class="msg" id="waGenMsg"></div>
          </div>
          <div id="hadirSummary" class="hadir-summary"></div>
-         <div class="table-box"><div class="table-scroll">
+         <div class="table-box mobile-table-box"><div class="table-scroll">
            <table><thead><tr id="pesertaHead"></tr></thead><tbody id="pesertaBody"></tbody></table>
-         </div><div class="empty" id="pesertaEmpty" style="display:none;">Belum ada peserta.</div></div>`;
+         </div></div>
+         <div id="pesertaCards" class="mobile-cards"></div>
+         <div class="empty" id="pesertaEmpty" style="display:none;">Belum ada peserta.</div>`;
       return { id: "peserta", labelHtml: icon("people") + " Peserta", countId: "prep-peserta-count", bodyEl: body };
     }
 
@@ -10896,6 +11038,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const batchId = document.getElementById("prepBatchSelect").value;
       const head = document.getElementById("pesertaHead");
       const body = document.getElementById("pesertaBody");
+      const cardsEl = document.getElementById("pesertaCards");
       const empty = document.getElementById("pesertaEmpty");
       const cnt = document.getElementById("prep-peserta-count");
 
@@ -10931,63 +11074,81 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
         pesertaRegIds = shaped.ids;
         const waIdx = headers.findIndex(h => /whats?app|nomor|\bwa\b|hp|telp/i.test(h));
         const igIdx = headers.findIndex(h => /instagram|\big\b/i.test(h));
-        const hadirIdx = headers.findIndex(h => String(h) === "Hadir");
-        const tsIdx = headers.findIndex(h => /timestamp|waktu/i.test(String(h)));
+        const hadirIdx = headers.findIndex(h => String(h) === "Attendance");
+        const tsIdx = headers.findIndex(h => /timestamp|waktu|registered/i.test(String(h)));
         const frameIdx = shaped.keys ? shaped.keys.indexOf("frame") : -1;
-        // Nama untuk sapaan: utamakan Nickname, fallback ke Nama
-        let nameIdx = headers.findIndex(h => /nickname|panggil/i.test(h));
-        if (nameIdx < 0) nameIdx = headers.findIndex(h => /nama|name/i.test(h));
+        // Nama untuk sapaan: utamakan Nickname, fallback ke Nama Lengkap KALAU
+        // Nickname-nya kosong buat baris itu (bukan cuma kalau kolomnya nggak
+        // ada sama sekali -- banyak event lama belum ngumpulin Nickname).
+        const nicknameIdx = headers.findIndex(h => /nickname|panggil/i.test(h));
+        const namaIdx = headers.findIndex((h, idx) => idx !== nicknameIdx && /nama|name/i.test(h));
+        const nameIdx = nicknameIdx >= 0 ? nicknameIdx : namaIdx; // buat nyembunyiin kolom ini dari daftar field kartu
 
         const hasAction = waIdx >= 0 || igIdx >= 0;
         const hideIdx = (idx) => idx === hadirIdx || idx === tsIdx; // Hadir & Timestamp disembunyikan dari tampilan
         const dataHeaders = headers.map((h, idx) => hideIdx(idx) ? null : `<th>${h}</th>`).filter(Boolean).join("");
         head.innerHTML = "<th>#</th><th>Absen</th>" + (hasAction ? "<th>Aksi</th>" : "") + dataHeaders + "<th>Cetak</th>";
-        if (!shaped.rows.length) { body.innerHTML = ""; empty.style.display = "block"; renderHadirSummary(0, 0); return; }
+        if (!shaped.rows.length) { body.innerHTML = ""; if (cardsEl) cardsEl.innerHTML = ""; empty.style.display = "block"; renderHadirSummary(0, 0); return; }
         empty.style.display = "none";
 
         const printedSet = getPrintedSet();
         let hadirCount = 0;
-        body.innerHTML = shaped.rows.map((row, i) => {
-          const isHadir = hadirIdx >= 0 && String(row[hadirIdx]) === "Ya";
+        const tableRows = [];
+        const cardRows = [];
+        shaped.rows.forEach((row, i) => {
+          const id = pesertaRegIds[i];
+          const isHadir = hadirIdx >= 0 && String(row[hadirIdx]) === "Yes";
           if (isHadir) hadirCount++;
-          const attCell = `<td><input type="checkbox" class="att-check" data-id="${escapeHtml(pesertaRegIds[i])}" ${isHadir ? "checked" : ""}/></td>`;
-          const cells = row.map((c, idx) => hideIdx(idx) ? null : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).filter(x => x !== null).join("");
-          let action = "";
-          if (hasAction) {
-            let btns = "";
-            if (waIdx >= 0) {
-              const num = waNormalize(row[waIdx]);
-              const name = nameIdx >= 0 ? (row[nameIdx] || "") : "";
-              if (num) {
-                btns += `<button class="wa-btn" data-num="${num}" data-name="${escapeHtml(name)}">${icon("chat")} Chat WA</button>`;
-                btns += `<button class="wa-copy" data-num="${escapeHtml(row[waIdx] || "")}" title="Copy nomor WA">${icon("clipboard")}</button>`;
-              }
-            }
-            if (igIdx >= 0) {
-              const ig = String(row[igIdx] || "").trim().replace(/^@/, "");
-              if (ig) btns += `<button class="ig-copy" data-ig="${escapeHtml(ig)}" title="Copy username IG">IG</button>`;
-            }
-            action = `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>`;
+          const name = (nicknameIdx >= 0 && row[nicknameIdx]) || (namaIdx >= 0 && row[namaIdx]) || `Peserta #${i + 1}`;
+
+          let btns = "";
+          if (waIdx >= 0) {
+            const num = waNormalize(row[waIdx]);
+            const wname = (nicknameIdx >= 0 && row[nicknameIdx]) || (namaIdx >= 0 && row[namaIdx]) || "";
+            if (num) btns += `<button class="wa-btn" data-num="${num}" data-name="${escapeHtml(wname)}">${icon("chat")} Chat WA</button>`;
           }
-          const isPrinted = printedSet.has(pesertaRegIds[i]);
-          const printCell = `<td><input type="checkbox" class="print-check" data-id="${escapeHtml(pesertaRegIds[i])}" ${isPrinted ? "checked" : ""} title="Tandai udah dicetak fotonya"/></td>`;
-          return `<tr class="${isPrinted ? "row-printed" : ""}"><td>${i + 1}</td>${attCell}${action}${cells}${printCell}</tr>`;
-        }).join("");
+          if (igIdx >= 0) {
+            const ig = String(row[igIdx] || "").trim().replace(/^@/, "");
+            if (ig) btns += `<button class="ig-copy" data-ig="${escapeHtml(ig)}" title="Copy username IG">IG</button>`;
+          }
+          const isPrinted = printedSet.has(id);
+
+          const cells = row.map((c, idx) => hideIdx(idx) ? null : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).filter(x => x !== null).join("");
+          const attCell = `<td><input type="checkbox" class="att-check" data-id="${escapeHtml(id)}" ${isHadir ? "checked" : ""}/></td>`;
+          const action = hasAction ? `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>` : "";
+          const printCell = `<td><input type="checkbox" class="print-check" data-id="${escapeHtml(id)}" ${isPrinted ? "checked" : ""} title="Tandai udah dicetak fotonya"/></td>`;
+          tableRows.push(`<tr class="${isPrinted ? "row-printed" : ""}"><td>${i + 1}</td>${attCell}${action}${cells}${printCell}</tr>`);
+
+          const fieldsHtml = row.map((c, idx) => {
+            if (hideIdx(idx) || idx === nameIdx) return null;
+            const val = idx === frameIdx ? frameValueHtml(c) : cellValueHtml(c);
+            if (val === "" || val == null) return null;
+            return `<div class="mobile-card-field"><b>${escapeHtml(headers[idx])}:</b> ${val}</div>`;
+          }).filter(Boolean).join("");
+          cardRows.push(`<div class="mobile-card ${isPrinted ? "row-printed" : ""}">
+            <div class="mobile-card-top">
+              <span class="mobile-card-num">#${i + 1}</span>
+              <span class="mobile-card-name">${escapeHtml(name)}</span>
+              <label class="mobile-card-hadir"><input type="checkbox" class="att-check" data-id="${escapeHtml(id)}" ${isHadir ? "checked" : ""}/> Hadir</label>
+            </div>
+            ${hasAction ? `<div class="mobile-card-actions">${btns || "-"}</div>` : ""}
+            <div class="mobile-card-fields">${fieldsHtml}</div>
+            <label class="mobile-card-print"><input type="checkbox" class="print-check" data-id="${escapeHtml(id)}" ${isPrinted ? "checked" : ""}/> Udah dicetak fotonya</label>
+          </div>`);
+        });
+        body.innerHTML = tableRows.join("");
+        if (cardsEl) cardsEl.innerHTML = cardRows.join("");
         renderHadirSummary(hadirCount, shaped.rows.length);
 
-        // Wiring tombol aksi (delegasi)
-        body.onclick = (e) => {
+        // Wiring tombol aksi (delegasi) -- dipasang di table DAN cards
+        // sekaligus karena dua-duanya ada di DOM bersamaan (cuma satu yg
+        // kelihatan lewat CSS media query), jadi checkbox di keduanya
+        // harus disinkron manual tiap kali salah satunya ditoggle.
+        const handlePesertaClick = (e) => {
           const chat = e.target.closest(".wa-btn");
           if (chat) {
             const msg = (document.getElementById("waMessage").value || "").replace(/\{nama\}/g, chat.dataset.name || "");
             window.open("https://wa.me/" + chat.dataset.num + "?text=" + encodeURIComponent(msg), "_blank");
-            return;
-          }
-          const cp = e.target.closest(".wa-copy");
-          if (cp) {
-            navigator.clipboard.writeText(cp.dataset.num).then(() => {
-              cp.innerHTML = icon("check"); setTimeout(() => { cp.innerHTML = icon("clipboard"); }, 1200);
-            });
             return;
           }
           const ig = e.target.closest(".ig-copy");
@@ -10998,17 +11159,30 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
             return;
           }
           const att = e.target.closest(".att-check");
-          if (att) { setAttendance(att.dataset.id, att.checked, att); return; }
+          if (att) {
+            syncPesertaCheckbox("att-check", att.dataset.id, att.checked);
+            setAttendance(att.dataset.id, att.checked, att);
+            return;
+          }
           const pr = e.target.closest(".print-check");
           if (pr) {
             setPrinted(pr.dataset.id, pr.checked);
-            const tr = pr.closest("tr");
-            if (tr) tr.classList.toggle("row-printed", pr.checked);
+            syncPesertaCheckbox("print-check", pr.dataset.id, pr.checked);
+            document.querySelectorAll(`.print-check[data-id="${CSS.escape(pr.dataset.id)}"]`).forEach(chk => {
+              const container = chk.closest("tr, .mobile-card");
+              if (container) container.classList.toggle("row-printed", pr.checked);
+            });
           }
         };
+        body.onclick = handlePesertaClick;
+        if (cardsEl) cardsEl.onclick = handlePesertaClick;
       } catch (e) {
         body.innerHTML = `<tr><td style="padding:16px;color:#dc2626;">Gagal memuat.</td></tr>`;
       }
+    }
+
+    function syncPesertaCheckbox(cls, id, checked) {
+      document.querySelectorAll(`.${cls}[data-id="${CSS.escape(id)}"]`).forEach(chk => { chk.checked = checked; });
     }
 
     let pesertaRegIds = [];
@@ -11033,12 +11207,14 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       if (el) el.disabled = true;
       try {
         const r = await api("setAttendance", { token: getToken(), registrationId, hadir });
-        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal simpan kehadiran."); if (el) el.checked = !hadir; }
-        else {
+        if (r.status !== "success") {
+          handleAuthError(r); alert(r.message || "Gagal simpan kehadiran.");
+          if (el) { el.checked = !hadir; syncPesertaCheckbox("att-check", registrationId, !hadir); }
+        } else {
           const checks = document.querySelectorAll("#pesertaBody .att-check");
           renderHadirSummary(Array.from(checks).filter(c => c.checked).length, checks.length);
         }
-      } catch (e) { if (el) el.checked = !hadir; }
+      } catch (e) { if (el) { el.checked = !hadir; syncPesertaCheckbox("att-check", registrationId, !hadir); } }
       finally { if (el) el.disabled = false; }
     }
 
@@ -11131,20 +11307,20 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       // buang item yang semua field-nya kosong
       const items = (PREP[type] || []).filter(it => sec.fields.some(f => it[f.key] && String(it[f.key]).trim()));
       const msg = document.getElementById("prep-msg-" + type);
-      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      msg.className = "msg"; msg.textContent = "Saving...";
       try {
         const r = await api("savePrep", { token: getToken(), event, prepType: type, items });
         if (r.status === "success") {
           PREP[type] = items; renderPrepList(sec);
           const btn = document.querySelector(`[data-save="${type}"]`);
           if (btn) btn.disabled = true; // balik nonaktif sampai ada perubahan lagi
-          msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
         } else {
           handleAuthError(r);
-          msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan.";
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
         }
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = "Gagal terhubung ke server.";
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       }
     }
 
@@ -11186,7 +11362,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal buka bukti bayar."); return; }
         openLightbox(r.url, "");
       } catch (err) {
-        alert("Gagal terhubung ke server.");
+        alert("Failed to connect to the server.");
       } finally {
         btn.disabled = false; btn.innerHTML = orig;
       }
@@ -11376,7 +11552,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       try {
         const r = await api("saveLoyaltyNotes", { token: getToken(), key: m.key, notes: m.notes });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal simpan catatan."); }
-      } catch (e) { alert("Gagal terhubung."); }
+      } catch (e) { alert("Failed to connect."); }
     }
     function addNote() {
       const m = LOYALTY.find(x => x.key === detailKey); if (!m) return;
@@ -11400,8 +11576,8 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
         if (r.status === "success") {
           await loadLoyalty();
           if (document.getElementById("loyaltyModal").style.display !== "none") renderLoyaltyDetail();
-        } else { handleAuthError(r); alert(r.message || "Gagal."); }
-      } catch (e) { alert("Gagal terhubung."); }
+        } else { handleAuthError(r); alert(r.message || "Failed."); }
+      } catch (e) { alert("Failed to connect."); }
     }
 
     // ---------- PASSPORT ----------
@@ -11538,17 +11714,17 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
         <div class="fin-card" style="margin-bottom:8px;padding:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
             <b>${escapeHtml(e.workshopName)}</b>
-            <span class="hint" style="margin:0;">${e.batchCount} batch · ${e.totalParticipants} peserta${e.soldOutCount ? ` · ${e.soldOutCount} sold out` : ""}</span>
+            <span class="hint" style="margin:0;">${e.batchCount} batches · ${e.totalParticipants} participants${e.soldOutCount ? ` · ${e.soldOutCount} sold out` : ""}</span>
           </div>
           <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;align-items:flex-end;">
             <div><span class="hint" style="margin:0;">Revenue</span><div style="font-weight:700;">${rupiah(e.totalRevenue)}</div></div>
             <div><span class="hint" style="margin:0;">Profit</span><div style="font-weight:700;color:${e.totalProfit >= 0 ? "var(--ok)" : "var(--err)"};">${rupiah(e.totalProfit)}</div></div>
-            <button type="button" class="ana-detail-toggle" data-target="${detailId}" style="background:none;border:none;color:var(--brand);font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;">Lihat rincian batch</button>
+            <button type="button" class="ana-detail-toggle" data-target="${detailId}" style="background:none;border:none;color:var(--brand);font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;">View batch breakdown</button>
           </div>
           <div id="${detailId}" style="display:none;margin-top:12px;overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;">
               <thead><tr style="text-align:left;color:var(--muted);">
-                <th style="padding:4px 8px 4px 0;">Batch</th><th style="padding:4px 8px;">Tanggal</th><th style="padding:4px 8px;">Peserta</th><th style="padding:4px 8px;">Harga</th><th style="padding:4px 8px;">Revenue</th><th style="padding:4px 8px;">Biaya</th><th style="padding:4px 0;">Profit</th>
+                <th style="padding:4px 8px 4px 0;">Batch</th><th style="padding:4px 8px;">Date</th><th style="padding:4px 8px;">Participants</th><th style="padding:4px 8px;">Price</th><th style="padding:4px 8px;">Revenue</th><th style="padding:4px 8px;">Cost</th><th style="padding:4px 0;">Profit</th>
               </tr></thead>
               <tbody>${batchRows}</tbody>
             </table>
@@ -11561,16 +11737,16 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       ).join("");
 
       box.innerHTML = `
-        <p class="hint" style="margin:0 0 12px;">Semua angka di bawah ini dihitung dari <b>seluruh riwayat batch</b> (bukan cuma yang lagi aktif) -- beda dari "Perkiraan Untung" di atas yang cuma workshop yang lagi buka/aktif sekarang. Journaling Date dikecualikan krn gratis & khusus member Warga.</p>
+        <p class="hint" style="margin:0 0 12px;">All figures below are calculated from <b>the entire batch history</b> (not just currently active ones) -- different from "Estimated Profit" above, which is only currently open/active workshops. Journaling Date is excluded since it's free & exclusive to Community members.</p>
         <div class="ach-stats" style="margin-bottom:14px;">
-          <div class="ach-stat"><b>${t.events}</b><span>Event</span></div>
-          <div class="ach-stat"><b>${t.batches}</b><span>Total batch</span></div>
-          <div class="ach-stat"><b>${t.participants}</b><span>Total peserta</span></div>
-          <div class="ach-stat"><b style="font-size:15px;">${rupiah(t.revenue)}</b><span>Revenue sepanjang waktu</span></div>
+          <div class="ach-stat"><b>${t.events}</b><span>Events</span></div>
+          <div class="ach-stat"><b>${t.batches}</b><span>Total batches</span></div>
+          <div class="ach-stat"><b>${t.participants}</b><span>Total participants</span></div>
+          <div class="ach-stat"><b style="font-size:15px;">${rupiah(t.revenue)}</b><span>All-time revenue</span></div>
         </div>
         ${highlightCards ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px;">${highlightCards}</div>` : ""}
-        ${soldOutList ? `<div class="fin-card" style="margin-bottom:14px;"><div style="font-weight:800;margin-bottom:8px;">Batch yang pernah sold out</div>${soldOutList}</div>` : ""}
-        <div style="font-weight:800;margin-bottom:8px;">Per Event, sepanjang waktu (diurutkan dari paling untung)</div>
+        ${soldOutList ? `<div class="fin-card" style="margin-bottom:14px;"><div style="font-weight:800;margin-bottom:8px;">Batches that have sold out</div>${soldOutList}</div>` : ""}
+        <div style="font-weight:800;margin-bottom:8px;">Per event, all-time (sorted by most profitable)</div>
         ${eventRows}`;
 
       box.querySelectorAll(".ana-detail-toggle").forEach(btn => btn.addEventListener("click", () => {
@@ -11578,7 +11754,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
         if (!target) return;
         const open = target.style.display !== "none";
         target.style.display = open ? "none" : "block";
-        btn.textContent = open ? "Lihat rincian batch" : "Sembunyikan rincian";
+        btn.textContent = open ? "View batch breakdown" : "Hide breakdown";
       }));
     }
 
