@@ -6134,7 +6134,7 @@
 
     async function deleteCostItemForm(id) {
       if (!id) return false;
-      if (!confirm("Hapus item ini dari database? Biaya yang udah kesimpen di event/batch lain nggak ikut kehapus.")) return false;
+      if (!confirm("Delete this item from the database? Costs already saved in other events/batches won't be deleted.")) return false;
       const r = await api("deleteCostItem", { token: getToken(), id });
       if (r && r.status === "success") { await loadCostItems(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -6313,7 +6313,7 @@
         price: Math.round(Number(it.price)) || 0,
         qty: Math.max(1, Math.round(Number(it.qty)) || 1),
       }));
-      msg.className = "msg ok"; msg.textContent = `Ketemu ${RI_ROWS.length} item. Cek dulu di bawah sebelum diimport ya.`;
+      msg.className = "msg ok"; msg.textContent = `Found ${RI_ROWS.length} items. Double-check below before importing.`;
       renderRiResults();
     }
 
@@ -6865,11 +6865,11 @@
       const b = CFG_BATCHES.find(x => x.id === batchId);
       const archived = !!(b && b.archived);
       btn.innerHTML = archived
-        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Buka Arsip'
-        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Arsipkan Batch';
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Unarchive'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Archive Batch';
       hint.textContent = archived
-        ? "Batch ini diarsipkan -- pendaftaran ditutup, dan dikecualikan dari kuota, revenue/profit, & jumlah peserta di mana pun (Overview, Analitik, Finance)."
-        : "Buat batch testing / data kotor yang nggak boleh kecampur ke perhitungan apa pun -- row-nya tetep kesimpen, cuma dikecualikan dari kuota & revenue/profit/jumlah peserta.";
+        ? "This batch is archived -- registration is closed, and it's excluded from quota, revenue/profit, & participant count everywhere (Overview, Analytics, Finance)."
+        : "For test batches / dirty data that shouldn't mix into any calculations -- the row stays saved, just excluded from quota & revenue/profit/participant count.";
     }
 
     async function toggleCfgBatchArchive() {
@@ -9975,7 +9975,7 @@
           categoryId: guess ? guess.id : ""
         };
       });
-      msg.className = "msg ok"; msg.textContent = `Ketemu ${IMP_ROWS.length} transaksi. Cek dulu di bawah sebelum diimport ya.`;
+      msg.className = "msg ok"; msg.textContent = `Found ${IMP_ROWS.length} transactions. Double-check below before importing.`;
       renderImpResults();
     }
 
