@@ -4554,25 +4554,7 @@
             </div>
 
             <div class="subtab-panel" data-tab="kategori">
-              <div class="fin-card">
-                <input type="hidden" id="catId">
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Nama Kategori</label><input class="form-control" type="text" id="catName" placeholder="mis. Transport"></div>
-                  <div class="konten-field" style="flex:1;min-width:120px;"><label>Tipe</label>
-                    <select class="form-control" id="catType">
-                      <option value="expense">Pengeluaran</option>
-                      <option value="income">Pemasukan</option>
-                    </select>
-                  </div>
-                  <div class="konten-field" style="flex:1;min-width:120px;"><label>Ikon</label><select class="form-control" id="catIcon"></select></div>
-                </div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
-                  <button class="btn btn-sm" id="catSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Kategori</button>
-                  <button class="btn btn-sm btn-ghost" id="catNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Kategori Baru</button>
-                  <button class="btn btn-sm" id="catDeleteBtn" style="background:#fee2e2;color:var(--err);display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Hapus</button>
-                </div>
-                <div class="msg" id="catMsg"></div>
-              </div>
+              <button class="btn btn-sm" id="catAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Kategori Baru</button>
               <div id="perCatList" style="margin-top:10px;"></div>
             </div>
 
@@ -5001,6 +4983,32 @@
       </div>
       <div class="filter-overlay-foot">
         <button class="btn" id="accSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Akun</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit kategori Personal Finance (full-screen di mobile) -->
+  <div id="catFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="catFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="catFormTitle">Kategori Baru</div>
+        <button class="filter-reset-link" id="catFormDeleteBtn" style="display:none;color:var(--err);">Hapus</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="catId">
+        <div class="konten-field"><label>Nama Kategori</label><input class="form-control" type="text" id="catName" placeholder="mis. Transport"></div>
+        <div class="konten-field"><label>Tipe</label>
+          <select class="form-control" id="catType">
+            <option value="expense">Pengeluaran</option>
+            <option value="income">Pemasukan</option>
+          </select>
+        </div>
+        <div class="konten-field"><label>Ikon</label><select class="form-control" id="catIcon"></select></div>
+        <div class="msg" id="catMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="catSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Kategori</button>
       </div>
     </div>
   </div>
@@ -8478,8 +8486,15 @@
           if (e.target.id === "txFilterOverlay") closeAndApplyTxFilter();
         });
         document.getElementById("catSaveBtn").addEventListener("click", saveCat);
-        document.getElementById("catNewBtn").addEventListener("click", newCatForm);
-        document.getElementById("catDeleteBtn").addEventListener("click", deleteCat);
+        document.getElementById("catAddBtn").addEventListener("click", () => { newCatForm(); openCatForm(false); });
+        document.getElementById("catFormBackBtn").addEventListener("click", closeCatForm);
+        document.getElementById("catFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("catId").value;
+          if (id && await deleteCat(id)) closeCatForm();
+        });
+        document.getElementById("catFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "catFormOverlay") closeCatForm();
+        });
         document.getElementById("accSaveBtn").addEventListener("click", saveAcc);
         document.getElementById("accAddBtn").addEventListener("click", () => { newAccForm(); openAccForm(false); });
         document.getElementById("accFormBackBtn").addEventListener("click", closeAccForm);
@@ -9232,15 +9247,25 @@
         const items = PER_CATEGORIES.filter(c => c.type === g.type);
         if (!items.length) return "";
         return `<div style="font-weight:800;margin:10px 0 6px;">${g.label}</div>` + items.map(c => `
-          <div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;${c.archived ? "opacity:.55;" : ""}">
-            <div style="flex-shrink:0;">${icon(c.icon || "tag")}</div>
-            <div style="flex:1;min-width:0;"><b>${escapeHtml(c.name)}</b>${c.archived ? ' <span class="subtab-count">arsip</span>' : ""}</div>
-            <button class="btn btn-sm btn-ghost" data-editcat="${c.id}" style="flex-shrink:0;">${icon("pencil")}</button>
-            <button class="btn btn-sm btn-ghost" data-archivecat="${c.id}" data-archived="${c.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
+          <div class="per-activity-row" style="cursor:pointer;${c.archived ? "opacity:.55;" : ""}" data-editcat="${c.id}">
+            <div class="per-activity-icon transfer">${icon(c.icon || "tag")}</div>
+            <div style="flex:1;min-width:0;"><b style="font-size:13.5px;">${escapeHtml(c.name)}</b>${c.archived ? ' <span class="subtab-count">arsip</span>' : ""}</div>
+            <button class="btn btn-sm btn-ghost" data-archivecat="${c.id}" data-archived="${c.archived ? "0" : "1"}" style="flex-shrink:0;padding:3px 6px;">${icon("archive")}</button>
           </div>`).join("");
       }).join("");
       list.querySelectorAll("[data-editcat]").forEach(b => b.addEventListener("click", () => editCat(b.dataset.editcat)));
-      list.querySelectorAll("[data-archivecat]").forEach(b => b.addEventListener("click", () => archiveCat(b.dataset.archivecat, b.dataset.archived === "1")));
+      list.querySelectorAll("[data-archivecat]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archiveCat(b.dataset.archivecat, b.dataset.archived === "1"); }));
+    }
+
+    // Layar Tambah/Edit kategori -- full-screen, pola sama kayak Akun/Transaksi.
+    function openCatForm(isEdit) {
+      document.getElementById("catFormTitle").textContent = isEdit ? "Edit Kategori" : "Kategori Baru";
+      document.getElementById("catFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("catFormOverlay").style.display = "flex";
+    }
+
+    function closeCatForm() {
+      document.getElementById("catFormOverlay").style.display = "none";
     }
 
     function newCatForm() {
@@ -9248,7 +9273,6 @@
       document.getElementById("catName").value = "";
       document.getElementById("catType").value = "expense";
       document.getElementById("catIcon").value = "tag";
-      document.getElementById("catDeleteBtn").style.display = "none";
       document.getElementById("catMsg").textContent = "";
     }
 
@@ -9259,9 +9283,9 @@
       document.getElementById("catName").value = c.name;
       document.getElementById("catType").value = c.type;
       document.getElementById("catIcon").value = c.icon || "tag";
-      document.getElementById("catDeleteBtn").style.display = "inline-flex";
       document.getElementById("catMsg").textContent = "";
       if (perTabsCtl) perTabsCtl.show("kategori");
+      openCatForm(true);
     }
 
     async function saveCat() {
@@ -9273,7 +9297,7 @@
         token: getToken(), id: document.getElementById("catId").value, name,
         type: document.getElementById("catType").value, icon: document.getElementById("catIcon").value
       });
-      if (r && r.status === "success") { newCatForm(); await loadPersonalData(); }
+      if (r && r.status === "success") { closeCatForm(); await loadPersonalData(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
     }
 
@@ -9283,14 +9307,12 @@
       else { handleAuthError(r); alert((r && r.message) || "Gagal update."); }
     }
 
-    async function deleteCat() {
-      const id = document.getElementById("catId").value;
-      if (!id) return;
-      if (!confirm("Hapus kategori ini?")) return;
-      const msg = document.getElementById("catMsg");
+    async function deleteCat(id) {
+      if (!id) return false;
+      if (!confirm("Hapus kategori ini?")) return false;
       const r = await personalApi("deletePersonalCategory", { token: getToken(), id });
-      if (r && r.status === "success") { newCatForm(); await loadPersonalData(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
+      if (r && r.status === "success") { await loadPersonalData(); return true; }
+      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
     }
 
     function renderPersonalAccounts() {
