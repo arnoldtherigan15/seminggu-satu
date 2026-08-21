@@ -10835,18 +10835,18 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const body = document.createElement("div");
       body.innerHTML =
         `<div class="rn-toolbar">
-           <button class="rn-btn" type="button" data-cmd="bold" title="Tebal">B</button>
-           <button class="rn-btn rn-i" type="button" data-cmd="italic" title="Miring">I</button>
-           <button class="rn-btn rn-u" type="button" data-cmd="underline" title="Garis bawah">U</button>
-           <button class="rn-btn" type="button" data-cmd="h3" title="Judul">H</button>
+           <button class="rn-btn" type="button" data-cmd="bold" title="Bold">B</button>
+           <button class="rn-btn rn-i" type="button" data-cmd="italic" title="Italic">I</button>
+           <button class="rn-btn rn-u" type="button" data-cmd="underline" title="Underline">U</button>
+           <button class="rn-btn" type="button" data-cmd="h3" title="Heading">H</button>
            <button class="rn-btn" type="button" data-cmd="ul" title="Bullet list">•</button>
-           <button class="rn-btn" type="button" data-cmd="ol" title="Nomor list">1.</button>
-           <button class="rn-btn" type="button" data-cmd="link" title="Tautan">${icon("link")}</button>
-           <button class="rn-btn" type="button" data-cmd="clear" title="Hapus format">⨯</button>
+           <button class="rn-btn" type="button" data-cmd="ol" title="Numbered list">1.</button>
+           <button class="rn-btn" type="button" data-cmd="link" title="Link">${icon("link")}</button>
+           <button class="rn-btn" type="button" data-cmd="clear" title="Clear formatting">⨯</button>
          </div>
-         <div class="rn-editor" id="rnEditor" contenteditable="true" data-ph="Tulis catatan panjang di sini… (bisa tebal, list, link, dll)">${existing}</div>
+         <div class="rn-editor" id="rnEditor" contenteditable="true" data-ph="Write a long note here… (bold, lists, links, etc. supported)">${existing}</div>
          <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
-           <button class="btn btn-sm" id="rnSaveBtn" disabled>${icon("save")} Simpan Catatan</button>
+           <button class="btn btn-sm" id="rnSaveBtn" disabled>${icon("save")} Save Note</button>
            <span class="msg" id="rnMsg"></span>
          </div>`;
 
@@ -10864,7 +10864,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           else if (cmd === "h3") document.execCommand("formatBlock", false, "H3");
           else if (cmd === "clear") { document.execCommand("removeFormat", false, null); document.execCommand("formatBlock", false, "P"); }
           else if (cmd === "link") {
-            const url = prompt("Tempel URL:", "https://");
+            const url = prompt("Paste URL:", "https://");
             if (url) document.execCommand("createLink", false, url);
           }
           dirty();
@@ -10878,7 +10878,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         document.execCommand("insertText", false, text);
       });
       saveBtn.addEventListener("click", saveRichNote);
-      return { id: "catatan", labelHtml: icon("journal") + " Catatan Lengkap", bodyEl: body };
+      return { id: "catatan", labelHtml: icon("journal") + " Full Notes", bodyEl: body };
     }
 
     async function saveRichNote() {
@@ -10909,11 +10909,11 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       body.innerHTML =
         `<div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:8px;">
            ${sec.check ? `<button class="btn btn-sm btn-ghost" data-reset="${sec.type}">↺ Reset</button>` : ""}
-           <button class="btn btn-sm" data-add="${sec.type}">＋ Tambah</button>
+           <button class="btn btn-sm" data-add="${sec.type}">＋ Add</button>
          </div>
          <div class="prep-list" id="prep-list-${sec.type}"></div>
          <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
-           <button class="btn btn-sm" data-save="${sec.type}" disabled>${icon("save")} Simpan</button>
+           <button class="btn btn-sm" data-save="${sec.type}" disabled>${icon("save")} Save</button>
            <span class="msg" id="prep-msg-${sec.type}"></span>
          </div>`;
       body.querySelector(`[data-add="${sec.type}"]`).addEventListener("click", () => {
@@ -11015,13 +11015,13 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const body = document.createElement("div");
       body.innerHTML =
         `<div class="wa-reminder">
-           <label for="waMessage">${icon("chat")} Pesan reminder <span style="font-weight:400;color:var(--muted)">— tulis {nama} untuk nama peserta</span></label>
+           <label for="waMessage">${icon("chat")} Reminder message <span style="font-weight:400;color:var(--muted)">— write {nama} for the participant's name</span></label>
            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
              <span class="ov-badge gray" id="waPhaseBadge"></span>
-             <button type="button" class="btn btn-sm btn-ghost" id="waGenerateBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate dengan AI</button>
+             <button type="button" class="btn btn-sm btn-ghost" id="waGenerateBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate with AI</button>
            </div>
            <textarea class="form-control" id="waMessage" rows="3"></textarea>
-           <p class="hint">Klik <b>Chat WA</b> di tiap baris → WhatsApp kebuka dengan pesan ini (nama otomatis terisi). Tinggal Kirim.</p>
+           <p class="hint">Click <b>Chat WA</b> on each row → WhatsApp opens with this message (name auto-filled). Just hit Send.</p>
            <div class="msg" id="waGenMsg"></div>
          </div>
          <div id="hadirSummary" class="hadir-summary"></div>
@@ -11029,8 +11029,8 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
            <table><thead><tr id="pesertaHead"></tr></thead><tbody id="pesertaBody"></tbody></table>
          </div></div>
          <div id="pesertaCards" class="mobile-cards"></div>
-         <div class="empty" id="pesertaEmpty" style="display:none;">Belum ada peserta.</div>`;
-      return { id: "peserta", labelHtml: icon("people") + " Peserta", countId: "prep-peserta-count", bodyEl: body };
+         <div class="empty" id="pesertaEmpty" style="display:none;">No participants yet.</div>`;
+      return { id: "peserta", labelHtml: icon("people") + " Participants", countId: "prep-peserta-count", bodyEl: body };
     }
 
     async function loadPrepParticipants() {
@@ -11255,23 +11255,23 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (!box) return;
       const items = PREP[sec.type] || [];
       updatePrepCount(sec);
-      if (!items.length) { box.innerHTML = `<p class="hint">Belum ada. Klik "＋ Tambah".</p>`; return; }
+      if (!items.length) { box.innerHTML = `<p class="hint">Nothing yet. Click "＋ Add".</p>`; return; }
       box.innerHTML = "";
       const isSupplies = sec.type === "supplies";
       items.forEach((item, idx) => {
         const row = document.createElement("div");
         row.className = "prep-row" + (sec.check ? " prep-row-check" : "");
         let html = `<div class="prep-move">
-             <button type="button" class="move-up" ${idx === 0 ? "disabled" : ""} title="Naik">▲</button>
-             <button type="button" class="move-down" ${idx === items.length - 1 ? "disabled" : ""} title="Turun">▼</button>
+             <button type="button" class="move-up" ${idx === 0 ? "disabled" : ""} title="Move up">▲</button>
+             <button type="button" class="move-down" ${idx === items.length - 1 ? "disabled" : ""} title="Move down">▼</button>
            </div>`;
-        if (sec.check) html += `<input type="checkbox" class="prep-check" ${item.done ? "checked" : ""} title="${isSupplies ? "Sudah dibeli" : ""}"/>`;
+        if (sec.check) html += `<input type="checkbox" class="prep-check" ${item.done ? "checked" : ""} title="${isSupplies ? "Already bought" : ""}"/>`;
         if (isSupplies) html += `<div class="prep-supply-thumb"></div>`;
         html += `<div class="prep-fields">` + sec.fields.map(f =>
           `<input type="text" class="prep-input form-control${f.narrow ? " narrow" : ""}" data-key="${f.key}"${f.datalist ? ` list="${f.datalist}"` : ""} placeholder="${f.ph}" value="${item[f.key] != null ? escapeHtml(item[f.key]) : ""}"/>`
         ).join("") + `</div>`;
-        if (isSupplies) html += `<a class="prep-supply-open btn btn-sm btn-ghost" href="${item.link ? escapeHtml(item.link) : "#"}" target="_blank" rel="noopener" title="Buka link beli" style="${item.link ? "" : "display:none;"}">${icon("link")}</a>`;
-        html += `<button class="del" title="Hapus">&times;</button>`;
+        if (isSupplies) html += `<a class="prep-supply-open btn btn-sm btn-ghost" href="${item.link ? escapeHtml(item.link) : "#"}" target="_blank" rel="noopener" title="Open purchase link" style="${item.link ? "" : "display:none;"}">${icon("link")}</a>`;
+        html += `<button class="del" title="Delete">&times;</button>`;
         row.innerHTML = html;
         row.querySelector(".move-up").addEventListener("click", () => {
           if (idx === 0) return;
