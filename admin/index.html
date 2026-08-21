@@ -6497,7 +6497,13 @@
           document.getElementById("incomeToggle").innerHTML = icon(incomeVisible ? "eyeSlash" : "eye");
           renderIncome();
         });
-        document.getElementById("ideaAddBtn").addEventListener("click", () => { IDEAS.push(""); renderIdeas(); });
+        document.getElementById("ideaAddBtn").addEventListener("click", () => {
+          IDEAS.push("");
+          renderIdeas();
+          const rows = document.querySelectorAll("#ideaList .idea-row");
+          const last = rows[rows.length - 1];
+          if (last) { last.scrollIntoView({ behavior: "smooth", block: "center" }); last.querySelector(".idea-input").focus(); }
+        });
         document.getElementById("ideaSaveBtn").addEventListener("click", saveIdeas);
         // Tap kartu workshop -> buka detail (tab Prep event itu) via hash
         document.getElementById("ovCards").addEventListener("click", (e) => {
@@ -6971,7 +6977,20 @@
     async function ensureKontenLoaded() {
       if (!kontenInit) {
         document.getElementById("kontenSelect").addEventListener("change", loadKonten);
-        document.getElementById("kontenAddBtn").addEventListener("click", () => { KONTEN.push({}); renderKonten(); });
+        document.getElementById("kontenAddBtn").addEventListener("click", () => {
+          KONTEN.push({});
+          renderKonten();
+          // Item baru ditaruh di akhir (biar urutan tampil di web nggak
+          // kebalik) -- scroll+fokus otomatis ke situ biar nggak perlu
+          // scroll manual ke bawah buat nemuinnya.
+          const items = document.querySelectorAll("#kontenList .konten-item");
+          const last = items[items.length - 1];
+          if (last) {
+            last.scrollIntoView({ behavior: "smooth", block: "center" });
+            const firstInput = last.querySelector("[data-key]");
+            if (firstInput) firstInput.focus();
+          }
+        });
         document.getElementById("kontenReloadBtn").addEventListener("click", loadKonten);
         document.getElementById("kontenSaveBtn").addEventListener("click", saveKonten);
         await loadKonten();
@@ -10609,7 +10628,21 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
            <button class="btn btn-sm" data-save="${sec.type}" disabled>${icon("save")} Simpan</button>
            <span class="msg" id="prep-msg-${sec.type}"></span>
          </div>`;
-      body.querySelector(`[data-add="${sec.type}"]`).addEventListener("click", () => { PREP[sec.type].push({}); renderPrepList(sec); markPrepDirty(sec.type); });
+      body.querySelector(`[data-add="${sec.type}"]`).addEventListener("click", () => {
+        PREP[sec.type].push({});
+        renderPrepList(sec);
+        markPrepDirty(sec.type);
+        // Item baru ditaruh di akhir -- scroll+fokus otomatis biar nggak
+        // perlu scroll manual ke bawah buat nemuinnya.
+        const box = document.getElementById("prep-list-" + sec.type);
+        const rows = box ? box.querySelectorAll(".prep-row") : [];
+        const last = rows[rows.length - 1];
+        if (last) {
+          last.scrollIntoView({ behavior: "smooth", block: "center" });
+          const firstInput = last.querySelector(".prep-input");
+          if (firstInput) firstInput.focus();
+        }
+      });
       body.querySelector(`[data-save="${sec.type}"]`).addEventListener("click", () => savePrep(sec.type));
       const resetBtn = body.querySelector(`[data-reset="${sec.type}"]`);
       if (resetBtn) resetBtn.addEventListener("click", () => {
