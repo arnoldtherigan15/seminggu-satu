@@ -937,7 +937,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         // Upload gambar generik dari admin panel (dipakai KONTEN editor,
         // mis. foto item Rekomendasi) -- whitelist bucket biar nggak
         // disalahgunain upload ke bucket sembarangan.
-        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos"];
+        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos", "account-photos"];
         const bucket = String(data.bucket || "");
         if (!ALLOWED_BUCKETS.includes(bucket)) return errorResponse("Bucket tidak dikenal: " + bucket);
         if (!data.imageBase64) return errorResponse("Gambar belum dipilih.");

@@ -46,40 +46,41 @@ Deno.serve(async (req) => {
       case "savePersonalAccount": {
         const id = String(data.id || "");
         const name = String(data.name || "").trim();
-        if (!name) return errorResponse("Nama akun wajib diisi.");
+        if (!name) return errorResponse("Account name is required.");
         const payload = {
           name,
           type: String(data.type || "cash"),
           initial_balance: Math.round(Number(data.initialBalance) || 0),
           color: data.color ? String(data.color) : null,
+          photo_url: data.photoUrl ? String(data.photoUrl) : null,
         };
         if (id) {
           const { error } = await admin.from("personal_accounts").update(payload).eq("id", id);
-          if (error) return errorResponse("Gagal update akun: " + error.message);
+          if (error) return errorResponse("Failed to update account: " + error.message);
         } else {
           const { error } = await admin.from("personal_accounts").insert(payload);
-          if (error) return errorResponse("Gagal bikin akun: " + error.message);
+          if (error) return errorResponse("Failed to create account: " + error.message);
         }
-        return jsonResponse({ status: "success", message: "Akun tersimpan." });
+        return jsonResponse({ status: "success", message: "Account saved." });
       }
 
       case "archivePersonalAccount": {
         const id = String(data.id || "");
-        if (!id) return errorResponse("ID akun kosong.");
+        if (!id) return errorResponse("Missing account ID.");
         const { error } = await admin.from("personal_accounts").update({ archived: !!data.archived }).eq("id", id);
-        if (error) return errorResponse("Gagal update akun: " + error.message);
+        if (error) return errorResponse("Failed to update account: " + error.message);
         return jsonResponse({ status: "success" });
       }
 
       case "deletePersonalAccount": {
         const id = String(data.id || "");
-        if (!id) return errorResponse("ID akun kosong.");
+        if (!id) return errorResponse("Missing account ID.");
         const { count } = await admin.from("personal_transactions").select("id", { count: "exact", head: true })
           .or(`account_id.eq.${id},to_account_id.eq.${id}`);
-        if ((count ?? 0) > 0) return errorResponse("Akun ini masih punya transaksi -- pindahin/hapus transaksinya dulu, atau arsipkan aja akunnya.");
+        if ((count ?? 0) > 0) return errorResponse("This account still has transactions -- move/delete them first, or archive the account instead.");
         const { error } = await admin.from("personal_accounts").delete().eq("id", id);
-        if (error) return errorResponse("Gagal hapus akun: " + error.message);
-        return jsonResponse({ status: "success", message: "Akun dihapus." });
+        if (error) return errorResponse("Failed to delete account: " + error.message);
+        return jsonResponse({ status: "success", message: "Account deleted." });
       }
 
       case "savePersonalCategory": {
