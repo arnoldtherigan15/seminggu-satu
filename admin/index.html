@@ -4325,19 +4325,8 @@
               </div>
 
               <div class="subtab-panel" data-tab="orders">
-                <div class="fin-card">
-                  <p class="hint" style="margin:0 0 10px;">Buat nambahin manual — nama bebas, gak harus yang udah daftar (bisa buat asisten, walk-in, atau backfill pesanan yang udah masuk lewat WA sebelum ada link ini).</p>
-                  <input type="hidden" id="pesOrderId">
-                  <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <div class="konten-field" style="flex:1;min-width:140px;"><label>Nama (bebas, gak harus terdaftar)</label><input class="form-control" type="text" id="pesOrderName" placeholder="mis. Arnold, atau Asisten - Rani"></div>
-                    <div class="konten-field" style="flex:1;min-width:140px;"><label>Menu</label><select class="form-control" id="pesOrderMenu"></select></div>
-                  </div>
-                  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
-                    <button class="btn btn-sm" id="pesOrderSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Pesanan</button>
-                    <button class="btn btn-sm btn-ghost" id="pesOrderCancelBtn" style="display:none;">Batal Edit</button>
-                  </div>
-                  <div class="msg" id="pesOrderMsg"></div>
-                </div>
+                <p class="hint" style="margin:0 0 10px;">Buat nambahin manual — nama bebas, gak harus yang udah daftar (bisa buat asisten, walk-in, atau backfill pesanan yang udah masuk lewat WA sebelum ada link ini).</p>
+                <button class="btn btn-sm" id="pesOrderAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Pesanan</button>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;">
                   <label style="font-weight:700;font-size:13.5px;margin:0;" for="pesOrderFilterMenu">Filter menu</label>
                   <select class="form-control" id="pesOrderFilterMenu" style="max-width:220px;"><option value="">Semua menu</option></select>
@@ -5051,6 +5040,25 @@
       </div>
       <div class="filter-overlay-foot">
         <button class="btn" id="mnSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit Pesanan (Pesanan Masuk) -->
+  <div id="pesOrderFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="pesOrderFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="pesOrderFormTitle">Tambah Pesanan</div>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="pesOrderId">
+        <div class="konten-field"><label>Nama (bebas, gak harus terdaftar)</label><input class="form-control" type="text" id="pesOrderName" placeholder="mis. Arnold, atau Asisten - Rani"></div>
+        <div class="konten-field"><label>Menu</label><select class="form-control" id="pesOrderMenu"></select></div>
+        <div class="msg" id="pesOrderMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="pesOrderSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Pesanan</button>
       </div>
     </div>
   </div>
@@ -7941,7 +7949,11 @@
         document.getElementById("pesCopySummaryBtn").addEventListener("click", () => copyToClipboard(document.getElementById("pesSummaryOut").value, "pesCopySummaryBtn"));
         document.getElementById("pesWaBtn").addEventListener("click", openPesVendorWa);
         document.getElementById("pesOrderSaveBtn").addEventListener("click", savePesOrder);
-        document.getElementById("pesOrderCancelBtn").addEventListener("click", newOrderForm);
+        document.getElementById("pesOrderAddBtn").addEventListener("click", () => { newOrderForm(); openPesOrderForm(false); });
+        document.getElementById("pesOrderFormBackBtn").addEventListener("click", closePesOrderForm);
+        document.getElementById("pesOrderFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "pesOrderFormOverlay") closePesOrderForm();
+        });
         document.getElementById("pesOrderFilterMenu").addEventListener("change", (e) => { pesOrderFilterMenuId = e.target.value; renderPesOrders(); });
         document.getElementById("pesRegFilterMenu").addEventListener("change", (e) => { pesRegFilterValue = e.target.value; renderPesRegistrants(); });
         document.getElementById("mnAddBtn").addEventListener("click", () => { newMenuForm(); openMenuForm(false); });
@@ -8336,23 +8348,32 @@
       const filtered = pesOrderFilterMenuId ? PES_ORDERS.filter(o => o.menuItemId === pesOrderFilterMenuId) : PES_ORDERS;
       if (!filtered.length) { list.innerHTML = '<p class="hint">Nggak ada pesanan buat menu ini.</p>'; return; }
       list.innerHTML = filtered.map(o =>
-        `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
+        `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer;" data-editorder="${o.id}">
            <div style="flex:1;min-width:0;"><b>${escapeHtml(o.participantName)}</b>
              <div style="font-size:.8rem;color:#6b7280;">${escapeHtml(menuNameById(o.menuItemId))}</div></div>
-           <button class="btn btn-sm btn-ghost" data-editorder="${o.id}" style="flex-shrink:0;">${icon("pencil")}</button>
            <button class="btn btn-sm" data-delorder="${o.id}" style="background:#fee2e2;color:var(--err);flex-shrink:0;">${icon("trash")}</button>
          </div>`
       ).join("");
       list.querySelectorAll("[data-editorder]").forEach(b => b.addEventListener("click", () => editOrder(b.dataset.editorder)));
-      list.querySelectorAll("[data-delorder]").forEach(b => b.addEventListener("click", () => deleteOrder(b.dataset.delorder)));
+      list.querySelectorAll("[data-delorder]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); deleteOrder(b.dataset.delorder); }));
+    }
+
+    // Layar Tambah/Edit Pesanan -- full-screen, pola sama kayak
+    // Akun/Kategori/Transaksi/Target/Database Item/Challenge/Menu.
+    function openPesOrderForm(isEdit) {
+      document.getElementById("pesOrderFormTitle").textContent = isEdit ? "Edit Pesanan" : "Tambah Pesanan";
+      document.getElementById("pesOrderFormOverlay").style.display = "flex";
+    }
+
+    function closePesOrderForm() {
+      document.getElementById("pesOrderFormOverlay").style.display = "none";
     }
 
     function newOrderForm() {
       document.getElementById("pesOrderId").value = "";
       document.getElementById("pesOrderName").value = "";
       document.getElementById("pesOrderMenu").selectedIndex = 0;
-      document.getElementById("pesOrderSaveBtn").innerHTML = icon("plus") + " Tambah Pesanan";
-      document.getElementById("pesOrderCancelBtn").style.display = "none";
+      document.getElementById("pesOrderSaveBtn").innerHTML = icon("save") + " Simpan Pesanan";
       document.getElementById("pesOrderMsg").textContent = "";
     }
 
@@ -8363,7 +8384,8 @@
       document.getElementById("pesOrderName").value = o.participantName;
       document.getElementById("pesOrderMenu").value = o.menuItemId;
       document.getElementById("pesOrderSaveBtn").innerHTML = icon("save") + " Simpan Perubahan";
-      document.getElementById("pesOrderCancelBtn").style.display = "inline-flex";
+      document.getElementById("pesOrderMsg").textContent = "";
+      openPesOrderForm(true);
     }
 
     async function savePesOrder() {
@@ -8376,7 +8398,7 @@
       if (!menuItemId) { msg.className = "msg err"; msg.textContent = "Pilih menu dulu (tambahin di Kelola Menu kalau masih kosong)."; return; }
       msg.className = "msg"; msg.textContent = "Menyimpan...";
       const r = await api("saveOrder", { token: getToken(), id: document.getElementById("pesOrderId").value, batchId, participantName, menuItemId });
-      if (r && r.status === "success") { newOrderForm(); await loadPesOrders(); }
+      if (r && r.status === "success") { closePesOrderForm(); await loadPesOrders(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
     }
 
