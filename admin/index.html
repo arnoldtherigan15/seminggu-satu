@@ -1553,7 +1553,12 @@
       border: 1px solid var(--line);
       border-radius: 16px;
       box-shadow: var(--shadow-sm);
-      overflow: hidden;
+      /* Sengaja BUKAN overflow:hidden -- itu bikin position:sticky di dalam
+         subtab-panel (mis. header tanggal per grup di tab Transaksi Personal
+         Finance) nggak bisa nempel pas discroll, karena overflow selain
+         "visible" di ancestor manapun mutus sticky positioning. Border-radius
+         card tetep aman: .subtab-bar & .subtab-panel masing-masing dikasih
+         radius sendiri di bawah, nggak ngandelin clipping dari sini. */
     }
 
     .subtab-bar {
@@ -1563,6 +1568,7 @@
       padding: 10px 12px 0;
       border-bottom: 1px solid var(--line);
       background: #f8fafc;
+      border-radius: 16px 16px 0 0;
     }
 
     .subtab-btn {
@@ -1610,6 +1616,7 @@
       display: none;
       padding: 20px;
       background: #fff;
+      border-radius: 0 0 16px 16px;
     }
 
     .subtab-panel.active {
@@ -4387,10 +4394,6 @@
                   <div class="per-hero-label">Saldo Total (semua waktu)</div>
                   <div class="per-hero-amount" id="perTotalBalance">Rp 0</div>
                   <div class="per-hero-sub" id="perTxTotalCount">0 transaksi tercatat</div>
-                  <div class="per-hero-mini">
-                    <div class="per-hero-mini-item"><span>Pemasukan total</span><b id="perAllIncome" style="color:#4ade80;">Rp 0</b></div>
-                    <div class="per-hero-mini-item"><span>Pengeluaran total</span><b id="perAllExpense" style="color:#fb7185;">Rp 0</b></div>
-                  </div>
                 </div>
                 <div class="per-stat-row">
                   <div class="per-stat-card">
@@ -8307,8 +8310,6 @@
     function showPersonalSkeletons() {
       document.getElementById("perTotalBalance").innerHTML = skelText(140, 26);
       document.getElementById("perTxTotalCount").innerHTML = skelText(100, 12);
-      document.getElementById("perAllIncome").innerHTML = skelText(80, 15);
-      document.getElementById("perAllExpense").innerHTML = skelText(80, 15);
       document.getElementById("perMonthIncome").innerHTML = skelText(100, 20);
       document.getElementById("perMonthExpense").innerHTML = skelText(100, 20);
       document.getElementById("perBizProfit").innerHTML = skelText(120, 18);
@@ -8529,14 +8530,6 @@
       const totalBalance = PER_ACCOUNTS.reduce((sum, a) => sum + perAccountBalance(a), 0);
       document.getElementById("perTotalBalance").textContent = rupiah(totalBalance);
       document.getElementById("perTxTotalCount").textContent = PER_TRANSACTIONS.length + " transaksi tercatat";
-
-      let allIncome = 0, allExpense = 0;
-      PER_TRANSACTIONS.forEach(t => {
-        if (t.type === "income") allIncome += Number(t.amount) || 0;
-        else if (t.type === "expense") allExpense += Number(t.amount) || 0;
-      });
-      document.getElementById("perAllIncome").textContent = rupiah(allIncome);
-      document.getElementById("perAllExpense").textContent = rupiah(allExpense);
 
       const ym = perPeriod || currentPayPeriod();
       const periodLabel = fmtPeriodLabel(ym);
