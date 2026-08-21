@@ -4578,27 +4578,7 @@
             </div>
 
             <div class="subtab-panel" data-tab="akun">
-              <div class="fin-card">
-                <input type="hidden" id="accId">
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Nama Akun</label><input class="form-control" type="text" id="accName" placeholder="mis. BCA, Dompet Cash, GoPay"></div>
-                  <div class="konten-field" style="flex:1;min-width:120px;"><label>Tipe</label>
-                    <select class="form-control" id="accType">
-                      <option value="cash">Tunai</option>
-                      <option value="bank">Bank</option>
-                      <option value="ewallet">E-Wallet</option>
-                      <option value="other">Lainnya</option>
-                    </select>
-                  </div>
-                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Saldo Awal (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="accInitial" placeholder="0"></div>
-                </div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
-                  <button class="btn btn-sm" id="accSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Akun</button>
-                  <button class="btn btn-sm btn-ghost" id="accNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Akun Baru</button>
-                  <button class="btn btn-sm" id="accDeleteBtn" style="background:#fee2e2;color:var(--err);display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Hapus</button>
-                </div>
-                <div class="msg" id="accMsg"></div>
-              </div>
+              <button class="btn btn-sm" id="accAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Akun Baru</button>
               <div id="perAccList" style="margin-top:10px;"></div>
             </div>
 
@@ -4994,6 +4974,34 @@
       </div>
       <div class="filter-overlay-foot">
         <button class="btn" id="txSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Transaksi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit akun Personal Finance (full-screen di mobile) -->
+  <div id="accFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="accFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="accFormTitle">Akun Baru</div>
+        <button class="filter-reset-link" id="accFormDeleteBtn" style="display:none;color:var(--err);">Hapus</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="accId">
+        <div class="konten-field"><label>Nama Akun</label><input class="form-control" type="text" id="accName" placeholder="mis. BCA, Dompet Cash, GoPay"></div>
+        <div class="konten-field"><label>Tipe</label>
+          <select class="form-control" id="accType">
+            <option value="cash">Tunai</option>
+            <option value="bank">Bank</option>
+            <option value="ewallet">E-Wallet</option>
+            <option value="other">Lainnya</option>
+          </select>
+        </div>
+        <div class="konten-field"><label>Saldo Awal (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="accInitial" placeholder="0"></div>
+        <div class="msg" id="accMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="accSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Akun</button>
       </div>
     </div>
   </div>
@@ -8474,8 +8482,15 @@
         document.getElementById("catNewBtn").addEventListener("click", newCatForm);
         document.getElementById("catDeleteBtn").addEventListener("click", deleteCat);
         document.getElementById("accSaveBtn").addEventListener("click", saveAcc);
-        document.getElementById("accNewBtn").addEventListener("click", newAccForm);
-        document.getElementById("accDeleteBtn").addEventListener("click", deleteAcc);
+        document.getElementById("accAddBtn").addEventListener("click", () => { newAccForm(); openAccForm(false); });
+        document.getElementById("accFormBackBtn").addEventListener("click", closeAccForm);
+        document.getElementById("accFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("accId").value;
+          if (id && await deleteAcc(id)) closeAccForm();
+        });
+        document.getElementById("accFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "accFormOverlay") closeAccForm();
+        });
         document.getElementById("impFile").addEventListener("change", onImpFilePick);
         document.getElementById("impProcessBtn").addEventListener("click", processImport);
         document.getElementById("impSelectAllBtn").addEventListener("click", toggleImpSelectAll);
@@ -8640,10 +8655,11 @@
       const slider = document.getElementById("perAccSlider");
       const activeAccs = PER_ACCOUNTS.filter(a => !a.archived);
       slider.innerHTML = activeAccs.length ? activeAccs.map(a => `
-        <div class="per-acc-chip">
+        <div class="per-acc-chip" style="cursor:pointer;" data-editacc="${a.id}">
           <div class="per-acc-chip-name">${icon("wallet")} ${escapeHtml(a.name)}</div>
           <div class="per-acc-chip-amount">${rupiah(perAccountBalance(a))}</div>
         </div>`).join("") : "";
+      slider.querySelectorAll("[data-editacc]").forEach(el => el.addEventListener("click", () => editAcc(el.dataset.editacc)));
 
       const ym = perPeriod || currentPayPeriod();
       let periodIncome = 0, periodExpense = 0;
@@ -9283,19 +9299,23 @@
       if (!PER_ACCOUNTS.length) { list.innerHTML = '<p class="hint">Belum ada akun.</p>'; return; }
       const typeLabel = { cash: "Tunai", bank: "Bank", ewallet: "E-Wallet", other: "Lainnya" };
       list.innerHTML = PER_ACCOUNTS.map(a => `
-        <div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;${a.archived ? "opacity:.55;" : ""}">
+        <div class="per-activity-row" style="align-items:flex-start;cursor:pointer;${a.archived ? "opacity:.55;" : ""}" data-editacc="${a.id}">
+          <div class="per-activity-icon transfer">${icon("wallet")}</div>
           <div style="flex:1;min-width:0;">
-            <b>${escapeHtml(a.name)}</b>${a.archived ? ' <span class="subtab-count">arsip</span>' : ""}
-            <div style="font-size:.8rem;color:#6b7280;">${typeLabel[a.type] || a.type}</div>
+            <b style="font-size:13.5px;">${escapeHtml(a.name)}</b>${a.archived ? ' <span class="subtab-count">arsip</span>' : ""}
+            <div class="per-tx-sub">${typeLabel[a.type] || a.type}</div>
           </div>
-          <div style="font-weight:800;flex-shrink:0;">${rupiah(perAccountBalance(a))}</div>
-          <button class="btn btn-sm btn-ghost" data-adjustacc="${a.id}" title="Sesuaikan saldo" style="flex-shrink:0;">${icon("sliders")}</button>
-          <button class="btn btn-sm btn-ghost" data-editacc="${a.id}" style="flex-shrink:0;">${icon("pencil")}</button>
-          <button class="btn btn-sm btn-ghost" data-archiveacc="${a.id}" data-archived="${a.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-weight:800;">${rupiah(perAccountBalance(a))}</div>
+            <div style="display:flex;gap:4px;margin-top:4px;justify-content:flex-end;">
+              <button class="btn btn-sm btn-ghost" data-adjustacc="${a.id}" title="Sesuaikan saldo" style="padding:3px 6px;">${icon("sliders")}</button>
+              <button class="btn btn-sm btn-ghost" data-archiveacc="${a.id}" data-archived="${a.archived ? "0" : "1"}" style="padding:3px 6px;">${icon("archive")}</button>
+            </div>
+          </div>
         </div>`).join("");
       list.querySelectorAll("[data-editacc]").forEach(b => b.addEventListener("click", () => editAcc(b.dataset.editacc)));
-      list.querySelectorAll("[data-archiveacc]").forEach(b => b.addEventListener("click", () => archiveAcc(b.dataset.archiveacc, b.dataset.archived === "1")));
-      list.querySelectorAll("[data-adjustacc]").forEach(b => b.addEventListener("click", () => adjustAccBalance(b.dataset.adjustacc)));
+      list.querySelectorAll("[data-archiveacc]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archiveAcc(b.dataset.archiveacc, b.dataset.archived === "1"); }));
+      list.querySelectorAll("[data-adjustacc]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); adjustAccBalance(b.dataset.adjustacc); }));
     }
 
     // "Sesuaikan Saldo" -- buat kalau saldo tercatat udah nggak cocok sama
@@ -9324,12 +9344,24 @@
       else { handleAuthError(r); alert((r && r.message) || "Gagal menyesuaikan saldo."); }
     }
 
+    // Layar Tambah/Edit akun -- full-screen, pola sama kayak Tambah/Edit
+    // Transaksi: dibuka lewat tap-row (edit) atau tombol "Akun Baru" (tambah),
+    // bukan form inline yang harus discroll balik ke atas.
+    function openAccForm(isEdit) {
+      document.getElementById("accFormTitle").textContent = isEdit ? "Edit Akun" : "Akun Baru";
+      document.getElementById("accFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("accFormOverlay").style.display = "flex";
+    }
+
+    function closeAccForm() {
+      document.getElementById("accFormOverlay").style.display = "none";
+    }
+
     function newAccForm() {
       document.getElementById("accId").value = "";
       document.getElementById("accName").value = "";
       document.getElementById("accType").value = "cash";
       document.getElementById("accInitial").value = "";
-      document.getElementById("accDeleteBtn").style.display = "none";
       document.getElementById("accMsg").textContent = "";
     }
 
@@ -9340,9 +9372,9 @@
       document.getElementById("accName").value = a.name;
       document.getElementById("accType").value = a.type;
       document.getElementById("accInitial").value = formatRibuan(a.initial_balance);
-      document.getElementById("accDeleteBtn").style.display = "inline-flex";
       document.getElementById("accMsg").textContent = "";
       if (perTabsCtl) perTabsCtl.show("akun");
+      openAccForm(true);
     }
 
     async function saveAcc() {
@@ -9355,7 +9387,7 @@
         type: document.getElementById("accType").value,
         initialBalance: parseRibuan(document.getElementById("accInitial").value)
       });
-      if (r && r.status === "success") { newAccForm(); await loadPersonalData(); }
+      if (r && r.status === "success") { closeAccForm(); await loadPersonalData(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
     }
 
@@ -9365,14 +9397,12 @@
       else { handleAuthError(r); alert((r && r.message) || "Gagal update."); }
     }
 
-    async function deleteAcc() {
-      const id = document.getElementById("accId").value;
-      if (!id) return;
-      if (!confirm("Hapus akun ini?")) return;
-      const msg = document.getElementById("accMsg");
+    async function deleteAcc(id) {
+      if (!id) return false;
+      if (!confirm("Hapus akun ini?")) return false;
       const r = await personalApi("deletePersonalAccount", { token: getToken(), id });
-      if (r && r.status === "success") { newAccForm(); await loadPersonalData(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
+      if (r && r.status === "success") { await loadPersonalData(); return true; }
+      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
     }
 
     // ---- Impor AI (baca screenshot riwayat transaksi/struk pakai Gemini) ----
