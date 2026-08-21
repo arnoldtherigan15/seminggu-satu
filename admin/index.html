@@ -5830,7 +5830,7 @@
       const batchId = document.getElementById("batchSelect").value;
       const b = BATCHES.find(x => x.id === batchId);
       if (!b) { alert("Please select a batch first."); return; }
-      const label = prompt("Nama/label batch (mis. 'Vol 2'):", b.label || "");
+      const label = prompt("Batch name/label (e.g. 'Vol 2'):", b.label || "");
       if (label === null) return;
       const eventDate = prompt("Event date (e.g. 'July 11, 2026') — this is what shows in the participant's loyalty:", b.eventDate || "");
       if (eventDate === null) return;
@@ -6034,7 +6034,7 @@
             <div class="hint" style="margin:0;">Stok</div>
             <b style="color:${stock <= 0 ? "var(--err)" : "var(--ok)"};">${stock}</b>
           </div>
-          <button class="btn btn-sm btn-ghost" data-copyci="${escapeHtml(it.name)}" title="Salin nama item" style="flex-shrink:0;">${icon("clipboard")}</button>
+          <button class="btn btn-sm btn-ghost" data-copyci="${escapeHtml(it.name)}" title="Copy item name" style="flex-shrink:0;">${icon("clipboard")}</button>
         </div>`;
       }).join("");
       box.querySelectorAll("[data-editci]").forEach(b => b.addEventListener("click", () => editCostItemForm(b.dataset.editci)));
@@ -6099,7 +6099,7 @@
       if (!link) { msg.className = "msg err"; msg.textContent = "Please enter the store link first."; return; }
       const btn = document.getElementById("ciFetchNameBtn");
       btn.disabled = true;
-      msg.className = "msg"; msg.textContent = "Ngambil nama produk dari link...";
+      msg.className = "msg"; msg.textContent = "Fetching product name from link...";
       const r = await api("parseProductLink", { token: getToken(), link });
       btn.disabled = false;
       if (r && r.status === "success" && r.name) {
@@ -6114,7 +6114,7 @@
     async function saveCostItemForm() {
       const msg = document.getElementById("ciMsg");
       const name = document.getElementById("ciName").value.trim();
-      if (!name) { msg.className = "msg err"; msg.textContent = "Nama item wajib diisi."; return; }
+      if (!name) { msg.className = "msg err"; msg.textContent = "Item name is required."; return; }
       msg.className = "msg"; msg.textContent = "Saving...";
       let imageUrl = document.getElementById("ciImageExisting").value || "";
       const imageBase64 = document.getElementById("ciImageBase64").value;
@@ -6253,7 +6253,7 @@
       const type = document.getElementById("invType").value;
       const qty = Math.round(Number(document.getElementById("invQty").value)) || 0;
       if (!qty) { msg.className = "msg err"; msg.textContent = "Amount can't be 0."; return; }
-      if (type !== "adjust" && qty < 0) { msg.className = "msg err"; msg.textContent = "Jumlah harus positif buat Beli/Pakai."; return; }
+      if (type !== "adjust" && qty < 0) { msg.className = "msg err"; msg.textContent = "Quantity must be positive for Buy/Use."; return; }
       const date = document.getElementById("invDate").value;
       if (!date) { msg.className = "msg err"; msg.textContent = "Date is required."; return; }
       msg.className = "msg"; msg.textContent = "Saving...";
@@ -6266,7 +6266,7 @@
     }
 
     async function deleteInvTx(id) {
-      if (!confirm("Hapus transaksi stok ini?")) return;
+      if (!confirm("Delete this stock transaction?")) return;
       const r = await api("deleteInventoryTransaction", { token: getToken(), id });
       if (r && r.status === "success") await loadInventoryTx();
       else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
@@ -6329,7 +6329,7 @@
           <div style="display:flex;gap:8px;align-items:flex-start;">
             <input type="checkbox" data-richeck="${idx}" ${row.selected ? "checked" : ""} style="margin-top:10px;width:16px;height:16px;accent-color:var(--brand);cursor:pointer;flex-shrink:0;">
             <div style="flex:1;min-width:0;display:flex;gap:8px;flex-wrap:wrap;">
-              <input class="form-control" type="text" data-rifield="name" data-riidx="${idx}" value="${escapeHtml(row.name)}" placeholder="Nama item" style="flex:2;min-width:160px;">
+              <input class="form-control" type="text" data-rifield="name" data-riidx="${idx}" value="${escapeHtml(row.name)}" placeholder="Item name" style="flex:2;min-width:160px;">
               <input class="form-control" type="text" inputmode="numeric" data-rifield="price" data-riidx="${idx}" value="${formatRibuan(row.price)}" placeholder="Unit price" style="flex:1;min-width:110px;">
               <input class="form-control" type="number" min="1" step="1" data-rifield="qty" data-riidx="${idx}" value="${row.qty}" placeholder="Qty" style="flex:0 0 80px;">
             </div>
@@ -6500,14 +6500,14 @@
         <div class="cost-row-top">
           <div class="cost-row-thumb"></div>
           <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Cost name (e.g. 4R Print)" value="${item ? escapeHtml(item.nama) : ""}" />
-          <button type="button" class="btn btn-sm btn-ghost c-paste" title="Tempel nama item dari clipboard">${icon("clipboard")}</button>
-          <button class="del" title="Hapus">&times;</button>
+          <button type="button" class="btn btn-sm btn-ghost c-paste" title="Paste item name from clipboard">${icon("clipboard")}</button>
+          <button class="del" title="Delete">&times;</button>
         </div>
         <div class="cost-row-bottom">
           <input type="text" inputmode="numeric" class="c-biaya form-control" placeholder="0" value="${item ? formatRibuan(item.biaya) : ""}" />
           <select class="c-tipe form-control">
-            <option value="per-peserta">per-peserta</option>
-            <option value="tetap">tetap</option>
+            <option value="per-peserta">per-participant</option>
+            <option value="tetap">fixed</option>
           </select>
         </div>
         <div class="cost-row-link" style="display:none;margin-top:8px;padding-left:50px;"></div>`;
@@ -7062,7 +7062,7 @@
       const sel = document.getElementById("cfgSelect");
       const existIdx = CONFIG.findIndex(w => w.id === id);
       if (existIdx >= 0) { alert("ID '" + id + "' udah ada — dipilih ya."); sel.value = existIdx; renderConfigForm(); return; }
-      const name = prompt("Nama event:", "");
+      const name = prompt("Event name:", "");
       if (name === null) return;
       CONFIG.push({
         id: id,
@@ -7211,7 +7211,7 @@
           { key: "image", label: "Gambar", type: "image" },
           { key: "description", label: "Deskripsi", type: "textarea" },
           { key: "link", label: "Link toko" },
-          { key: "category", label: "Kategori (tools/material/paper)" }
+          { key: "category", label: "Category (tools/material/paper)" }
         ]
       },
       links: {
@@ -7490,7 +7490,7 @@
           loadSuggestions();
         }));
         el.querySelectorAll("[data-sgid]").forEach(b => b.addEventListener("click", async () => {
-          if (!confirm("Hapus usulan ini? Nggak bisa dibalikin.")) return;
+          if (!confirm("Delete this suggestion? This can't be undone.")) return;
           b.disabled = true;
           const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.sgid });
           if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
@@ -7527,7 +7527,7 @@
           loadBarterAdmin();
         }));
         el.querySelectorAll("[data-btdel]").forEach(b => b.addEventListener("click", async () => {
-          if (!confirm("Hapus/tolak postingan barter ini? Nggak bisa dibalikin.")) return;
+          if (!confirm("Delete/reject this barter post? This can't be undone.")) return;
           b.disabled = true;
           const r2 = await api("deleteBarterPost", { token: getToken(), id: b.dataset.btdel });
           if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
@@ -8002,7 +8002,7 @@
           '<button class="btn btn-sm" data-epdel="' + p.id + '" style="background:#fee2e2;color:var(--err);flex-shrink:0;">' + icon("trash") + '</button>' +
         '</div>').join("");
       el.querySelectorAll("[data-epdel]").forEach(b => b.addEventListener("click", async () => {
-        if (!confirm("Hapus foto ini dari galeri member?")) return;
+        if (!confirm("Delete this photo from the member gallery?")) return;
         await api("deleteEventPhoto", { token: getToken(), id: b.dataset.epdel });
         loadEventPhotos();
       }));
@@ -8193,7 +8193,7 @@
 
     async function deleteChallenge(id) {
       if (!id) return false;
-      if (!confirm("Hapus challenge ini? Submission peserta tetap tersimpan.")) return false;
+      if (!confirm("Delete this challenge? Participant submissions stay saved.")) return false;
       try {
         const r = await api("deleteChallenge", { token: getToken(), id });
         if (r.status === "success") { await loadChallenges(); return true; }
@@ -8580,7 +8580,7 @@
     async function saveMenuItem() {
       const msg = document.getElementById("mnMsg");
       const name = document.getElementById("mnName").value.trim();
-      if (!name) { msg.className = "msg err"; msg.textContent = "Nama menu wajib diisi."; return; }
+      if (!name) { msg.className = "msg err"; msg.textContent = "Menu name is required."; return; }
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("saveMenuItem", {
         token: getToken(),
@@ -8598,7 +8598,7 @@
 
     async function deleteMenuItem(id) {
       if (!id) return false;
-      if (!confirm("Hapus menu ini?")) return false;
+      if (!confirm("Delete this menu item?")) return false;
       const r = await api("deleteMenuItem", { token: getToken(), id });
       if (r && r.status === "success") { await loadPesMenu(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -8673,7 +8673,7 @@
       const participantName = document.getElementById("pesOrderName").value.trim();
       const menuItemId = document.getElementById("pesOrderMenu").value;
       if (!batchId) { msg.className = "msg err"; msg.textContent = "Please select an event first."; return; }
-      if (!participantName) { msg.className = "msg err"; msg.textContent = "Nama peserta wajib diisi."; return; }
+      if (!participantName) { msg.className = "msg err"; msg.textContent = "Participant name is required."; return; }
       if (!menuItemId) { msg.className = "msg err"; msg.textContent = "Please select a menu item first (add one in Manage Menu if it's empty)."; return; }
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("saveOrder", { token: getToken(), id: document.getElementById("pesOrderId").value, batchId, participantName, menuItemId });
@@ -8682,7 +8682,7 @@
     }
 
     async function deleteOrder(id) {
-      if (!confirm("Hapus pesanan ini?")) return;
+      if (!confirm("Delete this order?")) return;
       const r = await api("deleteOrder", { token: getToken(), id });
       if (r && r.status === "success") loadPesOrders();
       else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
@@ -11426,7 +11426,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         let stamps = "";
         for (let i = 0; i < LOYALTY_TARGET; i++) stamps += `<span class="stamp ${i < filled ? "on" : ""}">${i < filled ? "★" : "☆"}</span>`;
         const rewardBadge = m.eligible ? '<span class="loy-badge">' + icon("gift") + ' SIAP TUKAR</span>' : "";
-        const noteBadge = (m.notes && m.notes.length) ? `<span class="loy-note-badge" title="Ada catatan">${icon("journal")} ${m.notes.length}</span>` : "";
+        const noteBadge = (m.notes && m.notes.length) ? `<span class="loy-note-badge" title="Has notes">${icon("journal")} ${m.notes.length}</span>` : "";
         return `<div class="loy-card${m.eligible ? " loy-reward" : ""}" data-key="${escapeHtml(m.key)}">
           <div class="loy-top">
             <div>
@@ -11822,7 +11822,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const title = isActive
         ? "Serunya<br><span class='hl'>Event Ini!</span>"
         : "Kilas Balik<br><span class='hl'>Perjalanan!</span>";
-      const heroLabel = isActive ? "Peserta terdaftar" : "Total pendaftaran";
+      const heroLabel = isActive ? "Registered Participants" : "Total Registrations";
 
       const stats = [
         { n: w.events, l: isActive ? "Event aktif" : "Event digelar" },
@@ -11932,7 +11932,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           a.download = fname;
           a.click();
           URL.revokeObjectURL(a.href);
-          alert("Gambar Wrapped ke-download 📥\nBuka Instagram → Story → pilih gambar ini buat di-post ya!");
+          alert("Wrapped image downloaded 📥\nOpen Instagram → Story → pick this image to post!");
         }
       } catch (e) { alert("Failed to prepare the image. Please try again."); }
       finally {
