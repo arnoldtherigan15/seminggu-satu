@@ -4582,20 +4582,7 @@
             </div>
 
             <div class="subtab-panel" data-tab="target">
-              <div class="fin-card">
-                <input type="hidden" id="goalId">
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <div class="konten-field" style="flex:2;min-width:160px;"><label>Nama Target</label><input class="form-control" type="text" id="goalName" placeholder="mis. Laptop baru"></div>
-                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Target Nominal (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="goalTarget" placeholder="15.000.000"></div>
-                  <div class="konten-field" style="flex:1;min-width:120px;"><label>Ikon</label><select class="form-control" id="goalIcon"></select></div>
-                </div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
-                  <button class="btn btn-sm" id="goalSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Target</button>
-                  <button class="btn btn-sm btn-ghost" id="goalNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Target Baru</button>
-                  <button class="btn btn-sm" id="goalDeleteBtn" style="background:#fee2e2;color:var(--err);display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Hapus</button>
-                </div>
-                <div class="msg" id="goalMsg"></div>
-              </div>
+              <button class="btn btn-sm" id="goalAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Target Baru</button>
               <div id="goalList" style="margin-top:10px;"></div>
 
               <div class="fin-card" style="margin-top:14px;">
@@ -5010,6 +4997,27 @@
       </div>
       <div class="filter-overlay-foot">
         <button class="btn" id="catSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Kategori</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit target tabungan Personal Finance (full-screen di mobile) -->
+  <div id="goalFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="goalFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="goalFormTitle">Target Baru</div>
+        <button class="filter-reset-link" id="goalFormDeleteBtn" style="display:none;color:var(--err);">Hapus</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="goalId">
+        <div class="konten-field"><label>Nama Target</label><input class="form-control" type="text" id="goalName" placeholder="mis. Laptop baru"></div>
+        <div class="konten-field"><label>Target Nominal (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="goalTarget" placeholder="15.000.000"></div>
+        <div class="konten-field"><label>Ikon</label><select class="form-control" id="goalIcon"></select></div>
+        <div class="msg" id="goalMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="goalSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Target</button>
       </div>
     </div>
   </div>
@@ -8555,8 +8563,15 @@
         });
         document.getElementById("budCopyBtn").addEventListener("click", copyBudgetsFromPrevMonth);
         document.getElementById("goalSaveBtn").addEventListener("click", saveGoal);
-        document.getElementById("goalNewBtn").addEventListener("click", newGoalForm);
-        document.getElementById("goalDeleteBtn").addEventListener("click", deleteGoal);
+        document.getElementById("goalAddBtn").addEventListener("click", () => { newGoalForm(); openGoalForm(false); });
+        document.getElementById("goalFormBackBtn").addEventListener("click", closeGoalForm);
+        document.getElementById("goalFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("goalId").value;
+          if (id && await deleteGoal(id)) closeGoalForm();
+        });
+        document.getElementById("goalFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "goalFormOverlay") closeGoalForm();
+        });
         document.getElementById("goalIcon").innerHTML = PER_ICON_CHOICES.map(name => `<option value="${name}">${PER_ICON_LABELS[name] || name}</option>`).join("");
         document.getElementById("contribSaveBtn").addEventListener("click", saveContrib);
         newContribForm();
@@ -8906,17 +8921,16 @@
 
     function renderGoals() {
       const list = document.getElementById("goalList");
-      if (!PER_GOALS.length) { list.innerHTML = '<p class="hint">Belum ada target tabungan. Bikin dulu di form atas.</p>'; return; }
+      if (!PER_GOALS.length) { list.innerHTML = '<p class="hint">Belum ada target tabungan. Klik "Target Baru".</p>'; return; }
       list.innerHTML = PER_GOALS.map(g => {
         const current = perGoalProgress(g);
         const pct = Math.round((current / g.target_amount) * 100);
         const reached = current >= g.target_amount;
         const barColor = reached ? "var(--ok)" : "var(--brand)";
-        return `<div class="fin-card" style="margin-bottom:10px;padding:16px;${g.archived ? "opacity:.55;" : ""}">
+        return `<div class="fin-card" style="margin-bottom:10px;padding:16px;cursor:pointer;${g.archived ? "opacity:.55;" : ""}" data-editgoal="${g.id}">
           <div style="display:flex;align-items:center;gap:10px;">
             <div style="color:var(--brand);flex-shrink:0;">${icon(g.icon || "piggy")}</div>
             <div style="flex:1;min-width:0;font-weight:800;">${escapeHtml(g.name)}${reached ? ' <span class="per-badge income">Tercapai! 🎉</span>' : ""}${g.archived ? ' <span class="subtab-count">arsip</span>' : ""}</div>
-            <button class="btn btn-sm btn-ghost" data-editgoal="${g.id}" style="flex-shrink:0;">${icon("pencil")}</button>
             <button class="btn btn-sm btn-ghost" data-archivegoal="${g.id}" data-archived="${g.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
           </div>
           <div style="margin-top:10px;">
@@ -8929,7 +8943,19 @@
         </div>`;
       }).join("");
       list.querySelectorAll("[data-editgoal]").forEach(b => b.addEventListener("click", () => editGoal(b.dataset.editgoal)));
-      list.querySelectorAll("[data-archivegoal]").forEach(b => b.addEventListener("click", () => archiveGoal(b.dataset.archivegoal, b.dataset.archived === "1")));
+      list.querySelectorAll("[data-archivegoal]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archiveGoal(b.dataset.archivegoal, b.dataset.archived === "1"); }));
+    }
+
+    // Layar Tambah/Edit target tabungan -- full-screen, pola sama kayak
+    // Akun/Kategori/Transaksi.
+    function openGoalForm(isEdit) {
+      document.getElementById("goalFormTitle").textContent = isEdit ? "Edit Target" : "Target Baru";
+      document.getElementById("goalFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("goalFormOverlay").style.display = "flex";
+    }
+
+    function closeGoalForm() {
+      document.getElementById("goalFormOverlay").style.display = "none";
     }
 
     function newGoalForm() {
@@ -8937,7 +8963,6 @@
       document.getElementById("goalName").value = "";
       document.getElementById("goalTarget").value = "";
       document.getElementById("goalIcon").value = "piggy";
-      document.getElementById("goalDeleteBtn").style.display = "none";
       document.getElementById("goalMsg").textContent = "";
     }
 
@@ -8948,8 +8973,8 @@
       document.getElementById("goalName").value = g.name;
       document.getElementById("goalTarget").value = formatRibuan(g.target_amount);
       document.getElementById("goalIcon").value = g.icon || "piggy";
-      document.getElementById("goalDeleteBtn").style.display = "inline-flex";
       document.getElementById("goalMsg").textContent = "";
+      openGoalForm(true);
     }
 
     async function saveGoal() {
@@ -8963,7 +8988,7 @@
         token: getToken(), id: document.getElementById("goalId").value, name, targetAmount,
         icon: document.getElementById("goalIcon").value
       });
-      if (r && r.status === "success") { newGoalForm(); await loadPersonalData(); }
+      if (r && r.status === "success") { closeGoalForm(); await loadPersonalData(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
     }
 
@@ -8973,14 +8998,12 @@
       else { handleAuthError(r); alert((r && r.message) || "Gagal update."); }
     }
 
-    async function deleteGoal() {
-      const id = document.getElementById("goalId").value;
-      if (!id) return;
-      if (!confirm("Hapus target ini? Semua riwayat setorannya ikut kehapus.")) return;
-      const msg = document.getElementById("goalMsg");
+    async function deleteGoal(id) {
+      if (!id) return false;
+      if (!confirm("Hapus target ini? Semua riwayat setorannya ikut kehapus.")) return false;
       const r = await personalApi("deleteSavingsGoal", { token: getToken(), id });
-      if (r && r.status === "success") { newGoalForm(); await loadPersonalData(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
+      if (r && r.status === "success") { await loadPersonalData(); return true; }
+      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
     }
 
     function renderContributions() {
