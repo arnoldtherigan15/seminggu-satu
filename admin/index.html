@@ -7453,7 +7453,7 @@
     }
 
     // ---- Kotak Pos Warga (aspirasi ber-vote) ----
-    const SG_CAT_LABEL = { challenge: icon("bullseye") + " Ide Challenge / Game", surat: icon("envelope") + " Tema Surat Bulanan", fitur: icon("stars") + " Usulan Fitur" };
+    const SG_CAT_LABEL = { challenge: icon("bullseye") + " Challenge / Game Idea", surat: icon("envelope") + " Monthly Letter Theme", fitur: icon("stars") + " Feature Suggestion" };
     async function loadSuggestions() {
       const el = document.getElementById("sgList");
       el.innerHTML = skelLines(3);
@@ -7539,7 +7539,7 @@
     // sub boleh HTML (potongan data di-escape satu-satu pas nyusun)
     function memRow(nickname, sub, wa, btnLabel, type, ig, cls, badge) {
       return `<div class="loy-card${cls ? " " + cls : ""}"><div class="loy-top">
-        <div style="min-width:0;"><div class="loy-name">${escapeHtml(nickname || "(tanpa nama)")}${badge || ""}</div>
+        <div style="min-width:0;"><div class="loy-name">${escapeHtml(nickname || "(no name)")}${badge || ""}</div>
         <div class="loy-wa">${sub || ""}</div></div>
         <div class="mem-btns">
           ${wa ? `<button class="mem-wa loy-send" data-memwa="${escapeHtml(wa)}" data-memname="${escapeHtml(nickname || "")}" data-memtype="${type}">${btnLabel}</button>` : ""}
@@ -7570,14 +7570,14 @@
       const t = btn.dataset.ig || "";
       const done = () => {
         const o = btn.innerHTML;
-        btn.innerHTML = icon("check") + " Kecopy!";
+        btn.innerHTML = icon("check") + " Copied!";
         setTimeout(() => { btn.innerHTML = o; }, 1200);
       };
       const fallback = () => {
         const ta = document.createElement("textarea");
         ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
         document.body.appendChild(ta); ta.select();
-        try { document.execCommand("copy"); done(); } catch (e) { prompt("Copy manual:", t); }
+        try { document.execCommand("copy"); done(); } catch (e) { prompt("Copy manually:", t); }
         document.body.removeChild(ta);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fallback);
@@ -7601,7 +7601,7 @@
         if (r.status !== "success") { handleAuthError(r); return; }
         MEM_DATA = r;
         renderMembers();
-      } catch (e) { bd.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+      } catch (e) { bd.innerHTML = '<p class="hint" style="color:var(--err)">Failed to load.</p>'; }
     }
 
     function renderMembers() {
@@ -7611,10 +7611,10 @@
       const hit = x => !q || (String(x.nickname || "") + " " + String(x.wa || "") + " " + String(x.ig || "")).toLowerCase().indexOf(q) >= 0;
 
       document.getElementById("memStats").innerHTML =
-        `<div class="stat"><div class="stat-n">${r.totalAccounts}</div><div class="stat-l">Aktif</div></div>` +
-        `<div class="stat"><div class="stat-n">${r.notRegistered.length}</div><div class="stat-l">Belum daftar</div></div>` +
-        `<div class="stat"><div class="stat-n">${r.birthdays.length}</div><div class="stat-l">${icon("cake")} Ultah ${escapeHtml(r.monthName)}</div></div>`;
-      document.getElementById("memBdayTitle").innerHTML = icon("cake") + " Ultah bulan " + escapeHtml(r.monthName);
+        `<div class="stat"><div class="stat-n">${r.totalAccounts}</div><div class="stat-l">Active</div></div>` +
+        `<div class="stat"><div class="stat-n">${r.notRegistered.length}</div><div class="stat-l">Not Registered</div></div>` +
+        `<div class="stat"><div class="stat-n">${r.birthdays.length}</div><div class="stat-l">${icon("cake")} ${escapeHtml(r.monthName)} Birthdays</div></div>`;
+      document.getElementById("memBdayTitle").innerHTML = icon("cake") + " " + escapeHtml(r.monthName) + " Birthdays";
 
       // Ultah: HARI INI paling atas + highlight; sisanya urut tanggal, yg lewat di ekor
       const today = new Date().getDate();
@@ -7628,32 +7628,32 @@
           const jadi = m ? (new Date().getFullYear() - parseInt(m[1], 10)) : null;
           let when, cls = "", badge = "";
           if (b.day === today) {
-            when = '<span class="bday-when">HARI INI</span>';
-            cls = "bday-today"; badge = '<span class="bday-today-badge">' + icon("cake") + ' HARI INI</span>';
-            if (isBdayWished(b.wa)) when += ' · <span style="color:#16a34a;font-weight:700;">' + icon("checkCircle") + ' diucapin</span>';
+            when = '<span class="bday-when">TODAY</span>';
+            cls = "bday-today"; badge = '<span class="bday-today-badge">' + icon("cake") + ' TODAY</span>';
+            if (isBdayWished(b.wa)) when += ' · <span style="color:#16a34a;font-weight:700;">' + icon("checkCircle") + ' wished</span>';
           }
-          else if (b.day === today + 1) when = '<span class="bday-when">besok</span>';
-          else if (b.day > today) when = (b.day - today) + " hari lagi";
-          else when = "udah lewat ✓";
-          return memRow(b.nickname, icon("cake") + " " + b.day + " " + escapeHtml(r.monthName) + " · " + when + (jadi ? " · jadi " + jadi + " thn" : ""), b.wa, "Ucapin 🎉", "bday", b.ig, cls, badge);
+          else if (b.day === today + 1) when = '<span class="bday-when">tomorrow</span>';
+          else if (b.day > today) when = (b.day - today) + " days left";
+          else when = "past ✓";
+          return memRow(b.nickname, icon("cake") + " " + b.day + " " + escapeHtml(r.monthName) + " · " + when + (jadi ? " · turning " + jadi : ""), b.wa, "Wish 🎉", "bday", b.ig, cls, badge);
         }).join("")
-        : '<p class="hint">' + (q ? "No matches found." : "Nggak ada yang ultah bulan ini.") + '</p>';
+        : '<p class="hint">' + (q ? "No matches found." : "No birthdays this month.") + '</p>';
 
       const accs = r.accounts.filter(hit);
       document.getElementById("memActive").innerHTML = accs.length
         ? accs.map(a => {
           const age = memAge(a.birthDate);
-          const sub = "Total ikut: <b>" + (a.count || 0) + "x</b>" + (a.questCount ? " · " + a.questCount + " quest" : "") + " · " +
-            (a.birthDate ? "🎂 " + escapeHtml(memBdayShort(a.birthDate)) + (age !== null ? " · <b>" + age + " thn</b>" : "") + " · " : "") + "login terakhir: " + escapeHtml(a.lastLogin || "-");
+          const sub = "Attended: <b>" + (a.count || 0) + "x</b>" + (a.questCount ? " · " + a.questCount + " quest" : "") + " · " +
+            (a.birthDate ? "🎂 " + escapeHtml(memBdayShort(a.birthDate)) + (age !== null ? " · <b>" + age + "yo</b>" : "") + " · " : "") + "last login: " + escapeHtml(a.lastLogin || "-");
           return memRow(a.nickname, sub, a.wa, "Chat", "chat", a.ig);
         }).join("")
-        : '<p class="hint">' + (q ? "No matches found." : "Belum ada yang daftar /warga.") + '</p>';
+        : '<p class="hint">' + (q ? "No matches found." : "No one registered on /warga yet.") + '</p>';
       document.getElementById("memActiveCount").textContent = accs.length + (q ? "/" + r.accounts.length : "");
 
       const inacts = r.notRegistered.filter(hit);
       document.getElementById("memInactive").innerHTML = inacts.length
-        ? inacts.map(m => memRow(m.nickname, m.count + " event · belum daftar /warga", m.wa, "Ajak daftar", "nudge", m.ig)).join("")
-        : '<p class="hint">' + (q ? "No matches found." : "Semua member udah daftar 🎉") + '</p>';
+        ? inacts.map(m => memRow(m.nickname, m.count + " events · not registered on /warga", m.wa, "Invite to register", "nudge", m.ig)).join("")
+        : '<p class="hint">' + (q ? "No matches found." : "All members have registered 🎉") + '</p>';
       document.getElementById("memInactiveCount").textContent = inacts.length + (q ? "/" + r.notRegistered.length : "");
       const memStatusCount = document.getElementById("memStatusCount");
       if (memStatusCount) memStatusCount.textContent = accs.length + inacts.length;
@@ -7681,13 +7681,13 @@
     function timeAgo(ts) {
       if (!ts) return "";
       const min = Math.floor((Date.now() - ts) / 60000);
-      if (min < 1) return "baru aja";
-      if (min < 60) return min + " menit lalu";
+      if (min < 1) return "just now";
+      if (min < 60) return min + " min ago";
       const hr = Math.floor(min / 60);
-      if (hr < 24) return hr + " jam lalu";
+      if (hr < 24) return hr + " hr ago";
       const day = Math.floor(hr / 24);
-      if (day < 7) return day + " hari lalu";
-      return new Date(ts).toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+      if (day < 7) return day + " days ago";
+      return new Date(ts).toLocaleDateString("en-US", { day: "numeric", month: "short" });
     }
 
     // Badge merah di sidebar -- keliatan tanpa perlu buka tab Notifikasi.
@@ -7742,23 +7742,23 @@
             ? birthdays.map(b => {
               const wished = isBdayWished(b.wa);
               let when, cls = "", badge = "";
-              if (b.isToday) { when = '<span class="bday-when">HARI INI</span>'; cls = "bday-today"; badge = '<span class="bday-today-badge">' + icon("cake") + ' HARI INI</span>'; }
-              else if (b.day === todayDD0 + 1) when = '<span class="bday-when">besok</span>';
-              else if (b.day > todayDD0) when = (b.day - todayDD0) + " hari lagi";
-              else when = "udah lewat";
-              const wishedNote = wished ? ' · <span style="color:#16a34a;font-weight:700;">' + icon("checkCircle") + ' diucapin</span>' : "";
+              if (b.isToday) { when = '<span class="bday-when">TODAY</span>'; cls = "bday-today"; badge = '<span class="bday-today-badge">' + icon("cake") + ' TODAY</span>'; }
+              else if (b.day === todayDD0 + 1) when = '<span class="bday-when">tomorrow</span>';
+              else if (b.day > todayDD0) when = (b.day - todayDD0) + " days left";
+              else when = "past";
+              const wishedNote = wished ? ' · <span style="color:#16a34a;font-weight:700;">' + icon("checkCircle") + ' wished</span>' : "";
               return `<div class="loy-card${cls ? " " + cls : ""}"><div class="loy-top">
                 <div style="min-width:0;">
                   <div class="loy-name">${escapeHtml(b.nickname)}${badge}</div>
                   <div class="loy-wa">${icon("cake")} ${b.day} ${escapeHtml(bdMonthName)} · ${when}${wishedNote}</div>
                 </div>
                 <div class="mem-btns">
-                  ${b.wa ? `<button class="mem-wa loy-send" data-bdaywa="${escapeHtml(b.wa)}" data-bdayname="${escapeHtml(b.nickname)}">${icon("chat")} Ucapin 🎉</button>` : ""}
+                  ${b.wa ? `<button class="mem-wa loy-send" data-bdaywa="${escapeHtml(b.wa)}" data-bdayname="${escapeHtml(b.nickname)}">${icon("chat")} Wish 🎉</button>` : ""}
                   ${b.ig ? `<button class="mem-ig" data-ig="${escapeHtml(b.ig)}" title="Copy username IG">${icon("clipboard")} ${escapeHtml(b.ig)}</button>` : ""}
                 </div>
               </div></div>`;
             }).join("")
-            : '<p class="hint">Nggak ada yang ultah bulan ini.</p>';
+            : '<p class="hint">No birthdays this month.</p>';
           bdEl.querySelectorAll("[data-bdaywa]").forEach(btn => btn.addEventListener("click", () => {
             const wa = waNormalize(btn.dataset.bdaywa);
             if (!wa) { alert("Invalid WA number."); return; }
@@ -7784,11 +7784,11 @@
                  </div>
                  <div style="display:flex;flex-direction:column;gap:4px;">
                    <button class="sg-approve" data-actok="${escapeHtml(p.id)}">${icon("checkCircle")} Approve</button>
-                   <button class="sg-del" data-actdel="${escapeHtml(p.id)}">${icon("trash")} Tolak</button>
+                   <button class="sg-del" data-actdel="${escapeHtml(p.id)}">${icon("trash")} Reject</button>
                  </div>
                </div></div>`
             ).join("")
-            : '<p class="hint">' + icon("checkCircle") + ' Semua udah ditindak, mantap!</p>';
+            : '<p class="hint">' + icon("checkCircle") + ' All caught up, nice!</p>';
           pendEl.querySelectorAll("[data-actok]").forEach(b => b.addEventListener("click", async () => {
             b.disabled = true;
             const r2 = await api("setSuggestionApproved", { token: getToken(), id: b.dataset.actok });
@@ -7796,7 +7796,7 @@
             loadActivity();
           }));
           pendEl.querySelectorAll("[data-actdel]").forEach(b => b.addEventListener("click", async () => {
-            if (!confirm("Tolak usulan ini? Nggak bisa dibalikin.")) return;
+            if (!confirm("Reject this suggestion? This can't be undone.")) return;
             b.disabled = true;
             const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.actdel });
             if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
@@ -7806,7 +7806,7 @@
 
         const acts = r.activity || [];
         const windowLabel = document.getElementById("actWindowLabel");
-        if (windowLabel) windowLabel.textContent = r.activityWindowDays ? `(${r.activityWindowDays} hari terakhir)` : "";
+        if (windowLabel) windowLabel.textContent = r.activityWindowDays ? `(last ${r.activityWindowDays} days)` : "";
         const statsEl = document.getElementById("actStats");
         const chartsEl = document.getElementById("actCharts");
         const detailCnt = document.getElementById("actDetailCount");
@@ -7814,7 +7814,7 @@
           if (statsEl) statsEl.innerHTML = "";
           if (chartsEl) chartsEl.innerHTML = "";
           if (detailCnt) detailCnt.textContent = "";
-          el.innerHTML = '<p class="hint">Belum ada aktivitas.</p>';
+          el.innerHTML = '<p class="hint">No activity yet.</p>';
           return;
         }
 
@@ -7823,9 +7823,9 @@
         // biar keliatan pola-nya (mis. "Reka Rekat lagi rame, 4 pendaftar
         // baru") daripada cuma list rata yang campur aduk kronologis.
         const ACT_META = {
-          daftar: { label: "Pendaftaran Baru", icon: "journal", jump: "pendaftar", groupBy: true, row: a => escapeHtml(a.who) + ' <span style="font-weight:600;color:var(--muted);">daftar</span>' },
+          daftar: { label: "New Registrations", icon: "journal", jump: "pendaftar", groupBy: true, row: a => escapeHtml(a.who) + ' <span style="font-weight:600;color:var(--muted);">registered</span>' },
           quest: { label: "Challenge Submission", icon: "lightning", jump: "quest", groupBy: true, row: a => escapeHtml(a.who) + ' <span style="font-weight:600;color:var(--muted);">submit</span>' },
-          member: { label: "Member Baru Gabung", icon: "people", jump: "members", groupBy: false, row: a => escapeHtml(a.who) + ' <span style="font-weight:600;color:var(--muted);">gabung Balai Warga</span>' },
+          member: { label: "New Members Joined", icon: "people", jump: "members", groupBy: false, row: a => escapeHtml(a.who) + ' <span style="font-weight:600;color:var(--muted);">joined Balai Warga</span>' },
         };
 
         function rowHtml(a, meta) {
@@ -7876,11 +7876,11 @@
           let chartsHtml = "";
           const daftarGroups = groupByDetail(acts.filter(a => a.type === "daftar"));
           if (daftarGroups.length) {
-            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;">Pendaftaran per Event</div>` + barChartHtml(daftarGroups, "pendaftar");
+            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;">Registrations per Event</div>` + barChartHtml(daftarGroups, "pendaftar");
           }
           const questGroups = groupByDetail(acts.filter(a => a.type === "quest"));
           if (questGroups.length) {
-            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;margin-top:16px;">Submission per Challenge</div>` + barChartHtml(questGroups, "quest");
+            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;margin-top:16px;">Submissions per Challenge</div>` + barChartHtml(questGroups, "quest");
           }
           chartsEl.innerHTML = chartsHtml;
           chartsEl.querySelectorAll(".bar-row").forEach(row => row.addEventListener("click", () => jumpFromActivity(row.dataset.jump, row.dataset.ws)));
@@ -7905,7 +7905,7 @@
         });
         el.innerHTML = html;
         el.querySelectorAll(".act-row").forEach(card => card.addEventListener("click", () => jumpFromActivity(card.dataset.jump, card.dataset.ws)));
-      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Failed to load.</p>'; }
     }
 
     // Lompat dari Notifikasi ke tab terkait -- dipake bareng sama bar chart & list detail.
