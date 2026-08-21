@@ -5108,16 +5108,16 @@
     <div class="filter-overlay-box">
       <div class="filter-overlay-head">
         <button class="filter-back" id="pesOrderFormBackBtn" aria-label="Tutup">&larr;</button>
-        <div class="filter-overlay-title" id="pesOrderFormTitle">Tambah Pesanan</div>
+        <div class="filter-overlay-title" id="pesOrderFormTitle">Add Order</div>
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="pesOrderId">
-        <div class="konten-field"><label>Nama (bebas, gak harus terdaftar)</label><input class="form-control" type="text" id="pesOrderName" placeholder="mis. Arnold, atau Asisten - Rani"></div>
+        <div class="konten-field"><label>Name (any, doesn't have to be registered)</label><input class="form-control" type="text" id="pesOrderName" placeholder="e.g. Arnold, or Assistant - Rani"></div>
         <div class="konten-field"><label>Menu</label><select class="form-control" id="pesOrderMenu"></select></div>
         <div class="msg" id="pesOrderMsg"></div>
       </div>
       <div class="filter-overlay-foot">
-        <button class="btn" id="pesOrderSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Pesanan</button>
+        <button class="btn" id="pesOrderSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Order</button>
       </div>
     </div>
   </div>
@@ -6016,7 +6016,7 @@
     function renderCostItemsList() {
       const box = document.getElementById("ciList");
       if (!box) return;
-      if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">Belum ada item di database. Tambahin dulu di form atas.</p>'; return; }
+      if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">No items in the database yet. Add one via the form above.</p>'; return; }
       const filtered = ciSearchQuery ? COST_ITEMS.filter(it => it.name.toLowerCase().includes(ciSearchQuery)) : COST_ITEMS;
       if (!filtered.length) { box.innerHTML = '<p class="hint">Nggak ada item yang cocok sama pencarian ini.</p>'; return; }
       box.innerHTML = filtered.map(it => {
@@ -6682,7 +6682,7 @@
 
     function renderIdeas() {
       const box = document.getElementById("ideaList");
-      if (!IDEAS.length) { box.innerHTML = `<p class="hint">Belum ada ide. Klik "Tambah Ide".</p>`; return; }
+      if (!IDEAS.length) { box.innerHTML = `<p class="hint">No ideas yet. Click "Add Idea".</p>`; return; }
       box.innerHTML = "";
       IDEAS.forEach((text, idx) => {
         const div = document.createElement("div");
@@ -7290,7 +7290,7 @@
       // Galeri/testimoni: ID di-generate otomatis → sembunyiin dari form
       const fields = schema.autoId ? schema.fields.filter(f => f.key !== "id") : schema.fields;
       const listEl = document.getElementById("kontenList");
-      if (!KONTEN.length) { listEl.innerHTML = `<p class="hint">Belum ada item. Klik "Tambah Item".</p>`; return; }
+      if (!KONTEN.length) { listEl.innerHTML = `<p class="hint">No items yet. Click "Add Item".</p>`; return; }
       listEl.innerHTML = "";
       if (canReorder) {
         const hint = document.createElement("p");
@@ -7993,7 +7993,7 @@
       el.innerHTML = '<p class="hint">Memuat foto event…</p>';
       const r = await api("getEventPhotos", { token: getToken() });
       const list = (r && r.photos) || [];
-      if (!list.length) { el.innerHTML = '<p class="hint">' + icon("camera") + ' Belum ada foto event. Tambahin momen workshop / reka-rekat di atas ya</p>'; return; }
+      if (!list.length) { el.innerHTML = '<p class="hint">' + icon("camera") + ' No event photos yet. Add workshop / reka-rekat moments above.</p>'; return; }
       el.innerHTML = list.map(p =>
         '<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">' +
           '<img src="' + driveThumb(p.photo) + '" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;" loading="lazy">' +
@@ -8519,7 +8519,7 @@
       const list = document.getElementById("mnList");
       const cnt = document.getElementById("pesMenuCount");
       if (cnt) cnt.textContent = "(" + PES_MENU.length + ")";
-      if (!PES_MENU.length) { list.innerHTML = '<p class="hint">Belum ada menu. Tambahin dulu di atas ya.</p>'; return; }
+      if (!PES_MENU.length) { list.innerHTML = '<p class="hint">No menu items yet. Add one above first.</p>'; return; }
       list.innerHTML = PES_MENU.map((m, i) =>
         `<div class="konten-item" style="cursor:pointer;" data-idx="${i}">
            <div class="konten-item-head">
@@ -8640,7 +8640,7 @@
     // Layar Tambah/Edit Pesanan -- full-screen, pola sama kayak
     // Akun/Kategori/Transaksi/Target/Database Item/Challenge/Menu.
     function openPesOrderForm(isEdit) {
-      document.getElementById("pesOrderFormTitle").textContent = isEdit ? "Edit Pesanan" : "Tambah Pesanan";
+      document.getElementById("pesOrderFormTitle").textContent = isEdit ? "Edit Order" : "Add Order";
       document.getElementById("pesOrderFormOverlay").style.display = "flex";
     }
 
@@ -9245,7 +9245,7 @@
       let totalBudget = 0, totalSpent = 0;
       const list = document.getElementById("budList");
       if (!cats.length) {
-        list.innerHTML = '<p class="hint">Belum ada kategori pengeluaran. Tambahin dulu di tab Kategori.</p>';
+        list.innerHTML = '<p class="hint">No expense categories yet. Add one in the Categories tab first.</p>';
       } else {
         list.innerHTML = cats.map(c => {
           const b = perBudgetFor(c.id, period);
@@ -10394,10 +10394,10 @@
 
     // ---------- PREP HUB (per-event) ----------
     const PREP_SECTIONS = [
-      { type: "todos", title: icon("checkCircle") + " Todo Persiapan", check: true, fields: [{ key: "text", ph: "mis. Beli bahan, konfirmasi lokasi" }] },
-      { type: "bring", title: icon("backpack") + " Barang Bawaan", check: true, fields: [{ key: "text", ph: "Nama barang (mis. Gunting)" }, { key: "qty", ph: "Jumlah", narrow: true }] },
-      { type: "notes", title: icon("sticky") + " Notes & Link", check: false, fields: [{ key: "title", ph: "Judul" }, { key: "url", ph: "https://youtube/artikel..." }, { key: "note", ph: "Catatan (opsional)" }] },
-      { type: "supplies", title: icon("cart") + " Alat & Bahan", check: true, fields: [{ key: "name", ph: "Nama alat/bahan", datalist: "costItemsList" }, { key: "link", ph: "Link beli (Shopee, dll)" }, { key: "note", ph: "Catatan (opsional)" }] }
+      { type: "todos", title: icon("checkCircle") + " Prep Todos", check: true, fields: [{ key: "text", ph: "e.g. Buy materials, confirm location" }] },
+      { type: "bring", title: icon("backpack") + " Things to Bring", check: true, fields: [{ key: "text", ph: "Item name (e.g. Scissors)" }, { key: "qty", ph: "Quantity", narrow: true }] },
+      { type: "notes", title: icon("sticky") + " Notes & Links", check: false, fields: [{ key: "title", ph: "Title" }, { key: "url", ph: "https://youtube/article..." }, { key: "note", ph: "Note (optional)" }] },
+      { type: "supplies", title: icon("cart") + " Tools & Materials", check: true, fields: [{ key: "name", ph: "Tool/material name", datalist: "costItemsList" }, { key: "link", ph: "Purchase link (Shopee, etc.)" }, { key: "note", ph: "Note (optional)" }] }
     ];
 
     let PREP = {};
@@ -10433,7 +10433,7 @@
     async function loadPrepBatches() {
       const workshop = document.getElementById("prepSelect").value;
       const sel = document.getElementById("prepBatchSelect");
-      sel.innerHTML = `<option>Memuat...</option>`;
+      sel.innerHTML = `<option>Loading...</option>`;
       try {
         const r = await api("listBatches", { token: getToken(), workshop });
         if (document.getElementById("prepSelect").value !== workshop) return; // udah ganti workshop lain, buang hasil basi
@@ -10441,12 +10441,12 @@
         const batches = r.batches || [];
         PREP_BATCHES = batches;
         sel.innerHTML = batches.length
-          ? batches.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.active ? " • AKTIF" : ""}</option>`).join("")
-          : `<option value="">(belum ada batch)</option>`;
+          ? batches.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.active ? " • ACTIVE" : ""}</option>`).join("")
+          : `<option value="">(no batches yet)</option>`;
         const activeIdx = batches.findIndex(b => b.active);
         if (activeIdx >= 0) sel.selectedIndex = activeIdx;
       } catch (e) {
-        sel.innerHTML = `<option value="">(gagal memuat)</option>`;
+        sel.innerHTML = `<option value="">(failed to load)</option>`;
       }
     }
 
@@ -10514,7 +10514,7 @@
           <div class="ov-meta">${icon("calendar")} ${escapeHtml(info.displayDate || "-")}${info.workshopTime ? " · " + escapeHtml(info.workshopTime) : ""}</div>
           <div class="ov-meta">${icon("geo")} ${escapeHtml(info.locationName || "-")}</div>
           <div class="ov-progress"><div class="ov-progress-bar" style="width:${pct}%"></div></div>
-          <div class="ov-progress-label">${info.count} / ${info.quota || "?"} peserta (${pct}%)</div>
+          <div class="ov-progress-label">${info.count} / ${info.quota || "?"} participants (${pct}%)</div>
         </div>`;
     }
 
@@ -10530,7 +10530,7 @@
         PREP = r.prep || {};
         renderPrep();
       } catch (e) {
-        cont.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat.</p>`;
+        cont.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
       }
     }
 
@@ -10583,9 +10583,9 @@
     function buildPesananTab() {
       const body = document.createElement("div");
       body.innerHTML =
-        `<div id="prepPesananSummary"><p class="hint">Memuat...</p></div>
-         <button class="btn btn-sm btn-ghost" id="prepPesananGoBtn" style="margin-top:14px;display:none;">Kelola Pesanan Lengkap (tambah/edit/hapus) →</button>`;
-      return { id: "pesanan-ringkas", labelHtml: icon("cup") + " Pesanan Minum/Makan", countId: "prepPesananCount", countDefault: "…", bodyEl: body };
+        `<div id="prepPesananSummary"><p class="hint">Loading...</p></div>
+         <button class="btn btn-sm btn-ghost" id="prepPesananGoBtn" style="margin-top:14px;display:none;">Manage Full Orders (add/edit/delete) →</button>`;
+      return { id: "pesanan-ringkas", labelHtml: icon("cup") + " Drink/Food Orders", countId: "prepPesananCount", countDefault: "…", bodyEl: body };
     }
 
     // ---- FAQ & Respon Cepat -- konteks acara (venue/rute/bawaan dst) per
@@ -10597,32 +10597,32 @@
       const body = document.createElement("div");
       body.innerHTML = `
         <div class="fin-card">
-          <div style="font-weight:800;margin-bottom:4px;">Konteks Acara (batch ini)</div>
-          <p class="hint" style="margin:0 0 8px;">Isi detail yang sering ditanyain peserta -- venue persisnya di mana, patokan/pintu masuk, rute transport umum, apa aja yang perlu dibawa, dsb. AI bakal jawab pertanyaan peserta PAKAI info ini aja (nggak ngarang).</p>
-          <textarea class="form-control" id="faqContext" rows="6" placeholder="Contoh:
-Venue: K Mall lantai 3, masuk dari Grand Lobby, acara di Main Atrium deket food hall.
-Transport umum: naik MRT turun di Stasiun X, jalan kaki 5 menit dari pintu keluar 2.
-Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea>
-          <button class="btn btn-sm" id="faqSaveContextBtn" style="margin-top:8px;">${icon("save")} Simpan Konteks</button>
+          <div style="font-weight:800;margin-bottom:4px;">Event Context (this batch)</div>
+          <p class="hint" style="margin:0 0 8px;">Fill in details participants often ask about -- exact venue location, landmarks/entrance, public transport route, what to bring, etc. AI will answer participant questions using ONLY this info (no making things up).</p>
+          <textarea class="form-control" id="faqContext" rows="6" placeholder="Example:
+Venue: K Mall 3rd floor, enter via Grand Lobby, event at Main Atrium near the food hall.
+Public transport: take the MRT, get off at Station X, 5-minute walk from exit 2.
+What to bring: personal journal, stationery, own water bottle."></textarea>
+          <button class="btn btn-sm" id="faqSaveContextBtn" style="margin-top:8px;">${icon("save")} Save Context</button>
           <div class="msg" id="faqContextMsg"></div>
         </div>
 
         <div class="fin-card" style="margin-top:14px;">
-          <div style="font-weight:800;margin-bottom:4px;">Generate FAQ buat Di-share</div>
-          <p class="hint" style="margin:0 0 8px;">Bikin daftar FAQ dari konteks di atas, siap di-post duluan ke grup WA biar peserta nggak nanya satu-satu.</p>
+          <div style="font-weight:800;margin-bottom:4px;">Generate FAQ to Share</div>
+          <p class="hint" style="margin:0 0 8px;">Build an FAQ list from the context above, ready to post to the WA group so participants don't have to ask one by one.</p>
           <button class="btn btn-sm" id="faqGenerateBlockBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate FAQ</button>
           <textarea class="form-control" id="faqBlockOut" rows="8" readonly style="margin-top:8px;display:none;"></textarea>
-          <button class="btn btn-sm btn-ghost" id="faqCopyBlockBtn" style="margin-top:8px;display:none;">${icon("clipboard")} Salin FAQ</button>
+          <button class="btn btn-sm btn-ghost" id="faqCopyBlockBtn" style="margin-top:8px;display:none;">${icon("clipboard")} Copy FAQ</button>
           <div class="msg" id="faqBlockMsg"></div>
         </div>
 
         <div class="fin-card" style="margin-top:14px;">
-          <div style="font-weight:800;margin-bottom:4px;">Respon Cepat</div>
-          <p class="hint" style="margin:0 0 8px;">Tempel/ketik pertanyaan yang ditanyain peserta, AI bikinin jawabannya pakai konteks di atas.</p>
-          <textarea class="form-control" id="faqQuestion" rows="2" placeholder="mis. Venue-nya di mana ya tepatnya? Patokannya apa?"></textarea>
-          <button class="btn btn-sm" id="faqAnswerBtn" disabled style="margin-top:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate Jawaban</button>
+          <div style="font-weight:800;margin-bottom:4px;">Quick Response</div>
+          <p class="hint" style="margin:0 0 8px;">Paste/type a question a participant asked, AI will draft an answer using the context above.</p>
+          <textarea class="form-control" id="faqQuestion" rows="2" placeholder="e.g. Where exactly is the venue? What's the landmark?"></textarea>
+          <button class="btn btn-sm" id="faqAnswerBtn" disabled style="margin-top:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate Answer</button>
           <textarea class="form-control" id="faqAnswerOut" rows="3" readonly style="margin-top:8px;display:none;"></textarea>
-          <button class="btn btn-sm btn-ghost" id="faqCopyAnswerBtn" style="margin-top:8px;display:none;">${icon("clipboard")} Salin Jawaban</button>
+          <button class="btn btn-sm btn-ghost" id="faqCopyAnswerBtn" style="margin-top:8px;display:none;">${icon("clipboard")} Copy Answer</button>
           <div class="msg" id="faqAnswerMsg"></div>
         </div>`;
       const saveBtn = body.querySelector("#faqSaveContextBtn");
@@ -10637,7 +10637,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       if (questionEl && answerBtn) questionEl.addEventListener("input", () => { answerBtn.disabled = !questionEl.value.trim(); });
       const copyAnswerBtn = body.querySelector("#faqCopyAnswerBtn");
       if (copyAnswerBtn) copyAnswerBtn.addEventListener("click", () => copyToClipboardEl(document.getElementById("faqAnswerOut").value, copyAnswerBtn));
-      return { id: "faq", labelHtml: icon("chat") + " FAQ & Respon Cepat", countId: null, bodyEl: body };
+      return { id: "faq", labelHtml: icon("chat") + " FAQ & Quick Response", countId: null, bodyEl: body };
     }
 
     async function loadPrepFaqContext() {
