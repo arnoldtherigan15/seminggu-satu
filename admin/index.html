@@ -4286,42 +4286,42 @@
         <div class="wrap view" id="viewKonten" style="display:none;">
           <div class="toolbar">
             <div class="field">
-              <label for="kontenSelect">Jenis Konten</label>
+              <label for="kontenSelect">Content Type</label>
               <select class="form-control" id="kontenSelect">
-                <option value="galeri">Galeri</option>
-                <option value="testimoni">Testimoni</option>
-                <option value="recommendation">Rekomendasi</option>
+                <option value="galeri">Gallery</option>
+                <option value="testimoni">Testimonials</option>
+                <option value="recommendation">Recommendations</option>
                 <option value="links">Link Page (/links)</option>
               </select>
             </div>
-            <button class="btn btn-sm" id="kontenAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Item</button>
-            <button class="btn btn-sm btn-ghost" id="kontenReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
+            <button class="btn btn-sm" id="kontenAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Add Item</button>
+            <button class="btn btn-sm btn-ghost" id="kontenReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
           <div id="kontenList"></div>
           <div class="fin-card" style="margin-top:14px;">
-            <button class="btn" id="kontenSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Konten</button>
+            <button class="btn" id="kontenSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Content</button>
             <div class="msg" id="kontenMsg"></div>
-            <p class="hint">Untuk galeri/testimoni: tempel <b>embed code</b> dari Instagram. Untuk <b>Link Page</b>:
-              isi ikon (emoji), judul, dan URL tujuan (link internal pakai <code>../recommendation.html</code>,
-              atau link luar pakai <code>https://...</code>) — tampil di <b>/links</b>. Item kosong (tanpa judul)
-              diabaikan saat simpan.</p>
+            <p class="hint">For gallery/testimonials: paste the Instagram <b>embed code</b>. For <b>Link Page</b>:
+              fill in the icon (emoji), title, and destination URL (internal link use <code>../recommendation.html</code>,
+              or external link use <code>https://...</code>) — shown on <b>/links</b>. Empty items (no title)
+              are skipped when saving.</p>
           </div>
         </div>
 
         <!-- ===== VIEW: SIDE QUEST ===== -->
         <div class="wrap view" id="viewQuest" style="display:none;">
           <div class="toolbar">
-            <button class="btn btn-sm" id="questNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Challenge Baru</button>
-            <button class="btn btn-sm btn-ghost" id="questReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
+            <button class="btn btn-sm" id="questNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Challenge</button>
+            <button class="btn btn-sm btn-ghost" id="questReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
           <div class="subtabs" id="questSubtabs">
             <div class="subtab-bar">
-              <button class="subtab-btn" type="button" data-tab="challenge"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09zM4.157 8.5H7a.5.5 0 0 1 .478.647L6.11 13.59l5.732-6.09H9a.5.5 0 0 1-.478-.647L9.89 2.41z"/></svg> <span>Kelola Challenge</span> <span class="subtab-count" id="questCount"></span></button>
+              <button class="subtab-btn" type="button" data-tab="challenge"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09zM4.157 8.5H7a.5.5 0 0 1 .478.647L6.11 13.59l5.732-6.09H9a.5.5 0 0 1-.478-.647L9.89 2.41z"/></svg> <span>Manage Challenges</span> <span class="subtab-count" id="questCount"></span></button>
               <button class="subtab-btn" type="button" data-tab="leaderboard"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5q0 .807-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33 33 0 0 1 2.5.5m.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935m10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935M3.504 1q.01.775.056 1.469c.13 2.028.457 3.546.87 4.667C5.294 9.48 6.484 10 7 10a.5.5 0 0 1 .5.5v2.61a1 1 0 0 1-.757.97l-1.426.356a.5.5 0 0 0-.179.085L4.5 15h7l-.638-.479a.5.5 0 0 0-.18-.085l-1.425-.356a1 1 0 0 1-.757-.97V10.5A.5.5 0 0 1 9 10c.516 0 1.706-.52 2.57-2.864.413-1.12.74-2.64.87-4.667q.045-.694.056-1.469z"/></svg> <span>Leaderboard</span> <span class="subtab-count" id="adminLbCount"></span></button>
-              <button class="subtab-btn" type="button" data-tab="galeri"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/></svg> <span>Galeri Event</span></button>
+              <button class="subtab-btn" type="button" data-tab="galeri"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/></svg> <span>Event Gallery</span></button>
             </div>
             <div class="subtab-panel" data-tab="challenge">
-              <button class="btn btn-sm" id="qAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Challenge Baru</button>
+              <button class="btn btn-sm" id="qAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Challenge</button>
               <div id="questList" style="margin-top:10px;"></div>
             </div>
             <div class="subtab-panel" data-tab="leaderboard">
@@ -4330,24 +4330,24 @@
             <div class="subtab-panel" data-tab="galeri">
               <div class="fin-card">
                 <div class="konten-field">
-                  <label>Tag (nentuin gaya kartu di galeri member)</label>
+                  <label>Tag (determines the card style in the member gallery)</label>
                   <select class="form-control" id="epTag">
                     <option value="workshop">🎪 Workshop</option>
                     <option value="reka-rekat">✂️ Reka-Rekat</option>
-                    <option value="temu-warga">🏘️ Temu-Warga</option>
+                    <option value="temu-warga">🏘️ Community Meetup</option>
                   </select>
                 </div>
                 <div class="konten-field">
-                  <label>Tanggal event (tampil di galeri member, mis. 11 Jul 2026)</label>
+                  <label>Event date (shown in the member gallery, e.g. Jul 11, 2026)</label>
                   <input class="form-control" type="date" id="epDate">
                 </div>
                 <div class="konten-field">
-                  <label>Foto</label>
+                  <label>Photo</label>
                   <input class="form-control" type="file" id="epFile" accept="image/*">
                   <div id="epPreview" style="margin-top:8px;"></div>
                 </div>
-                <div class="konten-field"><label>Caption</label><input class="form-control" type="text" id="epCaption" maxlength="280" placeholder="mis. Keseruan Workshop 3D Journaling vol.2 ✨"></div>
-                <button class="btn" id="epAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah ke Galeri</button>
+                <div class="konten-field"><label>Caption</label><input class="form-control" type="text" id="epCaption" maxlength="280" placeholder="e.g. Fun times at 3D Journaling Workshop vol.2 ✨"></div>
+                <button class="btn" id="epAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Add to Gallery</button>
                 <div class="msg" id="epMsg"></div>
               </div>
               <div id="epList" style="margin-top:10px;"></div>
@@ -4363,70 +4363,70 @@
               <select class="form-control" id="pesWorkshopSelect"></select>
             </div>
             <div class="field">
-              <label for="pesEventSelect">Batch / Tanggal</label>
+              <label for="pesEventSelect">Batch / Date</label>
               <select class="form-control" id="pesEventSelect"></select>
             </div>
-            <button class="btn btn-sm btn-ghost" id="pesReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
+            <button class="btn btn-sm btn-ghost" id="pesReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
 
-          <div id="pesEmpty" class="hint" style="display:none;">Belum ada batch buat event ini. Bikin batch dulu di tab Registrations ya.</div>
+          <div id="pesEmpty" class="hint" style="display:none;">No batch for this event yet. Create a batch in the Registrations tab first.</div>
 
           <div id="pesBody" style="display:none;">
             <div class="subtabs" id="pesSubtabs">
               <div class="subtab-bar">
-                <button class="subtab-btn" type="button" data-tab="orders"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg> <span>Pesanan Masuk</span> <span class="subtab-count" id="pesOrderCount"></span></button>
-                <button class="subtab-btn" type="button" data-tab="peserta"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg> <span>Peserta &amp; Link</span> <span class="subtab-count" id="pesRegCount"></span></button>
-                <button class="subtab-btn" type="button" data-tab="menu"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/></svg> <span>Kelola Menu</span> <span class="subtab-count" id="pesMenuCount"></span></button>
-                <button class="subtab-btn" type="button" data-tab="vendor"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg> <span>Vendor &amp; Ringkasan</span></button>
+                <button class="subtab-btn" type="button" data-tab="orders"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg> <span>Incoming Orders</span> <span class="subtab-count" id="pesOrderCount"></span></button>
+                <button class="subtab-btn" type="button" data-tab="peserta"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg> <span>Participants &amp; Link</span> <span class="subtab-count" id="pesRegCount"></span></button>
+                <button class="subtab-btn" type="button" data-tab="menu"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/></svg> <span>Manage Menu</span> <span class="subtab-count" id="pesMenuCount"></span></button>
+                <button class="subtab-btn" type="button" data-tab="vendor"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg> <span>Vendor &amp; Summary</span></button>
               </div>
 
               <div class="subtab-panel" data-tab="orders">
-                <p class="hint" style="margin:0 0 10px;">Buat nambahin manual — nama bebas, gak harus yang udah daftar (bisa buat asisten, walk-in, atau backfill pesanan yang udah masuk lewat WA sebelum ada link ini).</p>
-                <button class="btn btn-sm" id="pesOrderAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Pesanan</button>
+                <p class="hint" style="margin:0 0 10px;">For adding manually -- any name, doesn't have to be someone already registered (works for assistants, walk-ins, or backfilling orders that came in via WA before this link existed).</p>
+                <button class="btn btn-sm" id="pesOrderAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Add Order</button>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;">
-                  <label style="font-weight:700;font-size:13.5px;margin:0;" for="pesOrderFilterMenu">Filter menu</label>
-                  <select class="form-control" id="pesOrderFilterMenu" style="max-width:220px;"><option value="">Semua menu</option></select>
+                  <label style="font-weight:700;font-size:13.5px;margin:0;" for="pesOrderFilterMenu">Filter by menu</label>
+                  <select class="form-control" id="pesOrderFilterMenu" style="max-width:220px;"><option value="">All menu items</option></select>
                 </div>
                 <div id="pesOrderList" style="margin-top:10px;"></div>
               </div>
 
               <div class="subtab-panel" data-tab="peserta">
                 <div class="fin-card">
-                  <div style="font-weight:800;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/></svg> Link Isian buat Peserta</div>
-                  <p class="hint" style="margin:4px 0 8px;">Share link ini ke grup WA event — peserta isi nama & pilih menu sendiri, otomatis masuk daftar di bawah.</p>
+                  <div style="font-weight:800;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/></svg> Participant Form Link</div>
+                  <p class="hint" style="margin:4px 0 8px;">Share this link to the event's WA group — participants fill in their name & pick a menu themselves, automatically added to the list below.</p>
                   <div class="reg-tools">
                     <input class="form-control" type="text" id="pesLinkOut" readonly>
-                    <button class="btn btn-sm" id="pesCopyLinkBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Salin Link</button>
+                    <button class="btn btn-sm" id="pesCopyLinkBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy Link</button>
                   </div>
                 </div>
-                <p class="hint" style="margin:14px 0 8px;">Kirim link yang UDAH keisi nama dia — peserta tinggal buka & pilih menu, nggak perlu ngetik nama.</p>
+                <p class="hint" style="margin:14px 0 8px;">Send the link that's ALREADY pre-filled with their name — the participant just opens it & picks a menu, no need to type their name.</p>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-                  <label style="font-weight:700;font-size:13.5px;margin:0;" for="pesRegFilterMenu">Filter menu</label>
+                  <label style="font-weight:700;font-size:13.5px;margin:0;" for="pesRegFilterMenu">Filter by menu</label>
                   <select class="form-control" id="pesRegFilterMenu" style="max-width:220px;">
-                    <option value="">Semua peserta</option>
-                    <option value="__none__">Belum pesan</option>
+                    <option value="">All participants</option>
+                    <option value="__none__">Haven't ordered</option>
                   </select>
                 </div>
                 <div id="pesRegList"></div>
               </div>
 
               <div class="subtab-panel" data-tab="menu">
-                <button class="btn btn-sm" id="mnAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Menu Baru</button>
+                <button class="btn btn-sm" id="mnAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Menu Item</button>
                 <div id="mnList" style="margin-top:10px;"></div>
               </div>
 
               <div class="subtab-panel" data-tab="vendor">
                 <div class="fin-card">
-                  <div class="konten-field"><label>Nomor WA Vendor</label><input class="form-control" type="tel" id="pesVendorWa" placeholder="cth: 0812xxxxxxx"></div>
-                  <button class="btn btn-sm" id="pesVendorSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Nomor</button>
+                  <div class="konten-field"><label>Vendor WA Number</label><input class="form-control" type="tel" id="pesVendorWa" placeholder="e.g. 0812xxxxxxx"></div>
+                  <button class="btn btn-sm" id="pesVendorSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Number</button>
                   <div class="msg" id="pesVendorMsg"></div>
                 </div>
                 <div class="fin-card" style="margin-top:14px;">
-                  <div style="font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Summary buat Vendor</div>
+                  <div style="font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Vendor Summary</div>
                   <textarea class="form-control" id="pesSummaryOut" rows="8" readonly style="width:100%;font-family:inherit;font-size:13px;padding:10px;border-radius:10px;border:1px solid var(--line,#e5e7eb);resize:vertical;"></textarea>
                   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
-                    <button class="btn btn-sm" id="pesCopySummaryBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Salin Summary</button>
-                    <button class="btn btn-sm" id="pesWaBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg> Buka WA Vendor</button>
+                    <button class="btn btn-sm" id="pesCopySummaryBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy Summary</button>
+                    <button class="btn btn-sm" id="pesWaBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg> Open WA to Vendor</button>
                   </div>
                 </div>
               </div>
@@ -4657,21 +4657,21 @@
         <!-- ===== VIEW: NOTIFIKASI / AKTIVITAS ===== -->
         <div class="wrap view" id="viewActivity" style="display:none;">
           <div class="toolbar">
-            <div style="font-weight:800;font-size:16px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg> Notifikasi</div>
-            <button class="btn btn-sm btn-ghost" id="actReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
+            <div style="font-weight:800;font-size:16px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg> Notifications</div>
+            <button class="btn btn-sm btn-ghost" id="actReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
 
-          <div style="font-weight:800;margin:6px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.494.013-.595.79A.747.747 0 0 0 3 1.814v2.683q-.224.051-.432.107c-.702.187-1.305.418-1.745.696C.408 5.56 0 5.954 0 6.5v7c0 .546.408.94.823 1.201.44.278 1.043.51 1.745.696C3.978 15.773 5.898 16 8 16s4.022-.227 5.432-.603c.701-.187 1.305-.418 1.745-.696.415-.261.823-.655.823-1.201v-7c0-.546-.408-.94-.823-1.201-.44-.278-1.043-.51-1.745-.696A12 12 0 0 0 13 4.496v-2.69a.747.747 0 0 0 .092-1.004l-.598-.79-.595.792A.747.747 0 0 0 12 1.813V4.3a22 22 0 0 0-2-.23V1.806a.747.747 0 0 0 .092-1.004l-.598-.79-.595.792A.747.747 0 0 0 9 1.813v2.204a29 29 0 0 0-2 0V1.806A.747.747 0 0 0 7.092.802l-.598-.79-.595.792A.747.747 0 0 0 6 1.813V4.07c-.71.05-1.383.129-2 .23V1.806A.747.747 0 0 0 4.092.802zm-.668 5.556L3 5.524v.967q.468.111 1 .201V5.315a21 21 0 0 1 2-.242v1.855q.488.036 1 .054V5.018a28 28 0 0 1 2 0v1.964q.512-.018 1-.054V5.073c.72.054 1.393.137 2 .242v1.377q.532-.09 1-.201v-.967l.175.045c.655.175 1.15.374 1.469.575.344.217.356.35.356.356s-.012.139-.356.356c-.319.2-.814.4-1.47.575C11.87 7.78 10.041 8 8 8c-2.04 0-3.87-.221-5.174-.569-.656-.175-1.151-.374-1.47-.575C1.012 6.639 1 6.506 1 6.5s.012-.139.356-.356c.319-.2.814-.4 1.47-.575M15 7.806v1.027l-.68.907a.94.94 0 0 1-1.17.276 1.94 1.94 0 0 0-2.236.363l-.348.348a1 1 0 0 1-1.307.092l-.06-.044a2 2 0 0 0-2.399 0l-.06.044a1 1 0 0 1-1.306-.092l-.35-.35a1.935 1.935 0 0 0-2.233-.362.935.935 0 0 1-1.168-.277L1 8.82V7.806c.42.232.956.428 1.568.591C3.978 8.773 5.898 9 8 9s4.022-.227 5.432-.603c.612-.163 1.149-.36 1.568-.591m0 2.679V13.5c0 .006-.012.139-.356.355-.319.202-.814.401-1.47.576C11.87 14.78 10.041 15 8 15c-2.04 0-3.87-.221-5.174-.569-.656-.175-1.151-.374-1.47-.575-.344-.217-.356-.35-.356-.356v-3.02a1.935 1.935 0 0 0 2.298.43.935.935 0 0 1 1.08.175l.348.349a2 2 0 0 0 2.615.185l.059-.044a1 1 0 0 1 1.2 0l.06.044a2 2 0 0 0 2.613-.185l.348-.348a.94.94 0 0 1 1.082-.175c.781.39 1.718.208 2.297-.426"/></svg> Ultah Bulan Ini <span class="subtab-count" id="actBdayCount"></span></div>
+          <div style="font-weight:800;margin:6px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.494.013-.595.79A.747.747 0 0 0 3 1.814v2.683q-.224.051-.432.107c-.702.187-1.305.418-1.745.696C.408 5.56 0 5.954 0 6.5v7c0 .546.408.94.823 1.201.44.278 1.043.51 1.745.696C3.978 15.773 5.898 16 8 16s4.022-.227 5.432-.603c.701-.187 1.305-.418 1.745-.696.415-.261.823-.655.823-1.201v-7c0-.546-.408-.94-.823-1.201-.44-.278-1.043-.51-1.745-.696A12 12 0 0 0 13 4.496v-2.69a.747.747 0 0 0 .092-1.004l-.598-.79-.595.792A.747.747 0 0 0 12 1.813V4.3a22 22 0 0 0-2-.23V1.806a.747.747 0 0 0 .092-1.004l-.598-.79-.595.792A.747.747 0 0 0 9 1.813v2.204a29 29 0 0 0-2 0V1.806A.747.747 0 0 0 7.092.802l-.598-.79-.595.792A.747.747 0 0 0 6 1.813V4.07c-.71.05-1.383.129-2 .23V1.806A.747.747 0 0 0 4.092.802zm-.668 5.556L3 5.524v.967q.468.111 1 .201V5.315a21 21 0 0 1 2-.242v1.855q.488.036 1 .054V5.018a28 28 0 0 1 2 0v1.964q.512-.018 1-.054V5.073c.72.054 1.393.137 2 .242v1.377q.532-.09 1-.201v-.967l.175.045c.655.175 1.15.374 1.469.575.344.217.356.35.356.356s-.012.139-.356.356c-.319.2-.814.4-1.47.575C11.87 7.78 10.041 8 8 8c-2.04 0-3.87-.221-5.174-.569-.656-.175-1.151-.374-1.47-.575C1.012 6.639 1 6.506 1 6.5s.012-.139.356-.356c.319-.2.814-.4 1.47-.575M15 7.806v1.027l-.68.907a.94.94 0 0 1-1.17.276 1.94 1.94 0 0 0-2.236.363l-.348.348a1 1 0 0 1-1.307.092l-.06-.044a2 2 0 0 0-2.399 0l-.06.044a1 1 0 0 1-1.306-.092l-.35-.35a1.935 1.935 0 0 0-2.233-.362.935.935 0 0 1-1.168-.277L1 8.82V7.806c.42.232.956.428 1.568.591C3.978 8.773 5.898 9 8 9s4.022-.227 5.432-.603c.612-.163 1.149-.36 1.568-.591m0 2.679V13.5c0 .006-.012.139-.356.355-.319.202-.814.401-1.47.576C11.87 14.78 10.041 15 8 15c-2.04 0-3.87-.221-5.174-.569-.656-.175-1.151-.374-1.47-.575-.344-.217-.356-.35-.356-.356v-3.02a1.935 1.935 0 0 0 2.298.43.935.935 0 0 1 1.08.175l.348.349a2 2 0 0 0 2.615.185l.059-.044a1 1 0 0 1 1.2 0l.06.044a2 2 0 0 0 2.613-.185l.348-.348a.94.94 0 0 1 1.082-.175c.781.39 1.718.208 2.297-.426"/></svg> Birthdays This Month <span class="subtab-count" id="actBdayCount"></span></div>
           <div id="actBdayList"></div>
 
-          <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4a3 3 0 0 0-3 3v6h6V7a3 3 0 0 0-3-3m0-1h8a4 4 0 0 1 4 4v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V7a4 4 0 0 1 4-4m2.646 1A4 4 0 0 1 8 7v6h7V7a3 3 0 0 0-3-3z"/><path d="M11.793 8.5H9v-1h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.354-.146zM5 7c0 .552-.448 0-1 0s-1 .552-1 0a1 1 0 0 1 2 0"/></svg> Perlu Ditindak <span class="subtab-count" id="actPendingCount"></span></div>
+          <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4a3 3 0 0 0-3 3v6h6V7a3 3 0 0 0-3-3m0-1h8a4 4 0 0 1 4 4v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V7a4 4 0 0 1 4-4m2.646 1A4 4 0 0 1 8 7v6h7V7a3 3 0 0 0-3-3z"/><path d="M11.793 8.5H9v-1h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.354-.146zM5 7c0 .552-.448 0-1 0s-1 .552-1 0a1 1 0 0 1 2 0"/></svg> Needs Action <span class="subtab-count" id="actPendingCount"></span></div>
           <div id="actPendingList"></div>
 
-          <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg> Riwayat Terbaru <span id="actWindowLabel" style="font-weight:600;color:var(--muted);font-size:12px;"></span></div>
+          <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg> Recent Activity <span id="actWindowLabel" style="font-weight:600;color:var(--muted);font-size:12px;"></span></div>
           <div id="actStats" class="loyalty-stats"></div>
           <div id="actCharts"></div>
           <details class="det-acc" id="actDetailAcc" style="margin-top:14px;">
-            <summary><span class="det-acc-title">Detail Lengkap (siapa aja) <span class="acc-count" id="actDetailCount"></span></span><span class="det-acc-chevron">▸</span></summary>
+            <summary><span class="det-acc-title">Full Detail (everyone) <span class="acc-count" id="actDetailCount"></span></span><span class="det-acc-chevron">▸</span></summary>
             <div class="det-acc-body"><div id="activityList"></div></div>
           </details>
         </div>
@@ -4681,8 +4681,8 @@
           <div class="loyalty-head">
             <div>
               <h2 class="loyalty-title"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M8 13A5 5 0 1 1 8 3a5 5 0 0 1 0 10m0 1A6 6 0 1 0 8 2a6 6 0 0 0 0 12"/><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/><path d="M9.5 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/></svg> Leads &amp; Outreach</h2>
-              <p class="loyalty-sub">Lacak prospek dari Instagram, TikTok, &amp; Threads. Biar nggak lupa siapa yang
-                udah di-chat, siapa yang potensial, dan siapa yang layak di-<i>unfollow</i>.</p>
+              <p class="loyalty-sub">Track prospects from Instagram, TikTok, &amp; Threads. So you don't lose track of who's
+                been chatted, who's promising, and who's worth <i>unfollowing</i>.</p>
             </div>
           </div>
 
@@ -4691,47 +4691,47 @@
 
           <!-- Import Instagram (following vs followers) -->
           <div style="margin-bottom:16px;">
-            <button class="btn btn-sm btn-ghost" id="igImportToggle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Import Instagram — cari yang nggak follow
-              balik</button>
+            <button class="btn btn-sm btn-ghost" id="igImportToggle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Import Instagram — find who doesn't follow
+              back</button>
           </div>
           <div class="fin-card ig-import" id="igImportPanel" style="display:none; margin-bottom:16px;">
-            <h3 style="font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Import Data Instagram</h3>
+            <h3 style="font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Import Instagram Data</h3>
             <details class="ig-guide">
-              <summary><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/><path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/></svg> Cara ambil datanya (klik buka panduan)</summary>
+              <summary><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/><path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/></svg> How to get the data (click to open the guide)</summary>
               <ol>
-                <li>Buka <b>Instagram</b> → Profil → menu <b>☰</b> → <b>Accounts Center</b>
-                  (atau: Settings → <i>Meta Accounts Center</i>).</li>
-                <li>Pilih <b>Your information and permissions</b> → <b>Download your information</b>.</li>
-                <li>Klik <b>Download or transfer information</b> → pilih akun IG kamu.</li>
-                <li>Pilih <b>Some of your information</b> → scroll ke bagian <b>Connections</b> →
-                  centang <b>Followers and following</b>.</li>
-                <li>Klik <b>Next</b>. Penting: pilih <b>Download to device</b>,
-                  <b>Date range: All time</b>, dan <b>Format: JSON</b> (bukan HTML!).
+                <li>Open <b>Instagram</b> → Profile → menu <b>☰</b> → <b>Accounts Center</b>
+                  (or: Settings → <i>Meta Accounts Center</i>).</li>
+                <li>Choose <b>Your information and permissions</b> → <b>Download your information</b>.</li>
+                <li>Click <b>Download or transfer information</b> → select your IG account.</li>
+                <li>Choose <b>Some of your information</b> → scroll to the <b>Connections</b> section →
+                  check <b>Followers and following</b>.</li>
+                <li>Click <b>Next</b>. Important: choose <b>Download to device</b>,
+                  <b>Date range: All time</b>, and <b>Format: JSON</b> (not HTML!).
                 </li>
-                <li>Klik <b>Create files</b>. Tunggu email dari Instagram (biasanya beberapa menit),
-                  lalu download file ZIP-nya & <b>extract</b>.</li>
-                <li>Di dalam folder <code>connections/followers_and_following/</code> ada
-                  <code>following.json</code> dan <b>satu atau beberapa</b> file followers:
-                  <code>followers_1.json</code>, <code>followers_2.json</code>, dst.
+                <li>Click <b>Create files</b>. Wait for the email from Instagram (usually a few minutes),
+                  then download the ZIP file & <b>extract</b> it.</li>
+                <li>Inside the <code>connections/followers_and_following/</code> folder there's
+                  <code>following.json</code> and <b>one or more</b> followers files:
+                  <code>followers_1.json</code>, <code>followers_2.json</code>, etc.
                 </li>
-                <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg> <b>PENTING:</b> pilih <b>SEMUA</b> file itu sekaligus — termasuk semua
-                  <code>followers_2/3/...</code> kalau ada. Kalau cuma <code>followers_1.json</code>,
-                  follower lama nggak kebaca &amp; bakal salah dianggap "nggak follow balik".
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg> <b>IMPORTANT:</b> select <b>ALL</b> those files at once — including any
+                  <code>followers_2/3/...</code> if present. If you only pick <code>followers_1.json</code>,
+                  older followers won't be read & will be wrongly flagged as "not following back".
                 </li>
               </ol>
             </details>
             <div class="ig-upload">
               <input class="form-control" type="file" id="igFiles" accept=".json,application/json" multiple>
-              <button class="btn btn-sm" id="igAnalyzeBtn">Analisa</button>
+              <button class="btn btn-sm" id="igAnalyzeBtn">Analyze</button>
             </div>
-            <p class="hint">File cuma diproses di browser kamu — nggak dikirim ke mana-mana.</p>
+            <p class="hint">Files are only processed in your browser — nothing is sent anywhere.</p>
             <div class="msg" id="igMsg"></div>
             <div id="igResult"></div>
           </div>
 
           <!-- Form Tambah Prospek -->
           <div class="fin-card" style="margin-bottom:16px;">
-            <h3 style="font-size:14px;margin-bottom:12px;">＋ Tambah Prospek</h3>
+            <h3 style="font-size:14px;margin-bottom:12px;">＋ Add Prospect</h3>
             <div class="lead-add">
               <div>
                 <label>Platform</label>
@@ -4743,24 +4743,24 @@
               </div>
               <div>
                 <label>Username</label>
-                <input class="form-control" type="text" id="leadUsername" placeholder="cth: journaling_art" />
+                <input class="form-control" type="text" id="leadUsername" placeholder="e.g. journaling_art" />
               </div>
               <div>
                 <label>Status</label>
                 <select class="form-control" id="leadStatus">
-                  <option value="new">Baru (belum di-chat)</option>
-                  <option value="chatted" selected>Sudah di-chat</option>
-                  <option value="interested">Tertarik / Potensial</option>
-                  <option value="registered">Sudah Daftar</option>
-                  <option value="noreply">Nggak Dibalas</option>
-                  <option value="rejected">Menolak</option>
+                  <option value="new">New (not chatted yet)</option>
+                  <option value="chatted" selected>Chatted</option>
+                  <option value="interested">Interested / Promising</option>
+                  <option value="registered">Registered</option>
+                  <option value="noreply">No Reply</option>
+                  <option value="rejected">Declined</option>
                 </select>
               </div>
               <div class="lead-follow-field">
-                <label>Kamu follow?</label>
-                <label class="lead-check"><input type="checkbox" id="leadFollowing" /> Ya, aku follow dia</label>
+                <label>Do you follow them?</label>
+                <label class="lead-check"><input type="checkbox" id="leadFollowing" /> Yes, I follow them</label>
               </div>
-              <button class="btn btn-sm" id="addLeadBtn">Tambah</button>
+              <button class="btn btn-sm" id="addLeadBtn">Add</button>
             </div>
             <div class="msg" id="leadAddMsg"></div>
           </div>
@@ -4770,7 +4770,7 @@
             <div class="field">
               <label for="leadFilterPlatform">Platform</label>
               <select class="form-control" id="leadFilterPlatform">
-                <option value="all">Semua Platform</option>
+                <option value="all">All Platforms</option>
                 <option value="Instagram">Instagram</option>
                 <option value="TikTok">TikTok</option>
                 <option value="Threads">Threads</option>
@@ -4779,21 +4779,21 @@
             <div class="field">
               <label for="leadFilterStatus">Status</label>
               <select class="form-control" id="leadFilterStatus">
-                <option value="all">Semua Status</option>
-                <option value="new">Baru</option>
-                <option value="chatted">Sudah di-chat</option>
-                <option value="interested">Tertarik / Potensial</option>
-                <option value="registered">Sudah Daftar</option>
-                <option value="noreply">Nggak Dibalas</option>
-                <option value="rejected">Menolak</option>
-                <option value="unfollow">⚠️ Siap Unfollow</option>
+                <option value="all">All Statuses</option>
+                <option value="new">New</option>
+                <option value="chatted">Chatted</option>
+                <option value="interested">Interested / Promising</option>
+                <option value="registered">Registered</option>
+                <option value="noreply">No Reply</option>
+                <option value="rejected">Declined</option>
+                <option value="unfollow">⚠️ Ready to Unfollow</option>
               </select>
             </div>
             <div class="field">
-              <label for="leadSearch">Cari</label>
-              <input class="form-control" type="text" id="leadSearch" placeholder="🔍 username / catatan..." />
+              <label for="leadSearch">Search</label>
+              <input class="form-control" type="text" id="leadSearch" placeholder="🔍 username / notes..." />
             </div>
-            <button class="btn btn-sm btn-ghost" id="leadReloadBtn" style="height:40px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
+            <button class="btn btn-sm btn-ghost" id="leadReloadBtn" style="height:40px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
 
           <!-- Tabel -->
@@ -4806,15 +4806,15 @@
                     <th>Username</th>
                     <th>Status</th>
                     <th>Follow?</th>
-                    <th>Catatan</th>
-                    <th>Terakhir</th>
+                    <th>Notes</th>
+                    <th>Last Update</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody id="leadsTableBody"></tbody>
               </table>
             </div>
-            <div class="empty" id="leadsEmpty" style="display:none;">Belum ada prospek. Tambah lewat form di atas ya.
+            <div class="empty" id="leadsEmpty" style="display:none;">No prospects yet. Add one via the form above.
             </div>
           </div>
         </div>
@@ -10059,12 +10059,12 @@
 
     // ---------- LEADS / OUTREACH TRACKER ----------
     const LEAD_STATUSES = [
-      { key: "new", label: "Baru", badge: "lb-gray" },
-      { key: "chatted", label: "Sudah di-chat", badge: "lb-amber" },
-      { key: "interested", label: "Tertarik", badge: "lb-green" },
-      { key: "registered", label: "Sudah Daftar", badge: "lb-green" },
-      { key: "noreply", label: "Nggak Dibalas", badge: "lb-red" },
-      { key: "rejected", label: "Menolak", badge: "lb-gray" }
+      { key: "new", label: "New", badge: "lb-gray" },
+      { key: "chatted", label: "Chatted", badge: "lb-amber" },
+      { key: "interested", label: "Interested", badge: "lb-green" },
+      { key: "registered", label: "Registered", badge: "lb-green" },
+      { key: "noreply", label: "No Reply", badge: "lb-red" },
+      { key: "rejected", label: "Declined", badge: "lb-gray" }
     ];
     function leadStatusInfo(key) {
       return LEAD_STATUSES.find(s => s.key === key) || { key: key, label: key || "-", badge: "lb-gray" };
@@ -10102,7 +10102,7 @@
       tbody.innerHTML = skelTableRows(7, 4);
       try {
         const r = await api("getLeads", { token: getToken() });
-        if (r.status !== "success") { handleAuthError(r); tbody.innerHTML = ""; empty.style.display = "block"; empty.textContent = r.message || "Gagal memuat."; return; }
+        if (r.status !== "success") { handleAuthError(r); tbody.innerHTML = ""; empty.style.display = "block"; empty.textContent = r.message || "Failed to load."; return; }
         LEADS = r.leads || [];
         renderStats();
         renderLeads();
@@ -10116,10 +10116,10 @@
       const count = (fn) => LEADS.filter(fn).length;
       const cards = [
         { key: "all", num: LEADS.length, lbl: "Total", warn: false },
-        { key: "chatted", num: count(l => l.status === "chatted"), lbl: "Nunggu Balasan", warn: false },
-        { key: "interested", num: count(l => l.status === "interested"), lbl: "Potensial", warn: false },
-        { key: "registered", num: count(l => l.status === "registered"), lbl: "Sudah Daftar", warn: false },
-        { key: "unfollow", num: count(isUnfollowCandidate), lbl: icon("warning") + " Siap Unfollow", warn: true }
+        { key: "chatted", num: count(l => l.status === "chatted"), lbl: "Awaiting Reply", warn: false },
+        { key: "interested", num: count(l => l.status === "interested"), lbl: "Promising", warn: false },
+        { key: "registered", num: count(l => l.status === "registered"), lbl: "Registered", warn: false },
+        { key: "unfollow", num: count(isUnfollowCandidate), lbl: icon("warning") + " Ready to Unfollow", warn: true }
       ];
       const active = document.getElementById("leadFilterStatus").value;
       el.innerHTML = cards.map(c =>
@@ -10161,7 +10161,7 @@
       if (!filtered.length) {
         tbody.innerHTML = "";
         empty.style.display = "block";
-        empty.textContent = LEADS.length ? "Nggak ada yang cocok dengan filter." : "Belum ada prospek. Tambah lewat form di atas ya.";
+        empty.textContent = LEADS.length ? "No matches for this filter." : "No prospects yet. Add one via the form above.";
         return;
       }
       empty.style.display = "none";
@@ -10182,11 +10182,11 @@
               <select class="lead-status-sel form-control" onchange="onLeadStatus('${l.id}', this.value)">${statusOptions(l.status)}</select>
             </td>
             <td class="lead-follow-cell" style="text-align:center;">
-              <input type="checkbox" ${l.following ? "checked" : ""} onchange="onLeadFollow('${l.id}', this.checked)" title="Kamu follow akun ini?" style="width:16px;height:16px;accent-color:var(--brand);cursor:pointer;">
+              <input type="checkbox" ${l.following ? "checked" : ""} onchange="onLeadFollow('${l.id}', this.checked)" title="Do you follow this account?" style="width:16px;height:16px;accent-color:var(--brand);cursor:pointer;">
             </td>
-            <td><input type="text" class="lead-notes-input form-control" value="${escapeHtml(l.notes || "")}" placeholder="Catatan..." onchange="onLeadNotes('${l.id}', this.value)"></td>
+            <td><input type="text" class="lead-notes-input form-control" value="${escapeHtml(l.notes || "")}" placeholder="Notes..." onchange="onLeadNotes('${l.id}', this.value)"></td>
             <td style="color:var(--muted);font-size:12px;">${escapeHtml(l.lastContact || "-")}</td>
-            <td><button class="lead-del" onclick="onLeadDelete('${l.id}')" title="Hapus">${icon("trash")}</button></td>
+            <td><button class="lead-del" onclick="onLeadDelete('${l.id}')" title="Delete">${icon("trash")}</button></td>
           </tr>`;
       }).join("");
     }
@@ -10198,7 +10198,7 @@
       const status = document.getElementById("leadStatus").value;
       const following = document.getElementById("leadFollowing").checked;
       const msg = document.getElementById("leadAddMsg");
-      if (!username) { msg.className = "msg err"; msg.textContent = "Username kosong."; return; }
+      if (!username) { msg.className = "msg err"; msg.textContent = "Username is empty."; return; }
       const btn = document.getElementById("addLeadBtn");
       btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
       try {
@@ -10206,7 +10206,7 @@
         if (r.status === "success" && r.lead) {
           LEADS.unshift(r.lead);
           usernameEl.value = ""; document.getElementById("leadFollowing").checked = false;
-          msg.className = "msg ok"; msg.textContent = "Ditambahkan ✓";
+          msg.className = "msg ok"; msg.textContent = "Added ✓";
           renderStats(); renderLeads();
         } else {
           handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed.";
@@ -10236,7 +10236,7 @@
       try { const r = await api("updateLead", { token: getToken(), id, notes }); if (r.status !== "success") handleAuthError(r); } catch (e) { }
     }
     async function onLeadDelete(id) {
-      if (!confirm("Hapus prospek ini dari pelacakan?")) return;
+      if (!confirm("Delete this prospect from tracking?")) return;
       LEADS = LEADS.filter(x => String(x.id) !== String(id));
       renderStats(); renderLeads();
       try { const r = await api("deleteLead", { token: getToken(), id }); if (r.status !== "success") handleAuthError(r); } catch (e) { }
@@ -10283,7 +10283,7 @@
       return new Promise((resolve, reject) => {
         const r = new FileReader();
         r.onload = () => resolve(r.result);
-        r.onerror = () => reject(new Error("Gagal baca file " + file.name));
+        r.onerror = () => reject(new Error("Failed to read file " + file.name));
         r.readAsText(file);
       });
     }
@@ -10292,9 +10292,9 @@
       const msg = document.getElementById("igMsg");
       const resultEl = document.getElementById("igResult");
       const files = Array.from(document.getElementById("igFiles").files || []);
-      if (!files.length) { msg.className = "msg err"; msg.textContent = "Pilih file JSON dulu (following.json & SEMUA followers_*.json)."; return; }
+      if (!files.length) { msg.className = "msg err"; msg.textContent = "Select the JSON files first (following.json & ALL followers_*.json)."; return; }
 
-      msg.className = "msg"; msg.textContent = "Memproses..."; resultEl.innerHTML = "";
+      msg.className = "msg"; msg.textContent = "Processing..."; resultEl.innerHTML = "";
       const following = new Set();
       const followers = new Set();
       let parsedFollowing = false, followerFileCount = 0;
@@ -10304,7 +10304,7 @@
           const name = f.name.toLowerCase();
           let json;
           try { json = JSON.parse(await readFileText(f)); }
-          catch (e) { msg.className = "msg err"; msg.textContent = "File " + f.name + " bukan JSON valid. Pastikan pilih format JSON, bukan HTML."; return; }
+          catch (e) { msg.className = "msg err"; msg.textContent = "File " + f.name + " isn't valid JSON. Make sure you selected the JSON format, not HTML."; return; }
 
           // Klasifikasi berdasar nama file, fallback ke isi
           const isFollowing = name.includes("following") ||
@@ -10314,16 +10314,16 @@
         }
 
         if (!parsedFollowing || !following.size) {
-          msg.className = "msg err"; msg.textContent = "File 'following.json' nggak kebaca. Pastikan kamu ikut pilih file itu.";
+          msg.className = "msg err"; msg.textContent = "Couldn't read 'following.json'. Make sure you included that file.";
           return;
         }
         if (!followerFileCount || !followers.size) {
-          msg.className = "msg err"; msg.textContent = "File followers (followers_1.json, dst) nggak kebaca. Pastikan kamu ikut pilih SEMUANYA.";
+          msg.className = "msg err"; msg.textContent = "Couldn't read the followers file(s) (followers_1.json, etc.). Make sure you selected ALL of them.";
           return;
         }
 
         const notBack = [...following].filter(u => !followers.has(u)).sort();
-        msg.className = "msg ok"; msg.textContent = "Selesai dianalisa ✓";
+        msg.className = "msg ok"; msg.textContent = "Analysis done ✓";
         renderIgResult(following.size, followers.size, notBack, followerFileCount);
       } catch (e) {
         msg.className = "msg err"; msg.textContent = e.message || "Failed to process file.";
@@ -10336,9 +10336,9 @@
       // follower lama bisa hilang & bikin daftar "nggak follow balik" terlalu banyak.
       const warnHtml = (followerFileCount <= 1)
         ? `<div style="background:#fff5f5;border:1px solid #fecaca;color:#b91c1c;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-bottom:12px;">
-             ${icon("warning")} Kamu cuma pilih <b>1 file followers</b>. Kalau akunmu punya banyak follower, Instagram memecahnya jadi
-             <code>followers_1.json</code>, <code>followers_2.json</code>, dst. Follower lama yang nggak ikut ke-upload
-             bakal salah dianggap "nggak follow balik". Pastikan pilih <b>semua</b> file followers ya.
+             ${icon("warning")} You only selected <b>1 followers file</b>. If your account has a lot of followers, Instagram splits it into
+             <code>followers_1.json</code>, <code>followers_2.json</code>, etc. Older followers that weren't uploaded
+             will be wrongly flagged as "not following back". Make sure to select <b>all</b> followers files.
            </div>`
         : "";
       const listHtml = notBack.length
@@ -10347,17 +10347,17 @@
                <a href="https://instagram.com/${encodeURIComponent(u)}" target="_blank" rel="noopener">@${escapeHtml(u)} ↗</a>
                <button class="ig-add" onclick="igAddToLeads('${escapeHtml(u)}', this)">+ Leads</button>
              </div>`).join("")}</div>`
-        : `<p class="hint" style="margin-top:10px;">Mantap! Semua yang kamu follow, follow kamu balik 🎉</p>`;
+        : `<p class="hint" style="margin-top:10px;">Nice! Everyone you follow follows you back 🎉</p>`;
 
       el.innerHTML = `
         ${warnHtml}
         <div class="ig-summary">
-          <div class="ig-sum-card"><div class="ig-sum-num">${followingCount}</div><div class="ig-sum-lbl">Kamu Follow</div></div>
+          <div class="ig-sum-card"><div class="ig-sum-num">${followingCount}</div><div class="ig-sum-lbl">You Follow</div></div>
           <div class="ig-sum-card"><div class="ig-sum-num">${followersCount}</div><div class="ig-sum-lbl">Followers</div></div>
-          <div class="ig-sum-card warn"><div class="ig-sum-num">${notBack.length}</div><div class="ig-sum-lbl">Nggak Follow Balik</div></div>
+          <div class="ig-sum-card warn"><div class="ig-sum-num">${notBack.length}</div><div class="ig-sum-lbl">Not Following Back</div></div>
         </div>
         ${notBack.length ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-          <button class="btn btn-sm btn-ghost" onclick="igCopyAll()">${icon("clipboard")} Salin semua username</button>
+          <button class="btn btn-sm btn-ghost" onclick="igCopyAll()">${icon("clipboard")} Copy all usernames</button>
         </div>` : ""}
         ${listHtml}`;
       window._igNotBack = notBack;
@@ -10366,8 +10366,8 @@
     function igCopyAll() {
       const list = (window._igNotBack || []).map(u => "@" + u).join("\n");
       navigator.clipboard.writeText(list).then(
-        () => alert("Tersalin " + (window._igNotBack || []).length + " username ke clipboard."),
-        () => alert("Gagal menyalin.")
+        () => alert("Copied " + (window._igNotBack || []).length + " usernames to clipboard."),
+        () => alert("Failed to copy.")
       );
     }
 
@@ -10378,12 +10378,12 @@
         const r = await api("addLead", {
           token: getToken(), platform: "Instagram", username,
           status: "new", following: true,
-          notes: "Nggak follow balik (import IG)"
+          notes: "Not following back (IG import)"
         });
         if (r.status === "success" && r.lead) {
           LEADS.unshift(r.lead);
           renderStats();
-          btn.textContent = "✓ Ditambah"; btn.classList.add("added");
+          btn.textContent = "✓ Added"; btn.classList.add("added");
         } else {
           handleAuthError(r); btn.disabled = false; btn.textContent = "+ Leads"; alert(r.message || "Failed.");
         }
