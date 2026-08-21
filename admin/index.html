@@ -496,10 +496,6 @@
       .wrap {
         padding: 32px 40px;
       }
-
-      .per-tx-day-head {
-        top: 0;
-      }
     }
 
     /* --- Overview --- */
@@ -1569,6 +1565,9 @@
       border-bottom: 1px solid var(--line);
       background: #f8fafc;
       border-radius: 16px 16px 0 0;
+      position: sticky;
+      top: var(--mobile-header-h, 52px);
+      z-index: 6;
     }
 
     .subtab-btn {
@@ -2316,7 +2315,7 @@
       color: #6b7280;
       margin: 16px 0 6px;
       position: sticky;
-      top: var(--mobile-header-h, 52px);
+      top: calc(var(--mobile-header-h, 52px) + var(--subtab-bar-h, 52px));
       z-index: 5;
       background: var(--bg);
       padding: 6px 0;
@@ -5119,6 +5118,7 @@
       function show(id) {
         btns.forEach((b) => b.classList.toggle("active", b.dataset.tab === id));
         panels.forEach((p) => p.classList.toggle("active", p.dataset.tab === id));
+        applySubtabBarHeightVar();
         const isFirst = !shown[id];
         shown[id] = true;
         if (onShow) onShow(id, isFirst);
@@ -5283,6 +5283,23 @@
     }
     applyMobileHeaderHeightVar();
     window.addEventListener("resize", applyMobileHeaderHeightVar);
+
+    // Tinggi .subtab-bar yang lagi KELIHATAN (view lain semua display:none,
+    // jadi offsetHeight-nya 0 -- otomatis kepilih yang bener) -- dipakai biar
+    // konten sticky di bawahnya (mis. header tanggal per grup di tab Transaksi
+    // Personal Finance) nempel di bawah subtab-bar, bukan ketutup olehnya.
+    // Dipanggil ulang tiap ganti view & tiap ganti subtab, krn subtab-bar-nya
+    // beda-beda per view (Member Hub, Prep, Personal, dst).
+    function applySubtabBarHeightVar() {
+      const bars = document.querySelectorAll(".subtab-bar");
+      for (const bar of bars) {
+        if (bar.offsetHeight > 0) {
+          document.documentElement.style.setProperty("--subtab-bar-h", bar.offsetHeight + "px");
+          return;
+        }
+      }
+    }
+    window.addEventListener("resize", applySubtabBarHeightVar);
 
     // ---------- DASHBOARD ----------
     function workshopName(id) {
@@ -5716,6 +5733,7 @@
       document.getElementById("viewMembers").style.display = (view === "members") ? "block" : "none";
       document.getElementById("viewPesanan").style.display = (view === "pesanan") ? "block" : "none";
       document.getElementById("viewPersonal").style.display = (view === "personal") ? "block" : "none";
+      applySubtabBarHeightVar();
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") ensureFinanceLoaded();
@@ -5727,7 +5745,7 @@
       if (view === "activity") ensureActivity();
       if (view === "members") ensureMembers();
       if (view === "pesanan") ensurePesanan(event);
-      if (view === "personal") ensurePersonal();
+      if (view === "personal") { ensurePersonal(); if (event && perTabsCtl) perTabsCtl.show(event); }
     }
 
     // ---------- KEUANGAN ----------
@@ -8542,6 +8560,11 @@
         newContribForm();
         perTabsCtl = wireSubtabs(document.getElementById("perSubtabs"), (tabId, isFirstShow) => {
           if (tabId === "impor" && isFirstShow) loadAiUsageToday();
+          // Simpen subtab yang lagi aktif di URL (replaceState, bukan hashchange
+          // biasa -- ga numpuk history & ga mancing applyHash() muter lagi),
+          // biar refresh di tab Transaksi tetep balik ke Transaksi, bukan reset
+          // ke Ringkasan.
+          history.replaceState(null, "", "#personal:" + tabId);
         });
         newTxForm();
         newCatForm();
