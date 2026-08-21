@@ -4379,6 +4379,7 @@
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
                 <label style="font-weight:700;font-size:13.5px;margin:0;" for="perPeriod">Periode</label>
                 <input class="form-control" type="month" id="perPeriod" style="max-width:170px;">
+                <span class="hint" id="perPeriodHint" style="margin:0;"></span>
               </div>
 
               <div class="per-hero-grid">
@@ -4433,6 +4434,7 @@
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
                 <label style="font-weight:700;font-size:13.5px;margin:0;" for="anaPeriod">Periode</label>
                 <input class="form-control" type="month" id="anaPeriod" style="max-width:170px;">
+                <span class="hint" id="anaPeriodHint" style="margin:0;"></span>
               </div>
               <div class="per-grid-2">
                 <div class="fin-card">
@@ -4509,6 +4511,7 @@
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
                 <label style="font-weight:700;font-size:13.5px;margin:0;" for="budPeriod">Periode</label>
                 <input class="form-control" type="month" id="budPeriod" style="max-width:170px;">
+                <span class="hint" id="budPeriodHint" style="margin:0;"></span>
                 <button class="btn btn-sm btn-ghost" id="budCopyBtn">Salin dari bulan lalu</button>
               </div>
               <div class="fin-card">
@@ -8206,6 +8209,34 @@
       return PER_MONTH_NAMES[mIdx] + " " + parts[0];
     }
 
+    // Periode keuangan pribadi Arnold ngikutin siklus gajian (tanggal 25),
+    // BUKAN kalender bulan biasa -- periode "Agustus 2026" (id "2026-08")
+    // artinya 25 Agustus s/d 24 September 2026. Dipakai di tab Ringkasan,
+    // Analisis, & Budget -- id periode ("YYYY-MM") tetep dipakai sebagai kunci
+    // penyimpanan budget (nggak berubah), cuma ARTI rentang tanggalnya yang beda.
+    const PER_PAYDAY = 25;
+    function currentPayPeriod() {
+      const d = new Date(todayStr() + "T00:00:00");
+      const base = new Date(d.getFullYear(), d.getMonth() - (d.getDate() < PER_PAYDAY ? 1 : 0), 1);
+      return base.getFullYear() + "-" + String(base.getMonth() + 1).padStart(2, "0");
+    }
+    function payPeriodRange(ym) {
+      const parts = String(ym || "").split("-").map(Number);
+      const y = parts[0], m = (parts[1] || 1) - 1;
+      const iso = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      return { from: iso(new Date(y, m, PER_PAYDAY)), to: iso(new Date(y, m + 1, PER_PAYDAY - 1)) };
+    }
+    function inPayPeriod(dateStr, ym) {
+      if (!dateStr) return false;
+      const { from, to } = payPeriodRange(ym);
+      return dateStr >= from && dateStr <= to;
+    }
+    function fmtPeriodRangeHint(ym) {
+      const { from, to } = payPeriodRange(ym);
+      const short = (iso) => { const p = iso.split("-").map(Number); return p[2] + " " + PER_MONTH_NAMES[p[1] - 1].slice(0, 3); };
+      return short(from) + " – " + short(to) + " " + to.split("-")[0];
+    }
+
     const PER_ICON_CHOICES = ["cash", "wallet", "piggy", "cart", "cup", "geo", "receipt", "stars", "heart", "gift", "star", "tag", "plus", "swap", "archive"];
     const PER_ICON_LABELS = {
       cash: "Uang", wallet: "Dompet", piggy: "Tabungan", cart: "Belanja", cup: "Makan/Minum",
@@ -8347,23 +8378,23 @@
         wireRibuanInput(document.getElementById("accInitial"));
         wireRibuanInput(document.getElementById("goalTarget"));
         wireRibuanInput(document.getElementById("contribAmount"));
-        perPeriod = todayStr().slice(0, 7);
+        perPeriod = currentPayPeriod();
         document.getElementById("perPeriod").value = perPeriod;
         document.getElementById("perPeriod").addEventListener("change", (e) => {
-          perPeriod = e.target.value || todayStr().slice(0, 7);
+          perPeriod = e.target.value || currentPayPeriod();
           renderPersonalHero();
         });
-        anaPeriod = todayStr().slice(0, 7);
+        anaPeriod = currentPayPeriod();
         document.getElementById("anaPeriod").value = anaPeriod;
         document.getElementById("anaPeriod").addEventListener("change", (e) => {
-          anaPeriod = e.target.value || todayStr().slice(0, 7);
+          anaPeriod = e.target.value || currentPayPeriod();
           renderAnalisis();
         });
         document.getElementById("perViewAllBtn").addEventListener("click", () => { if (perTabsCtl) perTabsCtl.show("transaksi"); });
-        budPeriod = todayStr().slice(0, 7);
+        budPeriod = currentPayPeriod();
         document.getElementById("budPeriod").value = budPeriod;
         document.getElementById("budPeriod").addEventListener("change", (e) => {
-          budPeriod = e.target.value || todayStr().slice(0, 7);
+          budPeriod = e.target.value || currentPayPeriod();
           renderBudget();
         });
         document.getElementById("budCopyBtn").addEventListener("click", copyBudgetsFromPrevMonth);
@@ -8507,11 +8538,11 @@
       document.getElementById("perAllIncome").textContent = rupiah(allIncome);
       document.getElementById("perAllExpense").textContent = rupiah(allExpense);
 
-      const ym = perPeriod || todayStr().slice(0, 7);
+      const ym = perPeriod || currentPayPeriod();
       const periodLabel = fmtPeriodLabel(ym);
       let periodIncome = 0, periodExpense = 0;
       PER_TRANSACTIONS.forEach(t => {
-        if (!t.date || t.date.slice(0, 7) !== ym) return;
+        if (!inPayPeriod(t.date, ym)) return;
         if (t.type === "income") periodIncome += Number(t.amount) || 0;
         else if (t.type === "expense") periodExpense += Number(t.amount) || 0;
       });
@@ -8519,6 +8550,8 @@
       document.getElementById("perMonthExpenseLabel").textContent = "Pengeluaran — " + periodLabel;
       document.getElementById("perMonthIncome").textContent = rupiah(periodIncome);
       document.getElementById("perMonthExpense").textContent = rupiah(periodExpense);
+      const perHint = document.getElementById("perPeriodHint");
+      if (perHint) perHint.textContent = fmtPeriodRangeHint(ym);
 
       const recent = document.getElementById("perRecentList");
       if (!PER_TRANSACTIONS.length) recent.innerHTML = '<p class="hint" style="margin:0;">Belum ada transaksi.</p>';
@@ -8528,15 +8561,16 @@
     function renderCashflow() {
       const wrap = document.getElementById("perCashflow");
       const months = [];
-      const base = new Date();
+      const cur = currentPayPeriod();
+      const [cy, cm] = cur.split("-").map(Number);
       for (let i = 5; i >= 0; i--) {
-        const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
+        const d = new Date(cy, cm - 1 - i, 1);
         months.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
       }
       const nets = months.map(ym => {
         let inc = 0, exp = 0;
         PER_TRANSACTIONS.forEach(t => {
-          if (!t.date || t.date.slice(0, 7) !== ym) return;
+          if (!inPayPeriod(t.date, ym)) return;
           if (t.type === "income") inc += Number(t.amount) || 0;
           else if (t.type === "expense") exp += Number(t.amount) || 0;
         });
@@ -8560,14 +8594,16 @@
     const PER_CHART_COLORS = ["#5e72e4", "#2dce89", "#fb6340", "#11cdef", "#f5365c", "#ffd600", "#8965e0", "#f3a4b5", "#2dcecc", "#adb5bd"];
 
     function renderAnalisis() {
-      const ym = anaPeriod || todayStr().slice(0, 7);
+      const ym = anaPeriod || currentPayPeriod();
       const periodLabel = fmtPeriodLabel(ym);
       document.getElementById("anaChartHint").textContent = "Ke mana uang kamu pergi di " + periodLabel + ".";
+      const anaHint = document.getElementById("anaPeriodHint");
+      if (anaHint) anaHint.textContent = fmtPeriodRangeHint(ym);
 
       const catTotals = {};
       let total = 0;
       PER_TRANSACTIONS.forEach(t => {
-        if (t.type !== "expense" || !t.date || t.date.slice(0, 7) !== ym) return;
+        if (t.type !== "expense" || !inPayPeriod(t.date, ym)) return;
         const amt = Number(t.amount) || 0;
         const key = t.category_id || "__none__";
         catTotals[key] = (catTotals[key] || 0) + amt;
@@ -8614,11 +8650,13 @@
     }
 
     function renderBudget() {
-      const period = budPeriod || todayStr().slice(0, 7);
+      const period = budPeriod || currentPayPeriod();
+      const budHint = document.getElementById("budPeriodHint");
+      if (budHint) budHint.textContent = fmtPeriodRangeHint(period);
       const cats = PER_CATEGORIES.filter(c => c.type === "expense" && !c.archived);
       const spentByCategory = {};
       PER_TRANSACTIONS.forEach(t => {
-        if (t.type !== "expense" || !t.date || t.date.slice(0, 7) !== period) return;
+        if (t.type !== "expense" || !inPayPeriod(t.date, period)) return;
         const key = t.category_id || "__none__";
         spentByCategory[key] = (spentByCategory[key] || 0) + (Number(t.amount) || 0);
       });
@@ -8669,7 +8707,7 @@
     }
 
     async function saveBudgetRow(categoryId, rawValue) {
-      const period = budPeriod || todayStr().slice(0, 7);
+      const period = budPeriod || currentPayPeriod();
       const msg = document.getElementById("budMsg");
       const amount = parseRibuan(rawValue);
       const existing = perBudgetFor(categoryId, period);
@@ -8689,7 +8727,7 @@
     }
 
     async function copyBudgetsFromPrevMonth() {
-      const period = budPeriod || todayStr().slice(0, 7);
+      const period = budPeriod || currentPayPeriod();
       const msg = document.getElementById("budMsg");
       msg.className = "msg"; msg.textContent = "Menyalin...";
       const r = await personalApi("copyBudgetsFromPreviousMonth", { token: getToken(), period });
