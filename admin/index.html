@@ -5705,7 +5705,7 @@
         wireRegActions(cardsEl);
         filterReg(); // terapkan pencarian yang aktif (kalau ada)
       } catch (e) {
-        body.innerHTML = `<tr><td style="padding:24px;color:#dc2626;">Gagal memuat data.</td></tr>`;
+        body.innerHTML = `<tr><td style="padding:24px;color:#dc2626;">Failed to load data.</td></tr>`;
       }
     }
 
@@ -6121,7 +6121,7 @@
       if (imageBase64) {
         const up = await api("uploadImage", { token: getToken(), bucket: "cost-item-photos", imageBase64, prefix: name || "item" });
         if (up && up.status === "success") imageUrl = up.url;
-        else { handleAuthError(up); msg.className = "msg err"; msg.textContent = (up && up.message) || "Gagal upload foto."; return; }
+        else { handleAuthError(up); msg.className = "msg err"; msg.textContent = (up && up.message) || "Failed to upload photo."; return; }
       }
       const r = await api("saveCostItem", {
         token: getToken(), id: document.getElementById("ciId").value, name,
@@ -6172,7 +6172,7 @@
     function renderInvStockList() {
       const box = document.getElementById("invStockList");
       if (!box) return;
-      if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">Belum ada item di Database Item.</p>'; return; }
+      if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">No items in the Item Database yet.</p>'; return; }
       const filtered = invStockSearchQuery ? COST_ITEMS.filter(it => it.name.toLowerCase().includes(invStockSearchQuery)) : COST_ITEMS;
       if (!filtered.length) { box.innerHTML = '<p class="hint">Nggak ada item yang cocok sama pencarian ini.</p>'; return; }
       box.innerHTML = filtered.map(it => {
@@ -6195,7 +6195,7 @@
       if (!box) return;
       let filtered = INVENTORY_TX;
       if (invFilterItemId) filtered = filtered.filter(t => t.item_id === invFilterItemId);
-      if (!filtered.length) { box.innerHTML = '<p class="hint">Belum ada transaksi stok.</p>'; return; }
+      if (!filtered.length) { box.innerHTML = '<p class="hint">No stock transactions yet.</p>'; return; }
 
       // Dikelompokin per item (bukan list rata) -- nama item diulang-ulang tiap
       // baris bikin susah discan begitu riwayatnya panjang. Data udah urut desc
@@ -6747,7 +6747,7 @@
     function renderIncomeBreakdown() {
       const box = document.getElementById("ovIncomeBreakdown");
       if (!box) return;
-      if (!REVENUE_BREAKDOWN.length) { box.innerHTML = `<p style="color:rgba(255,255,255,.75);font-size:12.5px;margin:0;">Belum ada batch.</p>`; return; }
+      if (!REVENUE_BREAKDOWN.length) { box.innerHTML = `<p style="color:rgba(255,255,255,.75);font-size:12.5px;margin:0;">No batches yet.</p>`; return; }
       box.innerHTML = REVENUE_BREAKDOWN.map(b => {
         let status = "";
         if (b.isOpen) status = " · masih buka";
@@ -6779,7 +6779,7 @@
       // Beda dari revenue di atas: batch yg buka bareng (mis. Vol 6 & Vol 7)
       // kelihatan sebagai 2 card terpisah dengan data masing-masing.
       const box = document.getElementById("ovCards");
-      if (!OPEN_BATCHES.length) { box.innerHTML = `<p class="hint">Belum ada workshop yang sedang buka pendaftaran.</p>`; return; }
+      if (!OPEN_BATCHES.length) { box.innerHTML = `<p class="hint">No workshops currently open for registration.</p>`; return; }
       box.innerHTML = OPEN_BATCHES.map(b => {
         const pct = b.maxQuota ? Math.min(100, Math.round(b.count / b.maxQuota * 100)) : 0;
         const badge = countdownBadge(b.eventDateIso ? isoToIdDate(b.eventDateIso) : "");
@@ -6961,7 +6961,7 @@
         // muncul di daftar batch event tujuan).
         await loadCfgBatches();
       } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal memindahkan.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to move.";
       }
     }
 
@@ -7144,7 +7144,7 @@
           await loadConfig();
         } else {
           handleAuthError(r);
-          msg.className = "msg err"; msg.textContent = r.message || "Gagal menghapus.";
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to delete.";
         }
       } catch (e) {
         msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
@@ -7268,7 +7268,7 @@
         KONTEN = (r.items && r.items.length) ? r.items : JSON.parse(JSON.stringify(KONTEN_SCHEMA[type].seed()));
         renderKonten();
       } catch (e) {
-        listEl.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat.</p>`;
+        listEl.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
       }
     }
 
@@ -7496,7 +7496,7 @@
           if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
           loadSuggestions();
         }));
-      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Failed to load.</p>'; }
     }
 
     // ---- Barter Warga (moderasi: tandai selesai / tolak) ----
@@ -7508,7 +7508,7 @@
         if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
         const items = r.items || [];
         document.getElementById("btCount").textContent = items.length;
-        if (!items.length) { el.innerHTML = '<p class="hint">' + icon("swap") + ' Belum ada yang post barter</p>'; return; }
+        if (!items.length) { el.innerHTML = '<p class="hint">' + icon("swap") + ' No barter posts yet</p>'; return; }
         el.innerHTML = items.map(it => `<div class="loy-card"><div class="loy-top">
           <img src="${escapeHtml(it.photo)}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex:0 0 auto;">
           <div style="min-width:0;flex:1;">
@@ -7533,7 +7533,7 @@
           if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
           loadBarterAdmin();
         }));
-      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Failed to load.</p>'; }
     }
 
     // sub boleh HTML (potongan data di-escape satu-satu pas nyusun)
@@ -7961,7 +7961,7 @@
         const dataUrl = await qCompress(f, 1400, 0.8);
         _epBase64 = dataUrl.split(",")[1];
         document.getElementById("epPreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:320px;border-radius:12px;">';
-      } catch (err) { alert("Gagal baca gambar" + (err && err.message ? " (" + err.message + ")" : "") + ". Coba format JPG/PNG ya."); }
+      } catch (err) { alert("Failed to read image" + (err && err.message ? " (" + err.message + ")" : "") + ". Try JPG/PNG format."); }
     }
 
     async function addEventPhoto() {
@@ -8017,7 +8017,7 @@
         const top = (r.leaderboard && r.leaderboard.top) || [];
         const lbCnt = document.getElementById("adminLbCount");
         if (lbCnt) lbCnt.textContent = "(" + top.length + ")";
-        if (!top.length) { el.innerHTML = '<p class="hint">Belum ada yang ngumpulin poin challenge.</p>'; return; }
+        if (!top.length) { el.innerHTML = '<p class="hint">No one has earned challenge points yet.</p>'; return; }
         el.innerHTML = top.map(x =>
           `<div class="loy-card"><div class="loy-top">
              <div><div class="loy-name">#${x.rank} ${escapeHtml(x.nickname)}</div>
@@ -8025,7 +8025,7 @@
              <div class="loy-count">${x.poin} poin</div>
            </div></div>`
         ).join("");
-      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Failed to load.</p>'; }
     }
 
     // HEIC (foto iPhone) nggak bisa didecode browser -> konversi dulu ke JPEG
@@ -8101,7 +8101,7 @@
         document.getElementById("qPoints").value = r.idea.points || 10;
         msg.className = "msg ok"; msg.textContent = "New idea filled in ✓ (double-check it, and find your own example image)";
       } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal generate ide.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to generate idea.";
       }
     }
 
@@ -8113,14 +8113,14 @@
         if (r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
         CHALLENGES = r.challenges || [];
         renderQuestList();
-      } catch (e) { list.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+      } catch (e) { list.innerHTML = '<p class="hint" style="color:var(--err)">Failed to load.</p>'; }
     }
 
     function renderQuestList() {
       const list = document.getElementById("questList");
       const cnt = document.getElementById("questCount");
       if (cnt) cnt.textContent = "(" + CHALLENGES.length + ")";
-      if (!CHALLENGES.length) { list.innerHTML = '<p class="hint">Belum ada challenge. Klik "Challenge Baru".</p>'; return; }
+      if (!CHALLENGES.length) { list.innerHTML = '<p class="hint">No challenges yet. Click "New Challenge".</p>'; return; }
       list.innerHTML = CHALLENGES.map((c, i) =>
         `<div class="konten-item" style="cursor:pointer;" data-idx="${i}">
            <div class="konten-item-head">
@@ -8285,7 +8285,7 @@
         const orig = btn.innerHTML;
         btn.innerHTML = icon("check") + " Tersalin!";
         setTimeout(() => { btn.innerHTML = orig; }, 1800);
-      }).catch(() => alert("Gagal salin otomatis, salin manual ya:\n\n" + text));
+      }).catch(() => alert("Failed to auto-copy, copy manually:\n\n" + text));
     }
     // Varian buat tombol di dalam list (id-nya berulang/nggak unik) -- ambil
     // elemen tombolnya langsung, bukan lookup by id kayak copyToClipboard di atas.
@@ -8295,7 +8295,7 @@
         const orig = btn.innerHTML;
         btn.innerHTML = icon("check") + " Disalin!";
         setTimeout(() => { btn.innerHTML = orig; }, 1500);
-      }).catch(() => alert("Gagal salin otomatis, salin manual ya:\n\n" + text));
+      }).catch(() => alert("Failed to auto-copy, copy manually:\n\n" + text));
     }
 
     async function loadPesVendorWa() {
@@ -8402,7 +8402,7 @@
       const cnt = document.getElementById("pesRegCount");
       if (cnt) cnt.textContent = "(" + PES_REGISTRANTS.length + ")";
       if (!list) return;
-      if (!PES_REGISTRANTS.length) { list.innerHTML = '<p class="hint">Belum ada yang daftar di batch ini.</p>'; return; }
+      if (!PES_REGISTRANTS.length) { list.innerHTML = '<p class="hint">No one has registered for this batch yet.</p>'; return; }
       const filtered = PES_REGISTRANTS.filter(reg => {
         if (!pesRegFilterValue) return true;
         const existing = findPesOrderForReg(reg);
@@ -8623,7 +8623,7 @@
       const list = document.getElementById("pesOrderList");
       const cnt = document.getElementById("pesOrderCount");
       if (cnt) cnt.textContent = "(" + PES_ORDERS.length + ")";
-      if (!PES_ORDERS.length) { list.innerHTML = '<p class="hint">Belum ada pesanan masuk buat event ini.</p>'; return; }
+      if (!PES_ORDERS.length) { list.innerHTML = '<p class="hint">No orders in yet for this event.</p>'; return; }
       const filtered = pesOrderFilterMenuId ? PES_ORDERS.filter(o => o.menuItemId === pesOrderFilterMenuId) : PES_ORDERS;
       if (!filtered.length) { list.innerHTML = '<p class="hint">Nggak ada pesanan buat menu ini.</p>'; return; }
       list.innerHTML = filtered.map(o =>
@@ -9135,7 +9135,7 @@
       if (perHint) perHint.textContent = fmtPeriodRangeHint(ym);
 
       const recent = document.getElementById("perRecentList");
-      if (!PER_TRANSACTIONS.length) recent.innerHTML = '<p class="hint" style="margin:0;">Belum ada transaksi.</p>';
+      if (!PER_TRANSACTIONS.length) recent.innerHTML = '<p class="hint" style="margin:0;">No transactions yet.</p>';
       else recent.innerHTML = PER_TRANSACTIONS.slice(0, 6).map(t => perActivityRowHtml(t)).join("");
     }
 
@@ -9199,7 +9199,7 @@
       const donutWrap = document.getElementById("anaDonutWrap");
       const catList = document.getElementById("anaCatList");
       if (!rows.length) {
-        donutWrap.innerHTML = '<div class="per-donut" style="background:#eef0f4;"><div class="per-donut-hole"><span>Belum ada</span><b>pengeluaran</b></div></div>';
+        donutWrap.innerHTML = '<div class="per-donut" style="background:#eef0f4;"><div class="per-donut-hole"><span>No</span><b>expenses yet</b></div></div>';
         catList.innerHTML = '<p class="hint" style="margin:0;">Catat atau import transaksi untuk melihat analisis kategori.</p>';
         return;
       }
@@ -9413,7 +9413,7 @@
 
     function renderContributions() {
       const list = document.getElementById("contribList");
-      if (!PER_CONTRIBUTIONS.length) { list.innerHTML = '<p class="hint">Belum ada setoran tercatat.</p>'; return; }
+      if (!PER_CONTRIBUTIONS.length) { list.innerHTML = '<p class="hint">No deposits logged yet.</p>'; return; }
       list.innerHTML = PER_CONTRIBUTIONS.slice(0, 15).map(c => {
         const goalName = (PER_GOALS.find(g => g.id === c.goal_id) || {}).name || "?";
         const isNeg = Number(c.amount) < 0;
@@ -10701,7 +10701,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const info = getPrepEventInfo(event);
       const context = document.getElementById("faqContext").value.trim();
       const knownFacts = buildPrepKnownFacts(info);
-      if (!context && !knownFacts) { msg.className = "msg err"; msg.textContent = "Belum ada info apapun buat event ini -- isi Konteks Acara atau lengkapin data event di Config dulu ya."; return; }
+      if (!context && !knownFacts) { msg.className = "msg err"; msg.textContent = "No info available for this event yet -- fill in the Event Context or complete the event data in Config first."; return; }
       btn.disabled = true;
       msg.className = "msg"; msg.textContent = "Nulis FAQ...";
       const r = await api("generateFaqBlock", { token: getToken(), context, knownFacts, workshopName: info.name });
@@ -10712,7 +10712,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         document.getElementById("faqCopyBlockBtn").style.display = "inline-flex";
         msg.className = "msg ok"; msg.textContent = "FAQ ready ✓ (double-check before sharing)";
       } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal generate FAQ.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to generate FAQ.";
       }
     }
 
@@ -10735,7 +10735,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         document.getElementById("faqCopyAnswerBtn").style.display = "inline-flex";
         msg.className = "msg ok"; msg.textContent = "Answer ready ✓ (double-check it before sending)";
       } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal generate jawaban.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to generate answer.";
       }
     }
 
@@ -10763,7 +10763,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const batchId = document.getElementById("prepBatchSelect").value;
       try {
         if (!batchId) {
-          summaryEl.innerHTML = '<p class="hint">Belum ada batch buat event ini.</p>';
+          summaryEl.innerHTML = '<p class="hint">No batches for this event yet.</p>';
           if (cnt) cnt.textContent = "";
           return;
         }
@@ -10779,7 +10779,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         const menu = (menuR && menuR.items) || [];
         if (cnt) cnt.textContent = "(" + orders.length + ")";
         if (!orders.length) {
-          summaryEl.innerHTML = '<p class="hint">Belum ada pesanan masuk buat batch ini.</p>';
+          summaryEl.innerHTML = '<p class="hint">No orders in yet for this batch.</p>';
           return;
         }
         const byMenu = {};
@@ -10827,7 +10827,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
             note.textContent = `${taken}/${total} diambil`;
           }
         }));
-      } catch (e) { summaryEl.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat.</p>'; }
+      } catch (e) { summaryEl.innerHTML = '<p class="hint" style="color:var(--err)">Failed to load.</p>'; }
     }
 
     function buildRichNoteTab() {
@@ -10997,7 +10997,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         localStorage.setItem(WA_MSG_KEY, r.message);
         msg.className = "msg ok"; msg.textContent = "New draft filled in ✓ (double-check before sending, still editable manually)";
       } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal generate pesan.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to generate message.";
       }
     }
 
@@ -11177,7 +11177,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         body.onclick = handlePesertaClick;
         if (cardsEl) cardsEl.onclick = handlePesertaClick;
       } catch (e) {
-        body.innerHTML = `<tr><td style="padding:16px;color:#dc2626;">Gagal memuat.</td></tr>`;
+        body.innerHTML = `<tr><td style="padding:16px;color:#dc2626;">Failed to load.</td></tr>`;
       }
     }
 
@@ -11208,7 +11208,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       try {
         const r = await api("setAttendance", { token: getToken(), registrationId, hadir });
         if (r.status !== "success") {
-          handleAuthError(r); alert(r.message || "Gagal simpan kehadiran.");
+          handleAuthError(r); alert(r.message || "Failed to save attendance.");
           if (el) { el.checked = !hadir; syncPesertaCheckbox("att-check", registrationId, !hadir); }
         } else {
           const checks = document.querySelectorAll("#pesertaBody .att-check");
@@ -11359,7 +11359,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       btn.disabled = true; btn.textContent = "Memuat…";
       try {
         const r = await api("getSignedUrl", { token: getToken(), path: btn.dataset.privpath });
-        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal buka bukti bayar."); return; }
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to open payment proof."); return; }
         openLightbox(r.url, "");
       } catch (err) {
         alert("Failed to connect to the server.");
@@ -11399,7 +11399,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         LOYALTY = r.members || [];
         renderLoyalty();
       } catch (e) {
-        list.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat.</p>`;
+        list.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
       }
     }
 
@@ -11419,7 +11419,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         return (m.nickname || m.fullName || "").toLowerCase().includes(q) || String(m.wa || "").toLowerCase().includes(q);
       });
       const list = document.getElementById("loyaltyList");
-      if (!rows.length) { list.innerHTML = `<p class="hint">Belum ada data peserta.</p>`; return; }
+      if (!rows.length) { list.innerHTML = `<p class="hint">No participant data yet.</p>`; return; }
 
       list.innerHTML = rows.map(m => {
         const filled = Math.min(m.progress, LOYALTY_TARGET);
@@ -11522,7 +11522,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
         <div class="det-sec">
           <h4>${icon("journal")} Catatan</h4>
-          <div id="noteList">${notes || '<p class="hint">Belum ada catatan.</p>'}</div>
+          <div id="noteList">${notes || '<p class="hint">No notes yet.</p>'}</div>
           <div class="note-add">
             <input class="form-control" type="text" id="noteInput" placeholder="mis. Ultah 12 Mei, suka warna pastel..." />
             <button class="btn btn-sm" id="noteAddBtn">${icon("plus")} Tambah</button>
@@ -11551,7 +11551,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     async function saveNotes(m) {
       try {
         const r = await api("saveLoyaltyNotes", { token: getToken(), key: m.key, notes: m.notes });
-        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal simpan catatan."); }
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to save note."); }
       } catch (e) { alert("Failed to connect."); }
     }
     function addNote() {
@@ -11658,7 +11658,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         a.href = canvas.toDataURL("image/png");
         a.download = "passport-" + nm + ".png";
         a.click();
-      } catch (e) { alert("Gagal render gambar. Coba lagi."); }
+      } catch (e) { alert("Failed to render image. Please try again."); }
       finally {
         if (clone.parentNode) clone.parentNode.removeChild(clone);
         btn.disabled = false; btn.innerHTML = label;
@@ -11678,16 +11678,16 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (box) box.innerHTML = `<div class="skel-card">${skelLines(4)}</div>`;
       try {
         const r = await api("getAnalytics", { token: getToken() });
-        if (r.status !== "success") { handleAuthError(r); if (box) box.innerHTML = `<p class="hint">Gagal memuat analitik.</p>`; return; }
+        if (r.status !== "success") { handleAuthError(r); if (box) box.innerHTML = `<p class="hint">Failed to load analytics.</p>`; return; }
         ANALYTICS = r;
         renderAnalytics();
-      } catch (e) { if (box) box.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat analitik.</p>`; }
+      } catch (e) { if (box) box.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load analytics.</p>`; }
     }
 
     function renderAnalytics() {
       const box = document.getElementById("analytics");
       if (!box) return;
-      if (!ANALYTICS || !ANALYTICS.events || !ANALYTICS.events.length) { box.innerHTML = `<p class="hint">Belum ada data event.</p>`; return; }
+      if (!ANALYTICS || !ANALYTICS.events || !ANALYTICS.events.length) { box.innerHTML = `<p class="hint">No event data yet.</p>`; return; }
       const t = ANALYTICS.totals;
       const h = ANALYTICS.highlights;
       const byProfit = [...ANALYTICS.events].sort((a, b) => b.totalProfit - a.totalProfit);
@@ -11833,14 +11833,14 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         ? `<div class="rs-lbl">Paling Rajin Hadir</div>
            <div class="rs-val">${escapeHtml(w.topUser.name)}</div>
            <div class="rs-meta">Ikut ${w.topUser.count} event bareng!</div>`
-        : `<div class="rs-lbl">Paling Rajin</div><div class="rs-val">Belum ada data</div>`;
+        : `<div class="rs-lbl">Paling Rajin</div><div class="rs-val">No data yet</div>`;
 
       const wsMeta = w.topWorkshop.label ? (" · " + escapeHtml(w.topWorkshop.label)) : "";
       const topWsLine = w.topWorkshop.count
         ? `<div class="rs-lbl">Event Terrame</div>
            <div class="rs-val">${escapeHtml(w.topWorkshop.name)}</div>
            <div class="rs-meta">${w.topWorkshop.count} peserta${wsMeta}</div>`
-        : `<div class="rs-lbl">Event Terrame</div><div class="rs-val">Belum ada</div>`;
+        : `<div class="rs-lbl">Most Popular Event</div><div class="rs-val">No data yet</div>`;
 
       document.getElementById("recapStory").innerHTML = `
         <div class="rs-orb a"></div>
@@ -11870,7 +11870,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
               <span class="nm">${escapeHtml(m.nickname || m.fullName || "(tanpa nama)")}</span>
               <span class="ct">${m.count}×</span>
             </div>`).join("")
-        : `<div class="rs-rank"><span class="nm">Belum ada data peserta</span></div>`;
+        : `<div class="rs-rank"><span class="nm">No participant data yet</span></div>`;
 
       document.getElementById("recapStory").innerHTML = `
         <div class="rs-orb a"></div>
