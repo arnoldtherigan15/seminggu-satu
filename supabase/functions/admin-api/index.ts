@@ -132,6 +132,32 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", message: archived ? "Peserta diarsipkan." : "Arsip dibuka lagi." });
       }
 
+      // Kasus: batch dari SEBELUM sistem ini ada (dulu manual, mis. dicatat
+      // di WA/kertas doang) -- Arnold tau kira-kira berapa orang yang dateng
+      // tapi nggak punya data individu per orang. Bikin N row registrations
+      // "void" (extra.void=true, nama placeholder) biar jumlah peserta/
+      // revenue/profit-nya kehitung bener di kuota & analitik, TANPA
+      // ngarang-ngarang data pribadi orang yang sebenernya nggak pernah
+      // dicatat. Row-nya tetep hapus/arsip-able biasa lewat tombol yang
+      // sama kayak pendaftar beneran.
+      case "addVoidRegistrations": {
+        const batchId = String(data.batchId || "");
+        const count = Math.max(0, Math.min(500, Math.round(Number(data.count) || 0)));
+        if (!batchId) return errorResponse("Batch wajib dipilih.");
+        if (count <= 0) return errorResponse("Jumlah harus lebih dari 0.");
+        const { data: batch } = await admin.from("batches").select("workshop_type").eq("id", batchId).maybeSingle();
+        if (!batch) return errorResponse("Batch tidak ditemukan.");
+        const note = String(data.note || "").trim();
+        const rows = Array.from({ length: count }, (_, i) => ({
+          workshop_type: batch.workshop_type, batch_id: batchId,
+          wa: "void-" + (i + 1), full_name: note || "Data Lama (Manual)", nickname: "", consent: true,
+          extra: { void: true },
+        }));
+        const { error } = await admin.from("registrations").insert(rows);
+        if (error) return errorResponse("Gagal nambahin data manual: " + error.message);
+        return jsonResponse({ status: "success", message: `${count} data manual (void) ditambahin.` });
+      }
+
       case "getSummary": {
         const { data: activeBatches } = await admin.from("batches").select("id, workshop_type").eq("active", true);
         const summary: Record<string, number> = {};
@@ -435,6 +461,30 @@ Deno.serve(async (req) => {
         const { error } = await admin.from("batches").update(patch).eq("id", batchId);
         if (error) return errorResponse("Batch tidak ditemukan.");
         return jsonResponse({ status: "success", message: archived ? "Batch diarsipkan & pendaftarannya ditutup." : "Arsip dibuka lagi." });
+      }
+
+      // Kasus: batch kejebak nyangkut di event/workshop_type yang salah dari
+      // dulu (mis. sempet dibikinin tipe workshop terpisah "Sheraton Pull &
+      // Pop" yang seharusnya cuma batch biasa dari "Pull & Pop: A Journaling
+      // Bookmark", venue Sheraton doang bedanya). Pindah workshop_type-nya
+      // aja nggak cukup -- registrations.workshop_type ikut disimpen redundan
+      // per row (bukan di-derive dari batches), dan workshop_costs dikunci ke
+      // (workshop_type, batch=id) juga -- kalau nggak ikut dipindah, biaya
+      // batch ini bakal "ilang" (nggak ketemu lagi) begitu tipe-nya beda.
+      case "moveBatchToWorkshop": {
+        const batchId = String(data.batchId || "");
+        const newType = String(data.workshop || "");
+        if (!batchId) return errorResponse("Batch wajib dipilih.");
+        if (!WORKSHOP_TYPES.includes(newType)) return errorResponse("Event tujuan nggak dikenal: " + newType);
+        const { data: batch } = await admin.from("batches").select("workshop_type").eq("id", batchId).maybeSingle();
+        if (!batch) return errorResponse("Batch tidak ditemukan.");
+        const oldType = batch.workshop_type as string;
+        if (oldType === newType) return jsonResponse({ status: "success", message: "Batch udah di event ini." });
+        const { error: e1 } = await admin.from("batches").update({ workshop_type: newType }).eq("id", batchId);
+        if (e1) return errorResponse("Gagal pindahin batch: " + e1.message);
+        await admin.from("registrations").update({ workshop_type: newType }).eq("batch_id", batchId);
+        await admin.from("workshop_costs").update({ workshop_type: newType }).eq("workshop_type", oldType).eq("batch", batchId);
+        return jsonResponse({ status: "success", message: "Batch (beserta pendaftar & biayanya) dipindah ke event baru." });
       }
 
       case "renameBatch": {

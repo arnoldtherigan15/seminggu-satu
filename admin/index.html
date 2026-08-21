@@ -3846,7 +3846,7 @@
           <button class="nav-btn" data-view="leads">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M8 13A5 5 0 1 1 8 3a5 5 0 0 1 0 10m0 1A6 6 0 1 0 8 2a6 6 0 0 0 0 12"/><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/><path d="M9.5 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/></svg></span> Leads
           </button>
-          <div class="nav-section-label">Workshop</div>
+          <div class="nav-section-label">Event</div>
           <button class="nav-btn" data-view="pendaftar">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0"/><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg></span> Registrations
           </button>
@@ -3900,7 +3900,7 @@
             <div id="ovIncomeBreakdown" style="display:none;margin-top:8px;"></div>
           </div>
 
-          <h3 class="ov-section-title">Workshop Sedang Buka</h3>
+          <h3 class="ov-section-title">Event Sedang Buka</h3>
           <div id="ovCards" class="ov-cards"></div>
 
           <div class="ach-headrow" style="margin:28px 0;">
@@ -3924,7 +3924,7 @@
         <div class="wrap view" id="viewPendaftar" style="display:none;">
           <div class="toolbar">
             <div class="field">
-              <label for="wsSelect">Workshop</label>
+              <label for="wsSelect">Event</label>
               <select class="form-control" id="wsSelect"></select>
             </div>
             <div class="field">
@@ -3967,7 +3967,7 @@
             <div class="subtab-panel" data-tab="modal">
               <div class="toolbar">
                 <div class="field">
-                  <label for="finSelect">Pilih Workshop</label>
+                  <label for="finSelect">Pilih Event</label>
                   <select class="form-control" id="finSelect"></select>
                 </div>
                 <div class="field">
@@ -3983,7 +3983,7 @@
                   <div class="fin-card">
                     <label for="finPrice">Harga per peserta (Rp)</label>
                     <input class="form-control" type="text" inputmode="numeric" id="finPrice" readonly style="background:#f8f9fa;" />
-                    <p class="hint">Ikut harga batch ini (atau Config Umum kalau batch-nya belum punya harga sendiri). Mau ubah? Edit di <b>Config &gt; pilih Workshop + Batch-nya</b>.</p>
+                    <p class="hint">Ikut harga batch ini (atau Config Umum kalau batch-nya belum punya harga sendiri). Mau ubah? Edit di <b>Config &gt; pilih Event + Batch-nya</b>.</p>
                     <p class="hint">Jumlah pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
                   </div>
 
@@ -4052,7 +4052,7 @@
                   <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="invDate"></div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <div class="konten-field" style="flex:1;min-width:170px;"><label>Dipakai buat Workshop (opsional)</label><select class="form-control" id="invWorkshop"><option value="">-</option></select></div>
+                  <div class="konten-field" style="flex:1;min-width:170px;"><label>Dipakai buat Event (opsional)</label><select class="form-control" id="invWorkshop"><option value="">-</option></select></div>
                   <div class="konten-field" style="flex:2;min-width:170px;"><label>Catatan (opsional)</label><input class="form-control" type="text" id="invNote" maxlength="300"></div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
@@ -4102,7 +4102,7 @@
         <div class="wrap view" id="viewPrep" style="display:none;">
           <div class="toolbar">
             <div class="field">
-              <label for="prepSelect">Workshop</label>
+              <label for="prepSelect">Event</label>
               <select class="form-control" id="prepSelect"></select>
             </div>
             <div class="field">
@@ -4118,24 +4118,24 @@
         <div class="wrap view" id="viewConfig" style="display:none;">
           <div class="toolbar">
             <div class="field">
-              <label for="cfgSelect">Pilih Workshop</label>
+              <label for="cfgSelect">Pilih Event</label>
               <select class="form-control" id="cfgSelect"></select>
             </div>
             <div class="field">
               <label for="cfgBatchSelect">Batch</label>
               <select class="form-control" id="cfgBatchSelect"></select>
             </div>
-            <button class="btn btn-sm btn-ghost" id="cfgNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Workshop Baru</button>
+            <button class="btn btn-sm btn-ghost" id="cfgNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Event Baru</button>
             <button class="btn btn-sm btn-ghost" id="cfgReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
           </div>
 
           <div class="fin-card" id="cfgGeneralCard">
-            <p class="hint" style="margin:0 0 10px;">Data PRODUK/HALAMAN workshop (nama, deskripsi, rekening, dst) -- berlaku buat SEMUA batch tipe ini. Tanggal/jam/lokasi/harga/kuota/link WA yang bisa beda tiap batch, pilih batch-nya di dropdown "Batch" di atas.</p>
+            <p class="hint" style="margin:0 0 10px;">Data PRODUK/HALAMAN event (nama, deskripsi, rekening, dst) -- berlaku buat SEMUA batch tipe ini. Tanggal/jam/lokasi/harga/kuota/link WA yang bisa beda tiap batch, pilih batch-nya di dropdown "Batch" di atas.</p>
             <div id="cfgForm" class="cfg-form"></div>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
               <button class="btn" id="cfgSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Config</button>
               <button class="btn btn-sm" id="cfgDeleteBtn" style="background:#fee2e2;color:var(--err);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Hapus
-                workshop ini</button>
+                event ini</button>
             </div>
             <div class="msg" id="cfgMsg"></div>
             <p class="hint">Perubahan langsung tersimpan & langsung aktif di web publik.</p>
@@ -4144,6 +4144,7 @@
           <div class="fin-card" id="cfgBatchCard" style="display:none;">
             <div style="font-weight:800;margin-bottom:4px;">Detail Batch: <span id="cfgBatchLabel"></span></div>
             <p class="hint" style="margin:0 0 8px;">Default-nya ikut Config Umum di atas. Isi salah satu/beberapa DI SINI cuma kalau batch ini beda (mis. venue/harga/kuota beda dari batch lain tipe yang sama) -- kosongin buat balik ikut Config Umum. Batch baru otomatis nyontek isian ini dari batch terakhir yang dibikin, tinggal edit yang beda aja.</p>
+            <div class="konten-field"><label>Nama Batch</label><input class="form-control" type="text" id="batchLabelInput" placeholder="mis. Vol 1"></div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
               <div class="konten-field" style="flex:1;min-width:180px;"><label>Lokasi</label><input class="form-control" type="text" id="batchLoc" placeholder="ikut Config"></div>
               <div class="konten-field" style="flex:1;min-width:180px;"><label>Jam</label><input class="form-control" type="text" id="batchTime" placeholder="ikut Config"></div>
@@ -4172,6 +4173,27 @@
             </div>
             <p class="hint" id="batchArchiveHint" style="margin-top:6px;"></p>
             <div class="msg" id="batchDetailMsg"></div>
+
+            <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
+              <div style="font-weight:800;margin-bottom:4px;">Data Peserta Manual (Void)</div>
+              <p class="hint" style="margin:0 0 8px;">Buat batch dari SEBELUM sistem ini ada (dulu manual/dicatat di WA) -- kalau tau kira-kira jumlah pesertanya tapi nggak ada data orangnya satu-satu, tambahin di sini biar kuota/revenue/profit-nya kehitung bener. Row-nya nongol di tabel Pendaftar (bertanda "Void"), bisa dihapus/diarsipkan kayak pendaftar biasa.</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                <div class="konten-field" style="flex:1;min-width:100px;max-width:140px;"><label>Jumlah</label><input class="form-control" type="text" inputmode="numeric" id="batchVoidCount" placeholder="mis. 20"></div>
+                <div class="konten-field" style="flex:2;min-width:180px;"><label>Catatan (opsional)</label><input class="form-control" type="text" id="batchVoidNote" placeholder="mis. Data lama dari WA"></div>
+                <button class="btn btn-sm btn-ghost" id="batchVoidAddBtn">+ Tambah</button>
+              </div>
+              <div class="msg" id="batchVoidMsg"></div>
+            </div>
+
+            <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
+              <div style="font-weight:800;margin-bottom:4px;">Pindahkan Batch ke Event Lain</div>
+              <p class="hint" style="margin:0 0 8px;">Buat batch yang kejebak nyangkut di event yang salah dari dulu (mis. sempet dibikinin event terpisah padahal harusnya cuma jadi 1 batch di event yang bener). Pendaftar & biaya batch ini ikut dipindah juga.</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                <div class="konten-field" style="flex:1;min-width:200px;"><label>Pindahkan ke</label><select class="form-control" id="batchMoveTarget"></select></div>
+                <button class="btn btn-sm btn-ghost" id="batchMoveBtn">Pindahkan</button>
+              </div>
+              <div class="msg" id="batchMoveMsg"></div>
+            </div>
           </div>
         </div>
 
@@ -4252,7 +4274,7 @@
         <div class="wrap view" id="viewPesanan" style="display:none;">
           <div class="toolbar">
             <div class="field">
-              <label for="pesWorkshopSelect">Workshop</label>
+              <label for="pesWorkshopSelect">Event</label>
               <select class="form-control" id="pesWorkshopSelect"></select>
             </div>
             <div class="field">
@@ -4262,7 +4284,7 @@
             <button class="btn btn-sm btn-ghost" id="pesReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Muat Ulang</button>
           </div>
 
-          <div id="pesEmpty" class="hint" style="display:none;">Belum ada batch buat workshop ini. Bikin batch dulu di tab Registrations ya.</div>
+          <div id="pesEmpty" class="hint" style="display:none;">Belum ada batch buat event ini. Bikin batch dulu di tab Registrations ya.</div>
 
           <div id="pesBody" style="display:none;">
             <div class="subtabs" id="pesSubtabs">
@@ -5515,11 +5537,13 @@
           const regId = it ? it.id : "";
           const nm = it ? (it.nickname || it.full_name || "") : "";
           const isArchived = !!(it && it.archived);
+          const isVoid = !!(it && it.extra && it.extra.void);
           const photoBtn = photoCfg
             ? `<button class="wa-copy" data-photolink="${escapeHtml(regId)}" data-photoname="${escapeHtml(nm)}" data-photowa="${escapeHtml((it && it.wa) || "")}" title="Kirim link upload ulang foto">${icon("camera")}</button>`
             : "";
+          const voidBadge = isVoid ? `<span class="subtab-count" title="Data manual, bukan pendaftar beneran -- dibuat lewat Config > Detail Batch" style="margin-right:6px;">Void</span>` : "";
           const archiveBtn = `<button class="sg-archive${isArchived ? " is-archived" : ""}" data-archivereg="${escapeHtml(regId)}" data-archived="${isArchived ? "0" : "1"}" title="${isArchived ? "Batal jadi ikut, tapi tetep kehitung di kuota/loyalty/profit -- klik buat buka arsip lagi" : "Daftar tapi nggak jadi ikut & udah dikasih slot gratis di event lain -- arsipkan biar nggak kehitung di kuota/loyalty/profit, row-nya tetep kesimpen"}">${icon("archive")} ${isArchived ? "Diarsipkan" : "Arsip"}</button>`;
-          return `<tr style="${isArchived ? "opacity:.55;" : ""}"><td>${i + 1}</td>${cells}<td>${photoBtn}${archiveBtn}<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button></td></tr>`;
+          return `<tr style="${isArchived ? "opacity:.55;" : ""}"><td>${i + 1}</td>${cells}<td>${voidBadge}${photoBtn}${archiveBtn}<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button></td></tr>`;
         }).join("");
         body.querySelectorAll("[data-photolink]").forEach(b => b.addEventListener("click", () => {
           if (!photoCfg) return;
@@ -5974,7 +5998,7 @@
 
     async function deleteCostItemForm(id) {
       if (!id) return false;
-      if (!confirm("Hapus item ini dari database? Biaya yang udah kesimpen di workshop/batch lain nggak ikut kehapus.")) return false;
+      if (!confirm("Hapus item ini dari database? Biaya yang udah kesimpen di event/batch lain nggak ikut kehapus.")) return false;
       const r = await api("deleteCostItem", { token: getToken(), id });
       if (r && r.status === "success") { await loadCostItems(); return true; }
       handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
@@ -6581,7 +6605,7 @@
 
     // Rincian per batch yang nyumbang ke "Pemasukan"/"Perkiraan Untung" --
     // termasuk batch yang statusnya udah bukan "buka" lagi (nggak nongol di
-    // "Workshop Sedang Buka") tapi TETAP kehitung krn dia masih active=true.
+    // "Event Sedang Buka") tapi TETAP kehitung krn dia masih active=true.
     // Ini biar angka di atas nggak jadi misterius pas jumlah batch yang
     // nyumbang > jumlah kartu yang keliatan.
     function renderIncomeBreakdown() {
@@ -6608,7 +6632,7 @@
       // Revenue/profit dihitung SERVER-SIDE (getOverview) dari SEMUA batch
       // SEPANJANG WAKTU (bukan cuma yang aktif/lagi buka pendaftaran) --
       // "Pemasukan Total" beneran total, biar nggak ambigu/nggak nyambung
-      // sama jumlah kartu "Workshop Sedang Buka" yang keliatan (yang scope-nya
+      // sama jumlah kartu "Event Sedang Buka" yang keliatan (yang scope-nya
       // beda, cuma batch yang BENERAN masih buka). lastIncome udah diisi pas
       // data overview dimuat, di sini cuma tinggal render.
       renderIncome();
@@ -6670,6 +6694,8 @@
         document.getElementById("cfgNewBtn").addEventListener("click", createNewWorkshopConfig);
         document.getElementById("batchDetailSaveBtn").addEventListener("click", saveCfgBatchDetailFn);
         document.getElementById("batchArchiveBtn").addEventListener("click", toggleCfgBatchArchive);
+        document.getElementById("batchVoidAddBtn").addEventListener("click", addCfgBatchVoidRegistrations);
+        document.getElementById("batchMoveBtn").addEventListener("click", moveCfgBatchToWorkshop);
         wireRibuanInput(document.getElementById("batchNormalPrice"));
         wireRibuanInput(document.getElementById("batchEarlyBirdPrice"));
         await loadConfig();
@@ -6740,6 +6766,66 @@
         document.getElementById("cfgBatchLabel").textContent = (b && b.label) || "";
         loadCfgBatchDetail();
         updateBatchArchiveBtn();
+        updateBatchMoveTargetOptions();
+        document.getElementById("batchVoidMsg").textContent = "";
+        document.getElementById("batchVoidCount").value = "";
+        document.getElementById("batchVoidNote").value = "";
+        document.getElementById("batchMoveMsg").textContent = "";
+      }
+    }
+
+    function updateBatchMoveTargetOptions() {
+      const sel = document.getElementById("batchMoveTarget");
+      if (!sel) return;
+      if (!CONFIG) { sel.innerHTML = ""; return; }
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const currentType = CONFIG[idx] ? CONFIG[idx].id : "";
+      sel.innerHTML = CONFIG.filter(w => w.id !== currentType)
+        .map(w => `<option value="${escapeHtml(w.id)}">${escapeHtml(w.name || w.id)}</option>`).join("");
+    }
+
+    async function addCfgBatchVoidRegistrations() {
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      const msg = document.getElementById("batchVoidMsg");
+      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu ya."; return; }
+      const count = parseInt(document.getElementById("batchVoidCount").value, 10) || 0;
+      if (count <= 0) { msg.className = "msg err"; msg.textContent = "Isi jumlah dulu ya."; return; }
+      const note = document.getElementById("batchVoidNote").value.trim();
+      if (!confirm(`Tambahin ${count} data peserta manual (void) ke batch ini? Bakal kehitung normal di kuota/revenue/profit.`)) return;
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await api("addVoidRegistrations", { token: getToken(), batchId, count, note });
+      if (r && r.status === "success") {
+        msg.className = "msg ok"; msg.textContent = r.message || "Tersimpan ✓";
+        document.getElementById("batchVoidCount").value = "";
+        document.getElementById("batchVoidNote").value = "";
+        const idx = Number(document.getElementById("cfgSelect").value) || 0;
+        const w = CONFIG[idx];
+        const rr = await api("listBatches", { token: getToken(), workshop: w.id });
+        if (rr && rr.status === "success") CFG_BATCHES = rr.batches || [];
+      } else {
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan.";
+      }
+    }
+
+    async function moveCfgBatchToWorkshop() {
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      const msg = document.getElementById("batchMoveMsg");
+      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu ya."; return; }
+      const target = document.getElementById("batchMoveTarget").value;
+      if (!target) { msg.className = "msg err"; msg.textContent = "Pilih event tujuan dulu ya."; return; }
+      const targetName = (CONFIG.find(w => w.id === target) || {}).name || target;
+      const b = CFG_BATCHES.find(x => x.id === batchId);
+      if (!confirm(`Pindahin batch "${b ? b.label : ""}" ke event "${targetName}"? Pendaftar & biaya batch ini ikut dipindah.`)) return;
+      msg.className = "msg"; msg.textContent = "Memindahkan...";
+      const r = await api("moveBatchToWorkshop", { token: getToken(), batchId, workshop: target });
+      if (r && r.status === "success") {
+        msg.className = "msg ok"; msg.textContent = r.message || "Tersimpan ✓";
+        // Batch-nya udah pindah tipe -- reload daftar batch tipe ini (batch
+        // yang dipindah bakal ilang dari sini, itu bener, dia sekarang
+        // muncul di daftar batch event tujuan).
+        await loadCfgBatches();
+      } else {
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal memindahkan.";
       }
     }
 
@@ -6751,6 +6837,7 @@
       const w = CONFIG ? CONFIG[idx] : null;
       const batchId = document.getElementById("cfgBatchSelect").value;
       const b = CFG_BATCHES.find(x => x.id === batchId);
+      document.getElementById("batchLabelInput").value = (b && b.label) || "";
       document.getElementById("batchDetailMsg").textContent = "";
 
       const textField = (elId, batchKey, cfgKey, cfgLabelFn) => {
@@ -6792,9 +6879,11 @@
       const msg = document.getElementById("batchDetailMsg");
       const batchId = document.getElementById("cfgBatchSelect").value;
       if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu ya."; return; }
+      const label = document.getElementById("batchLabelInput").value.trim();
+      if (!label) { msg.className = "msg err"; msg.textContent = "Nama batch nggak boleh kosong."; return; }
       msg.className = "msg"; msg.textContent = "Menyimpan...";
       const r = await api("renameBatch", {
-        token: getToken(), batchId,
+        token: getToken(), batchId, label,
         locationName: document.getElementById("batchLoc").value,
         workshopTime: document.getElementById("batchTime").value,
         mapsLink: document.getElementById("batchMapsLink").value,
@@ -6816,22 +6905,28 @@
         const rr = await api("listBatches", { token: getToken(), workshop: w.id });
         if (rr && rr.status === "success") CFG_BATCHES = rr.batches || [];
         loadCfgBatchDetail();
+        document.getElementById("cfgBatchLabel").textContent = label;
+        const opt = document.getElementById("cfgBatchSelect").querySelector(`option[value="${CSS.escape(batchId)}"]`);
+        if (opt) {
+          const b = CFG_BATCHES.find(x => x.id === batchId);
+          opt.textContent = label + (b && b.archived ? " • Diarsipkan" : (b && b.active ? " • Buka" : ""));
+        }
         msg.className = "msg ok"; msg.textContent = "Tersimpan ✓";
       } else {
         handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan.";
       }
     }
 
-    // Tambah workshop baru ke config (mis. journaling-date)
+    // Tambah event baru ke config (mis. journaling-date)
     function createNewWorkshopConfig() {
-      const idRaw = prompt("ID workshop (huruf kecil & strip, mis. 'journaling-date'):");
+      const idRaw = prompt("ID event (huruf kecil & strip, mis. 'journaling-date'):");
       if (!idRaw) return;
       const id = idRaw.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/(^-|-$)/g, "");
       if (!id) { alert("ID nggak valid."); return; }
       const sel = document.getElementById("cfgSelect");
       const existIdx = CONFIG.findIndex(w => w.id === id);
       if (existIdx >= 0) { alert("ID '" + id + "' udah ada — dipilih ya."); sel.value = existIdx; renderConfigForm(); return; }
-      const name = prompt("Nama workshop:", "");
+      const name = prompt("Nama event:", "");
       if (name === null) return;
       CONFIG.push({
         id: id,
@@ -6850,7 +6945,7 @@
       sel.value = CONFIG.length - 1;
       renderConfigForm();
       loadCfgBatches();
-      alert("Workshop '" + id + "' ditambahkan. Isi detailnya, lalu klik 💾 Simpan Config ya.");
+      alert("Event '" + id + "' ditambahkan. Isi detailnya, lalu klik 💾 Simpan Config ya.");
     }
 
     async function loadConfig() {
@@ -6902,14 +6997,14 @@
       const idx = Number(document.getElementById("cfgSelect").value) || 0;
       const w = CONFIG[idx];
       if (!w) return;
-      if (!confirm(`Hapus workshop "${w.name || w.id}" dari config?\n\nCatatan: ini hanya menghapus dari daftar config (halaman & dashboard). Data pendaftar di sheet TIDAK terhapus.`)) return;
+      if (!confirm(`Hapus event "${w.name || w.id}" dari config?\n\nCatatan: ini hanya menghapus dari daftar config (halaman & dashboard). Data pendaftar di sheet TIDAK terhapus.`)) return;
       CONFIG.splice(idx, 1);
       const msg = document.getElementById("cfgMsg");
       msg.className = "msg"; msg.textContent = "Menghapus...";
       try {
         const r = await api("saveConfig", { token: getToken(), config: CONFIG });
         if (r.status === "success") {
-          msg.className = "msg ok"; msg.textContent = "Workshop dihapus ✓";
+          msg.className = "msg ok"; msg.textContent = "Event dihapus ✓";
           await loadConfig();
         } else {
           handleAuthError(r);
@@ -7642,7 +7737,7 @@
           let chartsHtml = "";
           const daftarGroups = groupByDetail(acts.filter(a => a.type === "daftar"));
           if (daftarGroups.length) {
-            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;">Pendaftaran per Workshop</div>` + barChartHtml(daftarGroups, "pendaftar");
+            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;">Pendaftaran per Event</div>` + barChartHtml(daftarGroups, "pendaftar");
           }
           const questGroups = groupByDetail(acts.filter(a => a.type === "quest"));
           if (questGroups.length) {
@@ -10439,7 +10534,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const info = getPrepEventInfo(event);
       const context = document.getElementById("faqContext").value.trim();
       const knownFacts = buildPrepKnownFacts(info);
-      if (!context && !knownFacts) { msg.className = "msg err"; msg.textContent = "Belum ada info apapun buat event ini -- isi Konteks Acara atau lengkapin data workshop di Config dulu ya."; return; }
+      if (!context && !knownFacts) { msg.className = "msg err"; msg.textContent = "Belum ada info apapun buat event ini -- isi Konteks Acara atau lengkapin data event di Config dulu ya."; return; }
       btn.disabled = true;
       msg.className = "msg"; msg.textContent = "Nulis FAQ...";
       const r = await api("generateFaqBlock", { token: getToken(), context, knownFacts, workshopName: info.name });
@@ -10501,7 +10596,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const batchId = document.getElementById("prepBatchSelect").value;
       try {
         if (!batchId) {
-          summaryEl.innerHTML = '<p class="hint">Belum ada batch buat workshop ini.</p>';
+          summaryEl.innerHTML = '<p class="hint">Belum ada batch buat event ini.</p>';
           if (cnt) cnt.textContent = "";
           return;
         }
@@ -10683,7 +10778,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
     }
 
     const WA_MSG_KEY = "ss_wa_reminder_msg";
-    const WA_MSG_DEFAULT = "Halo {nama} 👋\nReminder ya, workshop kamu akan segera berlangsung. Sampai jumpa & jangan lupa datang tepat waktu! 🎨";
+    const WA_MSG_DEFAULT = "Halo {nama} 👋\nReminder ya, acara kamu akan segera berlangsung. Sampai jumpa & jangan lupa datang tepat waktu! 🎨";
 
     // Fase pesan ditentuin dari jarak hari ke event (sama logic date-diff kayak
     // countdownBadge()): masih jauh -> ajakan gabung grup, H-2/H-1 -> reminder,
