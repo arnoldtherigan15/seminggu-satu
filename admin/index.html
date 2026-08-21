@@ -3893,6 +3893,8 @@
               <div class="ov-income-item"><span>Pemasukan</span><b id="ovRevenue">Rp •••••••</b></div>
               <div class="ov-income-item"><span>Perkiraan Untung</span><b id="ovProfit">Rp •••••••</b></div>
             </div>
+            <button type="button" id="ovIncomeDetailToggle" style="background:none;border:none;color:rgba(255,255,255,.85);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:10px 0 0;">Lihat rincian per batch</button>
+            <div id="ovIncomeBreakdown" style="display:none;margin-top:8px;"></div>
           </div>
 
           <h3 class="ov-section-title">Workshop Sedang Buka</h3>
@@ -6437,6 +6439,13 @@
           document.getElementById("incomeToggle").innerHTML = icon(incomeVisible ? "eyeSlash" : "eye");
           renderIncome();
         });
+        document.getElementById("ovIncomeDetailToggle").addEventListener("click", (e) => {
+          const box = document.getElementById("ovIncomeBreakdown");
+          const open = box.style.display !== "none";
+          box.style.display = open ? "none" : "block";
+          e.target.textContent = open ? "Lihat rincian per batch" : "Sembunyikan rincian";
+          if (!open) renderIncomeBreakdown();
+        });
         document.getElementById("ideaAddBtn").addEventListener("click", () => {
           IDEAS.push("");
           renderIdeas();
@@ -6473,6 +6482,7 @@
             WRAP_MEMBERS = r.members || [];
             ACTIVE_SHEETS = r.activeSheets || {};
             OPEN_BATCHES = r.openBatches || [];
+            REVENUE_BREAKDOWN = r.revenueBreakdown || [];
             lastIncome = { revenue: r.revenue || 0, profit: r.profit || 0 };
             overviewDataLoaded = true;
             renderIdeas();
@@ -6550,6 +6560,25 @@
         rev.textContent = "Rp •••••••";
         prof.textContent = "Rp •••••••";
       }
+    }
+
+    // Rincian per batch yang nyumbang ke "Pemasukan"/"Perkiraan Untung" --
+    // termasuk batch yang statusnya udah bukan "buka" lagi (nggak nongol di
+    // "Workshop Sedang Buka") tapi TETAP kehitung krn dia masih active=true.
+    // Ini biar angka di atas nggak jadi misterius pas jumlah batch yang
+    // nyumbang > jumlah kartu yang keliatan.
+    function renderIncomeBreakdown() {
+      const box = document.getElementById("ovIncomeBreakdown");
+      if (!box) return;
+      if (!REVENUE_BREAKDOWN.length) { box.innerHTML = `<p style="color:rgba(255,255,255,.75);font-size:12.5px;margin:0;">Nggak ada batch aktif.</p>`; return; }
+      box.innerHTML = REVENUE_BREAKDOWN.map(b => `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,.15);">
+          <div style="min-width:0;">
+            <div style="font-size:12.5px;font-weight:700;">${escapeHtml(b.workshopName)} — ${escapeHtml(b.label)}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.7);">${b.count} peserta${b.isOpen ? "" : " · sudah nggak buka pendaftaran, tapi tetep kehitung"}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;font-size:12.5px;font-weight:700;">${rupiah(b.profit)}</div>
+        </div>`).join("");
     }
 
     function renderOverview() {
@@ -11280,6 +11309,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
     let WRAP_MEMBERS = [];
     let ACTIVE_SHEETS = {};
     let OPEN_BATCHES = [];
+    let REVENUE_BREAKDOWN = [];
     let ANALYTICS = null;
     let recapMode = "all";
 

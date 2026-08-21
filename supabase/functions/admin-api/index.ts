@@ -156,6 +156,13 @@ Deno.serve(async (req) => {
         // pendaftaran ditutup bukan berarti duitnya ilang, itu tetap
         // pemasukan beneran yang harus kelihatan di Overview.
         const openBatches: Record<string, unknown>[] = [];
+        // revenueBreakdown: 1 entri per batch AKTIF yang nyumbang ke
+        // revenue/profit di atas (termasuk yang udah nggak "open" lagi --
+        // isOpen:false) -- biar "Pemasukan/Perkiraan Untung" nggak jadi angka
+        // misterius pas jumlah batch yang nyumbang > jumlah kartu "Workshop
+        // Sedang Buka" yang kelihatan (batch aktif TAPI pendaftarannya udah
+        // ditutup/lewat tetep somasuk itungan, sengaja, liat komentar di bawah).
+        const revenueBreakdown: Record<string, unknown>[] = [];
         let revenue = 0, profit = 0;
         for (const b of activeBatches || []) {
           const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
@@ -169,9 +176,17 @@ Deno.serve(async (req) => {
           const items = (modal[b.workshop_type] && (modal[b.workshop_type][b.id] || modal[b.workshop_type][""])) || [];
           let cost = 0;
           for (const it of items) cost += it.tipe === "tetap" ? it.biaya : it.biaya * usedCount;
-          revenue += rev; profit += (rev - cost);
+          const batchProfit = rev - cost;
+          revenue += rev; profit += batchProfit;
+          const open = isBatchOpen(merged);
+          revenueBreakdown.push({
+            workshopType: b.workshop_type,
+            workshopName: (typeConfig as Record<string, unknown>).name || b.workshop_type,
+            batchId: b.id, label: merged.label, count: usedCount,
+            revenue: rev, profit: batchProfit, isOpen: open,
+          });
 
-          if (!isBatchOpen(merged)) continue;
+          if (!open) continue;
           openBatches.push({
             workshopType: b.workshop_type,
             workshopName: (typeConfig as Record<string, unknown>).name || b.workshop_type,
@@ -190,7 +205,7 @@ Deno.serve(async (req) => {
         // sumber data yang lengkap/akurat buat tipe yang punya 2+ batch buka.
         const activeSheets: Record<string, string> = {};
         for (const b of activeBatches || []) if (!activeSheets[b.workshop_type]) activeSheets[b.workshop_type] = b.id;
-        return jsonResponse({ status: "success", summary, modal, ideas, members, activeSheets, openBatches, revenue, profit });
+        return jsonResponse({ status: "success", summary, modal, ideas, members, activeSheets, openBatches, revenue, profit, revenueBreakdown });
       }
 
       // Analitik beneran (bukan gamifikasi) -- daftar event & batch,
