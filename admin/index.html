@@ -11346,17 +11346,39 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
         h.mostSoldOutEvent ? `<div class="fin-card" style="border-left:4px solid #fb6340;"><div class="hint" style="margin:0 0 2px;">🎯 Event paling laku (sepanjang waktu)</div><div style="font-weight:800;">${escapeHtml(h.mostSoldOutEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${h.mostSoldOutEvent.soldOutCount}/${h.mostSoldOutEvent.batchCount} batch sold out</div></div>` : "",
       ].filter(Boolean).join("");
 
-      const eventRows = byProfit.map(e => `
+      const eventRows = byProfit.map(e => {
+        const detailId = "anaDetail_" + e.workshopType;
+        const batchRows = [...e.batches].sort((a, b) => String(b.eventDateIso || "").localeCompare(String(a.eventDateIso || ""))).map(b => `
+          <tr>
+            <td style="padding:6px 8px 6px 0;">${escapeHtml(b.label)}</td>
+            <td style="padding:6px 8px;">${b.displayDate ? escapeHtml(b.displayDate) : "-"}</td>
+            <td style="padding:6px 8px;">${b.count}${b.maxQuota ? "/" + b.maxQuota : ""}${b.soldOut ? " 🎯" : ""}</td>
+            <td style="padding:6px 8px;">${rupiah(b.price)}</td>
+            <td style="padding:6px 8px;">${rupiah(b.revenue)}</td>
+            <td style="padding:6px 8px;">${rupiah(b.cost)}</td>
+            <td style="padding:6px 0;font-weight:700;color:${b.profit >= 0 ? "var(--ok)" : "var(--err)"};">${rupiah(b.profit)}</td>
+          </tr>`).join("");
+        return `
         <div class="fin-card" style="margin-bottom:8px;padding:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
             <b>${escapeHtml(e.workshopName)}</b>
             <span class="hint" style="margin:0;">${e.batchCount} batch · ${e.totalParticipants} peserta${e.soldOutCount ? ` · ${e.soldOutCount} sold out` : ""}</span>
           </div>
-          <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;">
+          <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;align-items:flex-end;">
             <div><span class="hint" style="margin:0;">Revenue</span><div style="font-weight:700;">${rupiah(e.totalRevenue)}</div></div>
             <div><span class="hint" style="margin:0;">Profit</span><div style="font-weight:700;color:${e.totalProfit >= 0 ? "var(--ok)" : "var(--err)"};">${rupiah(e.totalProfit)}</div></div>
+            <button type="button" class="ana-detail-toggle" data-target="${detailId}" style="background:none;border:none;color:var(--brand);font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;">Lihat rincian batch</button>
           </div>
-        </div>`).join("");
+          <div id="${detailId}" style="display:none;margin-top:12px;overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;">
+              <thead><tr style="text-align:left;color:var(--muted);">
+                <th style="padding:4px 8px 4px 0;">Batch</th><th style="padding:4px 8px;">Tanggal</th><th style="padding:4px 8px;">Peserta</th><th style="padding:4px 8px;">Harga</th><th style="padding:4px 8px;">Revenue</th><th style="padding:4px 8px;">Biaya</th><th style="padding:4px 0;">Profit</th>
+              </tr></thead>
+              <tbody>${batchRows}</tbody>
+            </table>
+          </div>
+        </div>`;
+      }).join("");
 
       const soldOutList = (h.soldOutBatches || []).slice(0, 6).map(b =>
         `<div class="hint" style="margin:0 0 4px;">🎯 <b style="color:var(--ink);">${escapeHtml(b.workshopName)} — ${escapeHtml(b.label)}</b> (${b.count}/${b.maxQuota}${b.displayDate ? `, ${escapeHtml(b.displayDate)}` : ""})</div>`
@@ -11374,6 +11396,14 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
         ${soldOutList ? `<div class="fin-card" style="margin-bottom:14px;"><div style="font-weight:800;margin-bottom:8px;">Batch yang pernah sold out</div>${soldOutList}</div>` : ""}
         <div style="font-weight:800;margin-bottom:8px;">Per Event, sepanjang waktu (diurutkan dari paling untung)</div>
         ${eventRows}`;
+
+      box.querySelectorAll(".ana-detail-toggle").forEach(btn => btn.addEventListener("click", () => {
+        const target = document.getElementById(btn.dataset.target);
+        if (!target) return;
+        const open = target.style.display !== "none";
+        target.style.display = open ? "none" : "block";
+        btn.textContent = open ? "Lihat rincian batch" : "Sembunyikan rincian";
+      }));
     }
 
     // ---- Wrapped / IG Story (buat share medsos) ----

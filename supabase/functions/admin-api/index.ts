@@ -271,7 +271,7 @@ Deno.serve(async (req) => {
           if (soldOut) ev.soldOutCount++;
           const batchEntry = {
             batchId: b.id, label: merged.label, eventDateIso: merged.eventDateIso, displayDate: merged.displayDate,
-            count: usedCount, maxQuota: merged.maxQuota, revenue: rev, profit: batchProfit, soldOut,
+            count: usedCount, maxQuota: merged.maxQuota, price, cost, revenue: rev, profit: batchProfit, soldOut,
           };
           ev.batches.push(batchEntry);
           if (soldOut) soldOutBatches.push({ workshopType: b.workshop_type, workshopName, ...batchEntry });
