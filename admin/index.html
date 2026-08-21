@@ -2160,31 +2160,37 @@
     .per-hero-flow-item {
       flex: 1;
       min-width: 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
       background: rgba(255, 255, 255, 0.08);
       border-radius: 12px;
       padding: 12px 14px;
     }
 
+    .per-hero-flow-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      margin-bottom: 8px;
+    }
+
     .per-hero-flow-icon {
       flex-shrink: 0;
-      width: 32px;
-      height: 32px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 11px;
       font-weight: 800;
     }
 
     .per-hero-flow-item.income .per-hero-flow-icon { background: rgba(74, 222, 128, .2); color: #4ade80; }
     .per-hero-flow-item.expense .per-hero-flow-icon { background: rgba(251, 113, 133, .2); color: #fb7185; }
 
-    .per-hero-flow-item span {
+    .per-hero-flow-head span {
       display: block;
+      min-width: 0;
       font-size: 11px;
       opacity: 0.7;
       white-space: nowrap;
@@ -2193,8 +2199,10 @@
     }
 
     .per-hero-flow-item b {
-      font-size: 15.5px;
-      font-weight: 700;
+      display: block;
+      font-size: 18px;
+      font-weight: 800;
+      word-break: break-word;
     }
 
     .per-stat-row {
@@ -4475,18 +4483,18 @@
 
                 <div class="per-hero-flow-row">
                   <div class="per-hero-flow-item income">
-                    <div class="per-hero-flow-icon">&darr;</div>
-                    <div style="min-width:0;">
+                    <div class="per-hero-flow-head">
+                      <div class="per-hero-flow-icon">&darr;</div>
                       <span id="perMonthIncomeLabel">Pemasukan</span>
-                      <b id="perMonthIncome">Rp 0</b>
                     </div>
+                    <b id="perMonthIncome">Rp 0</b>
                   </div>
                   <div class="per-hero-flow-item expense">
-                    <div class="per-hero-flow-icon">&uarr;</div>
-                    <div style="min-width:0;">
+                    <div class="per-hero-flow-head">
+                      <div class="per-hero-flow-icon">&uarr;</div>
                       <span id="perMonthExpenseLabel">Pengeluaran</span>
-                      <b id="perMonthExpense">Rp 0</b>
                     </div>
+                    <b id="perMonthExpense">Rp 0</b>
                   </div>
                 </div>
               </div>
@@ -5250,14 +5258,16 @@
 
     // Tinggi asli .mobile-header (bukan dikira-kira) -- dipakai sebagai offset
     // "top" buat header tanggal per grup yang sticky di tab Transaksi Personal
-    // Finance, biar nggak ketutup navbar pas discroll di HP.
-    (function setMobileHeaderHeightVar() {
+    // Finance, biar nggak ketutup navbar pas discroll di HP. #dashboard
+    // display:none sebelum login, jadi offsetHeight di sini masih 0 -- makanya
+    // dipanggil ULANG di showDashboard() begitu dashboard-nya kelihatan.
+    function applyMobileHeaderHeightVar() {
       const mh = document.querySelector(".mobile-header");
       if (!mh) return;
-      const apply = () => document.documentElement.style.setProperty("--mobile-header-h", mh.offsetHeight + "px");
-      apply();
-      window.addEventListener("resize", apply);
-    })();
+      document.documentElement.style.setProperty("--mobile-header-h", mh.offsetHeight + "px");
+    }
+    applyMobileHeaderHeightVar();
+    window.addEventListener("resize", applyMobileHeaderHeightVar);
 
     // ---------- DASHBOARD ----------
     function workshopName(id) {
@@ -5268,6 +5278,7 @@
     function showDashboard() {
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
+      applyMobileHeaderHeightVar();
       if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // jangan pulihkan scroll lama
       populateWorkshopSelect();
       applyHash(); // buka view sesuai URL hash (default overview)
@@ -8635,15 +8646,14 @@
         </div>`).join("") : "";
 
       const ym = perPeriod || currentPayPeriod();
-      const periodLabel = fmtPeriodLabel(ym);
       let periodIncome = 0, periodExpense = 0;
       PER_TRANSACTIONS.forEach(t => {
         if (!inPayPeriod(t.date, ym)) return;
         if (t.type === "income") periodIncome += Number(t.amount) || 0;
         else if (t.type === "expense") periodExpense += Number(t.amount) || 0;
       });
-      document.getElementById("perMonthIncomeLabel").textContent = "Pemasukan — " + periodLabel;
-      document.getElementById("perMonthExpenseLabel").textContent = "Pengeluaran — " + periodLabel;
+      document.getElementById("perMonthIncomeLabel").textContent = "Pemasukan";
+      document.getElementById("perMonthExpenseLabel").textContent = "Pengeluaran";
       document.getElementById("perMonthIncome").textContent = rupiah(periodIncome);
       document.getElementById("perMonthExpense").textContent = rupiah(periodExpense);
       const perHint = document.getElementById("perPeriodHint");
