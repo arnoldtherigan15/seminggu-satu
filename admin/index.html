@@ -11303,9 +11303,9 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       const byProfit = [...ANALYTICS.events].sort((a, b) => b.totalProfit - a.totalProfit);
 
       const highlightCards = [
-        h.mostProfitableEvent ? `<div class="fin-card" style="border-left:4px solid var(--ok);"><div class="hint" style="margin:0 0 2px;">💰 Event paling untung</div><div style="font-weight:800;">${escapeHtml(h.mostProfitableEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${rupiah(h.mostProfitableEvent.totalProfit)} profit</div></div>` : "",
-        h.mostPopularEvent ? `<div class="fin-card" style="border-left:4px solid var(--brand);"><div class="hint" style="margin:0 0 2px;">🔥 Event paling rame</div><div style="font-weight:800;">${escapeHtml(h.mostPopularEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${h.mostPopularEvent.totalParticipants} peserta total</div></div>` : "",
-        h.mostSoldOutEvent ? `<div class="fin-card" style="border-left:4px solid #fb6340;"><div class="hint" style="margin:0 0 2px;">🎯 Event paling laku</div><div style="font-weight:800;">${escapeHtml(h.mostSoldOutEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${h.mostSoldOutEvent.soldOutCount}/${h.mostSoldOutEvent.batchCount} batch sold out</div></div>` : "",
+        h.mostProfitableEvent ? `<div class="fin-card" style="border-left:4px solid var(--ok);"><div class="hint" style="margin:0 0 2px;">💰 Event paling untung (sepanjang waktu)</div><div style="font-weight:800;">${escapeHtml(h.mostProfitableEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${rupiah(h.mostProfitableEvent.totalProfit)} profit dari ${h.mostProfitableEvent.batchCount} batch</div></div>` : "",
+        h.mostPopularEvent ? `<div class="fin-card" style="border-left:4px solid var(--brand);"><div class="hint" style="margin:0 0 2px;">🔥 Event paling rame (sepanjang waktu)</div><div style="font-weight:800;">${escapeHtml(h.mostPopularEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${h.mostPopularEvent.totalParticipants} peserta total</div></div>` : "",
+        h.mostSoldOutEvent ? `<div class="fin-card" style="border-left:4px solid #fb6340;"><div class="hint" style="margin:0 0 2px;">🎯 Event paling laku (sepanjang waktu)</div><div style="font-weight:800;">${escapeHtml(h.mostSoldOutEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${h.mostSoldOutEvent.soldOutCount}/${h.mostSoldOutEvent.batchCount} batch sold out</div></div>` : "",
       ].filter(Boolean).join("");
 
       const eventRows = byProfit.map(e => `
@@ -11325,6 +11325,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       ).join("");
 
       box.innerHTML = `
+        <p class="hint" style="margin:0 0 12px;">Semua angka di bawah ini dihitung dari <b>seluruh riwayat batch</b> (bukan cuma yang lagi aktif) -- beda dari "Perkiraan Untung" di atas yang cuma workshop yang lagi buka/aktif sekarang. Journaling Date dikecualikan krn gratis & khusus member Warga.</p>
         <div class="ach-stats" style="margin-bottom:14px;">
           <div class="ach-stat"><b>${t.events}</b><span>Event</span></div>
           <div class="ach-stat"><b>${t.batches}</b><span>Total batch</span></div>
@@ -11333,7 +11334,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
         </div>
         ${highlightCards ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px;">${highlightCards}</div>` : ""}
         ${soldOutList ? `<div class="fin-card" style="margin-bottom:14px;"><div style="font-weight:800;margin-bottom:8px;">Batch yang pernah sold out</div>${soldOutList}</div>` : ""}
-        <div style="font-weight:800;margin-bottom:8px;">Per Event (diurutkan dari paling untung)</div>
+        <div style="font-weight:800;margin-bottom:8px;">Per Event, sepanjang waktu (diurutkan dari paling untung)</div>
         ${eventRows}`;
     }
 
