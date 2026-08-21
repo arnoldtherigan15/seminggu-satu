@@ -8293,7 +8293,7 @@
       if (!text || !btn) return;
       navigator.clipboard.writeText(text).then(() => {
         const orig = btn.innerHTML;
-        btn.innerHTML = icon("check") + " Disalin!";
+        btn.innerHTML = icon("check") + " Copied!";
         setTimeout(() => { btn.innerHTML = orig; }, 1500);
       }).catch(() => alert("Failed to auto-copy, copy manually:\n\n" + text));
     }
@@ -10608,62 +10608,117 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         </div>
 
         <div class="fin-card" style="margin-top:14px;">
-          <div style="font-weight:800;margin-bottom:4px;">Generate FAQ to Share</div>
-          <p class="hint" style="margin:0 0 8px;">Build an FAQ list from the context above, ready to post to the WA group so participants don't have to ask one by one.</p>
-          <button class="btn btn-sm" id="faqGenerateBlockBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate FAQ</button>
-          <textarea class="form-control" id="faqBlockOut" rows="8" readonly style="margin-top:8px;display:none;"></textarea>
+          <div style="font-weight:800;margin-bottom:4px;">FAQ List</div>
+          <p class="hint" style="margin:0 0 8px;">Builds up from the answers you approve in Quick Response below -- copy the whole thing to share in the WA group so participants don't have to ask one by one.</p>
+          <div id="faqList"></div>
           <button class="btn btn-sm btn-ghost" id="faqCopyBlockBtn" style="margin-top:8px;display:none;">${icon("clipboard")} Copy FAQ</button>
-          <div class="msg" id="faqBlockMsg"></div>
         </div>
 
         <div class="fin-card" style="margin-top:14px;">
           <div style="font-weight:800;margin-bottom:4px;">Quick Response</div>
-          <p class="hint" style="margin:0 0 8px;">Paste/type a question a participant asked, AI will draft an answer using the context above.</p>
+          <p class="hint" style="margin:0 0 8px;">Paste/type a question a participant asked, AI will draft an answer using the context above. Happy with it? Add it to the FAQ list so you don't have to regenerate it next time someone asks the same thing.</p>
           <textarea class="form-control" id="faqQuestion" rows="2" placeholder="e.g. Where exactly is the venue? What's the landmark?"></textarea>
           <button class="btn btn-sm" id="faqAnswerBtn" disabled style="margin-top:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate Answer</button>
           <textarea class="form-control" id="faqAnswerOut" rows="3" readonly style="margin-top:8px;display:none;"></textarea>
-          <button class="btn btn-sm btn-ghost" id="faqCopyAnswerBtn" style="margin-top:8px;display:none;">${icon("clipboard")} Copy Answer</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+            <button class="btn btn-sm btn-ghost" id="faqCopyAnswerBtn" style="display:none;">${icon("clipboard")} Copy Answer</button>
+            <button class="btn btn-sm" id="faqAddToListBtn" style="display:none;">${icon("plus")} Add to FAQ</button>
+          </div>
           <div class="msg" id="faqAnswerMsg"></div>
         </div>`;
       const saveBtn = body.querySelector("#faqSaveContextBtn");
       if (saveBtn) saveBtn.addEventListener("click", saveFaqContext);
-      const genBlockBtn = body.querySelector("#faqGenerateBlockBtn");
-      if (genBlockBtn) genBlockBtn.addEventListener("click", generateFaqBlockFn);
       const copyBlockBtn = body.querySelector("#faqCopyBlockBtn");
-      if (copyBlockBtn) copyBlockBtn.addEventListener("click", () => copyToClipboardEl(document.getElementById("faqBlockOut").value, copyBlockBtn));
+      if (copyBlockBtn) copyBlockBtn.addEventListener("click", () => copyToClipboardEl(faqListAsText(), copyBlockBtn));
       const answerBtn = body.querySelector("#faqAnswerBtn");
       if (answerBtn) answerBtn.addEventListener("click", generateFaqAnswerFn);
       const questionEl = body.querySelector("#faqQuestion");
       if (questionEl && answerBtn) questionEl.addEventListener("input", () => { answerBtn.disabled = !questionEl.value.trim(); });
       const copyAnswerBtn = body.querySelector("#faqCopyAnswerBtn");
       if (copyAnswerBtn) copyAnswerBtn.addEventListener("click", () => copyToClipboardEl(document.getElementById("faqAnswerOut").value, copyAnswerBtn));
+      const addToListBtn = body.querySelector("#faqAddToListBtn");
+      if (addToListBtn) addToListBtn.addEventListener("click", addFaqAnswerToList);
       return { id: "faq", labelHtml: icon("chat") + " FAQ & Quick Response", countId: null, bodyEl: body };
+    }
+
+    // FAQ List: nggak lagi di-generate sekaligus pake AI (kurang kepake --
+    // biasanya cuma sebagian pertanyaan yang beneran ditanyain peserta).
+    // Sekarang numpuk organik dari jawaban Quick Response yang di-approve
+    // Arnold, jadi nggak perlu hit AI lagi kalau ada yang nanya hal yang sama.
+    let FAQ_LIST = [];
+    function renderFaqList() {
+      const el = document.getElementById("faqList");
+      const copyBtn = document.getElementById("faqCopyBlockBtn");
+      if (!el) return;
+      if (!FAQ_LIST.length) {
+        el.innerHTML = '<p class="hint">No FAQ entries yet. Answer a question in Quick Response below, then click "Add to FAQ".</p>';
+        if (copyBtn) copyBtn.style.display = "none";
+        return;
+      }
+      el.innerHTML = FAQ_LIST.map((item, idx) => `
+        <div style="border-top:1px solid var(--line);padding:10px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;">Q: ${escapeHtml(item.question)}</div>
+            <div style="margin-top:4px;color:var(--muted);">A: ${escapeHtml(item.answer)}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost faq-del" data-idx="${idx}" title="Remove">${icon("trash")}</button>
+        </div>`).join("");
+      el.querySelectorAll(".faq-del").forEach(b => b.addEventListener("click", () => {
+        FAQ_LIST.splice(Number(b.dataset.idx), 1);
+        renderFaqList();
+        savePrepFaqList();
+      }));
+      if (copyBtn) copyBtn.style.display = "inline-flex";
+    }
+
+    function faqListAsText() {
+      return FAQ_LIST.map(it => `Q: ${it.question}\nA: ${it.answer}`).join("\n\n");
+    }
+
+    async function savePrepFaqList() {
+      const event = document.getElementById("prepSelect").value;
+      const batchId = document.getElementById("prepBatchSelect").value;
+      await api("savePrepFaqList", { token: getToken(), event, batchId, list: FAQ_LIST });
+    }
+
+    function addFaqAnswerToList() {
+      const q = document.getElementById("faqQuestion").value.trim();
+      const a = document.getElementById("faqAnswerOut").value.trim();
+      if (!q || !a) return;
+      FAQ_LIST.push({ question: q, answer: a });
+      renderFaqList();
+      savePrepFaqList();
+      const msg = document.getElementById("faqAnswerMsg");
+      msg.className = "msg ok"; msg.textContent = "Added to FAQ ✓";
     }
 
     async function loadPrepFaqContext() {
       const el = document.getElementById("faqContext");
       if (!el) return;
-      // Buang hasil generate FAQ/jawaban lama -- itu punya konteks batch
-      // sebelumnya, jangan sampai kebawa nyangkut ke batch yang baru dipilih.
-      const blockOut = document.getElementById("faqBlockOut");
-      if (blockOut) { blockOut.value = ""; blockOut.style.display = "none"; }
-      const copyBlockBtn = document.getElementById("faqCopyBlockBtn");
-      if (copyBlockBtn) copyBlockBtn.style.display = "none";
+      // Buang hasil jawaban lama -- itu punya konteks batch sebelumnya,
+      // jangan sampai kebawa nyangkut ke batch yang baru dipilih.
       const answerOut = document.getElementById("faqAnswerOut");
       if (answerOut) { answerOut.value = ""; answerOut.style.display = "none"; }
       const copyAnswerBtn = document.getElementById("faqCopyAnswerBtn");
       if (copyAnswerBtn) copyAnswerBtn.style.display = "none";
+      const addToListBtn = document.getElementById("faqAddToListBtn");
+      if (addToListBtn) addToListBtn.style.display = "none";
       const question = document.getElementById("faqQuestion");
       if (question) question.value = "";
-      document.getElementById("faqBlockMsg").textContent = "";
       document.getElementById("faqAnswerMsg").textContent = "";
       document.getElementById("faqContextMsg").textContent = "";
+      FAQ_LIST = [];
+      renderFaqList();
 
       const event = document.getElementById("prepSelect").value;
       const batchId = document.getElementById("prepBatchSelect").value;
       const r = await api("getPrepFaqContext", { token: getToken(), event, batchId });
       if (r && r.status === "success") el.value = r.context || "";
       else handleAuthError(r);
+
+      const rList = await api("getPrepFaqList", { token: getToken(), event, batchId });
+      if (rList && rList.status === "success" && Array.isArray(rList.list)) FAQ_LIST = rList.list;
+      renderFaqList();
     }
 
     async function saveFaqContext() {
@@ -10694,28 +10749,6 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       return lines.join("\n");
     }
 
-    async function generateFaqBlockFn() {
-      const msg = document.getElementById("faqBlockMsg");
-      const btn = document.getElementById("faqGenerateBlockBtn");
-      const event = document.getElementById("prepSelect").value;
-      const info = getPrepEventInfo(event);
-      const context = document.getElementById("faqContext").value.trim();
-      const knownFacts = buildPrepKnownFacts(info);
-      if (!context && !knownFacts) { msg.className = "msg err"; msg.textContent = "No info available for this event yet -- fill in the Event Context or complete the event data in Config first."; return; }
-      btn.disabled = true;
-      msg.className = "msg"; msg.textContent = "Nulis FAQ...";
-      const r = await api("generateFaqBlock", { token: getToken(), context, knownFacts, workshopName: info.name });
-      btn.disabled = false;
-      if (r && r.status === "success" && r.block) {
-        const out = document.getElementById("faqBlockOut");
-        out.value = r.block; out.style.display = "block";
-        document.getElementById("faqCopyBlockBtn").style.display = "inline-flex";
-        msg.className = "msg ok"; msg.textContent = "FAQ ready ✓ (double-check before sharing)";
-      } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to generate FAQ.";
-      }
-    }
-
     async function generateFaqAnswerFn() {
       const msg = document.getElementById("faqAnswerMsg");
       const btn = document.getElementById("faqAnswerBtn");
@@ -10726,13 +10759,14 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const question = document.getElementById("faqQuestion").value.trim();
       if (!question) { msg.className = "msg err"; msg.textContent = "Please enter the question first."; return; }
       btn.disabled = true;
-      msg.className = "msg"; msg.textContent = "Nulis jawaban...";
+      msg.className = "msg"; msg.textContent = "Writing answer...";
       const r = await api("generateFaqAnswer", { token: getToken(), context, knownFacts, question, workshopName: info.name });
       btn.disabled = false;
       if (r && r.status === "success" && r.answer) {
         const out = document.getElementById("faqAnswerOut");
         out.value = r.answer; out.style.display = "block";
         document.getElementById("faqCopyAnswerBtn").style.display = "inline-flex";
+        document.getElementById("faqAddToListBtn").style.display = "inline-flex";
         msg.className = "msg ok"; msg.textContent = "Answer ready ✓ (double-check it before sending)";
       } else {
         handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to generate answer.";

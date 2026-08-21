@@ -18,6 +18,10 @@ const prepKey = (event: string, type: string) => `prep__${event}__${type}`;
 // Konteks FAQ per BATCH (bukan per workshop kayak prepKey lainnya) --
 // venue/rute/bawaan beda tiap batch/volume event yang sama.
 const prepFaqKey = (event: string, batchId: string) => `prep__${event}__faqcontext__${batchId || "general"}`;
+// List FAQ yang numpuk dari jawaban Quick Response yang di-approve Arnold
+// (bukan hasil generate sekaligus) -- per BATCH juga, sama alasan kayak
+// prepFaqKey (venue/detail beda tiap batch).
+const prepFaqListKey = (event: string, batchId: string) => `prep__${event}__faqlist__${batchId || "general"}`;
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
 
 // Admin ngetik tanggal event manual via prompt() di dashboard, format yang
@@ -856,37 +860,30 @@ Kasih:
         return jsonResponse({ status: "success", message: "Konteks tersimpan." });
       }
 
-      case "generateFaqBlock": {
-        const context = String(data.context || "").trim();
-        const knownFacts = String(data.knownFacts || "").trim();
-        const wsName = String(data.workshopName || "workshop ini");
-        if (!context && !knownFacts) return errorResponse("Belum ada info apapun buat event ini.");
-        const geminiKey = Deno.env.get("GEMINI_API_KEY");
-        if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
+      case "getPrepFaqList": {
+        const event = String(data.event || "");
+        if (!WORKSHOP_TYPES.includes(event)) return errorResponse("Event tidak dikenal: " + event);
+        const batchId = String(data.batchId || "");
+        const json = await getConfigValue(admin, prepFaqListKey(event, batchId));
+        // deno-lint-ignore no-explicit-any
+        let list: any[] = [];
+        try { list = json ? JSON.parse(json) : []; } catch (_e) { list = []; }
+        return jsonResponse({ status: "success", list });
+      }
 
-        const prompt = `Info dasar event "${wsName}" (data yang udah pasti akurat dari sistem):
-"""
-${knownFacts || "(nggak ada info dasar tersedia)"}
-"""
-
-Konteks tambahan yang diisi manual (venue detail/rute transport/apa yang perlu dibawa/dst, yang sistem GA tau otomatis):
-"""
-${context || "(belum ada konteks tambahan yang diisi)"}
-"""
-
-Buatin daftar FAQ (tanya-jawab) yang mengantisipasi pertanyaan paling umum yang bakal ditanyain peserta terkait KEDUA info di atas (jadwal, lokasi, harga, cara ke sana/rute transport, apa yang perlu dibawa, dsb) -- SESUAIKAN PERSIS sama apa yang ada di kedua blok itu, JANGAN NGARANG info yang nggak disebut di sana.
-
-Format tiap FAQ:
-Q: [pertanyaan]
-A: [jawaban]
-
-Pisahkan tiap FAQ dengan baris kosong. Gaya jawaban santai & akrab (bukan formal kayak surat resmi), boleh emoji secukupnya. Balas HANYA daftar FAQ-nya, tanpa kalimat pembuka/penutup tambahan.`;
-
-        const result = await callGemini(geminiKey, prompt);
-        if (!result.ok) return errorResponse("Gagal generate FAQ: " + result.error);
-        const block = String(result.text || "").trim();
-        if (!block) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
-        return jsonResponse({ status: "success", block });
+      case "savePrepFaqList": {
+        const event = String(data.event || "");
+        if (!WORKSHOP_TYPES.includes(event)) return errorResponse("Event tidak dikenal: " + event);
+        const batchId = String(data.batchId || "");
+        const list = Array.isArray(data.list)
+          // deno-lint-ignore no-explicit-any
+          ? data.list.slice(0, 50).map((it: any) => ({
+            question: String(it?.question || "").slice(0, 500),
+            answer: String(it?.answer || "").slice(0, 2000),
+          }))
+          : [];
+        await setConfigValue(admin, prepFaqListKey(event, batchId), JSON.stringify(list));
+        return jsonResponse({ status: "success" });
       }
 
       case "generateFaqAnswer": {
