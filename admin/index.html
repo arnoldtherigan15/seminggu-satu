@@ -4166,7 +4166,11 @@
               <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal Buka Pendaftaran</label><input class="form-control" type="text" id="batchOpenDate" placeholder="ikut Config, mis. 1 Juli 2026"></div>
               <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal Tutup Pendaftaran</label><input class="form-control" type="text" id="batchCloseDate" placeholder="ikut Config, mis. 10 Juli 2026"></div>
             </div>
-            <button class="btn btn-sm" id="batchDetailSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Detail Batch</button>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <button class="btn btn-sm" id="batchDetailSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Detail Batch</button>
+              <button class="btn btn-sm btn-ghost" id="batchArchiveBtn" style="margin-left:auto;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Arsipkan Batch</button>
+            </div>
+            <p class="hint" id="batchArchiveHint" style="margin-top:6px;"></p>
             <div class="msg" id="batchDetailMsg"></div>
           </div>
         </div>
@@ -6665,6 +6669,7 @@
         document.getElementById("cfgReloadBtn").addEventListener("click", loadConfig);
         document.getElementById("cfgNewBtn").addEventListener("click", createNewWorkshopConfig);
         document.getElementById("batchDetailSaveBtn").addEventListener("click", saveCfgBatchDetailFn);
+        document.getElementById("batchArchiveBtn").addEventListener("click", toggleCfgBatchArchive);
         wireRibuanInput(document.getElementById("batchNormalPrice"));
         wireRibuanInput(document.getElementById("batchEarlyBirdPrice"));
         await loadConfig();
@@ -6684,7 +6689,40 @@
       const r = await api("listBatches", { token: getToken(), workshop: w.id });
       CFG_BATCHES = (r && r.status === "success") ? (r.batches || []) : [];
       sel.innerHTML = `<option value="">— Config Umum (semua batch) —</option>` +
-        CFG_BATCHES.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.active ? " • Buka" : ""}</option>`).join("");
+        CFG_BATCHES.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.archived ? " • Diarsipkan" : (b.active ? " • Buka" : "")}</option>`).join("");
+      onCfgBatchChange();
+    }
+
+    // Tombol Arsipkan/Buka Arsip di kartu Detail Batch -- reflect status
+    // batch yang lagi dipilih (archived: dikecualikan total dari revenue/
+    // profit/jumlah peserta & otomatis ditutup pendaftarannya).
+    function updateBatchArchiveBtn() {
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      const btn = document.getElementById("batchArchiveBtn");
+      const hint = document.getElementById("batchArchiveHint");
+      const b = CFG_BATCHES.find(x => x.id === batchId);
+      const archived = !!(b && b.archived);
+      btn.innerHTML = archived
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Buka Arsip'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Arsipkan Batch';
+      hint.textContent = archived
+        ? "Batch ini diarsipkan -- pendaftaran ditutup, dan dikecualikan dari kuota, revenue/profit, & jumlah peserta di mana pun (Overview, Analitik, Finance)."
+        : "Buat batch testing / data kotor yang nggak boleh kecampur ke perhitungan apa pun -- row-nya tetep kesimpen, cuma dikecualikan dari kuota & revenue/profit/jumlah peserta.";
+    }
+
+    async function toggleCfgBatchArchive() {
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      if (!batchId) return;
+      const b = CFG_BATCHES.find(x => x.id === batchId);
+      const willArchive = !(b && b.archived);
+      if (willArchive && !confirm(`Arsipkan batch "${b ? b.label : ""}"? Pendaftarannya bakal ditutup, dan batch ini dikecualikan total dari kuota/revenue/profit/jumlah peserta di mana pun. Row-nya tetep kesimpen, bisa dibuka arsipnya lagi kapan aja.`)) return;
+      const btn = document.getElementById("batchArchiveBtn");
+      btn.disabled = true;
+      const r = await api("archiveBatch", { token: getToken(), batchId, archived: willArchive });
+      btn.disabled = false;
+      if (!r || r.status !== "success") { alert((r && r.message) || "Gagal."); return; }
+      await loadCfgBatches();
+      document.getElementById("cfgBatchSelect").value = batchId;
       onCfgBatchChange();
     }
 
@@ -6701,6 +6739,7 @@
         const b = CFG_BATCHES.find(x => x.id === batchId);
         document.getElementById("cfgBatchLabel").textContent = (b && b.label) || "";
         loadCfgBatchDetail();
+        updateBatchArchiveBtn();
       }
     }
 

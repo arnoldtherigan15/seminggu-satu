@@ -1,0 +1,13 @@
+-- ============================================================
+-- Arsip batch -- kasus: batch testing atau data kotor yang nggak boleh
+-- kecampur ke perhitungan APAPUN (revenue, profit, jumlah peserta,
+-- kuota publik) di manapun (Overview, Analitik, Finance/Keuangan, dst),
+-- tapi row-nya tetap disimpan (bukan dihapus -- masih perlu diliat buat
+-- rujukan/debug). Beda dari `active` (yang artinya "lagi buka
+-- pendaftaran") -- batch yang diarsipkan otomatis dipaksa active=false
+-- juga (server-side, lihat action archiveBatch), tapi sebaliknya nggak:
+-- batch non-aktif biasa (ditutup manual/lewat tanggal) TETAP kehitung
+-- di revenue/profit sepanjang waktu, cuma batch yang DIARSIPKAN yang
+-- dikecualikan total.
+-- ============================================================
+alter table batches add column archived boolean not null default false;

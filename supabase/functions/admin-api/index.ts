@@ -158,8 +158,10 @@ Deno.serve(async (req) => {
         // (bingung liat 2 batch "buka" tapi angkanya nggak nyambung sama
         // jumlah 2 batch itu doang). `summary`/`activeSheets` di bawah TETAP
         // scope active=true doang (dipake tempat lain: header Pendaftar/dsb),
-        // itu beda konsep dari revenue/profit di sini.
-        const { data: allBatches } = await admin.from("batches").select("*");
+        // itu beda konsep dari revenue/profit di sini. archived=false --
+        // batch yang diarsipkan (data kotor/testing) dikecualikan total,
+        // beda dari batch non-aktif biasa yang tetap kehitung.
+        const { data: allBatches } = await admin.from("batches").select("*").eq("archived", false);
         let cfg: Record<string, unknown>[] = [];
         try { cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
         const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
@@ -237,7 +239,7 @@ Deno.serve(async (req) => {
       // relevan buat analitik histori ("event mana paling untung sepanjang
       // waktu"), bukan cuma yang lagi buka sekarang.
       case "getAnalytics": {
-        const { data: allBatches } = await admin.from("batches").select("*").order("created_at", { ascending: true });
+        const { data: allBatches } = await admin.from("batches").select("*").eq("archived", false).order("created_at", { ascending: true });
         let cfg: Record<string, unknown>[] = [];
         try { cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
         const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
@@ -355,7 +357,7 @@ Deno.serve(async (req) => {
         for (const b of rows || []) {
           const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id).eq("archived", false);
           batches.push({
-            id: b.id, label: b.label || "", active: !!b.active, eventDate: b.event_date || "", count: count ?? 0,
+            id: b.id, label: b.label || "", active: !!b.active, archived: !!b.archived, eventDate: b.event_date || "", count: count ?? 0,
             locationName: b.location_name || "", mapsLink: b.maps_link || "",
             workshopTime: b.workshop_time || "", whatsappGroupLink: b.whatsapp_group_link || "",
             workshopDate: b.workshop_date || "",
@@ -414,6 +416,25 @@ Deno.serve(async (req) => {
         const { error } = await admin.from("batches").update({ active: open }).eq("id", batchId);
         if (error) return errorResponse("Batch tidak ditemukan.");
         return jsonResponse({ status: "success", message: open ? "Batch dibuka." : "Batch ditutup." });
+      }
+
+      // Beda dari batch non-aktif biasa: batch yang DIARSIPKAN dikecualikan
+      // total dari revenue/profit/jumlah peserta di getOverview & getAnalytics
+      // (lihat filter archived=false di sana), plus otomatis dipaksa
+      // active=false juga (nutup pendaftaran & kuota publik ikut kepotong
+      // lewat jalur active yang udah ada di register-workshop/workshop-counts/
+      // workshop-batches). Row batch-nya TETAP ada, cuma buat data
+      // testing/kotor yang nggak boleh kecampur ke perhitungan mana pun.
+      case "archiveBatch": {
+        const batchId = String(data.batchId || "");
+        if (!batchId) return errorResponse("Batch wajib dipilih.");
+        const archived = data.archived != null ? !!data.archived : true;
+        // deno-lint-ignore no-explicit-any
+        const patch: Record<string, any> = { archived };
+        if (archived) patch.active = false;
+        const { error } = await admin.from("batches").update(patch).eq("id", batchId);
+        if (error) return errorResponse("Batch tidak ditemukan.");
+        return jsonResponse({ status: "success", message: archived ? "Batch diarsipkan & pendaftarannya ditutup." : "Arsip dibuka lagi." });
       }
 
       case "renameBatch": {
@@ -1213,7 +1234,7 @@ Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tan
 
       // ---- Pesanan minum/makan per event (menu global + pesanan per batch) ----
       case "listAllBatches": {
-        const { data: rows } = await admin.from("batches").select("id, workshop_type, label, event_date").order("event_date", { ascending: false, nullsFirst: false });
+        const { data: rows } = await admin.from("batches").select("id, workshop_type, label, event_date").eq("archived", false).order("event_date", { ascending: false, nullsFirst: false });
         let nameMap: Record<string, string> = {};
         try {
           const cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]");
