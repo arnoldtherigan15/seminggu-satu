@@ -219,8 +219,14 @@ Deno.serve(async (req) => {
           batches: any[];
         }>();
         const soldOutBatches: Record<string, unknown>[] = [];
+        // Journaling Date sengaja dikecualikan dari analitik: itu event GRATIS
+        // khusus member yang udah aktivasi di Warga, bukan workshop berbayar --
+        // ikut kehitung bakal nyampur/nyamarin ranking revenue/profit/sold-out
+        // yang harusnya cuma buat workshop komersial.
+        const ANALYTICS_EXCLUDED_TYPES = new Set(["journaling-date"]);
 
         for (const b of allBatches || []) {
+          if (ANALYTICS_EXCLUDED_TYPES.has(b.workshop_type)) continue;
           const typeConfig = cfgByType.get(b.workshop_type) || {};
           const workshopName = String((typeConfig as Record<string, unknown>).name || b.workshop_type);
           const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
