@@ -5081,24 +5081,24 @@
     <div class="filter-overlay-box">
       <div class="filter-overlay-head">
         <button class="filter-back" id="mnFormBackBtn" aria-label="Tutup">&larr;</button>
-        <div class="filter-overlay-title" id="mnFormTitle">Menu Baru</div>
-        <button class="filter-reset-link" id="mnFormDeleteBtn" style="display:none;color:var(--err);">Hapus</button>
+        <div class="filter-overlay-title" id="mnFormTitle">New Menu Item</div>
+        <button class="filter-reset-link" id="mnFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="mnId">
-        <div class="konten-field"><label>Nama Menu</label><input class="form-control" type="text" id="mnName" placeholder="mis. Karak Chai Latte"></div>
-        <div class="konten-field"><label>Deskripsi</label><textarea class="form-control" id="mnDesc" rows="2" placeholder="mis. Premium spiced tea blend, slow-brewed with special milk."></textarea></div>
+        <div class="konten-field"><label>Menu Name</label><input class="form-control" type="text" id="mnName" placeholder="e.g. Karak Chai Latte"></div>
+        <div class="konten-field"><label>Description</label><textarea class="form-control" id="mnDesc" rows="2" placeholder="e.g. Premium spiced tea blend, slow-brewed with special milk."></textarea></div>
         <div class="konten-field">
-          <label>Gambar (optional)</label>
+          <label>Image (optional)</label>
           <input class="form-control" type="file" id="mnImageFile" accept="image/*">
           <div id="mnImagePreview" style="margin-top:8px;"></div>
           <input type="hidden" id="mnImageBase64"><input type="hidden" id="mnImageExisting">
         </div>
-        <label style="display:flex;gap:8px;align-items:center;font-weight:600;"><input type="checkbox" id="mnActive" checked style="width:16px;height:16px;accent-color:var(--brand);cursor:pointer;"> Aktif (bisa dipilih peserta)</label>
+        <label style="display:flex;gap:8px;align-items:center;font-weight:600;"><input type="checkbox" id="mnActive" checked style="width:16px;height:16px;accent-color:var(--brand);cursor:pointer;"> Active (participants can select it)</label>
         <div class="msg" id="mnMsg"></div>
       </div>
       <div class="filter-overlay-foot">
-        <button class="btn" id="mnSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Menu</button>
+        <button class="btn" id="mnSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Menu Item</button>
       </div>
     </div>
   </div>
@@ -6927,7 +6927,7 @@
       const count = parseInt(document.getElementById("batchVoidCount").value, 10) || 0;
       if (count <= 0) { msg.className = "msg err"; msg.textContent = "Please enter a count first."; return; }
       const note = document.getElementById("batchVoidNote").value.trim();
-      if (!confirm(`Tambahin ${count} data peserta manual (void) ke batch ini? Bakal kehitung normal di kuota/revenue/profit.`)) return;
+      if (!confirm(`Add ${count} manual participant entries (void) to this batch? They'll count normally toward quota/revenue/profit.`)) return;
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("addVoidRegistrations", { token: getToken(), batchId, count, note });
       if (r && r.status === "success") {
@@ -7081,7 +7081,7 @@
       sel.value = CONFIG.length - 1;
       renderConfigForm();
       loadCfgBatches();
-      alert("Event '" + id + "' ditambahkan. Isi detailnya, lalu klik 💾 Simpan Config ya.");
+      alert("Event '" + id + "' added. Fill in the details, then click 💾 Save Config.");
     }
 
     async function loadConfig() {
@@ -7133,10 +7133,10 @@
       const idx = Number(document.getElementById("cfgSelect").value) || 0;
       const w = CONFIG[idx];
       if (!w) return;
-      if (!confirm(`Hapus event "${w.name || w.id}" dari config?\n\nCatatan: ini hanya menghapus dari daftar config (halaman & dashboard). Data pendaftar di sheet TIDAK terhapus.`)) return;
+      if (!confirm(`Delete event "${w.name || w.id}" from config?\n\nNote: this only removes it from the config list (page & dashboard). Registrant data in the sheet is NOT deleted.`)) return;
       CONFIG.splice(idx, 1);
       const msg = document.getElementById("cfgMsg");
-      msg.className = "msg"; msg.textContent = "Menghapus...";
+      msg.className = "msg"; msg.textContent = "Deleting...";
       try {
         const r = await api("saveConfig", { token: getToken(), config: CONFIG });
         if (r.status === "success") {
@@ -7304,13 +7304,13 @@
         div.className = "konten-item" + (canReorder ? " draggable-item" : "");
         const dragHandle = canReorder ? `<span class="k-drag" title="Seret untuk atur urutan">⠿</span>` : "";
         const moveBtns = canReorder
-          ? `<button class="k-move k-up" title="Naik" ${idx === 0 ? "disabled" : ""}>▲</button>
-             <button class="k-move k-down" title="Turun" ${idx === KONTEN.length - 1 ? "disabled" : ""}>▼</button>`
+          ? `<button class="k-move k-up" title="Move up" ${idx === 0 ? "disabled" : ""}>▲</button>
+             <button class="k-move k-down" title="Move down" ${idx === KONTEN.length - 1 ? "disabled" : ""}>▼</button>`
           : "";
         div.innerHTML =
           `<div class="konten-item-head">
              <span class="k-head-left">${dragHandle}<span class="k-num">Item #${idx + 1}</span></span>
-             <span class="k-head-right">${moveBtns}<button class="k-del" data-idx="${idx}">Hapus</button></span>
+             <span class="k-head-right">${moveBtns}<button class="k-del" data-idx="${idx}">Delete</button></span>
            </div>` +
           fields.map(f => {
             const val = item[f.key] != null ? item[f.key] : "";
@@ -7976,8 +7976,8 @@
         caption: document.getElementById("epCaption").value.trim(),
         photoBase64: _epBase64
       });
-      btn.disabled = false; btn.innerHTML = icon("plus") + " Tambah ke Galeri";
-      msg.textContent = (r && r.message) || "Selesai.";
+      btn.disabled = false; btn.innerHTML = icon("plus") + " Add to Gallery";
+      msg.textContent = (r && r.message) || "Done.";
       if (r && r.status === "success") {
         _epBase64 = "";
         document.getElementById("epFile").value = "";
@@ -8549,7 +8549,7 @@
     // Layar Tambah/Edit Menu -- full-screen, pola sama kayak Akun/Kategori/
     // Transaksi/Target/Database Item/Challenge.
     function openMenuForm(isEdit) {
-      document.getElementById("mnFormTitle").textContent = isEdit ? "Edit Menu" : "Menu Baru";
+      document.getElementById("mnFormTitle").textContent = isEdit ? "Edit Menu Item" : "New Menu Item";
       document.getElementById("mnFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
       document.getElementById("mnFormOverlay").style.display = "flex";
     }
@@ -8652,7 +8652,7 @@
       document.getElementById("pesOrderId").value = "";
       document.getElementById("pesOrderName").value = "";
       document.getElementById("pesOrderMenu").selectedIndex = 0;
-      document.getElementById("pesOrderSaveBtn").innerHTML = icon("save") + " Simpan Pesanan";
+      document.getElementById("pesOrderSaveBtn").innerHTML = icon("save") + " Save Order";
       document.getElementById("pesOrderMsg").textContent = "";
     }
 
@@ -8662,7 +8662,7 @@
       document.getElementById("pesOrderId").value = o.id;
       document.getElementById("pesOrderName").value = o.participantName;
       document.getElementById("pesOrderMenu").value = o.menuItemId;
-      document.getElementById("pesOrderSaveBtn").innerHTML = icon("save") + " Simpan Perubahan";
+      document.getElementById("pesOrderSaveBtn").innerHTML = icon("save") + " Save Changes";
       document.getElementById("pesOrderMsg").textContent = "";
       openPesOrderForm(true);
     }
@@ -9642,7 +9642,7 @@
       onTxTypeChange();
       if (document.getElementById("txAccount").options.length) document.getElementById("txAccount").selectedIndex = 0;
       if (document.getElementById("txToAccount").options.length) document.getElementById("txToAccount").selectedIndex = 0;
-      document.getElementById("txSaveBtn").innerHTML = icon("save") + " Simpan Transaksi";
+      document.getElementById("txSaveBtn").innerHTML = icon("save") + " Save Transaction";
       document.getElementById("txMsg").textContent = "";
     }
 
@@ -9658,7 +9658,7 @@
       if (t.type === "transfer") document.getElementById("txToAccount").value = t.to_account_id || "";
       else document.getElementById("txCategory").value = t.category_id || "";
       document.getElementById("txNote").value = t.note || "";
-      document.getElementById("txSaveBtn").innerHTML = icon("save") + " Simpan Perubahan";
+      document.getElementById("txSaveBtn").innerHTML = icon("save") + " Save Changes";
       document.getElementById("txMsg").textContent = "";
       openTxForm(true);
     }
@@ -11503,34 +11503,34 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
       const igLine = m.ig ? `<div class="det-row"><span>${icon("camera")} Instagram</span><b>@${escapeHtml(m.ig.replace(/^@/, ""))}</b></div>` : "";
       const actions =
-        `<button class="btn btn-sm loy-passport">${icon("ticket")} Buat Passport</button>` +
-        (m.eligible ? `<button class="btn btn-sm loy-claim">${icon("gift")} Tukar Hadiah</button>` : "") +
-        (m.claimed > 0 ? `<button class="btn btn-sm btn-ghost loy-unclaim">↩︎ Batal 1 penukaran</button>` : "");
+        `<button class="btn btn-sm loy-passport">${icon("ticket")} Create Passport</button>` +
+        (m.eligible ? `<button class="btn btn-sm loy-claim">${icon("gift")} Redeem Reward</button>` : "") +
+        (m.claimed > 0 ? `<button class="btn btn-sm btn-ghost loy-unclaim">↩︎ Undo 1 redemption</button>` : "");
 
       document.getElementById("loyaltyDetail").innerHTML = `
-        <h2 class="det-name">${escapeHtml(m.nickname || m.fullName || "(tanpa nama)")}</h2>
+        <h2 class="det-name">${escapeHtml(m.nickname || m.fullName || "(no name)")}</h2>
         <div class="loy-stamps det-stamps">${stamps}</div>
-        <div class="det-prog">${m.progress}/${LOYALTY_TARGET} stamp · Total ikut <b>${m.count}</b> · ${icon("gift")} ditukar <b>${m.claimed}</b></div>
+        <div class="det-prog">${m.progress}/${LOYALTY_TARGET} stamps · Attended <b>${m.count}</b> · ${icon("gift")} redeemed <b>${m.claimed}</b></div>
         ${actions ? `<div class="loy-actions">${actions}</div>` : ""}
 
         <div class="det-sec">
-          <div class="det-row"><span>${icon("tag")} Nama panggilan</span><b>${escapeHtml(m.nickname || "-")}</b></div>
-          <div class="det-row"><span>${icon("tag")} Nama lengkap</span><b>${escapeHtml(m.fullName || "-")}</b></div>
+          <div class="det-row"><span>${icon("tag")} Nickname</span><b>${escapeHtml(m.nickname || "-")}</b></div>
+          <div class="det-row"><span>${icon("tag")} Full Name</span><b>${escapeHtml(m.fullName || "-")}</b></div>
           <div class="det-row"><span>${icon("phone")} WhatsApp</span><b>${escapeHtml(m.wa || "-")}</b></div>
           ${igLine}
         </div>
 
         <div class="det-sec">
-          <h4>${icon("journal")} Catatan</h4>
+          <h4>${icon("journal")} Notes</h4>
           <div id="noteList">${notes || '<p class="hint">No notes yet.</p>'}</div>
           <div class="note-add">
-            <input class="form-control" type="text" id="noteInput" placeholder="mis. Ultah 12 Mei, suka warna pastel..." />
-            <button class="btn btn-sm" id="noteAddBtn">${icon("plus")} Tambah</button>
+            <input class="form-control" type="text" id="noteInput" placeholder="e.g. Birthday May 12, likes pastel colors..." />
+            <button class="btn btn-sm" id="noteAddBtn">${icon("plus")} Add</button>
           </div>
         </div>
 
         <div class="det-sec">
-          <h4>${icon("calendar")} Event yang diikuti (${m.events.length})</h4>
+          <h4>${icon("calendar")} Events Attended (${m.events.length})</h4>
           <ul class="det-events">${events}</ul>
         </div>
       `;
