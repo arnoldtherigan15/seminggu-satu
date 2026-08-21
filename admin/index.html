@@ -3886,7 +3886,7 @@
         <div class="wrap view" id="viewOverview">
           <div class="ov-income">
             <div class="ov-income-head">
-              <span class="ov-income-title">Pemasukan — Workshop Aktif</span>
+              <span class="ov-income-title">Pemasukan Total — Semua Event</span>
               <button class="ov-eye" id="incomeToggle" title="Tampilkan/sembunyikan"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg></button>
             </div>
             <div class="ov-income-body">
@@ -6570,22 +6570,30 @@
     function renderIncomeBreakdown() {
       const box = document.getElementById("ovIncomeBreakdown");
       if (!box) return;
-      if (!REVENUE_BREAKDOWN.length) { box.innerHTML = `<p style="color:rgba(255,255,255,.75);font-size:12.5px;margin:0;">Nggak ada batch aktif.</p>`; return; }
-      box.innerHTML = REVENUE_BREAKDOWN.map(b => `
+      if (!REVENUE_BREAKDOWN.length) { box.innerHTML = `<p style="color:rgba(255,255,255,.75);font-size:12.5px;margin:0;">Belum ada batch.</p>`; return; }
+      box.innerHTML = REVENUE_BREAKDOWN.map(b => {
+        let status = "";
+        if (b.isOpen) status = " · masih buka";
+        else if (b.active) status = " · pendaftaran udah tutup";
+        else status = " · nonaktif";
+        return `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,.15);">
           <div style="min-width:0;">
             <div style="font-size:12.5px;font-weight:700;">${escapeHtml(b.workshopName)} — ${escapeHtml(b.label)}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.7);">${b.count} peserta${b.isOpen ? "" : " · sudah nggak buka pendaftaran, tapi tetep kehitung"}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.7);">${b.count} peserta${status}</div>
           </div>
           <div style="text-align:right;flex-shrink:0;font-size:12.5px;font-weight:700;">${rupiah(b.profit)}</div>
-        </div>`).join("");
+        </div>`;
+      }).join("");
     }
 
     function renderOverview() {
       // Revenue/profit dihitung SERVER-SIDE (getOverview) dari SEMUA batch
-      // aktif (bukan cuma yang lagi buka pendaftaran) -- pendaftaran ditutup
-      // bukan berarti duitnya ilang. lastIncome udah diisi pas data overview
-      // dimuat, di sini cuma tinggal render.
+      // SEPANJANG WAKTU (bukan cuma yang aktif/lagi buka pendaftaran) --
+      // "Pemasukan Total" beneran total, biar nggak ambigu/nggak nyambung
+      // sama jumlah kartu "Workshop Sedang Buka" yang keliatan (yang scope-nya
+      // beda, cuma batch yang BENERAN masih buka). lastIncome udah diisi pas
+      // data overview dimuat, di sini cuma tinggal render.
       renderIncome();
 
       // Kartu 1 per BATCH yang BENERAN masih buka pendaftaran (OPEN_BATCHES

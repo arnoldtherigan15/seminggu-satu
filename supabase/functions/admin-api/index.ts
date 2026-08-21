@@ -134,7 +134,15 @@ Deno.serve(async (req) => {
       }
 
       case "getOverview": {
-        const { data: activeBatches } = await admin.from("batches").select("*").eq("active", true);
+        // SEMUA batch (bukan cuma active=true) -- "Pemasukan"/"Perkiraan
+        // Untung" itu TOTAL sepanjang waktu, semua event semua batch (bukan
+        // cuma yang "lagi aktif"), biar 1 angka jujur nunjukin seluruh
+        // history, bukan gabungan yang scope-nya nggak jelas ke user
+        // (bingung liat 2 batch "buka" tapi angkanya nggak nyambung sama
+        // jumlah 2 batch itu doang). `summary`/`activeSheets` di bawah TETAP
+        // scope active=true doang (dipake tempat lain: header Pendaftar/dsb),
+        // itu beda konsep dari revenue/profit di sini.
+        const { data: allBatches } = await admin.from("batches").select("*");
         let cfg: Record<string, unknown>[] = [];
         try { cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
         const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
@@ -148,28 +156,36 @@ Deno.serve(async (req) => {
 
         const summary: Record<string, number> = {};
         for (const id of WORKSHOP_TYPES) summary[id] = 0;
-        // openBatches: 1 entri per batch yang BENERAN masih buka pendaftaran
-        // (isBatchOpen -- dulu semua batch active=true masuk sini apa adanya,
-        // jadi batch yang acaranya udah lewat & lupa ditutup manual nyangkut
-        // terus "kelihatan buka" di Overview). Revenue/profit di bawah TETAP
-        // dihitung dari SEMUA batch aktif (bukan cuma yang openBatches) --
-        // pendaftaran ditutup bukan berarti duitnya ilang, itu tetap
-        // pemasukan beneran yang harus kelihatan di Overview.
         const openBatches: Record<string, unknown>[] = [];
-        // revenueBreakdown: 1 entri per batch AKTIF yang nyumbang ke
-        // revenue/profit di atas (termasuk yang udah nggak "open" lagi --
-        // isOpen:false) -- biar "Pemasukan/Perkiraan Untung" nggak jadi angka
-        // misterius pas jumlah batch yang nyumbang > jumlah kartu "Workshop
-        // Sedang Buka" yang kelihatan (batch aktif TAPI pendaftarannya udah
-        // ditutup/lewat tetep somasuk itungan, sengaja, liat komentar di bawah).
+        // revenueBreakdown: 1 entri per batch (SEMUA, bukan cuma aktif) yang
+        // nyumbang ke revenue/profit di bawah -- biar "Pemasukan/Perkiraan
+        // Untung" nggak jadi angka misterius, bisa di-expand liat asalnya
+        // dari batch mana aja.
         const revenueBreakdown: Record<string, unknown>[] = [];
         let revenue = 0, profit = 0;
-        for (const b of activeBatches || []) {
+        // Journaling Date dikecualikan -- event gratis khusus member Warga
+        // yang udah aktivasi, bukan workshop berbayar (sama kayak
+        // getAnalytics, biar konsisten antar 2 angka ini).
+        const REVENUE_EXCLUDED_TYPES = new Set(["journaling-date"]);
+        for (const b of allBatches || []) {
           const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
           const usedCount = count ?? 0;
-          summary[b.workshop_type] = (summary[b.workshop_type] || 0) + usedCount;
+          if (b.active) summary[b.workshop_type] = (summary[b.workshop_type] || 0) + usedCount;
           const typeConfig = cfgByType.get(b.workshop_type) || {};
           const merged = mergeBatchConfig(b, typeConfig);
+          const open = isBatchOpen(merged);
+
+          if (open) {
+            openBatches.push({
+              workshopType: b.workshop_type,
+              workshopName: (typeConfig as Record<string, unknown>).name || b.workshop_type,
+              batchId: b.id, label: merged.label, count: usedCount,
+              maxQuota: merged.maxQuota, eventDateIso: merged.eventDateIso, displayDate: merged.displayDate,
+              workshopTime: merged.workshopTime, locationName: merged.locationName,
+              currentPrice: currentPrice(merged, usedCount),
+            });
+          }
+          if (REVENUE_EXCLUDED_TYPES.has(b.workshop_type)) continue;
 
           const price = currentPrice(merged, usedCount);
           const rev = price * usedCount;
@@ -178,22 +194,11 @@ Deno.serve(async (req) => {
           for (const it of items) cost += it.tipe === "tetap" ? it.biaya : it.biaya * usedCount;
           const batchProfit = rev - cost;
           revenue += rev; profit += batchProfit;
-          const open = isBatchOpen(merged);
           revenueBreakdown.push({
             workshopType: b.workshop_type,
             workshopName: (typeConfig as Record<string, unknown>).name || b.workshop_type,
             batchId: b.id, label: merged.label, count: usedCount,
-            revenue: rev, profit: batchProfit, isOpen: open,
-          });
-
-          if (!open) continue;
-          openBatches.push({
-            workshopType: b.workshop_type,
-            workshopName: (typeConfig as Record<string, unknown>).name || b.workshop_type,
-            batchId: b.id, label: merged.label, count: usedCount,
-            maxQuota: merged.maxQuota, eventDateIso: merged.eventDateIso, displayDate: merged.displayDate,
-            workshopTime: merged.workshopTime, locationName: merged.locationName,
-            currentPrice: price,
+            revenue: rev, profit: batchProfit, isOpen: open, active: !!b.active,
           });
         }
         const members = await loyaltyMembers(admin);
@@ -204,7 +209,7 @@ Deno.serve(async (req) => {
         // per tipe kalau ada lebih dari 1 aktif; `openBatches` di atas adalah
         // sumber data yang lengkap/akurat buat tipe yang punya 2+ batch buka.
         const activeSheets: Record<string, string> = {};
-        for (const b of activeBatches || []) if (!activeSheets[b.workshop_type]) activeSheets[b.workshop_type] = b.id;
+        for (const b of allBatches || []) if (b.active && !activeSheets[b.workshop_type]) activeSheets[b.workshop_type] = b.id;
         return jsonResponse({ status: "success", summary, modal, ideas, members, activeSheets, openBatches, revenue, profit, revenueBreakdown });
       }
 
