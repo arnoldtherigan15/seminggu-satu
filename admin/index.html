@@ -2884,33 +2884,6 @@
       gap: 10px;
     }
 
-    .ach-level {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-    }
-
-    .ach-level-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
-
-    .ach-level-name {
-      font-weight: 800;
-      font-size: 15px;
-    }
-
-    .ach-level-next {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
     .ach-stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -2943,39 +2916,6 @@
       color: var(--muted);
     }
 
-    .ach-badges {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-      gap: 8px;
-    }
-
-    .ach-badge {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px 6px;
-      text-align: center;
-      background: #f8fafc;
-      opacity: .5;
-      filter: grayscale(1);
-    }
-
-    .ach-badge.on {
-      opacity: 1;
-      filter: none;
-      background: #fffbeb;
-      border-color: #fde68a;
-    }
-
-    .ach-badge-e {
-      display: block;
-      font-size: 24px;
-    }
-
-    .ach-badge-t {
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--muted);
-    }
 
     /* --- Recap card --- */
     .recap-tabs {
@@ -3959,10 +3899,10 @@
           <div id="ovCards" class="ov-cards"></div>
 
           <div class="ach-headrow" style="margin:28px 0;">
-            <h3 class="ov-section-title" style="margin:0;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5q0 .807-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33 33 0 0 1 2.5.5m.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935m10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935M3.504 1q.01.775.056 1.469c.13 2.028.457 3.546.87 4.667C5.294 9.48 6.484 10 7 10a.5.5 0 0 1 .5.5v2.61a1 1 0 0 1-.757.97l-1.426.356a.5.5 0 0 0-.179.085L4.5 15h7l-.638-.479a.5.5 0 0 0-.18-.085l-1.425-.356a1 1 0 0 1-.757-.97V10.5A.5.5 0 0 1 9 10c.516 0 1.706-.52 2.57-2.864.413-1.12.74-2.64.87-4.667q.045-.694.056-1.469z"/></svg> Pencapaian Kamu</h3>
+            <h3 class="ov-section-title" style="margin:0;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/></svg> Analitik Workshop</h3>
             <button class="btn btn-sm" id="recapBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .07 0 .27-.038.494H15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 14.5V7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h2.038A3 3 0 0 1 3 2.506zm1.068.5H7v-.5a1.5 1.5 0 1 0-3 0c0 .085.002.274.045.43zM9 3h2.932l.023-.07c.043-.156.045-.345.045-.43a1.5 1.5 0 0 0-3 0zM1 4v2h6V4zm8 0v2h6V4zm5 3H9v8h4.5a.5.5 0 0 0 .5-.5zm-7 8V7H2v7.5a.5.5 0 0 0 .5.5z"/></svg> Buat Wrapped</button>
           </div>
-          <div id="achievements"></div>
+          <div id="analytics"></div>
 
           <h3 class="ov-section-title" style="margin-top:28px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg> Ide Workshop Berikutnya</h3>
           <div class="fin-card">
@@ -6524,8 +6464,6 @@
       // hasilnya di-cache di server, jadi buka berikutnya makin ngebut.
       if (!overviewDataLoaded) {
         document.getElementById("ovCards").innerHTML = `<div class="skel-card">${skelLines(3)}</div><div class="skel-card">${skelLines(3)}</div>`;
-        const ach = document.getElementById("achievements");
-        if (ach) ach.innerHTML = `<div class="skel-card">${skelLines(3)}</div>`;
         try {
           const r = await api("getOverview", { token: getToken() });
           if (r.status === "success") {
@@ -6536,14 +6474,13 @@
             ACTIVE_SHEETS = r.activeSheets || {};
             OPEN_BATCHES = r.openBatches || [];
             lastIncome = { revenue: r.revenue || 0, profit: r.profit || 0 };
-            STATS = computeStats(WRAP_MEMBERS);
             overviewDataLoaded = true;
             renderIdeas();
           } else { handleAuthError(r); }
         } catch (e) { /* tampilkan apa adanya */ }
+        loadAnalytics();
       }
       renderOverview();
-      renderAchievements();
     }
     let overviewDataLoaded = false;
 
@@ -11339,91 +11276,65 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
       }
     }
 
-    // ---------- PENCAPAIAN (gamifikasi) + RECAP ----------
-    let STATS = null;
+    // ---------- ANALITIK (beneran, bukan gamifikasi) + RECAP ----------
     let WRAP_MEMBERS = [];
     let ACTIVE_SHEETS = {};
     let OPEN_BATCHES = [];
+    let ANALYTICS = null;
     let recapMode = "all";
-    const MONTHS_ = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
-    const LEVELS_ = [
-      { min: 0, name: "Perintis 🌱" }, { min: 50, name: "Penggerak 🚀" }, { min: 100, name: "Kreator ⭐" },
-      { min: 200, name: "Juragan Workshop 👑" }, { min: 350, name: "Legenda 🏆" }, { min: 600, name: "Maestro 💎" }
-    ];
 
-    function computeStats(members) {
-      let totalReg = 0, rewards = 0, loyal = 0;
-      const eventSet = new Set();
-      const byMonth = {}; // "yyyy-mm" -> { reg, events:Set }
-      members.forEach(m => {
-        totalReg += m.count;
-        rewards += (m.claimed || 0);
-        if (m.count >= 6) loyal++;
-        m.events.forEach(e => {
-          const evKey = e.workshop + "|" + e.label;
-          eventSet.add(evKey);
-          const mm = String(e.date || "").match(/^(\d{1,2}) (\w{3}) (\d{4})$/);
-          if (mm && MONTHS_[mm[2]] !== undefined) {
-            const key = mm[3] + "-" + String(MONTHS_[mm[2]] + 1).padStart(2, "0");
-            if (!byMonth[key]) byMonth[key] = { reg: 0, events: new Set() };
-            byMonth[key].reg++; byMonth[key].events.add(evKey);
-          }
-        });
-      });
-      return { unique: members.length, totalReg, events: eventSet.size, rewards, loyal, byMonth };
-    }
-
-    async function loadStats() {
-      const box = document.getElementById("achievements");
-      if (box) box.innerHTML = `<div class="skel-card">${skelLines(3)}</div>`;
+    async function loadAnalytics() {
+      const box = document.getElementById("analytics");
+      if (box) box.innerHTML = `<div class="skel-card">${skelLines(4)}</div>`;
       try {
-        const r = await api("getLoyalty", { token: getToken() });
-        if (r.status !== "success") { handleAuthError(r); if (box) box.innerHTML = `<p class="hint">Gagal memuat pencapaian.</p>`; return; }
-        WRAP_MEMBERS = r.members || [];
-        STATS = computeStats(WRAP_MEMBERS);
-        renderAchievements();
-      } catch (e) { if (box) box.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat pencapaian.</p>`; }
+        const r = await api("getAnalytics", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); if (box) box.innerHTML = `<p class="hint">Gagal memuat analitik.</p>`; return; }
+        ANALYTICS = r;
+        renderAnalytics();
+      } catch (e) { if (box) box.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat analitik.</p>`; }
     }
 
-    function levelInfo(totalReg) {
-      let idx = 0;
-      for (let i = 0; i < LEVELS_.length; i++) if (totalReg >= LEVELS_[i].min) idx = i;
-      const cur = LEVELS_[idx], next = LEVELS_[idx + 1] || null;
-      const prog = next ? Math.min(100, Math.round((totalReg - cur.min) / (next.min - cur.min) * 100)) : 100;
-      return { level: idx + 1, name: cur.name, next, prog, toNext: next ? next.min - totalReg : 0 };
-    }
+    function renderAnalytics() {
+      const box = document.getElementById("analytics");
+      if (!box) return;
+      if (!ANALYTICS || !ANALYTICS.events || !ANALYTICS.events.length) { box.innerHTML = `<p class="hint">Belum ada data event.</p>`; return; }
+      const t = ANALYTICS.totals;
+      const h = ANALYTICS.highlights;
+      const byProfit = [...ANALYTICS.events].sort((a, b) => b.totalProfit - a.totalProfit);
 
-    function renderAchievements() {
-      if (!STATS) return;
-      const s = STATS;
-      const L = levelInfo(s.totalReg);
-      const badges = [
-        { e: "🎬", t: "Event Pertama", ok: s.events >= 1 },
-        { e: "🖐️", t: "5 Event", ok: s.events >= 5 },
-        { e: "🔟", t: "10 Event", ok: s.events >= 10 },
-        { e: "👥", t: "50 Pendaftaran", ok: s.totalReg >= 50 },
-        { e: "💯", t: "100 Pendaftaran", ok: s.totalReg >= 100 },
-        { e: "🧑‍🤝‍🧑", t: "50 Peserta Unik", ok: s.unique >= 50 },
-        { e: "🎁", t: "Hadiah Pertama", ok: s.rewards >= 1 },
-        { e: "⭐", t: "Punya Loyalis 6★", ok: s.loyal >= 1 }
-      ];
-      document.getElementById("achievements").innerHTML = `
-        <div class="ach-level">
-          <div class="ach-level-top">
-            <span class="ach-level-name">Lv.${L.level} · ${L.name}</span>
-            ${L.next ? `<span class="ach-level-next">${L.toNext} pendaftaran lagi → ${escapeHtml(L.next.name)}</span>` : `<span class="ach-level-next">Level maksimal 🎉</span>`}
+      const highlightCards = [
+        h.mostProfitableEvent ? `<div class="fin-card" style="border-left:4px solid var(--ok);"><div class="hint" style="margin:0 0 2px;">💰 Event paling untung</div><div style="font-weight:800;">${escapeHtml(h.mostProfitableEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${rupiah(h.mostProfitableEvent.totalProfit)} profit</div></div>` : "",
+        h.mostPopularEvent ? `<div class="fin-card" style="border-left:4px solid var(--brand);"><div class="hint" style="margin:0 0 2px;">🔥 Event paling rame</div><div style="font-weight:800;">${escapeHtml(h.mostPopularEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${h.mostPopularEvent.totalParticipants} peserta total</div></div>` : "",
+        h.mostSoldOutEvent ? `<div class="fin-card" style="border-left:4px solid #fb6340;"><div class="hint" style="margin:0 0 2px;">🎯 Event paling laku</div><div style="font-weight:800;">${escapeHtml(h.mostSoldOutEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${h.mostSoldOutEvent.soldOutCount}/${h.mostSoldOutEvent.batchCount} batch sold out</div></div>` : "",
+      ].filter(Boolean).join("");
+
+      const eventRows = byProfit.map(e => `
+        <div class="fin-card" style="margin-bottom:8px;padding:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <b>${escapeHtml(e.workshopName)}</b>
+            <span class="hint" style="margin:0;">${e.batchCount} batch · ${e.totalParticipants} peserta${e.soldOutCount ? ` · ${e.soldOutCount} sold out` : ""}</span>
           </div>
-          <div class="ov-progress"><div class="ov-progress-bar" style="width:${L.prog}%"></div></div>
+          <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;">
+            <div><span class="hint" style="margin:0;">Revenue</span><div style="font-weight:700;">${rupiah(e.totalRevenue)}</div></div>
+            <div><span class="hint" style="margin:0;">Profit</span><div style="font-weight:700;color:${e.totalProfit >= 0 ? "var(--ok)" : "var(--err)"};">${rupiah(e.totalProfit)}</div></div>
+          </div>
+        </div>`).join("");
+
+      const soldOutList = (h.soldOutBatches || []).slice(0, 6).map(b =>
+        `<div class="hint" style="margin:0 0 4px;">🎯 <b style="color:var(--ink);">${escapeHtml(b.workshopName)} — ${escapeHtml(b.label)}</b> (${b.count}/${b.maxQuota}${b.displayDate ? `, ${escapeHtml(b.displayDate)}` : ""})</div>`
+      ).join("");
+
+      box.innerHTML = `
+        <div class="ach-stats" style="margin-bottom:14px;">
+          <div class="ach-stat"><b>${t.events}</b><span>Event</span></div>
+          <div class="ach-stat"><b>${t.batches}</b><span>Total batch</span></div>
+          <div class="ach-stat"><b>${t.participants}</b><span>Total peserta</span></div>
+          <div class="ach-stat"><b style="font-size:15px;">${rupiah(t.revenue)}</b><span>Revenue sepanjang waktu</span></div>
         </div>
-        <div class="ach-stats">
-          <div class="ach-stat"><b>${s.events}</b><span>Event</span></div>
-          <div class="ach-stat"><b>${s.unique}</b><span>Peserta unik</span></div>
-          <div class="ach-stat"><b>${s.totalReg}</b><span>Total daftar</span></div>
-          <div class="ach-stat"><b>${s.rewards}</b><span>🎁 Hadiah</span></div>
-        </div>
-        <div class="ach-badges">
-          ${badges.map(b => `<div class="ach-badge ${b.ok ? "on" : ""}" title="${b.ok ? "Tercapai" : "Belum"}"><span class="ach-badge-e">${b.e}</span><span class="ach-badge-t">${b.t}</span></div>`).join("")}
-        </div>`;
+        ${highlightCards ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px;">${highlightCards}</div>` : ""}
+        ${soldOutList ? `<div class="fin-card" style="margin-bottom:14px;"><div style="font-weight:800;margin-bottom:8px;">Batch yang pernah sold out</div>${soldOutList}</div>` : ""}
+        <div style="font-weight:800;margin-bottom:8px;">Per Event (diurutkan dari paling untung)</div>
+        ${eventRows}`;
     }
 
     // ---- Wrapped / IG Story (buat share medsos) ----
@@ -11471,7 +11382,7 @@ Yang perlu dibawa: journal pribadi, alat tulis, botol minum sendiri."></textarea
     }
 
     function openRecap() {
-      if (!WRAP_MEMBERS.length && !STATS) { alert("Data masih dimuat, coba lagi sebentar."); return; }
+      if (!WRAP_MEMBERS.length) { alert("Data masih dimuat, coba lagi sebentar."); return; }
       recapMode = "all";
       document.querySelectorAll(".recap-tab").forEach(x => x.classList.toggle("active", x.dataset.mode === "all"));
       renderRecap();

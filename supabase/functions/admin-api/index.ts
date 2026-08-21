@@ -193,6 +193,89 @@ Deno.serve(async (req) => {
         return jsonResponse({ status: "success", summary, modal, ideas, members, activeSheets, openBatches, revenue, profit });
       }
 
+      // Analitik beneran (bukan gamifikasi) -- daftar event & batch,
+      // partisipan, revenue/profit, event paling untung, batch paling laku
+      // (sold out). BEDA dari getOverview: iterasi SEMUA batch (bukan cuma
+      // yang active=true), krn batch lama yang udah ditutup/nonaktif tetep
+      // relevan buat analitik histori ("event mana paling untung sepanjang
+      // waktu"), bukan cuma yang lagi buka sekarang.
+      case "getAnalytics": {
+        const { data: allBatches } = await admin.from("batches").select("*").order("created_at", { ascending: true });
+        let cfg: Record<string, unknown>[] = [];
+        try { cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
+        const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
+
+        const { data: costs } = await admin.from("workshop_costs").select("*");
+        const modal: Record<string, Record<string, { biaya: number; tipe: string }[]>> = {};
+        for (const c of costs || []) {
+          (modal[c.workshop_type] ||= {})[c.batch] ||= [];
+          modal[c.workshop_type][c.batch].push({ biaya: Number(c.amount) || 0, tipe: c.kind === "tetap" ? "tetap" : "per-peserta" });
+        }
+
+        const eventsByType = new Map<string, {
+          workshopType: string; workshopName: string;
+          batchCount: number; totalParticipants: number; totalRevenue: number; totalProfit: number; soldOutCount: number;
+          // deno-lint-ignore no-explicit-any
+          batches: any[];
+        }>();
+        const soldOutBatches: Record<string, unknown>[] = [];
+
+        for (const b of allBatches || []) {
+          const typeConfig = cfgByType.get(b.workshop_type) || {};
+          const workshopName = String((typeConfig as Record<string, unknown>).name || b.workshop_type);
+          const { count } = await admin.from("registrations").select("id", { count: "exact", head: true }).eq("batch_id", b.id);
+          const usedCount = count ?? 0;
+          const merged = mergeBatchConfig(b, typeConfig);
+          const price = currentPrice(merged, usedCount);
+          const rev = price * usedCount;
+          const items = (modal[b.workshop_type] && (modal[b.workshop_type][b.id] || modal[b.workshop_type][""])) || [];
+          let cost = 0;
+          for (const it of items) cost += it.tipe === "tetap" ? it.biaya : it.biaya * usedCount;
+          const batchProfit = rev - cost;
+          const soldOut = !!merged.maxQuota && usedCount >= merged.maxQuota;
+
+          if (!eventsByType.has(b.workshop_type)) {
+            eventsByType.set(b.workshop_type, {
+              workshopType: b.workshop_type, workshopName,
+              batchCount: 0, totalParticipants: 0, totalRevenue: 0, totalProfit: 0, soldOutCount: 0, batches: [],
+            });
+          }
+          const ev = eventsByType.get(b.workshop_type)!;
+          ev.batchCount++; ev.totalParticipants += usedCount; ev.totalRevenue += rev; ev.totalProfit += batchProfit;
+          if (soldOut) ev.soldOutCount++;
+          const batchEntry = {
+            batchId: b.id, label: merged.label, eventDateIso: merged.eventDateIso, displayDate: merged.displayDate,
+            count: usedCount, maxQuota: merged.maxQuota, revenue: rev, profit: batchProfit, soldOut,
+          };
+          ev.batches.push(batchEntry);
+          if (soldOut) soldOutBatches.push({ workshopType: b.workshop_type, workshopName, ...batchEntry });
+        }
+
+        const events = Array.from(eventsByType.values());
+        const totals = events.reduce((acc, e) => ({
+          events: acc.events + 1, batches: acc.batches + e.batchCount, participants: acc.participants + e.totalParticipants,
+          revenue: acc.revenue + e.totalRevenue, profit: acc.profit + e.totalProfit,
+        }), { events: 0, batches: 0, participants: 0, revenue: 0, profit: 0 });
+
+        const byProfit = [...events].sort((a, b) => b.totalProfit - a.totalProfit);
+        const byParticipants = [...events].sort((a, b) => b.totalParticipants - a.totalParticipants);
+        // "Paling laku" = rasio batch sold-out tertinggi (min. 1 batch), bukan cuma jumlah absolut --
+        // event dengan 2 batch yang keduanya penuh lebih "laku" daripada event 10 batch yang cuma 1 penuh.
+        const bySoldOutRate = [...events].filter((e) => e.batchCount > 0)
+          .sort((a, b) => (b.soldOutCount / b.batchCount) - (a.soldOutCount / a.batchCount) || b.soldOutCount - a.soldOutCount);
+
+        return jsonResponse({
+          status: "success",
+          events, totals,
+          highlights: {
+            mostProfitableEvent: byProfit[0] || null,
+            mostPopularEvent: byParticipants[0] || null,
+            mostSoldOutEvent: (bySoldOutRate[0] && bySoldOutRate[0].soldOutCount > 0) ? bySoldOutRate[0] : null,
+            soldOutBatches: soldOutBatches.sort((a, b) => String((b as Record<string, unknown>).eventDateIso || "").localeCompare(String((a as Record<string, unknown>).eventDateIso || ""))),
+          },
+        });
+      }
+
       case "claimReward": {
         const key = String(data.key || "");
         if (!key) return errorResponse("key kosong.");
