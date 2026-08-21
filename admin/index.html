@@ -2232,7 +2232,7 @@
       opacity: .75;
       margin: 16px 0 6px;
       position: sticky;
-      top: 48px;
+      top: var(--mobile-header-h, 52px);
       z-index: 5;
       background: var(--bg);
       padding: 6px 0;
@@ -4848,11 +4848,9 @@
       </div>
       <div class="filter-overlay-body">
         <div class="filter-section">
-          <div class="filter-section-title">Tanggal</div>
-          <div style="display:flex;gap:10px;">
-            <div class="konten-field" style="flex:1;"><label>Dari</label><input class="form-control" type="date" id="txFilterFrom"></div>
-            <div class="konten-field" style="flex:1;"><label>Sampai</label><input class="form-control" type="date" id="txFilterTo"></div>
-          </div>
+          <div class="filter-section-title">Periode</div>
+          <input class="form-control" type="month" id="txFilterPeriod" style="max-width:170px;">
+          <div class="hint" id="txFilterPeriodHint" style="margin-top:4px;"></div>
         </div>
         <div class="filter-section">
           <div class="filter-section-title">Tipe Transaksi</div>
@@ -5165,6 +5163,17 @@
 
     if (menuToggleBtn) menuToggleBtn.addEventListener("click", toggleSidebar);
     if (sidebarBackdrop) sidebarBackdrop.addEventListener("click", closeSidebar);
+
+    // Tinggi asli .mobile-header (bukan dikira-kira) -- dipakai sebagai offset
+    // "top" buat header tanggal per grup yang sticky di tab Transaksi Personal
+    // Finance, biar nggak ketutup navbar pas discroll di HP.
+    (function setMobileHeaderHeightVar() {
+      const mh = document.querySelector(".mobile-header");
+      if (!mh) return;
+      const apply = () => document.documentElement.style.setProperty("--mobile-header-h", mh.offsetHeight + "px");
+      apply();
+      window.addEventListener("resize", apply);
+    })();
 
     // ---------- DASHBOARD ----------
     function workshopName(id) {
@@ -8191,8 +8200,7 @@
     // diisi "semua id" pas checklist-nya PERTAMA KALI dirender (butuh data akun/
     // kategori kepilih dulu), biar filter yang lagi aktif nggak keReset tiap
     // loadPersonalData() jalan ulang abis simpan/hapus transaksi.
-    let perTxFilterFrom = "";
-    let perTxFilterTo = "";
+    let perTxFilterPeriod = "";
     let perTxFilterTypes = new Set(["income", "expense", "transfer"]);
     let perTxFilterAccounts = null;
     let perTxFilterCategories = null;
@@ -8353,14 +8361,16 @@
         document.getElementById("txFormOverlay").addEventListener("click", (e) => {
           if (e.target.id === "txFormOverlay") closeTxForm();
         });
-        // Default filter: bulan berjalan (1 s/d hari ini), bukan "semua waktu" --
+        // Default filter: periode gajian berjalan, bukan "semua waktu" --
         // 258+ transaksi sekaligus bakal berat/susah dibaca kalau nggak dipersempit.
-        perTxFilterFrom = todayStr().slice(0, 8) + "01";
-        perTxFilterTo = todayStr();
+        perTxFilterPeriod = currentPayPeriod();
         document.getElementById("txFilterOpenBtn").addEventListener("click", openTxFilter);
         document.getElementById("txFilterBackBtn").addEventListener("click", closeAndApplyTxFilter);
         document.getElementById("txFilterApplyBtn").addEventListener("click", closeAndApplyTxFilter);
         document.getElementById("txFilterResetBtn").addEventListener("click", resetTxFilter);
+        document.getElementById("txFilterPeriod").addEventListener("change", (e) => {
+          document.getElementById("txFilterPeriodHint").textContent = fmtPeriodRangeHint(e.target.value || currentPayPeriod());
+        });
         document.getElementById("txFilterOverlay").addEventListener("click", (e) => {
           if (e.target.id === "txFilterOverlay") closeAndApplyTxFilter();
         });
@@ -8883,8 +8893,7 @@
           if (!accOk) return false;
         }
         if (perTxFilterCategories && t.type !== "transfer" && t.category_id && !perTxFilterCategories.has(t.category_id)) return false;
-        if (perTxFilterFrom && (!t.date || t.date < perTxFilterFrom)) return false;
-        if (perTxFilterTo && (!t.date || t.date > perTxFilterTo)) return false;
+        if (!inPayPeriod(t.date, perTxFilterPeriod || currentPayPeriod())) return false;
         return true;
       });
     }
@@ -8949,14 +8958,14 @@
 
     function openTxFilter() {
       renderTxFilterChecklists();
-      document.getElementById("txFilterFrom").value = perTxFilterFrom || "";
-      document.getElementById("txFilterTo").value = perTxFilterTo || "";
+      const ym = perTxFilterPeriod || currentPayPeriod();
+      document.getElementById("txFilterPeriod").value = ym;
+      document.getElementById("txFilterPeriodHint").textContent = fmtPeriodRangeHint(ym);
       document.getElementById("txFilterOverlay").style.display = "flex";
     }
 
     function closeAndApplyTxFilter() {
-      perTxFilterFrom = document.getElementById("txFilterFrom").value || "";
-      perTxFilterTo = document.getElementById("txFilterTo").value || "";
+      perTxFilterPeriod = document.getElementById("txFilterPeriod").value || currentPayPeriod();
       document.getElementById("txFilterOverlay").style.display = "none";
       updateTxFilterCountBadge();
       renderPersonalTransactions();
@@ -8965,23 +8974,20 @@
     // "Reset" ngebalikin isian di LAYAR filter ke default -- belum nge-apply
     // ke list sampai "Terapkan Filter" diklik (biar konsisten sama alur lain).
     function resetTxFilter() {
-      perTxFilterFrom = todayStr().slice(0, 8) + "01";
-      perTxFilterTo = todayStr();
+      perTxFilterPeriod = currentPayPeriod();
       perTxFilterTypes = new Set(["income", "expense", "transfer"]);
       perTxFilterAccounts = new Set(PER_ACCOUNTS.map(a => a.id));
       perTxFilterCategories = new Set(PER_CATEGORIES.map(c => c.id));
-      document.getElementById("txFilterFrom").value = perTxFilterFrom;
-      document.getElementById("txFilterTo").value = perTxFilterTo;
+      document.getElementById("txFilterPeriod").value = perTxFilterPeriod;
+      document.getElementById("txFilterPeriodHint").textContent = fmtPeriodRangeHint(perTxFilterPeriod);
       renderTxFilterChecklists();
     }
 
     function updateTxFilterCountBadge() {
       const badge = document.getElementById("txFilterCount");
       if (!badge) return;
-      const defaultFrom = todayStr().slice(0, 8) + "01";
-      const defaultTo = todayStr();
       let n = 0;
-      if (perTxFilterFrom !== defaultFrom || perTxFilterTo !== defaultTo) n++;
+      if (perTxFilterPeriod !== currentPayPeriod()) n++;
       if (perTxFilterTypes.size !== 3) n++;
       if (perTxFilterAccounts && perTxFilterAccounts.size !== PER_ACCOUNTS.length) n++;
       if (perTxFilterCategories && perTxFilterCategories.size !== PER_CATEGORIES.length) n++;
