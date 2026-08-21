@@ -5049,29 +5049,29 @@
     <div class="filter-overlay-box">
       <div class="filter-overlay-head">
         <button class="filter-back" id="qFormBackBtn" aria-label="Tutup">&larr;</button>
-        <div class="filter-overlay-title" id="qFormTitle">Challenge Baru</div>
-        <button class="filter-reset-link" id="qFormDeleteBtn" style="display:none;color:var(--err);">Hapus</button>
+        <div class="filter-overlay-title" id="qFormTitle">New Challenge</div>
+        <button class="filter-reset-link" id="qFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
       </div>
       <div class="filter-overlay-body">
-        <button type="button" class="btn btn-sm btn-ghost" id="qGenerateBtn" style="margin-bottom:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate Ide dengan AI</button>
+        <button type="button" class="btn btn-sm btn-ghost" id="qGenerateBtn" style="margin-bottom:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate Idea with AI</button>
         <input type="hidden" id="qId">
-        <div class="konten-field"><label>Judul Challenge</label><input class="form-control" type="text" id="qTitle" placeholder="mis. Spread Film Bioskop"></div>
-        <div class="konten-field"><label>Tema (badge kecil)</label><input class="form-control" type="text" id="qTheme" placeholder="mis. Movie Night 🎬"></div>
-        <div class="konten-field"><label>Deskripsi / instruksi</label><textarea class="form-control" id="qDesc" rows="4" placeholder="mis. Bikin spread tentang film yang baru kamu tonton — wajib ada tiket bioskopnya!"></textarea></div>
+        <div class="konten-field"><label>Challenge Title</label><input class="form-control" type="text" id="qTitle" placeholder="e.g. Movie Ticket Spread"></div>
+        <div class="konten-field"><label>Theme (small badge)</label><input class="form-control" type="text" id="qTheme" placeholder="e.g. Movie Night 🎬"></div>
+        <div class="konten-field"><label>Description / instructions</label><textarea class="form-control" id="qDesc" rows="4" placeholder="e.g. Make a spread about a movie you just watched — must include the ticket stub!"></textarea></div>
         <div class="konten-field">
-          <label>Gambar contoh (biar member kebayang)</label>
+          <label>Example image (so members get the idea)</label>
           <input class="form-control" type="file" id="qImageFile" accept="image/*">
           <div id="qImagePreview" style="margin-top:8px;"></div>
           <input type="hidden" id="qImageBase64"><input type="hidden" id="qImageExisting">
         </div>
         <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
-          <div class="konten-field" style="flex:1;min-width:110px;"><label>Poin</label><input class="form-control" type="number" id="qPoints" value="10"></div>
-          <label style="display:flex;gap:8px;align-items:center;font-weight:600;padding-bottom:12px;"><input type="checkbox" id="qActive" style="width:16px;height:16px;accent-color:var(--brand);cursor:pointer;"> Aktif (tampil ke member)</label>
+          <div class="konten-field" style="flex:1;min-width:110px;"><label>Points</label><input class="form-control" type="number" id="qPoints" value="10"></div>
+          <label style="display:flex;gap:8px;align-items:center;font-weight:600;padding-bottom:12px;"><input type="checkbox" id="qActive" style="width:16px;height:16px;accent-color:var(--brand);cursor:pointer;"> Active (visible to members)</label>
         </div>
         <div class="msg" id="qMsg"></div>
       </div>
       <div class="filter-overlay-foot">
-        <button class="btn" id="qSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Challenge</button>
+        <button class="btn" id="qSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Challenge</button>
       </div>
     </div>
   </div>
@@ -5832,7 +5832,7 @@
       if (!b) { alert("Please select a batch first."); return; }
       const label = prompt("Nama/label batch (mis. 'Vol 2'):", b.label || "");
       if (label === null) return;
-      const eventDate = prompt("Tanggal event (mis. '11 Juli 2026') — ini yang tampil di loyalty peserta:", b.eventDate || "");
+      const eventDate = prompt("Event date (e.g. 'July 11, 2026') — this is what shows in the participant's loyalty:", b.eventDate || "");
       if (eventDate === null) return;
       const r = await api("renameBatch", { token: getToken(), batchId, label: (label || "").trim(), eventDate: (eventDate || "").trim() });
       alert(r.message || r.status);
@@ -5843,7 +5843,7 @@
       const workshop = document.getElementById("wsSelect").value;
       const label = prompt("Label batch baru (mis. 'Vol 2'):");
       if (!label) return;
-      const eventDate = prompt("Tanggal event (mis. '11 Juli 2026') — tampil di loyalty peserta:", "");
+      const eventDate = prompt("Event date (e.g. 'July 11, 2026') — shows in the participant's loyalty:", "");
       if (eventDate === null) return;
       // Dulu kalau api() gagal (network error/timeout dll) exception-nya nggak
       // ketangkep -- fungsi berhenti diam-diam, kelihatan kayak nggak kejadian
@@ -5854,14 +5854,14 @@
         alert(r.message || r.status);
         if (r.status === "success") { await loadBatches(); loadSummary(); }
       } catch (e) {
-        alert("Gagal bikin batch baru: " + (e && e.message ? e.message : "nggak bisa terhubung ke server.") + "\n\nCoba lagi ya.");
+        alert("Failed to create new batch: " + (e && e.message ? e.message : "couldn't connect to the server.") + "\n\nPlease try again.");
       }
     }
 
     async function toggleBatchOpen(batchId, open) {
       const msg = open
-        ? "Buka batch ini buat pendaftaran publik?\n\n(Batch lain yang masih buka TETEP dibiarin buka -- kalau mau ditutup, toggle manual masing-masing.)"
-        : "Tutup batch ini dari pendaftaran publik?";
+        ? "Open this batch for public registration?\n\n(Other still-open batches are left open -- toggle each one manually if you want to close it.)"
+        : "Close this batch from public registration?";
       if (!confirm(msg)) return;
       const r = await api("setActiveBatch", { token: getToken(), batchId, open });
       alert(r.message || r.status);
@@ -6096,7 +6096,7 @@
     async function fetchNameFromLink() {
       const link = document.getElementById("ciLink").value.trim();
       const msg = document.getElementById("ciMsg");
-      if (!link) { msg.className = "msg err"; msg.textContent = "Isi link toko dulu ya."; return; }
+      if (!link) { msg.className = "msg err"; msg.textContent = "Please enter the store link first."; return; }
       const btn = document.getElementById("ciFetchNameBtn");
       btn.disabled = true;
       msg.className = "msg"; msg.textContent = "Ngambil nama produk dari link...";
@@ -6105,9 +6105,9 @@
       if (r && r.status === "success" && r.name) {
         document.getElementById("ciName").value = r.name;
         msg.className = "msg ok";
-        msg.textContent = "Nama produk keisi ✓ (dari URL, cek dulu sebelum simpan)";
+        msg.textContent = "Product name filled in ✓ (from the URL, double-check before saving)";
       } else {
-        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal ambil nama dari link ini -- isi manual aja ya.";
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to fetch name from this link -- just enter it manually.";
       }
     }
 
@@ -6249,7 +6249,7 @@
     async function saveInvTx() {
       const msg = document.getElementById("invMsg");
       const itemId = document.getElementById("invItem").value;
-      if (!itemId) { msg.className = "msg err"; msg.textContent = "Pilih item dulu (bikin dulu di Database Item kalau belum ada)."; return; }
+      if (!itemId) { msg.className = "msg err"; msg.textContent = "Please select an item first (create one in the Item Database if it doesn't exist)."; return; }
       const type = document.getElementById("invType").value;
       const qty = Math.round(Number(document.getElementById("invQty").value)) || 0;
       if (!qty) { msg.className = "msg err"; msg.textContent = "Amount can't be 0."; return; }
@@ -6290,8 +6290,8 @@
     async function processReceiptImport() {
       const msg = document.getElementById("riMsg");
       const imageBase64 = document.getElementById("riImageBase64").value;
-      if (!imageBase64) { msg.className = "msg err"; msg.textContent = "Upload gambar dulu ya."; return; }
-      msg.className = "msg"; msg.textContent = "Membaca struk pakai AI... (bisa 10-30 detik)";
+      if (!imageBase64) { msg.className = "msg err"; msg.textContent = "Please upload an image first."; return; }
+      msg.className = "msg"; msg.textContent = "Reading receipt with AI... (10-30 seconds)";
       document.getElementById("riProcessBtn").disabled = true;
       const r = await api("parseReceiptImage", {
         token: getToken(), imageBase64, mimeType: document.getElementById("riImageMime").value || "image/jpeg"
@@ -6303,7 +6303,7 @@
       }
       const found = r.items || [];
       if (!found.length) {
-        msg.className = "msg err"; msg.textContent = "AI nggak nemu item apapun di struk ini.";
+        msg.className = "msg err"; msg.textContent = "AI didn't find any items in this receipt.";
         RI_ROWS = []; renderRiResults();
         return;
       }
@@ -6330,11 +6330,11 @@
             <input type="checkbox" data-richeck="${idx}" ${row.selected ? "checked" : ""} style="margin-top:10px;width:16px;height:16px;accent-color:var(--brand);cursor:pointer;flex-shrink:0;">
             <div style="flex:1;min-width:0;display:flex;gap:8px;flex-wrap:wrap;">
               <input class="form-control" type="text" data-rifield="name" data-riidx="${idx}" value="${escapeHtml(row.name)}" placeholder="Nama item" style="flex:2;min-width:160px;">
-              <input class="form-control" type="text" inputmode="numeric" data-rifield="price" data-riidx="${idx}" value="${formatRibuan(row.price)}" placeholder="Harga satuan" style="flex:1;min-width:110px;">
+              <input class="form-control" type="text" inputmode="numeric" data-rifield="price" data-riidx="${idx}" value="${formatRibuan(row.price)}" placeholder="Unit price" style="flex:1;min-width:110px;">
               <input class="form-control" type="number" min="1" step="1" data-rifield="qty" data-riidx="${idx}" value="${row.qty}" placeholder="Qty" style="flex:0 0 80px;">
             </div>
           </div>
-          <div style="font-size:11.5px;color:#6b7280;margin:6px 0 0 26px;">${exists ? "Item udah ada di Database Item -- stoknya bakal ditambah." : "Item baru -- bakal ditambahin ke Database Item."}</div>
+          <div style="font-size:11.5px;color:#6b7280;margin:6px 0 0 26px;">${exists ? "Item already exists in the Item Database -- its stock will be added to." : "New item -- will be added to the Item Database."}</div>
         </div>`;
       }).join("");
       list.querySelectorAll("[data-richeck]").forEach(cb => cb.addEventListener("change", (e) => {
@@ -6359,7 +6359,7 @@
     async function saveRiSelected() {
       const msg = document.getElementById("riSaveMsg");
       const selected = RI_ROWS.filter(r => r.selected);
-      if (!selected.length) { msg.className = "msg err"; msg.textContent = "Nggak ada item yang dicentang."; return; }
+      if (!selected.length) { msg.className = "msg err"; msg.textContent = "No items are checked."; return; }
       msg.className = "msg"; msg.textContent = `Menyimpan 0/${selected.length}...`;
       let ok = 0, fail = 0;
       for (let i = 0; i < selected.length; i++) {
@@ -6488,7 +6488,7 @@
         // ga perlu duplikasi logicnya di sini.
         namaEl.dispatchEvent(new Event("input", { bubbles: true }));
       } catch (err) {
-        alert("Gagal baca clipboard -- coba tempel manual (tap & tahan di field, pilih Paste).");
+        alert("Failed to read clipboard -- try pasting manually (tap & hold the field, choose Paste).");
       }
     }
 
@@ -6499,7 +6499,7 @@
       div.innerHTML = `
         <div class="cost-row-top">
           <div class="cost-row-thumb"></div>
-          <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Nama biaya (mis. Print 4R)" value="${item ? escapeHtml(item.nama) : ""}" />
+          <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Cost name (e.g. 4R Print)" value="${item ? escapeHtml(item.nama) : ""}" />
           <button type="button" class="btn btn-sm btn-ghost c-paste" title="Tempel nama item dari clipboard">${icon("clipboard")}</button>
           <button class="del" title="Hapus">&times;</button>
         </div>
@@ -6565,7 +6565,7 @@
       const profitEl = document.getElementById("resProfit");
       profitEl.textContent = rupiah(profit);
       profitEl.style.color = profit < 0 ? "#fb7185" : "#4ade80";
-      document.getElementById("resMargin").textContent = revenue > 0 ? margin + "% margin" : "Belum ada pendaftar";
+      document.getElementById("resMargin").textContent = revenue > 0 ? margin + "% margin" : "No registrants yet";
     }
 
     async function saveModal() {
@@ -6687,7 +6687,7 @@
       IDEAS.forEach((text, idx) => {
         const div = document.createElement("div");
         div.className = "idea-row";
-        div.innerHTML = `<input type="text" class="idea-input form-control" placeholder="Ide workshop berikutnya..." value="${escapeHtml(text)}"/>
+        div.innerHTML = `<input type="text" class="idea-input form-control" placeholder="Next workshop idea..." value="${escapeHtml(text)}"/>
           <button class="del" title="Hapus">&times;</button>`;
         div.querySelector(".idea-input").addEventListener("input", (e) => { IDEAS[idx] = e.target.value; });
         div.querySelector(".del").addEventListener("click", () => { IDEAS.splice(idx, 1); renderIdeas(); });
@@ -6784,7 +6784,7 @@
         const pct = b.maxQuota ? Math.min(100, Math.round(b.count / b.maxQuota * 100)) : 0;
         const badge = countdownBadge(b.eventDateIso ? isoToIdDate(b.eventDateIso) : "");
         const labelSuffix = b.label ? ` — ${escapeHtml(b.label)}` : "";
-        return `<div class="ov-card ov-card-clickable" data-event="${b.workshopType}" title="Tap untuk detail & persiapan">
+        return `<div class="ov-card ov-card-clickable" data-event="${b.workshopType}" title="Tap for details & prep">
           <div class="ov-card-top">
             <div class="ov-card-name">${escapeHtml(b.workshopName)}${labelSuffix}</div>
             ${badge}
@@ -6792,7 +6792,7 @@
           <div class="ov-meta">${icon("calendar")} ${escapeHtml(b.displayDate || "-")}${b.workshopTime ? " · " + escapeHtml(b.workshopTime) : ""}</div>
           <div class="ov-meta">${icon("geo")} ${escapeHtml(b.locationName || "-")}</div>
           <div class="ov-progress"><div class="ov-progress-bar" style="width:${pct}%"></div></div>
-          <div class="ov-progress-label">${b.count} / ${b.maxQuota || "?"} peserta (${pct}%)</div>
+          <div class="ov-progress-label">${b.count} / ${b.maxQuota || "?"} participants (${pct}%)</div>
         </div>`;
       }).join("");
     }
@@ -6805,16 +6805,16 @@
     // sekarang cuma yang beneran soal PRODUK/HALAMAN-nya, bukan soal 1
     // instance/batch yang lagi jalan.
     const CFG_FIELDS = [
-      { key: "name", label: "Nama", type: "text" },
-      { key: "description", label: "Deskripsi", type: "textarea" },
-      { key: "enabled", label: "Aktif (buka pendaftaran) — kill-switch semua batch tipe ini", type: "checkbox" },
-      { key: "isDisplay", label: "Tampilkan di home", type: "checkbox" },
-      { key: "isPrintPhoto", label: "Butuh upload foto (print)", type: "checkbox" },
-      { key: "bankName", label: "Nama Bank (kosong = pakai default BCA)", type: "text" },
-      { key: "bankAccountNumber", label: "Nomor Rekening (kosong = pakai default punya Arnold)", type: "text" },
-      { key: "bankAccountHolder", label: "Nama Pemilik Rekening (tanpa \"a.n\", kosong = default)", type: "text" },
-      { key: "icon", label: "Icon (nama lucide)", type: "text" },
-      { key: "path", label: "Path halaman", type: "text" }
+      { key: "name", label: "Name", type: "text" },
+      { key: "description", label: "Description", type: "textarea" },
+      { key: "enabled", label: "Active (open for registration) — kill-switch for all batches of this type", type: "checkbox" },
+      { key: "isDisplay", label: "Show on homepage", type: "checkbox" },
+      { key: "isPrintPhoto", label: "Requires photo upload (print)", type: "checkbox" },
+      { key: "bankName", label: "Bank Name (blank = use BCA default)", type: "text" },
+      { key: "bankAccountNumber", label: "Account Number (blank = use Arnold's default)", type: "text" },
+      { key: "bankAccountHolder", label: "Account Holder Name (without \"a.n\", blank = default)", type: "text" },
+      { key: "icon", label: "Icon (lucide name)", type: "text" },
+      { key: "path", label: "Page Path", type: "text" }
     ];
 
     async function ensureConfigLoaded() {
@@ -6925,7 +6925,7 @@
       const msg = document.getElementById("batchVoidMsg");
       if (!batchId) { msg.className = "msg err"; msg.textContent = "Please select a batch first."; return; }
       const count = parseInt(document.getElementById("batchVoidCount").value, 10) || 0;
-      if (count <= 0) { msg.className = "msg err"; msg.textContent = "Isi jumlah dulu ya."; return; }
+      if (count <= 0) { msg.className = "msg err"; msg.textContent = "Please enter a count first."; return; }
       const note = document.getElementById("batchVoidNote").value.trim();
       if (!confirm(`Tambahin ${count} data peserta manual (void) ke batch ini? Bakal kehitung normal di kuota/revenue/profit.`)) return;
       msg.className = "msg"; msg.textContent = "Saving...";
@@ -6948,7 +6948,7 @@
       const msg = document.getElementById("batchMoveMsg");
       if (!batchId) { msg.className = "msg err"; msg.textContent = "Please select a batch first."; return; }
       const target = document.getElementById("batchMoveTarget").value;
-      if (!target) { msg.className = "msg err"; msg.textContent = "Pilih event tujuan dulu ya."; return; }
+      if (!target) { msg.className = "msg err"; msg.textContent = "Please select a destination event first."; return; }
       const targetName = (CONFIG.find(w => w.id === target) || {}).name || target;
       const b = CFG_BATCHES.find(x => x.id === batchId);
       if (!confirm(`Pindahin batch "${b ? b.label : ""}" ke event "${targetName}"? Pendaftar & biaya batch ini ikut dipindah.`)) return;
@@ -7016,7 +7016,7 @@
       const batchId = document.getElementById("cfgBatchSelect").value;
       if (!batchId) { msg.className = "msg err"; msg.textContent = "Please select a batch first."; return; }
       const label = document.getElementById("batchLabelInput").value.trim();
-      if (!label) { msg.className = "msg err"; msg.textContent = "Nama batch nggak boleh kosong."; return; }
+      if (!label) { msg.className = "msg err"; msg.textContent = "Batch name can't be empty."; return; }
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("renameBatch", {
         token: getToken(), batchId, label,
@@ -7058,7 +7058,7 @@
       const idRaw = prompt("ID event (huruf kecil & strip, mis. 'journaling-date'):");
       if (!idRaw) return;
       const id = idRaw.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/(^-|-$)/g, "");
-      if (!id) { alert("ID nggak valid."); return; }
+      if (!id) { alert("Invalid ID."); return; }
       const sel = document.getElementById("cfgSelect");
       const existIdx = CONFIG.findIndex(w => w.id === id);
       if (existIdx >= 0) { alert("ID '" + id + "' udah ada — dipilih ya."); sel.value = existIdx; renderConfigForm(); return; }
@@ -7320,7 +7320,7 @@
             }
             if (f.type === "image") {
               return `<div class="konten-field"><label>${f.label}</label>
-                <input class="form-control" type="text" data-key="${f.key}" value="${escapeHtml(val)}" placeholder="Upload di bawah, atau tempel path/URL manual"/>
+                <input class="form-control" type="text" data-key="${f.key}" value="${escapeHtml(val)}" placeholder="Upload below, or paste a path/URL manually"/>
                 <input class="form-control" type="file" accept="image/*" data-imgpick="${f.key}" style="margin-top:6px;">
                 <div data-imgprev="${f.key}" style="margin-top:8px;">${val ? `<img src="${escapeHtml(driveThumb(val))}" style="width:100%;max-width:220px;border-radius:12px;display:block;">` : ""}</div>
                 </div>`;
@@ -7965,7 +7965,7 @@
     }
 
     async function addEventPhoto() {
-      if (!_epBase64) { alert("Pilih fotonya dulu ya."); return; }
+      if (!_epBase64) { alert("Please select a photo first."); return; }
       const btn = document.getElementById("epAddBtn");
       const msg = document.getElementById("epMsg");
       btn.disabled = true; btn.textContent = "Mengunggah…";
@@ -8099,7 +8099,7 @@
         document.getElementById("qTheme").value = r.idea.theme || "";
         document.getElementById("qDesc").value = r.idea.description || "";
         document.getElementById("qPoints").value = r.idea.points || 10;
-        msg.className = "msg ok"; msg.textContent = "Ide baru keisi ✓ (cek dulu, gambar contohnya cari sendiri ya)";
+        msg.className = "msg ok"; msg.textContent = "New idea filled in ✓ (double-check it, and find your own example image)";
       } else {
         handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal generate ide.";
       }
@@ -8313,9 +8313,9 @@
 
     function openPesVendorWa() {
       const wa = waNormalize(document.getElementById("pesVendorWa").value);
-      if (!wa) { alert("Isi & simpan nomor WA vendor dulu ya."); return; }
+      if (!wa) { alert("Please fill in & save the vendor's WA number first."); return; }
       const text = document.getElementById("pesSummaryOut").value;
-      if (!text) { alert("Belum ada pesanan buat dikirim."); return; }
+      if (!text) { alert("No orders to send yet."); return; }
       window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(text), "_blank");
     }
 
@@ -8425,7 +8425,7 @@
             ${menuOpts}
           </select>
           <button class="btn btn-sm" data-sendwa="${reg.id}" style="flex-shrink:0;">${icon("chat")} WA</button>
-          ${ig ? `<button class="btn btn-sm btn-ghost" data-copyig="${escapeHtml(ig)}" style="flex-shrink:0;" title="Salin username IG -- buat yang nggak bales WA">${icon("clipboard")} IG</button>` : ''}
+          ${ig ? `<button class="btn btn-sm btn-ghost" data-copyig="${escapeHtml(ig)}" style="flex-shrink:0;" title="Copy IG username -- for those who don't reply to WA">${icon("clipboard")} IG</button>` : ''}
         </div>`;
       }).join("");
       list.querySelectorAll("[data-regmenu]").forEach(sel => {
@@ -8464,7 +8464,7 @@
       const batchId = document.getElementById("pesEventSelect").value;
       if (!reg || !batchId) return;
       const wa = waNormalize(reg.wa);
-      if (!wa) { alert("Nomor WA peserta ini nggak keisi/nggak valid."); return; }
+      if (!wa) { alert("This participant's WA number is missing/invalid."); return; }
       const nm = reg.nickname || reg.full_name || "Sahabat";
       const ev = PES_CUR_BATCH ? (PES_CUR_BATCH.workshopName + (PES_CUR_BATCH.eventDate ? " - " + fmtOrderDate(PES_CUR_BATCH.eventDate) : "")) : "event kamu";
       const link = siteOrigin() + "/pesanan/?event=" + batchId + "&rid=" + regId;
@@ -8672,9 +8672,9 @@
       const batchId = document.getElementById("pesEventSelect").value;
       const participantName = document.getElementById("pesOrderName").value.trim();
       const menuItemId = document.getElementById("pesOrderMenu").value;
-      if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih event dulu ya."; return; }
+      if (!batchId) { msg.className = "msg err"; msg.textContent = "Please select an event first."; return; }
       if (!participantName) { msg.className = "msg err"; msg.textContent = "Nama peserta wajib diisi."; return; }
-      if (!menuItemId) { msg.className = "msg err"; msg.textContent = "Pilih menu dulu (tambahin di Kelola Menu kalau masih kosong)."; return; }
+      if (!menuItemId) { msg.className = "msg err"; msg.textContent = "Please select a menu item first (add one in Manage Menu if it's empty)."; return; }
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("saveOrder", { token: getToken(), id: document.getElementById("pesOrderId").value, batchId, participantName, menuItemId });
       if (r && r.status === "success") { closePesOrderForm(); await loadPesOrders(); }
@@ -10710,7 +10710,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         const out = document.getElementById("faqBlockOut");
         out.value = r.block; out.style.display = "block";
         document.getElementById("faqCopyBlockBtn").style.display = "inline-flex";
-        msg.className = "msg ok"; msg.textContent = "FAQ siap ✓ (cek dulu sebelum di-share)";
+        msg.className = "msg ok"; msg.textContent = "FAQ ready ✓ (double-check before sharing)";
       } else {
         handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal generate FAQ.";
       }
@@ -10724,7 +10724,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const context = document.getElementById("faqContext").value.trim();
       const knownFacts = buildPrepKnownFacts(info);
       const question = document.getElementById("faqQuestion").value.trim();
-      if (!question) { msg.className = "msg err"; msg.textContent = "Isi dulu pertanyaannya."; return; }
+      if (!question) { msg.className = "msg err"; msg.textContent = "Please enter the question first."; return; }
       btn.disabled = true;
       msg.className = "msg"; msg.textContent = "Nulis jawaban...";
       const r = await api("generateFaqAnswer", { token: getToken(), context, knownFacts, question, workshopName: info.name });
@@ -10733,7 +10733,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         const out = document.getElementById("faqAnswerOut");
         out.value = r.answer; out.style.display = "block";
         document.getElementById("faqCopyAnswerBtn").style.display = "inline-flex";
-        msg.className = "msg ok"; msg.textContent = "Jawaban siap ✓ (cek dulu sebelum dikirim)";
+        msg.className = "msg ok"; msg.textContent = "Answer ready ✓ (double-check it before sending)";
       } else {
         handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal generate jawaban.";
       }
@@ -10951,9 +10951,9 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     // countdownBadge()): masih jauh -> ajakan gabung grup, H-2/H-1 -> reminder,
     // hari-H/udah lewat -> ucapan terima kasih.
     const PREP_PHASE_LABELS = {
-      welcome: "Fase: Ajakan Gabung Grup WA",
-      reminder: "Fase: Reminder (bentar lagi)",
-      thanks: "Fase: Terima Kasih (udah selesai)",
+      welcome: "Phase: WA Group Invite",
+      reminder: "Phase: Reminder (coming soon)",
+      thanks: "Phase: Thank You (done)",
     };
 
     function detectPrepMessagePhase(event) {
@@ -10995,7 +10995,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (r && r.status === "success" && r.message) {
         msgEl.value = r.message;
         localStorage.setItem(WA_MSG_KEY, r.message);
-        msg.className = "msg ok"; msg.textContent = "Draft baru keisi ✓ (cek dulu sebelum kirim, tetep bisa diedit manual)";
+        msg.className = "msg ok"; msg.textContent = "New draft filled in ✓ (double-check before sending, still editable manually)";
       } else {
         handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal generate pesan.";
       }
@@ -11453,7 +11453,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     // Kirim link loyalty (prefilled) ke WA peserta lewat click-to-chat
     function sendLoyaltyWa(wa, name) {
       const num = waNormalize(wa);
-      if (!num) { alert("Nomor WA peserta ini nggak valid."); return; }
+      if (!num) { alert("This participant's WA number is invalid."); return; }
       const base = (location.origin && location.origin.indexOf("http") === 0) ? location.origin : "https://seminggusatu.com";
       const link = base + "/loyalty/?wa=" + num;
       const nm = (String(name || "").trim().split(/\s+/)[0]) || "kamu";
@@ -11569,7 +11569,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     async function claimReward(key, dir, total) {
-      if (dir > 0 && !confirm("Tandai hadiah sudah DITUKAR?\nCounter orang ini akan reset (−6 stamp), total history tetap.")) return;
+      if (dir > 0 && !confirm("Mark this reward as REDEEMED?\nThis person's counter will reset (−6 stamps), total history stays.")) return;
       if (dir < 0 && !confirm("Batalkan 1 penukaran hadiah?")) return;
       try {
         const r = await api("claimReward", { token: getToken(), key: key, dir: dir, total: total });
@@ -11803,7 +11803,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     function openRecap() {
-      if (!WRAP_MEMBERS.length) { alert("Data masih dimuat, coba lagi sebentar."); return; }
+      if (!WRAP_MEMBERS.length) { alert("Data is still loading, try again in a moment."); return; }
       recapMode = "all";
       document.querySelectorAll(".recap-tab").forEach(x => x.classList.toggle("active", x.dataset.mode === "all"));
       renderRecap();
@@ -11934,7 +11934,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           URL.revokeObjectURL(a.href);
           alert("Gambar Wrapped ke-download 📥\nBuka Instagram → Story → pilih gambar ini buat di-post ya!");
         }
-      } catch (e) { alert("Gagal menyiapkan gambar. Coba lagi ya."); }
+      } catch (e) { alert("Failed to prepare the image. Please try again."); }
       finally {
         btn.disabled = false; btn.innerHTML = label;
       }
