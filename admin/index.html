@@ -4082,33 +4082,11 @@
             </div>
 
             <div class="subtab-panel" data-tab="items">
-              <div class="fin-card">
-                <p class="hint" style="margin:0 0 10px;">Item biaya yang sering dipakai ulang lintas workshop/batch (mis. Lem Uhu, Print 4R) -- simpen di sini sekali, nanti tinggal ketik namanya di tab Modal & Biaya buat autocomplete + harga kesisi otomatis.</p>
-                <input type="hidden" id="ciId">
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <div class="konten-field" style="flex:2;min-width:160px;"><label>Nama Item</label><input class="form-control" type="text" id="ciName" placeholder="mis. Lem Uhu"></div>
-                  <div class="konten-field" style="flex:1;min-width:140px;"><label>Harga Default (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="ciPrice" placeholder="0"></div>
-                </div>
-                <div class="konten-field"><label>Link Toko (opsional)</label>
-                  <div style="display:flex;gap:8px;">
-                    <input class="form-control" type="url" id="ciLink" placeholder="https://..." style="flex:1;">
-                    <button type="button" class="btn btn-sm btn-ghost" id="ciFetchNameBtn" title="Ambil nama produk dari link" disabled style="flex-shrink:0;white-space:nowrap;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/></svg> Ambil Nama</button>
-                  </div>
-                </div>
-                <div class="konten-field">
-                  <label>Foto (opsional)</label>
-                  <input class="form-control" type="file" id="ciImageFile" accept="image/*">
-                  <div id="ciImagePreview" style="margin-top:8px;"></div>
-                  <input type="hidden" id="ciImageBase64"><input type="hidden" id="ciImageExisting">
-                </div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
-                  <button class="btn btn-sm" id="ciSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Item</button>
-                  <button class="btn btn-sm btn-ghost" id="ciNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Item Baru</button>
-                  <button class="btn btn-sm" id="ciDeleteBtn" style="background:#fee2e2;color:var(--err);display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Hapus</button>
-                </div>
-                <div class="msg" id="ciMsg"></div>
+              <p class="hint" style="margin:0 0 10px;">Item biaya yang sering dipakai ulang lintas workshop/batch (mis. Lem Uhu, Print 4R) -- simpen di sini sekali, nanti tinggal ketik namanya di tab Modal & Biaya buat autocomplete + harga kesisi otomatis.</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <button class="btn btn-sm" id="ciAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Item Baru</button>
+                <input class="form-control" type="text" id="ciSearchInput" placeholder="Cari nama item..." style="flex:1;min-width:180px;">
               </div>
-              <input class="form-control" type="text" id="ciSearchInput" placeholder="Cari nama item..." style="margin-top:14px;">
               <div id="ciList" style="margin-top:10px;"></div>
             </div>
 
@@ -5022,6 +5000,40 @@
     </div>
   </div>
 
+  <!-- Layar Tambah/Edit Database Item (Keuangan) -->
+  <div id="ciFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="ciFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="ciFormTitle">Item Baru</div>
+        <button class="filter-reset-link" id="ciFormDeleteBtn" style="display:none;color:var(--err);">Hapus</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="ciId">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:2;min-width:160px;"><label>Nama Item</label><input class="form-control" type="text" id="ciName" placeholder="mis. Lem Uhu"></div>
+          <div class="konten-field" style="flex:1;min-width:140px;"><label>Harga Default (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="ciPrice" placeholder="0"></div>
+        </div>
+        <div class="konten-field"><label>Link Toko (opsional)</label>
+          <div style="display:flex;gap:8px;">
+            <input class="form-control" type="url" id="ciLink" placeholder="https://..." style="flex:1;">
+            <button type="button" class="btn btn-sm btn-ghost" id="ciFetchNameBtn" title="Ambil nama produk dari link" disabled style="flex-shrink:0;white-space:nowrap;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/></svg> Ambil Nama</button>
+          </div>
+        </div>
+        <div class="konten-field">
+          <label>Foto (opsional)</label>
+          <input class="form-control" type="file" id="ciImageFile" accept="image/*">
+          <div id="ciImagePreview" style="margin-top:8px;"></div>
+          <input type="hidden" id="ciImageBase64"><input type="hidden" id="ciImageExisting">
+        </div>
+        <div class="msg" id="ciMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="ciSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Item</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Config global: SUPABASE_URL/SUPABASE_ANON_KEY & data statis (untuk seed awal editor) -->
   <script src="../env.js"></script>
   <script src="../workshop-config.js"></script>
@@ -5803,8 +5815,15 @@
         wireRibuanInput(document.getElementById("finPrice"));
         document.getElementById("finPrice").addEventListener("input", recalc);
         document.getElementById("ciSaveBtn").addEventListener("click", saveCostItemForm);
-        document.getElementById("ciNewBtn").addEventListener("click", newCostItemForm);
-        document.getElementById("ciDeleteBtn").addEventListener("click", deleteCostItemForm);
+        document.getElementById("ciAddBtn").addEventListener("click", () => { newCostItemForm(); openCostItemForm(false); });
+        document.getElementById("ciFormBackBtn").addEventListener("click", closeCostItemForm);
+        document.getElementById("ciFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("ciId").value;
+          if (id && await deleteCostItemForm(id)) closeCostItemForm();
+        });
+        document.getElementById("ciFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "ciFormOverlay") closeCostItemForm();
+        });
         document.getElementById("ciImageFile").addEventListener("change", onCostItemImagePick);
         document.getElementById("ciFetchNameBtn").addEventListener("click", fetchNameFromLink);
         document.getElementById("ciLink").addEventListener("input", (e) => { document.getElementById("ciFetchNameBtn").disabled = !e.target.value.trim(); });
@@ -5855,24 +5874,35 @@
       box.innerHTML = filtered.map(it => {
         const stock = itemStock(it.id);
         return `
-        <div class="fin-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px;">
+        <div class="fin-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px;cursor:pointer;" data-editci="${it.id}">
           ${it.image_url
           ? `<img src="${escapeHtml(it.image_url)}" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
           : `<div style="width:52px;height:52px;border-radius:10px;background:#eef0f4;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--brand);">${icon("cart")}</div>`}
           <div style="flex:1;min-width:0;">
             <b>${escapeHtml(it.name)}</b>
-            <div class="hint" style="margin:2px 0 0;">${rupiah(it.default_price)}${it.link ? ` · <a href="${escapeHtml(it.link)}" target="_blank" rel="noopener">Link toko</a>` : ""}</div>
+            <div class="hint" style="margin:2px 0 0;">${rupiah(it.default_price)}${it.link ? ` · <a href="${escapeHtml(it.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Link toko</a>` : ""}</div>
           </div>
           <div style="text-align:right;flex-shrink:0;">
             <div class="hint" style="margin:0;">Stok</div>
             <b style="color:${stock <= 0 ? "var(--err)" : "var(--ok)"};">${stock}</b>
           </div>
           <button class="btn btn-sm btn-ghost" data-copyci="${escapeHtml(it.name)}" title="Salin nama item" style="flex-shrink:0;">${icon("clipboard")}</button>
-          <button class="btn btn-sm btn-ghost" data-editci="${it.id}" style="flex-shrink:0;">${icon("pencil")}</button>
         </div>`;
       }).join("");
       box.querySelectorAll("[data-editci]").forEach(b => b.addEventListener("click", () => editCostItemForm(b.dataset.editci)));
-      box.querySelectorAll("[data-copyci]").forEach(b => b.addEventListener("click", () => copyToClipboardEl(b.dataset.copyci, b)));
+      box.querySelectorAll("[data-copyci]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); copyToClipboardEl(b.dataset.copyci, b); }));
+    }
+
+    // Layar Tambah/Edit Database Item -- full-screen, pola sama kayak
+    // Akun/Kategori/Transaksi/Target di Personal Finance.
+    function openCostItemForm(isEdit) {
+      document.getElementById("ciFormTitle").textContent = isEdit ? "Edit Item" : "Item Baru";
+      document.getElementById("ciFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("ciFormOverlay").style.display = "flex";
+    }
+
+    function closeCostItemForm() {
+      document.getElementById("ciFormOverlay").style.display = "none";
     }
 
     function newCostItemForm() {
@@ -5884,7 +5914,6 @@
       document.getElementById("ciImageBase64").value = "";
       document.getElementById("ciImageExisting").value = "";
       document.getElementById("ciImagePreview").innerHTML = "";
-      document.getElementById("ciDeleteBtn").style.display = "none";
       document.getElementById("ciFetchNameBtn").disabled = true;
       document.getElementById("ciMsg").textContent = "";
     }
@@ -5901,9 +5930,9 @@
       document.getElementById("ciImageExisting").value = it.image_url || "";
       document.getElementById("ciImagePreview").innerHTML = it.image_url
         ? `<img src="${escapeHtml(it.image_url)}" style="width:100%;max-width:160px;border-radius:12px;">` : "";
-      document.getElementById("ciDeleteBtn").style.display = "inline-flex";
       document.getElementById("ciFetchNameBtn").disabled = !(it.link || "").trim();
       document.getElementById("ciMsg").textContent = "";
+      openCostItemForm(true);
     }
 
     async function onCostItemImagePick(e) {
@@ -5951,18 +5980,16 @@
         defaultPrice: parseRibuan(document.getElementById("ciPrice").value),
         link: document.getElementById("ciLink").value.trim(), imageUrl
       });
-      if (r && r.status === "success") { newCostItemForm(); await loadCostItems(); }
+      if (r && r.status === "success") { closeCostItemForm(); await loadCostItems(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
     }
 
-    async function deleteCostItemForm() {
-      const id = document.getElementById("ciId").value;
-      if (!id) return;
-      if (!confirm("Hapus item ini dari database? Biaya yang udah kesimpen di workshop/batch lain nggak ikut kehapus.")) return;
-      const msg = document.getElementById("ciMsg");
+    async function deleteCostItemForm(id) {
+      if (!id) return false;
+      if (!confirm("Hapus item ini dari database? Biaya yang udah kesimpen di workshop/batch lain nggak ikut kehapus.")) return false;
       const r = await api("deleteCostItem", { token: getToken(), id });
-      if (r && r.status === "success") { newCostItemForm(); await loadCostItems(); }
-      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal hapus."; }
+      if (r && r.status === "success") { await loadCostItems(); return true; }
+      handleAuthError(r); alert((r && r.message) || "Gagal hapus."); return false;
     }
 
     // ---- Inventaris (riwayat stok per item Database Item) ----
