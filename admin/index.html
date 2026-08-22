@@ -7969,13 +7969,14 @@
 
           <h2>PASAL 5: PENUTUP</h2>
           <p>MOU ini dibuat dalam rangkap 2 (dua) asli yang masing-masing memiliki kekuatan hukum yang sama, ditandatangani oleh PARA PIHAK dengan penuh kesadaran dan tanggung jawab demi kesuksesan kolaborasi bersama.</p>
+          ${attachHtml}
 
+          ${attachHtml ? '<div class="doc-page-break"></div>' : ""}
           <table class="doc-sign-table">
             <tr><td><b>PIHAK PERTAMA</b><br>Komunitas Seminggu Satu</td><td><b>PIHAK KEDUA</b><br>${escapeHtml(d.pihakKeduaCompany || doc.partnerName || "-")}</td></tr>
             <tr class="doc-sign-space"><td></td><td></td></tr>
             <tr><td>( ${escapeHtml(d.pihakPertamaName || "Arnold Therigan")} )<br>${escapeHtml(d.pihakPertamaRole || "Founder dan Perwakilan")}</td><td>( ${escapeHtml(d.pihakKeduaName || "-")} )<br>${escapeHtml(d.pihakKeduaRole || "-")}</td></tr>
           </table>
-          ${attachHtml}
         </div>`;
       openDocPrint(html);
     }
