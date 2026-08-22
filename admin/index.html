@@ -2661,6 +2661,13 @@
     @media print {
       body > *:not(#docPrintArea) { display: none !important; }
       #docPrintArea { display: block !important; }
+      /* @page margin: 0 -- browser's date/title header+footer render INTO the
+         page margin area, so zeroing it out is what actually suppresses them
+         (the "Headers and footers" print-dialog checkbox is a browser/user
+         setting we can't flip from here). .doc-print's own padding below
+         takes over as the visual margin instead. */
+      @page { margin: 0; }
+      .doc-print { padding: 20mm 16mm; max-width: none; }
     }
     .doc-print { font-family: Georgia, 'Times New Roman', serif; color: #111; max-width: 720px; margin: 0 auto; padding: 24px; line-height: 1.5; }
     .doc-print h1 { font-size: 20px; text-align: center; margin: 0 0 16px; }
@@ -7917,9 +7924,24 @@
       return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
     }
 
-    function openDocPrint(html) {
+    // Browser print-to-PDF dialog suggests document.title sebagai default
+    // nama file -- pinjem sebentar biar "Save As" udah keisi nama MOU/Invoice
+    // -nya sendiri, bukan "Admin Dashboard — Seminggu Satu", terus balikin
+    // lagi title aslinya (pake afterprint, lebih reliable daripada nebak
+    // window.print() itu blocking atau nggak di tiap browser).
+    function safeFileName(s) {
+      return String(s || "Document").replace(/[\\/:*?"<>|]+/g, "-").trim() || "Document";
+    }
+
+    function openDocPrint(html, fileName) {
       const area = document.getElementById("docPrintArea");
       area.innerHTML = html;
+      const originalTitle = document.title;
+      if (fileName) {
+        document.title = fileName;
+        const restore = () => { document.title = originalTitle; window.removeEventListener("afterprint", restore); };
+        window.addEventListener("afterprint", restore);
+      }
       setTimeout(() => window.print(), 50);
     }
 
@@ -7978,7 +8000,7 @@
             <tr><td>( ${escapeHtml(d.pihakPertamaName || "Arnold Therigan")} )<br>${escapeHtml(d.pihakPertamaRole || "Founder dan Perwakilan")}</td><td>( ${escapeHtml(d.pihakKeduaName || "-")} )<br>${escapeHtml(d.pihakKeduaRole || "-")}</td></tr>
           </table>
         </div>`;
-      openDocPrint(html);
+      openDocPrint(html, safeFileName(doc.title || "MOU"));
     }
 
     function downloadCurrentInvoicePdf() {
@@ -8010,7 +8032,7 @@
             <p style="margin-top:40px;"><b>${escapeHtml(d.signerName || "-")}</b></p>
           </div>
         </div>`;
-      openDocPrint(html);
+      openDocPrint(html, safeFileName(doc.title || "Invoice"));
     }
 
     // ---------- KONTEN EDITOR (galeri/testimoni/rekomendasi) ----------
