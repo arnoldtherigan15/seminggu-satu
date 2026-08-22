@@ -2679,10 +2679,16 @@
     .doc-print h2 { font-size: 15px; margin: 20px 0 8px; page-break-after: avoid; break-after: avoid; }
     .doc-print p, .doc-print li { font-size: 13px; }
     .doc-print ol, .doc-print ul { padding-left: 22px; }
-    .doc-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 8px; font-size: 12.5px; page-break-inside: avoid; break-inside: avoid; }
+    /* page-break-inside/break-inside go on this wrapper div, not the <table>
+       itself -- Chrome's print engine clips the last row's bottom border off
+       a <table> that carries those properties directly, even when it doesn't
+       actually need to break. A wrapping block element doesn't have that bug. */
+    .doc-table-wrap { page-break-inside: avoid; break-inside: avoid; }
+    .doc-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 8px; font-size: 12.5px; }
     .doc-table th, .doc-table td { border: 1px solid #333; padding: 6px 8px; text-align: left; vertical-align: top; }
     .doc-table th { background: #f0f0f0; }
-    .doc-sign-table { width: 100%; margin-top: 24px; font-size: 13px; border-collapse: separate; border-spacing: 0; page-break-inside: avoid; break-inside: avoid; }
+    .doc-sign-table-wrap { page-break-inside: avoid; break-inside: avoid; }
+    .doc-sign-table { width: 100%; margin-top: 24px; font-size: 13px; border-collapse: separate; border-spacing: 0; }
     .doc-sign-table td { width: 50%; padding: 8px 10px; vertical-align: top; border: 1px solid #333; }
     .doc-sign-space td { height: 70px; }
     .doc-page-break { page-break-before: always; }
@@ -7960,10 +7966,10 @@
       const dateId = doc.doc_date ? formatDateIndoLong(doc.doc_date) : "";
       const attachHtml = (d.attachments && d.attachments.length) ? `
         <h2>LAMPIRAN DOKUMEN KERJASAMA</h2>
-        <table class="doc-table">
+        <div class="doc-table-wrap"><table class="doc-table">
           <thead><tr><th>No.</th><th>Jenis Dukungan</th><th>Jumlah/Kuota</th><th>Keterangan</th></tr></thead>
           <tbody>${d.attachments.map((a, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(a.jenis || "-")}</td><td>${escapeHtml(a.jumlah || "-")}</td><td>${escapeHtml(a.keterangan || "-")}</td></tr>`).join("")}</tbody>
-        </table>` : "";
+        </table></div>` : "";
       const html = `
         <div class="doc-print doc-print-mou">
           <h1>MEMORANDUM OF UNDERSTANDING (MOU)<br>NOTA KESEPAHAMAN KERJASAMA</h1>
@@ -7997,11 +8003,11 @@
           <p>MOU ini dibuat dalam rangkap 2 (dua) asli yang masing-masing memiliki kekuatan hukum yang sama, ditandatangani oleh PARA PIHAK dengan penuh kesadaran dan tanggung jawab demi kesuksesan kolaborasi bersama.</p>
           ${attachHtml}
 
-          <table class="doc-sign-table">
+          <div class="doc-sign-table-wrap"><table class="doc-sign-table">
             <tr><td><b>PIHAK PERTAMA</b><br>Komunitas Seminggu Satu</td><td><b>PIHAK KEDUA</b><br>${escapeHtml(d.pihakKeduaCompany || doc.partnerName || "-")}</td></tr>
             <tr class="doc-sign-space"><td></td><td></td></tr>
             <tr><td>( ${escapeHtml(d.pihakPertamaName || "Arnold Therigan")} )<br>${escapeHtml(d.pihakPertamaRole || "Founder dan Perwakilan")}</td><td>( ${escapeHtml(d.pihakKeduaName || "-")} )<br>${escapeHtml(d.pihakKeduaRole || "-")}</td></tr>
-          </table>
+          </table></div>
         </div>`;
       openDocPrint(html, safeFileName(doc.title || "MOU"));
     }
@@ -8019,10 +8025,10 @@
         <div class="doc-print doc-print-invoice">
           <h1>INVOICE</h1>
           <p>To : ${escapeHtml(d.toName || "-")}</p>
-          <table class="doc-table">
+          <div class="doc-table-wrap"><table class="doc-table">
             <thead><tr><th>Description</th><th style="text-align:right;">Total</th></tr></thead>
             <tbody>${items.map(it => `<tr><td>${escapeHtml(it.description || "-")}</td><td style="text-align:right;">${rupiah(it.amount)}</td></tr>`).join("")}</tbody>
-          </table>
+          </table></div>
           <div class="doc-invoice-total">Total : <b>${rupiah(total)}</b></div>
           <div class="doc-invoice-bank">
             <p><b>Bank Transfer</b><br>
