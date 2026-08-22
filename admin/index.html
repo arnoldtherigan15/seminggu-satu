@@ -2667,20 +2667,24 @@
          setting we can't flip from here). .doc-print's own padding below
          takes over as the visual margin instead. */
       @page { margin: 0; }
-      .doc-print { padding: 20mm 16mm; max-width: none; }
+      /* box-decoration-break: clone -- without it, this padding only shows on
+         the very first/last page of the whole flow (a fragmented box's
+         top/bottom padding is sliced off at every page break by default).
+         clone re-applies it on every page, so each page gets its own
+         top/bottom margin instead of content starting flush against the edge. */
+      .doc-print { padding: 20mm 16mm; max-width: none; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
     }
     .doc-print { font-family: Georgia, 'Times New Roman', serif; color: #111; max-width: 720px; margin: 0 auto; padding: 24px; line-height: 1.5; }
     .doc-print h1 { font-size: 20px; text-align: center; margin: 0 0 16px; }
-    .doc-print h2 { font-size: 15px; margin: 20px 0 8px; }
+    .doc-print h2 { font-size: 15px; margin: 20px 0 8px; page-break-after: avoid; break-after: avoid; }
     .doc-print p, .doc-print li { font-size: 13px; }
     .doc-print ol, .doc-print ul { padding-left: 22px; }
-    .doc-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; page-break-inside: avoid; }
-    .doc-table th, .doc-table td { border: 1px solid #999; padding: 6px 8px; text-align: left; vertical-align: top; }
+    .doc-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 8px; font-size: 12.5px; page-break-inside: avoid; break-inside: avoid; }
+    .doc-table th, .doc-table td { border: 1px solid #333; padding: 6px 8px; text-align: left; vertical-align: top; }
     .doc-table th { background: #f0f0f0; }
-    .doc-sign-table { width: 100%; margin-top: 24px; font-size: 13px; border-collapse: collapse; page-break-inside: avoid; }
-    .doc-sign-table td { width: 50%; padding: 8px 10px; vertical-align: top; border: 1px solid #444; }
+    .doc-sign-table { width: 100%; margin-top: 24px; font-size: 13px; border-collapse: separate; border-spacing: 0; page-break-inside: avoid; break-inside: avoid; }
+    .doc-sign-table td { width: 50%; padding: 8px 10px; vertical-align: top; border: 1px solid #333; }
     .doc-sign-space td { height: 70px; }
-    .doc-print h2 { page-break-after: avoid; }
     .doc-page-break { page-break-before: always; }
     .doc-print-invoice h1 { color: #4f46e5; }
     .doc-invoice-total { text-align: right; font-size: 15px; margin-top: 10px; }
