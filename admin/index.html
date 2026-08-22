@@ -2683,13 +2683,18 @@
        itself -- Chrome's print engine clips the last row's bottom border off
        a <table> that carries those properties directly, even when it doesn't
        actually need to break. A wrapping block element doesn't have that bug. */
-    .doc-table-wrap { page-break-inside: avoid; break-inside: avoid; }
+    /* border-bottom lives on the wrapper, not the table's last row -- Chrome's
+       print engine drops a table's own bottom border even outside any page
+       break, so the closing line has to come from a plain block element. */
+    .doc-table-wrap { page-break-inside: avoid; break-inside: avoid; border-bottom: 1px solid #333; }
     .doc-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 8px; font-size: 12.5px; }
-    .doc-table th, .doc-table td { border: 1px solid #333; padding: 6px 8px; text-align: left; vertical-align: top; }
+    .doc-table th, .doc-table td { border: 1px solid #333; border-bottom: none; padding: 6px 8px; text-align: left; vertical-align: top; }
+    .doc-table tr:last-child td { border-bottom: 1px solid #333; }
     .doc-table th { background: #f0f0f0; }
-    .doc-sign-table-wrap { page-break-inside: avoid; break-inside: avoid; }
+    .doc-sign-table-wrap { page-break-inside: avoid; break-inside: avoid; border-bottom: 1px solid #333; }
     .doc-sign-table { width: 100%; margin-top: 24px; font-size: 13px; border-collapse: separate; border-spacing: 0; }
-    .doc-sign-table td { width: 50%; padding: 8px 10px; vertical-align: top; border: 1px solid #333; }
+    .doc-sign-table td { width: 50%; padding: 8px 10px; vertical-align: top; border: 1px solid #333; border-bottom: none; }
+    .doc-sign-table tr:last-child td { border-bottom: 1px solid #333; }
     .doc-sign-space td { height: 70px; }
     .doc-page-break { page-break-before: always; }
     .doc-print-invoice h1 { color: #4f46e5; }
