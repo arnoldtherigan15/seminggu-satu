@@ -5529,6 +5529,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let CONFIG = null;                // array config workshop (editor)
     let CFG_BATCHES = [];              // batch untuk workshop yang lagi dipilih di tab Config
     let financeInit = false;
+    let finTabsCtl = null;
     let configInit = false;
     let kontenInit = false;
     let KONTEN = [];                  // item konten yang sedang diedit
@@ -6275,10 +6276,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const parts = h.split(":");
       const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "personal"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
-      switchView(view, parts[1]);
+      switchView(view, parts[1], parts[2]);
     }
 
-    function switchView(view, event) {
+    // `event` = 2nd hash segment -- for prep/pesanan/personal this is the
+    // workshop/batch id being viewed (existing meaning); for views with no
+    // such selector (keuangan/quest/members) it doubles as the subtab id.
+    // `subtab` = 3rd hash segment, only used by prep/pesanan which already
+    // spend the 2nd segment on the workshop/batch id.
+    function switchView(view, event, subtab) {
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
       const activeBtn = document.querySelector(".nav-btn.active");
       if (activeBtn) activeBtn.scrollIntoView({ block: "nearest" });
@@ -6304,18 +6310,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       applyMemSearchHeightVar();
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
-      if (view === "keuangan") ensureFinanceLoaded();
-      if (view === "prep") ensurePrep(event);
+      if (view === "keuangan") { ensureFinanceLoaded(); if (event && finTabsCtl) finTabsCtl.show(event); }
+      if (view === "prep") ensurePrep(event, subtab);
       if (view === "config") ensureConfigLoaded();
       if (view === "partnerlist") ensurePartnerListView();
       if (view === "mou") ensureMouView();
       if (view === "invoice") ensureInvoiceView();
       if (view === "konten") ensureKontenLoaded();
       if (view === "leads") ensureLeads();
-      if (view === "quest") ensureQuest();
+      if (view === "quest") { ensureQuest(); if (event && questTabsCtl) questTabsCtl.show(event); }
       if (view === "activity") ensureActivity();
-      if (view === "members") ensureMembers();
-      if (view === "pesanan") ensurePesanan(event);
+      if (view === "members") { ensureMembers(); if (event && memberTabsCtl) memberTabsCtl.show(event); }
+      if (view === "pesanan") ensurePesanan(event, subtab);
       if (view === "personal") { ensurePersonal(); if (event && perTabsCtl) perTabsCtl.show(event); }
     }
 
@@ -6387,7 +6393,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("riProcessBtn").addEventListener("click", processReceiptImport);
         document.getElementById("riSelectAllBtn").addEventListener("click", toggleRiSelectAll);
         document.getElementById("riSaveBtn").addEventListener("click", saveRiSelected);
-        wireSubtabs(document.getElementById("finSubtabs"));
+        finTabsCtl = wireSubtabs(document.getElementById("finSubtabs"), (tabId) => {
+          // replaceState (bukan location.hash biasa) -- ga numpuk history & ga
+          // mancing applyHash() muter lagi, sama pola kayak Personal Finance.
+          history.replaceState(null, "", "#keuangan:" + tabId);
+        });
         if (!Object.keys(SUMMARY).length) await loadSummary();
         await Promise.all([loadModal(), loadCostItems(), loadInventoryTx()]);
         financeInit = true;
@@ -8865,6 +8875,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     // ---------- MEMBER (akun /warga, ultah, aktif) ----------
     let membersInit = false;
+    let memberTabsCtl = null;
     let MEM_DATA = null; // respons getMembers, disimpan biar search nggak refetch
     async function ensureMembers() {
       if (!membersInit) {
@@ -8874,7 +8885,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         // Card doang), sengaja digabung jadi satu biar nggak bingung.
         document.getElementById("memSearch").addEventListener("input", () => { renderMembers(); renderLoyalty(); });
         // Kotak Pos Warga & Barter Warga: muat pas pertama kali tab-nya dibuka
-        wireSubtabs(document.getElementById("memberSubtabs"), (tab, isFirst) => {
+        memberTabsCtl = wireSubtabs(document.getElementById("memberSubtabs"), (tab, isFirst) => {
+          history.replaceState(null, "", "#members:" + tab);
           if (!isFirst) return;
           if (tab === "suggest") loadSuggestions();
           else if (tab === "barter") loadBarterAdmin();
@@ -9356,6 +9368,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     // ---------- SIDE QUEST (admin) ----------
     let questInit = false;
+    let questTabsCtl = null;
     let CHALLENGES = [];
 
     async function ensureQuest() {
@@ -9377,7 +9390,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("epFile").addEventListener("change", onEventPhotoPick);
         document.getElementById("epAddBtn").addEventListener("click", addEventPhoto);
         document.getElementById("epCancelEditBtn").addEventListener("click", cancelEditEventPhoto);
-        wireSubtabs(document.getElementById("questSubtabs"));
+        questTabsCtl = wireSubtabs(document.getElementById("questSubtabs"), (tabId) => {
+          history.replaceState(null, "", "#quest:" + tabId);
+        });
         questInit = true;
         await loadChallenges();
         loadAdminLeaderboard();
@@ -9686,7 +9701,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let pesOrderFilterMenuId = "";
     let pesRegFilterValue = ""; // "" = semua, "__none__" = belum pesan, atau id menu
 
-    async function ensurePesanan(presetBatchId) {
+    async function ensurePesanan(presetBatchId, presetSubtab) {
       if (!pesananInit) {
         pesananInit = true;
         const wsSel = document.getElementById("pesWorkshopSelect");
@@ -9720,7 +9735,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           if (e.target.id === "mnFormOverlay") closeMenuForm();
         });
         document.getElementById("mnImageFile").addEventListener("change", onMenuImagePick);
-        pesTabsCtl = wireSubtabs(document.getElementById("pesSubtabs"));
+        pesTabsCtl = wireSubtabs(document.getElementById("pesSubtabs"), (tabId) => {
+          const batchId = document.getElementById("pesEventSelect").value;
+          history.replaceState(null, "", "#pesanan:" + batchId + ":" + tabId);
+        });
         loadPesVendorWa();
         await loadPesMenu();
       }
@@ -9733,15 +9751,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         if (match) {
           document.getElementById("pesWorkshopSelect").value = match.workshopType;
           await loadPesBatchesForWorkshop(presetBatchId);
+          if (presetSubtab && pesTabsCtl) pesTabsCtl.show(presetSubtab);
           return;
         }
       } else if (presetBatchId) {
         const sel = document.getElementById("pesEventSelect");
         sel.value = presetBatchId;
         onPesEventChange();
+        if (presetSubtab && pesTabsCtl) pesTabsCtl.show(presetSubtab);
         return;
       }
       if (!PES_BATCHES.length) await loadPesBatchesForWorkshop();
+      if (presetSubtab && pesTabsCtl) pesTabsCtl.show(presetSubtab);
     }
 
     function fmtOrderDate(s) {
@@ -11877,8 +11898,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let PREP = {};
     let prepInit = false;
     let PREP_BATCHES = [];
+    let prepInitialSubtab = null; // dari hash #prep:workshopId:subtabId, dipakai sekali di renderPrep() lalu direset
 
-    async function ensurePrep(event) {
+    async function ensurePrep(event, subtab) {
+      if (subtab) prepInitialSubtab = subtab;
       if (!prepInit) {
         const sel = document.getElementById("prepSelect");
         sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
@@ -12043,7 +12066,17 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         wrap.appendChild(panel);
       });
       cont.appendChild(wrap);
-      wireSubtabs(wrap);
+      const prepTabsCtl = wireSubtabs(wrap, (tabId) => {
+        const wsId = document.getElementById("prepSelect").value;
+        history.replaceState(null, "", "#prep:" + wsId + ":" + tabId);
+      });
+      // Dari hash #prep:workshopId:subtabId -- cuma dipakai sekali per
+      // load/refresh, jangan sampai batch/workshop switch berikutnya kepental
+      // balik ke tab ini terus-terusan.
+      if (prepInitialSubtab) {
+        prepTabsCtl.show(prepInitialSubtab);
+        prepInitialSubtab = null;
+      }
 
       PREP_SECTIONS.forEach(sec => renderPrepList(sec));
       loadPrepParticipants();
