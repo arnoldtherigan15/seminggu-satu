@@ -4542,7 +4542,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <div id="epPreview" style="margin-top:8px;"></div>
                 </div>
                 <div class="konten-field"><label>Caption</label><input class="form-control" type="text" id="epCaption" maxlength="280" placeholder="e.g. Fun times at 3D Journaling Workshop vol.2 ✨"></div>
-                <button class="btn" id="epAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Add to Gallery</button>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button class="btn" id="epAddBtn" style="flex:1;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Add to Gallery</button>
+                  <button class="btn btn-sm btn-ghost" id="epCancelEditBtn" type="button" style="display:none;">Cancel Edit</button>
+                </div>
                 <div class="msg" id="epMsg"></div>
               </div>
               <div id="epList" style="margin-top:10px;"></div>
@@ -9373,6 +9376,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("qImageFile").addEventListener("change", onQuestImagePick);
         document.getElementById("epFile").addEventListener("change", onEventPhotoPick);
         document.getElementById("epAddBtn").addEventListener("click", addEventPhoto);
+        document.getElementById("epCancelEditBtn").addEventListener("click", cancelEditEventPhoto);
         wireSubtabs(document.getElementById("questSubtabs"));
         questInit = true;
         await loadChallenges();
@@ -9383,6 +9387,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     // ---- Galeri Event (foto momen workshop / reka-rekat) ----
     let _epBase64 = "";
+    let _epEditId = "";
+    let EVENT_PHOTOS = [];
 
     async function onEventPhotoPick(e) {
       const f = e.target.files[0]; if (!f) return;
@@ -9394,27 +9400,59 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       } catch (err) { alert("Failed to read image" + (err && err.message ? " (" + err.message + ")" : "") + ". Try JPG/PNG format."); }
     }
 
+    function editEventPhoto(id) {
+      const p = EVENT_PHOTOS.find(x => x.id === id);
+      if (!p) return;
+      _epEditId = id;
+      _epBase64 = "";
+      document.getElementById("epTag").value = p.tag || "workshop";
+      document.getElementById("epDate").value = p.eventDate || "";
+      document.getElementById("epCaption").value = p.caption || "";
+      document.getElementById("epFile").value = "";
+      document.getElementById("epPreview").innerHTML = p.photo
+        ? '<img src="' + driveThumb(p.photo) + '" style="width:100%;max-width:320px;border-radius:12px;"><p class="hint" style="margin-top:4px;">Current photo -- choose a new file above only if you want to replace it.</p>'
+        : "";
+      document.getElementById("epAddBtn").innerHTML = icon("save") + " Update Photo";
+      document.getElementById("epCancelEditBtn").style.display = "inline-flex";
+      document.getElementById("epMsg").textContent = "";
+      document.querySelector('[data-tab="galeri"] .fin-card').scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function cancelEditEventPhoto() {
+      _epEditId = "";
+      _epBase64 = "";
+      document.getElementById("epFile").value = "";
+      document.getElementById("epPreview").innerHTML = "";
+      document.getElementById("epCaption").value = "";
+      document.getElementById("epDate").value = "";
+      document.getElementById("epTag").value = "workshop";
+      document.getElementById("epAddBtn").innerHTML = icon("plus") + " Add to Gallery";
+      document.getElementById("epCancelEditBtn").style.display = "none";
+      document.getElementById("epMsg").textContent = "";
+    }
+
     async function addEventPhoto() {
-      if (!_epBase64) { alert("Please select a photo first."); return; }
+      const isEdit = !!_epEditId;
+      if (!isEdit && !_epBase64) { alert("Please select a photo first."); return; }
       const btn = document.getElementById("epAddBtn");
       const msg = document.getElementById("epMsg");
-      btn.disabled = true; btn.textContent = "Mengunggah…";
-      const r = await api("addEventPhoto", {
+      btn.disabled = true; btn.textContent = isEdit ? "Updating…" : "Mengunggah…";
+      const payload = {
         token: getToken(),
         tag: document.getElementById("epTag").value,
         eventDate: document.getElementById("epDate").value,
         caption: document.getElementById("epCaption").value.trim(),
-        photoBase64: _epBase64
-      });
-      btn.disabled = false; btn.innerHTML = icon("plus") + " Add to Gallery";
+      };
+      if (_epBase64) payload.photoBase64 = _epBase64;
+      if (isEdit) payload.id = _epEditId;
+      const r = await api(isEdit ? "updateEventPhoto" : "addEventPhoto", payload);
+      btn.disabled = false;
       msg.textContent = (r && r.message) || "Done.";
       if (r && r.status === "success") {
-        _epBase64 = "";
-        document.getElementById("epFile").value = "";
-        document.getElementById("epPreview").innerHTML = "";
-        document.getElementById("epCaption").value = "";
-        document.getElementById("epDate").value = "";
+        cancelEditEventPhoto();
         loadEventPhotos();
+      } else {
+        btn.innerHTML = isEdit ? (icon("save") + " Update Photo") : (icon("plus") + " Add to Gallery");
       }
     }
 
@@ -9422,18 +9460,24 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const el = document.getElementById("epList");
       el.innerHTML = '<p class="hint">Memuat foto event…</p>';
       const r = await api("getEventPhotos", { token: getToken() });
-      const list = (r && r.photos) || [];
-      if (!list.length) { el.innerHTML = '<p class="hint">' + icon("camera") + ' No event photos yet. Add workshop / reka-rekat moments above.</p>'; return; }
-      el.innerHTML = list.map(p =>
-        '<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">' +
+      EVENT_PHOTOS = (r && r.photos) || [];
+      if (!EVENT_PHOTOS.length) { el.innerHTML = '<p class="hint">' + icon("camera") + ' No event photos yet. Add workshop / reka-rekat moments above.</p>'; return; }
+      el.innerHTML = EVENT_PHOTOS.map(p =>
+        '<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer;" data-epedit="' + p.id + '">' +
           '<img src="' + driveThumb(p.photo) + '" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;" loading="lazy">' +
           '<div style="flex:1;min-width:0;"><b>' + (p.tag === "reka-rekat" ? icon("scissors") + " Reka-Rekat" : (p.tag === "temu-warga" ? icon("people") + " Temu-Warga" : icon("easel") + " Workshop")) + '</b>' + (p.eventDate ? ' <span style="font-size:.75rem;color:#6b7280;">' + icon("calendar") + " " + p.eventDate + '</span>' : '') +
             '<div style="font-size:.8rem;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (p.caption ? String(p.caption).replace(/</g, "&lt;") : "(tanpa caption)") + '</div></div>' +
           '<button class="btn btn-sm" data-epdel="' + p.id + '" style="background:#fee2e2;color:var(--err);flex-shrink:0;">' + icon("trash") + '</button>' +
         '</div>').join("");
-      el.querySelectorAll("[data-epdel]").forEach(b => b.addEventListener("click", async () => {
+      el.querySelectorAll("[data-epedit]").forEach(row => row.addEventListener("click", (e) => {
+        if (e.target.closest("[data-epdel]")) return;
+        editEventPhoto(row.dataset.epedit);
+      }));
+      el.querySelectorAll("[data-epdel]").forEach(b => b.addEventListener("click", async (e) => {
+        e.stopPropagation();
         if (!confirm("Delete this photo from the member gallery?")) return;
         await api("deleteEventPhoto", { token: getToken(), id: b.dataset.epdel });
+        if (_epEditId === b.dataset.epdel) cancelEditEventPhoto();
         loadEventPhotos();
       }));
     }

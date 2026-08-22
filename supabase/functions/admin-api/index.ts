@@ -651,6 +651,27 @@ Kasih:
         return jsonResponse({ status: "success", message: "Foto event ditambahkan ke galeri." });
       }
 
+      case "updateEventPhoto": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID kosong.");
+        const rawTag = String(data.tag || "");
+        const tag = rawTag === "reka-rekat" || rawTag === "temu-warga" ? rawTag : "workshop";
+        // deno-lint-ignore no-explicit-any
+        const payload: any = {
+          tag,
+          caption: String(data.caption || "").slice(0, 280),
+          event_date: String(data.eventDate || "").slice(0, 10) || null,
+        };
+        if (data.photoBase64) {
+          const photoUrl = await uploadBase64(admin, "event-photos", data.photoBase64, `event-${tag}`);
+          if (!photoUrl) return errorResponse("Gagal upload foto.");
+          payload.photo_url = photoUrl;
+        }
+        const { error } = await admin.from("event_photos").update(payload).eq("id", id);
+        if (error) return errorResponse("Foto tidak ditemukan.");
+        return jsonResponse({ status: "success", message: "Foto event diperbarui." });
+      }
+
       case "deleteEventPhoto": {
         const id = String(data.id || "");
         if (!id) return errorResponse("ID kosong.");
