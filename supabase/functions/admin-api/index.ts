@@ -22,6 +22,12 @@ const prepFaqKey = (event: string, batchId: string) => `prep__${event}__faqconte
 // (bukan hasil generate sekaligus) -- per BATCH juga, sama alasan kayak
 // prepFaqKey (venue/detail beda tiap batch).
 const prepFaqListKey = (event: string, batchId: string) => `prep__${event}__faqlist__${batchId || "general"}`;
+// Konteks caption promo per event+batch (batchId kosong = "general", sama
+// pola kayak prepFaqKey). BEDA dari prepFaqKey: event Config BUKAN dibatasin
+// ke WORKSHOP_TYPES (Config support event id apa aja yang dibikin dinamis
+// lewat createNewWorkshopConfig() di dashboard) -- validasinya cuma "non-empty".
+const cfgCaptionContextKey = (event: string, batchId: string) => `cfg__${event}__captioncontext__${batchId || "general"}`;
+const cfgCaptionListKey = (event: string, batchId: string) => `cfg__${event}__captionlist__${batchId || "general"}`;
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
 
 // Admin ngetik tanggal event manual via prompt() di dashboard, format yang
@@ -822,6 +828,96 @@ Kasih:
         if (!Array.isArray(data.config)) return errorResponse("Format config tidak valid (harus array).");
         await setConfigValue(admin, "WORKSHOPS_JSON", JSON.stringify(data.config));
         return jsonResponse({ status: "success", message: "Config tersimpan & langsung aktif di web." });
+      }
+
+      case "getEventCaptionContext": {
+        const event = String(data.event || "").trim();
+        if (!event) return errorResponse("Event tidak boleh kosong.");
+        const batchId = String(data.batchId || "");
+        const context = (await getConfigValue(admin, cfgCaptionContextKey(event, batchId))) || "";
+        return jsonResponse({ status: "success", context });
+      }
+
+      case "saveEventCaptionContext": {
+        const event = String(data.event || "").trim();
+        if (!event) return errorResponse("Event tidak boleh kosong.");
+        const batchId = String(data.batchId || "");
+        await setConfigValue(admin, cfgCaptionContextKey(event, batchId), String(data.context || "").slice(0, 4000));
+        return jsonResponse({ status: "success", message: "Konteks caption tersimpan." });
+      }
+
+      case "getEventCaptionList": {
+        const event = String(data.event || "").trim();
+        if (!event) return errorResponse("Event tidak boleh kosong.");
+        const batchId = String(data.batchId || "");
+        const json = await getConfigValue(admin, cfgCaptionListKey(event, batchId));
+        // deno-lint-ignore no-explicit-any
+        let list: any[] = [];
+        try { list = json ? JSON.parse(json) : []; } catch (_e) { list = []; }
+        return jsonResponse({ status: "success", list });
+      }
+
+      case "saveEventCaptionList": {
+        const event = String(data.event || "").trim();
+        if (!event) return errorResponse("Event tidak boleh kosong.");
+        const batchId = String(data.batchId || "");
+        const list = Array.isArray(data.list)
+          // Caption jauh lebih panjang dari jawaban FAQ (multi-paragraf +
+          // bullet list) -- cap per-entry lebih longgar & jumlah entry lebih
+          // kecil daripada FAQ (2000 char / 50 entry).
+          // deno-lint-ignore no-explicit-any
+          ? data.list.slice(0, 30).map((it: any) => ({
+            caption: String(it?.caption || "").slice(0, 4000),
+          }))
+          : [];
+        await setConfigValue(admin, cfgCaptionListKey(event, batchId), JSON.stringify(list));
+        return jsonResponse({ status: "success" });
+      }
+
+      case "generateEventCaption": {
+        const context = String(data.context || "").trim();
+        const knownFacts = String(data.knownFacts || "").trim();
+        const eventName = String(data.eventName || "event ini");
+        const geminiKey = Deno.env.get("GEMINI_API_KEY");
+        if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
+
+        const prompt = `Kamu bantu bikin 1 draft caption promosi media sosial (Instagram) buat event "${eventName}" dari brand "seminggu satu" (workshop journaling).
+
+Data fakta yang UDAH PASTI AKURAT dari sistem (tanggal/jam/lokasi/harga/link) -- JANGAN diubah, jangan dibulatkan, jangan dikarang tambahannya:
+"""
+${knownFacts || "(nggak ada data fakta tersedia -- kalau kosong, jangan sebut detail tanggal/jam/lokasi/harga sama sekali di caption, cukup buat bagian yang nggak butuh data itu)"}
+"""
+
+Konteks tambahan yang diisi manual Arnold (partner kolaborasi, isi kit/goodie bag, voucher diskon, tema/vibe spesial, dsb) -- ini sumber buat bagian KREATIF caption:
+"""
+${context || "(belum ada konteks tambahan yang diisi -- buat caption sewajarnya tanpa detail kolaborasi/kit spesifik yang nggak disebut)"}
+"""
+
+Tulis 1 caption dengan STRUKTUR PERSIS kayak gini (ikutin urutan section-nya, tapi isi kalimatnya orisinil, jangan asal copy contoh):
+
+1. Baris hook/judul menarik, boleh sebut nama event, dikasih 1-2 emoji yang relevan di akhir baris.
+2. KALAU context nyebut ada partner/kolaborasi: 1 baris "Kolaborasi Special bersama @[nama/handle partner]" (pakai nama persis dari context). Kalau nggak ada partner disebut, SKIP baris ini sama sekali.
+3. 1-2 paragraf pendek yang bikin excited tapi TIDAK lebay/over-hype -- ceritain kenapa event ini seru & apa yang beda/spesial, based on context (dan knownFacts kalau relevan).
+4. Baris "What you'll get:" diikuti bullet list pakai emoji ⭐️ di depan tiap poin -- isinya dari context (kit, voucher, goodie, dsb). Kalau context nggak nyebut apa-apa soal ini, boleh skip section ini.
+5. Baris "📌 Save the Date!" lalu detail dari knownFacts SAJA (jangan nambahin/ngarang), format:
+📅 [tanggal]
+⏰ [jam]
+📍[lokasi]
+🎟️ HTM: [harga]
+(skip baris yang datanya nggak ada di knownFacts, jangan diisi placeholder/tebakan)
+6. Baris penutup ajakan (CTA) buat daftar, sebut link pendaftaran kalau ada di knownFacts, kasih 1-2 emoji penutup.
+
+Aturan penting:
+- Fakta tanggal/jam/lokasi/harga/link WAJIB PERSIS dari blok "data fakta" -- kalau nggak ada di sana, JANGAN tulis/tebak sendiri.
+- Bagian kreatif (hook, paragraf, isi "What you'll get", nama partner) HARUS berdasar dari blok "konteks tambahan" -- jangan mengarang detail yang nggak disebut di sana (misal ngarang isi kit atau nama partner yang nggak ada).
+- Gaya bahasa: santai, hangat, akrab ala caption Instagram brand lokal -- excited tapi bukan bahasa hard-selling/lebay. Emoji dipakai secukupnya sesuai contoh struktur, jangan berlebihan di luar itu.
+- Balas HANYA teks captionnya aja, tanpa pembuka/penutup/penjelasan tambahan, tanpa markdown/tanda kutip pembungkus.`;
+
+        const result = await callGemini(geminiKey, prompt);
+        if (!result.ok) return errorResponse("Gagal generate caption: " + result.error);
+        const caption = String(result.text || "").trim();
+        if (!caption) return errorResponse("AI nggak ngasih hasil yang bisa dibaca.");
+        return jsonResponse({ status: "success", caption });
       }
 
       case "getPrep": {

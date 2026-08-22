@@ -2753,6 +2753,14 @@
       .filter-overlay-box { max-width: 100vw; max-height: 100vh; height: 100vh; border-radius: 0; }
     }
 
+    /* Config editor overlay has more fields than the other filter-overlays
+       (General Config's 2-col grid + Batch Detail + Caption AI) -- give it
+       more room on desktop, but ONLY there, so the mobile full-screen
+       override above still wins on small screens. */
+    @media (min-width: 681px) {
+      .filter-overlay-box-wide { max-width: 640px; max-height: 760px; }
+    }
+
     .filter-overlay-head {
       display: flex;
       align-items: center;
@@ -4298,70 +4306,114 @@
             <button class="btn btn-sm btn-ghost" id="cfgReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
 
-          <div class="fin-card" id="cfgGeneralCard">
-            <p class="hint" style="margin:0 0 10px;">PRODUCT/PAGE data for the event (name, description, bank account, etc.) -- applies to ALL batches of this type. Date/time/location/price/quota/WA link can differ per batch -- pick the batch in the "Batch" dropdown above.</p>
-            <div id="cfgForm" class="cfg-form"></div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-              <button class="btn" id="cfgSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Config</button>
-              <button class="btn btn-sm" id="cfgDeleteBtn" style="background:#fee2e2;color:var(--err);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Delete
-                this event</button>
-            </div>
-            <div class="msg" id="cfgMsg"></div>
-            <p class="hint">Changes are saved immediately & go live on the public site right away.</p>
+          <div class="fin-card" id="cfgSummaryCard">
+            <div style="font-weight:800;margin-bottom:4px;" id="cfgSummaryTitle">—</div>
+            <p class="hint" id="cfgSummarySub" style="margin:0 0 10px;"></p>
+            <div id="cfgSummaryBody"></div>
+            <button class="btn" id="cfgEditBtn" style="margin-top:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg> Edit</button>
           </div>
+        </div>
 
-          <div class="fin-card" id="cfgBatchCard" style="display:none;">
-            <div style="font-weight:800;margin-bottom:4px;">Batch Detail: <span id="cfgBatchLabel"></span></div>
-            <p class="hint" style="margin:0 0 8px;">Defaults follow General Config above. Fill in one/several fields HERE only if this batch differs (e.g. venue/price/quota different from other batches of the same type) -- leave blank to follow General Config. New batches automatically copy this from the last batch created -- just edit what's different.</p>
-            <div class="konten-field"><label>Batch Name</label><input class="form-control" type="text" id="batchLabelInput" placeholder="e.g. Vol 1"></div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Location</label><input class="form-control" type="text" id="batchLoc" placeholder="follows Config"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Time</label><input class="form-control" type="text" id="batchTime" placeholder="follows Config"></div>
+        <!-- ===== OVERLAY: CONFIG EDITOR (General Config / Batch Detail / AI Caption) ===== -->
+        <div id="configFormOverlay" class="filter-overlay" style="display:none;">
+          <div class="filter-overlay-box filter-overlay-box-wide">
+            <div class="filter-overlay-head">
+              <button class="filter-back" id="configFormBackBtn" aria-label="Tutup">&larr;</button>
+              <div class="filter-overlay-title" id="configFormTitle">Edit Config</div>
             </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Maps Link</label><input class="form-control" type="text" id="batchMapsLink" placeholder="follows Config"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>WhatsApp Group Link</label><input class="form-control" type="text" id="batchWaLink" placeholder="follows Config"></div>
-            </div>
-            <div class="konten-field"><label>Event date (display text, e.g. "Saturday, September 12, 2026")</label><input class="form-control" type="text" id="batchWorkshopDate" placeholder="follows Config"></div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Regular Price (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchNormalPrice" placeholder="follows Config"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Max Quota</label><input class="form-control" type="text" inputmode="numeric" id="batchMaxQuota" placeholder="follows Config"></div>
-            </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Early Bird Price (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdPrice" placeholder="follows Config"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Early Bird Count Limit</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdMaxCount" placeholder="follows Config"></div>
-            </div>
-            <div class="konten-field"><label>Early Bird Deadline</label><input class="form-control" type="text" id="batchEarlyBirdDueDate" placeholder="follows Config, e.g. July 11, 2026"></div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Open Date</label><input class="form-control" type="text" id="batchOpenDate" placeholder="follows Config, e.g. July 1, 2026"></div>
-              <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Close Date</label><input class="form-control" type="text" id="batchCloseDate" placeholder="follows Config, e.g. July 10, 2026"></div>
-            </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-              <button class="btn btn-sm" id="batchDetailSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Batch Detail</button>
-              <button class="btn btn-sm btn-ghost" id="batchArchiveBtn" style="margin-left:auto;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Archive Batch</button>
-            </div>
-            <p class="hint" id="batchArchiveHint" style="margin-top:6px;"></p>
-            <div class="msg" id="batchDetailMsg"></div>
-
-            <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
-              <div style="font-weight:800;margin-bottom:4px;">Manual Participant Data (Void)</div>
-              <p class="hint" style="margin:0 0 8px;">For batches from BEFORE this system existed (used to be tracked manually/via WA) -- if you roughly know the participant count but don't have individual data, add it here so quota/revenue/profit are counted correctly. The row shows up in the Registrations table (marked "Void"), and can be deleted/archived like a regular registrant.</p>
-              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-                <div class="konten-field" style="flex:1;min-width:100px;max-width:140px;"><label>Count</label><input class="form-control" type="text" inputmode="numeric" id="batchVoidCount" placeholder="e.g. 20"></div>
-                <div class="konten-field" style="flex:2;min-width:180px;"><label>Note (optional)</label><input class="form-control" type="text" id="batchVoidNote" placeholder="e.g. Old data from WA"></div>
-                <button class="btn btn-sm btn-ghost" id="batchVoidAddBtn">+ Add</button>
+            <div class="filter-overlay-body">
+              <div class="fin-card" id="cfgGeneralCard">
+                <p class="hint" style="margin:0 0 10px;">PRODUCT/PAGE data for the event (name, description, bank account, etc.) -- applies to ALL batches of this type. Date/time/location/price/quota/WA link can differ per batch -- pick the batch in the "Batch" dropdown above.</p>
+                <div id="cfgForm" class="cfg-form"></div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+                  <button class="btn" id="cfgSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Config</button>
+                  <button class="btn btn-sm" id="cfgDeleteBtn" style="background:#fee2e2;color:var(--err);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg> Delete
+                    this event</button>
+                </div>
+                <div class="msg" id="cfgMsg"></div>
+                <p class="hint">Changes are saved immediately & go live on the public site right away.</p>
               </div>
-              <div class="msg" id="batchVoidMsg"></div>
-            </div>
 
-            <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
-              <div style="font-weight:800;margin-bottom:4px;">Move Batch to Another Event</div>
-              <p class="hint" style="margin:0 0 8px;">For a batch that ended up stuck under the wrong event (e.g. it was accidentally given its own separate event when it should just be 1 batch under the right event). This batch's registrants & costs move along with it.</p>
-              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-                <div class="konten-field" style="flex:1;min-width:200px;"><label>Move to</label><select class="form-control" id="batchMoveTarget"></select></div>
-                <button class="btn btn-sm btn-ghost" id="batchMoveBtn">Move</button>
+              <div class="fin-card" id="cfgBatchCard" style="display:none;margin-top:14px;">
+                <div style="font-weight:800;margin-bottom:4px;">Batch Detail: <span id="cfgBatchLabel"></span></div>
+                <p class="hint" style="margin:0 0 8px;">Defaults follow General Config above. Fill in one/several fields HERE only if this batch differs (e.g. venue/price/quota different from other batches of the same type) -- leave blank to follow General Config. New batches automatically copy this from the last batch created -- just edit what's different.</p>
+                <div class="konten-field"><label>Batch Name</label><input class="form-control" type="text" id="batchLabelInput" placeholder="e.g. Vol 1"></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Location</label><input class="form-control" type="text" id="batchLoc" placeholder="follows Config"></div>
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Time</label><input class="form-control" type="text" id="batchTime" placeholder="follows Config"></div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Maps Link</label><input class="form-control" type="text" id="batchMapsLink" placeholder="follows Config"></div>
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>WhatsApp Group Link</label><input class="form-control" type="text" id="batchWaLink" placeholder="follows Config"></div>
+                </div>
+                <div class="konten-field"><label>Event date (display text, e.g. "Saturday, September 12, 2026")</label><input class="form-control" type="text" id="batchWorkshopDate" placeholder="follows Config"></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Regular Price (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchNormalPrice" placeholder="follows Config"></div>
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Max Quota</label><input class="form-control" type="text" inputmode="numeric" id="batchMaxQuota" placeholder="follows Config"></div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Early Bird Price (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdPrice" placeholder="follows Config"></div>
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Early Bird Count Limit</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdMaxCount" placeholder="follows Config"></div>
+                </div>
+                <div class="konten-field"><label>Early Bird Deadline</label><input class="form-control" type="text" id="batchEarlyBirdDueDate" placeholder="follows Config, e.g. July 11, 2026"></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Open Date</label><input class="form-control" type="text" id="batchOpenDate" placeholder="follows Config, e.g. July 1, 2026"></div>
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Close Date</label><input class="form-control" type="text" id="batchCloseDate" placeholder="follows Config, e.g. July 10, 2026"></div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                  <button class="btn btn-sm" id="batchDetailSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Batch Detail</button>
+                  <button class="btn btn-sm btn-ghost" id="batchArchiveBtn" style="margin-left:auto;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Archive Batch</button>
+                </div>
+                <p class="hint" id="batchArchiveHint" style="margin-top:6px;"></p>
+                <div class="msg" id="batchDetailMsg"></div>
+
+                <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
+                  <div style="font-weight:800;margin-bottom:4px;">Manual Participant Data (Void)</div>
+                  <p class="hint" style="margin:0 0 8px;">For batches from BEFORE this system existed (used to be tracked manually/via WA) -- if you roughly know the participant count but don't have individual data, add it here so quota/revenue/profit are counted correctly. The row shows up in the Registrations table (marked "Void"), and can be deleted/archived like a regular registrant.</p>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                    <div class="konten-field" style="flex:1;min-width:100px;max-width:140px;"><label>Count</label><input class="form-control" type="text" inputmode="numeric" id="batchVoidCount" placeholder="e.g. 20"></div>
+                    <div class="konten-field" style="flex:2;min-width:180px;"><label>Note (optional)</label><input class="form-control" type="text" id="batchVoidNote" placeholder="e.g. Old data from WA"></div>
+                    <button class="btn btn-sm btn-ghost" id="batchVoidAddBtn">+ Add</button>
+                  </div>
+                  <div class="msg" id="batchVoidMsg"></div>
+                </div>
+
+                <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
+                  <div style="font-weight:800;margin-bottom:4px;">Move Batch to Another Event</div>
+                  <p class="hint" style="margin:0 0 8px;">For a batch that ended up stuck under the wrong event (e.g. it was accidentally given its own separate event when it should just be 1 batch under the right event). This batch's registrants & costs move along with it.</p>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                    <div class="konten-field" style="flex:1;min-width:200px;"><label>Move to</label><select class="form-control" id="batchMoveTarget"></select></div>
+                    <button class="btn btn-sm btn-ghost" id="batchMoveBtn">Move</button>
+                  </div>
+                  <div class="msg" id="batchMoveMsg"></div>
+                </div>
               </div>
-              <div class="msg" id="batchMoveMsg"></div>
+
+              <div class="fin-card" id="cfgCaptionCard" style="margin-top:14px;">
+                <div style="font-weight:800;margin-bottom:4px;">Generate Caption by AI</div>
+                <p class="hint" style="margin:0 0 8px;">Attached to the event+batch picked above. Fill in creative details (collab partner, kit contents, discount vouchers, special theme) -- AI drafts a promo caption using this + the event's real date/time/location/price (auto, no need to retype).</p>
+                <textarea class="form-control" id="cfgCaptionContext" rows="5" placeholder="Example:
+Kolaborasi dengan @cookiesys, tema Lino Cut Workshop 2-in-1.
+Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedia & SUN Indonesia, all you can use journaling supplies, 1x 4R Photo Print."></textarea>
+                <button class="btn btn-sm" id="cfgCaptionSaveContextBtn" style="margin-top:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Context</button>
+                <div class="msg" id="cfgCaptionContextMsg"></div>
+
+                <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px;">
+                  <button class="btn btn-sm" id="cfgCaptionGenBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate Caption</button>
+                  <textarea class="form-control" id="cfgCaptionOut" rows="10" style="margin-top:8px;display:none;"></textarea>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                    <button class="btn btn-sm btn-ghost" id="cfgCaptionCopyBtn" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy Caption</button>
+                    <button class="btn btn-sm" id="cfgCaptionAddBtn" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Add to Caption List</button>
+                  </div>
+                  <div class="msg" id="cfgCaptionGenMsg"></div>
+                </div>
+
+                <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px;">
+                  <div style="font-weight:800;margin-bottom:4px;">Caption List</div>
+                  <p class="hint" style="margin:0 0 8px;">Saved captions for this event/batch -- edit the draft above then "+ Add to Caption List" to keep multiple versions (e.g. for different platforms).</p>
+                  <div id="cfgCaptionList"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -7094,6 +7146,15 @@
         document.getElementById("batchMoveBtn").addEventListener("click", moveCfgBatchToWorkshop);
         wireRibuanInput(document.getElementById("batchNormalPrice"));
         wireRibuanInput(document.getElementById("batchEarlyBirdPrice"));
+        document.getElementById("cfgEditBtn").addEventListener("click", openConfigFormOverlay);
+        document.getElementById("configFormBackBtn").addEventListener("click", closeConfigFormOverlay);
+        document.getElementById("configFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "configFormOverlay") closeConfigFormOverlay();
+        });
+        document.getElementById("cfgCaptionSaveContextBtn").addEventListener("click", saveEventCaptionContextFn);
+        document.getElementById("cfgCaptionGenBtn").addEventListener("click", generateEventCaptionFn);
+        document.getElementById("cfgCaptionCopyBtn").addEventListener("click", () => copyToClipboardEl(document.getElementById("cfgCaptionOut").value, document.getElementById("cfgCaptionCopyBtn")));
+        document.getElementById("cfgCaptionAddBtn").addEventListener("click", addCaptionToList);
         await loadConfig();
         configInit = true;
       }
@@ -7168,6 +7229,9 @@
         document.getElementById("batchVoidNote").value = "";
         document.getElementById("batchMoveMsg").textContent = "";
       }
+      updateConfigFormOverlayTitle();
+      renderCfgSummary();
+      loadEventCaptionContext();
     }
 
     function updateBatchMoveTargetOptions() {
@@ -7307,6 +7371,7 @@
           const b = CFG_BATCHES.find(x => x.id === batchId);
           opt.textContent = label + (b && b.archived ? " • Diarsipkan" : (b && b.active ? " • Buka" : ""));
         }
+        renderCfgSummary();
         msg.className = "msg ok"; msg.textContent = "Saved ✓";
       } else {
         handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save.";
@@ -7341,6 +7406,7 @@
       sel.value = CONFIG.length - 1;
       renderConfigForm();
       loadCfgBatches();
+      openConfigFormOverlay();
       alert("Event '" + id + "' added. Fill in the details, then click 💾 Save Config.");
     }
 
@@ -7401,6 +7467,7 @@
         const r = await api("saveConfig", { token: getToken(), config: CONFIG });
         if (r.status === "success") {
           msg.className = "msg ok"; msg.textContent = "Event dihapus ✓";
+          closeConfigFormOverlay();
           await loadConfig();
         } else {
           handleAuthError(r);
@@ -7428,6 +7495,7 @@
         const r = await api("saveConfig", { token: getToken(), config: CONFIG });
         if (r.status === "success") {
           msg.className = "msg ok"; msg.textContent = "Saved ✓";
+          renderCfgSummary();
         } else {
           handleAuthError(r);
           msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
@@ -7436,6 +7504,199 @@
         msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       } finally {
         btn.disabled = false;
+      }
+    }
+
+    // ---------- CONFIG: full-screen editor overlay + read-only summary ----------
+    function openConfigFormOverlay() {
+      updateConfigFormOverlayTitle();
+      document.getElementById("configFormOverlay").style.display = "flex";
+    }
+    function closeConfigFormOverlay() {
+      document.getElementById("configFormOverlay").style.display = "none";
+    }
+    function updateConfigFormOverlayTitle() {
+      const titleEl = document.getElementById("configFormTitle");
+      if (!titleEl) return;
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG && CONFIG[idx];
+      titleEl.textContent = batchId
+        ? `Batch Detail: ${(CFG_BATCHES.find(b => b.id === batchId) || {}).label || ""}`
+        : `General Config: ${(w && (w.name || w.id)) || ""}`;
+    }
+
+    function renderCfgSummary() {
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG ? CONFIG[idx] : null;
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      const titleEl = document.getElementById("cfgSummaryTitle");
+      const subEl = document.getElementById("cfgSummarySub");
+      const bodyEl = document.getElementById("cfgSummaryBody");
+      if (!titleEl) return;
+      if (!w) { titleEl.textContent = "—"; subEl.textContent = ""; bodyEl.innerHTML = ""; return; }
+      if (!batchId) {
+        titleEl.textContent = w.name || w.id;
+        subEl.textContent = "General Config";
+        bodyEl.innerHTML = `
+          <div class="hint">Active: <b>${w.enabled ? "Yes" : "No"}</b> · Show on homepage: <b>${w.isDisplay ? "Yes" : "No"}</b></div>
+          <div class="hint" style="margin-top:4px;">Bank: <b>${escapeHtml(w.bankName || "BCA (default)")}</b></div>`;
+      } else {
+        const b = CFG_BATCHES.find(x => x.id === batchId);
+        titleEl.textContent = (b && b.label) || "Batch";
+        subEl.textContent = w.name || w.id;
+        const loc = (b && b.locationName) || w.locationName || "-";
+        const date = (b && b.workshopDate) || w.workshopDate || "-";
+        const time = (b && b.workshopTime) || w.workshopTime || "-";
+        const price = (b && b.normalPrice != null) ? b.normalPrice : w.normalPrice;
+        const quota = (b && b.maxQuota != null) ? b.maxQuota : w.maxQuota;
+        bodyEl.innerHTML = `
+          <div class="hint">Location: <b>${escapeHtml(loc)}</b></div>
+          <div class="hint" style="margin-top:4px;">Date: <b>${escapeHtml(date)}</b> · Time: <b>${escapeHtml(time)}</b></div>
+          <div class="hint" style="margin-top:4px;">Price: <b>Rp ${formatRibuan(price || 0)}</b> · Quota: <b>${quota || "-"}</b></div>`;
+      }
+    }
+
+    // ---------- CONFIG: AI Caption generator (per event+batch, sama pola
+    // kayak FAQ Prep -- context textarea + generate + accumulating list) ----------
+    let CAPTION_LIST = [];
+
+    function captionEventBatch() {
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG && CONFIG[idx];
+      return { event: (w && w.id) || "", batchId: document.getElementById("cfgBatchSelect").value };
+    }
+
+    function renderCaptionList() {
+      const el = document.getElementById("cfgCaptionList");
+      if (!el) return;
+      if (!CAPTION_LIST.length) {
+        el.innerHTML = '<p class="hint">No saved captions yet. Generate one above, then "+ Add to Caption List".</p>';
+        return;
+      }
+      el.innerHTML = CAPTION_LIST.map((item, idx) => `
+        <div style="border-top:1px solid var(--line);padding:10px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+          <div style="flex:1;min-width:0;white-space:pre-wrap;">${escapeHtml(item.caption)}</div>
+          <div style="display:flex;gap:2px;flex-shrink:0;">
+            <button class="btn btn-sm btn-ghost caption-copy" data-idx="${idx}" title="Copy">${icon("clipboard")}</button>
+            <button class="btn btn-sm btn-ghost caption-del" data-idx="${idx}" title="Remove">${icon("trash")}</button>
+          </div>
+        </div>`).join("");
+      el.querySelectorAll(".caption-copy").forEach(b => b.addEventListener("click", () => {
+        copyToClipboardEl(CAPTION_LIST[Number(b.dataset.idx)].caption, b);
+      }));
+      el.querySelectorAll(".caption-del").forEach(b => b.addEventListener("click", () => {
+        CAPTION_LIST.splice(Number(b.dataset.idx), 1);
+        renderCaptionList();
+        saveEventCaptionListFn();
+      }));
+    }
+
+    async function saveEventCaptionListFn() {
+      const { event, batchId } = captionEventBatch();
+      if (!event) return;
+      await api("saveEventCaptionList", { token: getToken(), event, batchId, list: CAPTION_LIST });
+    }
+
+    function addCaptionToList() {
+      const caption = document.getElementById("cfgCaptionOut").value.trim();
+      if (!caption) return;
+      CAPTION_LIST.push({ caption });
+      renderCaptionList();
+      saveEventCaptionListFn();
+      const msg = document.getElementById("cfgCaptionGenMsg");
+      msg.className = "msg ok"; msg.textContent = "Added to list ✓";
+    }
+
+    async function loadEventCaptionContext() {
+      const ctxEl = document.getElementById("cfgCaptionContext");
+      if (!ctxEl) return;
+      const out = document.getElementById("cfgCaptionOut");
+      if (out) { out.value = ""; out.style.display = "none"; }
+      document.getElementById("cfgCaptionCopyBtn").style.display = "none";
+      document.getElementById("cfgCaptionAddBtn").style.display = "none";
+      document.getElementById("cfgCaptionGenMsg").textContent = "";
+      document.getElementById("cfgCaptionContextMsg").textContent = "";
+      CAPTION_LIST = [];
+      renderCaptionList();
+
+      const { event, batchId } = captionEventBatch();
+      if (!event) { ctxEl.value = ""; return; }
+      const r = await api("getEventCaptionContext", { token: getToken(), event, batchId });
+      if (r && r.status === "success") ctxEl.value = r.context || "";
+      else handleAuthError(r);
+
+      const rList = await api("getEventCaptionList", { token: getToken(), event, batchId });
+      if (rList && rList.status === "success" && Array.isArray(rList.list)) CAPTION_LIST = rList.list;
+      renderCaptionList();
+    }
+
+    async function saveEventCaptionContextFn() {
+      const msg = document.getElementById("cfgCaptionContextMsg");
+      const { event, batchId } = captionEventBatch();
+      if (!event) { msg.className = "msg err"; msg.textContent = "Please select an event first."; return; }
+      const context = document.getElementById("cfgCaptionContext").value;
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await api("saveEventCaptionContext", { token: getToken(), event, batchId, context });
+      if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Saved ✓"; }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
+    }
+
+    // Data pasti (tanggal/jam/lokasi/harga/link) dari CONFIG[idx] + batch yang
+    // lagi dipilih di CFG_BATCHES -- batch menang kalau diisi, kalau kosong
+    // balik ke Config Umum, sama persis pola loadCfgBatchDetail().
+    function buildCfgKnownFacts() {
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG ? CONFIG[idx] : null;
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      const b = CFG_BATCHES.find(x => x.id === batchId);
+      if (!w) return "";
+      const pick = (bk, ck) => (b && b[bk]) || (w && w[ck]) || "";
+      const displayDate = pick("workshopDate", "workshopDate");
+      const time = pick("workshopTime", "workshopTime");
+      const loc = pick("locationName", "locationName");
+      const mergedForPrice = {
+        normalPrice: (b && b.normalPrice != null) ? b.normalPrice : w.normalPrice,
+        earlyBirdPrice: (b && b.earlyBirdPrice != null) ? b.earlyBirdPrice : w.earlyBirdPrice,
+        earlyBirdDueDate: (b && b.earlyBirdDueDate) || w.earlyBirdDueDate,
+        earlyBirdMaxCount: (b && b.earlyBirdMaxCount != null) ? b.earlyBirdMaxCount : w.earlyBirdMaxCount,
+      };
+      const count = b ? (b.count || 0) : 0;
+      const price = (typeof getCurrentPrice === "function") ? getCurrentPrice(mergedForPrice, count) : mergedForPrice.normalPrice;
+      const path = String(w.path || "").replace(/\/index\.html?$/i, "");
+      const link = path ? `seminggusatu.com/${path}` : "";
+
+      const lines = [];
+      lines.push(`Nama event: ${w.name || w.id}`);
+      if (displayDate) lines.push(`Tanggal: ${displayDate}`);
+      if (time) lines.push(`Jam: ${time}`);
+      if (loc) lines.push(`Lokasi: ${loc}`);
+      if (price) lines.push(`Harga: Rp ${formatRibuan(price)}`);
+      if (link) lines.push(`Link pendaftaran: ${link}`);
+      return lines.join("\n");
+    }
+
+    async function generateEventCaptionFn() {
+      const msg = document.getElementById("cfgCaptionGenMsg");
+      const btn = document.getElementById("cfgCaptionGenBtn");
+      const { event } = captionEventBatch();
+      if (!event) { msg.className = "msg err"; msg.textContent = "Please select an event first."; return; }
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG[idx];
+      const context = document.getElementById("cfgCaptionContext").value.trim();
+      const knownFacts = buildCfgKnownFacts();
+      btn.disabled = true;
+      msg.className = "msg"; msg.textContent = "Writing caption...";
+      const r = await api("generateEventCaption", { token: getToken(), context, knownFacts, eventName: (w && (w.name || w.id)) || "" });
+      btn.disabled = false;
+      if (r && r.status === "success" && r.caption) {
+        const out = document.getElementById("cfgCaptionOut");
+        out.value = r.caption; out.style.display = "block";
+        document.getElementById("cfgCaptionCopyBtn").style.display = "inline-flex";
+        document.getElementById("cfgCaptionAddBtn").style.display = "inline-flex";
+        msg.className = "msg ok"; msg.textContent = "Caption ready ✓ (double-check facts before posting)";
+      } else {
+        handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to generate caption.";
       }
     }
 
