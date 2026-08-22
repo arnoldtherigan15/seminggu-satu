@@ -2706,7 +2706,7 @@
     .doc-invoice-ordernum-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
     .doc-invoice-brand { display: flex; align-items: center; gap: 10px; }
     .doc-invoice-brand-title { font-size: 34px; font-weight: 800; letter-spacing: 1px; }
-    .doc-invoice-brand img { height: 78px; width: auto; }
+    .doc-invoice-brand img { height: 130px; width: auto; }
     .doc-invoice-hr { border: none; border-top: 1.5px solid #111; margin: 14px 0 24px; }
     .doc-invoice-meta { display: flex; justify-content: space-between; margin-bottom: 28px; gap: 16px; }
     .doc-invoice-meta-label { font-size: 11px; letter-spacing: .5px; }
@@ -8166,7 +8166,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("invoicePartnerSelect").value = "";
       document.getElementById("invoiceDocDate").value = todayStr();
       document.getElementById("invoiceStatus").value = "draft";
-      document.getElementById("invoiceOrderNumber").value = "";
+      document.getElementById("invoiceOrderNumber").value = generateOrderNumber();
       document.getElementById("invoiceToName").value = "";
       document.getElementById("invoiceItemRows").innerHTML = "";
       addInvoiceItemRow({});
@@ -8323,6 +8323,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           </table></div>
         </div>`;
       openDocPrint(html, safeFileName(doc.title || "MOU"));
+    }
+
+    function generateOrderNumber() {
+      return String(Date.now()).slice(-6);
     }
 
     function downloadCurrentInvoicePdf() {
