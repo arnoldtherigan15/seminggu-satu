@@ -7980,6 +7980,12 @@
       if (isNaN(d)) return dateStr;
       return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
     }
+    function formatDateEn(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr + "T00:00:00");
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    }
 
     // Browser print-to-PDF dialog suggests document.title sebagai default
     // nama file -- pinjem sebentar biar "Save As" udah keisi nama MOU/Invoice
@@ -8065,7 +8071,7 @@
 
     function downloadInvoicePdf(doc) {
       const d = doc.data || {};
-      const dateId = doc.doc_date ? formatDateIndoLong(doc.doc_date) : "";
+      const dateId = doc.doc_date ? formatDateEn(doc.doc_date) : "";
       const items = (d.items || []).map(normalizeInvoiceItem);
       const total = items.reduce((s, it) => s + it.lineTotal, 0);
       const html = `
