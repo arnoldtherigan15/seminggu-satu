@@ -6277,6 +6277,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     function switchView(view, event) {
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+      const activeBtn = document.querySelector(".nav-btn.active");
+      if (activeBtn) activeBtn.scrollIntoView({ block: "nearest" });
       closeSidebar();
       // Selalu mulai dari atas — biar bagian atas nggak ketutup header sticky pas load / ganti tab
       window.scrollTo(0, 0);
