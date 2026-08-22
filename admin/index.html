@@ -4431,6 +4431,19 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="wrap view" id="viewMou" style="display:none;">
           <div class="toolbar">
             <button class="btn btn-sm" id="mouAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New MOU</button>
+            <div class="field">
+              <label for="mouFilterPartner">Partner</label>
+              <select class="form-control" id="mouFilterPartner"><option value="">All Partners</option></select>
+            </div>
+            <div class="field">
+              <label for="mouFilterStatus">Status</label>
+              <select class="form-control" id="mouFilterStatus">
+                <option value="">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="sent">Sent</option>
+                <option value="signed">Signed</option>
+              </select>
+            </div>
           </div>
           <div class="table-box mobile-table-box" style="margin-top:10px;"><div class="table-scroll">
             <table><thead><tr><th>Partner</th><th>Event</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="mouBody"></tbody></table>
@@ -4443,6 +4456,19 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="wrap view" id="viewInvoice" style="display:none;">
           <div class="toolbar">
             <button class="btn btn-sm" id="invoiceAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Invoice</button>
+            <div class="field">
+              <label for="invoiceFilterPartner">Partner</label>
+              <select class="form-control" id="invoiceFilterPartner"><option value="">All Partners</option></select>
+            </div>
+            <div class="field">
+              <label for="invoiceFilterStatus">Status</label>
+              <select class="form-control" id="invoiceFilterStatus">
+                <option value="">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="sent">Sent</option>
+                <option value="paid">Paid</option>
+              </select>
+            </div>
           </div>
           <div class="table-box mobile-table-box" style="margin-top:10px;"><div class="table-scroll">
             <table><thead><tr><th>To</th><th>Description</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="invoiceBody"></tbody></table>
@@ -5333,7 +5359,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         </div>
 
         <div class="fin-card" style="margin-top:14px;">
-          <div class="hint" id="partnerDetailDocCount" style="margin:0;"></div>
+          <div style="font-weight:800;margin-bottom:4px;">MOU</div>
+          <div id="partnerDetailMouList"><p class="hint">Loading...</p></div>
+        </div>
+
+        <div class="fin-card" style="margin-top:14px;">
+          <div style="font-weight:800;margin-bottom:4px;">Invoice</div>
+          <div id="partnerDetailInvoiceList"><p class="hint">Loading...</p></div>
         </div>
       </div>
       <div class="filter-overlay-foot">
@@ -7803,6 +7835,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("mouSaveBtn").addEventListener("click", saveMouDoc);
         document.getElementById("mouAttachAddBtn").addEventListener("click", () => addMouAttachRow({}));
         document.getElementById("mouDownloadBtn").addEventListener("click", downloadCurrentMouPdf);
+        document.getElementById("mouFilterPartner").addEventListener("change", renderMouList);
+        document.getElementById("mouFilterStatus").addEventListener("change", renderMouList);
 
         document.getElementById("invoiceAddBtn").addEventListener("click", () => { newInvoiceForm(); openInvoiceForm(false); });
         document.getElementById("invoiceFormBackBtn").addEventListener("click", closeInvoiceForm);
@@ -7816,6 +7850,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("invoiceSaveBtn").addEventListener("click", saveInvoiceDoc);
         document.getElementById("invoiceItemAddBtn").addEventListener("click", () => addInvoiceItemRow({}));
         document.getElementById("invoiceDownloadBtn").addEventListener("click", downloadCurrentInvoicePdf);
+        document.getElementById("invoiceFilterPartner").addEventListener("change", renderInvoiceList);
+        document.getElementById("invoiceFilterStatus").addEventListener("change", renderInvoiceList);
     }
 
     // List Partner, MOU, and Invoice are separate sidebar entries now (not
@@ -7852,6 +7888,30 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (mouSel) { const cur = mouSel.value; mouSel.innerHTML = opts || '<option value="">(add a partner first)</option>'; mouSel.value = cur; }
       const invSel = document.getElementById("invoicePartnerSelect");
       if (invSel) { const cur = invSel.value; invSel.innerHTML = '<option value="">-</option>' + opts; invSel.value = cur; }
+
+      // Filter dropdowns include ALL partners (even archived) -- past MOU/Invoice
+      // docs can still point at a partner that got archived since.
+      const allOpts = PARTNERS.map(p => `<option value="${p.id}">${escapeHtml(p.name)}${p.archived ? " (archived)" : ""}</option>`).join("");
+      const mouFilterSel = document.getElementById("mouFilterPartner");
+      if (mouFilterSel) { const cur = mouFilterSel.value; mouFilterSel.innerHTML = '<option value="">All Partners</option>' + allOpts; mouFilterSel.value = cur; }
+      const invFilterSel = document.getElementById("invoiceFilterPartner");
+      if (invFilterSel) { const cur = invFilterSel.value; invFilterSel.innerHTML = '<option value="">All Partners</option>' + allOpts; invFilterSel.value = cur; }
+    }
+
+    function getFilteredMouDocs() {
+      const partnerId = document.getElementById("mouFilterPartner").value;
+      const status = document.getElementById("mouFilterStatus").value;
+      return PARTNER_DOCS_MOU.filter(doc =>
+        (!partnerId || doc.partner_id === partnerId) &&
+        (!status || doc.status === status));
+    }
+
+    function getFilteredInvoiceDocs() {
+      const partnerId = document.getElementById("invoiceFilterPartner").value;
+      const status = document.getElementById("invoiceFilterStatus").value;
+      return PARTNER_DOCS_INVOICE.filter(doc =>
+        (!partnerId || doc.partner_id === partnerId) &&
+        (!status || doc.status === status));
     }
 
     function renderPartnerList() {
@@ -7879,7 +7939,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     let CURRENT_PARTNER_DETAIL_ID = "";
 
-    function openPartnerDetail(id) {
+    async function openPartnerDetail(id) {
       const p = PARTNERS.find(x => x.id === id);
       if (!p) return;
       CURRENT_PARTNER_DETAIL_ID = id;
@@ -7903,10 +7963,61 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       notesRow.style.display = p.notes ? "block" : "none";
       if (p.notes) document.getElementById("partnerDetailNotes").textContent = p.notes;
 
-      document.getElementById("partnerDetailDocCount").textContent = `${p.mouCount || 0} MOU · ${p.invoiceCount || 0} Invoice`;
+      document.getElementById("partnerDetailMouList").innerHTML = '<p class="hint">Loading...</p>';
+      document.getElementById("partnerDetailInvoiceList").innerHTML = '<p class="hint">Loading...</p>';
       document.getElementById("partnerDetailOverlay").style.display = "flex";
+
+      const [mouR, invR] = await Promise.all([
+        api("listPartnerDocs", { token: getToken(), type: "mou", partnerId: id }),
+        api("listPartnerDocs", { token: getToken(), type: "invoice", partnerId: id }),
+      ]);
+      if (CURRENT_PARTNER_DETAIL_ID !== id) return; // admin switched to another partner while this was loading
+      if (mouR && mouR.status === "success") { PARTNER_DOCS_MOU = mouR.docs || []; renderPartnerDetailMouList(); }
+      else handleAuthError(mouR);
+      if (invR && invR.status === "success") { PARTNER_DOCS_INVOICE = invR.docs || []; renderPartnerDetailInvoiceList(); }
+      else handleAuthError(invR);
     }
     function closePartnerDetail() { document.getElementById("partnerDetailOverlay").style.display = "none"; }
+
+    function renderPartnerDetailMouList() {
+      const el = document.getElementById("partnerDetailMouList");
+      if (!el) return;
+      if (!PARTNER_DOCS_MOU.length) { el.innerHTML = '<p class="hint">No MOUs yet.</p>'; return; }
+      el.innerHTML = PARTNER_DOCS_MOU.map(doc => {
+        const d = doc.data || {};
+        return `<div class="per-activity-row" style="cursor:pointer;" data-detailmou="${doc.id}">
+          <div class="per-activity-icon transfer">${icon("journal")}</div>
+          <div style="flex:1;min-width:0;">
+            <b style="font-size:13px;">${escapeHtml(doc.title || d.eventName || "MOU")}</b>
+            <div class="per-tx-sub">${escapeHtml(doc.doc_date || "")} · ${mouStatusLabel(doc.status)}</div>
+          </div>
+        </div>`;
+      }).join("");
+      el.querySelectorAll("[data-detailmou]").forEach(row => row.addEventListener("click", () => {
+        const id = row.dataset.detailmou;
+        closePartnerDetail();
+        editMouDoc(id);
+      }));
+    }
+
+    function renderPartnerDetailInvoiceList() {
+      const el = document.getElementById("partnerDetailInvoiceList");
+      if (!el) return;
+      if (!PARTNER_DOCS_INVOICE.length) { el.innerHTML = '<p class="hint">No invoices yet.</p>'; return; }
+      el.innerHTML = PARTNER_DOCS_INVOICE.map(doc => `
+        <div class="per-activity-row" style="cursor:pointer;" data-detailinvoice="${doc.id}">
+          <div class="per-activity-icon transfer">${icon("receipt")}</div>
+          <div style="flex:1;min-width:0;">
+            <b style="font-size:13px;">${escapeHtml(doc.title || "Invoice")}</b>
+            <div class="per-tx-sub">${escapeHtml(doc.doc_date || "")} · ${invoiceStatusLabel(doc.status)} · ${rupiah(invoiceTotal(doc))}</div>
+          </div>
+        </div>`).join("");
+      el.querySelectorAll("[data-detailinvoice]").forEach(row => row.addEventListener("click", () => {
+        const id = row.dataset.detailinvoice;
+        closePartnerDetail();
+        editInvoiceDoc(id);
+      }));
+    }
 
     function openPartnerForm(isEdit) {
       document.getElementById("partnerFormTitle").textContent = isEdit ? "Edit Partner" : "New Partner";
@@ -7996,16 +8107,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const cardsEl = document.getElementById("mouCards");
       const empty = document.getElementById("mouEmpty");
       const cnt = document.getElementById("mouCount");
-      if (cnt) cnt.textContent = PARTNER_DOCS_MOU.length;
-      if (!PARTNER_DOCS_MOU.length) {
+      const docs = getFilteredMouDocs();
+      if (cnt) cnt.textContent = docs.length;
+      if (!docs.length) {
         body.innerHTML = ""; if (cardsEl) cardsEl.innerHTML = "";
+        empty.textContent = PARTNER_DOCS_MOU.length ? "No MOUs match this filter." : "No MOUs yet.";
         empty.style.display = "block";
         return;
       }
       empty.style.display = "none";
       const rows = [];
       const cards = [];
-      PARTNER_DOCS_MOU.forEach(doc => {
+      docs.forEach(doc => {
         const d = doc.data || {};
         rows.push(`<tr data-editmou="${doc.id}" style="cursor:pointer;">
           <td>${escapeHtml(doc.partnerName || "-")}</td>
@@ -8175,16 +8288,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const cardsEl = document.getElementById("invoiceCards");
       const empty = document.getElementById("invoiceEmpty");
       const cnt = document.getElementById("invoiceCount");
-      if (cnt) cnt.textContent = PARTNER_DOCS_INVOICE.length;
-      if (!PARTNER_DOCS_INVOICE.length) {
+      const docs = getFilteredInvoiceDocs();
+      if (cnt) cnt.textContent = docs.length;
+      if (!docs.length) {
         body.innerHTML = ""; if (cardsEl) cardsEl.innerHTML = "";
+        empty.textContent = PARTNER_DOCS_INVOICE.length ? "No invoices match this filter." : "No invoices yet.";
         empty.style.display = "block";
         return;
       }
       empty.style.display = "none";
       const rows = [];
       const cards = [];
-      PARTNER_DOCS_INVOICE.forEach(doc => {
+      docs.forEach(doc => {
         const d = doc.data || {};
         const items = d.items || [];
         const desc = (items[0] && items[0].description) || "-";
