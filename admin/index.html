@@ -2674,12 +2674,13 @@
     .doc-print h2 { font-size: 15px; margin: 20px 0 8px; }
     .doc-print p, .doc-print li { font-size: 13px; }
     .doc-print ol, .doc-print ul { padding-left: 22px; }
-    .doc-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
+    .doc-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; page-break-inside: avoid; }
     .doc-table th, .doc-table td { border: 1px solid #999; padding: 6px 8px; text-align: left; vertical-align: top; }
     .doc-table th { background: #f0f0f0; }
-    .doc-sign-table { width: 100%; margin-top: 24px; font-size: 13px; }
-    .doc-sign-table td { width: 50%; padding: 6px 10px; vertical-align: top; }
-    .doc-sign-space td { height: 60px; }
+    .doc-sign-table { width: 100%; margin-top: 24px; font-size: 13px; border-collapse: collapse; page-break-inside: avoid; }
+    .doc-sign-table td { width: 50%; padding: 8px 10px; vertical-align: top; border: 1px solid #444; }
+    .doc-sign-space td { height: 70px; }
+    .doc-print h2 { page-break-after: avoid; }
     .doc-page-break { page-break-before: always; }
     .doc-print-invoice h1 { color: #4f46e5; }
     .doc-invoice-total { text-align: right; font-size: 15px; margin-top: 10px; }
@@ -7954,7 +7955,6 @@
       const d = doc.data || {};
       const dateId = doc.doc_date ? formatDateIndoLong(doc.doc_date) : "";
       const attachHtml = (d.attachments && d.attachments.length) ? `
-        <div class="doc-page-break"></div>
         <h2>LAMPIRAN DOKUMEN KERJASAMA</h2>
         <table class="doc-table">
           <thead><tr><th>No.</th><th>Jenis Dukungan</th><th>Jumlah/Kuota</th><th>Keterangan</th></tr></thead>
@@ -7993,7 +7993,6 @@
           <p>MOU ini dibuat dalam rangkap 2 (dua) asli yang masing-masing memiliki kekuatan hukum yang sama, ditandatangani oleh PARA PIHAK dengan penuh kesadaran dan tanggung jawab demi kesuksesan kolaborasi bersama.</p>
           ${attachHtml}
 
-          ${attachHtml ? '<div class="doc-page-break"></div>' : ""}
           <table class="doc-sign-table">
             <tr><td><b>PIHAK PERTAMA</b><br>Komunitas Seminggu Satu</td><td><b>PIHAK KEDUA</b><br>${escapeHtml(d.pihakKeduaCompany || doc.partnerName || "-")}</td></tr>
             <tr class="doc-sign-space"><td></td><td></td></tr>
