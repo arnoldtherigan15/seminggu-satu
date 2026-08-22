@@ -1400,6 +1400,7 @@ Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tan
           pic_role: data.picRole ? String(data.picRole) : null,
           email: data.email ? String(data.email) : null,
           phone: data.phone ? String(data.phone) : null,
+          instagram: data.instagram ? String(data.instagram) : null,
           notes: data.notes ? String(data.notes) : null,
         };
         if (id) {

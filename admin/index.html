@@ -5292,6 +5292,56 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
   </div>
 
   <!-- Layar Tambah/Edit Partner -->
+  <!-- Layar Detail Partner (read-only) -- klik row di List Partner buka ini
+       dulu, bukan langsung ke form edit. -->
+  <div id="partnerDetailOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="partnerDetailBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="partnerDetailTitle">Partner</div>
+      </div>
+      <div class="filter-overlay-body">
+        <div class="fin-card">
+          <div style="font-weight:800;font-size:16px;" id="partnerDetailName">—</div>
+          <div class="hint" id="partnerDetailPic" style="margin:2px 0 12px;"></div>
+
+          <div id="partnerDetailWaRow" style="display:none;margin-bottom:12px;">
+            <div class="hint" style="margin-bottom:4px;">WhatsApp</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:120px;font-weight:600;" id="partnerDetailPhone"></div>
+              <button class="btn btn-sm" id="partnerDetailWaBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg> Chat on WhatsApp</button>
+            </div>
+          </div>
+
+          <div id="partnerDetailIgRow" style="display:none;margin-bottom:12px;">
+            <div class="hint" style="margin-bottom:4px;">Instagram</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:120px;font-weight:600;" id="partnerDetailIg"></div>
+              <button class="btn btn-sm btn-ghost" id="partnerDetailIgCopyBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy</button>
+            </div>
+          </div>
+
+          <div id="partnerDetailEmailRow" style="display:none;margin-bottom:12px;">
+            <div class="hint" style="margin-bottom:4px;">Email</div>
+            <div style="font-weight:600;" id="partnerDetailEmail"></div>
+          </div>
+
+          <div id="partnerDetailNotesRow" style="display:none;">
+            <div class="hint" style="margin-bottom:4px;">Notes</div>
+            <div style="white-space:pre-wrap;" id="partnerDetailNotes"></div>
+          </div>
+        </div>
+
+        <div class="fin-card" style="margin-top:14px;">
+          <div class="hint" id="partnerDetailDocCount" style="margin:0;"></div>
+        </div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="partnerDetailEditBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg> Edit Partner</button>
+      </div>
+    </div>
+  </div>
+
   <div id="partnerFormOverlay" class="filter-overlay" style="display:none;">
     <div class="filter-overlay-box">
       <div class="filter-overlay-head">
@@ -5308,8 +5358,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:180px;"><label>Email</label><input class="form-control" type="email" id="partnerEmail"></div>
-          <div class="konten-field" style="flex:1;min-width:180px;"><label>Phone</label><input class="form-control" type="tel" id="partnerPhone"></div>
+          <div class="konten-field" style="flex:1;min-width:180px;"><label>Phone / WhatsApp</label><input class="form-control" type="tel" id="partnerPhone" placeholder="e.g. 08123456789"></div>
         </div>
+        <div class="konten-field"><label>Instagram (handle or link)</label><input class="form-control" type="text" id="partnerInstagram" placeholder="e.g. @cookiesys"></div>
         <div class="konten-field"><label>Notes</label><textarea class="form-control" id="partnerNotes" rows="3"></textarea></div>
         <div class="msg" id="partnerMsg"></div>
       </div>
@@ -7713,6 +7764,24 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
         document.getElementById("partnerAddBtn").addEventListener("click", () => { newPartnerForm(); openPartnerForm(false); });
         document.getElementById("partnerFormBackBtn").addEventListener("click", closePartnerForm);
+        document.getElementById("partnerDetailBackBtn").addEventListener("click", closePartnerDetail);
+        document.getElementById("partnerDetailOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "partnerDetailOverlay") closePartnerDetail();
+        });
+        document.getElementById("partnerDetailEditBtn").addEventListener("click", () => {
+          const id = CURRENT_PARTNER_DETAIL_ID;
+          closePartnerDetail();
+          if (id) editPartner(id);
+        });
+        document.getElementById("partnerDetailWaBtn").addEventListener("click", () => {
+          const p = PARTNERS.find(x => x.id === CURRENT_PARTNER_DETAIL_ID);
+          const wa = p && waNormalize(p.phone);
+          if (wa) window.open("https://wa.me/" + wa, "_blank");
+        });
+        document.getElementById("partnerDetailIgCopyBtn").addEventListener("click", () => {
+          const p = PARTNERS.find(x => x.id === CURRENT_PARTNER_DETAIL_ID);
+          if (p && p.instagram) copyToClipboardEl(p.instagram, document.getElementById("partnerDetailIgCopyBtn"));
+        });
         document.getElementById("partnerFormDeleteBtn").addEventListener("click", async () => {
           const id = document.getElementById("partnerId").value;
           if (id && await deletePartner(id)) closePartnerForm();
@@ -7804,9 +7873,40 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
           </div>
         </div>`).join("");
-      list.querySelectorAll("[data-editpartner]").forEach(el => el.addEventListener("click", () => editPartner(el.dataset.editpartner)));
+      list.querySelectorAll("[data-editpartner]").forEach(el => el.addEventListener("click", () => openPartnerDetail(el.dataset.editpartner)));
       list.querySelectorAll("[data-archivepartner]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archivePartner(b.dataset.archivepartner, b.dataset.archived === "1"); }));
     }
+
+    let CURRENT_PARTNER_DETAIL_ID = "";
+
+    function openPartnerDetail(id) {
+      const p = PARTNERS.find(x => x.id === id);
+      if (!p) return;
+      CURRENT_PARTNER_DETAIL_ID = id;
+      document.getElementById("partnerDetailTitle").textContent = p.name || "Partner";
+      document.getElementById("partnerDetailName").textContent = p.name || "-";
+      document.getElementById("partnerDetailPic").textContent = [p.pic_name, p.pic_role].filter(Boolean).join(" · ") || "No PIC on file";
+
+      const waRow = document.getElementById("partnerDetailWaRow");
+      waRow.style.display = p.phone ? "block" : "none";
+      if (p.phone) document.getElementById("partnerDetailPhone").textContent = p.phone;
+
+      const igRow = document.getElementById("partnerDetailIgRow");
+      igRow.style.display = p.instagram ? "block" : "none";
+      if (p.instagram) document.getElementById("partnerDetailIg").textContent = p.instagram;
+
+      const emailRow = document.getElementById("partnerDetailEmailRow");
+      emailRow.style.display = p.email ? "block" : "none";
+      if (p.email) document.getElementById("partnerDetailEmail").textContent = p.email;
+
+      const notesRow = document.getElementById("partnerDetailNotesRow");
+      notesRow.style.display = p.notes ? "block" : "none";
+      if (p.notes) document.getElementById("partnerDetailNotes").textContent = p.notes;
+
+      document.getElementById("partnerDetailDocCount").textContent = `${p.mouCount || 0} MOU · ${p.invoiceCount || 0} Invoice`;
+      document.getElementById("partnerDetailOverlay").style.display = "flex";
+    }
+    function closePartnerDetail() { document.getElementById("partnerDetailOverlay").style.display = "none"; }
 
     function openPartnerForm(isEdit) {
       document.getElementById("partnerFormTitle").textContent = isEdit ? "Edit Partner" : "New Partner";
@@ -7822,6 +7922,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("partnerPicRole").value = "";
       document.getElementById("partnerEmail").value = "";
       document.getElementById("partnerPhone").value = "";
+      document.getElementById("partnerInstagram").value = "";
       document.getElementById("partnerNotes").value = "";
       document.getElementById("partnerMsg").textContent = "";
     }
@@ -7835,6 +7936,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("partnerPicRole").value = p.pic_role || "";
       document.getElementById("partnerEmail").value = p.email || "";
       document.getElementById("partnerPhone").value = p.phone || "";
+      document.getElementById("partnerInstagram").value = p.instagram || "";
       document.getElementById("partnerNotes").value = p.notes || "";
       document.getElementById("partnerMsg").textContent = "";
       openPartnerForm(true);
@@ -7851,6 +7953,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         picRole: document.getElementById("partnerPicRole").value.trim(),
         email: document.getElementById("partnerEmail").value.trim(),
         phone: document.getElementById("partnerPhone").value.trim(),
+        instagram: document.getElementById("partnerInstagram").value.trim(),
         notes: document.getElementById("partnerNotes").value.trim(),
       });
       if (r.status === "success") { closePartnerForm(); await loadPartners(); }
