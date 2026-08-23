@@ -2751,6 +2751,14 @@
 
     @media (max-width: 680px) {
       .filter-overlay-box { max-width: 100vw; max-height: 100vh; height: 100vh; border-radius: 0; }
+      /* 100vh on mobile Safari is sized for the toolbar-collapsed state, so a
+         box that's actually 100vh tall overflows under the browser's own
+         bottom bar -- pushing the footer's buttons out of reach and making
+         the fixed overlay jump/clip its header when the bar shows/hides.
+         100dvh tracks the ACTUAL visible viewport instead. Older browsers
+         that don't understand dvh just drop this line and keep the vh one
+         above (same selector/property, so it's a plain fallback). */
+      .filter-overlay-box { max-height: 100dvh; height: 100dvh; }
     }
 
     /* Config editor overlay has more fields than the other filter-overlays
