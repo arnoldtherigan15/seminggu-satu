@@ -5438,8 +5438,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <p class="hint" style="margin:0 0 4px;">Pasal 1: Ruang Lingkup dan Jadwal Acara</p>
         <div class="konten-field"><label>Event Name</label><input class="form-control" type="text" id="mouEventName" placeholder="e.g. Side by Side, Parent & Kid Journal Playdate by seminggu satu"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div class="konten-field" style="flex:1;min-width:170px;"><label>Day & Date</label><input class="form-control" type="text" id="mouEventDate" placeholder="e.g. Sabtu, 5 September 2026"></div>
-          <div class="konten-field" style="flex:1;min-width:150px;"><label>Time</label><input class="form-control" type="text" id="mouEventTime" placeholder="e.g. 10.00 - 12.30 WIB"></div>
+          <div class="konten-field" style="flex:1;min-width:150px;"><label>Day & Date</label><input class="form-control" type="date" id="mouEventDate"></div>
+          <div class="konten-field" style="flex:1;min-width:110px;"><label>From</label><input class="form-control" type="time" id="mouEventTimeStart"></div>
+          <div class="konten-field" style="flex:1;min-width:110px;"><label>To</label><input class="form-control" type="time" id="mouEventTimeEnd"></div>
           <div class="konten-field" style="flex:1;min-width:170px;"><label>Target Participants</label><input class="form-control" type="text" id="mouTargetPeserta" placeholder="e.g. 15 (Couple : 1 Orang Tua dan 1 Anak) Peserta"></div>
         </div>
         <p class="hint" style="margin:8px 0 4px;">Pasal 2: Bentuk Dukungan Pihak Kedua</p>
@@ -8215,7 +8216,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("mouStatus").value = "draft";
       document.getElementById("mouEventName").value = "";
       document.getElementById("mouEventDate").value = "";
-      document.getElementById("mouEventTime").value = "";
+      document.getElementById("mouEventTimeStart").value = "";
+      document.getElementById("mouEventTimeEnd").value = "";
       document.getElementById("mouTargetPeserta").value = "";
       document.getElementById("mouSupportText").value = "";
       document.getElementById("mouObligationText").value = "";
@@ -8240,7 +8242,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("mouStatus").value = doc.status || "draft";
       document.getElementById("mouEventName").value = d.eventName || "";
       document.getElementById("mouEventDate").value = d.eventDate || "";
-      document.getElementById("mouEventTime").value = d.eventTime || "";
+      document.getElementById("mouEventTimeStart").value = d.eventTimeStart || "";
+      document.getElementById("mouEventTimeEnd").value = d.eventTimeEnd || "";
       document.getElementById("mouTargetPeserta").value = d.targetPeserta || "";
       document.getElementById("mouSupportText").value = d.supportText || "";
       document.getElementById("mouObligationText").value = d.obligationText || "";
@@ -8268,7 +8271,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         data: {
           eventName: document.getElementById("mouEventName").value.trim(),
           eventDate: document.getElementById("mouEventDate").value.trim(),
-          eventTime: document.getElementById("mouEventTime").value.trim(),
+          eventTimeStart: document.getElementById("mouEventTimeStart").value.trim(),
+          eventTimeEnd: document.getElementById("mouEventTimeEnd").value.trim(),
           targetPeserta: document.getElementById("mouTargetPeserta").value.trim(),
           supportText: document.getElementById("mouSupportText").value.trim(),
           obligationText: document.getElementById("mouObligationText").value.trim(),
@@ -8489,6 +8493,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (isNaN(d)) return dateStr;
       return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     }
+    function formatMouEventTime(d) {
+      const start = (d.eventTimeStart || "").replace(":", ".");
+      const end = (d.eventTimeEnd || "").replace(":", ".");
+      if (start && end) return `${start} - ${end} WIB`;
+      if (start) return `${start} WIB`;
+      return d.eventTime || "";
+    }
 
     // Browser print-to-PDF dialog suggests document.title sebagai default
     // nama file -- pinjem sebentar biar "Save As" udah keisi nama MOU/Invoice
@@ -8540,8 +8551,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <p>Kerjasama ini berlaku khusus untuk 1 (satu) agenda acara yang diselenggarakan oleh PIHAK PERTAMA dengan rincian sebagai berikut:</p>
           <ul>
             <li><b>Nama Acara:</b> ${escapeHtml(d.eventName || "-")}</li>
-            <li><b>Hari & Tanggal:</b> ${escapeHtml(d.eventDate || "-")}</li>
-            <li><b>Waktu:</b> ${escapeHtml(d.eventTime || "-")}</li>
+            <li><b>Hari & Tanggal:</b> ${escapeHtml(d.eventDate ? formatDateIndoLong(d.eventDate) : "-")}</li>
+            <li><b>Waktu:</b> ${escapeHtml(formatMouEventTime(d) || "-")}</li>
             <li><b>Target Peserta:</b> ${escapeHtml(d.targetPeserta || "-")}</li>
           </ul>
 
