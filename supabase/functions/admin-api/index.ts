@@ -786,6 +786,20 @@ Kasih:
         });
       }
 
+      case "mergeMemberWa": {
+        // Warga ganti nomor WA, atau kedaftar lagi pakai nomor beda dari
+        // sebelumnya -- lihat merge_member_wa() di migrations buat kenapa
+        // ini butuh 1 fungsi Postgres (banyak tabel, harus atomik) alih-alih
+        // beberapa .update() terpisah di sini.
+        const fromWa = waKey(String(data.fromWa || ""));
+        const toWa = waKey(String(data.toWa || ""));
+        if (!fromWa) return errorResponse("Nomor sumber nggak valid.");
+        if (!toWa) return errorResponse("Nomor tujuan nggak valid.");
+        const { error } = await admin.rpc("merge_member_wa", { from_wa: fromWa, to_wa: toWa });
+        if (error) return errorResponse(error.message || "Gagal gabung nomor.");
+        return jsonResponse({ status: "success", message: "Nomor WA berhasil digabung." });
+      }
+
       case "getSuggestions": {
         const { data: rows } = await admin.from("suggestions").select("*").order("created_at", { ascending: false });
         const { data: votes } = await admin.from("suggestion_votes").select("suggestion_id");
@@ -1051,7 +1065,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         // Upload gambar generik dari admin panel (dipakai KONTEN editor,
         // mis. foto item Rekomendasi) -- whitelist bucket biar nggak
         // disalahgunain upload ke bucket sembarangan.
-        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos", "account-photos"];
+        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos", "account-photos", "note-photos"];
         const bucket = String(data.bucket || "");
         if (!ALLOWED_BUCKETS.includes(bucket)) return errorResponse("Bucket tidak dikenal: " + bucket);
         if (!data.imageBase64) return errorResponse("Gambar belum dipilih.");

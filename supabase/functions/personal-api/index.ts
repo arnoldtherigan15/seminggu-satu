@@ -362,6 +362,38 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
         return jsonResponse({ status: "success", message: "Transaksi dihapus." });
       }
 
+      case "getPersonalNotes": {
+        const { data: notes, error } = await admin.from("personal_notes").select("*").order("updated_at", { ascending: false });
+        if (error) return errorResponse("Gagal ambil notes: " + error.message);
+        return jsonResponse({ status: "success", notes: notes || [] });
+      }
+
+      case "savePersonalNote": {
+        const id = String(data.id || "");
+        const payload = {
+          title: String(data.title || "").trim(),
+          body_html: String(data.bodyHtml || ""),
+          updated_at: new Date().toISOString(),
+        };
+        if (id) {
+          const { error } = await admin.from("personal_notes").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update note: " + error.message);
+          return jsonResponse({ status: "success", id });
+        } else {
+          const { data: inserted, error } = await admin.from("personal_notes").insert(payload).select("id").single();
+          if (error) return errorResponse("Gagal simpan note: " + error.message);
+          return jsonResponse({ status: "success", id: inserted.id });
+        }
+      }
+
+      case "deletePersonalNote": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID note kosong.");
+        const { error } = await admin.from("personal_notes").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus note: " + error.message);
+        return jsonResponse({ status: "success", message: "Note dihapus." });
+      }
+
       default:
         return errorResponse("Aksi tidak dikenal: " + action);
     }

@@ -7,8 +7,9 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Admin Dashboard — Seminggu Satu</title>
 
-  <!-- Untuk render passport jadi gambar (download) -->
+  <!-- Untuk render passport jadi gambar (download), dan MOU/Invoice jadi PDF asli -->
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
@@ -2569,6 +2570,25 @@
       filter: brightness(.97);
     }
 
+    .mem-wa-manage {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .mem-wa-manage:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+
     .loy-card.bday-today {
       border: 2px solid #f59e0b;
       background: #fffbeb;
@@ -2652,29 +2672,19 @@
       line-height: 1;
     }
 
-    /* --- Print/PDF export buat MOU & Invoice (Partners) -- diisi JS pas
-       "Download PDF" diklik, lalu window.print() dipanggil. Semua elemen
-       LAIN disembunyiin pas @media print biar cuma dokumennya yang keprint,
-       browser native print-dialog "Save as PDF" yang ngasilin PDF-nya
-       (nggak nambah dependency JS baru, dan multi-halaman-nya bener). */
-    #docPrintArea { display: none; }
-    @media print {
-      body > *:not(#docPrintArea) { display: none !important; }
-      #docPrintArea { display: block !important; }
-      /* @page margin: 0 -- browser's date/title header+footer render INTO the
-         page margin area, so zeroing it out is what actually suppresses them
-         (the "Headers and footers" print-dialog checkbox is a browser/user
-         setting we can't flip from here). .doc-print's own padding below
-         takes over as the visual margin instead. */
-      @page { margin: 0; }
-      /* box-decoration-break: clone -- without it, this padding only shows on
-         the very first/last page of the whole flow (a fragmented box's
-         top/bottom padding is sliced off at every page break by default).
-         clone re-applies it on every page, so each page gets its own
-         top/bottom margin instead of content starting flush against the edge. */
-      .doc-print { padding: 20mm 16mm; max-width: none; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-    }
-    .doc-print { font-family: Georgia, 'Times New Roman', serif; color: #111; max-width: 720px; margin: 0 auto; padding: 24px; line-height: 1.5; }
+    /* --- MOU & Invoice PDF export (Partners) -- JS builds the doc as HTML,
+       renders it off-screen with html2canvas, and assembles the pages into a
+       real PDF with jsPDF (downloadDocPdf()). Not window.print(): mobile
+       Safari's own "Save as PDF" stamps a URL/date header and page-number
+       footer onto every job that no CSS can suppress, and it also ignores the
+       page's own background so unpainted margins show through gray. Building
+       the PDF ourselves sidesteps both. */
+    /* All text forced black, !important -- the dashboard's own theme
+       (argon-dashboard.min.css) puts a navy color on every h1-h6 globally,
+       which otherwise bleeds into the doc's headings since they're rendered
+       as real DOM (for html2canvas), not scoped away like on-screen UI. */
+    .doc-print, .doc-print * { color: #111 !important; }
+    .doc-print { font-family: Georgia, 'Times New Roman', serif; max-width: 720px; margin: 0 auto; padding: 24px; line-height: 1.5; }
     .doc-print h1 { font-size: 20px; text-align: center; margin: 0 0 16px; }
     .doc-print h2 { font-size: 15px; margin: 20px 0 8px; page-break-after: avoid; break-after: avoid; }
     .doc-print p, .doc-print li { font-size: 13px; }
@@ -2701,7 +2711,7 @@
     /* Invoice -- deliberately its own clean sans-serif style (not the
        serif legal-doc look used by MOU), matching the reference layout. */
     .doc-print-invoice { font-family: Arial, Helvetica, sans-serif; color: #111; }
-    .doc-invoice-topline { display: flex; justify-content: space-between; align-items: flex-start; }
+    .doc-invoice-topline { display: flex; justify-content: space-between; align-items: center; }
     .doc-invoice-ordernum-label { font-size: 11px; font-weight: 700; letter-spacing: .5px; }
     .doc-invoice-ordernum-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
     .doc-invoice-brand { display: flex; align-items: center; gap: 10px; }
@@ -3640,6 +3650,161 @@
       margin: 8px 0 4px;
     }
 
+    .rn-editor img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 6px 0;
+      display: block;
+    }
+
+    .rn-check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 4px 0;
+    }
+
+    .rn-check-box {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      accent-color: var(--brand);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .rn-check-item.checked {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    /* Full Notes fullscreen -- touch devices only (phone/iPad): opening the
+       tab covers the screen like Apple Notes, instead of embedding the
+       editor inline among the other prep subtabs. */
+    .rn-full-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      background: var(--card);
+      display: none;
+      flex-direction: column;
+    }
+
+    .rn-full-overlay.open {
+      display: flex;
+    }
+
+    .rn-full-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      padding-top: max(14px, env(safe-area-inset-top));
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .rn-full-back {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--ink);
+      padding: 4px 8px;
+      flex-shrink: 0;
+    }
+
+    .rn-full-title {
+      font-weight: 700;
+      color: var(--ink);
+      flex: 1;
+    }
+
+    .rn-full-body {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    /* .rn-note-wrap is the plain <div> buildRichNoteTab() returns as bodyEl --
+       it needs to become a flex column itself once inside the overlay, so
+       its child .rn-editor (a grandchild of .rn-full-body, not a direct
+       child) can actually flex to fill the remaining height. */
+    .rn-full-body .rn-note-wrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .rn-full-body .rn-editor {
+      flex: 1;
+      min-height: 0;
+      max-height: none;
+    }
+
+    /* --- Personal Notes (sidebar > Personal > Notes) --- */
+    .note-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .note-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .note-card:hover {
+      border-color: var(--brand);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .note-card-title {
+      font-weight: 700;
+      color: var(--ink);
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .note-card-snippet {
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .note-card-date {
+      color: var(--muted);
+      font-size: 11.5px;
+      margin-top: 8px;
+    }
+
+    .note-title-input {
+      font-size: 18px;
+      font-weight: 700;
+      border: none;
+      padding: 4px 0;
+      box-shadow: none;
+    }
+
+    .note-title-input:focus {
+      border: none;
+      box-shadow: none;
+    }
+
     .prep-row {
       display: flex;
       gap: 10px;
@@ -4056,6 +4221,9 @@
           <div class="nav-section-label">Personal</div>
           <button class="nav-btn" data-view="personal">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/></svg></span> Financial Tracker
+          </button>
+          <button class="nav-btn" data-view="notes">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/><path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/></svg></span> Notes
           </button>
         </nav>
         <div class="sidebar-footer">
@@ -4820,6 +4988,16 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           </div>
         </div>
 
+        <!-- ===== VIEW: NOTES (personal, kayak app Notes -- bukan bisnis Seminggu Satu) ===== -->
+        <div class="wrap view" id="viewNotes" style="display:none;">
+          <div class="toolbar">
+            <button class="btn btn-sm" id="noteNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Note</button>
+            <button class="btn btn-sm btn-ghost" id="noteReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+          </div>
+          <div class="note-list" id="noteList"></div>
+          <div class="empty" id="noteEmpty" style="display:none;">No notes yet. Tap "New Note" to write your first one.</div>
+        </div>
+
         <!-- ===== VIEW: MEMBER (akun /warga, ultah, aktif) ===== -->
         <div class="wrap view" id="viewMembers" style="display:none;">
           <div class="toolbar">
@@ -5470,6 +5648,56 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     </div>
   </div>
 
+  <!-- Layar Manage WA Number (Member Hub > Community Status) -->
+  <div id="waManageOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="waManageBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title">Manage WA Number</div>
+      </div>
+      <div class="filter-overlay-body">
+        <p class="hint" id="waManageForName" style="margin:0 0 10px;font-weight:700;color:var(--ink);"></p>
+        <div class="konten-field"><label>Current Active Number</label><input class="form-control" type="text" id="waManageCurrent" disabled></div>
+
+        <p class="hint" style="margin:18px 0 2px;font-weight:700;color:var(--ink);">Change Active Number</p>
+        <p class="hint" style="margin:0 0 8px;">Kalau warga ini ganti nomor HP, pindahin akunnya ke sini. Semua histori (loyalty stamp, quest, post) ikut pindah.</p>
+        <div style="display:flex;gap:8px;">
+          <input class="form-control" type="text" id="waManageNewActive" placeholder="e.g. 081234567890">
+          <button class="btn btn-sm" id="waManageChangeBtn" style="flex-shrink:0;">Switch</button>
+        </div>
+
+        <p class="hint" style="margin:20px 0 2px;font-weight:700;color:var(--ink);">Merge Another Number</p>
+        <p class="hint" style="margin:0 0 8px;">Kalau dia kedaftar lagi pakai nomor lain, gabungin histori-nya ke akun ini (nomor aktifnya tetap yang di atas).</p>
+        <div style="display:flex;gap:8px;">
+          <input class="form-control" type="text" id="waManageMergeFrom" placeholder="e.g. 081234567890">
+          <button class="btn btn-sm btn-ghost" id="waManageMergeBtn" style="flex-shrink:0;">Merge</button>
+        </div>
+
+        <div class="msg" id="waManageMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit Note (Personal) -->
+  <div id="noteFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="noteFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="noteFormTitle">New Note</div>
+        <button class="filter-reset-link" id="noteFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="noteId">
+        <div class="konten-field"><input class="form-control note-title-input" type="text" id="noteTitleInput" placeholder="Title"></div>
+        <div id="noteEditorWrap"></div>
+        <div class="msg" id="noteMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="noteSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Note</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Layar Tambah/Edit Invoice -->
   <div id="invoiceFormOverlay" class="filter-overlay" style="display:none;">
     <div class="filter-overlay-box">
@@ -5519,10 +5747,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
     </div>
   </div>
-
-  <!-- Hidden print area buat Download PDF (MOU & Invoice) -- di luar dashboard-container
-       biar gampang di-hide semua elemen LAIN pas @media print, cuma ini yang keliatan. -->
-  <div id="docPrintArea"></div>
 
   <!-- Config global: SUPABASE_URL/SUPABASE_ANON_KEY & data statis (untuk seed awal editor) -->
   <script src="../env.js"></script>
@@ -6283,7 +6507,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "personal"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "personal", "notes"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2]);
     }
@@ -6315,6 +6539,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("viewMembers").style.display = (view === "members") ? "block" : "none";
       document.getElementById("viewPesanan").style.display = (view === "pesanan") ? "block" : "none";
       document.getElementById("viewPersonal").style.display = (view === "personal") ? "block" : "none";
+      document.getElementById("viewNotes").style.display = (view === "notes") ? "block" : "none";
       applySubtabBarHeightVar();
       applyMemSearchHeightVar();
       if (view === "overview") ensureOverview();
@@ -6332,6 +6557,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "members") { ensureMembers(); if (event && memberTabsCtl) memberTabsCtl.show(event); }
       if (view === "pesanan") ensurePesanan(event, subtab);
       if (view === "personal") { ensurePersonal(); if (event && perTabsCtl) perTabsCtl.show(event); }
+      if (view === "notes") ensureNotesView();
     }
 
     // ---------- KEUANGAN ----------
@@ -8501,25 +8727,102 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       return d.eventTime || "";
     }
 
-    // Browser print-to-PDF dialog suggests document.title sebagai default
-    // nama file -- pinjem sebentar biar "Save As" udah keisi nama MOU/Invoice
-    // -nya sendiri, bukan "Admin Dashboard — Seminggu Satu", terus balikin
-    // lagi title aslinya (pake afterprint, lebih reliable daripada nebak
-    // window.print() itu blocking atau nggak di tiap browser).
     function safeFileName(s) {
       return String(s || "Document").replace(/[\\/:*?"<>|]+/g, "-").trim() || "Document";
     }
 
-    function openDocPrint(html, fileName) {
-      const area = document.getElementById("docPrintArea");
-      area.innerHTML = html;
-      const originalTitle = document.title;
-      if (fileName) {
-        document.title = fileName;
-        const restore = () => { document.title = originalTitle; window.removeEventListener("afterprint", restore); };
-        window.addEventListener("afterprint", restore);
+    function pdfGenOverlay(show) {
+      let el = document.getElementById("pdfGenOverlay");
+      if (show && !el) {
+        el = document.createElement("div");
+        el.id = "pdfGenOverlay";
+        el.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(20,20,20,.45);display:flex;align-items:center;justify-content:center;color:#fff;font:600 14px 'Open Sans',sans-serif;";
+        el.textContent = "Generating PDF...";
+        document.body.appendChild(el);
+      } else if (!show && el) {
+        el.remove();
       }
-      setTimeout(() => window.print(), 50);
+    }
+
+    // Builds a real PDF client-side instead of relying on the browser's
+    // print-to-PDF: mobile Safari's own "Save as PDF" stamps a URL/date
+    // header and page-number footer onto every job (no CSS can suppress it),
+    // and leaves unpainted page margins showing the page's background color
+    // instead of white. Renders the doc off-screen with html2canvas, one
+    // image per page, and assembles them with jsPDF -- so the output looks
+    // identical everywhere and nothing but our own content ends up on it.
+    async function downloadDocPdf(html, fileName) {
+      const PAGE_W_MM = 210, PAGE_H_MM = 297;
+      const MARGIN_MM = { top: 20, right: 16, bottom: 20, left: 16 };
+      const PX_PER_MM = 96 / 25.4;
+      const contentWMm = PAGE_W_MM - MARGIN_MM.left - MARGIN_MM.right;
+      const contentWidthPx = Math.round(contentWMm * PX_PER_MM);
+      const contentHeightPx = Math.round((PAGE_H_MM - MARGIN_MM.top - MARGIN_MM.bottom) * PX_PER_MM);
+      const SCALE = 2;
+
+      pdfGenOverlay(true);
+      const stage = document.createElement("div");
+      stage.style.cssText = `position:fixed;left:-10000px;top:0;width:${contentWidthPx}px;background:#fff;`;
+      stage.innerHTML = html;
+      document.body.appendChild(stage);
+      const docEl = stage.firstElementChild;
+      docEl.style.maxWidth = "none";
+      docEl.style.width = contentWidthPx + "px";
+      docEl.style.padding = "0";
+      docEl.style.margin = "0";
+
+      try {
+        // One tall render of the whole doc, then slice it into pages -- slicing
+        // (rather than re-rendering each page from a fresh container) keeps the
+        // break points anchored to the real layout, margins included. Measuring
+        // each child's own height in isolation and summing them (an earlier
+        // version of this) silently drops the margins BETWEEN children, which
+        // under-measures the page and lets the last block run off the bottom.
+        const canvas = await html2canvas(stage, { scale: SCALE, backgroundColor: "#ffffff", useCORS: true, width: contentWidthPx, windowWidth: contentWidthPx });
+
+        // Safe break candidates: the bottom edge of each top-level block, so a
+        // table or signature box (already a single child) never gets sliced
+        // mid-row. A heading is glued to whatever follows it so a Pasal title
+        // never ends up alone at the bottom of a page.
+        const originTop = docEl.getBoundingClientRect().top;
+        const children = Array.from(docEl.children);
+        const breakPoints = [];
+        for (let i = 0; i < children.length; i++) {
+          let bottom = children[i].getBoundingClientRect().bottom - originTop;
+          if (children[i].tagName === "H2" && i + 1 < children.length) {
+            bottom = children[i + 1].getBoundingClientRect().bottom - originTop;
+            i++;
+          }
+          breakPoints.push(bottom);
+        }
+        const totalHeightPx = canvas.height / SCALE;
+
+        const pdf = new window.jspdf.jsPDF({ unit: "mm", format: "a4" });
+        let cursor = 0, bpIdx = 0, firstPage = true;
+        while (cursor < totalHeightPx - 0.5) {
+          const maxEnd = Math.min(cursor + contentHeightPx, totalHeightPx);
+          let end = maxEnd;
+          while (bpIdx < breakPoints.length && breakPoints[bpIdx] <= maxEnd + 0.5) {
+            if (breakPoints[bpIdx] > cursor + 0.5) end = breakPoints[bpIdx];
+            bpIdx++;
+          }
+          const sliceCanvas = document.createElement("canvas");
+          sliceCanvas.width = canvas.width;
+          sliceCanvas.height = Math.round((end - cursor) * SCALE);
+          const ctx = sliceCanvas.getContext("2d");
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+          ctx.drawImage(canvas, 0, Math.round(cursor * SCALE), canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
+          if (!firstPage) pdf.addPage();
+          firstPage = false;
+          pdf.addImage(sliceCanvas.toDataURL("image/jpeg", 0.95), "JPEG", MARGIN_MM.left, MARGIN_MM.top, contentWMm, (end - cursor) / PX_PER_MM);
+          cursor = end;
+        }
+        pdf.save(fileName + ".pdf");
+      } finally {
+        stage.remove();
+        pdfGenOverlay(false);
+      }
     }
 
     function downloadCurrentMouPdf() {
@@ -8527,7 +8830,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       downloadMouPdf({ title: f.title, doc_date: f.docDate, partnerName: f.partnerName, data: f.data });
     }
 
-    function downloadMouPdf(doc) {
+    async function downloadMouPdf(doc) {
       const d = doc.data || {};
       const dateId = doc.doc_date ? formatDateIndoLong(doc.doc_date) : "";
       const attachHtml = (d.attachments && d.attachments.length) ? `
@@ -8575,7 +8878,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <tr><td>( ${escapeHtml(d.pihakPertamaName || "Arnold Therigan")} )<br>${escapeHtml(d.pihakPertamaRole || "Founder dan Perwakilan")}</td><td>( ${escapeHtml(d.pihakKeduaName || "-")} )<br>${escapeHtml(d.pihakKeduaRole || "-")}</td></tr>
           </table></div>
         </div>`;
-      openDocPrint(html, safeFileName(doc.title || "MOU"));
+      await downloadDocPdf(html, safeFileName(doc.title || "MOU"));
     }
 
     function generateOrderNumber() {
@@ -8587,7 +8890,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       downloadInvoicePdf({ title: f.title, doc_date: f.docDate, data: f.data });
     }
 
-    function downloadInvoicePdf(doc) {
+    async function downloadInvoicePdf(doc) {
       const d = doc.data || {};
       const dateId = doc.doc_date ? formatDateEn(doc.doc_date) : "";
       const items = (d.items || []).map(normalizeInvoiceItem);
@@ -8638,7 +8941,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
           </div>
         </div>`;
-      openDocPrint(html, safeFileName(doc.title || "Invoice"));
+      await downloadDocPdf(html, safeFileName(doc.title || "Invoice"));
     }
 
     // ---------- KONTEN EDITOR (galeri/testimoni/rekomendasi) ----------
@@ -8910,10 +9213,60 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           if (tab === "suggest") loadSuggestions();
           else if (tab === "barter") loadBarterAdmin();
         });
+        wireWaManageOnce();
         membersInit = true;
       }
       loadMembers();
       ensureLoyalty();
+    }
+
+    // ---- Manage WA Number (warga ganti nomor HP / kedaftar lagi pakai
+    // nomor beda) -- lihat merge_member_wa() migration buat kenapa ini
+    // butuh 1 fungsi Postgres yang mindahin `wa` di banyak tabel sekaligus. ----
+    let WA_MANAGE_TARGET = null; // { wa, nickname }
+
+    function openWaManageForm(wa, nickname) {
+      WA_MANAGE_TARGET = { wa, nickname };
+      document.getElementById("waManageForName").textContent = nickname || "(no name)";
+      document.getElementById("waManageCurrent").value = wa;
+      document.getElementById("waManageNewActive").value = "";
+      document.getElementById("waManageMergeFrom").value = "";
+      document.getElementById("waManageMsg").textContent = "";
+      document.getElementById("waManageOverlay").style.display = "flex";
+    }
+    function closeWaManageForm() { document.getElementById("waManageOverlay").style.display = "none"; }
+
+    async function doChangeActiveWa() {
+      const msg = document.getElementById("waManageMsg");
+      const newWa = document.getElementById("waManageNewActive").value.trim();
+      if (!newWa) { msg.className = "msg err"; msg.textContent = "Enter the new number first."; return; }
+      const nm = WA_MANAGE_TARGET.nickname || "warga ini";
+      if (!confirm(`Pindahin nomor aktif ${nm} ke ${newWa}? Semua histori-nya ikut pindah.`)) return;
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await api("mergeMemberWa", { token: getToken(), fromWa: WA_MANAGE_TARGET.wa, toWa: newWa });
+      if (r.status === "success") { closeWaManageForm(); await loadMembers(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed."; }
+    }
+
+    async function doMergeWa() {
+      const msg = document.getElementById("waManageMsg");
+      const fromWa = document.getElementById("waManageMergeFrom").value.trim();
+      if (!fromWa) { msg.className = "msg err"; msg.textContent = "Enter the number to merge first."; return; }
+      const nm = WA_MANAGE_TARGET.nickname || "warga ini";
+      if (!confirm(`Gabungin semua histori dari ${fromWa} ke akun ${nm}?`)) return;
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await api("mergeMemberWa", { token: getToken(), fromWa, toWa: WA_MANAGE_TARGET.wa });
+      if (r.status === "success") { closeWaManageForm(); await loadMembers(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed."; }
+    }
+
+    function wireWaManageOnce() {
+      document.getElementById("waManageBackBtn").addEventListener("click", closeWaManageForm);
+      document.getElementById("waManageOverlay").addEventListener("click", (e) => {
+        if (e.target.id === "waManageOverlay") closeWaManageForm();
+      });
+      document.getElementById("waManageChangeBtn").addEventListener("click", doChangeActiveWa);
+      document.getElementById("waManageMergeBtn").addEventListener("click", doMergeWa);
     }
 
     // ---- Kotak Pos Warga (aspirasi ber-vote) ----
@@ -9001,12 +9354,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     // sub boleh HTML (potongan data di-escape satu-satu pas nyusun)
-    function memRow(nickname, sub, wa, btnLabel, type, ig, cls, badge) {
+    function memRow(nickname, sub, wa, btnLabel, type, ig, cls, badge, showWaManage) {
       return `<div class="loy-card${cls ? " " + cls : ""}"><div class="loy-top">
         <div style="min-width:0;"><div class="loy-name">${escapeHtml(nickname || "(no name)")}${badge || ""}</div>
         <div class="loy-wa">${sub || ""}</div></div>
         <div class="mem-btns">
           ${wa ? `<button class="mem-wa loy-send" data-memwa="${escapeHtml(wa)}" data-memname="${escapeHtml(nickname || "")}" data-memtype="${type}">${btnLabel}</button>` : ""}
+          ${wa && showWaManage ? `<button class="mem-wa-manage" data-memwa="${escapeHtml(wa)}" data-memname="${escapeHtml(nickname || "")}" title="Manage WA number">${icon("phone")}</button>` : ""}
           ${ig ? `<button class="mem-ig" data-ig="${escapeHtml(ig)}" title="Copy username IG">${icon("clipboard")} ${escapeHtml(ig)}</button>` : ""}
         </div>
       </div></div>`;
@@ -9109,7 +9463,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           const age = memAge(a.birthDate);
           const sub = "Attended: <b>" + (a.count || 0) + "x</b>" + (a.questCount ? " · " + a.questCount + " quest" : "") + " · " +
             (a.birthDate ? "🎂 " + escapeHtml(memBdayShort(a.birthDate)) + (age !== null ? " · <b>" + age + "yo</b>" : "") + " · " : "") + "last login: " + escapeHtml(a.lastLogin || "-");
-          return memRow(a.nickname, sub, a.wa, "Chat", "chat", a.ig);
+          return memRow(a.nickname, sub, a.wa, "Chat", "chat", a.ig, "", "", true);
         }).join("")
         : '<p class="hint">' + (q ? "No matches found." : "No one registered on /warga yet.") + '</p>';
       document.getElementById("memActiveCount").textContent = accs.length + (q ? "/" + r.accounts.length : "");
@@ -9130,6 +9484,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         if (b.dataset.memtype === "bday") { markBdayWished(num); renderMembers(); }
       }));
       document.querySelectorAll(".mem-ig").forEach(b => b.addEventListener("click", () => copyIg(b)));
+      document.querySelectorAll(".mem-wa-manage").forEach(b => b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openWaManageForm(b.dataset.memwa, b.dataset.memname);
+      }));
     }
 
     // ---------- NOTIFIKASI / AKTIVITAS (admin) ----------
@@ -11918,6 +12276,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let prepInit = false;
     let PREP_BATCHES = [];
     let prepInitialSubtab = null; // dari hash #prep:workshopId:subtabId, dipakai sekali di renderPrep() lalu direset
+    let RN_TAB_BODY = null; // bodyEl rich-note tab yg lagi aktif -- dipindah in/out overlay fullscreen (lihat openRichNoteFullScreen)
 
     async function ensurePrep(event, subtab) {
       if (subtab) prepInitialSubtab = subtab;
@@ -12085,9 +12444,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         wrap.appendChild(panel);
       });
       cont.appendChild(wrap);
+      let prepPrevSubtab = defs[0].id;
       const prepTabsCtl = wireSubtabs(wrap, (tabId) => {
         const wsId = document.getElementById("prepSelect").value;
         history.replaceState(null, "", "#prep:" + wsId + ":" + tabId);
+        if (tabId === "catatan" && isTouchDevice()) {
+          openRichNoteFullScreen(() => prepTabsCtl.show(prepPrevSubtab));
+        } else {
+          prepPrevSubtab = tabId;
+        }
       });
       // Dari hash #prep:workshopId:subtabId -- cuma dipakai sekali per
       // load/refresh, jangan sampai batch/workshop switch berikutnya kepental
@@ -12396,31 +12761,98 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       } catch (e) { summaryEl.innerHTML = '<p class="hint" style="color:var(--err)">Failed to load.</p>'; }
     }
 
-    function buildRichNoteTab() {
-      const existing = (Array.isArray(PREP.richnote) && PREP.richnote[0] && PREP.richnote[0].html) || "";
-      const body = document.createElement("div");
-      body.innerHTML =
-        `<div class="rn-toolbar">
+    // Toolbar markup buat semua rich-text editor (.rn-editor) di admin --
+    // Prep > Full Notes DAN Personal > Notes sama-sama pakai ini.
+    function rnToolbarHtml() {
+      return `<div class="rn-toolbar">
            <button class="rn-btn" type="button" data-cmd="bold" title="Bold">B</button>
            <button class="rn-btn rn-i" type="button" data-cmd="italic" title="Italic">I</button>
            <button class="rn-btn rn-u" type="button" data-cmd="underline" title="Underline">U</button>
            <button class="rn-btn" type="button" data-cmd="h3" title="Heading">H</button>
            <button class="rn-btn" type="button" data-cmd="ul" title="Bullet list">•</button>
            <button class="rn-btn" type="button" data-cmd="ol" title="Numbered list">1.</button>
+           <button class="rn-btn" type="button" data-cmd="checklist" title="Checklist">${icon("listCheck")}</button>
+           <button class="rn-btn" type="button" data-cmd="image" title="Insert image">${icon("camera")}</button>
            <button class="rn-btn" type="button" data-cmd="link" title="Link">${icon("link")}</button>
            <button class="rn-btn" type="button" data-cmd="clear" title="Clear formatting">⨯</button>
-         </div>
-         <div class="rn-editor" id="rnEditor" contenteditable="true" data-ph="Write a long note here… (bold, lists, links, etc. supported)">${existing}</div>
-         <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
-           <button class="btn btn-sm" id="rnSaveBtn" disabled>${icon("save")} Save Note</button>
-           <span class="msg" id="rnMsg"></span>
          </div>`;
+    }
 
-      const editor = body.querySelector("#rnEditor");
-      const saveBtn = body.querySelector("#rnSaveBtn");
-      const dirty = () => { saveBtn.disabled = false; };
+    function createChecklistItemEl() {
+      const div = document.createElement("div");
+      div.className = "rn-check-item";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.className = "rn-check-box";
+      cb.contentEditable = "false";
+      div.appendChild(cb);
+      div.appendChild(document.createTextNode(" "));
+      return div;
+    }
+    function placeCaretAfterCheckbox(item) {
+      const range = document.createRange();
+      const sel = window.getSelection();
+      const textNode = item.lastChild;
+      range.setStart(textNode, textNode.length);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    function placeCaretInEl(el) {
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(el);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    function insertChecklistItem(editor) {
+      const item = createChecklistItemEl();
+      const sel = window.getSelection();
+      if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(item);
+      } else {
+        editor.appendChild(item);
+      }
+      placeCaretAfterCheckbox(item);
+    }
+    // File-picker -> compress (reuses qCompress, same helper as account/event
+    // photo uploads) -> admin-api "uploadImage" (bucket note-photos) -> insert
+    // at cursor. Fires a synthetic "input" event afterwards so the normal
+    // dirty-tracking listener (wired below) picks it up -- the upload itself
+    // is async so it can't just fall through to the caller's onDirty call.
+    async function pickAndInsertEditorImage(editor) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.style.display = "none";
+      document.body.appendChild(input);
+      input.addEventListener("change", async () => {
+        const f = input.files && input.files[0];
+        input.remove();
+        if (!f) return;
+        if (f.size > 15 * 1024 * 1024) { alert("Image size must be max 15MB."); return; }
+        try {
+          const dataUrl = await qCompress(f, 1600, 0.85);
+          const r = await api("uploadImage", { token: getToken(), bucket: "note-photos", imageBase64: dataUrl.split(",")[1], prefix: "note" });
+          if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to upload."); return; }
+          editor.focus();
+          document.execCommand("insertImage", false, r.url);
+          editor.dispatchEvent(new Event("input", { bubbles: true }));
+        } catch (err) {
+          alert("Failed to upload image: " + (err.message || ""));
+        }
+      });
+      input.click();
+    }
 
-      body.querySelectorAll(".rn-btn").forEach(b => {
+    // Wires the .rn-btn toolbar buttons (found inside `container`) to `editor`
+    // (a contenteditable .rn-editor), plus paste-as-plain-text and checklist
+    // behavior on the editor itself. onDirty fires on any edit/format change.
+    function wireRnToolbar(container, editor, onDirty) {
+      container.querySelectorAll(".rn-btn").forEach(b => {
         b.addEventListener("click", () => {
           editor.focus();
           const cmd = b.dataset.cmd;
@@ -12432,19 +12864,111 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           else if (cmd === "link") {
             const url = prompt("Paste URL:", "https://");
             if (url) document.execCommand("createLink", false, url);
-          }
-          dirty();
+          } else if (cmd === "checklist") { insertChecklistItem(editor); }
+          else if (cmd === "image") { pickAndInsertEditorImage(editor); return; }
+          if (onDirty) onDirty();
         });
       });
-      editor.addEventListener("input", dirty);
+      editor.addEventListener("input", () => { if (onDirty) onDirty(); });
       // Tempel sebagai teks polos (biar nggak bawa style aneh dari sumber lain)
       editor.addEventListener("paste", (e) => {
         e.preventDefault();
         const text = (e.clipboardData || window.clipboardData).getData("text");
         document.execCommand("insertText", false, text);
       });
+      // Checklist: Enter continues the list (or exits it, back to a normal
+      // line, if the current item is empty). The checkbox's `checked`
+      // ATTRIBUTE (not just its DOM property) has to stay in sync too --
+      // only the attribute survives into editor.innerHTML for saving.
+      editor.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        const anchor = sel.anchorNode;
+        const el = anchor && (anchor.nodeType === 1 ? anchor : anchor.parentElement);
+        const item = el && el.closest(".rn-check-item");
+        if (!item || !editor.contains(item)) return;
+        e.preventDefault();
+        const text = item.textContent.replace(/ /g, "").trim();
+        if (!text) {
+          const p = document.createElement("div");
+          p.innerHTML = "<br>";
+          item.replaceWith(p);
+          placeCaretInEl(p);
+        } else {
+          const newItem = createChecklistItemEl();
+          item.after(newItem);
+          placeCaretAfterCheckbox(newItem);
+        }
+        if (onDirty) onDirty();
+      });
+      editor.addEventListener("change", (e) => {
+        if (!e.target.classList || !e.target.classList.contains("rn-check-box")) return;
+        e.target.closest(".rn-check-item").classList.toggle("checked", e.target.checked);
+        e.target.toggleAttribute("checked", e.target.checked);
+        if (onDirty) onDirty();
+      });
+    }
+
+    function buildRichNoteTab() {
+      const existing = (Array.isArray(PREP.richnote) && PREP.richnote[0] && PREP.richnote[0].html) || "";
+      const body = document.createElement("div");
+      body.className = "rn-note-wrap";
+      body.innerHTML =
+        rnToolbarHtml() +
+        `<div class="rn-editor" id="rnEditor" contenteditable="true" data-ph="Write a long note here… (bold, lists, links, etc. supported)">${existing}</div>
+         <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+           <button class="btn btn-sm" id="rnSaveBtn" disabled>${icon("save")} Save Note</button>
+           <span class="msg" id="rnMsg"></span>
+         </div>`;
+
+      const editor = body.querySelector("#rnEditor");
+      const saveBtn = body.querySelector("#rnSaveBtn");
+      const dirty = () => { saveBtn.disabled = false; };
+      wireRnToolbar(body, editor, dirty);
       saveBtn.addEventListener("click", saveRichNote);
+      RN_TAB_BODY = body;
       return { id: "catatan", labelHtml: icon("journal") + " Full Notes", bodyEl: body };
+    }
+
+    function isTouchDevice() {
+      return window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    }
+
+    // Notes app-style fullscreen (phone/iPad only) -- moves the SAME editor
+    // DOM (toolbar, contenteditable, save button) into an edge-to-edge
+    // overlay instead of cloning it, so nothing about its wiring (dirty
+    // state, save button) needs to be duplicated. onClose runs after the
+    // content is moved back to its inline tab panel.
+    function openRichNoteFullScreen(onClose) {
+      const body = RN_TAB_BODY;
+      if (!body) return;
+      const originalParent = body.parentNode;
+
+      let overlay = document.getElementById("rnFullOverlay");
+      if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "rnFullOverlay";
+        overlay.className = "rn-full-overlay";
+        overlay.innerHTML =
+          `<div class="rn-full-head">
+             <button class="rn-full-back" type="button" aria-label="Tutup">&larr;</button>
+             <div class="rn-full-title">${icon("journal")} Full Notes</div>
+           </div>
+           <div class="rn-full-body"></div>`;
+        document.body.appendChild(overlay);
+      }
+      const closeFullScreen = () => {
+        overlay.classList.remove("open");
+        if (originalParent) originalParent.appendChild(body);
+        if (onClose) onClose();
+      };
+      overlay.querySelector(".rn-full-back").onclick = closeFullScreen;
+
+      overlay.querySelector(".rn-full-body").appendChild(body);
+      overlay.classList.add("open");
+      const editor = body.querySelector("#rnEditor");
+      if (editor) editor.focus();
     }
 
     async function saveRichNote() {
@@ -12468,6 +12992,122 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       } catch (e) {
         msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
       }
+    }
+
+    // ---------- PERSONAL NOTES (sidebar > Personal > Notes) ----------
+    let PERSONAL_NOTES = [];
+    let notesInit = false;
+
+    function stripHtml(html) {
+      const tmp = document.createElement("div");
+      tmp.innerHTML = html || "";
+      return (tmp.textContent || "").trim();
+    }
+
+    function fmtNoteDate(iso) {
+      const d = new Date(iso);
+      if (isNaN(d)) return "";
+      return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) + " " +
+        d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    async function loadNotes() {
+      const list = document.getElementById("noteList");
+      const empty = document.getElementById("noteEmpty");
+      list.innerHTML = skelLines(3);
+      empty.style.display = "none";
+      try {
+        const r = await personalApi("getPersonalNotes", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
+        PERSONAL_NOTES = r.notes || [];
+        renderNoteList();
+      } catch (e) {
+        list.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
+      }
+    }
+
+    function renderNoteList() {
+      const list = document.getElementById("noteList");
+      const empty = document.getElementById("noteEmpty");
+      if (!PERSONAL_NOTES.length) {
+        list.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      list.innerHTML = PERSONAL_NOTES.map(n => {
+        const snippet = stripHtml(n.body_html);
+        return `<div class="note-card" data-id="${n.id}">
+          <div class="note-card-title">${escapeHtml(n.title || "(Untitled)")}</div>
+          ${snippet ? `<div class="note-card-snippet">${escapeHtml(snippet)}</div>` : ""}
+          <div class="note-card-date">${fmtNoteDate(n.updated_at)}</div>
+        </div>`;
+      }).join("");
+      list.querySelectorAll(".note-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const note = PERSONAL_NOTES.find(n => n.id === card.dataset.id);
+          if (note) openNoteForm(note);
+        });
+      });
+    }
+
+    function openNoteForm(note) {
+      document.getElementById("noteId").value = note ? note.id : "";
+      document.getElementById("noteFormTitle").textContent = note ? "Edit Note" : "New Note";
+      document.getElementById("noteFormDeleteBtn").style.display = note ? "inline-flex" : "none";
+      document.getElementById("noteTitleInput").value = note ? (note.title || "") : "";
+      document.getElementById("noteMsg").textContent = "";
+
+      const wrap = document.getElementById("noteEditorWrap");
+      wrap.innerHTML = rnToolbarHtml() + `<div class="rn-editor" id="noteEditor" contenteditable="true" data-ph="Write your note here…">${note ? (note.body_html || "") : ""}</div>`;
+      wireRnToolbar(wrap, wrap.querySelector("#noteEditor"), () => {});
+
+      document.getElementById("noteFormOverlay").style.display = "flex";
+      if (!note) document.getElementById("noteTitleInput").focus();
+    }
+
+    function closeNoteForm() {
+      document.getElementById("noteFormOverlay").style.display = "none";
+    }
+
+    async function saveNote() {
+      const msg = document.getElementById("noteMsg");
+      const id = document.getElementById("noteId").value;
+      const title = document.getElementById("noteTitleInput").value.trim();
+      const editor = document.getElementById("noteEditor");
+      const bodyHtml = editor ? editor.innerHTML.trim() : "";
+      const bodyText = editor ? editor.textContent.trim() : "";
+      if (!title && !bodyText) { msg.className = "msg err"; msg.textContent = "Write something first."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await personalApi("savePersonalNote", { token: getToken(), id, title, bodyHtml });
+      if (r.status === "success") { closeNoteForm(); await loadNotes(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to save."; }
+    }
+
+    async function deleteNote() {
+      const id = document.getElementById("noteId").value;
+      if (!id || !confirm("Delete this note?")) return;
+      const r = await personalApi("deletePersonalNote", { token: getToken(), id });
+      if (r.status === "success") { closeNoteForm(); await loadNotes(); }
+      else { handleAuthError(r); alert(r.message || "Failed to delete."); }
+    }
+
+    function wireNotesOnce() {
+      if (notesInit) return;
+      notesInit = true;
+      document.getElementById("noteNewBtn").addEventListener("click", () => openNoteForm(null));
+      document.getElementById("noteReloadBtn").addEventListener("click", loadNotes);
+      document.getElementById("noteFormBackBtn").addEventListener("click", closeNoteForm);
+      document.getElementById("noteFormOverlay").addEventListener("click", (e) => {
+        if (e.target.id === "noteFormOverlay") closeNoteForm();
+      });
+      document.getElementById("noteSaveBtn").addEventListener("click", saveNote);
+      document.getElementById("noteFormDeleteBtn").addEventListener("click", deleteNote);
+    }
+
+    async function ensureNotesView() {
+      wireNotesOnce();
+      await loadNotes();
     }
 
     function buildPrepTab(sec) {
