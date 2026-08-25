@@ -1401,26 +1401,32 @@
       margin-bottom: 0;
     }
 
-    .cost-row-top {
+    .cost-row-line1 {
       display: flex;
       gap: 10px;
       align-items: center;
     }
 
-    .cost-row-top .c-nama {
+    .cost-row-line1 .c-nama {
       flex: 1;
       min-width: 0;
     }
 
-    .cost-row-bottom {
+    .cost-row > .c-biaya,
+    .cost-row > .c-tipe {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .cost-row-actions {
       display: flex;
       gap: 10px;
       margin-top: 8px;
     }
 
-    .cost-row-bottom > * {
+    .cost-row-actions > * {
       flex: 1;
-      min-width: 0;
     }
 
     .cost-row-thumb {
@@ -1460,15 +1466,15 @@
       background: var(--err-light);
       color: var(--err);
       border: none;
-      border-radius: 8px;
-      width: 40px;
-      height: 40px;
+      border-radius: 10px;
+      padding: 9px 12px;
       cursor: pointer;
-      font-size: 18px;
+      font-size: 14px;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+      gap: 6px;
       transition: background-color 0.15s ease;
     }
 
@@ -7340,18 +7346,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const div = document.createElement("div");
       div.className = "cost-row";
       div.innerHTML = `
-        <div class="cost-row-top">
+        <div class="cost-row-line1">
           <div class="cost-row-thumb"></div>
           <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Cost name (e.g. 4R Print)" value="${item ? escapeHtml(item.nama) : ""}" />
-          <button type="button" class="btn btn-sm btn-ghost c-paste" title="Paste item name from clipboard">${icon("clipboard")}</button>
-          <button class="del" title="Delete">&times;</button>
         </div>
-        <div class="cost-row-bottom">
-          <input type="text" inputmode="numeric" class="c-biaya form-control" placeholder="0" value="${item ? formatRibuan(item.biaya) : ""}" />
-          <select class="c-tipe form-control">
-            <option value="per-peserta">per-participant</option>
-            <option value="tetap">fixed</option>
-          </select>
+        <input type="text" inputmode="numeric" class="c-biaya form-control" placeholder="0" value="${item ? formatRibuan(item.biaya) : ""}" />
+        <select class="c-tipe form-control">
+          <option value="per-peserta">per-participant</option>
+          <option value="tetap">fixed</option>
+        </select>
+        <div class="cost-row-actions">
+          <button type="button" class="btn btn-sm btn-ghost c-paste" title="Paste item name from clipboard">${icon("clipboard")} Paste</button>
+          <button class="del" title="Delete">${icon("trash")} Delete</button>
         </div>
         <div class="cost-row-link" style="display:none;margin-top:8px;padding-left:50px;"></div>`;
       if (item && item.tipe === "tetap") div.querySelector(".c-tipe").value = "tetap";
