@@ -5616,6 +5616,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div id="ciImagePreview" style="margin-top:8px;"></div>
           <input type="hidden" id="ciImageBase64"><input type="hidden" id="ciImageExisting">
         </div>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;">
+          <input type="checkbox" id="ciNoStock" style="width:18px;height:18px;accent-color:var(--brand);flex-shrink:0;">
+          <span>No stock tracking (service, e.g. banner printing) -- skips the Stok badge & Inventory log.</span>
+        </label>
         <div class="msg" id="ciMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6869,7 +6873,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const filtered = ciSearchQuery ? COST_ITEMS.filter(it => it.name.toLowerCase().includes(ciSearchQuery)) : COST_ITEMS;
       if (!filtered.length) { box.innerHTML = '<p class="hint">Nggak ada item yang cocok sama pencarian ini.</p>'; return; }
       box.innerHTML = filtered.map(it => {
-        const stock = itemStock(it.id);
+        const stockBadge = it.no_stock
+          ? `<span class="per-badge transfer" style="white-space:nowrap;">Layanan</span>`
+          : (() => { const stock = itemStock(it.id); return `<div style="text-align:right;"><div class="hint" style="margin:0;">Stok</div><b style="color:${stock <= 0 ? "var(--err)" : "var(--ok)"};">${stock}</b></div>`; })();
         return `
         <div class="fin-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px;cursor:pointer;" data-editci="${it.id}">
           ${it.image_url
@@ -6879,10 +6885,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <b>${escapeHtml(it.name)}</b>
             <div class="hint" style="margin:2px 0 0;">${rupiah(it.default_price)}${it.link ? ` · <a href="${escapeHtml(it.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Link toko</a>` : ""}</div>
           </div>
-          <div style="text-align:right;flex-shrink:0;">
-            <div class="hint" style="margin:0;">Stok</div>
-            <b style="color:${stock <= 0 ? "var(--err)" : "var(--ok)"};">${stock}</b>
-          </div>
+          <div style="flex-shrink:0;">${stockBadge}</div>
           <button class="btn btn-sm btn-ghost" data-copyci="${escapeHtml(it.name)}" title="Copy item name" style="flex-shrink:0;">${icon("clipboard")}</button>
         </div>`;
       }).join("");
@@ -6912,6 +6915,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("ciImageExisting").value = "";
       document.getElementById("ciImagePreview").innerHTML = "";
       document.getElementById("ciFetchNameBtn").disabled = true;
+      document.getElementById("ciNoStock").checked = false;
       document.getElementById("ciMsg").textContent = "";
     }
 
@@ -6928,6 +6932,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("ciImagePreview").innerHTML = it.image_url
         ? `<img src="${escapeHtml(it.image_url)}" style="width:100%;max-width:160px;border-radius:12px;">` : "";
       document.getElementById("ciFetchNameBtn").disabled = !(it.link || "").trim();
+      document.getElementById("ciNoStock").checked = !!it.no_stock;
       document.getElementById("ciMsg").textContent = "";
       openCostItemForm(true);
     }
@@ -6975,7 +6980,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const r = await api("saveCostItem", {
         token: getToken(), id: document.getElementById("ciId").value, name,
         defaultPrice: parseRibuan(document.getElementById("ciPrice").value),
-        link: document.getElementById("ciLink").value.trim(), imageUrl
+        link: document.getElementById("ciLink").value.trim(), imageUrl,
+        noStock: document.getElementById("ciNoStock").checked,
       });
       if (r && r.status === "success") { closeCostItemForm(); await loadCostItems(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
@@ -7002,7 +7008,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     function populateInvItemSelects() {
-      const opts = COST_ITEMS.map(it => `<option value="${it.id}">${escapeHtml(it.name)}</option>`).join("");
+      // Item "no stock" (jasa/layanan) nggak pernah punya transaksi Beli/Pakai
+      // -- nggak usah ditawarin di sini sama sekali.
+      const opts = COST_ITEMS.filter(it => !it.no_stock).map(it => `<option value="${it.id}">${escapeHtml(it.name)}</option>`).join("");
       const itemSel = document.getElementById("invItem");
       const filterSel = document.getElementById("invFilterItem");
       if (itemSel) itemSel.innerHTML = opts;
@@ -7021,8 +7029,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function renderInvStockList() {
       const box = document.getElementById("invStockList");
       if (!box) return;
-      if (!COST_ITEMS.length) { box.innerHTML = '<p class="hint">No items in the Item Database yet.</p>'; return; }
-      const filtered = invStockSearchQuery ? COST_ITEMS.filter(it => it.name.toLowerCase().includes(invStockSearchQuery)) : COST_ITEMS;
+      const trackable = COST_ITEMS.filter(it => !it.no_stock);
+      if (!trackable.length) { box.innerHTML = '<p class="hint">No items in the Item Database yet.</p>'; return; }
+      const filtered = invStockSearchQuery ? trackable.filter(it => it.name.toLowerCase().includes(invStockSearchQuery)) : trackable;
       if (!filtered.length) { box.innerHTML = '<p class="hint">Nggak ada item yang cocok sama pencarian ini.</p>'; return; }
       box.innerHTML = filtered.map(it => {
         const stock = itemStock(it.id);

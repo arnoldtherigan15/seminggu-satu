@@ -1234,6 +1234,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           default_price: Math.round(Number(data.defaultPrice) || 0),
           image_url: data.imageUrl ? String(data.imageUrl) : null,
           link: data.link ? String(data.link) : null,
+          no_stock: !!data.noStock,
         };
         if (id) {
           const { error } = await admin.from("cost_items").update(payload).eq("id", id);
