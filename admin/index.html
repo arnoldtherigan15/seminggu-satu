@@ -1389,46 +1389,6 @@
       line-height: 1.4;
     }
 
-    .cost-row {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-
-    .cost-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .cost-row-line1 {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .cost-row-line1 .c-nama {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .cost-row > .c-biaya,
-    .cost-row > .c-tipe {
-      display: block;
-      width: 100%;
-      margin-top: 8px;
-    }
-
-    .cost-row-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .cost-row-actions > * {
-      flex: 1;
-    }
-
     .cost-row-thumb {
       width: 40px;
       height: 40px;
@@ -1446,40 +1406,6 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-    }
-
-    .cost-row-link a {
-      font-size: 12px;
-      color: var(--brand);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .cost-row-link a:hover {
-      text-decoration: underline;
-    }
-
-    .cost-row .del {
-      background: var(--err-light);
-      color: var(--err);
-      border: none;
-      border-radius: 10px;
-      padding: 9px 12px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: background-color 0.15s ease;
-    }
-
-    .cost-row .del:hover {
-      background: #fca5a5;
     }
 
 
@@ -4463,9 +4389,8 @@
                     </div>
                     <datalist id="costItemsList"></datalist>
                     <div id="costRows"></div>
-                    <p class="hint">The <b>per-participant</b> type is automatically multiplied by the number of registrants. <b>fixed</b> = one-time only. Type the cost name to see suggestions from the <b>Item Database</b> (the price auto-fills, still adjustable).
+                    <p class="hint">The <b>per-participant</b> type is automatically multiplied by the number of registrants. <b>fixed</b> = one-time only. Tap an item to edit it, or the trash icon to delete -- changes save immediately.
                     </p>
-                    <button class="btn" id="saveModalBtn" style="margin-top:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Costs</button>
                     <div class="msg" id="finMsg"></div>
                   </div>
                 </div>
@@ -5624,6 +5549,37 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-foot">
         <button class="btn" id="ciSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit 1 Cost/Budget Component -- full-screen, dipake dobel
+       buat Add (dari tombol "+ Add") dan Edit (tap salah satu row di list).
+       Nggak ada tombol "Save" terpisah di list-nya -- tiap add/edit/delete
+       di sini langsung persist ke server (lihat persistCosts()). -->
+  <div id="costAddOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="costAddBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="costAddTitle">Add Cost</div>
+        <button class="filter-reset-link" id="costAddDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <div class="konten-field"><label>Cost Name</label><input class="form-control" type="text" id="costAddNama" list="costItemsList" placeholder="e.g. 4R Print"></div>
+        <div id="costAddPreview" style="display:none;margin:-8px 0 14px;"></div>
+        <div class="konten-field"><label>Amount (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="costAddBiaya" placeholder="0"></div>
+        <div class="konten-field">
+          <label>Type</label>
+          <select class="form-control" id="costAddTipe">
+            <option value="per-peserta">per-participant</option>
+            <option value="tetap">fixed</option>
+          </select>
+        </div>
+        <p class="hint">The <b>per-participant</b> type is automatically multiplied by the number of registrants. <b>fixed</b> = one-time only. Type the cost name to see suggestions from the Item Database (the price auto-fills, still adjustable).</p>
+        <div class="msg" id="costAddMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="costAddSaveBtn" style="width:100%;">Save</button>
       </div>
     </div>
   </div>
@@ -6800,6 +6756,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     let FIN_BATCHES = [];   // batch (dengan count) untuk workshop keuangan yg dipilih
+    let CURRENT_COST_ITEMS = []; // salinan array cost item workshop+batch yg lagi ditampilin -- diedit di sini, di-persist tiap add/edit/delete (lihat persistCosts())
+    let costEditIndex = -1; // -1 = modal lagi mode "Add", >=0 = mode "Edit" (index di CURRENT_COST_ITEMS)
 
     async function ensureFinanceLoaded() {
       if (!financeInit) {
@@ -6807,8 +6765,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
         sel.addEventListener("change", onFinanceWorkshopChange);
         document.getElementById("finBatchSelect").addEventListener("change", renderFinance);
-        document.getElementById("addCostBtn").addEventListener("click", () => { addCostRow(null, true); recalc(); });
-        document.getElementById("saveModalBtn").addEventListener("click", saveModal);
+        document.getElementById("addCostBtn").addEventListener("click", openCostAddForm);
+        document.getElementById("costAddBackBtn").addEventListener("click", closeCostAddForm);
+        document.getElementById("costAddOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "costAddOverlay") closeCostAddForm();
+        });
+        document.getElementById("costAddNama").addEventListener("input", updateCostAddPreview);
+        wireRibuanInput(document.getElementById("costAddBiaya"));
+        document.getElementById("costAddSaveBtn").addEventListener("click", submitCostForm);
+        document.getElementById("costAddDeleteBtn").addEventListener("click", deleteCostFromForm);
         wireRibuanInput(document.getElementById("finPrice"));
         document.getElementById("finPrice").addEventListener("input", recalc);
         document.getElementById("ciSaveBtn").addEventListener("click", saveCostItemForm);
@@ -7330,72 +7295,128 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         info.innerHTML = `<span class="badge" style="background:#dcfce7;color:#166534;">Modal khusus batch ini</span>`;
       }
 
-      const box = document.getElementById("costRows");
-      box.innerHTML = "";
-      if (!items.length) addCostRow();
-      else items.forEach(it => addCostRow(it));
+      // Salinan (bukan reference) -- ngedit/nambah/hapus di sini nggak boleh
+      // ngutak-ngatik array "general" pas lagi nampilin batch yang masih
+      // warisan (belum punya modal sendiri).
+      CURRENT_COST_ITEMS = items.map(it => ({ ...it }));
+      renderCostRows();
       recalc();
     }
 
-    function addCostRow(item, prepend) {
+    // List Cost/Budget Components -- READ-ONLY (tap buat edit, trash icon
+    // buat hapus langsung). Nambah/edit/hapus semua lewat modal costAddOverlay,
+    // dan semuanya langsung persist ke server (lihat persistCosts()) -- nggak
+    // ada tombol "Save" terpisah lagi.
+    function renderCostRows() {
       const box = document.getElementById("costRows");
-      const div = document.createElement("div");
-      div.className = "cost-row";
-      div.innerHTML = `
-        <div class="cost-row-line1">
-          <div class="cost-row-thumb"></div>
-          <input type="text" class="c-nama form-control" list="costItemsList" placeholder="Cost name (e.g. 4R Print)" value="${item ? escapeHtml(item.nama) : ""}" />
-        </div>
-        <input type="text" inputmode="numeric" class="c-biaya form-control" placeholder="0" value="${item ? formatRibuan(item.biaya) : ""}" />
-        <select class="c-tipe form-control">
-          <option value="per-peserta">per-participant</option>
-          <option value="tetap">fixed</option>
-        </select>
-        <div class="cost-row-actions">
-          <button class="del" title="Delete">${icon("trash")} Delete</button>
-        </div>
-        <div class="cost-row-link" style="display:none;margin-top:8px;padding-left:50px;"></div>`;
-      if (item && item.tipe === "tetap") div.querySelector(".c-tipe").value = "tetap";
-      div.querySelector(".del").addEventListener("click", () => { div.remove(); recalc(); });
-      // Ketik/pilih nama yang PERSIS sama kayak item di Database Item -> harganya
-      // otomatis keisi dari default_price (tetep bisa di-adjust manual abis itu,
-      // ini cuma titik awal), plus foto/link item-nya ditampilin di baris ini.
-      const namaEl = div.querySelector(".c-nama");
-      function updateCostRowPreview() {
-        const match = COST_ITEMS.find(it => it.name === namaEl.value);
-        div.querySelector(".cost-row-thumb").innerHTML = (match && match.image_url)
-          ? `<img src="${escapeHtml(match.image_url)}">` : icon("cart");
-        const linkRow = div.querySelector(".cost-row-link");
-        if (match && match.link) {
-          linkRow.style.display = "block";
-          linkRow.innerHTML = `<a href="${escapeHtml(match.link)}" target="_blank" rel="noopener">${icon("link")} Lihat di toko</a>`;
-        } else {
-          linkRow.style.display = "none";
-        }
-        return match;
+      if (!CURRENT_COST_ITEMS.length) {
+        box.innerHTML = `<p class="hint">No costs yet. Click "+ Add" above.</p>`;
+        return;
       }
-      namaEl.addEventListener("input", () => {
-        const match = updateCostRowPreview();
-        if (match) div.querySelector(".c-biaya").value = formatRibuan(match.default_price);
-      });
-      updateCostRowPreview();
-      wireRibuanInput(div.querySelector(".c-biaya"));
-      div.querySelectorAll("input, select").forEach(el => el.addEventListener("input", recalc));
-      // Item baru (klik "+ Tambah") ditaruh PALING ATAS biar langsung keliatan
-      // tanpa scroll -- item yang dimuat dari data tersimpan tetep di-append
-      // biasa biar urutannya ga kebalik.
-      if (prepend) box.insertBefore(div, box.firstChild);
-      else box.appendChild(div);
+      box.innerHTML = CURRENT_COST_ITEMS.map((it, idx) => {
+        const match = COST_ITEMS.find(x => x.name === it.nama);
+        const thumb = (match && match.image_url)
+          ? `<img src="${escapeHtml(match.image_url)}" style="width:100%;height:100%;object-fit:cover;">` : icon("cart");
+        const tipeLabel = it.tipe === "tetap" ? "fixed" : "per-participant";
+        return `
+        <div class="fin-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px;cursor:pointer;" data-editcost="${idx}">
+          <div class="cost-row-thumb">${thumb}</div>
+          <div style="flex:1;min-width:0;">
+            <b>${escapeHtml(it.nama)}</b>
+            <div class="hint" style="margin:2px 0 0;">${rupiah(it.biaya)} · ${tipeLabel}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-delcost="${idx}" title="Delete" style="color:var(--err);flex-shrink:0;">${icon("trash")}</button>
+        </div>`;
+      }).join("");
+      box.querySelectorAll("[data-editcost]").forEach(el => el.addEventListener("click", () => openCostEditForm(Number(el.dataset.editcost))));
+      box.querySelectorAll("[data-delcost]").forEach(btn => btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteCostAt(Number(btn.dataset.delcost));
+      }));
+    }
+
+    // Modal "Add/Edit Cost" -- ngisi 1 cost item LENGKAP di sini (nama/harga/tipe),
+    // baru masuk ke list & langsung ke-save. Ini biar nambah cost pas list-nya
+    // udah panjang nggak perlu scroll nyari baris kosong.
+    function openCostAddForm() {
+      costEditIndex = -1;
+      document.getElementById("costAddTitle").textContent = "Add Cost";
+      document.getElementById("costAddDeleteBtn").style.display = "none";
+      document.getElementById("costAddNama").value = "";
+      document.getElementById("costAddBiaya").value = "";
+      document.getElementById("costAddTipe").value = "per-peserta";
+      document.getElementById("costAddPreview").style.display = "none";
+      document.getElementById("costAddPreview").innerHTML = "";
+      document.getElementById("costAddMsg").textContent = "";
+      document.getElementById("costAddOverlay").style.display = "flex";
+      setTimeout(() => document.getElementById("costAddNama").focus(), 50);
+    }
+
+    function openCostEditForm(idx) {
+      const it = CURRENT_COST_ITEMS[idx];
+      if (!it) return;
+      costEditIndex = idx;
+      document.getElementById("costAddTitle").textContent = "Edit Cost";
+      document.getElementById("costAddDeleteBtn").style.display = "inline-flex";
+      document.getElementById("costAddNama").value = it.nama;
+      document.getElementById("costAddBiaya").value = formatRibuan(it.biaya);
+      document.getElementById("costAddTipe").value = it.tipe === "tetap" ? "tetap" : "per-peserta";
+      document.getElementById("costAddMsg").textContent = "";
+      updateCostAddPreview();
+      document.getElementById("costAddOverlay").style.display = "flex";
+    }
+
+    function closeCostAddForm() {
+      document.getElementById("costAddOverlay").style.display = "none";
+    }
+
+    function updateCostAddPreview() {
+      const nama = document.getElementById("costAddNama").value;
+      const match = COST_ITEMS.find(it => it.name === nama);
+      const prev = document.getElementById("costAddPreview");
+      if (!match) { prev.style.display = "none"; return; }
+      prev.style.display = "block";
+      prev.innerHTML = `<div style="display:flex;align-items:center;gap:10px;">
+        ${match.image_url ? `<img src="${escapeHtml(match.image_url)}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;">` : ""}
+        <span class="hint" style="margin:0;">Cocok sama Item Database${match.link ? ` · <a href="${escapeHtml(match.link)}" target="_blank" rel="noopener">Lihat di toko</a>` : ""}</span>
+      </div>`;
+      // Auto-fill harga cuma pas nambah baru -- pas edit item yang udah ada,
+      // jangan timpa angka yang mungkin udah sengaja di-adjust manual.
+      if (costEditIndex === -1) document.getElementById("costAddBiaya").value = formatRibuan(match.default_price);
+    }
+
+    async function submitCostForm() {
+      const nama = document.getElementById("costAddNama").value.trim();
+      if (!nama) { alert("Cost name is required."); return; }
+      const entry = {
+        nama,
+        biaya: parseRibuan(document.getElementById("costAddBiaya").value),
+        tipe: document.getElementById("costAddTipe").value,
+      };
+      if (costEditIndex === -1) CURRENT_COST_ITEMS = [entry, ...CURRENT_COST_ITEMS];
+      else CURRENT_COST_ITEMS[costEditIndex] = entry;
+      await persistCosts(document.getElementById("costAddMsg"), closeCostAddForm);
+    }
+
+    async function deleteCostFromForm() {
+      if (costEditIndex === -1) return;
+      if (!confirm("Delete this cost item?")) return;
+      CURRENT_COST_ITEMS.splice(costEditIndex, 1);
+      await persistCosts(document.getElementById("costAddMsg"), closeCostAddForm);
+    }
+
+    async function deleteCostAt(idx) {
+      if (!confirm("Delete this cost item?")) return;
+      CURRENT_COST_ITEMS.splice(idx, 1);
+      await persistCosts(document.getElementById("finMsg"));
     }
 
     function recalc() {
       const price = parseRibuan(document.getElementById("finPrice").value);
       const count = Number(document.getElementById("finCount").textContent) || 0;
       let costFixed = 0, costVar = 0;
-      document.querySelectorAll("#costRows .cost-row").forEach(row => {
-        const biaya = parseRibuan(row.querySelector(".c-biaya").value);
-        const tipe = row.querySelector(".c-tipe").value;
-        if (tipe === "tetap") costFixed += biaya; else costVar += biaya * count;
+      CURRENT_COST_ITEMS.forEach(it => {
+        if (it.tipe === "tetap") costFixed += it.biaya; else costVar += it.biaya * count;
       });
       const cost = costFixed + costVar;
       const revenue = price * count;
@@ -7411,37 +7432,28 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("resMargin").textContent = revenue > 0 ? margin + "% margin" : "No registrants yet";
     }
 
-    async function saveModal() {
+    // Persist CURRENT_COST_ITEMS langsung ke server -- dipanggil abis tiap
+    // add/edit/delete (nggak ada tombol "Save Costs" terpisah lagi). Kalau
+    // batch ini tadinya masih warisan dari General, ini otomatis bikin
+    // modal khusus batch ini (sama kayak alur "Save" yang lama).
+    async function persistCosts(msgEl, onSuccess) {
       const id = document.getElementById("finSelect").value;
       const batchKey = document.getElementById("finBatchSelect").value; // "" = general
-      const items = [];
-      document.querySelectorAll("#costRows .cost-row").forEach(row => {
-        const nama = row.querySelector(".c-nama").value.trim();
-        if (!nama) return;
-        items.push({
-          nama,
-          biaya: parseRibuan(row.querySelector(".c-biaya").value),
-          tipe: row.querySelector(".c-tipe").value
-        });
-      });
-      const btn = document.getElementById("saveModalBtn");
-      const msg = document.getElementById("finMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      if (msgEl) { msgEl.className = "msg"; msgEl.textContent = "Saving..."; }
       try {
-        const r = await api("saveModal", { token: getToken(), workshop: id, batch: batchKey, items });
+        const r = await api("saveModal", { token: getToken(), workshop: id, batch: batchKey, items: CURRENT_COST_ITEMS });
         if (r.status === "success") {
           if (!MODAL[id]) MODAL[id] = {};
-          MODAL[id][batchKey] = items;
-          msg.className = "msg ok"; msg.textContent = "Saved ✓";
-          renderFinance(); // refresh status badge (warisan -> khusus)
+          MODAL[id][batchKey] = CURRENT_COST_ITEMS;
+          if (msgEl) { msgEl.className = "msg ok"; msgEl.textContent = "Saved ✓"; }
+          renderFinance(); // refresh status badge (warisan -> khusus) + list + total
+          if (onSuccess) onSuccess();
         } else {
           handleAuthError(r);
-          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
+          if (msgEl) { msgEl.className = "msg err"; msgEl.textContent = (r && r.message) || "Failed to save."; }
         }
       } catch (e) {
-        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
-      } finally {
-        btn.disabled = false;
+        if (msgEl) { msgEl.className = "msg err"; msgEl.textContent = "Failed to connect to the server."; }
       }
     }
 
