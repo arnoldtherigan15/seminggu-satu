@@ -222,10 +222,13 @@ Deno.serve(async (req) => {
         const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
 
         const { data: costs } = await admin.from("workshop_costs").select("*");
-        const modal: Record<string, Record<string, { nama: string; biaya: number; tipe: string }[]>> = {};
+        const modal: Record<string, Record<string, { nama: string; biaya: number; tipe: string; excludeFromBudget: boolean }[]>> = {};
         for (const c of costs || []) {
           (modal[c.workshop_type] ||= {})[c.batch] ||= [];
-          modal[c.workshop_type][c.batch].push({ nama: c.name, biaya: Number(c.amount) || 0, tipe: c.kind === "tetap" ? "tetap" : "per-peserta" });
+          modal[c.workshop_type][c.batch].push({
+            nama: c.name, biaya: Number(c.amount) || 0, tipe: c.kind === "tetap" ? "tetap" : "per-peserta",
+            excludeFromBudget: !!c.exclude_from_budget,
+          });
         }
 
         const summary: Record<string, number> = {};
@@ -262,10 +265,20 @@ Deno.serve(async (req) => {
           if (REVENUE_EXCLUDED_TYPES.has(b.workshop_type)) continue;
 
           const price = currentPrice(merged, usedCount);
-          const rev = price * usedCount;
+          const revGross = price * usedCount;
           const items = (modal[b.workshop_type] && (modal[b.workshop_type][b.id] || modal[b.workshop_type][""])) || [];
-          let cost = 0;
-          for (const it of items) cost += it.tipe === "tetap" ? it.biaya : it.biaya * usedCount;
+          // Item per-participant yang ditandai "Partner/collab" (excludeFromBudget,
+          // mis. revenue share) DIPOTONG LANGSUNG dari revenue (bukan dijadiin cost)
+          // -- itu duit yang emang bukan hak kita dari awal. Sama persis logikanya
+          // kayak recalc() di admin/index.html (tab Costs & Budget), biar
+          // Overview/Analytics ngomong angka yang sama.
+          let cost = 0, collabTotal = 0;
+          for (const it of items) {
+            if (it.tipe === "tetap") { cost += it.biaya; continue; }
+            if (it.excludeFromBudget) collabTotal += it.biaya * usedCount;
+            else cost += it.biaya * usedCount;
+          }
+          const rev = revGross - collabTotal;
           const batchProfit = rev - cost;
           revenue += rev; profit += batchProfit;
           revenueBreakdown.push({
@@ -300,10 +313,13 @@ Deno.serve(async (req) => {
         const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
 
         const { data: costs } = await admin.from("workshop_costs").select("*");
-        const modal: Record<string, Record<string, { biaya: number; tipe: string }[]>> = {};
+        const modal: Record<string, Record<string, { biaya: number; tipe: string; excludeFromBudget: boolean }[]>> = {};
         for (const c of costs || []) {
           (modal[c.workshop_type] ||= {})[c.batch] ||= [];
-          modal[c.workshop_type][c.batch].push({ biaya: Number(c.amount) || 0, tipe: c.kind === "tetap" ? "tetap" : "per-peserta" });
+          modal[c.workshop_type][c.batch].push({
+            biaya: Number(c.amount) || 0, tipe: c.kind === "tetap" ? "tetap" : "per-peserta",
+            excludeFromBudget: !!c.exclude_from_budget,
+          });
         }
 
         const eventsByType = new Map<string, {
@@ -327,10 +343,17 @@ Deno.serve(async (req) => {
           const usedCount = count ?? 0;
           const merged = mergeBatchConfig(b, typeConfig);
           const price = currentPrice(merged, usedCount);
-          const rev = price * usedCount;
+          const revGross = price * usedCount;
           const items = (modal[b.workshop_type] && (modal[b.workshop_type][b.id] || modal[b.workshop_type][""])) || [];
-          let cost = 0;
-          for (const it of items) cost += it.tipe === "tetap" ? it.biaya : it.biaya * usedCount;
+          // Partner/collab (excludeFromBudget) dipotong dari revenue, bukan
+          // dijadiin cost -- sama kayak getOverview di atas.
+          let cost = 0, collabTotal = 0;
+          for (const it of items) {
+            if (it.tipe === "tetap") { cost += it.biaya; continue; }
+            if (it.excludeFromBudget) collabTotal += it.biaya * usedCount;
+            else cost += it.biaya * usedCount;
+          }
+          const rev = revGross - collabTotal;
           const batchProfit = rev - cost;
           const soldOut = !!merged.maxQuota && usedCount >= merged.maxQuota;
 

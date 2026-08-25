@@ -7425,25 +7425,22 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const price = parseRibuan(document.getElementById("finPrice").value);
       const count = Number(document.getElementById("finCount").textContent) || 0;
       // Item per-participant yang ditandai "Partner/collab" (excludeFromBudget,
-      // mis. revenue share) tetep ngurangin Total Costs/Profit di bawah, tapi
-      // DIPISAH dari stat "Cost per Participant" -- itu maksudnya biaya nge-servis
-      // 1 peserta (materi/konsumsi/dst), bukan biaya kerjasama/bisnis.
-      //
-      // "Cost per Participant" nunjukin angka PER 1 ORANG (jumlah biaya
-      // item-item per-participant apa adanya, BUKAN dikali count) -- biar
-      // kelihatan jelas nyambung sama harga yang keliatan di list di atas,
-      // buat gampang di-tracking mau kurangin dari mana. Total-nya (dikali
-      // jumlah peserta) ditampilin terpisah sebagai detail di bawahnya.
+      // mis. revenue share) DIPOTONG LANGSUNG dari Income (bukan dijadiin
+      // baris Cost) -- itu duit yang emang bukan hak kita dari awal (langsung
+      // ke partner), jadi Income "bersih" yang dipake buat itung Margin udah
+      // netto dari situ. "Cost per Participant" & Total Costs jadinya cuma
+      // ngitung biaya yang beneran keluar dari kantong kita.
       const budgetItems = CURRENT_COST_ITEMS.filter(it => it.tipe !== "tetap" && !it.excludeFromBudget);
       const fixedItems = CURRENT_COST_ITEMS.filter(it => it.tipe === "tetap");
       const collabItems = CURRENT_COST_ITEMS.filter(it => it.tipe !== "tetap" && it.excludeFromBudget);
       const costVarPerHead = budgetItems.reduce((s, it) => s + it.biaya, 0);
       const costFixed = fixedItems.reduce((s, it) => s + it.biaya, 0);
-      const costVarExcludedPerHead = collabItems.reduce((s, it) => s + it.biaya, 0);
+      const collabPerHead = collabItems.reduce((s, it) => s + it.biaya, 0);
       const costVar = costVarPerHead * count;
-      const costVarExcluded = costVarExcludedPerHead * count;
-      const cost = costFixed + costVar + costVarExcluded;
-      const revenue = price * count;
+      const collabTotal = collabPerHead * count;
+      const cost = costFixed + costVar;
+      const revenueGross = price * count;
+      const revenue = revenueGross - collabTotal; // Income NETO (udah dipotong bagian partner/collab)
       const profit = revenue - cost;
       const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0;
       document.getElementById("resRevenue").textContent = rupiah(revenue);
@@ -7458,8 +7455,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("resMargin").textContent = revenue > 0 ? margin + "% margin" : "No registrants yet";
 
       renderCostBreakdown({
-        price, count, revenue, budgetItems, fixedItems, collabItems,
-        costVarPerHead, costVar, costFixed, costVarExcludedPerHead, costVarExcluded,
+        price, count, revenueGross, revenue, budgetItems, fixedItems, collabItems,
+        costVarPerHead, costVar, costFixed, collabPerHead, collabTotal,
         cost, profit, margin,
       });
     }
@@ -7484,8 +7481,16 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <summary><span class="det-acc-title">${icon("sliders")} Detail Perhitungan</span><span class="det-acc-chevron">▸</span></summary>
           <div class="det-acc-body">
             <div style="margin-bottom:14px;">
-              <div style="font-weight:800;margin-bottom:4px;">Income</div>
-              <div style="display:flex;justify-content:space-between;font-size:.9rem;"><span>${rupiah(d.price)}/peserta × ${d.count} peserta</span><b style="color:var(--ok);">${rupiah(d.revenue)}</b></div>
+              <div style="font-weight:800;margin-bottom:4px;">Income (Gross)</div>
+              <div style="display:flex;justify-content:space-between;font-size:.9rem;"><span>${rupiah(d.price)}/peserta × ${d.count} peserta</span><b>${rupiah(d.revenueGross)}</b></div>
+              ${d.collabItems.length ? `
+              <div style="margin-top:8px;">
+                <div class="hint" style="font-weight:700;margin-bottom:2px;">Dipotong Partner/Collab (${d.collabItems.length} item) -- bukan hak kita, ga dihitung ke Cost</div>
+                ${lineRows(d.collabItems, true)}
+                <div style="display:flex;justify-content:space-between;font-size:.85rem;padding-top:6px;margin-top:4px;border-top:1px dashed var(--line);"><span>Subtotal ${rupiah(d.collabPerHead)}/peserta × ${d.count}</span><b style="color:var(--err);">− ${rupiah(d.collabTotal)}</b></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:.9rem;padding-top:8px;margin-top:8px;border-top:1.5px solid var(--line);"><span style="font-weight:800;">Income (Net)</span><b style="color:var(--ok);">${rupiah(d.revenue)}</b></div>
+              ` : ""}
             </div>
 
             <div style="margin-bottom:14px;">
@@ -7500,16 +7505,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               ${subtotalRow("Subtotal", d.costFixed)}
             </div>
 
-            ${d.collabItems.length ? `
-            <div style="margin-bottom:14px;">
-              <div style="font-weight:800;margin-bottom:4px;">Partner/Collab Costs (${d.collabItems.length} item) <span class="hint" style="font-weight:400;">-- di luar modal per peserta</span></div>
-              ${lineRows(d.collabItems, true)}
-              ${subtotalRow(`Subtotal ${rupiah(d.costVarExcludedPerHead)}/peserta × ${d.count}`, d.costVarExcluded)}
-            </div>` : ""}
-
             <div style="padding-top:10px;border-top:1.5px solid var(--line);">
               <div style="display:flex;justify-content:space-between;font-size:.9rem;"><span>Total Costs</span><b style="color:var(--err);">${rupiah(d.cost)}</b></div>
-              <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-top:4px;"><span>Income − Total Costs</span><span>${rupiah(d.revenue)} − ${rupiah(d.cost)}</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-top:4px;"><span>Income (Net) − Total Costs</span><span>${rupiah(d.revenue)} − ${rupiah(d.cost)}</span></div>
               <div style="display:flex;justify-content:space-between;font-size:1rem;margin-top:8px;"><span style="font-weight:800;">Profit</span><b style="color:${d.profit < 0 ? "var(--err)" : "var(--ok)"};">${rupiah(d.profit)}</b></div>
               <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-top:2px;"><span>Margin</span><span>${rupiah(d.profit)} ÷ ${rupiah(d.revenue)} = ${d.revenue > 0 ? d.margin + "%" : "-"}</span></div>
             </div>
