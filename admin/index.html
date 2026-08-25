@@ -12691,7 +12691,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         // dibuka nggak kepental balik ke awal.
         document.getElementById("prepBatchSelect").addEventListener("change", () => {
           renderPrepHeader(document.getElementById("prepSelect").value);
-          loadPrepParticipants(); loadPrepPesananSummary(); loadPrepFaqContext(); loadPrepPartnerRequests();
+          loadPrepParticipants(); loadPrepPesananSummary(); loadPrepFaqContext(); loadPrepPartnerRequests(); renderAsistenLink();
         });
         wirePreqTemplateOnce();
         prepInit = true;
@@ -12823,6 +12823,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         buildPesananTab(),
         buildFaqTab(),
         buildPartnerReqTab(),
+        buildAsistenTab(),
         ...PREP_SECTIONS.map(buildPrepTab),
         buildRichNoteTab(),
       ];
@@ -13313,6 +13314,44 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         if (e.target.id === "preqTemplateOverlay") closePreqTemplateForm();
       });
       document.getElementById("preqTemplateSaveBtn").addEventListener("click", savePreqTemplate);
+    }
+
+    // ---- Prep > Task Asisten -- link publik (nggak perlu login) buat
+    // asisten freelance hari-H. Halamannya (asisten/index.html) otomatis
+    // narik: siapa peserta yang consent-nya "nggak mau didokumentasi" (dari
+    // form daftar), request partner yang di-link ke batch ini (tab "Partner
+    // & Requests" di atas), dan checklist absensi yang bisa dia centang --
+    // nulis ke kolom registrations.attendance yang SAMA kayak tab
+    // Participants, jadi kesinkron dua arah otomatis. ----
+    function buildAsistenTab() {
+      const body = document.createElement("div");
+      body.innerHTML = `
+        <div class="fin-card">
+          <div style="font-weight:800;margin-bottom:4px;">${icon("link")} Brief Link buat Asisten</div>
+          <p class="hint" style="margin:0 0 12px;">Link publik yang bisa di-share ke asisten freelance -- nggak perlu login. Otomatis isinya: peserta yang GAK mau didokumentasi, request standar tiap partner di batch ini, dan checklist absensi yang bisa langsung dia centang (kesinkron ke tab Participants).</p>
+          <div id="asistenLinkArea"></div>
+        </div>`;
+      renderAsistenLink(body);
+      return { id: "asisten", labelHtml: icon("link") + " Task Asisten", bodyEl: body };
+    }
+
+    function renderAsistenLink(scopeEl) {
+      const box = (scopeEl || document).querySelector("#asistenLinkArea");
+      if (!box) return;
+      const batchId = document.getElementById("prepBatchSelect").value;
+      if (!batchId) {
+        box.innerHTML = `<p class="hint">Pilih batch dulu di atas buat generate link-nya.</p>`;
+        return;
+      }
+      const url = `${location.origin}/asisten/index.html?batch=${batchId}`;
+      box.innerHTML = `
+        <div class="konten-field" style="margin:0 0 10px;"><input class="form-control" type="text" readonly value="${escapeHtml(url)}" id="asistenLinkInput"/></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-sm" id="asistenCopyBtn" type="button">${icon("link")} Copy Link</button>
+          <a class="btn btn-sm btn-ghost" href="${escapeHtml(url)}" target="_blank" rel="noopener" style="text-decoration:none;">${icon("eye")} Buka Preview</a>
+        </div>`;
+      box.querySelector("#asistenLinkInput").addEventListener("click", (e) => e.target.select());
+      box.querySelector("#asistenCopyBtn").addEventListener("click", (e) => copyToClipboardEl(url, e.currentTarget));
     }
 
     // Data dasar event (tanggal/jam/lokasi/harga/link grup WA) udah ada dari

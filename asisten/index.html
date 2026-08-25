@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>Brief Asisten — Seminggu Satu</title>
+    <meta name="description" content="Brief buat asisten hari-H: siapa yang gak mau didokumentasi, request partner, dan absensi peserta.">
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400@display=swap" rel="stylesheet">
+    <script src="../env.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --blue: #0046ff; --blue-2: #0092ff; --yellow: #ffe600; --ink: #10245e; --bg: #f4f7ff; --card: #fff; --line: #e4e9f5; --muted: #6b7794; --err: #d92d20; --ok: #0a7a3d; }
+        body { font-family: 'Open Sans', sans-serif; color: var(--ink); background-color: var(--bg); background-image: radial-gradient(rgba(16, 36, 94, .055) 1px, transparent 1.2px); background-size: 18px 18px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        .wrap { max-width: 520px; margin: 0 auto; padding: 1.6rem 1.1rem 4rem; }
+        h1, h2 { font-family: 'Outfit', sans-serif; }
+
+        .top { text-align: center; margin-bottom: 1.4rem; }
+        .top img { height: 44px; }
+        .top .by { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .68rem; letter-spacing: .25em; color: var(--muted); margin-top: 4px; }
+
+        .spinner { text-align: center; padding: 3.4rem 0; }
+        .ring { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--blue); border-radius: 50%; margin: 0 auto; animation: spin .8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .placeholder { text-align: center; padding: 3rem 1.2rem; background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+        .placeholder .em { font-size: 2.4rem; margin-bottom: .6rem; }
+        .placeholder h3 { font-size: 1.05rem; margin-bottom: .4rem; }
+        .placeholder p { color: var(--muted); font-size: .88rem; line-height: 1.6; }
+
+        .hero { background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%); color: #fff; border-radius: 20px; padding: 1.4rem 1.3rem; text-align: center; box-shadow: 0 14px 34px rgba(0, 60, 200, .28); margin-bottom: 1.4rem; }
+        .hero .k { font-size: .68rem; font-weight: 800; letter-spacing: .18em; opacity: .85; text-transform: uppercase; }
+        .hero h1 { font-size: 1.2rem; font-weight: 800; margin: 6px 0 4px; line-height: 1.35; }
+        .hero .meta { font-size: .82rem; opacity: .92; margin-top: 2px; }
+
+        .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 1.1rem 1.15rem; margin-bottom: 1.1rem; }
+        .card-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; display: flex; align-items: center; gap: 8px; margin-bottom: .3rem; }
+        .card-sub { font-size: .8rem; color: var(--muted); line-height: 1.55; margin-bottom: .8rem; }
+
+        .warn-card { border-color: #fecaca; background: #fff5f5; }
+        .warn-card .card-title { color: #b91c1c; }
+        .name-pill-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .name-pill { background: #fee2e2; color: #b91c1c; font-weight: 700; font-size: .82rem; padding: 6px 12px; border-radius: 999px; }
+        .ok-line { color: var(--ok); font-weight: 700; font-size: .85rem; display: flex; align-items: center; gap: 6px; }
+
+        .partner-block { margin-bottom: 1rem; }
+        .partner-block:last-child { margin-bottom: 0; }
+        .partner-name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .86rem; color: var(--blue); margin-bottom: .4rem; }
+        .req-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+        .req-list li { font-size: .88rem; line-height: 1.5; padding-left: 1.1rem; position: relative; }
+        .req-list li::before { content: "•"; position: absolute; left: 0; color: var(--blue-2); font-weight: 800; }
+
+        .att-summary { font-size: .85rem; font-weight: 700; color: var(--muted); margin-bottom: .8rem; }
+        .att-summary b { color: var(--ink); }
+        .att-list { display: flex; flex-direction: column; gap: 4px; }
+        .att-row { display: flex; align-items: center; gap: 12px; padding: .7rem .3rem; border-bottom: 1px solid var(--line); }
+        .att-row:last-child { border-bottom: none; }
+        .att-row input { width: 22px; height: 22px; accent-color: var(--ok); flex-shrink: 0; cursor: pointer; }
+        .att-row .att-name { flex: 1; font-size: .92rem; font-weight: 600; }
+        .att-row.saving .att-name { opacity: .5; }
+        .att-row .att-tag { font-size: .72rem; font-weight: 800; color: #b91c1c; background: #fee2e2; padding: 2px 8px; border-radius: 999px; }
+
+        .foot-note { text-align: center; font-size: .76rem; color: var(--muted); margin-top: 1.6rem; line-height: 1.6; }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="top">
+            <img src="../logo_seminggu.png" alt="Seminggu Satu">
+            <div class="by">BRIEF ASISTEN</div>
+        </div>
+        <div id="app"><div class="spinner"><div class="ring"></div></div></div>
+    </div>
+
+    <script>
+        function fnGet(name, qs, cb) {
+            var controller = new AbortController();
+            var timer = setTimeout(function () { controller.abort(); }, 15000);
+            fetch(SUPABASE_URL + "/functions/v1/" + name + (qs ? "?" + qs : ""), {
+                headers: { apikey: SUPABASE_ANON_KEY },
+                signal: controller.signal
+            }).then(function (res) { return res.json(); })
+              .then(function (data) { clearTimeout(timer); cb(data); })
+              .catch(function () { clearTimeout(timer); cb(null); });
+        }
+        function apiPost(name, payload, cb) {
+            var controller = new AbortController();
+            var timer = setTimeout(function () { controller.abort(); }, 15000);
+            fetch(SUPABASE_URL + "/functions/v1/" + name, {
+                method: "POST",
+                headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            }).then(function (res) { return res.json(); })
+              .then(function (data) { clearTimeout(timer); cb(data); })
+              .catch(function () { clearTimeout(timer); cb(null); });
+        }
+        function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
+        function fmtDate(s) {
+            if (!s) return "";
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; // udah teks display (bukan ISO date), tampilin apa adanya
+            var d = new Date(s + "T12:00:00");
+            if (isNaN(d)) return s;
+            return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+        }
+
+        var app = document.getElementById("app");
+        var batchId = (location.search.match(/[?&]batch=([a-f0-9-]{8,})/) || [])[1];
+        var DATA = null;
+
+        function renderError(msg) {
+            app.innerHTML =
+                '<div class="placeholder"><div class="em">🍃</div><h3>Ups, linknya nggak valid</h3>' +
+                '<p>' + esc(msg || "Coba cek lagi link yang dikirim, atau tanya panitia ya.") + '</p></div>';
+        }
+
+        function attSummaryHtml() {
+            var hadir = DATA.participants.filter(function (p) { return p.attendance; }).length;
+            return 'Hadir: <b>' + hadir + '</b> / ' + DATA.participants.length + ' peserta';
+        }
+
+        function renderApp() {
+            var d = DATA;
+            var metaBits = [];
+            if (d.displayDate) metaBits.push('🗓 ' + esc(fmtDate(d.displayDate)) + (d.workshopTime ? ' · ' + esc(d.workshopTime) : ''));
+            if (d.locationName) metaBits.push('📍 ' + esc(d.locationName));
+
+            var noVideoHtml = d.noVideoNames.length
+                ? '<div class="card warn-card"><div class="card-title">🚫 Jangan Didokumentasi</div>' +
+                  '<div class="card-sub">Peserta ini TIDAK bersedia difoto/divideo -- hindari masuk frame kamera/konten.</div>' +
+                  '<div class="name-pill-list">' + d.noVideoNames.map(function (n) { return '<span class="name-pill">' + esc(n) + '</span>'; }).join("") + '</div></div>'
+                : '<div class="card"><div class="ok-line">✅ Semua peserta oke buat didokumentasikan.</div></div>';
+
+            var partnerHtml = "";
+            if (d.partnerGroups.length) {
+                partnerHtml = '<div class="card"><div class="card-title">📋 Request Partner</div>' +
+                    '<div class="card-sub">Hal-hal yang wajib dilakuin/ditanyain buat partner yang kerjasama di batch ini.</div>' +
+                    d.partnerGroups.map(function (g) {
+                        if (!g.items.length) return "";
+                        return '<div class="partner-block"><div class="partner-name">' + esc(g.partnerName) + '</div>' +
+                            '<ul class="req-list">' + g.items.map(function (it) { return '<li>' + esc(it.text) + '</li>'; }).join("") + '</ul></div>';
+                    }).join("") + '</div>';
+            }
+
+            var attRowsHtml = d.participants.length
+                ? d.participants.map(function (p) {
+                    var noVideo = d.noVideoNames.indexOf(p.name) >= 0;
+                    return '<label class="att-row" data-id="' + esc(p.id) + '">' +
+                        '<input type="checkbox" class="att-check" ' + (p.attendance ? "checked" : "") + '/>' +
+                        '<span class="att-name">' + esc(p.name) + '</span>' +
+                        (noVideo ? '<span class="att-tag">no video</span>' : '') +
+                        '</label>';
+                }).join("")
+                : '<p style="font-size:.85rem;color:var(--muted);">Belum ada peserta terdaftar di batch ini.</p>';
+
+            app.innerHTML =
+                '<div class="hero"><div class="k">' + esc(d.label || "Brief Hari-H") + '</div><h1>' + esc(d.workshopName) + '</h1>' +
+                metaBits.map(function (m) { return '<div class="meta">' + m + '</div>'; }).join("") + '</div>' +
+                noVideoHtml + partnerHtml +
+                '<div class="card"><div class="card-title">✅ Absensi Peserta</div>' +
+                '<div class="att-summary" id="attSummary">' + attSummaryHtml() + '</div>' +
+                '<div class="att-list" id="attList">' + attRowsHtml + '</div></div>' +
+                '<div class="foot-note">Link ini khusus buat batch ini -- jangan disebar ke luar tim ya 🙏</div>';
+
+            document.querySelectorAll(".att-check").forEach(function (chk) {
+                chk.addEventListener("change", function () {
+                    var row = chk.closest(".att-row");
+                    var id = row.getAttribute("data-id");
+                    var hadir = chk.checked;
+                    row.classList.add("saving");
+                    apiPost("assistant-attendance", { batchId: batchId, registrationId: id, hadir: hadir }, function (r) {
+                        row.classList.remove("saving");
+                        if (!r || r.status !== "success") {
+                            chk.checked = !hadir;
+                            alert((r && r.message) || "Gagal simpan, coba lagi ya.");
+                            return;
+                        }
+                        var p = d.participants.find(function (x) { return x.id === id; });
+                        if (p) p.attendance = hadir;
+                        var summaryEl = document.getElementById("attSummary");
+                        if (summaryEl) summaryEl.innerHTML = attSummaryHtml();
+                    });
+                });
+            });
+        }
+
+        if (!batchId) {
+            renderError("Link belum lengkap.");
+        } else {
+            fnGet("assistant-brief", "batch=" + encodeURIComponent(batchId), function (r) {
+                if (!r || r.status !== "success") { renderError(r && r.message); return; }
+                DATA = r;
+                renderApp();
+            });
+        }
+    </script>
+</body>
+
+</html>
