@@ -5575,6 +5575,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <option value="tetap">fixed</option>
           </select>
         </div>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;">
+          <input type="checkbox" id="costAddExclude" style="width:18px;height:18px;accent-color:var(--brand);flex-shrink:0;">
+          <span>Partner/collab cost (e.g. revenue share) -- still counted in Total Costs & Profit, but excluded from the "Cost per Participant" stat.</span>
+        </label>
         <p class="hint">The <b>per-participant</b> type is automatically multiplied by the number of registrants. <b>fixed</b> = one-time only. Type the cost name to see suggestions from the Item Database (the price auto-fills, still adjustable).</p>
         <div class="msg" id="costAddMsg"></div>
       </div>
@@ -7318,12 +7322,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const thumb = (match && match.image_url)
           ? `<img src="${escapeHtml(match.image_url)}" style="width:100%;height:100%;object-fit:cover;">` : icon("cart");
         const tipeLabel = it.tipe === "tetap" ? "fixed" : "per-participant";
+        const excludeBadge = it.excludeFromBudget ? ` · <span class="per-badge transfer" style="white-space:nowrap;">Partner/collab</span>` : "";
         return `
         <div class="fin-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:12px;cursor:pointer;" data-editcost="${idx}">
           <div class="cost-row-thumb">${thumb}</div>
           <div style="flex:1;min-width:0;">
             <b>${escapeHtml(it.nama)}</b>
-            <div class="hint" style="margin:2px 0 0;">${rupiah(it.biaya)} · ${tipeLabel}</div>
+            <div class="hint" style="margin:2px 0 0;">${rupiah(it.biaya)} · ${tipeLabel}${excludeBadge}</div>
           </div>
           <button class="btn btn-sm btn-ghost" data-delcost="${idx}" title="Delete" style="color:var(--err);flex-shrink:0;">${icon("trash")}</button>
         </div>`;
@@ -7345,6 +7350,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("costAddNama").value = "";
       document.getElementById("costAddBiaya").value = "";
       document.getElementById("costAddTipe").value = "per-peserta";
+      document.getElementById("costAddExclude").checked = false;
       document.getElementById("costAddPreview").style.display = "none";
       document.getElementById("costAddPreview").innerHTML = "";
       document.getElementById("costAddMsg").textContent = "";
@@ -7361,6 +7367,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("costAddNama").value = it.nama;
       document.getElementById("costAddBiaya").value = formatRibuan(it.biaya);
       document.getElementById("costAddTipe").value = it.tipe === "tetap" ? "tetap" : "per-peserta";
+      document.getElementById("costAddExclude").checked = !!it.excludeFromBudget;
       document.getElementById("costAddMsg").textContent = "";
       updateCostAddPreview();
       document.getElementById("costAddOverlay").style.display = "flex";
@@ -7392,6 +7399,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         nama,
         biaya: parseRibuan(document.getElementById("costAddBiaya").value),
         tipe: document.getElementById("costAddTipe").value,
+        excludeFromBudget: document.getElementById("costAddExclude").checked,
       };
       if (costEditIndex === -1) CURRENT_COST_ITEMS = [entry, ...CURRENT_COST_ITEMS];
       else CURRENT_COST_ITEMS[costEditIndex] = entry;
@@ -7414,11 +7422,17 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function recalc() {
       const price = parseRibuan(document.getElementById("finPrice").value);
       const count = Number(document.getElementById("finCount").textContent) || 0;
-      let costFixed = 0, costVar = 0;
+      // Item per-participant yang ditandai "Partner/collab" (excludeFromBudget,
+      // mis. revenue share) tetep ngurangin Total Costs/Profit di bawah, tapi
+      // DIPISAH dari stat "Cost per Participant" -- itu maksudnya biaya nge-servis
+      // 1 peserta (materi/konsumsi/dst), bukan biaya kerjasama/bisnis.
+      let costFixed = 0, costVar = 0, costVarExcluded = 0;
       CURRENT_COST_ITEMS.forEach(it => {
-        if (it.tipe === "tetap") costFixed += it.biaya; else costVar += it.biaya * count;
+        if (it.tipe === "tetap") { costFixed += it.biaya; return; }
+        if (it.excludeFromBudget) costVarExcluded += it.biaya * count;
+        else costVar += it.biaya * count;
       });
-      const cost = costFixed + costVar;
+      const cost = costFixed + costVar + costVarExcluded;
       const revenue = price * count;
       const profit = revenue - cost;
       const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0;

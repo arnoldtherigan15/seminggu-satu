@@ -1195,10 +1195,13 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
 
       case "getModal": {
         const { data: rows } = await admin.from("workshop_costs").select("*");
-        const modal: Record<string, Record<string, { nama: string; biaya: number; tipe: string }[]>> = {};
+        const modal: Record<string, Record<string, { nama: string; biaya: number; tipe: string; excludeFromBudget: boolean }[]>> = {};
         for (const c of rows || []) {
           (modal[c.workshop_type] ||= {})[c.batch] ||= [];
-          modal[c.workshop_type][c.batch].push({ nama: c.name, biaya: Number(c.amount) || 0, tipe: c.kind === "tetap" ? "tetap" : "per-peserta" });
+          modal[c.workshop_type][c.batch].push({
+            nama: c.name, biaya: Number(c.amount) || 0, tipe: c.kind === "tetap" ? "tetap" : "per-peserta",
+            excludeFromBudget: !!c.exclude_from_budget,
+          });
         }
         return jsonResponse({ status: "success", modal });
       }
@@ -1214,6 +1217,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           const rows = items.map((it: any) => ({
             workshop_type: workshop, batch, name: String(it.nama || ""), amount: Number(it.biaya) || 0,
             kind: it.tipe === "tetap" ? "tetap" : "per-peserta",
+            exclude_from_budget: !!it.excludeFromBudget,
           }));
           await admin.from("workshop_costs").insert(rows);
         }
