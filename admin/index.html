@@ -7328,19 +7328,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       recalc();
     }
 
-    async function pasteIntoNama(namaEl) {
-      try {
-        const text = (await navigator.clipboard.readText()).trim();
-        if (!text) return;
-        namaEl.value = text;
-        // Trigger listener "input" yang udah nempel (auto-fill harga + recalc),
-        // ga perlu duplikasi logicnya di sini.
-        namaEl.dispatchEvent(new Event("input", { bubbles: true }));
-      } catch (err) {
-        alert("Failed to read clipboard -- try pasting manually (tap & hold the field, choose Paste).");
-      }
-    }
-
     function addCostRow(item, prepend) {
       const box = document.getElementById("costRows");
       const div = document.createElement("div");
@@ -7356,7 +7343,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <option value="tetap">fixed</option>
         </select>
         <div class="cost-row-actions">
-          <button type="button" class="btn btn-sm btn-ghost c-paste" title="Paste item name from clipboard">${icon("clipboard")} Paste</button>
           <button class="del" title="Delete">${icon("trash")} Delete</button>
         </div>
         <div class="cost-row-link" style="display:none;margin-top:8px;padding-left:50px;"></div>`;
@@ -7366,7 +7352,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       // otomatis keisi dari default_price (tetep bisa di-adjust manual abis itu,
       // ini cuma titik awal), plus foto/link item-nya ditampilin di baris ini.
       const namaEl = div.querySelector(".c-nama");
-      div.querySelector(".c-paste").addEventListener("click", () => pasteIntoNama(namaEl));
       function updateCostRowPreview() {
         const match = COST_ITEMS.find(it => it.name === namaEl.value);
         div.querySelector(".cost-row-thumb").innerHTML = (match && match.image_url)
