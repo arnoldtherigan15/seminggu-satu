@@ -3738,48 +3738,118 @@
 
     /* --- Personal Notes (sidebar > Personal > Notes) --- */
     .note-list {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       margin-top: 14px;
     }
 
+    @media (min-width: 720px) {
+      .note-list { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+    }
+
     .note-card {
-      background: var(--card);
+      background: #f8fafc;
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px 16px;
+      border-radius: 16px;
+      padding: 14px;
       cursor: pointer;
-      transition: border-color .15s, box-shadow .15s;
+      transition: border-color .15s, box-shadow .15s, transform .08s;
+      display: flex;
+      flex-direction: column;
+      min-height: 96px;
+      /* Grid items default to min-width:auto, so a note whose text has no
+         spaces to wrap at (a long URL, a paste with no whitespace) refuses to
+         shrink -- it blows that column past the card width, drags the whole
+         grid wider than the screen, and shoves every other card out of view.
+         min-width:0 lets the card actually shrink to the grid track; the
+         word-break below on the text itself is what makes that content wrap
+         instead of just clipping unbroken. */
+      min-width: 0;
     }
 
     .note-card:hover {
       border-color: var(--brand);
       box-shadow: var(--shadow-sm);
+      background: var(--card);
+    }
+
+    .note-card:active {
+      transform: scale(.98);
     }
 
     .note-card-title {
       font-weight: 700;
       color: var(--ink);
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-
-    .note-card-snippet {
-      color: var(--muted);
-      font-size: 13px;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 14px;
+      margin-bottom: 5px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       line-clamp: 2;
       -webkit-box-orient: vertical;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+    }
+
+    .note-card-snippet {
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow-wrap: anywhere;
+    }
+
+    .note-card-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .note-card-check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+      min-width: 0;
+    }
+
+    .note-card-check-row .chk {
+      width: 12px;
+      height: 12px;
+      margin-top: 2px;
+      border-radius: 4px;
+      border: 1.5px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .note-card-check-row.checked {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .note-card-check-row.checked .chk {
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+
+    .note-card-check-more {
+      font-size: 11px;
+      color: var(--muted);
     }
 
     .note-card-date {
       color: var(--muted);
-      font-size: 11.5px;
-      margin-top: 8px;
+      font-size: 10.5px;
+      margin-top: auto;
+      padding-top: 10px;
     }
 
     .note-title-input {
@@ -3817,6 +3887,42 @@
     .note-folder-delete:hover {
       color: var(--err);
       background: var(--err-light);
+    }
+
+    /* FAB: on mobile, "+ New Note" is more reachable as a thumb-zone floating
+       button than the toolbar button up at the top of a long scrolled list
+       -- the toolbar button itself hides at this width (see #noteNewBtn
+       below) so there's exactly one obvious way to start a note either way. */
+    .note-fab {
+      display: none;
+    }
+
+    @media (max-width: 680px) {
+      #noteNewBtn { display: none; }
+      /* Clears the fixed FAB so it doesn't sit on top of the last row of cards. */
+      #viewNotes { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+      .note-fab {
+        display: flex;
+        position: fixed;
+        right: 18px;
+        bottom: calc(18px + env(safe-area-inset-bottom));
+        z-index: 950;
+        align-items: center;
+        gap: 8px;
+        background: var(--brand);
+        color: #fff;
+        border: none;
+        padding: 14px 20px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: var(--shadow-md);
+        cursor: pointer;
+        transition: transform .1s;
+      }
+      .note-fab:active {
+        transform: scale(.96);
+      }
     }
 
     .prep-row {
@@ -4836,6 +4942,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <button class="subtab-btn" type="button" data-tab="akun"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/></svg> <span>Accounts</span></button>
               <button class="subtab-btn" type="button" data-tab="budget"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M8 13A5 5 0 1 1 8 3a5 5 0 0 1 0 10m0 1A6 6 0 1 0 8 2a6 6 0 0 0 0 12"/><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/><path d="M9.5 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/></svg> <span>Budget</span></button>
               <button class="subtab-btn" type="button" data-tab="target"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962"/><path fill-rule="evenodd" d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199"/></svg> <span>Goals</span></button>
+              <button class="subtab-btn" type="button" data-tab="hutang"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .801.13l.5 1A.5.5 0 0 1 15 2v12a.5.5 0 0 1-.053.224l-.5 1a.5.5 0 0 1-.8.13L13 14.707l-.646.647a.5.5 0 0 1-.708 0L11 14.707l-.646.647a.5.5 0 0 1-.708 0L9 14.707l-.646.647a.5.5 0 0 1-.708 0L7 14.707l-.646.647a.5.5 0 0 1-.708 0L5 14.707l-.646.647a.5.5 0 0 1-.708 0L3 14.707l-.646.647a.5.5 0 0 1-.801-.13l-.5-1A.5.5 0 0 1 1 14V2a.5.5 0 0 1 .053-.224l.5-1a.5.5 0 0 1 .367-.27m.217 1.338L2 2.118v11.764l.137.274.51-.51a.5.5 0 0 1 .707 0l.646.647.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.509.509.137-.274V2.118l-.137-.274-.51.51a.5.5 0 0 1-.707 0L12 1.707l-.646.647a.5.5 0 0 1-.708 0L10 1.707l-.646.647a.5.5 0 0 1-.708 0L8 1.707l-.646.647a.5.5 0 0 1-.708 0L6 1.707l-.646.647a.5.5 0 0 1-.708 0L4 1.707l-.646.647a.5.5 0 0 1-.708 0z"/><path d="M3 4.5a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5"/></svg> <span>Debt</span></button>
               <button class="subtab-btn" type="button" data-tab="impor"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/></svg> <span>AI Import</span></button>
               <button class="subtab-btn" type="button" data-tab="analisis"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793zm1 0v6.775l4.79 4.79A7 7 0 0 0 8.5 1.017zM14.146 13.5a8 8 0 1 1-11.732-10.9 8 8 0 0 1 11.732 10.9"/></svg> <span>Analysis</span></button>
             </div>
@@ -4851,6 +4958,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <div class="per-hero-label">Total Balance (all time)</div>
                 <div class="per-hero-amount" id="perTotalBalance">Rp 0</div>
                 <div class="per-hero-sub" id="perTxTotalCount">0 transactions logged</div>
+                <div class="per-hero-sub" id="perTotalDebt" style="display:none;"></div>
 
                 <div class="per-acc-slider" id="perAccSlider"></div>
 
@@ -4976,6 +5084,28 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <div id="contribList"></div>
             </div>
 
+            <div class="subtab-panel" data-tab="hutang">
+              <button class="btn btn-sm" id="liabAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Debt</button>
+              <div id="liabList" style="margin-top:10px;"></div>
+
+              <div class="fin-card" style="margin-top:14px;">
+                <div style="font-weight:800;margin-bottom:8px;">Log Payment</div>
+                <input type="hidden" id="liabPayId">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Debt</label><select class="form-control" id="liabPayLiability"></select></div>
+                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Date</label><input class="form-control" type="date" id="liabPayDate"></div>
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Amount (Rp, negative if debt increased)</label><input class="form-control" type="text" inputmode="numeric" id="liabPayAmount" placeholder="e.g. 500,000"></div>
+                </div>
+                <div class="konten-field"><label>Note (optional)</label><input class="form-control" type="text" id="liabPayNote" maxlength="300" placeholder="e.g. Cicilan bulan ini"></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+                  <button class="btn btn-sm" id="liabPaySaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Log Payment</button>
+                </div>
+                <div class="msg" id="liabPayMsg"></div>
+              </div>
+              <h3 class="ov-section-title" style="margin-top:16px;">Payment History</h3>
+              <div id="liabPayList"></div>
+            </div>
+
             <div class="subtab-panel" data-tab="impor">
               <div class="fin-card">
                 <p class="hint" style="margin:0 0 10px;">Upload a transaction history/receipt screenshot, OR a bank statement PDF (can have many pages & many transactions at once) — AI will try to read it & compile a transaction list you can review/edit before saving.</p>
@@ -5010,7 +5140,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <button class="btn btn-sm btn-ghost" id="noteReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
           <div id="noteGroups"></div>
-          <div class="empty" id="noteEmpty" style="display:none;">No notes yet. Tap "New Note" to write your first one.</div>
+          <div class="empty" id="noteEmpty" style="display:none;"><div style="font-size:32px;margin-bottom:8px;">📝</div>No notes yet. Tap "New Note" to write your first one.</div>
+          <button type="button" class="note-fab" id="noteFabBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Note</button>
         </div>
 
         <!-- ===== VIEW: MEMBER (akun /warga, ultah, aktif) ===== -->
@@ -5419,6 +5550,50 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     </div>
   </div>
 
+  <!-- Layar Tambah/Edit Hutang (Personal Finance) -->
+  <div id="liabFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="liabFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="liabFormTitle">New Debt</div>
+        <button class="filter-reset-link" id="liabFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="liabId">
+        <div class="konten-field"><label>Debt Name</label><input class="form-control" type="text" id="liabName" placeholder="e.g. Kartu Kredit BCA"></div>
+        <div class="konten-field"><label>Principal Amount (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="liabPrincipal" placeholder="5,000,000"></div>
+        <div class="konten-field"><label>Due Date (optional)</label><input class="form-control" type="date" id="liabDueDate"></div>
+        <div class="konten-field"><label>Icon</label><select class="form-control" id="liabIcon"></select></div>
+        <div class="msg" id="liabMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="liabSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Debt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit template request standar 1 partner -- dipanggil langsung dari Prep >
+       Partner & Requests biar Arnold nggak perlu pindah ke List Partner. Ini
+       nyimpen ke partners.requests (template), BEDA sama checklist per-batch
+       (yg disimpen lewat "Pull In Requests" / Save di tab Prep). -->
+  <div id="preqTemplateOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="preqTemplateBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="preqTemplateTitle">Edit Partner Requests</div>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="preqTemplatePartnerId">
+        <p class="hint" style="margin:0 0 8px;">Template standar request partner ini -- dipakai tiap kali "Pull In Requests" ditekan, di batch atau event manapun. Satu baris = satu request.</p>
+        <div class="konten-field"><label>Requests</label><textarea class="form-control" id="preqTemplateText" rows="8" placeholder="e.g.&#10;Wajib bikin reels sebelum acara&#10;List pertanyaan interview yang wajib ditanyakan"></textarea></div>
+        <div class="msg" id="preqTemplateMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="preqTemplateSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Template</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Layar Tambah/Edit Database Item (Keuangan) -->
   <div id="ciFormOverlay" class="filter-overlay" style="display:none;">
     <div class="filter-overlay-box">
@@ -5608,6 +5783,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         </div>
         <div class="konten-field"><label>Instagram (handle or link)</label><input class="form-control" type="text" id="partnerInstagram" placeholder="e.g. @cookiesys"></div>
         <div class="konten-field"><label>Notes</label><textarea class="form-control" id="partnerNotes" rows="3"></textarea></div>
+        <div class="konten-field">
+          <label>Standing Requests (one per line)</label>
+          <textarea class="form-control" id="partnerRequests" rows="4" placeholder="e.g.&#10;Wajib bikin reels sebelum acara&#10;List pertanyaan interview yang wajib ditanyakan"></textarea>
+          <p class="hint" style="margin:4px 0 0;">Bisa ditarik ke checklist Prep tiap batch yang kerjasama sama partner ini (tab "Partner & Requests"). Edit di sini nggak ngubah checklist yang udah ditarik ke batch manapun.</p>
+        </div>
         <div class="msg" id="partnerMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -8066,6 +8246,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let PARTNER_DOCS_MOU = [];
     let PARTNER_DOCS_INVOICE = [];
     let partnersInit = false;
+    let preqTemplateInit = false;
 
     function wirePartnersOnce() {
       if (partnersInit) return;
@@ -8165,6 +8346,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (mouSel) { const cur = mouSel.value; mouSel.innerHTML = opts || '<option value="">(add a partner first)</option>'; mouSel.value = cur; }
       const invSel = document.getElementById("invoicePartnerSelect");
       if (invSel) { const cur = invSel.value; invSel.innerHTML = '<option value="">-</option>' + opts; invSel.value = cur; }
+      const preqSel = document.getElementById("preqPartnerSelect");
+      if (preqSel) { const cur = preqSel.value; preqSel.innerHTML = opts || '<option value="">(add a partner first)</option>'; preqSel.value = cur; }
 
       // Filter dropdowns include ALL partners (even archived) -- past MOU/Invoice
       // docs can still point at a partner that got archived since.
@@ -8312,6 +8495,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("partnerPhone").value = "";
       document.getElementById("partnerInstagram").value = "";
       document.getElementById("partnerNotes").value = "";
+      document.getElementById("partnerRequests").value = "";
       document.getElementById("partnerMsg").textContent = "";
     }
 
@@ -8326,6 +8510,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("partnerPhone").value = p.phone || "";
       document.getElementById("partnerInstagram").value = p.instagram || "";
       document.getElementById("partnerNotes").value = p.notes || "";
+      document.getElementById("partnerRequests").value = Array.isArray(p.requests) ? p.requests.join("\n") : "";
       document.getElementById("partnerMsg").textContent = "";
       openPartnerForm(true);
     }
@@ -8335,6 +8520,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const name = document.getElementById("partnerName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Partner name is required."; return; }
       msg.className = "msg"; msg.textContent = "Saving...";
+      const requests = document.getElementById("partnerRequests").value.split("\n").map(s => s.trim()).filter(Boolean);
       const r = await api("savePartner", {
         token: getToken(), id: document.getElementById("partnerId").value, name,
         picName: document.getElementById("partnerPicName").value.trim(),
@@ -8343,6 +8529,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         phone: document.getElementById("partnerPhone").value.trim(),
         instagram: document.getElementById("partnerInstagram").value.trim(),
         notes: document.getElementById("partnerNotes").value.trim(),
+        requests,
       });
       if (r.status === "success") { closePartnerForm(); await loadPartners(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to save."; }
@@ -10631,6 +10818,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let PER_BUDGETS = [];
     let PER_GOALS = [];
     let PER_CONTRIBUTIONS = [];
+    let PER_LIABILITIES = [];
+    let PER_LIABILITY_PAYMENTS = [];
     let perTabsCtl = null;
     // Filter tab Transaksi -- Set = "id yang lolos filter", isi penuh (semua id)
     // artinya nggak difilter di dimensi itu. Akun/kategori di-init null dan baru
@@ -10861,6 +11050,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         wireRibuanInput(document.getElementById("accInitial"));
         wireRibuanInput(document.getElementById("goalTarget"));
         wireRibuanInput(document.getElementById("contribAmount"));
+        wireRibuanInput(document.getElementById("liabPrincipal"));
+        wireRibuanInput(document.getElementById("liabPayAmount"));
         perPeriod = currentPayPeriod();
         document.getElementById("perPeriod").value = perPeriod;
         document.getElementById("perPeriod").addEventListener("change", (e) => {
@@ -10894,6 +11085,19 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("goalIcon").innerHTML = PER_ICON_CHOICES.map(name => `<option value="${name}">${PER_ICON_LABELS[name] || name}</option>`).join("");
         document.getElementById("contribSaveBtn").addEventListener("click", saveContrib);
         newContribForm();
+        document.getElementById("liabSaveBtn").addEventListener("click", saveLiability);
+        document.getElementById("liabAddBtn").addEventListener("click", () => { newLiabForm(); openLiabForm(false); });
+        document.getElementById("liabFormBackBtn").addEventListener("click", closeLiabForm);
+        document.getElementById("liabFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("liabId").value;
+          if (id && await deleteLiability(id)) closeLiabForm();
+        });
+        document.getElementById("liabFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "liabFormOverlay") closeLiabForm();
+        });
+        document.getElementById("liabIcon").innerHTML = PER_ICON_CHOICES.map(name => `<option value="${name}">${PER_ICON_LABELS[name] || name}</option>`).join("");
+        document.getElementById("liabPaySaveBtn").addEventListener("click", saveLiabPayment);
+        newLiabPayForm();
         perTabsCtl = wireSubtabs(document.getElementById("perSubtabs"), (tabId, isFirstShow) => {
           if (tabId === "impor" && isFirstShow) loadAiUsageToday();
           // Simpen subtab yang lagi aktif di URL (replaceState, bukan hashchange
@@ -10923,6 +11127,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       PER_BUDGETS = r.budgets || [];
       PER_GOALS = r.savingsGoals || [];
       PER_CONTRIBUTIONS = r.savingsContributions || [];
+      PER_LIABILITIES = r.liabilities || [];
+      PER_LIABILITY_PAYMENTS = r.liabilityPayments || [];
       populatePersonalSelects();
       renderPersonalHero();
       renderCashflow();
@@ -10933,6 +11139,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       renderBudget();
       renderGoals();
       renderContributions();
+      renderLiabilities();
+      renderLiabPayments();
     }
 
     function populatePersonalSelects() {
@@ -10944,6 +11152,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("contribGoal").innerHTML = PER_GOALS.filter(g => !g.archived)
         .map(g => `<option value="${g.id}">${escapeHtml(g.name)}</option>`).join("");
       if (prevContribGoal) document.getElementById("contribGoal").value = prevContribGoal;
+      const prevLiabPay = document.getElementById("liabPayLiability").value;
+      document.getElementById("liabPayLiability").innerHTML = PER_LIABILITIES.filter(l => !l.archived)
+        .map(l => `<option value="${l.id}">${escapeHtml(l.name)}</option>`).join("");
+      if (prevLiabPay) document.getElementById("liabPayLiability").value = prevLiabPay;
       onTxTypeChange();
     }
 
@@ -11024,6 +11236,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const totalBalance = PER_ACCOUNTS.reduce((sum, a) => sum + perAccountBalance(a), 0);
       document.getElementById("perTotalBalance").textContent = rupiah(totalBalance);
       document.getElementById("perTxTotalCount").textContent = PER_TRANSACTIONS.length + " transaksi tercatat";
+
+      const totalDebt = PER_LIABILITIES.filter(l => !l.archived).reduce((sum, l) => sum + Math.max(0, perLiabBalance(l)), 0);
+      const debtEl = document.getElementById("perTotalDebt");
+      if (totalDebt > 0) {
+        debtEl.style.display = "";
+        debtEl.textContent = `${rupiah(totalDebt)} hutang belum lunas · net worth ${rupiah(totalBalance - totalDebt)}`;
+      } else {
+        debtEl.style.display = "none";
+      }
 
       const slider = document.getElementById("perAccSlider");
       const activeAccs = PER_ACCOUNTS.filter(a => !a.archived);
@@ -11372,6 +11593,154 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     async function deleteContrib(id) {
       if (!confirm("Delete this deposit?")) return;
       const r = await personalApi("deleteSavingsContribution", { token: getToken(), id });
+      if (r && r.status === "success") await loadPersonalData();
+      else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
+    }
+
+    // ---- Hutang / Liabilities -- mirror pola persis dari Savings Goals di
+    // atas (progress dihitung dari log pembayaran, bukan angka statis). ----
+    function perLiabBalance(liab) {
+      const paid = PER_LIABILITY_PAYMENTS.filter(p => p.liability_id === liab.id).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+      return Number(liab.principal_amount) - paid;
+    }
+
+    function renderLiabilities() {
+      const list = document.getElementById("liabList");
+      if (!PER_LIABILITIES.length) { list.innerHTML = '<p class="hint">No debts logged. Click "New Debt".</p>'; return; }
+      list.innerHTML = PER_LIABILITIES.map(l => {
+        const remaining = perLiabBalance(l);
+        const paidOff = Math.max(0, l.principal_amount - remaining);
+        const pct = Math.round((paidOff / l.principal_amount) * 100);
+        const cleared = remaining <= 0;
+        const barColor = cleared ? "var(--ok)" : "var(--err)";
+        const dueLabel = l.due_date ? " · due " + fmtTxDate(l.due_date) : "";
+        return `<div class="fin-card" style="margin-bottom:10px;padding:16px;cursor:pointer;${l.archived ? "opacity:.55;" : ""}" data-editliab="${l.id}">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="color:var(--err);flex-shrink:0;">${icon(l.icon || "receipt")}</div>
+            <div style="flex:1;min-width:0;font-weight:800;">${escapeHtml(l.name)}${cleared ? ' <span class="per-badge income">Paid off! 🎉</span>' : ""}${l.archived ? ' <span class="subtab-count">archived</span>' : ""}</div>
+            <button class="btn btn-sm btn-ghost" data-archiveliab="${l.id}" data-archived="${l.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
+          </div>
+          <div style="margin-top:10px;">
+            <span class="bar-track"><span class="bar-fill" style="width:${Math.max(0, Math.min(100, pct))}%;background:${barColor};"></span></span>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b7280;margin-top:4px;">
+              <span>${rupiah(Math.max(0, remaining))} remaining (${pct}% paid)</span>
+              <span>Principal ${rupiah(l.principal_amount)}${dueLabel}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join("");
+      list.querySelectorAll("[data-editliab]").forEach(b => b.addEventListener("click", () => editLiability(b.dataset.editliab)));
+      list.querySelectorAll("[data-archiveliab]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archiveLiability(b.dataset.archiveliab, b.dataset.archived === "1"); }));
+    }
+
+    function openLiabForm(isEdit) {
+      document.getElementById("liabFormTitle").textContent = isEdit ? "Edit Debt" : "New Debt";
+      document.getElementById("liabFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("liabFormOverlay").style.display = "flex";
+    }
+
+    function closeLiabForm() {
+      document.getElementById("liabFormOverlay").style.display = "none";
+    }
+
+    function newLiabForm() {
+      document.getElementById("liabId").value = "";
+      document.getElementById("liabName").value = "";
+      document.getElementById("liabPrincipal").value = "";
+      document.getElementById("liabDueDate").value = "";
+      document.getElementById("liabIcon").value = "receipt";
+      document.getElementById("liabMsg").textContent = "";
+    }
+
+    function editLiability(id) {
+      const l = PER_LIABILITIES.find(x => x.id === id);
+      if (!l) return;
+      document.getElementById("liabId").value = l.id;
+      document.getElementById("liabName").value = l.name;
+      document.getElementById("liabPrincipal").value = formatRibuan(l.principal_amount);
+      document.getElementById("liabDueDate").value = l.due_date || "";
+      document.getElementById("liabIcon").value = l.icon || "receipt";
+      document.getElementById("liabMsg").textContent = "";
+      openLiabForm(true);
+    }
+
+    async function saveLiability() {
+      const msg = document.getElementById("liabMsg");
+      const name = document.getElementById("liabName").value.trim();
+      const principalAmount = parseRibuan(document.getElementById("liabPrincipal").value);
+      if (!name) { msg.className = "msg err"; msg.textContent = "Debt name is required."; return; }
+      if (principalAmount <= 0) { msg.className = "msg err"; msg.textContent = "Principal must be greater than 0."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await personalApi("saveLiability", {
+        token: getToken(), id: document.getElementById("liabId").value, name, principalAmount,
+        dueDate: document.getElementById("liabDueDate").value || "",
+        icon: document.getElementById("liabIcon").value
+      });
+      if (r && r.status === "success") { closeLiabForm(); await loadPersonalData(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
+    }
+
+    async function archiveLiability(id, archived) {
+      const r = await personalApi("archiveLiability", { token: getToken(), id, archived });
+      if (r && r.status === "success") await loadPersonalData();
+      else { handleAuthError(r); alert((r && r.message) || "Failed to update."); }
+    }
+
+    async function deleteLiability(id) {
+      if (!id) return false;
+      if (!confirm("Delete this debt? All its payment history will be deleted too.")) return false;
+      const r = await personalApi("deleteLiability", { token: getToken(), id });
+      if (r && r.status === "success") { await loadPersonalData(); return true; }
+      handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
+    }
+
+    function renderLiabPayments() {
+      const list = document.getElementById("liabPayList");
+      if (!PER_LIABILITY_PAYMENTS.length) { list.innerHTML = '<p class="hint">No payments logged yet.</p>'; return; }
+      list.innerHTML = PER_LIABILITY_PAYMENTS.slice(0, 15).map(p => {
+        const liabName = (PER_LIABILITIES.find(l => l.id === p.liability_id) || {}).name || "?";
+        const isNeg = Number(p.amount) < 0;
+        const sign = isNeg ? "-" : "+";
+        return `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
+          <div style="flex:1;min-width:0;">
+            <b>${escapeHtml(liabName)}</b>
+            <div style="font-size:.8rem;color:#6b7280;">${fmtTxDate(p.date)}${p.note ? " · " + escapeHtml(p.note) : ""}</div>
+          </div>
+          <div style="font-weight:800;color:${isNeg ? "var(--err)" : "var(--ok)"};flex-shrink:0;">${sign}${rupiah(Math.abs(p.amount))}</div>
+          <button class="btn btn-sm" data-delliabpay="${p.id}" style="background:#fee2e2;color:var(--err);flex-shrink:0;">${icon("trash")}</button>
+        </div>`;
+      }).join("");
+      list.querySelectorAll("[data-delliabpay]").forEach(b => b.addEventListener("click", () => deleteLiabPayment(b.dataset.delliabpay)));
+    }
+
+    function newLiabPayForm() {
+      document.getElementById("liabPayId").value = "";
+      document.getElementById("liabPayDate").value = todayStr();
+      document.getElementById("liabPayAmount").value = "";
+      document.getElementById("liabPayNote").value = "";
+      document.getElementById("liabPayMsg").textContent = "";
+    }
+
+    async function saveLiabPayment() {
+      const msg = document.getElementById("liabPayMsg");
+      const liabilityId = document.getElementById("liabPayLiability").value;
+      const amount = parseRibuan(document.getElementById("liabPayAmount").value);
+      const date = document.getElementById("liabPayDate").value;
+      if (!liabilityId) { msg.className = "msg err"; msg.textContent = "Please select a debt first (create one if you haven't)."; return; }
+      if (!amount) { msg.className = "msg err"; msg.textContent = "Amount can't be 0."; return; }
+      if (!date) { msg.className = "msg err"; msg.textContent = "Date is required."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await personalApi("saveLiabilityPayment", {
+        token: getToken(), id: document.getElementById("liabPayId").value, liabilityId, amount, date,
+        note: document.getElementById("liabPayNote").value.trim()
+      });
+      if (r && r.status === "success") { newLiabPayForm(); await loadPersonalData(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
+    }
+
+    async function deleteLiabPayment(id) {
+      if (!confirm("Delete this payment?")) return;
+      const r = await personalApi("deleteLiabilityPayment", { token: getToken(), id });
       if (r && r.status === "success") await loadPersonalData();
       else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
     }
@@ -12332,13 +12701,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         // dibuka nggak kepental balik ke awal.
         document.getElementById("prepBatchSelect").addEventListener("change", () => {
           renderPrepHeader(document.getElementById("prepSelect").value);
-          loadPrepParticipants(); loadPrepPesananSummary(); loadPrepFaqContext();
+          loadPrepParticipants(); loadPrepPesananSummary(); loadPrepFaqContext(); loadPrepPartnerRequests();
         });
+        wirePreqTemplateOnce();
         prepInit = true;
       }
       if (event && WORKSHOP_IDS.indexOf(event) >= 0) document.getElementById("prepSelect").value = event;
       if (!Object.keys(SUMMARY).length) await loadSummary(); // buat header (jumlah pendaftar)
       if (!COST_ITEMS.length) await loadCostItems(); // buat autocomplete+foto di Alat & Bahan (numpang Database Item punya Keuangan)
+      if (!PARTNERS.length) await loadPartners(); // buat dropdown partner di tab Partner & Requests
       await loadPrepBatches();
       await loadPrep();
     }
@@ -12461,6 +12832,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         buildParticipantsTab(),
         buildPesananTab(),
         buildFaqTab(),
+        buildPartnerReqTab(),
         ...PREP_SECTIONS.map(buildPrepTab),
         buildRichNoteTab(),
       ];
@@ -12508,6 +12880,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       loadPrepParticipants();
       loadPrepPesananSummary();
       loadPrepFaqContext();
+      loadPrepPartnerRequests();
     }
 
     // ---- Ringkasan Pesanan minum/makan di dalam Prep (batch aktif workshop
@@ -12669,6 +13042,287 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const r = await api("savePrepFaqContext", { token: getToken(), event, batchId, context });
       if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Saved ✓"; }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
+    }
+
+    // ---- Prep > Partner & Requests -- checklist PER BATCH (bukan per event,
+    // beda dari PREP_SECTIONS di bawah), DIKELOMPOKIN PER PARTNER. "Link
+    // Partner" COPY partners.requests (template, diedit lewat "Edit Template")
+    // jadi 1 grup checklist baru khusus batch ini -- abis itu grup ini
+    // independen: edit/centang/hapus/add di sini nggak nyentuh template
+    // partner-nya atau batch lain yang juga nge-link partner yang sama. ----
+    let PREP_PARTNER_REQ_GROUPS = []; // [{partnerId, partnerName, items:[{id,text,done}]}]
+
+    function buildPartnerReqTab() {
+      const body = document.createElement("div");
+      body.innerHTML = `
+        <div class="fin-card">
+          <div style="font-weight:800;margin-bottom:4px;">Link Partner to This Batch</div>
+          <p class="hint" style="margin:0 0 8px;">Link partner yang kerjasama di batch ini -- request standarnya (isi/edit lewat "Edit Template") otomatis nge-copy jadi checklist khusus batch ini, dikelompokin per partner. Independen per batch: edit/centang/hapus di bawah nggak nyentuh template partner atau batch lain.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+            <div class="konten-field" style="flex:1;min-width:200px;margin:0;"><label>Partner</label><select class="form-control" id="preqPartnerSelect"></select></div>
+            <button class="btn btn-sm btn-ghost" id="preqEditTemplateBtn" type="button" style="flex-shrink:0;">${icon("pencil")} Edit Template</button>
+            <button class="btn btn-sm" id="preqPullBtn" style="flex-shrink:0;">${icon("plus")} Link Partner</button>
+          </div>
+          <div class="msg" id="preqPullMsg"></div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin:14px 0 8px;">
+          <button class="btn btn-sm btn-ghost" id="preqResetBtn">↺ Reset</button>
+        </div>
+        <div id="preqGroups"></div>
+        <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+          <button class="btn btn-sm" id="preqSaveBtn" disabled>${icon("save")} Save</button>
+          <span class="msg" id="preqSaveMsg"></span>
+        </div>`;
+
+      body.querySelector("#preqPullBtn").addEventListener("click", linkPartnerToBatch);
+      body.querySelector("#preqEditTemplateBtn").addEventListener("click", () => {
+        const partnerId = document.getElementById("preqPartnerSelect").value;
+        if (!partnerId) { alert("Pilih partner dulu di dropdown."); return; }
+        openPreqTemplateForm(partnerId);
+      });
+      body.querySelector("#preqSaveBtn").addEventListener("click", savePartnerReq);
+      body.querySelector("#preqResetBtn").addEventListener("click", () => {
+        const anyDone = PREP_PARTNER_REQ_GROUPS.some(g => g.items.some(it => it.done));
+        if (!anyDone) return;
+        if (!confirm('Uncentang semua item di "Partner & Requests"?')) return;
+        PREP_PARTNER_REQ_GROUPS.forEach(g => g.items.forEach(it => { it.done = false; }));
+        renderPartnerReqGroups();
+        markPartnerReqDirty();
+      });
+
+      return { id: "partnerreq", labelHtml: icon("clipboard") + " Partner & Requests", countId: "prep-count-partnerreq", bodyEl: body };
+    }
+
+    async function loadPrepPartnerRequests() {
+      // populatePartnerSelects() may have already run once from List
+      // Partner/MOU/Invoice BEFORE this tab's <select> even existed in the
+      // DOM (it's only built when Prep's Partner & Requests tab renders) --
+      // that earlier call silently skipped it (getElementById returned null
+      // at the time), so re-populate here now that the element is real.
+      populatePartnerSelects();
+      const event = document.getElementById("prepSelect").value;
+      const batchId = document.getElementById("prepBatchSelect").value;
+      const pullMsg = document.getElementById("preqPullMsg");
+      if (pullMsg) pullMsg.textContent = "";
+      const saveMsg = document.getElementById("preqSaveMsg");
+      if (saveMsg) saveMsg.textContent = "";
+      let r;
+      try {
+        r = await api("getPrepPartnerRequests", { token: getToken(), event, batchId });
+      } catch (e) {
+        if (pullMsg) { pullMsg.className = "msg err"; pullMsg.textContent = "Gagal memuat, coba lagi."; }
+        return;
+      }
+      // udah ganti workshop/batch lain -- buang hasil basi
+      if (document.getElementById("prepSelect").value !== event || document.getElementById("prepBatchSelect").value !== batchId) return;
+      if (r && r.status === "success") PREP_PARTNER_REQ_GROUPS = r.groups || [];
+      else { handleAuthError(r); PREP_PARTNER_REQ_GROUPS = []; }
+      renderPartnerReqGroups();
+      const saveBtn = document.getElementById("preqSaveBtn");
+      if (saveBtn) saveBtn.disabled = true;
+    }
+
+    function renderPartnerReqTabCount() {
+      const totalItems = PREP_PARTNER_REQ_GROUPS.reduce((n, g) => n + (Array.isArray(g.items) ? g.items.length : 0), 0);
+      const doneItems = PREP_PARTNER_REQ_GROUPS.reduce((n, g) => n + (Array.isArray(g.items) ? g.items.filter(it => it.done).length : 0), 0);
+      const countEl = document.getElementById("prep-count-partnerreq");
+      if (countEl) countEl.textContent = totalItems ? (doneItems + "/" + totalItems) : "";
+    }
+
+    function renderPartnerReqGroups() {
+      const box = document.getElementById("preqGroups");
+      if (!box) return;
+      if (!PREP_PARTNER_REQ_GROUPS.length) {
+        box.innerHTML = `<p class="hint">Belum ada partner yang di-link ke batch ini. Pilih partner di atas, lalu klik "Link Partner".</p>`;
+        renderPartnerReqTabCount();
+        return;
+      }
+      box.innerHTML = "";
+      PREP_PARTNER_REQ_GROUPS.forEach((group, gIdx) => {
+        if (!Array.isArray(group.items)) group.items = [];
+        const p = PARTNERS.find(x => x.id === group.partnerId);
+        const name = (p && p.name) || group.partnerName || "(Partner dihapus)";
+        const doneCount = group.items.filter(it => it.done).length;
+        const det = document.createElement("details");
+        det.className = "det-acc";
+        det.open = true;
+        det.innerHTML = `
+          <summary>
+            <span class="det-acc-title">${escapeHtml(name)} <span class="acc-count">${group.items.length ? (doneCount + "/" + group.items.length) : "0"}</span></span>
+            <span style="display:flex;gap:6px;align-items:center;">
+              <button type="button" class="btn btn-sm btn-ghost preq-group-edit" title="Edit ${escapeHtml(name)}'s template">${icon("pencil")}</button>
+              <button type="button" class="btn btn-sm btn-ghost preq-group-unlink" title="Unlink from this batch" style="color:var(--err);">${icon("trash")}</button>
+              <span class="det-acc-chevron">▸</span>
+            </span>
+          </summary>
+          <div class="det-acc-body">
+            <div class="prep-list preq-group-list"></div>
+            <button type="button" class="btn btn-sm btn-ghost preq-group-add" style="margin-top:8px;">＋ Add item</button>
+          </div>`;
+
+        det.querySelector(".preq-group-edit").addEventListener("click", (e) => {
+          e.preventDefault(); e.stopPropagation();
+          if (p) openPreqTemplateForm(p.id);
+        });
+        det.querySelector(".preq-group-unlink").addEventListener("click", (e) => {
+          e.preventDefault(); e.stopPropagation();
+          if (!confirm(`Unlink "${name}" dari batch ini? Checklist-nya di batch ini ke-hapus (template partner & batch lain nggak kesentuh).`)) return;
+          PREP_PARTNER_REQ_GROUPS.splice(gIdx, 1);
+          renderPartnerReqGroups();
+          markPartnerReqDirty();
+        });
+
+        const listEl = det.querySelector(".preq-group-list");
+        function renderItems() {
+          if (!group.items.length) { listEl.innerHTML = `<p class="hint" style="margin:4px 0;">Belum ada item.</p>`; return; }
+          listEl.innerHTML = "";
+          group.items.forEach((item, iIdx) => {
+            const row = document.createElement("div");
+            row.className = "prep-row prep-row-check";
+            row.innerHTML = `
+              <input type="checkbox" class="prep-check" ${item.done ? "checked" : ""}/>
+              <div class="prep-fields"><input type="text" class="prep-input form-control" placeholder="e.g. Wajib bikin reels sebelum acara" value="${item.text != null ? escapeHtml(item.text) : ""}"/></div>
+              <button class="del" title="Delete">&times;</button>`;
+            row.querySelector(".prep-check").addEventListener("change", e => {
+              item.done = e.target.checked;
+              const doneN = group.items.filter(it => it.done).length;
+              const badge = det.querySelector(".acc-count");
+              if (badge) badge.textContent = doneN + "/" + group.items.length;
+              renderPartnerReqTabCount();
+              markPartnerReqDirty();
+            });
+            row.querySelector(".prep-input").addEventListener("input", e => { item.text = e.target.value; markPartnerReqDirty(); });
+            row.querySelector(".del").addEventListener("click", () => {
+              group.items.splice(iIdx, 1);
+              renderItems();
+              const badge = det.querySelector(".acc-count");
+              if (badge) badge.textContent = (group.items.filter(it => it.done).length) + "/" + group.items.length;
+              renderPartnerReqTabCount();
+              markPartnerReqDirty();
+            });
+            listEl.appendChild(row);
+          });
+        }
+        renderItems();
+
+        det.querySelector(".preq-group-add").addEventListener("click", () => {
+          group.items.push({ id: "tmp-" + Date.now() + "-" + Math.random().toString(36).slice(2), text: "", done: false });
+          renderItems();
+          markPartnerReqDirty();
+          const rows = listEl.querySelectorAll(".prep-row");
+          const last = rows[rows.length - 1];
+          if (last) {
+            last.scrollIntoView({ behavior: "smooth", block: "center" });
+            const firstInput = last.querySelector(".prep-input");
+            if (firstInput) firstInput.focus();
+          }
+        });
+
+        box.appendChild(det);
+      });
+      renderPartnerReqTabCount();
+    }
+
+    function markPartnerReqDirty() {
+      const btn = document.getElementById("preqSaveBtn");
+      if (btn) btn.disabled = false;
+    }
+
+    async function savePartnerReq() {
+      const event = document.getElementById("prepSelect").value;
+      const batchId = document.getElementById("prepBatchSelect").value;
+      const groups = PREP_PARTNER_REQ_GROUPS.map(g => ({
+        partnerId: g.partnerId,
+        partnerName: g.partnerName,
+        items: (g.items || []).filter(it => it.text && it.text.trim()),
+      }));
+      const msg = document.getElementById("preqSaveMsg");
+      msg.className = "msg"; msg.textContent = "Saving...";
+      try {
+        const r = await api("savePrepPartnerRequests", { token: getToken(), event, batchId, groups });
+        if (r && r.status === "success") {
+          PREP_PARTNER_REQ_GROUPS = groups;
+          renderPartnerReqGroups();
+          const btn = document.getElementById("preqSaveBtn");
+          if (btn) btn.disabled = true;
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Koneksi gagal, coba lagi.";
+      }
+    }
+
+    async function linkPartnerToBatch() {
+      const event = document.getElementById("prepSelect").value;
+      const batchId = document.getElementById("prepBatchSelect").value;
+      const partnerId = document.getElementById("preqPartnerSelect").value;
+      const msg = document.getElementById("preqPullMsg");
+      if (!partnerId) { msg.className = "msg err"; msg.textContent = "Pilih partner dulu."; return; }
+      msg.className = "msg"; msg.textContent = "Linking...";
+      try {
+        const r = await api("pullPrepPartnerRequests", { token: getToken(), event, batchId, partnerId });
+        if (r && r.status === "success") {
+          PREP_PARTNER_REQ_GROUPS = r.groups || [];
+          renderPartnerReqGroups();
+          const btn = document.getElementById("preqSaveBtn");
+          if (btn) btn.disabled = true; // udah otomatis tersimpan di server
+          msg.className = "msg ok"; msg.textContent = `${r.partnerName} di-link (${r.addedCount} item) ✓`;
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal link partner.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Koneksi gagal, coba lagi.";
+      }
+    }
+
+    // Edit template request standar 1 partner, langsung dari Prep (nggak perlu
+    // pindah ke List Partner). Ini nyimpen ke partners.requests -- pull-an
+    // batch yang udah kejadian sebelumnya TETEP nggak berubah (independen,
+    // lihat pullPartnerRequests di atas).
+    function openPreqTemplateForm(partnerId) {
+      const p = PARTNERS.find(x => x.id === partnerId);
+      if (!p) return;
+      document.getElementById("preqTemplatePartnerId").value = partnerId;
+      document.getElementById("preqTemplateTitle").textContent = "Edit Requests — " + p.name;
+      document.getElementById("preqTemplateText").value = Array.isArray(p.requests) ? p.requests.join("\n") : "";
+      document.getElementById("preqTemplateMsg").textContent = "";
+      document.getElementById("preqTemplateOverlay").style.display = "flex";
+    }
+
+    function closePreqTemplateForm() {
+      document.getElementById("preqTemplateOverlay").style.display = "none";
+    }
+
+    async function savePreqTemplate() {
+      const id = document.getElementById("preqTemplatePartnerId").value;
+      const requests = document.getElementById("preqTemplateText").value.split("\n").map(s => s.trim()).filter(Boolean);
+      const msg = document.getElementById("preqTemplateMsg");
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await api("savePartnerRequestsTemplate", { token: getToken(), id, requests });
+      if (r && r.status === "success") {
+        const p = PARTNERS.find(x => x.id === id);
+        if (p) p.requests = requests;
+        msg.className = "msg ok"; msg.textContent = "Saved ✓";
+        setTimeout(closePreqTemplateForm, 500);
+      } else {
+        handleAuthError(r);
+        msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save.";
+      }
+    }
+
+    function wirePreqTemplateOnce() {
+      if (preqTemplateInit) return;
+      preqTemplateInit = true;
+      document.getElementById("preqTemplateBackBtn").addEventListener("click", closePreqTemplateForm);
+      document.getElementById("preqTemplateOverlay").addEventListener("click", (e) => {
+        if (e.target.id === "preqTemplateOverlay") closePreqTemplateForm();
+      });
+      document.getElementById("preqTemplateSaveBtn").addEventListener("click", savePreqTemplate);
     }
 
     // Data dasar event (tanggal/jam/lokasi/harga/link grup WA) udah ada dari
@@ -12918,6 +13572,17 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         const text = (e.clipboardData || window.clipboardData).getData("text");
         document.execCommand("insertText", false, text);
       });
+      // Tap/click an inserted image to remove it -- there's no reliable way
+      // to select an <img> and hit Backspace inside contenteditable,
+      // especially on mobile (no adjacent text to place a caret next to),
+      // so a saved image was otherwise stuck there permanently.
+      editor.addEventListener("click", (e) => {
+        if (e.target.tagName !== "IMG") return;
+        if (confirm("Remove this image?")) {
+          e.target.remove();
+          if (onDirty) onDirty();
+        }
+      });
       // Checklist: Enter continues the list (or exits it, back to a normal
       // line, if the current item is empty). The checkbox's `checked`
       // ATTRIBUTE (not just its DOM property) has to stay in sync too --
@@ -13070,11 +13735,28 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       }
     }
 
+    // Checklist notes get a mini checkbox-row preview (first 4 items) on the
+    // card instead of the checkmarks flattening into plain stripped text --
+    // otherwise "☐ Milk ☐ Eggs" just reads as noise on a small grid card.
     function noteCardHtml(n) {
-      const snippet = stripHtml(n.body_html);
+      const tmp = document.createElement("div");
+      tmp.innerHTML = n.body_html || "";
+      const checkItems = Array.from(tmp.querySelectorAll(".rn-check-item"));
+      let bodyHtml;
+      if (checkItems.length) {
+        const shown = checkItems.slice(0, 4).map(item => {
+          const checked = item.classList.contains("checked");
+          return `<div class="note-card-check-row${checked ? " checked" : ""}"><span class="chk"></span>${escapeHtml(item.textContent.trim() || "(empty)")}</div>`;
+        }).join("");
+        const more = checkItems.length > 4 ? `<div class="note-card-check-more">+${checkItems.length - 4} more</div>` : "";
+        bodyHtml = `<div class="note-card-checklist">${shown}${more}</div>`;
+      } else {
+        const snippet = (tmp.textContent || "").trim();
+        bodyHtml = snippet ? `<div class="note-card-snippet">${escapeHtml(snippet)}</div>` : "";
+      }
       return `<div class="note-card" data-id="${n.id}">
         <div class="note-card-title">${escapeHtml(n.title || "(Untitled)")}</div>
-        ${snippet ? `<div class="note-card-snippet">${escapeHtml(snippet)}</div>` : ""}
+        ${bodyHtml}
         <div class="note-card-date">${fmtNoteDate(n.updated_at)}</div>
       </div>`;
     }
@@ -13213,6 +13895,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (notesInit) return;
       notesInit = true;
       document.getElementById("noteNewBtn").addEventListener("click", () => openNoteForm(null));
+      document.getElementById("noteFabBtn").addEventListener("click", () => openNoteForm(null));
       document.getElementById("noteNewFolderBtn").addEventListener("click", createFolder);
       document.getElementById("noteReloadBtn").addEventListener("click", loadNotes);
       document.getElementById("noteFormBackBtn").addEventListener("click", closeNoteForm);

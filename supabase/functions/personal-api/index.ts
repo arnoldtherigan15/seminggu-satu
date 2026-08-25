@@ -24,13 +24,15 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case "getPersonalData": {
-        const [accRes, catRes, txRes, budRes, goalRes, contribRes] = await Promise.all([
+        const [accRes, catRes, txRes, budRes, goalRes, contribRes, liabRes, liabPayRes] = await Promise.all([
           admin.from("personal_accounts").select("*").order("created_at", { ascending: true }),
           admin.from("personal_categories").select("*").order("created_at", { ascending: true }),
           admin.from("personal_transactions").select("*").order("date", { ascending: false }).order("created_at", { ascending: false }),
           admin.from("personal_budgets").select("*"),
           admin.from("personal_savings_goals").select("*").order("created_at", { ascending: true }),
           admin.from("personal_savings_contributions").select("*").order("date", { ascending: false }).order("created_at", { ascending: false }),
+          admin.from("personal_liabilities").select("*").order("created_at", { ascending: true }),
+          admin.from("personal_liability_payments").select("*").order("date", { ascending: false }).order("created_at", { ascending: false }),
         ]);
         return jsonResponse({
           status: "success",
@@ -40,6 +42,8 @@ Deno.serve(async (req) => {
           budgets: budRes.data || [],
           savingsGoals: goalRes.data || [],
           savingsContributions: contribRes.data || [],
+          liabilities: liabRes.data || [],
+          liabilityPayments: liabPayRes.data || [],
         });
       }
 
@@ -352,6 +356,77 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
         const { error } = await admin.from("personal_savings_contributions").delete().eq("id", id);
         if (error) return errorResponse("Gagal hapus setoran: " + error.message);
         return jsonResponse({ status: "success", message: "Setoran dihapus." });
+      }
+
+      case "saveLiability": {
+        const id = String(data.id || "");
+        const name = String(data.name || "").trim();
+        const principalAmount = Math.round(Number(data.principalAmount) || 0);
+        if (!name) return errorResponse("Nama hutang wajib diisi.");
+        if (principalAmount <= 0) return errorResponse("Jumlah hutang harus lebih dari 0.");
+        const payload = {
+          name,
+          principal_amount: principalAmount,
+          icon: data.icon ? String(data.icon) : null,
+          due_date: data.dueDate ? String(data.dueDate) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("personal_liabilities").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update hutang: " + error.message);
+        } else {
+          const { error } = await admin.from("personal_liabilities").insert(payload);
+          if (error) return errorResponse("Gagal bikin hutang: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Hutang tersimpan." });
+      }
+
+      case "archiveLiability": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID hutang kosong.");
+        const { error } = await admin.from("personal_liabilities").update({ archived: !!data.archived }).eq("id", id);
+        if (error) return errorResponse("Gagal update hutang: " + error.message);
+        return jsonResponse({ status: "success" });
+      }
+
+      case "deleteLiability": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID hutang kosong.");
+        // payments ikut kehapus otomatis (on delete cascade)
+        const { error } = await admin.from("personal_liabilities").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus hutang: " + error.message);
+        return jsonResponse({ status: "success", message: "Hutang dihapus." });
+      }
+
+      case "saveLiabilityPayment": {
+        const id = String(data.id || "");
+        const liabilityId = String(data.liabilityId || "");
+        if (!liabilityId) return errorResponse("Hutang wajib dipilih.");
+        const amount = Math.round(Number(data.amount) || 0);
+        if (!amount) return errorResponse("Jumlah nggak boleh 0.");
+        const date = String(data.date || "").trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return errorResponse("Tanggal nggak valid.");
+        const payload = {
+          liability_id: liabilityId,
+          amount,
+          date,
+          note: data.note ? String(data.note).slice(0, 300) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("personal_liability_payments").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update pembayaran: " + error.message);
+        } else {
+          const { error } = await admin.from("personal_liability_payments").insert(payload);
+          if (error) return errorResponse("Gagal simpan pembayaran: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Pembayaran tersimpan." });
+      }
+
+      case "deleteLiabilityPayment": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID pembayaran kosong.");
+        const { error } = await admin.from("personal_liability_payments").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus pembayaran: " + error.message);
+        return jsonResponse({ status: "success", message: "Pembayaran dihapus." });
       }
 
       case "deletePersonalTransaction": {

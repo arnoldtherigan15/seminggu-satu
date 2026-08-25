@@ -28,6 +28,25 @@ const prepFaqListKey = (event: string, batchId: string) => `prep__${event}__faql
 // lewat createNewWorkshopConfig() di dashboard) -- validasinya cuma "non-empty".
 const cfgCaptionContextKey = (event: string, batchId: string) => `cfg__${event}__captioncontext__${batchId || "general"}`;
 const cfgCaptionListKey = (event: string, batchId: string) => `cfg__${event}__captionlist__${batchId || "general"}`;
+// Checklist "Partner & Requests" -- per BATCH juga (sama alasan kayak
+// prepFaqKey): batch yang beda bisa kerjasama sama partner yang beda,
+// atau butuh subset request yang beda walau partner-nya sama. Isinya
+// COPY dari partners.requests pas admin "narik" partner ke batch ini
+// (lihat action "pullPrepPartnerRequests") -- edit/hapus di sini nggak
+// nyentuh template partner atau batch lain.
+const prepPartnerReqKey = (event: string, batchId: string) => `prep__${event}__partnerreq__${batchId || "general"}`;
+// Sebelum redesign (grouped-per-partner), key ini kesimpen sebagai flat array
+// item {id,text,done} tanpa partnerId/items. Buang entry berformat lama itu
+// di sini biar batch-batch lama yang masih punya sisa data itu nggak bikin
+// render di admin crash -- checklist lama itu emang udah independen dari
+// partner manapun jadi aman dibuang (bukan kehilangan link/relasi apapun).
+// deno-lint-ignore no-explicit-any
+function sanitizePartnerReqGroups(raw: any[]): { partnerId: string; partnerName: string; items: { id: string; text: string; done: boolean }[] }[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((g) =>
+    g && typeof g === "object" && typeof g.partnerId === "string" && g.partnerId && Array.isArray(g.items)
+  );
+}
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
 
 // Admin ngetik tanggal event manual via prompt() di dashboard, format yang
@@ -1017,6 +1036,68 @@ Aturan penting:
         return jsonResponse({ status: "success" });
       }
 
+      case "getPrepPartnerRequests": {
+        const event = String(data.event || "");
+        if (!WORKSHOP_TYPES.includes(event)) return errorResponse("Event tidak dikenal: " + event);
+        const batchId = String(data.batchId || "");
+        const json = await getConfigValue(admin, prepPartnerReqKey(event, batchId));
+        // deno-lint-ignore no-explicit-any
+        let raw: any[] = [];
+        try { raw = json ? JSON.parse(json) : []; } catch (_e) { raw = []; }
+        return jsonResponse({ status: "success", groups: sanitizePartnerReqGroups(raw) });
+      }
+
+      case "savePrepPartnerRequests": {
+        const event = String(data.event || "");
+        if (!WORKSHOP_TYPES.includes(event)) return errorResponse("Event tidak dikenal: " + event);
+        const batchId = String(data.batchId || "");
+        const groups = Array.isArray(data.groups)
+          // deno-lint-ignore no-explicit-any
+          ? data.groups.slice(0, 50).map((g: any) => ({
+            partnerId: String(g?.partnerId || ""),
+            partnerName: String(g?.partnerName || "").slice(0, 200),
+            items: Array.isArray(g?.items)
+              // deno-lint-ignore no-explicit-any
+              ? g.items.slice(0, 200).map((it: any) => ({
+                id: String(it?.id || crypto.randomUUID()),
+                text: String(it?.text || "").slice(0, 500),
+                done: !!it?.done,
+              })).filter((it: { text: string }) => it.text)
+              : [],
+          })).filter((g: { partnerId: string }) => g.partnerId)
+          : [];
+        await setConfigValue(admin, prepPartnerReqKey(event, batchId), JSON.stringify(groups));
+        return jsonResponse({ status: "success" });
+      }
+
+      // "Link" 1 partner ke batch ini -- COPY partners.requests (template) jadi
+      // 1 grup checklist baru khusus batch ini (nggak boleh link partner yang
+      // sama dua kali di batch yang sama). Nama+response cuma buat konfirmasi
+      // UI, list final tetep diambil ulang lewat getPrepPartnerRequests.
+      case "pullPrepPartnerRequests": {
+        const event = String(data.event || "");
+        if (!WORKSHOP_TYPES.includes(event)) return errorResponse("Event tidak dikenal: " + event);
+        const batchId = String(data.batchId || "");
+        const partnerId = String(data.partnerId || "");
+        if (!partnerId) return errorResponse("Pilih partner dulu.");
+        const { data: partner, error: pErr } = await admin.from("partners").select("name, requests").eq("id", partnerId).maybeSingle();
+        if (pErr || !partner) return errorResponse("Partner tidak ditemukan.");
+
+        const json = await getConfigValue(admin, prepPartnerReqKey(event, batchId));
+        // deno-lint-ignore no-explicit-any
+        let raw: any[] = [];
+        try { raw = json ? JSON.parse(json) : []; } catch (_e) { raw = []; }
+        let groups = sanitizePartnerReqGroups(raw);
+        if (groups.some((g) => g.partnerId === partnerId)) {
+          return errorResponse(`${partner.name} udah ke-link di batch ini.`);
+        }
+        const templateRequests: string[] = Array.isArray(partner.requests) ? partner.requests : [];
+        const items = templateRequests.map((text) => ({ id: crypto.randomUUID(), text, done: false }));
+        groups = [...groups, { partnerId, partnerName: partner.name, items }];
+        await setConfigValue(admin, prepPartnerReqKey(event, batchId), JSON.stringify(groups));
+        return jsonResponse({ status: "success", groups, addedCount: items.length, partnerName: partner.name });
+      }
+
       case "generateFaqAnswer": {
         const context = String(data.context || "").trim();
         const knownFacts = String(data.knownFacts || "").trim();
@@ -1437,6 +1518,7 @@ Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tan
           phone: data.phone ? String(data.phone) : null,
           instagram: data.instagram ? String(data.instagram) : null,
           notes: data.notes ? String(data.notes) : null,
+          requests: Array.isArray(data.requests) ? data.requests.map((s: unknown) => String(s).trim()).filter(Boolean) : [],
         };
         if (id) {
           const { error } = await admin.from("partners").update(payload).eq("id", id);
@@ -1446,6 +1528,20 @@ Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tan
           if (error) return errorResponse("Failed to create partner: " + error.message);
         }
         return jsonResponse({ status: "success", message: "Partner saved." });
+      }
+
+      // Update HANYA requests (template) -- dipanggil dari Prep > Partner &
+      // Requests biar Arnold bisa isi/edit request standar partner tanpa
+      // pindah ke List Partner. Field lain (nama/PIC/dst) nggak disentuh.
+      case "savePartnerRequestsTemplate": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("Missing partner ID.");
+        const requests = Array.isArray(data.requests)
+          ? data.requests.map((s: unknown) => String(s).trim()).filter(Boolean)
+          : [];
+        const { error } = await admin.from("partners").update({ requests }).eq("id", id);
+        if (error) return errorResponse("Failed to update partner requests: " + error.message);
+        return jsonResponse({ status: "success" });
       }
 
       case "archivePartner": {
