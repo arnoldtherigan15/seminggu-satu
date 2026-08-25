@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case "getPersonalData": {
-        const [accRes, catRes, txRes, budRes, goalRes, contribRes, liabRes, liabPayRes] = await Promise.all([
+        const [accRes, catRes, txRes, budRes, goalRes, contribRes, liabRes, liabPayRes, billRes, billPayRes] = await Promise.all([
           admin.from("personal_accounts").select("*").order("created_at", { ascending: true }),
           admin.from("personal_categories").select("*").order("created_at", { ascending: true }),
           admin.from("personal_transactions").select("*").order("date", { ascending: false }).order("created_at", { ascending: false }),
@@ -33,6 +33,8 @@ Deno.serve(async (req) => {
           admin.from("personal_savings_contributions").select("*").order("date", { ascending: false }).order("created_at", { ascending: false }),
           admin.from("personal_liabilities").select("*").order("created_at", { ascending: true }),
           admin.from("personal_liability_payments").select("*").order("date", { ascending: false }).order("created_at", { ascending: false }),
+          admin.from("personal_bills").select("*").order("created_at", { ascending: true }),
+          admin.from("personal_bill_payments").select("*"),
         ]);
         return jsonResponse({
           status: "success",
@@ -44,6 +46,8 @@ Deno.serve(async (req) => {
           savingsContributions: contribRes.data || [],
           liabilities: liabRes.data || [],
           liabilityPayments: liabPayRes.data || [],
+          bills: billRes.data || [],
+          billPayments: billPayRes.data || [],
         });
       }
 
@@ -427,6 +431,58 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
         const { error } = await admin.from("personal_liability_payments").delete().eq("id", id);
         if (error) return errorResponse("Gagal hapus pembayaran: " + error.message);
         return jsonResponse({ status: "success", message: "Pembayaran dihapus." });
+      }
+
+      // Tracker tagihan bulanan berulang (KPR/internet/parkir/dst) -- checklist
+      // "udah dibayar bulan ini?" doang, SENGAJA nggak nyentuh
+      // personal_transactions (murni catatan, bukan pengeluaran beneran).
+      case "saveBill": {
+        const id = String(data.id || "");
+        const name = String(data.name || "").trim();
+        if (!name) return errorResponse("Nama tagihan wajib diisi.");
+        const resetDay = Math.min(28, Math.max(1, Math.round(Number(data.resetDay)) || 25));
+        const payload = {
+          name,
+          amount: Math.round(Number(data.amount) || 0),
+          reset_day: resetDay,
+          icon: data.icon ? String(data.icon) : "receipt",
+        };
+        if (id) {
+          const { error } = await admin.from("personal_bills").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update tagihan: " + error.message);
+        } else {
+          const { error } = await admin.from("personal_bills").insert(payload);
+          if (error) return errorResponse("Gagal bikin tagihan: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Tagihan tersimpan." });
+      }
+
+      case "deleteBill": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID tagihan kosong.");
+        // riwayat centang ikut kehapus otomatis (on delete cascade)
+        const { error } = await admin.from("personal_bills").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus tagihan: " + error.message);
+        return jsonResponse({ status: "success", message: "Tagihan dihapus." });
+      }
+
+      // Toggle centang "udah dibayar" buat 1 periode -- checked -> insert baris
+      // (unique bill_id+period_key jaga nggak dobel), unchecked -> hapus baris.
+      // periodKey dihitung di frontend dari reset_day (lihat billPeriodKey()).
+      case "toggleBillPaid": {
+        const billId = String(data.billId || "");
+        const periodKey = String(data.periodKey || "").trim();
+        if (!billId || !/^\d{4}-\d{2}$/.test(periodKey)) return errorResponse("Data tagihan nggak valid.");
+        if (data.paid) {
+          const { error } = await admin.from("personal_bill_payments")
+            .upsert({ bill_id: billId, period_key: periodKey }, { onConflict: "bill_id,period_key" });
+          if (error) return errorResponse("Gagal centang tagihan: " + error.message);
+        } else {
+          const { error } = await admin.from("personal_bill_payments")
+            .delete().eq("bill_id", billId).eq("period_key", periodKey);
+          if (error) return errorResponse("Gagal batal centang: " + error.message);
+        }
+        return jsonResponse({ status: "success" });
       }
 
       case "deletePersonalTransaction": {

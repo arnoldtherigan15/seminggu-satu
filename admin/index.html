@@ -1408,6 +1408,66 @@
       object-fit: cover;
     }
 
+    /* Type-ahead "cari item Database" dropdown (dipake Tools & Materials Prep
+       -- ganti native <select>/<datalist> yg kepanjangan/nggak intuitif kalau
+       item Database-nya udah banyak). */
+    .supply-search-results {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      max-height: 320px;
+      overflow-y: auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      z-index: 20;
+    }
+
+    .supply-search-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .supply-search-row:last-child {
+      border-bottom: none;
+    }
+
+    .supply-search-row:hover {
+      background: #f8fafc;
+    }
+
+    .supply-search-thumb {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #eef0f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      color: var(--brand);
+    }
+
+    .supply-search-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .supply-search-empty {
+      padding: 14px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
 
     /* --- Accordion --- */
     .acc {
@@ -4866,6 +4926,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <button class="subtab-btn" type="button" data-tab="budget"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M8 13A5 5 0 1 1 8 3a5 5 0 0 1 0 10m0 1A6 6 0 1 0 8 2a6 6 0 0 0 0 12"/><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/><path d="M9.5 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/></svg> <span>Budget</span></button>
               <button class="subtab-btn" type="button" data-tab="target"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962"/><path fill-rule="evenodd" d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199"/></svg> <span>Goals</span></button>
               <button class="subtab-btn" type="button" data-tab="hutang"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .801.13l.5 1A.5.5 0 0 1 15 2v12a.5.5 0 0 1-.053.224l-.5 1a.5.5 0 0 1-.8.13L13 14.707l-.646.647a.5.5 0 0 1-.708 0L11 14.707l-.646.647a.5.5 0 0 1-.708 0L9 14.707l-.646.647a.5.5 0 0 1-.708 0L7 14.707l-.646.647a.5.5 0 0 1-.708 0L5 14.707l-.646.647a.5.5 0 0 1-.708 0L3 14.707l-.646.647a.5.5 0 0 1-.801-.13l-.5-1A.5.5 0 0 1 1 14V2a.5.5 0 0 1 .053-.224l.5-1a.5.5 0 0 1 .367-.27m.217 1.338L2 2.118v11.764l.137.274.51-.51a.5.5 0 0 1 .707 0l.646.647.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.509.509.137-.274V2.118l-.137-.274-.51.51a.5.5 0 0 1-.707 0L12 1.707l-.646.647a.5.5 0 0 1-.708 0L10 1.707l-.646.647a.5.5 0 0 1-.708 0L8 1.707l-.646.647a.5.5 0 0 1-.708 0L6 1.707l-.646.647a.5.5 0 0 1-.708 0L4 1.707l-.646.647a.5.5 0 0 1-.708 0z"/><path d="M3 4.5a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5"/></svg> <span>Debt</span></button>
+              <button class="subtab-btn" type="button" data-tab="tagihan"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3.854 2.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 3.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0"/></svg> <span>Bills</span></button>
               <button class="subtab-btn" type="button" data-tab="impor"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/></svg> <span>AI Import</span></button>
               <button class="subtab-btn" type="button" data-tab="analisis"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793zm1 0v6.775l4.79 4.79A7 7 0 0 0 8.5 1.017zM14.146 13.5a8 8 0 1 1-11.732-10.9 8 8 0 0 1 11.732 10.9"/></svg> <span>Analysis</span></button>
             </div>
@@ -5027,6 +5088,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               </div>
               <h3 class="ov-section-title" style="margin-top:16px;">Payment History</h3>
               <div id="liabPayList"></div>
+            </div>
+
+            <div class="subtab-panel" data-tab="tagihan">
+              <p class="hint" style="margin:0 0 12px;">Checklist tagihan bulanan berulang (KPR, internet, parkir, dst) -- otomatis ke-reset tiap bulan pas tanggal reset-nya. Ini murni buat nge-track "udah bayar belum", <b>BUKAN</b> nyatet pengeluaran (nggak masuk ke Transactions).</p>
+              <div id="billSummary" class="hint" style="font-weight:700;margin:0 0 10px;"></div>
+              <button class="btn btn-sm" id="billAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Bill</button>
+              <div id="billList" style="margin-top:10px;"></div>
             </div>
 
             <div class="subtab-panel" data-tab="impor">
@@ -5491,6 +5559,29 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-foot">
         <button class="btn" id="liabSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Debt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Tambah/Edit Tagihan Bulanan (checklist berulang) -->
+  <div id="billFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="billFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="billFormTitle">New Bill</div>
+        <button class="filter-reset-link" id="billFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="billId">
+        <div class="konten-field"><label>Bill Name</label><input class="form-control" type="text" id="billName" placeholder="e.g. KPR, Internet, Member Parkir"></div>
+        <div class="konten-field"><label>Amount (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="billAmount" placeholder="e.g. 500,000"></div>
+        <div class="konten-field"><label>Resets every month on day</label><input class="form-control" type="number" min="1" max="28" id="billResetDay" placeholder="25"></div>
+        <p class="hint" style="margin:-4px 0 0;">Checklist "udah bayar" balik kosong otomatis begitu lewat tanggal ini tiap bulannya.</p>
+        <div class="konten-field"><label>Icon</label><select class="form-control" id="billIcon"></select></div>
+        <div class="msg" id="billMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="billSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Bill</button>
       </div>
     </div>
   </div>
@@ -10905,6 +10996,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let PER_CONTRIBUTIONS = [];
     let PER_LIABILITIES = [];
     let PER_LIABILITY_PAYMENTS = [];
+    let PER_BILLS = [];
+    let PER_BILL_PAYMENTS = [];
     let perTabsCtl = null;
     // Filter tab Transaksi -- Set = "id yang lolos filter", isi penuh (semua id)
     // artinya nggak difilter di dimensi itu. Akun/kategori di-init null dan baru
@@ -11183,6 +11276,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("liabIcon").innerHTML = PER_ICON_CHOICES.map(name => `<option value="${name}">${PER_ICON_LABELS[name] || name}</option>`).join("");
         document.getElementById("liabPaySaveBtn").addEventListener("click", saveLiabPayment);
         newLiabPayForm();
+        document.getElementById("billSaveBtn").addEventListener("click", saveBill);
+        document.getElementById("billAddBtn").addEventListener("click", () => { newBillForm(); openBillForm(false); });
+        document.getElementById("billFormBackBtn").addEventListener("click", closeBillForm);
+        document.getElementById("billFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("billId").value;
+          if (id && await deleteBill(id)) closeBillForm();
+        });
+        document.getElementById("billFormOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "billFormOverlay") closeBillForm();
+        });
+        document.getElementById("billIcon").innerHTML = PER_ICON_CHOICES.map(name => `<option value="${name}">${PER_ICON_LABELS[name] || name}</option>`).join("");
+        wireRibuanInput(document.getElementById("billAmount"));
         perTabsCtl = wireSubtabs(document.getElementById("perSubtabs"), (tabId, isFirstShow) => {
           if (tabId === "impor" && isFirstShow) loadAiUsageToday();
           // Simpen subtab yang lagi aktif di URL (replaceState, bukan hashchange
@@ -11214,6 +11319,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       PER_CONTRIBUTIONS = r.savingsContributions || [];
       PER_LIABILITIES = r.liabilities || [];
       PER_LIABILITY_PAYMENTS = r.liabilityPayments || [];
+      PER_BILLS = r.bills || [];
+      PER_BILL_PAYMENTS = r.billPayments || [];
       populatePersonalSelects();
       renderPersonalHero();
       renderCashflow();
@@ -11226,6 +11333,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       renderContributions();
       renderLiabilities();
       renderLiabPayments();
+      renderBills();
     }
 
     function populatePersonalSelects() {
@@ -11828,6 +11936,114 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const r = await personalApi("deleteLiabilityPayment", { token: getToken(), id });
       if (r && r.status === "success") await loadPersonalData();
       else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
+    }
+
+    // ---- Tagihan bulanan berulang (checklist "udah bayar", RESET OTOMATIS) ----
+    // Nggak ada flag "paid" yang di-reset manual tiap bulan -- status paid
+    // dihitung on-the-fly dari ada/nggaknya baris personal_bill_payments buat
+    // periode SAAT INI (lihat billPeriodKey). Begitu tanggal reset lewat,
+    // periode ganti, dan otomatis kelihatan belum dicentang lagi. Murni
+    // checklist, SENGAJA nggak nyambung ke Transactions/pengeluaran.
+    function billPeriodKey(resetDay, d) {
+      d = d || new Date();
+      let y = d.getFullYear(), m = d.getMonth(); // m: 0-indexed
+      if (d.getDate() < resetDay) { m -= 1; if (m < 0) { m = 11; y -= 1; } }
+      return `${y}-${String(m + 1).padStart(2, "0")}`;
+    }
+
+    function renderBills() {
+      const box = document.getElementById("billList");
+      const summaryEl = document.getElementById("billSummary");
+      if (!box) return;
+      if (!PER_BILLS.length) {
+        box.innerHTML = '<p class="hint">No bills yet. Click "New Bill".</p>';
+        if (summaryEl) summaryEl.textContent = "";
+        return;
+      }
+      let paidCount = 0, unpaidTotal = 0;
+      box.innerHTML = PER_BILLS.map(b => {
+        const period = billPeriodKey(b.reset_day);
+        const isPaid = PER_BILL_PAYMENTS.some(p => p.bill_id === b.id && p.period_key === period);
+        if (isPaid) paidCount++; else unpaidTotal += Number(b.amount) || 0;
+        return `<div class="fin-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:14px;cursor:pointer;" data-editbill="${b.id}">
+          <input type="checkbox" class="bill-check" data-billcheck="${b.id}" data-period="${period}" ${isPaid ? "checked" : ""} style="width:24px;height:24px;accent-color:var(--ok);cursor:pointer;flex-shrink:0;">
+          <div style="color:var(--brand);flex-shrink:0;">${icon(b.icon || "receipt")}</div>
+          <div style="flex:1;min-width:0;">
+            <b>${escapeHtml(b.name)}</b>
+            <div class="hint" style="margin:2px 0 0;">${rupiah(b.amount)} · reset tgl ${b.reset_day}</div>
+          </div>
+          ${isPaid ? '<span class="per-badge income">Paid</span>' : ""}
+        </div>`;
+      }).join("");
+      box.querySelectorAll("[data-editbill]").forEach(el => el.addEventListener("click", (e) => {
+        if (e.target.closest(".bill-check")) return;
+        editBill(el.dataset.editbill);
+      }));
+      box.querySelectorAll(".bill-check").forEach(chk => {
+        chk.addEventListener("click", (e) => e.stopPropagation());
+        chk.addEventListener("change", (e) => toggleBillPaidUI(chk.dataset.billcheck, chk.dataset.period, chk.checked));
+      });
+      if (summaryEl) summaryEl.textContent = `${paidCount} dari ${PER_BILLS.length} tagihan udah dibayar bulan ini` + (unpaidTotal > 0 ? ` · Belum dibayar: ${rupiah(unpaidTotal)}` : "");
+    }
+
+    async function toggleBillPaidUI(billId, periodKey, paid) {
+      const r = await personalApi("toggleBillPaid", { token: getToken(), billId, periodKey, paid });
+      if (r && r.status === "success") await loadPersonalData();
+      else { handleAuthError(r); alert((r && r.message) || "Gagal update."); await loadPersonalData(); }
+    }
+
+    function openBillForm(isEdit) {
+      document.getElementById("billFormTitle").textContent = isEdit ? "Edit Bill" : "New Bill";
+      document.getElementById("billFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("billFormOverlay").style.display = "flex";
+    }
+
+    function closeBillForm() {
+      document.getElementById("billFormOverlay").style.display = "none";
+    }
+
+    function newBillForm() {
+      document.getElementById("billId").value = "";
+      document.getElementById("billName").value = "";
+      document.getElementById("billAmount").value = "";
+      document.getElementById("billResetDay").value = "25";
+      document.getElementById("billIcon").value = "receipt";
+      document.getElementById("billMsg").textContent = "";
+    }
+
+    function editBill(id) {
+      const b = PER_BILLS.find(x => x.id === id);
+      if (!b) return;
+      document.getElementById("billId").value = b.id;
+      document.getElementById("billName").value = b.name;
+      document.getElementById("billAmount").value = formatRibuan(b.amount);
+      document.getElementById("billResetDay").value = b.reset_day;
+      document.getElementById("billIcon").value = b.icon || "receipt";
+      document.getElementById("billMsg").textContent = "";
+      openBillForm(true);
+    }
+
+    async function saveBill() {
+      const msg = document.getElementById("billMsg");
+      const name = document.getElementById("billName").value.trim();
+      if (!name) { msg.className = "msg err"; msg.textContent = "Bill name is required."; return; }
+      const resetDay = Number(document.getElementById("billResetDay").value) || 25;
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await personalApi("saveBill", {
+        token: getToken(), id: document.getElementById("billId").value, name,
+        amount: parseRibuan(document.getElementById("billAmount").value),
+        resetDay, icon: document.getElementById("billIcon").value,
+      });
+      if (r && r.status === "success") { closeBillForm(); await loadPersonalData(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }
+    }
+
+    async function deleteBill(id) {
+      if (!id) return false;
+      if (!confirm("Delete this bill? Its checklist history will be deleted too.")) return false;
+      const r = await personalApi("deleteBill", { token: getToken(), id });
+      if (r && r.status === "success") { await loadPersonalData(); return true; }
+      handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
     }
 
     function fmtGroupDate(s) {
@@ -12919,7 +13135,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         buildFaqTab(),
         buildPartnerReqTab(),
         buildAsistenTab(),
-        ...PREP_SECTIONS.map(buildPrepTab),
+        ...PREP_SECTIONS.filter(s => s.type !== "supplies").map(buildPrepTab),
+        buildSuppliesTab(),
         buildRichNoteTab(),
       ];
 
@@ -12962,7 +13179,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         prepInitialSubtab = null;
       }
 
-      PREP_SECTIONS.forEach(sec => renderPrepList(sec));
+      PREP_SECTIONS.forEach(sec => { if (sec.type !== "supplies") renderPrepList(sec); });
+      renderSuppliesList();
       loadPrepParticipants();
       loadPrepPesananSummary();
       loadPrepFaqContext();
@@ -14356,31 +14574,6 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       cEl.textContent = sec.check ? `${items.filter(i => i.done).length}/${items.length}` : `${items.length}`;
     }
 
-    // Alat & Bahan (type "supplies") numpang autocomplete dari Database Item
-    // (tab Keuangan) -- ketik nama yang persis cocok, link beli-nya otomatis
-    // keisi (kalau field link masih kosong) + foto item-nya ditampilin. Checkbox
-    // "done" dipakai generic buat semua section, di supplies artinya "sudah dibeli".
-    function updatePrepSupplyOpenBtn(row, item) {
-      const btn = row.querySelector(".prep-supply-open");
-      if (!btn) return;
-      if (item.link) { btn.href = item.link; btn.style.display = ""; }
-      else btn.style.display = "none";
-    }
-
-    function updatePrepSupplyPreview(row, item, sec) {
-      const thumb = row.querySelector(".prep-supply-thumb");
-      if (!thumb) return;
-      const match = COST_ITEMS.find(it => it.name === item.name);
-      thumb.innerHTML = (match && match.image_url) ? `<img src="${escapeHtml(match.image_url)}">` : icon("cart");
-      if (match && match.link && !item.link) {
-        item.link = match.link;
-        const linkInput = row.querySelector('.prep-input[data-key="link"]');
-        if (linkInput) linkInput.value = match.link;
-        markPrepDirty(sec.type);
-      }
-      updatePrepSupplyOpenBtn(row, item);
-    }
-
     function renderPrepList(sec) {
       const box = document.getElementById("prep-list-" + sec.type);
       if (!box) return;
@@ -14388,7 +14581,6 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       updatePrepCount(sec);
       if (!items.length) { box.innerHTML = `<p class="hint">Nothing yet. Click "＋ Add".</p>`; return; }
       box.innerHTML = "";
-      const isSupplies = sec.type === "supplies";
       items.forEach((item, idx) => {
         const row = document.createElement("div");
         row.className = "prep-row" + (sec.check ? " prep-row-check" : "");
@@ -14396,12 +14588,10 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
              <button type="button" class="move-up" ${idx === 0 ? "disabled" : ""} title="Move up">▲</button>
              <button type="button" class="move-down" ${idx === items.length - 1 ? "disabled" : ""} title="Move down">▼</button>
            </div>`;
-        if (sec.check) html += `<input type="checkbox" class="prep-check" ${item.done ? "checked" : ""} title="${isSupplies ? "Already bought" : ""}"/>`;
-        if (isSupplies) html += `<div class="prep-supply-thumb"></div>`;
+        if (sec.check) html += `<input type="checkbox" class="prep-check" ${item.done ? "checked" : ""}/>`;
         html += `<div class="prep-fields">` + sec.fields.map(f =>
           `<input type="text" class="prep-input form-control${f.narrow ? " narrow" : ""}" data-key="${f.key}"${f.datalist ? ` list="${f.datalist}"` : ""} placeholder="${f.ph}" value="${item[f.key] != null ? escapeHtml(item[f.key]) : ""}"/>`
         ).join("") + `</div>`;
-        if (isSupplies) html += `<a class="prep-supply-open btn btn-sm btn-ghost" href="${item.link ? escapeHtml(item.link) : "#"}" target="_blank" rel="noopener" title="Open purchase link" style="${item.link ? "" : "display:none;"}">${icon("link")}</a>`;
         html += `<button class="del" title="Delete">&times;</button>`;
         row.innerHTML = html;
         row.querySelector(".move-up").addEventListener("click", () => {
@@ -14417,11 +14607,139 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         if (sec.check) row.querySelector(".prep-check").addEventListener("change", e => { item.done = e.target.checked; markPrepDirty(sec.type); updatePrepCount(sec); });
         row.querySelectorAll(".prep-input").forEach(el => el.addEventListener("input", () => {
           item[el.dataset.key] = el.value; markPrepDirty(sec.type);
-          if (isSupplies && el.dataset.key === "name") updatePrepSupplyPreview(row, item, sec);
-          if (isSupplies && el.dataset.key === "link") updatePrepSupplyOpenBtn(row, item);
         }));
-        if (isSupplies) updatePrepSupplyPreview(row, item, sec);
         row.querySelector(".del").addEventListener("click", () => { items.splice(idx, 1); renderPrepList(sec); markPrepDirty(sec.type); });
+        box.appendChild(row);
+      });
+    }
+
+    // ---- Tools & Materials (type "supplies") -- BEDA dari section generic di
+    // atas: item WAJIB dipilih dari Item Database (search type-ahead, bukan
+    // native <select>/<datalist> yang kepanjangan kalau Database-nya udah
+    // banyak), nggak bisa nambah nama/link manual. Nama+link ke-isi otomatis
+    // dari item yang dipilih -- yang ditampilin di checklist cuma nama +
+    // tombol buka link (baca PREP.supplies lewat savePrep/loadPrep yang sama,
+    // cuma cara nampilin+nambahnya yang beda).
+    function buildSuppliesTab() {
+      const body = document.createElement("div");
+      body.innerHTML = `
+        <div class="fin-card" style="margin-bottom:14px;">
+          <div style="font-weight:800;margin-bottom:4px;">Add from Item Database</div>
+          <p class="hint" style="margin:0 0 8px;">Ketik nama item, pilih dari rekomendasi -- nama & link belinya otomatis ke-isi. Item yang belum ada di Item Database, tambahin dulu di tab "Item Database".</p>
+          <div style="position:relative;">
+            <input type="text" class="form-control" id="supplySearchInput" placeholder="Cari item... (mis. Sticker, Lem, Kertas)" autocomplete="off">
+            <div id="supplySearchResults" class="supply-search-results" style="display:none;"></div>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:8px;">
+          <button class="btn btn-sm btn-ghost" data-reset="supplies">↺ Reset</button>
+        </div>
+        <div class="prep-list" id="prep-list-supplies"></div>
+        <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+          <button class="btn btn-sm" data-save="supplies" disabled>${icon("save")} Save</button>
+          <span class="msg" id="prep-msg-supplies"></span>
+        </div>`;
+
+      const searchInput = body.querySelector("#supplySearchInput");
+      const resultsBox = body.querySelector("#supplySearchResults");
+      searchInput.addEventListener("input", () => renderSupplySearchResults(searchInput.value, resultsBox, searchInput));
+      searchInput.addEventListener("focus", () => renderSupplySearchResults(searchInput.value, resultsBox, searchInput));
+      document.addEventListener("click", (e) => {
+        if (e.target !== searchInput && !resultsBox.contains(e.target)) resultsBox.style.display = "none";
+      });
+
+      body.querySelector('[data-save="supplies"]').addEventListener("click", () => savePrep("supplies"));
+      body.querySelector('[data-reset="supplies"]').addEventListener("click", () => {
+        const items = PREP.supplies || [];
+        if (!items.length || !items.some(it => it.done)) return;
+        if (!confirm('Uncentang semua item di "Tools & Materials"?')) return;
+        items.forEach(it => { it.done = false; });
+        renderSuppliesList();
+        markPrepDirty("supplies");
+      });
+
+      return { id: "supplies", labelHtml: icon("cart") + " Tools & Materials", countId: "prep-count-supplies", bodyEl: body };
+    }
+
+    function renderSupplySearchResults(query, box, inputEl) {
+      const q = (query || "").trim().toLowerCase();
+      const already = new Set((PREP.supplies || []).map(it => it.name));
+      let matches = COST_ITEMS.filter(it => !already.has(it.name) && (!q || it.name.toLowerCase().includes(q)));
+      matches = matches.slice(0, 8);
+      if (!matches.length) {
+        box.innerHTML = `<div class="supply-search-empty">${COST_ITEMS.length ? "Nggak ketemu / udah semua ke-tambah." : "Item Database masih kosong -- tambahin dulu di tab \"Item Database\"."}</div>`;
+        box.style.display = "block";
+        return;
+      }
+      box.innerHTML = matches.map(it => `
+        <div class="supply-search-row" data-pick="${escapeHtml(it.id)}">
+          <div class="supply-search-thumb">${it.image_url ? `<img src="${escapeHtml(it.image_url)}">` : icon("cart")}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;">${escapeHtml(it.name)}</div>
+            <div class="hint" style="margin:0;">${rupiah(it.default_price)}</div>
+          </div>
+        </div>`).join("");
+      box.style.display = "block";
+      box.querySelectorAll("[data-pick]").forEach(rowEl => rowEl.addEventListener("click", () => {
+        const costItem = COST_ITEMS.find(x => x.id === rowEl.dataset.pick);
+        if (costItem) addSupplyItem(costItem);
+        box.style.display = "none";
+        if (inputEl) inputEl.value = "";
+      }));
+    }
+
+    function addSupplyItem(costItem) {
+      if (!PREP.supplies) PREP.supplies = [];
+      if (PREP.supplies.some(it => it.name === costItem.name)) return;
+      PREP.supplies.push({ name: costItem.name, link: costItem.link || "", note: "", done: false });
+      renderSuppliesList();
+      markPrepDirty("supplies");
+      const box = document.getElementById("prep-list-supplies");
+      const rows = box ? box.querySelectorAll(".prep-row") : [];
+      const last = rows[rows.length - 1];
+      if (last) last.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function renderSuppliesList() {
+      const box = document.getElementById("prep-list-supplies");
+      if (!box) return;
+      const items = PREP.supplies || [];
+      updatePrepCount({ type: "supplies", check: true });
+      if (!items.length) { box.innerHTML = `<p class="hint">Belum ada. Cari & pilih item di atas.</p>`; return; }
+      box.innerHTML = "";
+      items.forEach((item, idx) => {
+        const match = COST_ITEMS.find(it => it.name === item.name);
+        const thumb = (match && match.image_url) ? `<img src="${escapeHtml(match.image_url)}">` : icon("cart");
+        const row = document.createElement("div");
+        row.className = "prep-row prep-row-check";
+        row.innerHTML = `
+          <div class="prep-move">
+            <button type="button" class="move-up" ${idx === 0 ? "disabled" : ""} title="Move up">▲</button>
+            <button type="button" class="move-down" ${idx === items.length - 1 ? "disabled" : ""} title="Move down">▼</button>
+          </div>
+          <input type="checkbox" class="prep-check" ${item.done ? "checked" : ""} title="Already bought"/>
+          <div class="cost-row-thumb">${thumb}</div>
+          <div class="prep-fields" style="flex:1;">
+            <div style="font-weight:700;padding:9px 0;">${escapeHtml(item.name)}</div>
+            <input type="text" class="prep-input form-control" data-key="note" placeholder="Note (optional)" value="${item.note != null ? escapeHtml(item.note) : ""}"/>
+          </div>
+          <a class="btn btn-sm btn-ghost" href="${item.link ? escapeHtml(item.link) : "#"}" target="_blank" rel="noopener" title="Open purchase link" style="flex-shrink:0;${item.link ? "" : "display:none;"}">${icon("link")}</a>
+          <button class="del" title="Delete">&times;</button>`;
+        row.querySelector(".move-up").addEventListener("click", () => {
+          if (idx === 0) return;
+          [items[idx - 1], items[idx]] = [items[idx], items[idx - 1]];
+          renderSuppliesList(); markPrepDirty("supplies");
+        });
+        row.querySelector(".move-down").addEventListener("click", () => {
+          if (idx === items.length - 1) return;
+          [items[idx + 1], items[idx]] = [items[idx], items[idx + 1]];
+          renderSuppliesList(); markPrepDirty("supplies");
+        });
+        row.querySelector(".prep-check").addEventListener("change", e => {
+          item.done = e.target.checked; markPrepDirty("supplies"); updatePrepCount({ type: "supplies", check: true });
+        });
+        row.querySelector('.prep-input[data-key="note"]').addEventListener("input", e => { item.note = e.target.value; markPrepDirty("supplies"); });
+        row.querySelector(".del").addEventListener("click", () => { items.splice(idx, 1); renderSuppliesList(); markPrepDirty("supplies"); });
         box.appendChild(row);
       });
     }
@@ -14442,7 +14760,8 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       try {
         const r = await api("savePrep", { token: getToken(), event, prepType: type, items });
         if (r.status === "success") {
-          PREP[type] = items; renderPrepList(sec);
+          PREP[type] = items;
+          if (type === "supplies") renderSuppliesList(); else renderPrepList(sec);
           const btn = document.querySelector(`[data-save="${type}"]`);
           if (btn) btn.disabled = true; // balik nonaktif sampai ada perubahan lagi
           msg.className = "msg ok"; msg.textContent = "Saved ✓";
