@@ -363,9 +363,13 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
       }
 
       case "getPersonalNotes": {
-        const { data: notes, error } = await admin.from("personal_notes").select("*").order("updated_at", { ascending: false });
-        if (error) return errorResponse("Gagal ambil notes: " + error.message);
-        return jsonResponse({ status: "success", notes: notes || [] });
+        const [notesRes, foldersRes] = await Promise.all([
+          admin.from("personal_notes").select("*").order("updated_at", { ascending: false }),
+          admin.from("personal_note_folders").select("*").order("name", { ascending: true }),
+        ]);
+        if (notesRes.error) return errorResponse("Gagal ambil notes: " + notesRes.error.message);
+        if (foldersRes.error) return errorResponse("Gagal ambil folder: " + foldersRes.error.message);
+        return jsonResponse({ status: "success", notes: notesRes.data || [], folders: foldersRes.data || [] });
       }
 
       case "savePersonalNote": {
@@ -373,6 +377,7 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
         const payload = {
           title: String(data.title || "").trim(),
           body_html: String(data.bodyHtml || ""),
+          folder_id: data.folderId ? String(data.folderId) : null,
           updated_at: new Date().toISOString(),
         };
         if (id) {
@@ -392,6 +397,29 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
         const { error } = await admin.from("personal_notes").delete().eq("id", id);
         if (error) return errorResponse("Gagal hapus note: " + error.message);
         return jsonResponse({ status: "success", message: "Note dihapus." });
+      }
+
+      case "savePersonalNoteFolder": {
+        const id = String(data.id || "");
+        const name = String(data.name || "").trim();
+        if (!name) return errorResponse("Nama folder wajib diisi.");
+        if (id) {
+          const { error } = await admin.from("personal_note_folders").update({ name }).eq("id", id);
+          if (error) return errorResponse("Gagal update folder: " + error.message);
+          return jsonResponse({ status: "success", id });
+        } else {
+          const { data: inserted, error } = await admin.from("personal_note_folders").insert({ name }).select("id").single();
+          if (error) return errorResponse("Gagal bikin folder: " + error.message);
+          return jsonResponse({ status: "success", id: inserted.id });
+        }
+      }
+
+      case "deletePersonalNoteFolder": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID folder kosong.");
+        const { error } = await admin.from("personal_note_folders").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus folder: " + error.message);
+        return jsonResponse({ status: "success", message: "Folder dihapus." });
       }
 
       default:
