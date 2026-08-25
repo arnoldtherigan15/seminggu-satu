@@ -4414,8 +4414,10 @@
                     <div class="per-stat-card">
                       <div class="per-hero-label">Cost per Participant</div>
                       <div class="per-hero-amount" id="resCostVar" style="font-size:18px;">Rp 0</div>
+                      <div class="hint" id="resCostVarTotal" style="margin-top:4px;"></div>
                     </div>
                   </div>
+                  <div id="finBreakdown"></div>
                 </div>
               </div>
             </div>
@@ -7426,12 +7428,20 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       // mis. revenue share) tetep ngurangin Total Costs/Profit di bawah, tapi
       // DIPISAH dari stat "Cost per Participant" -- itu maksudnya biaya nge-servis
       // 1 peserta (materi/konsumsi/dst), bukan biaya kerjasama/bisnis.
-      let costFixed = 0, costVar = 0, costVarExcluded = 0;
-      CURRENT_COST_ITEMS.forEach(it => {
-        if (it.tipe === "tetap") { costFixed += it.biaya; return; }
-        if (it.excludeFromBudget) costVarExcluded += it.biaya * count;
-        else costVar += it.biaya * count;
-      });
+      //
+      // "Cost per Participant" nunjukin angka PER 1 ORANG (jumlah biaya
+      // item-item per-participant apa adanya, BUKAN dikali count) -- biar
+      // kelihatan jelas nyambung sama harga yang keliatan di list di atas,
+      // buat gampang di-tracking mau kurangin dari mana. Total-nya (dikali
+      // jumlah peserta) ditampilin terpisah sebagai detail di bawahnya.
+      const budgetItems = CURRENT_COST_ITEMS.filter(it => it.tipe !== "tetap" && !it.excludeFromBudget);
+      const fixedItems = CURRENT_COST_ITEMS.filter(it => it.tipe === "tetap");
+      const collabItems = CURRENT_COST_ITEMS.filter(it => it.tipe !== "tetap" && it.excludeFromBudget);
+      const costVarPerHead = budgetItems.reduce((s, it) => s + it.biaya, 0);
+      const costFixed = fixedItems.reduce((s, it) => s + it.biaya, 0);
+      const costVarExcludedPerHead = collabItems.reduce((s, it) => s + it.biaya, 0);
+      const costVar = costVarPerHead * count;
+      const costVarExcluded = costVarExcludedPerHead * count;
       const cost = costFixed + costVar + costVarExcluded;
       const revenue = price * count;
       const profit = revenue - cost;
@@ -7439,11 +7449,72 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("resRevenue").textContent = rupiah(revenue);
       document.getElementById("resCost").textContent = rupiah(cost);
       document.getElementById("resCostFixed").textContent = rupiah(costFixed);
-      document.getElementById("resCostVar").textContent = rupiah(costVar);
+      document.getElementById("resCostVar").textContent = rupiah(costVarPerHead);
+      document.getElementById("resCostVarTotal").textContent = count
+        ? `= ${rupiah(costVar)} total (× ${count} peserta)` : "";
       const profitEl = document.getElementById("resProfit");
       profitEl.textContent = rupiah(profit);
       profitEl.style.color = profit < 0 ? "#fb7185" : "#4ade80";
       document.getElementById("resMargin").textContent = revenue > 0 ? margin + "% margin" : "No registrants yet";
+
+      renderCostBreakdown({
+        price, count, revenue, budgetItems, fixedItems, collabItems,
+        costVarPerHead, costVar, costFixed, costVarExcludedPerHead, costVarExcluded,
+        cost, profit, margin,
+      });
+    }
+
+    // Rincian lengkap perhitungan profit -- biar Arnold bisa langsung liat
+    // modal per peserta itemnya apa aja + totalnya, fixed cost apa aja, dan
+    // biaya partner/collab DIPISAH biar nggak ketuker sama modal per peserta
+    // (soalnya sifatnya beda: modal per peserta = biaya nge-servis 1 peserta,
+    // collab = kerjasama bisnis yang kebetulan skalanya per peserta). Semua
+    // ini buat bantu analisa: modal mana yang bisa dikurangin, atau ancer2
+    // kalau mau naikin harga jual ke depannya.
+    function renderCostBreakdown(d) {
+      const box = document.getElementById("finBreakdown");
+      if (!box) return;
+      const lineRows = (items, perHead) => !items.length
+        ? `<p class="hint" style="margin:2px 0;">Belum ada item.</p>`
+        : items.map(it => `<div style="display:flex;justify-content:space-between;gap:10px;font-size:.85rem;padding:3px 0;"><span style="min-width:0;">${escapeHtml(it.nama)}</span><b style="flex-shrink:0;white-space:nowrap;">${rupiah(it.biaya)}${perHead ? "/peserta" : ""}</b></div>`).join("");
+      const subtotalRow = (label, total) => `<div style="display:flex;justify-content:space-between;font-size:.85rem;padding-top:6px;margin-top:4px;border-top:1px dashed var(--line);"><span>${label}</span><b>${rupiah(total)}</b></div>`;
+
+      box.innerHTML = `
+        <details class="det-acc" style="margin-top:14px;" open>
+          <summary><span class="det-acc-title">${icon("sliders")} Detail Perhitungan</span><span class="det-acc-chevron">▸</span></summary>
+          <div class="det-acc-body">
+            <div style="margin-bottom:14px;">
+              <div style="font-weight:800;margin-bottom:4px;">Income</div>
+              <div style="display:flex;justify-content:space-between;font-size:.9rem;"><span>${rupiah(d.price)}/peserta × ${d.count} peserta</span><b style="color:var(--ok);">${rupiah(d.revenue)}</b></div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+              <div style="font-weight:800;margin-bottom:4px;">Modal per Peserta (${d.budgetItems.length} item)</div>
+              ${lineRows(d.budgetItems, true)}
+              ${subtotalRow(`Subtotal ${rupiah(d.costVarPerHead)}/peserta × ${d.count}`, d.costVar)}
+            </div>
+
+            <div style="margin-bottom:14px;">
+              <div style="font-weight:800;margin-bottom:4px;">Fixed Costs (${d.fixedItems.length} item)</div>
+              ${lineRows(d.fixedItems, false)}
+              ${subtotalRow("Subtotal", d.costFixed)}
+            </div>
+
+            ${d.collabItems.length ? `
+            <div style="margin-bottom:14px;">
+              <div style="font-weight:800;margin-bottom:4px;">Partner/Collab Costs (${d.collabItems.length} item) <span class="hint" style="font-weight:400;">-- di luar modal per peserta</span></div>
+              ${lineRows(d.collabItems, true)}
+              ${subtotalRow(`Subtotal ${rupiah(d.costVarExcludedPerHead)}/peserta × ${d.count}`, d.costVarExcluded)}
+            </div>` : ""}
+
+            <div style="padding-top:10px;border-top:1.5px solid var(--line);">
+              <div style="display:flex;justify-content:space-between;font-size:.9rem;"><span>Total Costs</span><b style="color:var(--err);">${rupiah(d.cost)}</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-top:4px;"><span>Income − Total Costs</span><span>${rupiah(d.revenue)} − ${rupiah(d.cost)}</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:1rem;margin-top:8px;"><span style="font-weight:800;">Profit</span><b style="color:${d.profit < 0 ? "var(--err)" : "var(--ok)"};">${rupiah(d.profit)}</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-top:2px;"><span>Margin</span><span>${rupiah(d.profit)} ÷ ${rupiah(d.revenue)} = ${d.revenue > 0 ? d.margin + "%" : "-"}</span></div>
+            </div>
+          </div>
+        </details>`;
     }
 
     // Persist CURRENT_COST_ITEMS langsung ke server -- dipanggil abis tiap
