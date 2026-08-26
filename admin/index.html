@@ -12979,7 +12979,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // ---------- PREP HUB (per-event) ----------
     const PREP_SECTIONS = [
       { type: "todos", title: icon("checkCircle") + " Prep Todos", check: true, fields: [{ key: "text", ph: "e.g. Buy materials, confirm location" }] },
-      { type: "bring", title: icon("backpack") + " Things to Bring", check: true, fields: [{ key: "text", ph: "Item name (e.g. Scissors)" }, { key: "qty", ph: "Quantity", narrow: true }] },
+      { type: "bring", title: icon("backpack") + " Things to Bring", check: true, fields: [{ key: "name" }, { key: "qty" }] },
       { type: "notes", title: icon("sticky") + " Notes & Links", check: false, fields: [{ key: "title", ph: "Title" }, { key: "url", ph: "https://youtube/article..." }, { key: "note", ph: "Note (optional)" }] },
       { type: "supplies", title: icon("cart") + " Tools & Materials", check: true, fields: [{ key: "name", ph: "Tool/material name", datalist: "costItemsList" }, { key: "link", ph: "Purchase link (Shopee, etc.)" }, { key: "note", ph: "Note (optional)" }] }
     ];
@@ -13135,8 +13135,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         buildFaqTab(),
         buildPartnerReqTab(),
         buildAsistenTab(),
-        ...PREP_SECTIONS.filter(s => s.type !== "supplies").map(buildPrepTab),
-        buildSuppliesTab(),
+        ...PREP_SECTIONS.map(sec => ITEM_PICKER_TYPES[sec.type] ? buildItemPickerTab(sec.type) : buildPrepTab(sec)),
         buildRichNoteTab(),
       ];
 
@@ -13179,8 +13178,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         prepInitialSubtab = null;
       }
 
-      PREP_SECTIONS.forEach(sec => { if (sec.type !== "supplies") renderPrepList(sec); });
-      renderSuppliesList();
+      PREP_SECTIONS.forEach(sec => { if (ITEM_PICKER_TYPES[sec.type]) renderItemPickerList(sec.type); else renderPrepList(sec); });
       loadPrepParticipants();
       loadPrepPesananSummary();
       loadPrepFaqContext();
@@ -14613,57 +14611,64 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       });
     }
 
-    // ---- Tools & Materials (type "supplies") -- BEDA dari section generic di
-    // atas: item WAJIB dipilih dari Item Database (search type-ahead, bukan
-    // native <select>/<datalist> yang kepanjangan kalau Database-nya udah
-    // banyak), nggak bisa nambah nama/link manual. Nama+link ke-isi otomatis
-    // dari item yang dipilih -- yang ditampilin di checklist cuma nama +
-    // tombol buka link (baca PREP.supplies lewat savePrep/loadPrep yang sama,
-    // cuma cara nampilin+nambahnya yang beda).
-    function buildSuppliesTab() {
+    // ---- Tools & Materials + Things to Bring (types "supplies"/"bring") --
+    // BEDA dari section generic di atas: item WAJIB dipilih dari Item Database
+    // (search type-ahead, bukan native <select>/<datalist> yang kepanjangan
+    // kalau Database-nya udah banyak), nggak bisa nambah nama/link manual.
+    // Nama+link ke-isi otomatis dari item yang dipilih. Checkbox artinya beda
+    // per section ("udah dibeli" vs "udah dibawa"), dan ada 1 extra field per
+    // baris ("note" buat supplies, "qty" buat bring) yang tetap manual (bukan
+    // dari Item Database, wajar beda-beda tiap kali dipakai).
+    const ITEM_PICKER_TYPES = {
+      supplies: { title: "Tools & Materials", icon: "cart", checkTitle: "Already bought", extraKey: "note", extraPh: "Note (optional)" },
+      bring: { title: "Things to Bring", icon: "backpack", checkTitle: "Already packed", extraKey: "qty", extraPh: "Quantity (e.g. 2)" },
+    };
+
+    function buildItemPickerTab(type) {
+      const cfg = ITEM_PICKER_TYPES[type];
       const body = document.createElement("div");
       body.innerHTML = `
         <div class="fin-card" style="margin-bottom:14px;">
           <div style="font-weight:800;margin-bottom:4px;">Add from Item Database</div>
           <p class="hint" style="margin:0 0 8px;">Ketik nama item, pilih dari rekomendasi -- nama & link belinya otomatis ke-isi. Item yang belum ada di Item Database, tambahin dulu di tab "Item Database".</p>
           <div style="position:relative;">
-            <input type="text" class="form-control" id="supplySearchInput" placeholder="Cari item... (mis. Sticker, Lem, Kertas)" autocomplete="off">
-            <div id="supplySearchResults" class="supply-search-results" style="display:none;"></div>
+            <input type="text" class="form-control" id="itemPickerSearch-${type}" placeholder="Cari item... (mis. Sticker, Lem, Kertas)" autocomplete="off">
+            <div id="itemPickerResults-${type}" class="supply-search-results" style="display:none;"></div>
           </div>
         </div>
         <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:8px;">
-          <button class="btn btn-sm btn-ghost" data-reset="supplies">↺ Reset</button>
+          <button class="btn btn-sm btn-ghost" data-reset="${type}">↺ Reset</button>
         </div>
-        <div class="prep-list" id="prep-list-supplies"></div>
+        <div class="prep-list" id="prep-list-${type}"></div>
         <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
-          <button class="btn btn-sm" data-save="supplies" disabled>${icon("save")} Save</button>
-          <span class="msg" id="prep-msg-supplies"></span>
+          <button class="btn btn-sm" data-save="${type}" disabled>${icon("save")} Save</button>
+          <span class="msg" id="prep-msg-${type}"></span>
         </div>`;
 
-      const searchInput = body.querySelector("#supplySearchInput");
-      const resultsBox = body.querySelector("#supplySearchResults");
-      searchInput.addEventListener("input", () => renderSupplySearchResults(searchInput.value, resultsBox, searchInput));
-      searchInput.addEventListener("focus", () => renderSupplySearchResults(searchInput.value, resultsBox, searchInput));
+      const searchInput = body.querySelector(`#itemPickerSearch-${type}`);
+      const resultsBox = body.querySelector(`#itemPickerResults-${type}`);
+      searchInput.addEventListener("input", () => renderItemPickerResults(type, searchInput.value, resultsBox, searchInput));
+      searchInput.addEventListener("focus", () => renderItemPickerResults(type, searchInput.value, resultsBox, searchInput));
       document.addEventListener("click", (e) => {
         if (e.target !== searchInput && !resultsBox.contains(e.target)) resultsBox.style.display = "none";
       });
 
-      body.querySelector('[data-save="supplies"]').addEventListener("click", () => savePrep("supplies"));
-      body.querySelector('[data-reset="supplies"]').addEventListener("click", () => {
-        const items = PREP.supplies || [];
+      body.querySelector(`[data-save="${type}"]`).addEventListener("click", () => savePrep(type));
+      body.querySelector(`[data-reset="${type}"]`).addEventListener("click", () => {
+        const items = PREP[type] || [];
         if (!items.length || !items.some(it => it.done)) return;
-        if (!confirm('Uncentang semua item di "Tools & Materials"?')) return;
+        if (!confirm(`Uncentang semua item di "${cfg.title}"?`)) return;
         items.forEach(it => { it.done = false; });
-        renderSuppliesList();
-        markPrepDirty("supplies");
+        renderItemPickerList(type);
+        markPrepDirty(type);
       });
 
-      return { id: "supplies", labelHtml: icon("cart") + " Tools & Materials", countId: "prep-count-supplies", bodyEl: body };
+      return { id: type, labelHtml: icon(cfg.icon) + " " + cfg.title, countId: `prep-count-${type}`, bodyEl: body };
     }
 
-    function renderSupplySearchResults(query, box, inputEl) {
+    function renderItemPickerResults(type, query, box, inputEl) {
       const q = (query || "").trim().toLowerCase();
-      const already = new Set((PREP.supplies || []).map(it => it.name));
+      const already = new Set((PREP[type] || []).map(it => it.name));
       let matches = COST_ITEMS.filter(it => !already.has(it.name) && (!q || it.name.toLowerCase().includes(q)));
       matches = matches.slice(0, 8);
       if (!matches.length) {
@@ -14682,29 +14687,31 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       box.style.display = "block";
       box.querySelectorAll("[data-pick]").forEach(rowEl => rowEl.addEventListener("click", () => {
         const costItem = COST_ITEMS.find(x => x.id === rowEl.dataset.pick);
-        if (costItem) addSupplyItem(costItem);
+        if (costItem) addItemPickerEntry(type, costItem);
         box.style.display = "none";
         if (inputEl) inputEl.value = "";
       }));
     }
 
-    function addSupplyItem(costItem) {
-      if (!PREP.supplies) PREP.supplies = [];
-      if (PREP.supplies.some(it => it.name === costItem.name)) return;
-      PREP.supplies.push({ name: costItem.name, link: costItem.link || "", note: "", done: false });
-      renderSuppliesList();
-      markPrepDirty("supplies");
-      const box = document.getElementById("prep-list-supplies");
+    function addItemPickerEntry(type, costItem) {
+      if (!PREP[type]) PREP[type] = [];
+      if (PREP[type].some(it => it.name === costItem.name)) return;
+      const cfg = ITEM_PICKER_TYPES[type];
+      PREP[type].push({ name: costItem.name, link: costItem.link || "", [cfg.extraKey]: "", done: false });
+      renderItemPickerList(type);
+      markPrepDirty(type);
+      const box = document.getElementById("prep-list-" + type);
       const rows = box ? box.querySelectorAll(".prep-row") : [];
       const last = rows[rows.length - 1];
       if (last) last.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
-    function renderSuppliesList() {
-      const box = document.getElementById("prep-list-supplies");
+    function renderItemPickerList(type) {
+      const cfg = ITEM_PICKER_TYPES[type];
+      const box = document.getElementById("prep-list-" + type);
       if (!box) return;
-      const items = PREP.supplies || [];
-      updatePrepCount({ type: "supplies", check: true });
+      const items = PREP[type] || [];
+      updatePrepCount({ type, check: true });
       if (!items.length) { box.innerHTML = `<p class="hint">Belum ada. Cari & pilih item di atas.</p>`; return; }
       box.innerHTML = "";
       items.forEach((item, idx) => {
@@ -14717,29 +14724,29 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
             <button type="button" class="move-up" ${idx === 0 ? "disabled" : ""} title="Move up">▲</button>
             <button type="button" class="move-down" ${idx === items.length - 1 ? "disabled" : ""} title="Move down">▼</button>
           </div>
-          <input type="checkbox" class="prep-check" ${item.done ? "checked" : ""} title="Already bought"/>
+          <input type="checkbox" class="prep-check" ${item.done ? "checked" : ""} title="${cfg.checkTitle}"/>
           <div class="cost-row-thumb">${thumb}</div>
           <div class="prep-fields" style="flex:1;">
             <div style="font-weight:700;padding:9px 0;">${escapeHtml(item.name)}</div>
-            <input type="text" class="prep-input form-control" data-key="note" placeholder="Note (optional)" value="${item.note != null ? escapeHtml(item.note) : ""}"/>
+            <input type="text" class="prep-input form-control" data-key="${cfg.extraKey}" placeholder="${cfg.extraPh}" value="${item[cfg.extraKey] != null ? escapeHtml(item[cfg.extraKey]) : ""}"/>
           </div>
           <a class="btn btn-sm btn-ghost" href="${item.link ? escapeHtml(item.link) : "#"}" target="_blank" rel="noopener" title="Open purchase link" style="flex-shrink:0;${item.link ? "" : "display:none;"}">${icon("link")}</a>
           <button class="del" title="Delete">&times;</button>`;
         row.querySelector(".move-up").addEventListener("click", () => {
           if (idx === 0) return;
           [items[idx - 1], items[idx]] = [items[idx], items[idx - 1]];
-          renderSuppliesList(); markPrepDirty("supplies");
+          renderItemPickerList(type); markPrepDirty(type);
         });
         row.querySelector(".move-down").addEventListener("click", () => {
           if (idx === items.length - 1) return;
           [items[idx + 1], items[idx]] = [items[idx], items[idx + 1]];
-          renderSuppliesList(); markPrepDirty("supplies");
+          renderItemPickerList(type); markPrepDirty(type);
         });
         row.querySelector(".prep-check").addEventListener("change", e => {
-          item.done = e.target.checked; markPrepDirty("supplies"); updatePrepCount({ type: "supplies", check: true });
+          item.done = e.target.checked; markPrepDirty(type); updatePrepCount({ type, check: true });
         });
-        row.querySelector('.prep-input[data-key="note"]').addEventListener("input", e => { item.note = e.target.value; markPrepDirty("supplies"); });
-        row.querySelector(".del").addEventListener("click", () => { items.splice(idx, 1); renderSuppliesList(); markPrepDirty("supplies"); });
+        row.querySelector(`.prep-input[data-key="${cfg.extraKey}"]`).addEventListener("input", e => { item[cfg.extraKey] = e.target.value; markPrepDirty(type); });
+        row.querySelector(".del").addEventListener("click", () => { items.splice(idx, 1); renderItemPickerList(type); markPrepDirty(type); });
         box.appendChild(row);
       });
     }
@@ -14761,7 +14768,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         const r = await api("savePrep", { token: getToken(), event, prepType: type, items });
         if (r.status === "success") {
           PREP[type] = items;
-          if (type === "supplies") renderSuppliesList(); else renderPrepList(sec);
+          if (ITEM_PICKER_TYPES[type]) renderItemPickerList(type); else renderPrepList(sec);
           const btn = document.querySelector(`[data-save="${type}"]`);
           if (btn) btn.disabled = true; // balik nonaktif sampai ada perubahan lagi
           msg.className = "msg ok"; msg.textContent = "Saved ✓";
