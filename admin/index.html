@@ -4752,14 +4752,17 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   </div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Location</label><input class="form-control" type="text" id="batchLoc" placeholder="follows Config"></div>
-                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Time</label><input class="form-control" type="text" id="batchTime" placeholder="follows Config"></div>
+                  <div class="konten-field" style="flex:2;min-width:180px;"><label>Location</label><input class="form-control" type="text" id="batchLoc" placeholder="follows Config"></div>
+                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Time From</label><input class="form-control" type="time" id="batchTimeStart"></div>
+                  <div class="konten-field" style="flex:1;min-width:130px;"><label>Time To</label><input class="form-control" type="time" id="batchTimeEnd"></div>
                 </div>
+                <p class="hint" id="batchTimeHint" style="margin:-6px 0 10px;"></p>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:1;min-width:180px;"><label>Maps Link</label><input class="form-control" type="text" id="batchMapsLink" placeholder="follows Config"></div>
                   <div class="konten-field" style="flex:1;min-width:180px;"><label>WhatsApp Group Link</label><input class="form-control" type="text" id="batchWaLink" placeholder="follows Config"></div>
                 </div>
-                <div class="konten-field"><label>Event date (display text, e.g. "Saturday, September 12, 2026")</label><input class="form-control" type="text" id="batchWorkshopDate" placeholder="follows Config"></div>
+                <div class="konten-field"><label>Event Date</label><input class="form-control" type="date" id="batchEventDate"></div>
+                <p class="hint" id="batchEventDateHint" style="margin:-6px 0 10px;"></p>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:1;min-width:180px;"><label>Regular Price (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchNormalPrice" placeholder="follows Config"></div>
                   <div class="konten-field" style="flex:1;min-width:180px;"><label>Max Quota</label><input class="form-control" type="text" inputmode="numeric" id="batchMaxQuota" placeholder="follows Config"></div>
@@ -4768,10 +4771,17 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <div class="konten-field" style="flex:1;min-width:180px;"><label>Early Bird Price (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdPrice" placeholder="follows Config"></div>
                   <div class="konten-field" style="flex:1;min-width:180px;"><label>Early Bird Count Limit</label><input class="form-control" type="text" inputmode="numeric" id="batchEarlyBirdMaxCount" placeholder="follows Config"></div>
                 </div>
-                <div class="konten-field"><label>Early Bird Deadline</label><input class="form-control" type="text" id="batchEarlyBirdDueDate" placeholder="follows Config, e.g. July 11, 2026"></div>
+                <div class="konten-field"><label>Early Bird Deadline</label><input class="form-control" type="date" id="batchEarlyBirdDueDate"></div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Open Date</label><input class="form-control" type="text" id="batchOpenDate" placeholder="follows Config, e.g. July 1, 2026"></div>
-                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Close Date</label><input class="form-control" type="text" id="batchCloseDate" placeholder="follows Config, e.g. July 10, 2026"></div>
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Open Date</label><input class="form-control" type="date" id="batchOpenDate"></div>
+                  <div class="konten-field" style="flex:1;min-width:180px;"><label>Registration Close Date</label><input class="form-control" type="date" id="batchCloseDate"></div>
+                </div>
+                <div class="konten-field">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                    <input type="checkbox" id="batchHideFromPicker" style="width:16px;height:16px;">
+                    Hide from public batch picker
+                  </label>
+                  <p class="hint" style="margin-top:4px;">Batch tetap aktif & bisa didaftarin -- cuma nggak muncul di pemilih sesi publik. Masih bisa diakses lewat link langsung <code>?vol=&lt;label/angka batch ini&gt;</code>.</p>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
                   <button class="btn btn-sm" id="batchDetailSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Batch Detail</button>
@@ -9002,10 +9012,27 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         el.placeholder = "ikut Config" + (cfgVal ? ` (${cfgLabelFn ? cfgLabelFn(cfgVal) : cfgVal})` : "");
       };
       textField("batchLoc", "locationName", "locationName");
-      textField("batchTime", "workshopTime", "workshopTime");
       textField("batchMapsLink", "mapsLink", "mapsLink", () => "ada di Config");
       textField("batchWaLink", "whatsappGroupLink", "whatsappGroupLink", () => "ada di Config");
-      textField("batchWorkshopDate", "workshopDate", "workshopDate");
+
+      // Time -- disimpen sebagai 1 string "HH:MM - HH:MM WIB", tapi diedit
+      // lewat 2 input type=time (From/To) biar beneran ada jam picker,
+      // bukan ngetik manual. Best-effort parse dari string lama (kalau
+      // formatnya masih pola "HH:MM - HH:MM ..."; kalau nggak match --
+      // data lawas format bebas -- dikosongin aja, biar diisi ulang.
+      const timeVal = (b && b.workshopTime) || "";
+      const timeMatch = /(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/.exec(timeVal);
+      document.getElementById("batchTimeStart").value = timeMatch ? timeMatch[1] : "";
+      document.getElementById("batchTimeEnd").value = timeMatch ? timeMatch[2] : "";
+      document.getElementById("batchTimeHint").textContent =
+        "ikut Config" + (w && w.workshopTime ? ` (${w.workshopTime})` : "") +
+        (timeVal && !timeMatch ? ` — nilai lama: "${timeVal}" (pilih ulang dari jam di atas)` : "");
+
+      // Event date -- ISO asli (event_date), bukan lagi teks tampilan manual
+      // ("workshop_date" udah nggak diedit lewat form ini, otomatis
+      // ke-derive dari Event Date ini -- lihat saveCfgBatchDetailFn()).
+      document.getElementById("batchEventDate").value = (b && b.eventDate) || "";
+      document.getElementById("batchEventDateHint").textContent = w && w.eventDate ? `ikut Config (${w.eventDate})` : "";
 
       const priceField = (elId, batchKey, cfgKey) => {
         const el = document.getElementById(elId);
@@ -9025,9 +9052,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       numField("batchMaxQuota", "maxQuota", "maxQuota");
       numField("batchEarlyBirdMaxCount", "earlyBirdMaxCount", "earlyBirdMaxCount");
 
-      textField("batchEarlyBirdDueDate", "earlyBirdDueDate", "earlyBirdDueDate");
-      textField("batchOpenDate", "openDate", "openDate");
-      textField("batchCloseDate", "closeDate", "closeDate");
+      document.getElementById("batchEarlyBirdDueDate").value = (b && b.earlyBirdDueDate) || "";
+      document.getElementById("batchOpenDate").value = (b && b.openDate) || "";
+      document.getElementById("batchCloseDate").value = (b && b.closeDate) || "";
+      document.getElementById("batchHideFromPicker").checked = !!(b && b.hideFromPicker);
     }
 
     async function saveCfgBatchDetailFn() {
@@ -9037,13 +9065,22 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const label = document.getElementById("batchLabelInput").value.trim();
       if (!label) { msg.className = "msg err"; msg.textContent = "Batch name can't be empty."; return; }
       msg.className = "msg"; msg.textContent = "Saving...";
+      const timeStart = document.getElementById("batchTimeStart").value;
+      const timeEnd = document.getElementById("batchTimeEnd").value;
+      let workshopTime = "";
+      if (timeStart && timeEnd) workshopTime = `${timeStart} - ${timeEnd} WIB`;
+      else if (timeStart) workshopTime = `${timeStart} WIB`;
       const r = await api("renameBatch", {
         token: getToken(), batchId, label,
         locationName: document.getElementById("batchLoc").value,
-        workshopTime: document.getElementById("batchTime").value,
+        workshopTime,
         mapsLink: document.getElementById("batchMapsLink").value,
         whatsappGroupLink: document.getElementById("batchWaLink").value,
-        workshopDate: document.getElementById("batchWorkshopDate").value,
+        // Teks tampilan manual udah nggak diedit di sini -- selalu
+        // dikosongin biar auto-derive dari Event Date (lihat mergeBatchConfig
+        // di backend: workshop_date kosong -> fallback format dari event_date).
+        workshopDate: "",
+        eventDate: document.getElementById("batchEventDate").value,
         normalPrice: parseRibuan(document.getElementById("batchNormalPrice").value) || "",
         earlyBirdPrice: parseRibuan(document.getElementById("batchEarlyBirdPrice").value) || "",
         earlyBirdMaxCount: document.getElementById("batchEarlyBirdMaxCount").value,
@@ -9051,6 +9088,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         earlyBirdDueDate: document.getElementById("batchEarlyBirdDueDate").value,
         openDate: document.getElementById("batchOpenDate").value,
         closeDate: document.getElementById("batchCloseDate").value,
+        hideFromPicker: document.getElementById("batchHideFromPicker").checked,
       });
       if (r && r.status === "success") {
         // Refresh CFG_BATCHES TANPA reset pilihan dropdown (beda dari

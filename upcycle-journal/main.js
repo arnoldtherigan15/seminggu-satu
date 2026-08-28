@@ -42,6 +42,24 @@ let _selectedBatchId = null;
 let _isEarlyBird = false;
 let _currentPrice = 0;
 
+// Direct-link ke sesi tertentu, mis. ?vol=5 atau ?batch=Vol%205 -- dicari
+// dulu match PERSIS ke label batch (case-insensitive), kalau nggak ketemu
+// & query-nya angka, dicoba match ke angka yang ada di label ("Vol 5" -> 5).
+function matchBatchFromQuery() {
+    const params = new URLSearchParams(location.search);
+    const q = (params.get('vol') || params.get('batch') || '').trim();
+    if (!q) return null;
+    const exact = _openBatches.find(function (b) { return String(b.label || '').toLowerCase() === q.toLowerCase(); });
+    if (exact) return exact.id;
+    const qNum = q.match(/\d+/);
+    if (!qNum) return null;
+    const numMatch = _openBatches.find(function (b) {
+        const m = String(b.label || '').match(/\d+/);
+        return m && m[0] === qNum[0];
+    });
+    return numMatch ? numMatch.id : null;
+}
+
 const discountPriceEl = document.getElementById('discountPriceEl');
 const currentPriceEl = document.getElementById('currentPriceEl');
 const paymentAmountEl = document.getElementById('paymentAmount');
@@ -53,10 +71,13 @@ function getSelectedBatch() { return _openBatches.find(function (b) { return b.i
 function renderBatchPicker() {
     const box = document.getElementById('batchPicker');
     if (!box) return;
-    if (_openBatches.length < 2) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    // Sesi yang ditandain hideFromPicker (masih aktif, cuma link-only) nggak
+    // ditampilin di sini -- cuma bisa dijangkau lewat ?vol=/?batch= langsung.
+    const visibleBatches = _openBatches.filter(function (b) { return !b.hideFromPicker; });
+    if (visibleBatches.length < 2) { box.style.display = 'none'; box.innerHTML = ''; return; }
     box.style.display = 'block';
     box.innerHTML = '<p style="font-size:0.85rem;font-weight:600;margin:0 0 8px;">Pilih sesi:</p>' +
-        _openBatches.map(function (b) {
+        visibleBatches.map(function (b) {
             return '<div class="batch-opt" data-batch="' + b.id + '" style="border:2px solid ' + (b.id === _selectedBatchId ? 'var(--brand,#5e72e4)' : '#e5e7eb') + ';border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;">' +
                 '<div style="font-weight:700;">' + (b.label || 'Sesi') + '</div>' +
                 '<div style="font-size:0.82rem;color:#6b7280;">' + (b.displayDate || '-') + (b.workshopTime ? ' · ' + b.workshopTime : '') + ' — sisa ' + (b.remaining == null ? '?' : b.remaining) + ' slot</div></div>';
@@ -245,7 +266,8 @@ async function loadOpenBatches() {
         return;
     }
     if (!_selectedBatchId || !_openBatches.find(function (b) { return b.id === _selectedBatchId; })) {
-        _selectedBatchId = _openBatches[0].id;
+        const visible = _openBatches.filter(function (b) { return !b.hideFromPicker; });
+        _selectedBatchId = matchBatchFromQuery() || (visible[0] || _openBatches[0]).id;
     }
     renderBatchPicker();
     applyBatchDisplay(); // ini juga yang manggil renderBagSliders/renderStrapColors

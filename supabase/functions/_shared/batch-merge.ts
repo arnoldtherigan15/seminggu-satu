@@ -55,6 +55,7 @@ export interface MergedBatch {
   maxQuota: number;
   openDateIso: string | null;
   closeDateIso: string | null;
+  hideFromPicker: boolean;
 }
 
 export function mergeBatchConfig(batch: BatchRow, typeConfig: TypeConfig): MergedBatch {
@@ -82,6 +83,9 @@ export function mergeBatchConfig(batch: BatchRow, typeConfig: TypeConfig): Merge
     maxQuota: Number(batch.max_quota ?? typeConfig.maxQuota) || 0,
     openDateIso: batch.open_date || idDateToIso(typeConfig.openDate),
     closeDateIso: batch.close_date || idDateToIso(typeConfig.closeDate),
+    // Murni per-batch, TANPA fallback Config -- ini soal "batch mana yang
+    // ditampilin di picker publik", bukan default yang wajar diwarisin tipe.
+    hideFromPicker: !!batch.hide_from_picker,
   };
 }
 

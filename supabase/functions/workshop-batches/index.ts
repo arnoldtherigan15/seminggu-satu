@@ -44,6 +44,10 @@ Deno.serve(async (req) => {
       earlyBirdMaxCount: merged.earlyBirdMaxCount,
       currentPrice: currentPrice(merged, usedCount),
       maxQuota: merged.maxQuota, count: usedCount, remaining, status: "open",
+      // Batch tetap ADA di response (masih valid buat direct-link ?vol=/?batch=
+      // & tetap dihitung normal) -- ini cuma sinyal buat klien: jangan
+      // tampilin di daftar pemilih sesi publik.
+      hideFromPicker: merged.hideFromPicker,
     };
 
     if (b.workshop_type === "upcycle-journal") {

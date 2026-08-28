@@ -440,6 +440,7 @@ Deno.serve(async (req) => {
             normalPrice: b.normal_price, earlyBirdPrice: b.early_bird_price,
             earlyBirdDueDate: b.early_bird_due_date || "", earlyBirdMaxCount: b.early_bird_max_count,
             maxQuota: b.max_quota, openDate: b.open_date || "", closeDate: b.close_date || "",
+            hideFromPicker: !!b.hide_from_picker,
           });
         }
         return jsonResponse({ status: "success", workshop, batches });
@@ -584,6 +585,10 @@ Deno.serve(async (req) => {
           if (!parsed) return errorResponse(`Format tanggal "${raw}" nggak dikenali. Coba format "11 Juli 2026" atau "2026-07-11".`);
           patch[col] = parsed;
         }
+        // Bukan override "kosong = ikut Config" kayak field lain di atas --
+        // ini murni per-batch, selalu dikirim eksplisit true/false dari
+        // checkbox di Batch Detail.
+        if (data.hideFromPicker !== undefined) patch.hide_from_picker = !!data.hideFromPicker;
         if (!Object.keys(patch).length) return errorResponse("Nggak ada yang diubah.");
         const { error } = await admin.from("batches").update(patch).eq("id", batchId);
         if (error) return errorResponse("Gagal menyimpan perubahan: " + error.message);
