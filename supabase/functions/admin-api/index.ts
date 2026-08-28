@@ -1781,6 +1781,142 @@ Kasih:
         return jsonResponse({ status: "success", theme });
       }
 
+      // ---------- TASK TRACKER ----------
+      // Board Backlog/In Progress/Done -- task MANUAL (dibikin Arnold sendiri)
+      // digabung sama task AUTO (di-generate server tiap getTaskBoard dipanggil,
+      // pas kedeteksi ada data yang kelupaan diisi: Cost & Budget per batch,
+      // Prep per workshop type, Venue per batch). Auto-task cuma dibikin SEKALI
+      // per (check_type, ref) -- kalau row-nya udah ada (status apapun), nggak
+      // dibikin ulang walau gap-nya masih ada, biar Arnold bisa dismiss
+      // permanen (mark Done manual) tanpa harus beneran isi datanya.
+      case "getTaskBoard": {
+        let cfg: Record<string, unknown>[] = [];
+        try { cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
+        const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
+        const workshopName = (type: string) => String((cfgByType.get(type) as Record<string, unknown> | undefined)?.name || type);
+
+        const { data: allBatches } = await admin.from("batches").select("*").eq("archived", false);
+        const { data: costRows } = await admin.from("workshop_costs").select("workshop_type, batch");
+        const hasCostSet = new Set((costRows || []).map((c) => `${c.workshop_type}::${c.batch}`));
+        const { data: existingTasks } = await admin.from("tasks").select("*");
+        const existingByKey = new Map(
+          (existingTasks || []).filter((t) => t.source === "auto")
+            .map((t) => [`${t.check_type}::${t.ref_batch_id || t.ref_workshop_type}`, t]),
+        );
+
+        // deno-lint-ignore no-explicit-any
+        const toInsert: any[] = [];
+        const toResolve: string[] = []; // ids to flip -> done
+
+        const activeTypesWithBatch = new Set<string>();
+        for (const b of allBatches || []) {
+          const typeConfig = cfgByType.get(b.workshop_type) || {};
+          const merged = mergeBatchConfig(b, typeConfig);
+          // "Masih relevan buat ditagih": batch aktif, ATAU tanggal eventnya
+          // belum lewat/belum diisi -- batch lama yang udah kelar ga usah
+          // ditagih kalau emang udah nggak aktif & tanggalnya lewat.
+          const stillRelevant = b.active || !merged.eventDateIso || merged.eventDateIso >= today();
+          if (!stillRelevant) continue;
+          if (b.active) activeTypesWithBatch.add(b.workshop_type);
+
+          const costKey = `${b.workshop_type}::${b.id}`;
+          const missingCost = !hasCostSet.has(costKey);
+          const existingCost = existingByKey.get(`cost_budget::${b.id}`);
+          if (missingCost && !existingCost) {
+            toInsert.push({
+              title: `Isi Cost & Budget untuk ${workshopName(b.workshop_type)} — ${b.label}`,
+              description: "Belum ada item Cost & Budget yang tercatat buat batch ini.",
+              source: "auto", check_type: "cost_budget",
+              ref_workshop_type: b.workshop_type, ref_batch_id: b.id,
+            });
+          } else if (!missingCost && existingCost && existingCost.status !== "done") {
+            toResolve.push(existingCost.id);
+          }
+
+          const missingVenue = !merged.locationName && !merged.mapsLink;
+          const existingVenue = existingByKey.get(`venue::${b.id}`);
+          if (missingVenue && !existingVenue) {
+            toInsert.push({
+              title: `Isi venue untuk ${workshopName(b.workshop_type)} — ${b.label}`,
+              description: "Belum ada nama lokasi/link Google Maps buat batch ini (dan Config workshop-nya juga belum ada default).",
+              source: "auto", check_type: "venue",
+              ref_workshop_type: b.workshop_type, ref_batch_id: b.id,
+            });
+          } else if (!missingVenue && existingVenue && existingVenue.status !== "done") {
+            toResolve.push(existingVenue.id);
+          }
+        }
+
+        for (const type of activeTypesWithBatch) {
+          let supplies: unknown[] = [], bring: unknown[] = [];
+          try { supplies = JSON.parse((await getConfigValue(admin, prepKey(type, "supplies"))) || "[]"); } catch (_e) { /* abaikan */ }
+          try { bring = JSON.parse((await getConfigValue(admin, prepKey(type, "bring"))) || "[]"); } catch (_e) { /* abaikan */ }
+          const missingPrep = (!Array.isArray(supplies) || !supplies.length) && (!Array.isArray(bring) || !bring.length);
+          const existingPrep = existingByKey.get(`prep::${type}`);
+          if (missingPrep && !existingPrep) {
+            toInsert.push({
+              title: `Lengkapi Prep (Tools & Materials / Things to Bring) untuk ${workshopName(type)}`,
+              description: "Tools & Materials dan Things to Bring di Prep masih kosong buat event ini.",
+              source: "auto", check_type: "prep",
+              ref_workshop_type: type, ref_batch_id: null,
+            });
+          } else if (!missingPrep && existingPrep && existingPrep.status !== "done") {
+            toResolve.push(existingPrep.id);
+          }
+        }
+
+        if (toInsert.length) await admin.from("tasks").insert(toInsert);
+        if (toResolve.length) await admin.from("tasks").update({ status: "done", updated_at: new Date().toISOString() }).in("id", toResolve);
+
+        const { data: rows } = await admin.from("tasks").select("*").order("created_at", { ascending: false });
+        const batchLabelById = new Map((allBatches || []).map((b) => [b.id, `${workshopName(b.workshop_type)} — ${b.label}`]));
+        const tasks = (rows || []).map((t) => ({
+          id: t.id, title: t.title, description: t.description || "", status: t.status, source: t.source,
+          checkType: t.check_type, refWorkshopType: t.ref_workshop_type, refBatchId: t.ref_batch_id,
+          refLabel: t.ref_batch_id ? (batchLabelById.get(t.ref_batch_id) || "") : (t.ref_workshop_type ? workshopName(t.ref_workshop_type) : ""),
+          dueDate: t.due_date, createdAt: t.created_at,
+        }));
+        return jsonResponse({ status: "success", tasks });
+      }
+
+      case "saveTask": {
+        const id = String(data.id || "");
+        const status = ["backlog", "in_progress", "done"].includes(String(data.status)) ? String(data.status) : "backlog";
+        if (id) {
+          // deno-lint-ignore no-explicit-any
+          const patch: Record<string, any> = { status, updated_at: new Date().toISOString() };
+          // Task auto: judul & tipe dikunci sistem, cuma status/description/
+          // due date yang boleh diubah dari UI.
+          const { data: existing } = await admin.from("tasks").select("source").eq("id", id).maybeSingle();
+          if (!existing) return errorResponse("Task tidak ditemukan.");
+          if (existing.source !== "auto" && data.title != null) patch.title = String(data.title).trim() || "Tanpa judul";
+          if (data.description != null) patch.description = String(data.description).trim() || null;
+          if (data.dueDate != null) patch.due_date = String(data.dueDate).trim() || null;
+          const { error } = await admin.from("tasks").update(patch).eq("id", id);
+          if (error) return errorResponse("Gagal update task: " + error.message);
+        } else {
+          const title = String(data.title || "").trim();
+          if (!title) return errorResponse("Judul task wajib diisi.");
+          const { error } = await admin.from("tasks").insert({
+            title, description: String(data.description || "").trim() || null,
+            status, source: "manual", due_date: String(data.dueDate || "").trim() || null,
+          });
+          if (error) return errorResponse("Gagal bikin task: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Task tersimpan." });
+      }
+
+      case "deleteTask": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("Task tidak ditemukan.");
+        const { data: existing } = await admin.from("tasks").select("source").eq("id", id).maybeSingle();
+        if (!existing) return errorResponse("Task tidak ditemukan.");
+        if (existing.source === "auto") return errorResponse("Task otomatis nggak bisa dihapus -- tandai Done aja kalau mau dismiss.");
+        const { error } = await admin.from("tasks").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus task: " + error.message);
+        return jsonResponse({ status: "success", message: "Task dihapus." });
+      }
+
       case "listPartnerDocs": {
         const type = String(data.type || "");
         if (type !== "mou" && type !== "invoice") return errorResponse("Unknown document type: " + type);

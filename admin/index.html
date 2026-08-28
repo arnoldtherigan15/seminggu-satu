@@ -888,6 +888,12 @@
       letter-spacing: .04em;
       padding: 5px 12px;
       border-radius: 999px;
+      /* Sebagian badge isinya kalimat panjang (bukan tag singkat) -- tanpa
+         ini flex item defaultnya nolak menyusut/wrap (min-width:auto bawaan
+         flexbox), jadi teksnya kepotong nabrak tepi layar di HP. */
+      min-width: 0;
+      max-width: 100%;
+      white-space: normal;
     }
 
     /* --- Tables --- */
@@ -4336,6 +4342,9 @@
           <button class="nav-btn" data-view="activity">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg></span> Notifications <span class="nav-badge" id="navActBadge" style="display:none;"></span>
           </button>
+          <button class="nav-btn" data-view="tasks">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 1h-11a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zM2 2h4v2H2zm7 0h5v2H9zM4.5 6a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5zm5 0a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"/></svg></span> Tasks <span class="nav-badge" id="navTaskBadge" style="display:none;"></span>
+          </button>
           </div>
           </details>
           <details class="nav-acc">
@@ -4632,6 +4641,27 @@
                 <div class="msg" id="riSaveMsg"></div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- ===== VIEW: TASK TRACKER (backlog manual + auto-detect data yang
+             belom diisi: Cost & Budget/Prep/Venue per batch) ===== -->
+        <div class="wrap view" id="viewTasks" style="display:none;">
+          <div class="toolbar">
+            <button class="btn btn-sm btn-ghost" id="taskReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+            <button class="btn btn-sm" id="taskAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Task</button>
+          </div>
+          <p class="hint" style="margin:0 0 10px;">Task manual yang kamu bikin, DIGABUNG sama task otomatis yang muncul sendiri pas ada data yang kelupaan diisi (Cost &amp; Budget per batch, Prep, Venue). Tap kartunya buat ubah status atau lihat detail.</p>
+
+          <div class="subtabs" id="taskSubtabs">
+            <div class="subtab-bar">
+              <button class="subtab-btn" type="button" data-tab="backlog"><span id="taskTabBacklog">Backlog</span></button>
+              <button class="subtab-btn" type="button" data-tab="in_progress"><span id="taskTabInProgress">In Progress</span></button>
+              <button class="subtab-btn" type="button" data-tab="done"><span id="taskTabDone">Done</span></button>
+            </div>
+            <div class="subtab-panel" data-tab="backlog"><div id="taskListBacklog"></div></div>
+            <div class="subtab-panel" data-tab="in_progress"><div id="taskListInProgress"></div></div>
+            <div class="subtab-panel" data-tab="done"><div id="taskListDone"></div></div>
           </div>
         </div>
 
@@ -5708,6 +5738,42 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
   </div>
 
   <!-- Layar Tambah/Edit Venue (Event Roadmap) -->
+  <!-- Layar Tambah/Edit Task (Task Tracker) -->
+  <div id="taskFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="taskFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="taskFormTitle">New Task</div>
+        <button class="filter-reset-link" id="taskFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="taskId">
+        <input type="hidden" id="taskSource">
+        <div class="konten-field"><label>Title</label><input class="form-control" type="text" id="taskTitle" placeholder="e.g. Follow up vendor katering"></div>
+        <div class="konten-field"><label>Description</label><textarea class="form-control" id="taskDescription" rows="3" placeholder="Detail (opsional)"></textarea></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:1;min-width:140px;">
+            <label>Status</label>
+            <select class="form-control" id="taskStatus">
+              <option value="backlog">Backlog</option>
+              <option value="in_progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div class="konten-field" style="flex:1;min-width:140px;"><label>Due Date (optional)</label><input class="form-control" type="date" id="taskDueDate"></div>
+        </div>
+        <div id="taskAutoHint" style="display:none;">
+          <div class="hint" style="margin:4px 0 8px;">🔎 Task ini otomatis kedetect sistem. Judulnya nggak bisa diubah -- kalau datanya udah diisi, task ini bakal otomatis pindah ke Done sendiri pas Reload. Mau dismiss manual aja tanpa isi datanya? Ganti status ke Done.</div>
+          <a href="#" id="taskAutoGoLink" class="btn btn-sm btn-ghost" style="display:none;"></a>
+        </div>
+        <div class="msg" id="taskMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="taskSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Task</button>
+      </div>
+    </div>
+  </div>
+
   <div id="venueFormOverlay" class="filter-overlay" style="display:none;">
     <div class="filter-overlay-box">
       <div class="filter-overlay-head">
@@ -6551,6 +6617,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       applyHash(); // buka view sesuai URL hash (default overview)
       window.scrollTo(0, 0);
       loadActivity(); // isi badge notifikasi di sidebar, biar keliatan walau belum buka tabnya
+      loadTasks(); // isi badge task di sidebar, biar keliatan walau belum buka tabnya
     }
 
     let pendaftarInit = false;
@@ -6995,7 +7062,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "roadmap", "personal", "notes"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2]);
     }
@@ -7031,6 +7098,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("viewMembers").style.display = (view === "members") ? "block" : "none";
       document.getElementById("viewPesanan").style.display = (view === "pesanan") ? "block" : "none";
       document.getElementById("viewRoadmap").style.display = (view === "roadmap") ? "block" : "none";
+      document.getElementById("viewTasks").style.display = (view === "tasks") ? "block" : "none";
       document.getElementById("viewPersonal").style.display = (view === "personal") ? "block" : "none";
       document.getElementById("viewNotes").style.display = (view === "notes") ? "block" : "none";
       applySubtabBarHeightVar();
@@ -7050,6 +7118,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "members") { ensureMembers(); if (event && memberTabsCtl) memberTabsCtl.show(event); }
       if (view === "pesanan") ensurePesanan(event, subtab);
       if (view === "roadmap") { ensureRoadmapView(); if (event && roadmapTabsCtl) roadmapTabsCtl.show(event); }
+      if (view === "tasks") ensureTasksView();
       if (view === "personal") { ensurePersonal(); if (event && perTabsCtl) perTabsCtl.show(event); }
       if (view === "notes") ensureNotesView();
     }
@@ -8510,6 +8579,148 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           </div>
           <div class="hint" style="margin-top:4px;">${b.count}${b.maxQuota ? "/" + b.maxQuota : ""} peserta${b.soldOut ? " · sold out 🎯" : ""} · Profit ${rupiah(b.profit)}</div>
         </div>`).join("");
+    }
+
+    // ---------- TASK TRACKER ----------
+    let TASKS = [];
+    let taskInit = false;
+    let taskTabsCtl = null;
+    const TASK_CHECK_LINKS = {
+      cost_budget: { label: "Buka Costs & Budget", hash: "keuangan:modal" },
+      venue: { label: "Buka Config", hash: "config" },
+      prep: null, // di-isi dinamis (butuh refWorkshopType) di renderTaskAutoLink()
+    };
+
+    async function ensureTasksView() {
+      if (!taskInit) {
+        document.getElementById("taskReloadBtn").addEventListener("click", loadTasks);
+        taskTabsCtl = wireSubtabs(document.getElementById("taskSubtabs"), () => {});
+        document.getElementById("taskAddBtn").addEventListener("click", () => { newTaskForm(); openTaskForm(false); });
+        document.getElementById("taskFormBackBtn").addEventListener("click", closeTaskForm);
+        document.getElementById("taskFormOverlay").addEventListener("click", (e) => { if (e.target.id === "taskFormOverlay") closeTaskForm(); });
+        document.getElementById("taskFormDeleteBtn").addEventListener("click", async () => {
+          const id = document.getElementById("taskId").value;
+          if (id && await deleteTaskFn(id)) closeTaskForm();
+        });
+        document.getElementById("taskSaveBtn").addEventListener("click", saveTaskForm);
+        document.getElementById("taskAutoGoLink").addEventListener("click", closeTaskForm);
+        taskInit = true;
+      }
+      await loadTasks();
+    }
+
+    async function loadTasks() {
+      const r = await api("getTaskBoard", { token: getToken() });
+      if (r && r.status === "success") TASKS = r.tasks || [];
+      else handleAuthError(r);
+      renderTaskColumns();
+      updateTaskBadge();
+    }
+
+    function updateTaskBadge() {
+      const badge = document.getElementById("navTaskBadge");
+      if (!badge) return;
+      const openCount = TASKS.filter(t => t.status !== "done").length;
+      badge.textContent = openCount;
+      badge.style.display = openCount ? "" : "none";
+    }
+
+    function taskCard(t) {
+      const bits = [];
+      if (t.refLabel) bits.push(escapeHtml(t.refLabel));
+      if (t.dueDate) bits.push("Due " + escapeHtml(t.dueDate));
+      return `
+        <div class="fin-card" style="margin-bottom:8px;padding:14px;cursor:pointer;" data-edittask="${t.id}">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+            <b>${escapeHtml(t.title)}</b>
+            ${t.source === "auto" ? '<span class="hint" style="flex-shrink:0;background:#eef2ff;color:#4338ca;padding:2px 8px;border-radius:999px;font-weight:700;">Auto</span>' : ""}
+          </div>
+          ${t.description ? `<div class="hint" style="margin:4px 0 0;">${escapeHtml(t.description)}</div>` : ""}
+          ${bits.length ? `<div class="hint" style="margin-top:4px;">${bits.join(" · ")}</div>` : ""}
+        </div>`;
+    }
+
+    function renderTaskColumns() {
+      const cols = [
+        { status: "backlog", listId: "taskListBacklog", tabId: "taskTabBacklog", label: "Backlog", empty: "Nggak ada backlog. Mantap! 🎉" },
+        { status: "in_progress", listId: "taskListInProgress", tabId: "taskTabInProgress", label: "In Progress", empty: "Belum ada yang lagi dikerjain." },
+        { status: "done", listId: "taskListDone", tabId: "taskTabDone", label: "Done", empty: "Belum ada yang kelar." },
+      ];
+      cols.forEach(c => {
+        const items = TASKS.filter(t => t.status === c.status);
+        document.getElementById(c.tabId).textContent = `${c.label} (${items.length})`;
+        const box = document.getElementById(c.listId);
+        box.innerHTML = items.length ? items.map(taskCard).join("") : `<p class="hint">${c.empty}</p>`;
+        box.querySelectorAll("[data-edittask]").forEach(el => el.addEventListener("click", () => editTask(el.dataset.edittask)));
+      });
+    }
+
+    function openTaskForm(isEdit) {
+      document.getElementById("taskFormTitle").textContent = isEdit ? "Edit Task" : "New Task";
+      document.getElementById("taskFormOverlay").style.display = "flex";
+    }
+    function closeTaskForm() { document.getElementById("taskFormOverlay").style.display = "none"; }
+
+    function newTaskForm() {
+      document.getElementById("taskId").value = "";
+      document.getElementById("taskSource").value = "manual";
+      document.getElementById("taskTitle").value = "";
+      document.getElementById("taskTitle").disabled = false;
+      document.getElementById("taskDescription").value = "";
+      document.getElementById("taskStatus").value = "backlog";
+      document.getElementById("taskDueDate").value = "";
+      document.getElementById("taskAutoHint").style.display = "none";
+      document.getElementById("taskFormDeleteBtn").style.display = "none";
+      document.getElementById("taskMsg").textContent = "";
+    }
+
+    function editTask(id) {
+      const t = TASKS.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById("taskId").value = t.id;
+      document.getElementById("taskSource").value = t.source;
+      document.getElementById("taskTitle").value = t.title;
+      document.getElementById("taskTitle").disabled = t.source === "auto";
+      document.getElementById("taskDescription").value = t.description || "";
+      document.getElementById("taskStatus").value = t.status;
+      document.getElementById("taskDueDate").value = t.dueDate || "";
+      document.getElementById("taskMsg").textContent = "";
+      const autoHint = document.getElementById("taskAutoHint");
+      const goLink = document.getElementById("taskAutoGoLink");
+      if (t.source === "auto") {
+        autoHint.style.display = "block";
+        let link = TASK_CHECK_LINKS[t.checkType];
+        if (t.checkType === "prep" && t.refWorkshopType) link = { label: "Buka Prep", hash: `prep:${t.refWorkshopType}:supplies` };
+        if (link) { goLink.style.display = "inline-flex"; goLink.textContent = link.label; goLink.href = "#" + link.hash; }
+        else goLink.style.display = "none";
+      } else {
+        autoHint.style.display = "none";
+      }
+      document.getElementById("taskFormDeleteBtn").style.display = t.source === "manual" ? "inline-flex" : "none";
+      openTaskForm(true);
+    }
+
+    async function saveTaskForm() {
+      const msg = document.getElementById("taskMsg");
+      const title = document.getElementById("taskTitle").value.trim();
+      if (!title) { msg.className = "msg err"; msg.textContent = "Judul task wajib diisi."; return; }
+      msg.className = "msg"; msg.textContent = "Menyimpan...";
+      const r = await api("saveTask", {
+        token: getToken(), id: document.getElementById("taskId").value, title,
+        description: document.getElementById("taskDescription").value.trim(),
+        status: document.getElementById("taskStatus").value,
+        dueDate: document.getElementById("taskDueDate").value,
+      });
+      if (r && r.status === "success") { closeTaskForm(); await loadTasks(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
+    }
+
+    async function deleteTaskFn(id) {
+      if (!id) return false;
+      if (!confirm("Hapus task ini?")) return false;
+      const r = await api("deleteTask", { token: getToken(), id });
+      if (r && r.status === "success") { await loadTasks(); return true; }
+      handleAuthError(r); alert((r && r.message) || "Gagal menghapus."); return false;
     }
 
     // ---------- CONFIG EDITOR ----------
