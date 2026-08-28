@@ -56,6 +56,7 @@ export interface MergedBatch {
   openDateIso: string | null;
   closeDateIso: string | null;
   hideFromPicker: boolean;
+  description: string;
 }
 
 export function mergeBatchConfig(batch: BatchRow, typeConfig: TypeConfig): MergedBatch {
@@ -86,6 +87,9 @@ export function mergeBatchConfig(batch: BatchRow, typeConfig: TypeConfig): Merge
     // Murni per-batch, TANPA fallback Config -- ini soal "batch mana yang
     // ditampilin di picker publik", bukan default yang wajar diwarisin tipe.
     hideFromPicker: !!batch.hide_from_picker,
+    // Tema/deskripsi bisa beda tiap batch (mis. Reka Rekat ganti tema tiap
+    // volume) -- kosong di batch = tetap ikut deskripsi Config.
+    description: batch.description || typeConfig.description || "",
   };
 }
 

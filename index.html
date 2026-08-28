@@ -732,11 +732,18 @@
                 // 4 penuh + Vol 5 baru dibuka -> totalnya kelewat maxQuota tipe,
                 // padahal Vol 5 sendiri masih longgar) atau batch lama yang
                 // closeDate-nya udah lewat tapi belum ditandain nonaktif.
+                const openBatchesForType = openBatchesMap[ws.id] || [];
                 let isFull = false;
                 if (status === 'open') {
-                    const openBatchesForType = openBatchesMap[ws.id] || [];
                     isFull = !openBatchesForType.some(function (b) { return b.remaining == null || b.remaining > 0; });
                 }
+
+                // Tema/deskripsi bisa beda tiap batch (mis. Reka Rekat ganti tema
+                // tiap volume) -- pakai punya batch yang lagi buka (yang bakal
+                // otomatis kepilih kalau pengunjung klik kartu ini tanpa ?vol=),
+                // bukan deskripsi Config yang bisa basi begitu batch-nya ganti.
+                const primaryBatch = openBatchesForType.filter(function (b) { return !b.hideFromPicker; })[0] || openBatchesForType[0];
+                const effectiveDescription = (primaryBatch && primaryBatch.description) || ws.description;
 
                 // Override status if full
                 if (status === 'open' && isFull) {
@@ -807,7 +814,7 @@
                             <div class="card-title">${ws.name}</div>
                         </div>
                     </div>
-                    <p class="card-desc">${ws.description}</p>
+                    <p class="card-desc">${effectiveDescription}</p>
                     ${priceHTML}
                     ${ctaHTML}
                 `;

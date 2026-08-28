@@ -4744,6 +4744,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <div style="font-weight:800;margin-bottom:4px;">Batch Detail: <span id="cfgBatchLabel"></span></div>
                 <p class="hint" style="margin:0 0 8px;">Defaults follow General Config above. Fill in one/several fields HERE only if this batch differs (e.g. venue/price/quota different from other batches of the same type) -- leave blank to follow General Config. New batches automatically copy this from the last batch created -- just edit what's different.</p>
                 <div class="konten-field"><label>Batch Name</label><input class="form-control" type="text" id="batchLabelInput" placeholder="e.g. Vol 1"></div>
+                <div class="konten-field"><label>Description / Theme (optional -- kalau tema batch ini beda dari biasanya)</label><textarea class="form-control" id="batchDescription" rows="2" placeholder="follows Config"></textarea></div>
                 <div class="konten-field">
                   <label>Fill Location from Venue (optional)</label>
                   <div style="position:relative;">
@@ -4782,6 +4783,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                     Hide from public batch picker
                   </label>
                   <p class="hint" style="margin-top:4px;">Batch tetap aktif & bisa didaftarin -- cuma nggak muncul di pemilih sesi publik. Masih bisa diakses lewat link langsung <code>?vol=&lt;label/angka batch ini&gt;</code>.</p>
+                </div>
+                <div class="konten-field">
+                  <label>Public Link (khusus batch ini)</label>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                    <input class="form-control" type="text" id="batchPublicLink" readonly style="flex:1;min-width:220px;background:var(--bg,#f8f9fc);">
+                    <button type="button" class="btn btn-sm btn-ghost" id="batchPublicLinkCopyBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Copy</button>
+                  </div>
+                  <p class="hint" style="margin-top:4px;">Share link ini kalau mau promosiin/ngarahin orang langsung ke batch ini spesifik (mis. lewat WA broadcast) -- kepake juga buat batch yang di-hide dari picker di atas, itu satu-satunya cara orang nyampe ke situ.</p>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
                   <button class="btn btn-sm" id="batchDetailSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Batch Detail</button>
@@ -8770,6 +8779,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("cfgNewBatchSaveBtn").addEventListener("click", saveCfgNewBatch);
         document.getElementById("batchDetailSaveBtn").addEventListener("click", saveCfgBatchDetailFn);
         document.getElementById("batchArchiveBtn").addEventListener("click", toggleCfgBatchArchive);
+        document.getElementById("batchPublicLinkCopyBtn").addEventListener("click", () => {
+          copyToClipboardEl(document.getElementById("batchPublicLink").value, document.getElementById("batchPublicLinkCopyBtn"));
+        });
         document.getElementById("batchVoidAddBtn").addEventListener("click", addCfgBatchVoidRegistrations);
         document.getElementById("batchMoveBtn").addEventListener("click", moveCfgBatchToWorkshop);
         wireRibuanInput(document.getElementById("batchNormalPrice"));
@@ -9011,6 +9023,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const cfgVal = w && w[cfgKey];
         el.placeholder = "ikut Config" + (cfgVal ? ` (${cfgLabelFn ? cfgLabelFn(cfgVal) : cfgVal})` : "");
       };
+      textField("batchDescription", "description", "description");
       textField("batchLoc", "locationName", "locationName");
       textField("batchMapsLink", "mapsLink", "mapsLink", () => "ada di Config");
       textField("batchWaLink", "whatsappGroupLink", "whatsappGroupLink", () => "ada di Config");
@@ -9056,6 +9069,23 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("batchOpenDate").value = (b && b.openDate) || "";
       document.getElementById("batchCloseDate").value = (b && b.closeDate) || "";
       document.getElementById("batchHideFromPicker").checked = !!(b && b.hideFromPicker);
+      updateBatchPublicLink();
+    }
+
+    // Link publik yang bisa langsung diarahin ke SATU batch ini spesifik
+    // (mis. buat WA broadcast, atau satu-satunya jalan masuk buat batch yang
+    // di-hide dari picker di atas) -- selalu ke domain prod, apapun tempat
+    // dashboard ini lagi diakses.
+    function updateBatchPublicLink() {
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG ? CONFIG[idx] : null;
+      const batchId = document.getElementById("cfgBatchSelect").value;
+      const b = CFG_BATCHES.find(x => x.id === batchId);
+      const linkInput = document.getElementById("batchPublicLink");
+      if (!linkInput) return;
+      if (!w || !b) { linkInput.value = ""; return; }
+      const folder = String(w.path || (w.id + "/index.html")).replace(/\/?index\.html$/i, "").replace(/\/$/, "");
+      linkInput.value = `https://seminggusatu.com/${folder}?vol=${encodeURIComponent(b.label || "")}`;
     }
 
     async function saveCfgBatchDetailFn() {
@@ -9072,6 +9102,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       else if (timeStart) workshopTime = `${timeStart} WIB`;
       const r = await api("renameBatch", {
         token: getToken(), batchId, label,
+        description: document.getElementById("batchDescription").value,
         locationName: document.getElementById("batchLoc").value,
         workshopTime,
         mapsLink: document.getElementById("batchMapsLink").value,

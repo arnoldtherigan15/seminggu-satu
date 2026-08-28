@@ -440,7 +440,7 @@ Deno.serve(async (req) => {
             normalPrice: b.normal_price, earlyBirdPrice: b.early_bird_price,
             earlyBirdDueDate: b.early_bird_due_date || "", earlyBirdMaxCount: b.early_bird_max_count,
             maxQuota: b.max_quota, openDate: b.open_date || "", closeDate: b.close_date || "",
-            hideFromPicker: !!b.hide_from_picker,
+            hideFromPicker: !!b.hide_from_picker, description: b.description || "",
           });
         }
         return jsonResponse({ status: "success", workshop, batches });
@@ -561,6 +561,7 @@ Deno.serve(async (req) => {
         if (data.workshopTime != null) patch.workshop_time = String(data.workshopTime).trim() || null;
         if (data.whatsappGroupLink != null) patch.whatsapp_group_link = String(data.whatsappGroupLink).trim() || null;
         if (data.workshopDate != null) patch.workshop_date = String(data.workshopDate).trim() || null;
+        if (data.description != null) patch.description = String(data.description).trim() || null;
         if (data.normalPrice != null) {
           const raw = String(data.normalPrice).trim();
           patch.normal_price = raw ? Number(raw) : null;

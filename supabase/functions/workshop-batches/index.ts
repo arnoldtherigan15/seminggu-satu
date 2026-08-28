@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
       // & tetap dihitung normal) -- ini cuma sinyal buat klien: jangan
       // tampilin di daftar pemilih sesi publik.
       hideFromPicker: merged.hideFromPicker,
+      description: merged.description,
     };
 
     if (b.workshop_type === "upcycle-journal") {
