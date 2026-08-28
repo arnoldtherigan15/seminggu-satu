@@ -639,19 +639,38 @@ async function loadEvents() {
     pane.innerHTML = skeletonEvents();
     let counts = {}, registered = {};
     try {
-        const [c, r] = await Promise.all([
+        const [c, r, b] = await Promise.all([
             fnGet("workshop-counts", "", 12000).catch(() => ({})),
-            fnGet("member-events", "wa=" + encodeURIComponent(_profile.wa), 15000).catch(() => ({}))
+            fnGet("member-events", "wa=" + encodeURIComponent(_profile.wa), 15000).catch(() => ({})),
+            fnGet("workshop-batches", "", 12000).catch(() => ({}))
         ]);
         counts = c || {}; registered = (r && r.registered) || {};
         _evRegistered = registered; // simpan buat bubble pintar Mochi (skip event yg udah didaftar)
         _evCounts = counts;         // simpan buat flyer event di Mading Warga
+        _openBatchesMap = b || {};  // simpan buat "penuh"/tanggal per-batch yg bener di list Event
     } catch (e) { }
     renderEventTicket(); // tiket countdown di Home baru bisa kerender setelah _evRegistered keisi
 
     const items = _ws
         .map(w => ({ w: w, status: (typeof getWorkshopStatus === "function") ? getWorkshopStatus(w) : "open" }))
-        .filter(x => x.status === "open" || x.status === "not-open-yet");
+        .filter(x => x.status === "open" || x.status === "not-open-yet")
+        .map(x => {
+            const w = x.w;
+            const isReg = !!registered[w.id];
+            // "Penuh"/sisa slot sekarang dicek dari batch yang BENERAN lagi
+            // buka (workshop-batches, per-batch), bukan total pendaftar semua
+            // batch `active` dibanding 1 angka maxQuota tipe -- keliru begitu
+            // ada batch lama yang closeDate-nya udah lewat tapi masih
+            // `active`, atau 2+ batch buka barengan (mis. Vol 4 penuh + Vol 5
+            // baru dibuka, harusnya masih nawarin Vol 5).
+            const openBatches = (x.status === "open") ? (_openBatchesMap[w.id] || []) : [];
+            const bestBatch = openBatches.filter(b => b.remaining == null || b.remaining > 0)[0];
+            const full = x.status === "open" && !bestBatch;
+            return Object.assign(x, { isReg: isReg, full: full, bestBatch: bestBatch });
+        })
+        // Sold out & bukan event kamu sendiri -> nggak usah ditampilin sama
+        // sekali, jangan bikin orang mikir "oh ada nih" terus kecewa.
+        .filter(x => x.isReg || !x.full);
 
     if (!items.length) {
         pane.innerHTML = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Belum ada event buka</h3><p>Pantau terus ya, event baru bakal muncul di sini 🌱</p></div>';
@@ -669,15 +688,15 @@ async function loadEvents() {
     }
     items.forEach(x => {
         const w = x.w;
-        const max = w.maxQuota || 0;
+        const isReg = x.isReg;
+        const full = x.full;
+        const bestBatch = x.bestBatch;
         const used = counts[w.id] || 0;
-        const left = max > 0 ? Math.max(0, max - used) : null;
-        const full = max > 0 && used >= max;
-        const isReg = !!registered[w.id];
+        const left = bestBatch ? bestBatch.remaining : null;
         // Kalau udah daftar, pakai tanggal batch SPESIFIK-nya (registered[w.id]
-        // sekarang objek data batch, bukan boolean) -- bukan Config type-level
-        // yang bisa beda dari batch yang beneran didaftarin.
-        const dateTxt = (isReg && registered[w.id].displayDate) || w.workshopDate || (typeof formatDateIndo === "function" && w.eventDate ? formatDateIndo(w.eventDate) : "");
+        // objek data batch) -- kalau belum, pakai batch yang lagi ditawarin
+        // (bestBatch) -- baru fallback Config kalau dua-duanya nggak ada.
+        const dateTxt = (isReg && registered[w.id].displayDate) || (bestBatch && bestBatch.displayDate) || w.workshopDate || (typeof formatDateIndo === "function" && w.eventDate ? formatDateIndo(w.eventDate) : "");
         // Badge = harga dari config (ganti tag OPEN yang nggak informatif).
         // Early bird aktif -> harga normal dicoret. Nggak ada harga -> fallback OPEN.
         const kIDR = n => (n >= 1000 ? Math.round(n / 1000) : n); // 250000 -> 250
@@ -685,20 +704,21 @@ async function loadEvents() {
         if (x.status === "not-open-yet") {
             badge = '<span class="ev-badge soon">SOON</span>';
         } else {
-            const cur = (typeof getCurrentPrice === "function") ? getCurrentPrice(w, used) : w.normalPrice;
+            // currentPrice dari batch yang beneran ditawarin kalau ada (udah
+            // dihitung server per-batch), fallback ke itungan type-level lama.
+            const cur = bestBatch ? bestBatch.currentPrice : ((typeof getCurrentPrice === "function") ? getCurrentPrice(w, used) : w.normalPrice);
             const eb = (typeof isEarlyBird === "function") && isEarlyBird(w, used) && w.normalPrice > cur;
             badge = (cur > 0)
                 ? '<span class="ev-badge price">' + (eb ? '<s>' + kIDR(w.normalPrice) + '</s> ' : '') + kIDR(cur) + ' IDR</span>'
                 : '<span class="ev-badge open">FREE 🎉</span>';
         }
 
-        let action, fullMochi = "";
+        // "full" udah difilter keluar dari `items` di atas (kecuali punya
+        // sendiri, ke-cover cabang isReg) -- jadi begitu nyampe sini cuma
+        // "udah daftar" atau "masih bisa daftar" yang mungkin.
+        let action;
         if (isReg) action = '<div class="ev-done">✅ You\'re in — see you there! 💙</div>';
         else if (x.status === "not-open-yet") action = '<div class="ev-meta">Registration opens soon</div>';
-        else if (full) {
-            action = '<div class="ev-full">Fully booked</div>';
-            fullMochi = '<img class="ev-full-mochi" src="../images/sticker/mochi_sad.png" alt="">';
-        }
         else {
             let href = "../" + (w.path || "");
             // Bawa WA (nggak input ulang) + flag from=member (biar abis daftar balik ke portal warga, bukan homepage publik)
@@ -706,13 +726,12 @@ async function loadEvents() {
             action = '<a class="btn-primary" href="' + esc(href) + '">Register →</a>';
         }
 
-        const meta = [dateTxt, (left != null && !full && !isReg ? (left + " seats left") : "")].filter(Boolean).join(" · ");
+        const meta = [dateTxt, (left != null && !isReg ? (left + " seats left") : "")].filter(Boolean).join(" · ");
 
         html += '<div class="ev">' +
             '<div class="ev-top"><div class="ev-name">' + esc(w.name || w.id) + '</div>' + badge + '</div>' +
             (meta ? '<div class="ev-meta">' + esc(meta) + '</div>' : '') +
             '<div class="ev-action">' + action + '</div>' +
-            fullMochi +
             '</div>';
     });
     pane.innerHTML = html;
@@ -4190,6 +4209,7 @@ function closeMyProfile(retHash) {
 // (urut prioritas), nanti ditampilkan bergiliran. Datanya dari state client.
 let _evRegistered = null; // peta event yg udah didaftar (diisi loadEvents)
 let _evCounts = null;     // jumlah pendaftar per event (diisi loadEvents, buat kuota flyer)
+let _openBatchesMap = {}; // batch yg BENERAN lagi buka per tipe (diisi loadEvents, dari workshop-batches -- buat "penuh"/tanggal yg bener, bukan total semua batch `active` vs 1 angka maxQuota tipe)
 
 function mochiSmartMessages() {
     const msgs = [];

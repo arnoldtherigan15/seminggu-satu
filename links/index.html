@@ -354,11 +354,12 @@
         // --- Render daftar event ---
         // counts: objek { workshopId: jumlahPendaftar } dari server
         // countsReady: true kalau data pendaftar sudah didapat (biar tahu penuh/nggak)
-        function renderWorkshops(list, counts, countsReady) {
+        function renderWorkshops(list, counts, countsReady, openBatchesMap) {
             var section = document.getElementById("wsSection");
             var el = document.getElementById("wsList");
             if (!Array.isArray(list)) list = [];
             counts = counts || {};
+            openBatchesMap = openBatchesMap || {};
 
             // Belum ada config sama sekali (cache kosong, masih nunggu server) -> shimmer,
             // biar nggak keliatan blank pas load pertama.
@@ -372,20 +373,28 @@
                 .filter(function (w) { return w && w.isDisplay !== false; })
                 .map(function (w) {
                     var status = getWorkshopStatus(w);
-                    // Kalau buka: cek kuota (butuh data pendaftar dulu)
+                    var bestBatch = null;
+                    // "Penuh" dicek dari batch yang BENERAN lagi buka
+                    // (workshop-batches, per-batch, remaining dihitung dari
+                    // kuota batch itu sendiri) -- BUKAN total pendaftar semua
+                    // batch `active` dibanding 1 angka maxQuota tipe, yang
+                    // keliru begitu ada batch lama closeDate-nya udah lewat
+                    // tapi masih `active`, atau 2+ batch buka barengan.
                     if (status === "open" && countsReady) {
-                        var count = (counts && counts[w.id]) || 0;
-                        var quota = w.maxQuota || 0;
-                        if (quota > 0 && count >= quota) status = "full";
+                        var openBatches = openBatchesMap[w.id] || [];
+                        bestBatch = openBatches.filter(function (b) { return b.remaining == null || b.remaining > 0; })[0];
+                        if (!bestBatch) status = "full";
                     }
-                    return { w: w, status: status };
+                    return { w: w, status: status, bestBatch: bestBatch };
                 })
+                // Sold out -> nggak usah ditampilin sama sekali (dulu masih
+                // dipajang dengan tag "Sold Out").
                 .filter(function (x) {
-                    return x.status === "open" || x.status === "not-open-yet" || x.status === "full";
+                    return x.status === "open" || x.status === "not-open-yet";
                 })
-                // buka dulu, lalu segera, sold out paling bawah
+                // buka dulu, baru segera
                 .sort(function (a, b) {
-                    var rank = { open: 0, "not-open-yet": 1, full: 2 };
+                    var rank = { open: 0, "not-open-yet": 1 };
                     return rank[a.status] - rank[b.status];
                 });
 
@@ -395,9 +404,10 @@
             el.innerHTML = items.map(function (x, i) {
                 var w = x.w;
                 var st = x.status;
-                var price = (typeof getCurrentPrice === "function") ? getCurrentPrice(w) : w.normalPrice;
+                var bestBatch = x.bestBatch;
+                var price = bestBatch ? bestBatch.currentPrice : ((typeof getCurrentPrice === "function") ? getCurrentPrice(w) : w.normalPrice);
                 var priceTxt = (typeof formatRupiah === "function") ? formatRupiah(price) : "";
-                var dateTxt = w.workshopDate || "";
+                var dateTxt = (bestBatch && bestBatch.displayDate) || w.workshopDate || "";
                 var sub = [dateTxt, priceTxt].filter(Boolean).join(" · ");
                 var href = "../" + (w.path || "index.html");
                 var icon = w.icon
@@ -411,10 +421,8 @@
                     cls = "checking"; clickable = false;
                 } else if (st === "open") {
                     tag = '<span class="lc-tag tag-open">Daftar</span>'; cls = ""; clickable = true;
-                } else if (st === "not-open-yet") {
+                } else { // not-open-yet
                     tag = '<span class="lc-tag tag-soon">Segera</span>'; cls = "soon"; clickable = true;
-                } else { // full
-                    tag = '<span class="lc-tag tag-full">Sold Out</span>'; cls = "full"; clickable = false;
                 }
 
                 var inner =
@@ -484,7 +492,8 @@
         var _workshops = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
         var _counts = null;      // objek pendaftar (null = belum didapat)
         var _countsReady = false; // true kalau sudah tahu penuh/nggak
-        function rerenderWorkshops() { renderWorkshops(_workshops, _counts || {}, _countsReady); }
+        var _openBatchesMap = {}; // batch yg BENERAN lagi buka per tipe (dari workshop-batches -- buat "penuh"/tanggal yg bener, bukan total semua batch `active` vs 1 angka maxQuota tipe)
+        function rerenderWorkshops() { renderWorkshops(_workshops, _counts || {}, _countsReady, _openBatchesMap); }
 
         (async function init() {
             // Workshop: render dari config (cache) dulu; status "Cek tiket…" (belum tahu penuh)
@@ -500,16 +509,17 @@
                     })
                     .catch(function () { /* pakai cache */ });
 
-                // Ambil jumlah pendaftar -> tahu mana yang sold out
-                fnGet("workshop-counts")
+                // Ambil jumlah pendaftar + batch yg beneran lagi buka -> tahu mana yang sold out
+                Promise.all([fnGet("workshop-counts"), fnGet("workshop-batches")])
                     .then(function (res) {
-                        _counts = (res && typeof res === "object") ? res : {};
+                        _counts = (res[0] && typeof res[0] === "object") ? res[0] : {};
+                        _openBatchesMap = (res[1] && typeof res[1] === "object") ? res[1] : {};
                         _countsReady = true;
                         rerenderWorkshops();
                     })
                     .catch(function () {
                         // Gagal ambil kuota: aktifkan "Daftar" biar user nggak kejebak (server validasi ulang saat submit)
-                        _counts = {}; _countsReady = true; rerenderWorkshops();
+                        _counts = {}; _openBatchesMap = {}; _countsReady = true; rerenderWorkshops();
                     });
 
                 // Link custom dari admin
