@@ -4861,6 +4861,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="wrap view" id="viewMou" style="display:none;">
           <div class="toolbar">
             <button class="btn btn-sm" id="mouAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New MOU</button>
+            <button class="btn btn-sm btn-ghost" id="mouUploadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V11.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708z"/></svg> Upload PDF</button>
             <div class="field">
               <label for="mouFilterPartner">Partner</label>
               <select class="form-control" id="mouFilterPartner"><option value="">All Partners</option></select>
@@ -6196,6 +6197,41 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       <div class="filter-overlay-foot" style="display:flex;gap:10px;">
         <button class="btn btn-ghost" id="mouDownloadBtn" style="flex:1;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Download PDF</button>
         <button class="btn" id="mouSaveBtn" style="flex:1;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save MOU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layar Upload PDF MOU manual (beda dari mouFormOverlay yang generate
+       PDF dari field terstruktur -- ini upload file PDF asli apa adanya) -->
+  <div id="mouUploadOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="mouUploadBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title">Upload PDF MOU</div>
+      </div>
+      <div class="filter-overlay-body">
+        <p class="hint" style="margin:0 0 10px;">Buat MOU yang udah ada file PDF-nya (mis. udah ditandatangan/di-scan) -- upload file-nya apa adanya, nggak perlu isi ulang jadi field terstruktur.</p>
+        <div class="konten-field"><label>Title (for your list)</label><input class="form-control" type="text" id="mouUploadTitle" placeholder="MOU [Partner] x [Event]"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:2;min-width:200px;"><label>Partner</label><select class="form-control" id="mouUploadPartnerSelect"></select></div>
+          <div class="konten-field" style="flex:1;min-width:150px;"><label>Document Date</label><input class="form-control" type="date" id="mouUploadDocDate"></div>
+          <div class="konten-field" style="flex:1;min-width:130px;"><label>Status</label>
+            <select class="form-control" id="mouUploadStatus">
+              <option value="draft">Draft</option>
+              <option value="sent">Sent</option>
+              <option value="signed">Signed</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="konten-field" style="flex:2;min-width:180px;"><label>Event (optional)</label><select class="form-control" id="mouUploadEventSelect"><option value="">— No specific event —</option></select></div>
+          <div class="konten-field" style="flex:1;min-width:160px;"><label>Batch</label><select class="form-control" id="mouUploadBatchSelect"><option value="">⭐ General (default)</option></select></div>
+        </div>
+        <div class="konten-field"><label>File PDF</label><input class="form-control" type="file" id="mouUploadFile" accept="application/pdf"></div>
+        <div class="msg" id="mouUploadMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="mouUploadSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V11.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708z"/></svg> Upload</button>
       </div>
     </div>
   </div>
@@ -9382,6 +9418,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("mouFilterPartner").addEventListener("change", renderMouList);
         document.getElementById("mouFilterStatus").addEventListener("change", renderMouList);
 
+        document.getElementById("mouUploadEventSelect").innerHTML =
+          '<option value="">— No specific event —</option>' + WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
+        document.getElementById("mouUploadEventSelect").addEventListener("change", onMouUploadEventChange);
+        document.getElementById("mouUploadBtn").addEventListener("click", () => { newMouUploadForm(); openMouUploadForm(); });
+        document.getElementById("mouUploadBackBtn").addEventListener("click", closeMouUploadForm);
+        document.getElementById("mouUploadOverlay").addEventListener("click", (e) => { if (e.target.id === "mouUploadOverlay") closeMouUploadForm(); });
+        document.getElementById("mouUploadSaveBtn").addEventListener("click", saveMouUpload);
+
         document.getElementById("invoiceAddBtn").addEventListener("click", () => { newInvoiceForm(); openInvoiceForm(false); });
         document.getElementById("invoiceFormBackBtn").addEventListener("click", closeInvoiceForm);
         document.getElementById("invoiceFormDeleteBtn").addEventListener("click", async () => {
@@ -9430,6 +9474,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const opts = active.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
       const mouSel = document.getElementById("mouPartnerSelect");
       if (mouSel) { const cur = mouSel.value; mouSel.innerHTML = opts || '<option value="">(add a partner first)</option>'; mouSel.value = cur; }
+      const mouUploadSel = document.getElementById("mouUploadPartnerSelect");
+      if (mouUploadSel) { const cur = mouUploadSel.value; mouUploadSel.innerHTML = opts || '<option value="">(add a partner first)</option>'; mouUploadSel.value = cur; }
       const invSel = document.getElementById("invoicePartnerSelect");
       if (invSel) { const cur = invSel.value; invSel.innerHTML = '<option value="">-</option>' + opts; invSel.value = cur; }
       const preqSel = document.getElementById("preqPartnerSelect");
@@ -9670,22 +9716,35 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const cards = [];
       docs.forEach(doc => {
         const d = doc.data || {};
-        rows.push(`<tr data-editmou="${doc.id}" style="cursor:pointer;">
-          <td>${escapeHtml(doc.partnerName || "-")}</td>
+        const isUploaded = doc.source === "uploaded";
+        // Badge biar KELIATAN dari list-nya sendiri (sebelum diklik) mana yang
+        // upload manual vs digenerate dari form -- bukan cuma beda pas diklik.
+        const srcBadge = isUploaded
+          ? `<span class="badge" style="background:#dcfce7;color:#166534;">${icon("eye")} Uploaded</span>`
+          : `<span class="badge">${icon("pencil")} Generated</span>`;
+        const actionBtn = isUploaded
+          ? `<button class="btn btn-sm btn-ghost" data-delmou="${doc.id}" title="Delete" style="color:var(--err);">${icon("trash")}</button>`
+          : `<button class="btn btn-sm btn-ghost" data-dlmou="${doc.id}" title="Download PDF">${icon("download")}</button>`;
+        const rowAttr = isUploaded ? `data-openmou="${doc.id}"` : `data-editmou="${doc.id}"`;
+        rows.push(`<tr ${rowAttr} style="cursor:pointer;">
+          <td>${escapeHtml(doc.partnerName || "-")} ${srcBadge}</td>
           <td>${escapeHtml(d.eventName || "-")}</td>
           <td>${escapeHtml(doc.doc_date || "")}</td>
           <td>${mouStatusLabel(doc.status)}</td>
-          <td><button class="btn btn-sm btn-ghost" data-dlmou="${doc.id}" title="Download PDF">${icon("download")}</button></td>
+          <td>${actionBtn}</td>
         </tr>`);
-        cards.push(`<div class="mobile-card" data-editmou="${doc.id}" style="cursor:pointer;">
-          <div class="mobile-card-top"><span class="mobile-card-name">${escapeHtml(doc.title)}</span></div>
+        const cardActionBtn = isUploaded
+          ? `<button class="btn btn-sm btn-ghost" data-delmou="${doc.id}" style="color:var(--err);">${icon("trash")} Delete</button>`
+          : `<button class="btn btn-sm btn-ghost" data-dlmou="${doc.id}">${icon("download")} Download PDF</button>`;
+        cards.push(`<div class="mobile-card" ${rowAttr} style="cursor:pointer;">
+          <div class="mobile-card-top"><span class="mobile-card-name">${escapeHtml(doc.title)}</span> ${srcBadge}</div>
           <div class="mobile-card-fields">
             <div class="mobile-card-field"><b>Partner:</b> ${escapeHtml(doc.partnerName || "-")}</div>
             <div class="mobile-card-field"><b>Event:</b> ${escapeHtml(d.eventName || "-")}</div>
             <div class="mobile-card-field"><b>Date:</b> ${escapeHtml(doc.doc_date || "")}</div>
             <div class="mobile-card-field"><b>Status:</b> ${mouStatusLabel(doc.status)}</div>
           </div>
-          <div class="mobile-card-actions"><button class="btn btn-sm btn-ghost" data-dlmou="${doc.id}">${icon("download")} Download PDF</button></div>
+          <div class="mobile-card-actions">${cardActionBtn}</div>
         </div>`);
       });
       body.innerHTML = rows.join("");
@@ -9696,10 +9755,23 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           if (e.target.closest("[data-dlmou]")) return;
           editMouDoc(el.dataset.editmou);
         }));
+        // Dokumen upload manual: klik kartunya buka/preview PDF aslinya
+        // langsung (tab baru -- browser nampilin viewer PDF bawaan, jadi
+        // preview+download dua-duanya kepenuhin tanpa perlu bikin viewer sendiri).
+        root.querySelectorAll("[data-openmou]").forEach(el => el.addEventListener("click", (e) => {
+          if (e.target.closest("[data-delmou]")) return;
+          const doc = PARTNER_DOCS_MOU.find(x => x.id === el.dataset.openmou);
+          if (doc && doc.fileUrl) window.open(doc.fileUrl, "_blank");
+          else if (doc) alert("Link PDF-nya belum siap, coba Reload dulu.");
+        }));
         root.querySelectorAll("[data-dlmou]").forEach(b => b.addEventListener("click", (e) => {
           e.stopPropagation();
           const doc = PARTNER_DOCS_MOU.find(x => x.id === b.dataset.dlmou);
           if (doc) downloadMouPdf(doc);
+        }));
+        root.querySelectorAll("[data-delmou]").forEach(b => b.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          await deletePartnerDoc(b.dataset.delmou, "mou");
         }));
       };
       wireRoot(body);
@@ -9754,6 +9826,76 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("mouP2Name").value = "";
       document.getElementById("mouP2Role").value = "";
       document.getElementById("mouMsg").textContent = "";
+    }
+
+    // ---- Upload PDF MOU manual (beda flow dari generate form) ----
+    function openMouUploadForm() { document.getElementById("mouUploadOverlay").style.display = "flex"; }
+    function closeMouUploadForm() { document.getElementById("mouUploadOverlay").style.display = "none"; }
+    let MOU_UPLOAD_BATCHES = [];
+    // Sama pola persis kayak onFinanceWorkshopChange() di Keuangan -- pilih
+    // Event dulu, baru dropdown Batch keisi (via listBatches), biar Event di
+    // list MOU nggak kosong buat dokumen yang diupload manual.
+    async function onMouUploadEventChange() {
+      const id = document.getElementById("mouUploadEventSelect").value;
+      const sel = document.getElementById("mouUploadBatchSelect");
+      const GENERAL = `<option value="">⭐ General (default)</option>`;
+      sel.innerHTML = GENERAL;
+      MOU_UPLOAD_BATCHES = [];
+      if (!id) return;
+      try {
+        const r = await api("listBatches", { token: getToken(), workshop: id });
+        if (document.getElementById("mouUploadEventSelect").value !== id) return; // race guard
+        if (r.status === "success") {
+          MOU_UPLOAD_BATCHES = r.batches || [];
+          sel.innerHTML = GENERAL + MOU_UPLOAD_BATCHES.map(b =>
+            `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)} (${b.count} org)${b.active ? " • AKTIF" : ""}</option>`
+          ).join("");
+        }
+      } catch (e) { /* diamkan */ }
+    }
+    function newMouUploadForm() {
+      document.getElementById("mouUploadTitle").value = "";
+      populatePartnerSelects();
+      document.getElementById("mouUploadPartnerSelect").value = "";
+      document.getElementById("mouUploadDocDate").value = todayStr();
+      document.getElementById("mouUploadStatus").value = "draft";
+      document.getElementById("mouUploadEventSelect").value = "";
+      document.getElementById("mouUploadBatchSelect").innerHTML = `<option value="">⭐ General (default)</option>`;
+      MOU_UPLOAD_BATCHES = [];
+      document.getElementById("mouUploadFile").value = "";
+      document.getElementById("mouUploadMsg").textContent = "";
+    }
+    async function saveMouUpload() {
+      const msg = document.getElementById("mouUploadMsg");
+      const title = document.getElementById("mouUploadTitle").value.trim();
+      if (!title) { msg.className = "msg err"; msg.textContent = "Title is required."; return; }
+      const file = document.getElementById("mouUploadFile").files[0];
+      if (!file) { msg.className = "msg err"; msg.textContent = "Pilih file PDF dulu."; return; }
+      if (file.type !== "application/pdf") { msg.className = "msg err"; msg.textContent = "File harus berformat PDF."; return; }
+      msg.className = "msg"; msg.textContent = "Uploading...";
+      let base64;
+      try { base64 = (await readFileAsDataUrl(file)).split(",")[1]; }
+      catch (e) { msg.className = "msg err"; msg.textContent = "Gagal baca file."; return; }
+      const workshopType = document.getElementById("mouUploadEventSelect").value;
+      const batchId = document.getElementById("mouUploadBatchSelect").value;
+      let eventName = "";
+      if (workshopType) {
+        eventName = workshopName(workshopType);
+        if (batchId) {
+          const b = MOU_UPLOAD_BATCHES.find(x => x.id === batchId);
+          if (b) eventName += " — " + b.label;
+        }
+      }
+      const r = await api("uploadPartnerDoc", {
+        token: getToken(), type: "mou", title,
+        partnerId: document.getElementById("mouUploadPartnerSelect").value,
+        docDate: document.getElementById("mouUploadDocDate").value,
+        status: document.getElementById("mouUploadStatus").value,
+        fileBase64: base64, fileMime: file.type,
+        docData: { eventName, workshopType, batchId },
+      });
+      if (r && r.status === "success") { closeMouUploadForm(); await loadPartnerDocs("mou"); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal upload."; }
     }
 
     function editMouDoc(id) {

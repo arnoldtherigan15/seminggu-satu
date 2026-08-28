@@ -19,7 +19,7 @@ import { SupabaseClient } from "npm:@supabase/supabase-js@2";
 // ("Invalid key") kalau dipake mentah-mentah di path. Bersihin ke karakter
 // aman aja; fallback "file" kalau abis dibersihin nggak nyisa apa-apa
 // (mis. judulnya emoji doang).
-function safeKeyPart(s: string): string {
+export function safeKeyPart(s: string): string {
   const cleaned = s
     .normalize("NFKD").replace(/[\u0300-\u036f]/g, "") // lepas diakritik (é -> e)
     .replace(/[^\w-]+/g, "-")   // apa aja selain huruf/angka/_/- -> "-" (termasuk emoji, spasi)
@@ -52,4 +52,29 @@ export async function uploadBase64(
 
   const { data } = admin.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
+}
+
+// Versi generik uploadBase64() -- nggak dipaksa jadi gambar (jpg/webp),
+// dipake buat file arbitrary kayak PDF (mis. MOU yang diupload manual,
+// bukan digenerate dari form). Bucket-nya PRIVATE by design (dokumen
+// kerjasama bisnis) -- caller yang generate signed URL pas mau ditampilin,
+// jadi di sini cukup balikin PATH-nya aja (sama pola kayak payment-proofs).
+export async function uploadFileBase64(
+  admin: SupabaseClient,
+  bucket: string,
+  base64: string | undefined | null,
+  fileNamePrefix: string,
+  mime: string,
+  ext: string,
+): Promise<string> {
+  if (!base64) return "";
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  const path = `${safeKeyPart(fileNamePrefix)}-${crypto.randomUUID()}.${ext}`;
+
+  const { error } = await admin.storage.from(bucket).upload(path, bytes, {
+    contentType: mime,
+    upsert: false,
+  });
+  if (error) throw new Error(`Gagal upload file ke bucket "${bucket}": ${error.message}`);
+  return path;
 }

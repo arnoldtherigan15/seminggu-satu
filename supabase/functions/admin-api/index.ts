@@ -5,7 +5,7 @@
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { waKey } from "../_shared/auth.ts";
-import { uploadBase64 } from "../_shared/storage.ts";
+import { uploadBase64, uploadFileBase64 } from "../_shared/storage.ts";
 import { getConfigValue, setConfigValue } from "../_shared/config.ts";
 import { adminLogin, requireAdminAuth } from "../_shared/admin-auth.ts";
 import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
@@ -1923,8 +1923,18 @@ Kasih:
         let q = admin.from("partner_documents").select("*, partners(name)").eq("type", type).order("doc_date", { ascending: false });
         if (data.partnerId) q = q.eq("partner_id", String(data.partnerId));
         const { data: rows } = await q;
-        // deno-lint-ignore no-explicit-any
-        const docs = (rows || []).map((r: any) => ({ ...r, partnerName: r.partners?.name || "", partners: undefined }));
+        // File yang diupload manual (source='uploaded') disimpen di bucket
+        // PRIVATE -- signed URL di-generate fresh tiap list ini dipanggil
+        // (bukan public URL permanen), jadi klik Preview/Download dari UI
+        // selalu dapet link yang masih valid.
+        const docs = await Promise.all((rows || []).map(async (r) => {
+          let fileUrl = "";
+          if (r.source === "uploaded" && r.file_path) {
+            const { data: signed } = await admin.storage.from("partner-doc-files").createSignedUrl(r.file_path, 21600);
+            fileUrl = signed?.signedUrl || "";
+          }
+          return { ...r, partnerName: r.partners?.name || "", partners: undefined, fileUrl };
+        }));
         return jsonResponse({ status: "success", docs });
       }
 
@@ -1964,9 +1974,55 @@ Kasih:
       case "deletePartnerDoc": {
         const id = String(data.id || "");
         if (!id) return errorResponse("Missing document ID.");
+        // Ambil dulu sebelum delete row-nya -- kalau ini dokumen upload
+        // manual, file PDF-nya di Storage juga harus dibuang, kalau nggak
+        // jadi sampah nggak kereferensi (nggak ke-cascade otomatis kayak
+        // foreign key, ini bucket terpisah).
+        const { data: existing } = await admin.from("partner_documents").select("source, file_path").eq("id", id).maybeSingle();
         const { error } = await admin.from("partner_documents").delete().eq("id", id);
         if (error) return errorResponse("Failed to delete document: " + error.message);
+        if (existing && existing.source === "uploaded" && existing.file_path) {
+          await admin.storage.from("partner-doc-files").remove([existing.file_path]);
+        }
         return jsonResponse({ status: "success", message: "Document deleted." });
+      }
+
+      // Upload manual file PDF (mis. MOU yang udah ditandatangan & di-scan)
+      // -- BEDA dari savePartnerDoc (yang isi field terstruktur buat
+      // digenerate jadi PDF client-side). Row-nya ditandain source:'uploaded'
+      // biar UI bisa bedain: klik dokumen upload -> buka/preview PDF asli,
+      // klik dokumen generated -> buka form edit kayak biasa.
+      case "uploadPartnerDoc": {
+        const type = String(data.type || "");
+        if (type !== "mou" && type !== "invoice") return errorResponse("Unknown document type: " + type);
+        const title = String(data.title || "").trim();
+        if (!title) return errorResponse("Document title is required.");
+        const base64 = String(data.fileBase64 || "");
+        if (!base64) return errorResponse("File PDF wajib diupload.");
+        const mime = String(data.fileMime || "");
+        if (mime !== "application/pdf") return errorResponse("Cuma file PDF yang didukung.");
+        let filePath = "";
+        try {
+          filePath = await uploadFileBase64(admin, "partner-doc-files", base64, title, mime, "pdf");
+        } catch (e) {
+          return errorResponse((e as Error).message);
+        }
+        const payload = {
+          partner_id: data.partnerId ? String(data.partnerId) : null,
+          type, title,
+          doc_date: data.docDate ? String(data.docDate) : today(),
+          status: String(data.status || "draft"),
+          // Cuma eventName/workshopType/batchId (buat kolom "Event" di list,
+          // sama pola field yang dipake dokumen 'generated') -- bukan field
+          // terstruktur lengkap kayak MOU generate, upload manual tetep ga
+          // butuh pasal/dukungan/dst.
+          data: data.docData && typeof data.docData === "object" ? data.docData : {},
+          source: "uploaded",
+          file_path: filePath,
+        };
+        const { error } = await admin.from("partner_documents").insert(payload);
+        if (error) return errorResponse("Gagal simpan dokumen: " + error.message);
+        return jsonResponse({ status: "success", message: "PDF berhasil diupload." });
       }
 
       // ---- Pesanan minum/makan per event (menu global + pesanan per batch) ----
