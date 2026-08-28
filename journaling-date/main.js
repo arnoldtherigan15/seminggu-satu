@@ -279,7 +279,7 @@ document.getElementById("jdForm").addEventListener("submit", async (e) => {
         clearTimeout(tid);
         const result = await res.json();
         if (result.status === "success") {
-            const params = new URLSearchParams({ name: _member.nickname, whatsapp: _member.wa, workshop: ID });
+            const params = new URLSearchParams({ name: _member.nickname, whatsapp: _member.wa, workshop: ID, batchId: payload.batchId || "" });
             if (new URLSearchParams(location.search).get("from") === "member") params.set("from", "member");
             window.location.href = "../success.html?" + params.toString();
         } else {

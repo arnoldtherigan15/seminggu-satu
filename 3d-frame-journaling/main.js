@@ -406,7 +406,8 @@ form.addEventListener('submit', async (e) => {
             const params = new URLSearchParams({
                 name: payload.fullName || 'Peserta',
                 whatsapp: payload.whatsapp || '',
-                workshop: '3d-frame-journaling'
+                workshop: '3d-frame-journaling',
+                batchId: payload.batchId || ''
             });
             if (new URLSearchParams(location.search).get('from') === 'member') params.set('from', 'member');
             window.location.href = '../success.html?' + params.toString();

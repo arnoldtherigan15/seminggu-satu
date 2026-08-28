@@ -1,5 +1,6 @@
 import { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { waKey } from "./auth.ts";
+import { mergeBatchConfig } from "./batch-merge.ts";
 
 // Generic sender -- port dari sendTelegram_(). TELEGRAM_TOKEN/TELEGRAM_CHATID
 // disimpen sebagai Edge Function secret (supabase secrets set), BUKAN
@@ -55,12 +56,23 @@ export async function notifyRegistration(
     `📊 Total di batch ini: *${count ?? "?"}* peserta`;
 
   const nick = info.nickname || "kak";
+  // BUG lama: link grup WA di sini ketarik dari WORKSHOPS_JSON (Config level
+  // TIPE workshop) doang, sama sekali nggak liat batch mana yang beneran
+  // didaftarin -- begitu ada 2+ batch aktif tiap punya link WA sendiri (mis.
+  // Vol 4 vs Vol 5), notif ini bisa share link batch yang SALAH ke admin
+  // (dan tombol "Sambut di WhatsApp" isinya ikut salah). Sekarang ambil dari
+  // batch itu sendiri dulu (di-merge sama Config kayak mergeBatchConfig di
+  // tempat lain), baru fallback ke Config kalau batch-nya nggak override.
   let groupLink = "";
   try {
     const { data: cfgRow } = await admin.from("app_config").select("value").eq("key", "WORKSHOPS_JSON").maybeSingle();
     const cfg = JSON.parse(cfgRow?.value || "[]");
-    const w = cfg.find((x: { id: string }) => x.id === info.workshopType);
-    if (w?.whatsappGroupLink) groupLink = w.whatsappGroupLink;
+    const typeConfig = cfg.find((x: { id: string }) => x.id === info.workshopType) || {};
+    if (info.batchId) {
+      const { data: batchRow } = await admin.from("batches").select("*").eq("id", info.batchId).maybeSingle();
+      if (batchRow) groupLink = mergeBatchConfig(batchRow, typeConfig).whatsappGroupLink;
+    }
+    if (!groupLink && typeConfig.whatsappGroupLink) groupLink = typeConfig.whatsappGroupLink;
   } catch (_e) { /* abaikan */ }
 
   const sapaan =

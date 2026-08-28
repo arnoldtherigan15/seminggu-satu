@@ -39,6 +39,11 @@ Deno.serve(async (req) => {
       id: merged.id, label: merged.label,
       eventDateIso: merged.eventDateIso, displayDate: merged.displayDate,
       workshopTime: merged.workshopTime, locationName: merged.locationName, mapsLink: merged.mapsLink,
+      // Ditambahin biar success.html bisa nunjukin link grup WA yang bener
+      // buat batch yang beneran didaftarin (sebelumnya field ini nggak
+      // pernah dikirim sama sekali di endpoint ini, cuma dibaca dari Config
+      // type-level yang bisa basi begitu batch-nya ganti link sendiri).
+      whatsappGroupLink: merged.whatsappGroupLink,
       normalPrice: merged.normalPrice, earlyBirdPrice: merged.earlyBirdPrice,
       earlyBirdDueDate: isoToIdDate(merged.earlyBirdDueDateIso), // DD/MM/YYYY, buat formatDateIndo() di klien
       earlyBirdMaxCount: merged.earlyBirdMaxCount,

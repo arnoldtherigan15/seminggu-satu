@@ -517,6 +517,7 @@ form.addEventListener('submit', async (e) => {
                 name: payload.fullName || 'Peserta',
                 whatsapp: payload.whatsapp || '',
                 workshop: 'paper-journal',
+                batchId: payload.batchId || '',
                 colorBody: selectedBodyColor.name,
                 colorFlap: selectedFlapColor.name,
                 colorStrap: selectedStrapColor.name,

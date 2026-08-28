@@ -14,6 +14,10 @@
         rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- SUPABASE_URL/SUPABASE_ANON_KEY -- dibutuhin buat narik data batch
+         spesifik (lihat applyBatchOverride() di bawah), sebelumnya halaman
+         ini nggak pernah nge-load ini sama sekali. -->
+    <script src="env.js"></script>
     <!-- Workshop Config -->
     <script src="workshop-config.js?v=2"></script>
     <style>
@@ -786,6 +790,7 @@
         const name = p.get('name') || 'Peserta';
         const workshopId = p.get('workshop') || 'paper-journal';
         const wsData = getWorkshopById(workshopId) || {};
+        const batchId = p.get('batchId') || '';
 
         // Entry point member: logo & tombol balik ke /member (bukan home publik)
         if (p.get('from') === 'member') {
@@ -815,71 +820,110 @@
         const colorBodyHex = p.get('colorBodyHex') || '#eee';
         const colorFlapHex = p.get('colorFlapHex') || '#ddd';
 
-        // Update Ticket Labels
-        document.getElementById('ticketName').textContent = name;
-        document.getElementById('ticketSubtitle').textContent = wsData.name || 'Creative Workshop 2026';
-        document.getElementById('successTitle').textContent = wsData.name || 'Pendaftaran Berhasil';
+        // Update Ticket Labels -- dibungkus fungsi biar bisa dipanggil ULANG
+        // begitu applyBatchOverride() (di bawah) dapet data batch spesifik.
+        // Paint pertama pakai wsData Config (instan, sama kayak sebelumnya),
+        // dikoreksi lagi begitu data batch beneran dateng -- BUKAN nunggu
+        // network dulu baru nampilin apa-apa.
+        function renderWsDependentUI() {
+            document.getElementById('ticketName').textContent = name;
+            document.getElementById('ticketSubtitle').textContent = wsData.name || 'Creative Workshop 2026';
+            document.getElementById('successTitle').textContent = wsData.name || 'Pendaftaran Berhasil';
 
-        // Dynamic Workshop Info from Config
-        document.getElementById('ticketSession').textContent = wsData.workshopDate || '--';
-        document.getElementById('ticketTime').textContent = wsData.workshopTime || '--';
-        document.getElementById('ticketLocation').textContent = wsData.locationName || '--';
+            // Dynamic Workshop Info -- dari batch spesifik kalau ada (lihat
+            // applyBatchOverride), fallback Config type-level kalau nggak.
+            document.getElementById('ticketSession').textContent = wsData.workshopDate || '--';
+            document.getElementById('ticketTime').textContent = wsData.workshopTime || '--';
+            document.getElementById('ticketLocation').textContent = wsData.locationName || '--';
 
-        if (wsData.description) {
-            document.getElementById('successDescription').textContent = "Kami tunggu kehadirannya! Detail pendaftaran Anda telah kami terima.";
+            if (wsData.description) {
+                document.getElementById('successDescription').textContent = "Kami tunggu kehadirannya! Detail pendaftaran Anda telah kami terima.";
+            }
+
+            // WhatsApp Group Link
+            if (wsData.whatsappGroupLink && workshopId !== 'bookmark-journal-sheraton') {
+                const btnWaGroup = document.getElementById('btnWaGroup');
+                btnWaGroup.href = '#';
+                btnWaGroup.onclick = async (e) => {
+                    e.preventDefault();
+
+                    // Disable button while processing
+                    btnWaGroup.style.opacity = '0.7';
+                    btnWaGroup.style.pointerEvents = 'none';
+                    const originalContent = btnWaGroup.innerHTML;
+                    btnWaGroup.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Menyiapkan tiket...';
+                    lucide.createIcons();
+
+                    let phone = p.get('whatsapp') || '';
+
+                    // Format phone number
+                    phone = phone.replace(/\D/g, '');
+                    if (phone.startsWith('0')) {
+                        phone = '62' + phone.substring(1);
+                    } else if (phone.startsWith('8')) {
+                        phone = '62' + phone;
+                    }
+
+                    // Generate summary text
+                    let extraDetails = "";
+                    if (workshopId === 'paper-journal') {
+                        extraDetails = `Warna: Cover (${colorBody}), Flap (${colorFlap}), Tali (${colorStrap})\n`;
+                    } else if (workshopId === 'bookmark-journal') {
+                        extraDetails = `Bookmark: Pita (${colorPita}), Rantai (${colorRantai})\n`;
+                    } else if (workshopId === 'upcycle-journal') {
+                        extraDetails = `Motif: Cover (${p.get('bodyBagId') || '-'}), Flap (${p.get('flapBagId') || '-'})\n`;
+                    } else if (workshopId === 'side-by-side') {
+                        extraDetails = `Nama Anak: ${p.get('childName') || '-'}\n`;
+                    }
+
+                    const title = wsData.name || "Creative Workshop";
+                    const date = wsData.workshopDate || "--";
+                    const time = wsData.workshopTime || "--";
+                    const loc = wsData.locationName || "--";
+
+                    const shareText = `Halo! Ini detail pendaftaran workshopku:\n*${title}*\n\nNama: ${name}\nTanggal: ${date}\nWaktu: ${time}\nLokasi: ${loc}\n${extraDetails}\n*Link Join Grup WA Peserta:*\n${wsData.whatsappGroupLink}\n\n_(Simpan pesan ini sebagai tiket kamu!)_`;
+
+                    // Redirect directly to WhatsApp with text summary
+                    const waUrl = phone
+                        ? `https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`
+                        : wsData.whatsappGroupLink;
+                    window.location.href = waUrl;
+                };
+                btnWaGroup.style.display = 'flex';
+            }
         }
+        renderWsDependentUI();
 
-        // WhatsApp Group Link
-        if (wsData.whatsappGroupLink && workshopId !== 'bookmark-journal-sheraton') {
-            const btnWaGroup = document.getElementById('btnWaGroup');
-            btnWaGroup.href = '#';
-            btnWaGroup.onclick = async (e) => {
-                e.preventDefault();
-
-                // Disable button while processing
-                btnWaGroup.style.opacity = '0.7';
-                btnWaGroup.style.pointerEvents = 'none';
-                const originalContent = btnWaGroup.innerHTML;
-                btnWaGroup.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Menyiapkan tiket...';
-                lucide.createIcons();
-
-                let phone = p.get('whatsapp') || '';
-
-                // Format phone number
-                phone = phone.replace(/\D/g, '');
-                if (phone.startsWith('0')) {
-                    phone = '62' + phone.substring(1);
-                } else if (phone.startsWith('8')) {
-                    phone = '62' + phone;
+        // BUG lama: halaman ini cuma tau Config TIPE workshop (wsData di atas),
+        // sama sekali nggak liat batch mana yang beneran didaftarin -- begitu
+        // ada 2+ batch aktif tiap punya jadwal/lokasi/link WA sendiri (mis.
+        // Vol 4 vs Vol 5), tiket sukses & tombol "Join WhatsApp Grup" bisa
+        // nunjukin info batch yang SALAH. Sekarang timpa wsData pakai data
+        // batch spesifik (udah di-merge batch>Config server-side, endpoint
+        // yang sama dipakai halaman registrasi) begitu batchId ada.
+        (async function applyBatchOverride() {
+            if (!batchId || typeof SUPABASE_URL === 'undefined' || !SUPABASE_URL) return;
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 8000);
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/workshop-batches`, {
+                    headers: { apikey: SUPABASE_ANON_KEY },
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+                const all = await res.json();
+                const batch = ((all && all[workshopId]) || []).find(b => b.id === batchId);
+                if (batch) {
+                    if (batch.displayDate) wsData.workshopDate = batch.displayDate;
+                    if (batch.workshopTime) wsData.workshopTime = batch.workshopTime;
+                    if (batch.locationName) wsData.locationName = batch.locationName;
+                    if (batch.whatsappGroupLink) wsData.whatsappGroupLink = batch.whatsappGroupLink;
+                    renderWsDependentUI();
                 }
-
-                // Generate summary text
-                let extraDetails = "";
-                if (workshopId === 'paper-journal') {
-                    extraDetails = `Warna: Cover (${colorBody}), Flap (${colorFlap}), Tali (${colorStrap})\n`;
-                } else if (workshopId === 'bookmark-journal') {
-                    extraDetails = `Bookmark: Pita (${colorPita}), Rantai (${colorRantai})\n`;
-                } else if (workshopId === 'upcycle-journal') {
-                    extraDetails = `Motif: Cover (${p.get('bodyBagId') || '-'}), Flap (${p.get('flapBagId') || '-'})\n`;
-                } else if (workshopId === 'side-by-side') {
-                    extraDetails = `Nama Anak: ${p.get('childName') || '-'}\n`;
-                }
-
-                const title = wsData.name || "Creative Workshop";
-                const date = wsData.workshopDate || "--";
-                const time = wsData.workshopTime || "--";
-                const loc = wsData.locationName || "--";
-
-                const shareText = `Halo! Ini detail pendaftaran workshopku:\n*${title}*\n\nNama: ${name}\nTanggal: ${date}\nWaktu: ${time}\nLokasi: ${loc}\n${extraDetails}\n*Link Join Grup WA Peserta:*\n${wsData.whatsappGroupLink}\n\n_(Simpan pesan ini sebagai tiket kamu!)_`;
-
-                // Redirect directly to WhatsApp with text summary
-                const waUrl = phone
-                    ? `https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`
-                    : wsData.whatsappGroupLink;
-                window.location.href = waUrl;
-            };
-            btnWaGroup.style.display = 'flex';
-        }
+            } catch (e) {
+                // fail-open -- tetap pakai data Config type-level yang udah kepaint
+            }
+        })();
 
         // --- Visualizer Logic ---
         const motifBody = document.getElementById('motifBody');

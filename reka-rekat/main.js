@@ -442,7 +442,8 @@ form.addEventListener('submit', async (e) => {
             const params = new URLSearchParams({
                 name: payload.fullName || 'Peserta',
                 whatsapp: payload.whatsapp || '',
-                workshop: 'reka-rekat'
+                workshop: 'reka-rekat',
+                batchId: payload.batchId || ''
             });
             if (new URLSearchParams(location.search).get('from') === 'member') params.set('from', 'member');
 

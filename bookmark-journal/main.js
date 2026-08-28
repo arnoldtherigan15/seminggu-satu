@@ -413,6 +413,7 @@ form.addEventListener('submit', async (e) => {
                 name: payload.fullName || 'Peserta',
                 whatsapp: payload.whatsapp || '',
                 workshop: 'bookmark-journal',
+                batchId: payload.batchId || '',
                 colorPita: selectedPitaColor.name,
                 colorRantai: selectedRantaiColor.name,
                 pitaBase: selectedPitaColor.base,

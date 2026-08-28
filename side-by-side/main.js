@@ -478,7 +478,8 @@ form.addEventListener('submit', async (e) => {
                 name: payload.parentName || 'Peserta',
                 childName: payload.childName || '',
                 whatsapp: payload.whatsapp || '',
-                workshop: 'side-by-side'
+                workshop: 'side-by-side',
+                batchId: payload.batchId || ''
             });
             if (new URLSearchParams(location.search).get('from') === 'member') params.set('from', 'member');
 

@@ -613,6 +613,7 @@ if (form) {
                     name: payload.fullName || 'Peserta',
                     whatsapp: payload.whatsapp || '',
                     workshop: 'upcycle-journal',
+                    batchId: payload.batchId || '',
                     bodyBagId: selectedBodyBagId,
                     flapBagId: selectedFlapBagId,
                     colorStrap: selectedStrapColor.name,
