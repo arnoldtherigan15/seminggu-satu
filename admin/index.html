@@ -395,7 +395,7 @@
     }
 
     .nav-acc:first-of-type > summary.nav-section-label {
-      padding-top: 4px;
+      padding-top: 8px;
     }
 
     summary.nav-section-label {
@@ -405,6 +405,12 @@
       cursor: pointer;
       user-select: none;
       list-style: none;
+      padding: 14px 10px 10px 16px;
+      border-radius: 8px;
+    }
+
+    summary.nav-section-label:hover {
+      background: #f6f7fb;
     }
 
     summary.nav-section-label::-webkit-details-marker {
@@ -416,10 +422,15 @@
     }
 
     .nav-acc-chevron {
-      font-size: 9px;
+      font-size: 15px;
       color: var(--muted);
       transition: transform .15s ease;
       flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
     }
 
     .nav-acc[open] > summary .nav-acc-chevron {
