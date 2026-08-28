@@ -1588,6 +1588,199 @@ Balas HANYA teks pesannya aja, tanpa tanda kutip, tanpa penjelasan tambahan, tan
         return jsonResponse({ status: "success", message: "Partner deleted." });
       }
 
+      // ---------- EVENT ROADMAP (venues, ide event, pipeline partner) ----------
+      case "getVenues": {
+        const { data: rows } = await admin.from("venues").select("*").order("name", { ascending: true });
+        return jsonResponse({ status: "success", venues: rows || [] });
+      }
+
+      case "saveVenue": {
+        const id = String(data.id || "");
+        const name = String(data.name || "").trim();
+        if (!name) return errorResponse("Nama venue wajib diisi.");
+        const payload = {
+          name,
+          address: data.address ? String(data.address) : null,
+          maps_link: data.mapsLink ? String(data.mapsLink) : null,
+          notes: data.notes ? String(data.notes) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("venues").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update venue: " + error.message);
+        } else {
+          const { error } = await admin.from("venues").insert(payload);
+          if (error) return errorResponse("Gagal bikin venue: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: "Venue tersimpan." });
+      }
+
+      case "archiveVenue": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID venue kosong.");
+        const { error } = await admin.from("venues").update({ archived: !!data.archived }).eq("id", id);
+        if (error) return errorResponse("Gagal update venue: " + error.message);
+        return jsonResponse({ status: "success" });
+      }
+
+      case "deleteVenue": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID venue kosong.");
+        const { error } = await admin.from("venues").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus venue: " + error.message);
+        return jsonResponse({ status: "success", message: "Venue dihapus." });
+      }
+
+      case "getEventIdeas": {
+        const [ideasRes, partnersRes] = await Promise.all([
+          admin.from("event_ideas").select("*, venues(name, address, maps_link)").order("target_month", { ascending: true, nullsFirst: false }),
+          admin.from("event_idea_partners").select("*"),
+        ]);
+        const ideas = (ideasRes.data || []).map((idea) => ({
+          ...idea,
+          partners: (partnersRes.data || []).filter((p) => p.idea_id === idea.id),
+        }));
+        return jsonResponse({ status: "success", ideas });
+      }
+
+      case "saveEventIdea": {
+        const id = String(data.id || "");
+        const title = String(data.title || "").trim();
+        if (!title) return errorResponse("Judul ide wajib diisi.");
+        const payload = {
+          title,
+          workshop_type: data.workshopType ? String(data.workshopType) : null,
+          target_month: data.targetMonth ? String(data.targetMonth) : null,
+          status: String(data.status || "idea"),
+          theme_description: data.themeDescription ? String(data.themeDescription) : null,
+          // deno-lint-ignore no-explicit-any
+          questions: Array.isArray(data.questions) ? data.questions.map((q: any) => ({
+            label: String(q?.label || "").slice(0, 100), question: String(q?.question || "").slice(0, 1000),
+          })).filter((q: { question: string }) => q.question) : [],
+          venue_id: data.venueId ? String(data.venueId) : null,
+          notes: data.notes ? String(data.notes) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("event_ideas").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update ide: " + error.message);
+          return jsonResponse({ status: "success", message: "Ide tersimpan.", id });
+        } else {
+          const { data: inserted, error } = await admin.from("event_ideas").insert(payload).select("id").maybeSingle();
+          if (error) return errorResponse("Gagal bikin ide: " + error.message);
+          return jsonResponse({ status: "success", message: "Ide tersimpan.", id: inserted?.id });
+        }
+      }
+
+      case "archiveEventIdea": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID ide kosong.");
+        const { error } = await admin.from("event_ideas").update({ archived: !!data.archived }).eq("id", id);
+        if (error) return errorResponse("Gagal update ide: " + error.message);
+        return jsonResponse({ status: "success" });
+      }
+
+      case "deleteEventIdea": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID ide kosong.");
+        // partner pipeline ikut kehapus otomatis (on delete cascade)
+        const { error } = await admin.from("event_ideas").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus ide: " + error.message);
+        return jsonResponse({ status: "success", message: "Ide dihapus." });
+      }
+
+      case "saveIdeaPartner": {
+        const id = String(data.id || "");
+        const ideaId = String(data.ideaId || "");
+        if (!id && !ideaId) return errorResponse("Idea ID kosong.");
+        const partnerId = data.partnerId ? String(data.partnerId) : null;
+        const partnerName = data.partnerName ? String(data.partnerName).trim() : "";
+        if (!partnerId && !partnerName) return errorResponse("Pilih partner yang udah ada, atau ketik nama prospek.");
+        const payload = {
+          idea_id: ideaId,
+          partner_id: partnerId,
+          partner_name: partnerId ? null : partnerName,
+          status: String(data.status || "possible"),
+          notes: data.notes ? String(data.notes) : null,
+        };
+        if (id) {
+          const { error } = await admin.from("event_idea_partners").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update partner: " + error.message);
+        } else {
+          const { error } = await admin.from("event_idea_partners").insert(payload);
+          if (error) return errorResponse("Gagal nambah partner: " + error.message);
+        }
+        return jsonResponse({ status: "success" });
+      }
+
+      case "deleteIdeaPartner": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID partner kosong.");
+        const { error } = await admin.from("event_idea_partners").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus partner: " + error.message);
+        return jsonResponse({ status: "success" });
+      }
+
+      // AI generate 1 "kartu tema" (judul + prolog + pertanyaan refleksi) buat
+      // ide event -- pola generatenya sama kayak generateChallengeIdea di atas,
+      // cuma promptnya buat tema journaling/reflection prompt event, bukan
+      // Side Quest komunitas.
+      case "generateEventTheme": {
+        const hint = String(data.hint || "").trim();
+        const existingTitles = Array.isArray(data.existingTitles)
+          // deno-lint-ignore no-explicit-any
+          ? data.existingTitles.map((t: any) => String(t || "")).filter(Boolean)
+          : [];
+
+        const geminiKey = Deno.env.get("GEMINI_API_KEY");
+        if (!geminiKey) return errorResponse("GEMINI_API_KEY belum diset di server.");
+
+        const prompt = `Kamu bantu bikinin "kartu tema" buat 1 batch event journaling komunitas "Seminggu Satu" -- tema ini jadi dasar prompt refleksi yang peserta jawab di journal mereka pas acara. Gaya bahasanya hangat, empatik, kayak ngobrol sama temen, pake metafora sehari-hari (bukan istilah psikologi berat).
+
+${hint ? `Ide/arahan dari Arnold (panitia): "${hint}"` : "Arnold belum kasih arahan spesifik -- bebas pilih metafora/tema apa aja yang related sama journaling/refleksi diri/pertumbuhan pribadi."}
+
+Tema yang UDAH ADA (JANGAN bikin yang mirip/sama):
+${existingTitles.length ? existingTitles.map((t) => `- ${t}`).join("\n") : "(belum ada tema lain)"}
+
+Format contoh (ikutin gaya & struktur ini, tapi kontennya beda -- kalau ada hint dari Arnold, tema HARUS relevan sama hint itu):
+Title: "Under Construction"
+Prolog: "Harap maklum, area ini sedang dalam tahap perbaikan! Tidak apa-apa kalau semuanya belum rapi atau sempurna, karena proses membangun hal yang indah memang selalu butuh waktu dan sedikit ruang yang berantakan."
+Pertanyaan (tiap pertanyaan punya label singkat 2-3 kata sebagai mini-heading):
+- "Current Status": "Hal apa dalam dirimu atau hidupmu saat ini yang rasanya lagi 'dibongkar-pasang' atau sedang dalam tahap perbaikan?"
+- "Structural Support": "Siapa atau apa yang jadi 'tiang penyangga' utama kamu saat proses perbaikan ini terasa melelahkan?"
+- "Clearing the Debris": "Satu hal atau pikiran bising apa yang ingin kamu 'angkut ke tempat sampah' agar proses pembangunannya terasa lebih ringan?"
+
+Kasih:
+- title: nama tema singkat & catchy (2-4 kata, boleh Bahasa Inggris kalau lebih catchy kayak contoh)
+- prolog: 1-2 kalimat pembuka yang hangat, nge-set nada/metafora temanya
+- questions: 3-4 pertanyaan refleksi, tiap item ada "label" (mini-heading 2-3 kata) dan "question" (pertanyaannya, Bahasa Indonesia santai)`;
+
+        const schema = {
+          type: "OBJECT",
+          properties: {
+            title: { type: "STRING" },
+            prolog: { type: "STRING" },
+            questions: {
+              type: "ARRAY",
+              items: {
+                type: "OBJECT",
+                properties: { label: { type: "STRING" }, question: { type: "STRING" } },
+                required: ["label", "question"],
+              },
+            },
+          },
+          required: ["title", "prolog", "questions"],
+        };
+
+        const result = await callGemini(geminiKey, prompt, { responseSchema: schema, temperature: 1.1 });
+        if (!result.ok) return errorResponse("Gagal generate tema: " + result.error);
+        let theme: { title?: string; prolog?: string; questions?: { label: string; question: string }[] };
+        try {
+          theme = JSON.parse(result.text || "");
+        } catch {
+          return errorResponse("Gagal baca hasil dari AI.");
+        }
+        return jsonResponse({ status: "success", theme });
+      }
+
       case "listPartnerDocs": {
         const type = String(data.type || "");
         if (type !== "mou" && type !== "invoice") return errorResponse("Unknown document type: " + type);
