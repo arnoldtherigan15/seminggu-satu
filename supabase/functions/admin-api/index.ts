@@ -476,11 +476,11 @@ Deno.serve(async (req) => {
           max_quota: prevBatch.max_quota, open_date: prevBatch.open_date, close_date: prevBatch.close_date,
           workshop_date: prevBatch.workshop_date,
         } : {};
-        const { error: insErr } = await admin.from("batches").insert({
+        const { data: inserted, error: insErr } = await admin.from("batches").insert({
           workshop_type: workshop, label, active: true, event_date: eventDate, ...inherited,
-        });
+        }).select("id").single();
         if (insErr) return errorResponse("Gagal bikin batch baru: " + insErr.message);
-        return jsonResponse({ status: "success", message: `Batch baru '${label}' dibuat & jadi aktif.` });
+        return jsonResponse({ status: "success", message: `Batch baru '${label}' dibuat & jadi aktif.`, batchId: inserted?.id });
       }
 
       case "setActiveBatch": {

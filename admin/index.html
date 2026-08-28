@@ -4432,8 +4432,8 @@
               <select class="form-control" id="batchSelect"></select>
             </div>
             <button class="btn btn-sm" id="refreshBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
-            <button class="btn btn-sm btn-ghost" id="newBatchBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Batch</button>
           </div>
+          <p class="hint" style="margin:0 0 10px;">Mau bikin batch baru? Buka <b>Config</b> → pilih event ini → "+ New Batch".</p>
           <div id="batchInfo" class="batch-info"></div>
 
           <div class="reg-tools">
@@ -4681,6 +4681,7 @@
               <label for="cfgBatchSelect">Batch</label>
               <select class="form-control" id="cfgBatchSelect"></select>
             </div>
+            <button class="btn btn-sm btn-ghost" id="cfgNewBatchBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Batch</button>
             <button class="btn btn-sm btn-ghost" id="cfgNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Event</button>
             <button class="btn btn-sm btn-ghost" id="cfgReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
@@ -4801,6 +4802,26 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 </div>
               </div>
 
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== OVERLAY: NEW BATCH (buat event yang lagi dipilih di Config) ===== -->
+        <div id="cfgNewBatchOverlay" class="filter-overlay" style="display:none;">
+          <div class="filter-overlay-box">
+            <div class="filter-overlay-head">
+              <button class="filter-back" id="cfgNewBatchBackBtn" aria-label="Tutup">&larr;</button>
+              <div class="filter-overlay-title">New Batch</div>
+            </div>
+            <div class="filter-overlay-body">
+              <p class="hint" id="cfgNewBatchEventHint" style="margin:0 0 10px;"></p>
+              <div class="konten-field"><label>Batch Name</label><input class="form-control" type="text" id="cfgNewBatchLabel" placeholder="e.g. Vol 5"></div>
+              <div class="konten-field"><label>Event Date (optional -- shows in the participant's loyalty)</label><input class="form-control" type="date" id="cfgNewBatchDate"></div>
+              <p class="hint">Field lain (harga, kuota, venue, dst) otomatis nyontek dari batch terakhir tipe ini -- tinggal disesuaikan di Batch Detail abis dibuat kalau ada yang beda.</p>
+              <div class="msg" id="cfgNewBatchMsg"></div>
+            </div>
+            <div class="filter-overlay-foot">
+              <button class="btn" id="cfgNewBatchSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Create Batch</button>
             </div>
           </div>
         </div>
@@ -6938,7 +6959,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     document.getElementById("refreshBtn").addEventListener("click", () => { loadSummary(); loadBatches(); });
     document.getElementById("regSearch").addEventListener("input", filterReg);
     document.getElementById("exportCsvBtn").addEventListener("click", exportReg);
-    document.getElementById("newBatchBtn").addEventListener("click", createNewBatch);
 
     // ---------- BATCH / VOLUME ----------
     async function loadBatches() {
@@ -7018,25 +7038,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const r = await api("renameBatch", { token: getToken(), batchId, label: (label || "").trim(), eventDate: (eventDate || "").trim() });
       alert(r.message || r.status);
       if (r.status === "success") { await loadBatches(); loadSummary(); }
-    }
-
-    async function createNewBatch() {
-      const workshop = document.getElementById("wsSelect").value;
-      const label = prompt("Label batch baru (mis. 'Vol 2'):");
-      if (!label) return;
-      const eventDate = prompt("Event date (e.g. 'July 11, 2026') — shows in the participant's loyalty:", "");
-      if (eventDate === null) return;
-      // Dulu kalau api() gagal (network error/timeout dll) exception-nya nggak
-      // ketangkep -- fungsi berhenti diam-diam, kelihatan kayak nggak kejadian
-      // apa-apa padahal batch-nya beneran nggak kesimpen. Sekarang minimal ada
-      // alert yang jelas walau gagalnya bukan dari server (mis. koneksi putus).
-      try {
-        const r = await api("newBatch", { token: getToken(), workshop, label, eventDate: (eventDate || "").trim() });
-        alert(r.message || r.status);
-        if (r.status === "success") { await loadBatches(); loadSummary(); }
-      } catch (e) {
-        alert("Failed to create new batch: " + (e && e.message ? e.message : "couldn't connect to the server.") + "\n\nPlease try again.");
-      }
     }
 
     async function toggleBatchOpen(batchId, open) {
@@ -8751,6 +8752,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("cfgDeleteBtn").addEventListener("click", deleteWorkshopConfig);
         document.getElementById("cfgReloadBtn").addEventListener("click", loadConfig);
         document.getElementById("cfgNewBtn").addEventListener("click", createNewWorkshopConfig);
+        document.getElementById("cfgNewBatchBtn").addEventListener("click", openCfgNewBatchForm);
+        document.getElementById("cfgNewBatchBackBtn").addEventListener("click", closeCfgNewBatchForm);
+        document.getElementById("cfgNewBatchOverlay").addEventListener("click", (e) => {
+          if (e.target.id === "cfgNewBatchOverlay") closeCfgNewBatchForm();
+        });
+        document.getElementById("cfgNewBatchSaveBtn").addEventListener("click", saveCfgNewBatch);
         document.getElementById("batchDetailSaveBtn").addEventListener("click", saveCfgBatchDetailFn);
         document.getElementById("batchArchiveBtn").addEventListener("click", toggleCfgBatchArchive);
         document.getElementById("batchVoidAddBtn").addEventListener("click", addCfgBatchVoidRegistrations);
@@ -8791,6 +8798,52 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           }
           openConfigFormOverlay();
         }
+      }
+    }
+
+    // Bikin batch baru buat event yang lagi dipilih di dropdown "Select
+    // Event" -- sengaja ditaruh di Config (bukan di Registrations kayak
+    // dulu) biar 1 tempat aja buat semua urusan batch (bikin, edit venue/
+    // harga/kuota, arsip). Field date pake <input type=date> asli (bukan
+    // prompt() teks bebas) -- newBatch() backend udah nerima format ISO
+    // (YYYY-MM-DD) langsung lewat parseIdDate().
+    function openCfgNewBatchForm() {
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG && CONFIG[idx];
+      if (!w) { alert("Pilih event dulu di dropdown Select Event."); return; }
+      document.getElementById("cfgNewBatchEventHint").textContent = `Batch baru buat: ${w.name || w.id}`;
+      document.getElementById("cfgNewBatchLabel").value = "";
+      document.getElementById("cfgNewBatchDate").value = "";
+      document.getElementById("cfgNewBatchMsg").textContent = "";
+      document.getElementById("cfgNewBatchOverlay").style.display = "flex";
+    }
+    function closeCfgNewBatchForm() { document.getElementById("cfgNewBatchOverlay").style.display = "none"; }
+
+    async function saveCfgNewBatch() {
+      const idx = Number(document.getElementById("cfgSelect").value) || 0;
+      const w = CONFIG && CONFIG[idx];
+      const msg = document.getElementById("cfgNewBatchMsg");
+      if (!w) { msg.className = "msg err"; msg.textContent = "Event nggak ditemukan."; return; }
+      const label = document.getElementById("cfgNewBatchLabel").value.trim();
+      if (!label) { msg.className = "msg err"; msg.textContent = "Batch name wajib diisi."; return; }
+      const eventDate = document.getElementById("cfgNewBatchDate").value;
+      msg.className = "msg"; msg.textContent = "Membuat batch...";
+      try {
+        const r = await api("newBatch", { token: getToken(), workshop: w.id, label, eventDate });
+        if (r.status === "success") {
+          closeCfgNewBatchForm();
+          await loadCfgBatches();
+          if (r.batchId) {
+            document.getElementById("cfgBatchSelect").value = r.batchId;
+            onCfgBatchChange();
+          }
+          loadSummary();
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Gagal bikin batch.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Gagal konek ke server.";
       }
     }
 
