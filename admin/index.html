@@ -7208,6 +7208,19 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         await Promise.all([loadModal(), loadCostItems(), loadInventoryTx()]);
         financeInit = true;
       }
+      // Datang dari CTA task auto ("Isi Cost & Budget") -- Event+Batch-nya
+      // udah ditentuin, langsung dipilihin di sini bukannya balik ke default.
+      if (PENDING_TASK_TARGET && PENDING_TASK_TARGET.workshopType) {
+        const target = PENDING_TASK_TARGET;
+        PENDING_TASK_TARGET = null;
+        document.getElementById("finSelect").value = target.workshopType;
+        await onFinanceWorkshopChange();
+        if (target.batchId) {
+          document.getElementById("finBatchSelect").value = target.batchId;
+          renderFinance();
+        }
+        return;
+      }
       await onFinanceWorkshopChange();
     }
 
@@ -8527,11 +8540,36 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let TASKS = [];
     let taskInit = false;
     let taskTabsCtl = null;
-    const TASK_CHECK_LINKS = {
-      cost_budget: { label: "Buka Costs & Budget", hash: "keuangan:modal" },
-      venue: { label: "Buka Config", hash: "config" },
-      prep: null, // di-isi dinamis (butuh refWorkshopType) di renderTaskAutoLink()
-    };
+    const TASK_CTA_LABELS = { cost_budget: "Isi Cost & Budget", venue: "Isi Venue", prep: "Lengkapi Prep" };
+    // Dibaca sekali sama ensureFinanceLoaded()/ensureConfigLoaded() abis
+    // navigasi dari CTA task auto, buat langsung milih Event+Batch yang lagi
+    // dibetulin -- ga usah pilih manual lagi dari dropdown "Select Event".
+    let PENDING_TASK_TARGET = null;
+
+    // Dipake sama tombol CTA di kartu task (list) MAUPUN link "Buka X" di
+    // dalem form edit -- satu sumber logic biar konsisten. Kalau hash
+    // tujuannya SAMA kayak hash sekarang (mis. dari 1 task cost_budget ke
+    // task cost_budget lain, dua-duanya "#keuangan:modal"), location.hash=
+    // nggak nembak hashchange (nilainya nggak berubah) -- makanya di-cek
+    // manual & applyHash() dipanggil langsung biar tetep ke-apply.
+    function taskGoToTarget(t) {
+      let hash = "";
+      if (t.checkType === "cost_budget") {
+        PENDING_TASK_TARGET = { workshopType: t.refWorkshopType, batchId: t.refBatchId };
+        hash = "keuangan:modal";
+      } else if (t.checkType === "venue") {
+        PENDING_TASK_TARGET = { workshopType: t.refWorkshopType, batchId: t.refBatchId };
+        hash = "config";
+      } else if (t.checkType === "prep" && t.refWorkshopType) {
+        hash = `prep:${t.refWorkshopType}:supplies`;
+      } else {
+        return;
+      }
+      closeTaskForm();
+      const unchanged = location.hash === "#" + hash;
+      location.hash = hash;
+      if (unchanged) applyHash();
+    }
 
     async function ensureTasksView() {
       if (!taskInit) {
@@ -8545,7 +8583,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           if (id && await deleteTaskFn(id)) closeTaskForm();
         });
         document.getElementById("taskSaveBtn").addEventListener("click", saveTaskForm);
-        document.getElementById("taskAutoGoLink").addEventListener("click", closeTaskForm);
+        document.getElementById("taskAutoGoLink").addEventListener("click", (e) => {
+          e.preventDefault();
+          const id = document.getElementById("taskId").value;
+          const t = TASKS.find(x => x.id === id);
+          if (t) taskGoToTarget(t);
+        });
         taskInit = true;
       }
       await loadTasks();
@@ -8571,6 +8614,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const bits = [];
       if (t.refLabel) bits.push(escapeHtml(t.refLabel));
       if (t.dueDate) bits.push("Due " + escapeHtml(t.dueDate));
+      const ctaLabel = TASK_CTA_LABELS[t.checkType];
+      // CTA langsung di kartu-nya (bukan cuma di dalem form edit) -- biar
+      // sekali tap dari Backlog langsung nyampe ke halaman yang perlu diisi,
+      // Event+Batch-nya udah otomatis kepilih (lihat taskGoToTarget()).
+      const cta = (t.source === "auto" && ctaLabel && t.status !== "done")
+        ? `<button class="btn btn-sm btn-ghost" data-taskgo="${t.id}" style="margin-top:8px;">${ctaLabel} →</button>`
+        : "";
       return `
         <div class="fin-card" style="margin-bottom:8px;padding:14px;cursor:pointer;" data-edittask="${t.id}">
           <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
@@ -8579,6 +8629,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           </div>
           ${t.description ? `<div class="hint" style="margin:4px 0 0;">${escapeHtml(t.description)}</div>` : ""}
           ${bits.length ? `<div class="hint" style="margin-top:4px;">${bits.join(" · ")}</div>` : ""}
+          ${cta}
         </div>`;
     }
 
@@ -8594,6 +8645,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const box = document.getElementById(c.listId);
         box.innerHTML = items.length ? items.map(taskCard).join("") : `<p class="hint">${c.empty}</p>`;
         box.querySelectorAll("[data-edittask]").forEach(el => el.addEventListener("click", () => editTask(el.dataset.edittask)));
+        box.querySelectorAll("[data-taskgo]").forEach(el => el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const t = TASKS.find(x => x.id === el.dataset.taskgo);
+          if (t) taskGoToTarget(t);
+        }));
       });
     }
 
@@ -8631,9 +8687,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const goLink = document.getElementById("taskAutoGoLink");
       if (t.source === "auto") {
         autoHint.style.display = "block";
-        let link = TASK_CHECK_LINKS[t.checkType];
-        if (t.checkType === "prep" && t.refWorkshopType) link = { label: "Buka Prep", hash: `prep:${t.refWorkshopType}:supplies` };
-        if (link) { goLink.style.display = "inline-flex"; goLink.textContent = link.label; goLink.href = "#" + link.hash; }
+        const ctaLabel = TASK_CTA_LABELS[t.checkType];
+        if (ctaLabel) { goLink.style.display = "inline-flex"; goLink.textContent = ctaLabel + " →"; }
         else goLink.style.display = "none";
       } else {
         autoHint.style.display = "none";
@@ -8718,6 +8773,24 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         batchVenueSearchInput.addEventListener("focus", () => renderVenuePickerResults(batchVenueSearchInput.value, batchVenueResultsBox, pickBatchVenue));
         await loadConfig();
         configInit = true;
+      }
+      // Datang dari CTA task auto ("Isi Venue") -- Event+Batch-nya udah
+      // ditentuin, langsung dipilihin + buka form Batch Detail-nya (di situ
+      // field Location/Maps Link-nya, bukan di halaman Config utama).
+      if (PENDING_TASK_TARGET && PENDING_TASK_TARGET.workshopType) {
+        const target = PENDING_TASK_TARGET;
+        PENDING_TASK_TARGET = null;
+        const idx = (CONFIG || []).findIndex(w => w.id === target.workshopType);
+        if (idx >= 0) {
+          document.getElementById("cfgSelect").value = idx;
+          renderConfigForm();
+          await loadCfgBatches();
+          if (target.batchId) {
+            document.getElementById("cfgBatchSelect").value = target.batchId;
+            onCfgBatchChange();
+          }
+          openConfigFormOverlay();
+        }
       }
     }
 
