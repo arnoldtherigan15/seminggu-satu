@@ -655,10 +655,24 @@
             }).then(res => res.json());
         }
 
+        // --- Helper: batch yang BENERAN lagi buka per tipe (udah nyaring
+        // tanggal/status per batch) -- dipakai buat cek "penuh" yang bener,
+        // beda dari workshop-counts yang cuma total mentah semua batch
+        // `active` (termasuk batch lama yang closeDate-nya udah lewat tapi
+        // belum ditandain nonaktif -- registrant lamanya numpuk ke total
+        // padahal batch itu udah nggak nerima pendaftar lagi). Endpoint yang
+        // sama yang dipakai tiap halaman workshop buat render batch picker.
+        function fetchOpenBatches() {
+            return fetch(`${SUPABASE_URL}/functions/v1/workshop-batches`, {
+                headers: { apikey: SUPABASE_ANON_KEY }
+            }).then(res => res.json());
+        }
+
         // Render kartu workshop dari config. counts = jumlah pendaftar (buat status "penuh").
         // animate = true cuma pas render pertama (biar nggak animasi ulang pas update kuota).
-        function renderWorkshops(counts, animate, countsReady) {
+        function renderWorkshops(counts, animate, countsReady, openBatchesMap) {
             counts = counts || {};
+            openBatchesMap = openBatchesMap || {};
             listEl.innerHTML = '';
             let displayedCount = 0;
 
@@ -710,8 +724,19 @@
                 if (ws.hasOwnProperty('isDisplay') && ws.isDisplay === false) return;
 
                 const currentCount = (counts && counts[ws.id]) || 0;
-                const isFull = currentCount >= (ws.maxQuota || 12);
                 let status = getWorkshopStatus(ws);
+                // "Penuh" dicek dari batch yang BENERAN lagi buka (workshop-batches,
+                // per-batch, remaining udah dihitung dari kuota batch itu sendiri),
+                // BUKAN dari total pendaftar semua batch `active` dibanding 1 angka
+                // maxQuota tipe -- itu keliru begitu ada 2+ batch simultan (mis. Vol
+                // 4 penuh + Vol 5 baru dibuka -> totalnya kelewat maxQuota tipe,
+                // padahal Vol 5 sendiri masih longgar) atau batch lama yang
+                // closeDate-nya udah lewat tapi belum ditandain nonaktif.
+                let isFull = false;
+                if (status === 'open') {
+                    const openBatchesForType = openBatchesMap[ws.id] || [];
+                    isFull = !openBatchesForType.some(function (b) { return b.remaining == null || b.remaining > 0; });
+                }
 
                 // Override status if full
                 if (status === 'open' && isFull) {
@@ -823,21 +848,25 @@
         }
 
         let _lastCounts = {};
+        let _lastOpenBatches = {};
         let _countsReady = false;
         async function initWorkshops() {
             // 1) Paint awal: kalau ada cache -> kartu; kalau belum -> shimmer (di renderWorkshops)
-            renderWorkshops({}, true, false);
+            renderWorkshops({}, true, false, {});
 
-            // 2) Ambil kuota di background, lalu render ulang dgn status final (tombol aktif)
+            // 2) Ambil kuota + batch yang beneran lagi buka di background, lalu
+            // render ulang dgn status final (tombol aktif)
             try {
-                const res = await fetchWorkshopCounts();
-                _lastCounts = (res && typeof res === 'object') ? res : {};
+                const [countsRes, batchesRes] = await Promise.all([fetchWorkshopCounts(), fetchOpenBatches()]);
+                _lastCounts = (countsRes && typeof countsRes === 'object') ? countsRes : {};
+                _lastOpenBatches = (batchesRes && typeof batchesRes === 'object') ? batchesRes : {};
             } catch (err) {
                 console.error("Gagal mengambil kuota:", err);
                 _lastCounts = {};
+                _lastOpenBatches = {};
             }
             _countsReady = true;
-            renderWorkshops(_lastCounts, false, _countsReady);
+            renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches);
         }
 
         // Initialize on load
@@ -845,12 +874,12 @@
 
         // Config server (harga/tanggal/status terbaru) datang -> render ulang kartu.
         window.addEventListener('workshops:updated', function () {
-            renderWorkshops(_lastCounts, false, _countsReady);
+            renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches);
         });
 
         // Config gagal diambil & nggak ada cache -> render ulang (bakal tampil error).
         window.addEventListener('workshops:failed', function () {
-            renderWorkshops(_lastCounts, false, _countsReady);
+            renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches);
         });
 
         // Render testimonies
