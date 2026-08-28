@@ -674,7 +674,10 @@ async function loadEvents() {
         const left = max > 0 ? Math.max(0, max - used) : null;
         const full = max > 0 && used >= max;
         const isReg = !!registered[w.id];
-        const dateTxt = w.workshopDate || (typeof formatDateIndo === "function" && w.eventDate ? formatDateIndo(w.eventDate) : "");
+        // Kalau udah daftar, pakai tanggal batch SPESIFIK-nya (registered[w.id]
+        // sekarang objek data batch, bukan boolean) -- bukan Config type-level
+        // yang bisa beda dari batch yang beneran didaftarin.
+        const dateTxt = (isReg && registered[w.id].displayDate) || w.workshopDate || (typeof formatDateIndo === "function" && w.eventDate ? formatDateIndo(w.eventDate) : "");
         // Badge = harga dari config (ganti tag OPEN yang nggak informatif).
         // Early bird aktif -> harga normal dicoret. Nggak ada harga -> fallback OPEN.
         const kIDR = n => (n >= 1000 ? Math.round(n / 1000) : n); // 250000 -> 250
@@ -2783,6 +2786,11 @@ function initWeekNowListeners() {
 }
 
 // ---------- Tiket countdown: event terdaftar terdekat ----------
+// `_evRegistered[w.id]` sekarang objek data BATCH spesifik yang beneran
+// didaftarin (diisi member-events, udah di-merge batch>Config server-side)
+// -- bukan cuma boolean lagi. Ini yang dipakai buat tanggal/link WA di tiket,
+// BUKAN w.eventDate/w.workshopDate (Config type-level, bisa basi begitu ada
+// 2+ batch aktif tipe yang sama dengan jadwal/link WA beda-beda).
 function nearestRegisteredEvent() {
     if (!_evRegistered) return null; // loadEvents belum jalan -> nanti dia manggil renderEventTicket lagi
     const ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
@@ -2790,12 +2798,14 @@ function nearestRegisteredEvent() {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     let best = null;
     ws.forEach(w => {
-        if (!_evRegistered[w.id]) return;
-        const d = (typeof parseDate === "function") ? parseDate(w.eventDate) : null;
+        const reg = _evRegistered[w.id];
+        if (!reg) return;
+        const d = reg.eventDateIso ? new Date(reg.eventDateIso + "T00:00:00")
+            : ((typeof parseDate === "function") ? parseDate(w.eventDate) : null);
         if (!d) return;
         const days = Math.round((d - today) / 86400000);
         if (days < 0) return; // udah lewat
-        if (!best || days < best.days) best = { w: w, days: days };
+        if (!best || days < best.days) best = { w: w, reg: reg, days: days };
     });
     return best;
 }
@@ -2806,7 +2816,7 @@ function renderEventTicket() {
     const ev = nearestRegisteredEvent();
     if (!ev) { slot.innerHTML = ""; return; }
     const when = ev.days === 0 ? "HARI INI! \ud83c\udf89" : (ev.days === 1 ? "Besok!" : ev.days + " hari lagi");
-    const dateTxt = ev.w.workshopDate || (typeof formatDateIndo === "function" && ev.w.eventDate ? formatDateIndo(ev.w.eventDate) : "");
+    const dateTxt = ev.reg.displayDate || ev.w.workshopDate || (typeof formatDateIndo === "function" && ev.w.eventDate ? formatDateIndo(ev.w.eventDate) : "");
     slot.innerHTML =
         '<button type="button" class="evt-ticket" id="evTicketBtn">' +
         '<span class="evt-left">\ud83c\udf9f\ufe0f</span>' +
@@ -2818,7 +2828,8 @@ function renderEventTicket() {
     // Tiket event terdekat -> langsung ke grup WA-nya (biar beneran kepake,
     // bukan cuma nampang), fallback ke tab Event kalau link-nya belum keisi admin
     $("evTicketBtn").addEventListener("click", () => {
-        if (ev.w.whatsappGroupLink) { window.open(ev.w.whatsappGroupLink, "_blank"); return; }
+        const waLink = ev.reg.whatsappGroupLink || ev.w.whatsappGroupLink;
+        if (waLink) { window.open(waLink, "_blank"); return; }
         activateTab("events");
     });
 }
