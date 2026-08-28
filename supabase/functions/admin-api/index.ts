@@ -289,15 +289,13 @@ Deno.serve(async (req) => {
           });
         }
         const members = await loyaltyMembers(admin);
-        let ideas: unknown[] = [];
-        try { ideas = JSON.parse((await getConfigValue(admin, "IDEAS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
         // activeSheets: dipertahankan buat back-compat (siapa tau ada consumer
         // lama) -- sekarang cuma nunjukin SATU batch (yang pertama ketemu)
         // per tipe kalau ada lebih dari 1 aktif; `openBatches` di atas adalah
         // sumber data yang lengkap/akurat buat tipe yang punya 2+ batch buka.
         const activeSheets: Record<string, string> = {};
         for (const b of allBatches || []) if (b.active && !activeSheets[b.workshop_type]) activeSheets[b.workshop_type] = b.id;
-        return jsonResponse({ status: "success", summary, modal, ideas, members, activeSheets, openBatches, revenue, profit, revenueBreakdown });
+        return jsonResponse({ status: "success", summary, modal, members, activeSheets, openBatches, revenue, profit, revenueBreakdown });
       }
 
       // Analitik beneran (bukan gamifikasi) -- daftar event & batch,
@@ -1153,18 +1151,6 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         return jsonResponse({ status: "success", answer });
       }
 
-      case "getIdeas": {
-        const json = await getConfigValue(admin, "IDEAS_JSON");
-        let ideas: unknown[] = [];
-        try { ideas = json ? JSON.parse(json) : []; } catch (_e) { ideas = []; }
-        return jsonResponse({ status: "success", ideas });
-      }
-
-      case "saveIdeas": {
-        await setConfigValue(admin, "IDEAS_JSON", JSON.stringify(Array.isArray(data.ideas) ? data.ideas : []));
-        return jsonResponse({ status: "success", message: "Ide tersimpan." });
-      }
-
       case "uploadImage": {
         // Upload gambar generik dari admin panel (dipakai KONTEN editor,
         // mis. foto item Rekomendasi) -- whitelist bucket biar nggak
@@ -1992,37 +1978,67 @@ Kasih:
       // digenerate jadi PDF client-side). Row-nya ditandain source:'uploaded'
       // biar UI bisa bedain: klik dokumen upload -> buka/preview PDF asli,
       // klik dokumen generated -> buka form edit kayak biasa.
+      // Upload/edit MOU/Invoice yang dikelola di luar sistem -- file PDF
+      // dan/atau link eksternal (mis. Google Docs yang masih diedit bareng).
+      // Sama case ini dipake buat CREATE (id kosong) maupun EDIT (id diisi);
+      // file baru OPSIONAL pas edit (kalau nggak diisi ulang, file lama tetap
+      // dipertahankan -- ganti file lama cuma kalau beneran ada upload baru).
       case "uploadPartnerDoc": {
+        const id = String(data.id || "");
         const type = String(data.type || "");
         if (type !== "mou" && type !== "invoice") return errorResponse("Unknown document type: " + type);
         const title = String(data.title || "").trim();
         if (!title) return errorResponse("Document title is required.");
         const base64 = String(data.fileBase64 || "");
-        if (!base64) return errorResponse("File PDF wajib diupload.");
         const mime = String(data.fileMime || "");
-        if (mime !== "application/pdf") return errorResponse("Cuma file PDF yang didukung.");
-        let filePath = "";
-        try {
-          filePath = await uploadFileBase64(admin, "partner-doc-files", base64, title, mime, "pdf");
-        } catch (e) {
-          return errorResponse((e as Error).message);
+        if (base64 && mime !== "application/pdf") return errorResponse("Cuma file PDF yang didukung.");
+        const link = String(data.link || "").trim();
+
+        let existingFilePath: string | null = null;
+        if (id) {
+          const { data: existing } = await admin.from("partner_documents").select("file_path").eq("id", id).maybeSingle();
+          if (!existing) return errorResponse("Document not found.");
+          existingFilePath = existing.file_path || null;
         }
+        if (!id && !base64 && !link) return errorResponse("Upload file PDF atau isi link dulu.");
+
+        let filePath = existingFilePath;
+        if (base64) {
+          try {
+            filePath = await uploadFileBase64(admin, "partner-doc-files", base64, title, mime, "pdf");
+          } catch (e) {
+            return errorResponse((e as Error).message);
+          }
+          // Ganti file lama -- buang yang lama biar nggak jadi sampah nggak
+          // kereferensi di Storage.
+          if (existingFilePath) await admin.storage.from("partner-doc-files").remove([existingFilePath]);
+        }
+
+        // deno-lint-ignore no-explicit-any
+        const docData: Record<string, any> = data.docData && typeof data.docData === "object" ? { ...data.docData } : {};
+        if (link) docData.docLink = link; else delete docData.docLink;
+
         const payload = {
           partner_id: data.partnerId ? String(data.partnerId) : null,
           type, title,
           doc_date: data.docDate ? String(data.docDate) : today(),
           status: String(data.status || "draft"),
-          // Cuma eventName/workshopType/batchId (buat kolom "Event" di list,
-          // sama pola field yang dipake dokumen 'generated') -- bukan field
-          // terstruktur lengkap kayak MOU generate, upload manual tetep ga
-          // butuh pasal/dukungan/dst.
-          data: data.docData && typeof data.docData === "object" ? data.docData : {},
+          // Cuma eventName/workshopType/batchId/docLink (buat kolom "Event"
+          // di list + link eksternal) -- bukan field terstruktur lengkap
+          // kayak MOU generate, upload manual tetep ga butuh pasal/dukungan/dst.
+          data: docData,
           source: "uploaded",
           file_path: filePath,
+          updated_at: new Date().toISOString(),
         };
-        const { error } = await admin.from("partner_documents").insert(payload);
-        if (error) return errorResponse("Gagal simpan dokumen: " + error.message);
-        return jsonResponse({ status: "success", message: "PDF berhasil diupload." });
+        if (id) {
+          const { error } = await admin.from("partner_documents").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update dokumen: " + error.message);
+        } else {
+          const { error } = await admin.from("partner_documents").insert(payload);
+          if (error) return errorResponse("Gagal simpan dokumen: " + error.message);
+        }
+        return jsonResponse({ status: "success", message: id ? "Dokumen tersimpan." : "Dokumen berhasil ditambahkan." });
       }
 
       // ---- Pesanan minum/makan per event (menu global + pesanan per batch) ----
