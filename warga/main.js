@@ -1335,8 +1335,11 @@ async function submitQuest(q, i, action) {
         invalidateLeaderboard(); // poin nambah -> refetch di background biar kartu/modal poin ke-update
         if (typeof _qbRefresh === "function") _qbRefresh(); // sinkron halaman Quest Book
         renderQuestAction(q, i);
+        // Sengaja NGGAK auto-buka WhatsApp lagi di sini -- share itu keputusan
+        // warga sendiri (autonomi, bukan didorong sistem tepat setelah submit),
+        // tombol "Buka Grup WA"/"Salin caption" di renderQuestAction() masih
+        // ada kalau mereka MAU share manual.
         try { await navigator.clipboard.writeText(questCaption(q)); } catch (e) { }
-        try { window.open(QUEST_WA_GROUP, "_blank"); } catch (e) { }
     } catch (e) { if (btn) { btn.disabled = false; btn.textContent = orig; } alert("Gagal terhubung ke server."); }
     finally { hideBusy(); }
 }
