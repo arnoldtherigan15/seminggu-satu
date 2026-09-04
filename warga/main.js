@@ -1596,11 +1596,49 @@ async function shareTopJurnal() {
     }
 }
 
-// Render elemen -> PNG blob, anti-hang (guard html2canvas + timeout 15 dtk + cek blob null)
-function renderCardToBlob(el, opts) {
+// Foto galeri/quest (Drive `lh3` / Supabase Storage) di-load ke DOM TANPA CORS,
+// jadi pas html2canvas coba pakai ulang -> canvas ke-taint -> `toBlob` lempar
+// SecurityError ("Gagal bikin gambar"). Ini kenapa slide "Karya"/"Challenge
+// Quest" (satu-satunya yang ada <img> lintas-domain) selalu gagal di-share.
+// Fix: ganti tiap <img> lintas-domain di elemen yang mau dirender jadi data URL
+// (fetch -> blob -> base64) — data URL itu same-origin, nggak nge-taint.
+// Foto yang gagal di-fetch (offline / host nolak CORS) disembunyiin biar
+// render-nya tetap jalan, cuma foto itu yang hilang.
+async function inlineCrossOriginImages(root) {
+    var imgs = Array.prototype.slice.call(root.querySelectorAll("img")).filter(function (im) {
+        try { return im.src && new URL(im.src, location.href).origin !== location.origin; }
+        catch (e) { return false; }
+    });
+    await Promise.all(imgs.map(function (im) {
+        var url = im.src;
+        var work = fetch(url, { mode: "cors", credentials: "omit" })
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+            .then(function (blob) {
+                // Drive `lh3` kadang balas HTML (halaman kuota/consent), bukan gambar.
+                if (!/^image\//.test(blob.type)) throw new Error("bukan gambar: " + blob.type);
+                return new Promise(function (ok, no) {
+                    var fr = new FileReader();
+                    fr.onload = function () { ok(fr.result); };
+                    fr.onerror = function () { no(new Error("read")); };
+                    fr.readAsDataURL(blob);
+                });
+            })
+            .then(function (dataUrl) { im.src = dataUrl; });
+        var cap = new Promise(function (_, no) { setTimeout(function () { no(new Error("slow")); }, 8000); });
+        return Promise.race([work, cap]).catch(function () {
+            im.removeAttribute("srcset");
+            im.removeAttribute("src");
+            im.style.visibility = "hidden";
+        });
+    }));
+}
+
+// Render elemen -> PNG blob, anti-hang (inline foto CORS + guard html2canvas + timeout + cek blob null)
+async function renderCardToBlob(el, opts) {
     if (typeof html2canvas === "undefined") {
-        return Promise.reject(new Error("html2canvas belum siap — cek koneksi internet"));
+        throw new Error("html2canvas belum siap — cek koneksi internet");
     }
+    await inlineCrossOriginImages(el);
     // html2canvas nge-clone SELURUH dokumen (termasuk semua foto galeri yg udah
     // ke-prefetch di pane lain) -> nge-load ulang semuanya & bikin timeout.
     // Solusi: skip elemen yang bukan ancestor/descendant target (head/style tetap ikut).
@@ -1886,6 +1924,7 @@ async function shareWrappedSlide(slideEl, idx, meta) {
     document.body.appendChild(clone);
     try {
         const blob = await renderCardToBlob(clone, { width: 360, height: 640, windowWidth: 360, windowHeight: 640 });
+        hideBusy(); // gambar udah jadi -> lepasin overlay sebelum share sheet muncul
         const fname = String(meta.filename || "wrapped-seminggu-satu.png").replace(".png", "-" + (idx + 1) + ".png");
         await shareOrDownloadImage(blob, fname,
             meta.text || "Journal Wrapped ✨ @seminggu_satu",
