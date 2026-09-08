@@ -4381,6 +4381,9 @@
           <button class="nav-btn" data-view="notes">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/><path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/></svg></span> Notes
           </button>
+          <button class="nav-btn" data-view="passwords">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg></span> Password Manager
+          </button>
           </div>
           </details>
         </nav>
@@ -5281,6 +5284,23 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div id="noteGroups"></div>
           <div class="empty" id="noteEmpty" style="display:none;"><div style="font-size:32px;margin-bottom:8px;">📝</div>No notes yet. Tap "New Note" to write your first one.</div>
           <button type="button" class="note-fab" id="noteFabBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Note</button>
+        </div>
+
+        <!-- ===== VIEW: PASSWORD MANAGER (personal, kayak note -- bukan bisnis
+             Seminggu Satu). Password disimpan TERENKRIPSI di server (lihat
+             personal-api/vault-crypto.ts), cuma didekripsi pas ditampilin ke
+             admin sendiri di sini. ===== -->
+        <div class="wrap view" id="viewPasswords" style="display:none;">
+          <div class="toolbar">
+            <button class="btn btn-sm" id="pwNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Password</button>
+            <button class="btn btn-sm btn-ghost" id="pwReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+          </div>
+          <div class="reg-tools" style="margin-top:10px;">
+            <input class="form-control" type="text" id="pwSearch" placeholder="🔍 Search title / username..." autocomplete="off" />
+          </div>
+          <p class="hint" style="margin:10px 0;">🔒 Password disimpan terenkripsi di server -- cuma bisa dibaca lewat dashboard admin ini.</p>
+          <div id="pwList" style="margin-top:6px;"></div>
+          <div class="empty" id="pwEmpty" style="display:none;"><div style="font-size:32px;margin-bottom:8px;">🔑</div>No passwords yet. Tap "New Password" to save your first one.</div>
         </div>
 
         <!-- ===== VIEW: MEMBER (akun /warga, ultah, aktif) ===== -->
@@ -6290,6 +6310,36 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     </div>
   </div>
 
+  <!-- Layar Tambah/Edit Password (Personal) -->
+  <div id="pwFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="pwFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="pwFormTitle">New Password</div>
+        <button class="filter-reset-link" id="pwFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="pwId">
+        <div class="konten-field"><label>Title / Service</label><input class="form-control" type="text" id="pwTitle" placeholder="e.g. Gmail Seminggu Satu"></div>
+        <div class="konten-field"><label>Username / Email (optional)</label><input class="form-control" type="text" id="pwUsername" placeholder="e.g. hello@seminggusatu.com"></div>
+        <div class="konten-field">
+          <label>Password</label>
+          <div style="display:flex;gap:6px;">
+            <input class="form-control" type="password" id="pwPassword" placeholder="Password" style="flex:1;" autocomplete="new-password">
+            <button type="button" class="btn btn-sm btn-ghost" id="pwToggleBtn" title="Show/hide"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg></button>
+            <button type="button" class="btn btn-sm btn-ghost" id="pwGenBtn" title="Generate strong password">🎲</button>
+          </div>
+        </div>
+        <div class="konten-field"><label>URL (optional)</label><input class="form-control" type="url" id="pwUrl" placeholder="https://..."></div>
+        <div class="konten-field"><label>Notes (optional)</label><textarea class="form-control" id="pwNotes" rows="2" placeholder="e.g. recovery email, PIN, dst."></textarea></div>
+        <div class="msg" id="pwMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="pwSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Password</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Layar Tambah/Edit Invoice -->
   <div id="invoiceFormOverlay" class="filter-overlay" style="display:none;">
     <div class="filter-overlay-box">
@@ -7081,7 +7131,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2]);
     }
@@ -7120,6 +7170,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("viewTasks").style.display = (view === "tasks") ? "block" : "none";
       document.getElementById("viewPersonal").style.display = (view === "personal") ? "block" : "none";
       document.getElementById("viewNotes").style.display = (view === "notes") ? "block" : "none";
+      document.getElementById("viewPasswords").style.display = (view === "passwords") ? "block" : "none";
       applySubtabBarHeightVar();
       applyMemSearchHeightVar();
       if (view === "overview") ensureOverview();
@@ -7140,6 +7191,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "tasks") ensureTasksView();
       if (view === "personal") { ensurePersonal(); if (event && perTabsCtl) perTabsCtl.show(event); }
       if (view === "notes") ensureNotesView();
+      if (view === "passwords") ensurePasswordsView();
     }
 
     // ---------- KEUANGAN ----------
@@ -15451,6 +15503,183 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     async function ensureNotesView() {
       wireNotesOnce();
       await loadNotes();
+    }
+
+    // ---------- PERSONAL PASSWORD MANAGER (sidebar > Personal > Password Manager) ----------
+    // Password disimpan TERENKRIPSI di server (personal-api/vault-crypto.ts) --
+    // yang lewat ke browser di sini adalah plaintext hasil dekripsi punya
+    // admin sendiri (sama pola akses kayak Personal Notes/Financial Tracker),
+    // BUKAN disimpan plaintext di DB.
+    let PERSONAL_PASSWORDS = [];
+    let passwordsInit = false;
+    let pwSearchQuery = "";
+    const PW_REVEALED = new Set(); // id password yang lagi "mata kebuka" di list
+
+    function fmtPwDate(iso) {
+      const d = new Date(iso);
+      if (isNaN(d)) return "";
+      return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    async function loadPasswords() {
+      const list = document.getElementById("pwList");
+      const empty = document.getElementById("pwEmpty");
+      list.innerHTML = skelLines(3);
+      empty.style.display = "none";
+      try {
+        const r = await personalApi("getPersonalPasswords", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); list.innerHTML = ""; return; }
+        PERSONAL_PASSWORDS = r.passwords || [];
+        renderPasswordList();
+      } catch (e) {
+        list.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
+      }
+    }
+
+    function renderPasswordList() {
+      const list = document.getElementById("pwList");
+      const empty = document.getElementById("pwEmpty");
+      const q = pwSearchQuery.toLowerCase();
+      const items = PERSONAL_PASSWORDS.filter(p =>
+        !q || p.title.toLowerCase().includes(q) || (p.username || "").toLowerCase().includes(q));
+      if (!PERSONAL_PASSWORDS.length) {
+        list.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      if (!items.length) { list.innerHTML = '<p class="hint">No matches.</p>'; return; }
+      list.innerHTML = items.map(p => {
+        const revealed = PW_REVEALED.has(p.id);
+        return `
+        <div class="fin-card" style="margin-bottom:8px;padding:14px;cursor:pointer;" data-editpw="${p.id}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <b>${escapeHtml(p.title)}</b>
+            <span class="hint" style="white-space:nowrap;">${fmtPwDate(p.updatedAt)}</span>
+          </div>
+          ${p.username ? `<div class="hint" style="margin-top:4px;display:flex;align-items:center;gap:6px;">${escapeHtml(p.username)}
+            <button type="button" class="btn btn-sm btn-ghost" data-copyuser="${p.id}" title="Copy username" style="padding:2px 8px;">${icon("clipboard")}</button>
+          </div>` : ""}
+          <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
+            <code style="background:var(--bg);padding:3px 8px;border-radius:6px;letter-spacing:${revealed ? "normal" : "2px"};">${revealed ? escapeHtml(p.password) : "•".repeat(Math.min(10, Math.max(6, p.password.length)))}</code>
+            <button type="button" class="btn btn-sm btn-ghost" data-togglepw="${p.id}" title="Show/hide" style="padding:2px 8px;">${icon(revealed ? "eyeSlash" : "eye")}</button>
+            <button type="button" class="btn btn-sm btn-ghost" data-copypw="${p.id}" title="Copy password" style="padding:2px 8px;">${icon("clipboard")}</button>
+          </div>
+          ${p.url ? `<a href="${escapeHtml(p.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="hint" style="color:var(--brand);display:inline-flex;align-items:center;gap:4px;margin-top:6px;">${icon("link")} ${escapeHtml(p.url)}</a>` : ""}
+          ${p.notes ? `<div class="hint" style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(p.notes)}</div>` : ""}
+        </div>`;
+      }).join("");
+
+      list.querySelectorAll("[data-editpw]").forEach(el => el.addEventListener("click", () => editPassword(el.dataset.editpw)));
+      list.querySelectorAll("[data-togglepw]").forEach(el => el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = el.dataset.togglepw;
+        if (PW_REVEALED.has(id)) PW_REVEALED.delete(id); else PW_REVEALED.add(id);
+        renderPasswordList();
+      }));
+      list.querySelectorAll("[data-copypw]").forEach(el => el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const p = PERSONAL_PASSWORDS.find(x => x.id === el.dataset.copypw);
+        if (p) copyToClipboardEl(p.password, el);
+      }));
+      list.querySelectorAll("[data-copyuser]").forEach(el => el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const p = PERSONAL_PASSWORDS.find(x => x.id === el.dataset.copyuser);
+        if (p) copyToClipboardEl(p.username, el);
+      }));
+    }
+
+    function openPwForm(isEdit) {
+      document.getElementById("pwFormTitle").textContent = isEdit ? "Edit Password" : "New Password";
+      document.getElementById("pwFormDeleteBtn").style.display = isEdit ? "inline-flex" : "none";
+      document.getElementById("pwPassword").type = "password";
+      document.getElementById("pwFormOverlay").style.display = "flex";
+    }
+    function closePwForm() { document.getElementById("pwFormOverlay").style.display = "none"; }
+
+    function newPwForm() {
+      document.getElementById("pwId").value = "";
+      document.getElementById("pwTitle").value = "";
+      document.getElementById("pwUsername").value = "";
+      document.getElementById("pwPassword").value = "";
+      document.getElementById("pwUrl").value = "";
+      document.getElementById("pwNotes").value = "";
+      document.getElementById("pwMsg").textContent = "";
+    }
+
+    function editPassword(id) {
+      const p = PERSONAL_PASSWORDS.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById("pwId").value = p.id;
+      document.getElementById("pwTitle").value = p.title;
+      document.getElementById("pwUsername").value = p.username || "";
+      document.getElementById("pwPassword").value = p.password;
+      document.getElementById("pwUrl").value = p.url || "";
+      document.getElementById("pwNotes").value = p.notes || "";
+      document.getElementById("pwMsg").textContent = "";
+      openPwForm(true);
+    }
+
+    async function savePasswordForm() {
+      const msg = document.getElementById("pwMsg");
+      const title = document.getElementById("pwTitle").value.trim();
+      const password = document.getElementById("pwPassword").value;
+      if (!title) { msg.className = "msg err"; msg.textContent = "Title/service name is required."; return; }
+      if (!password) { msg.className = "msg err"; msg.textContent = "Password is required."; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await personalApi("savePersonalPassword", {
+        token: getToken(), id: document.getElementById("pwId").value, title, password,
+        username: document.getElementById("pwUsername").value.trim(),
+        url: document.getElementById("pwUrl").value.trim(),
+        notes: document.getElementById("pwNotes").value.trim(),
+      });
+      if (r.status === "success") { closePwForm(); await loadPasswords(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to save."; }
+    }
+
+    async function deletePasswordForm() {
+      const id = document.getElementById("pwId").value;
+      if (!id || !confirm("Delete this password?")) return;
+      const r = await personalApi("deletePersonalPassword", { token: getToken(), id });
+      if (r.status === "success") { closePwForm(); await loadPasswords(); }
+      else { handleAuthError(r); alert(r.message || "Failed to delete."); }
+    }
+
+    // Generator password acak -- 16 karakter, campur huruf besar/kecil/angka/simbol,
+    // dipake pas bikin/ganti password baru biar nggak males & kepake yang lemah/ulang.
+    function generateStrongPassword() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*";
+      const bytes = new Uint32Array(16);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes, b => chars[b % chars.length]).join("");
+    }
+
+    function wirePasswordsOnce() {
+      if (passwordsInit) return;
+      passwordsInit = true;
+      document.getElementById("pwNewBtn").addEventListener("click", () => { newPwForm(); openPwForm(false); });
+      document.getElementById("pwReloadBtn").addEventListener("click", loadPasswords);
+      document.getElementById("pwSearch").addEventListener("input", (e) => { pwSearchQuery = e.target.value.trim(); renderPasswordList(); });
+      document.getElementById("pwFormBackBtn").addEventListener("click", closePwForm);
+      document.getElementById("pwFormOverlay").addEventListener("click", (e) => {
+        if (e.target.id === "pwFormOverlay") closePwForm();
+      });
+      document.getElementById("pwSaveBtn").addEventListener("click", savePasswordForm);
+      document.getElementById("pwFormDeleteBtn").addEventListener("click", deletePasswordForm);
+      document.getElementById("pwToggleBtn").addEventListener("click", () => {
+        const input = document.getElementById("pwPassword");
+        input.type = input.type === "password" ? "text" : "password";
+      });
+      document.getElementById("pwGenBtn").addEventListener("click", () => {
+        const input = document.getElementById("pwPassword");
+        input.type = "text";
+        input.value = generateStrongPassword();
+      });
+    }
+
+    async function ensurePasswordsView() {
+      wirePasswordsOnce();
+      await loadPasswords();
     }
 
     function buildPrepTab(sec) {

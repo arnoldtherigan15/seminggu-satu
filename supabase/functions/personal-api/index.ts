@@ -6,6 +6,7 @@ import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { requireAdminAuth } from "../_shared/admin-auth.ts";
 import { callGemini } from "../_shared/gemini.ts";
+import { encryptSecret, decryptSecret } from "../_shared/vault-crypto.ts";
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -551,6 +552,68 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
         const { error } = await admin.from("personal_note_folders").delete().eq("id", id);
         if (error) return errorResponse("Gagal hapus folder: " + error.message);
         return jsonResponse({ status: "success", message: "Folder dihapus." });
+      }
+
+      // Vault password pribadi Arnold -- password disimpan TERENKRIPSI
+      // (encryptSecret/decryptSecret, AES-256-GCM pakai VAULT_KEY server-side),
+      // didekripsi cuma di sini pas mau ditampilin ke admin sendiri.
+      case "getPersonalPasswords": {
+        const { data, error } = await admin.from("personal_passwords").select("*").order("title", { ascending: true });
+        if (error) return errorResponse("Gagal ambil password: " + error.message);
+        const passwords = [];
+        for (const row of data || []) {
+          let password = "";
+          try { password = await decryptSecret(row.password_encrypted); } catch (_e) { password = ""; }
+          passwords.push({
+            id: row.id,
+            title: row.title,
+            username: row.username || "",
+            password,
+            url: row.url || "",
+            notes: row.notes || "",
+            updatedAt: row.updated_at,
+          });
+        }
+        return jsonResponse({ status: "success", passwords });
+      }
+
+      case "savePersonalPassword": {
+        const id = String(data.id || "");
+        const title = String(data.title || "").trim();
+        const password = String(data.password || "");
+        if (!title) return errorResponse("Title/service name is required.");
+        if (!password) return errorResponse("Password is required.");
+        let passwordEncrypted: string;
+        try {
+          passwordEncrypted = await encryptSecret(password);
+        } catch (e) {
+          return errorResponse("Gagal enkripsi password: " + (e as Error).message);
+        }
+        const payload = {
+          title,
+          username: data.username ? String(data.username).trim() : null,
+          password_encrypted: passwordEncrypted,
+          url: data.url ? String(data.url).trim() : null,
+          notes: data.notes ? String(data.notes).trim() : null,
+          updated_at: new Date().toISOString(),
+        };
+        if (id) {
+          const { error } = await admin.from("personal_passwords").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update password: " + error.message);
+          return jsonResponse({ status: "success", id });
+        } else {
+          const { data: inserted, error } = await admin.from("personal_passwords").insert(payload).select("id").single();
+          if (error) return errorResponse("Gagal simpan password: " + error.message);
+          return jsonResponse({ status: "success", id: inserted.id });
+        }
+      }
+
+      case "deletePersonalPassword": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID password kosong.");
+        const { error } = await admin.from("personal_passwords").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus password: " + error.message);
+        return jsonResponse({ status: "success", message: "Password dihapus." });
       }
 
       default:
