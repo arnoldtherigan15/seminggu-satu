@@ -5318,7 +5318,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <button class="btn btn-sm btn-ghost" id="vidNewFolderBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5z"/></svg> New Folder</button>
             <button class="btn btn-sm btn-ghost" id="vidReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
-          <p class="hint" style="margin:10px 0;">▶️ "Open All" buka semua link folder itu di tab baru sekaligus (izinkan pop-up dulu kalau browser nanya). Link YouTube/Vimeo bisa langsung ditonton di sini lewat tombol "Watch".</p>
+          <p class="hint" style="margin:10px 0;">▶️ "Open All" buka semua link folder itu di tab baru sekaligus. Browser biasanya cuma ngizinin tab pertama otomatis (popup blocker) -- kalau kepotong, klik ikon "pop-up diblokir" di address bar → "Always allow", terus klik "Open All" lagi (cukup sekali per browser). Link YouTube/Vimeo bisa langsung ditonton di sini lewat tombol "Watch".</p>
           <div id="vidGroups"></div>
           <div class="empty" id="vidEmpty" style="display:none;"><div style="font-size:32px;margin-bottom:8px;">🎬</div>No video links yet. Tap "New Link" to save your first one.</div>
           <button type="button" class="note-fab" id="vidFabBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Link</button>
@@ -15833,11 +15833,27 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     // banyak (cuma tab PERTAMA yang dijamin lolos tanpa izin eksplisit),
     // makanya dikasih konfirmasi dulu kalau >3 link sekaligus biar Arnold
     // tau perlu izinin pop-up manual di browser.
+    // Browser SECARA DEFAULT cuma ngizinin 1 tab baru per klik -- tab ke-2
+    // dst dalam handler yang sama otomatis diblokir popup-blocker KECUALI
+    // situs ini udah di-"Always allow" manual sekali di browser tsb (per
+    // browser/device, bukan pengaturan yang bisa diaktifin dari JS). window.open()
+    // balikin null pas diblokir, jadi kita deteksi & kasih tau caranya --
+    // dulu di sini nggak ada feedback ini jadi kliatan "cuma buka 1 doang".
     function openAllInVideoFolder(folderId) {
       const links = PERSONAL_VIDEO_LINKS.filter(v => (v.folder_id || "") === (folderId || ""));
       if (!links.length) return;
-      if (links.length > 3 && !confirm(`Buka ${links.length} link sekaligus di tab baru? Kalau browser nge-block sebagian, izinkan pop-up buat halaman ini dulu ya.`)) return;
-      links.forEach(v => window.open(v.url, "_blank"));
+      if (links.length > 6 && !confirm(`Buka ${links.length} link sekaligus di tab baru?`)) return;
+      let blocked = 0;
+      links.forEach(v => {
+        const w = window.open(v.url, "_blank");
+        if (!w) blocked++;
+      });
+      if (blocked > 0) {
+        alert(
+          `${blocked} dari ${links.length} link diblokir pop-up blocker browser -- cuma tab pertama yang otomatis diizinkan.\n\n` +
+          `Cara ngizinin semuanya: klik ikon "pop-up diblokir" di address bar (biasanya di sebelah kanan, deket ikon bookmark), pilih "Always allow pop-ups from this site", lalu klik "Open All" lagi. Cuma perlu sekali per browser/device.`
+        );
+      }
     }
 
     // Groups video links into 1 accordion per folder (sama pola kayak
