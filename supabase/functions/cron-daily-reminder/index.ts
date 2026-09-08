@@ -7,8 +7,14 @@
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { getConfigValue } from "../_shared/config.ts";
 import { sendTelegramText } from "../_shared/telegram.ts";
-import { todaysBirthdays } from "../_shared/members.ts";
+import { todaysBirthdaysWithContact } from "../_shared/members.ts";
 import { mergeBatchConfig } from "../_shared/batch-merge.ts";
+
+// SAMA PERSIS kayak memWaMsg("bday", nm) di admin/index.html -- kalau
+// naskahnya diubah di salah satu, ubah juga di satunya biar nggak beda.
+function bdayWaMessage(nickname: string): string {
+  return `Hai ${nickname}! 🎂✨ Selamat ulang tahun yaa dari keluarga Seminggu Satu 💙 Semoga makin kreatif & bahagia! Ada kejutan voucher ultah buat kamu di Member Hub: https://seminggusatu.com/warga`;
+}
 
 function jakartaIso(d: Date): string {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d);
@@ -57,11 +63,20 @@ Deno.serve(async (_req) => {
   // Ultah dikirim sebagai PESAN TERPISAH (bukan disatuin ke reminder event)
   // -- biar gampang dibedain sekilas di chat Telegram yang isinya campur
   // banyak jenis notif, tiap jenis punya "bentuk" sendiri yang konsisten.
+  // Tiap orang dikasih tombol "WA <nama>" siap-klik (nomornya udah keisi +
+  // teks ucapan udah ke-draft) -- biar Arnold nggak perlu buka Balai Warga
+  // & cari nomornya manual dulu, tinggal tap & kirim.
   try {
-    const bdays = await todaysBirthdays(admin);
+    const bdays = await todaysBirthdaysWithContact(admin);
     if (bdays.length) {
-      const names = bdays.map((b) => `• ${b.nickname}`).join("\n");
-      await sendTelegramText(`🎂 *Ultah Hari Ini!*\n\n${names}\n\n_Jangan lupa kasih ucapan ya_ 🥳`);
+      const names = bdays.map((b) => `• ${b.nickname}${b.age ? ` (turning ${b.age})` : ""}`).join("\n");
+      const buttons = bdays
+        .filter((b) => b.wa)
+        .map((b) => [{ text: `🎂 WA ${b.nickname}`, url: `https://wa.me/${b.wa}?text=${encodeURIComponent(bdayWaMessage(b.nickname))}` }]);
+      await sendTelegramText(
+        `🎂 *Ultah Hari Ini!*\n\n${names}\n\n_Jangan lupa kasih ucapan ya_ 🥳`,
+        buttons.length ? { inline_keyboard: buttons } : undefined,
+      );
     }
   } catch (_e) { /* jangan ganggu reminder event kalau ini gagal */ }
 

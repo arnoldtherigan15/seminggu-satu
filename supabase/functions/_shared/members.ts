@@ -32,12 +32,36 @@ function jakartaMonthDay(): string {
   return `${m}-${d}`;
 }
 
+// Dipake profileResponse() -- balik ke SEMUA member (buat nampilin "hari ini
+// ultah si X" di app-nya sendiri), jadi SENGAJA cuma nickname doang. JANGAN
+// tambahin field kayak `wa` di sini -- itu bakal ke-expose ke member lain,
+// bukan cuma admin. Buat kebutuhan admin (Telegram, butuh kontak), pake
+// todaysBirthdaysWithContact() di bawah.
 export async function todaysBirthdays(admin: SupabaseClient): Promise<{ nickname: string }[]> {
   const { data } = await admin.from("members").select("nickname, birth_date");
   const md = jakartaMonthDay();
   return (data || [])
     .filter((m) => m.birth_date && String(m.birth_date).slice(5, 10) === md)
     .map((m) => ({ nickname: m.nickname || "Sahabat" }));
+}
+
+// Versi admin-only (dipake cron-daily-reminder buat notif Telegram ke Arnold,
+// termasuk tombol WA langsung) -- boleh bawa nomor WA karena cuma nyampe ke
+// Telegram Arnold sendiri, beda dari todaysBirthdays() di atas.
+export async function todaysBirthdaysWithContact(admin: SupabaseClient): Promise<{ nickname: string; wa: string; age: number | null }[]> {
+  const { data } = await admin.from("members").select("nickname, birth_date, wa");
+  const md = jakartaMonthDay();
+  const thisYear = new Date().getFullYear();
+  return (data || [])
+    .filter((m) => m.birth_date && String(m.birth_date).slice(5, 10) === md)
+    .map((m) => {
+      const birthYear = parseInt(String(m.birth_date).slice(0, 4), 10);
+      return {
+        nickname: m.nickname || "Sahabat",
+        wa: waKey(m.wa) || "",
+        age: Number.isFinite(birthYear) ? thisYear - birthYear : null,
+      };
+    });
 }
 
 // deno-lint-ignore no-explicit-any
