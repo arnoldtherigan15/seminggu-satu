@@ -616,6 +616,73 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
         return jsonResponse({ status: "success", message: "Password dihapus." });
       }
 
+      // Video Links -- daftar link video (YouTube/Vimeo/dst) Arnold mau
+      // ditonton nanti, dikelompokkin per folder (pola sama kayak Personal
+      // Notes: getPersonalNotes/savePersonalNote/savePersonalNoteFolder).
+      case "getPersonalVideoLinks": {
+        const [linksRes, foldersRes] = await Promise.all([
+          admin.from("personal_video_links").select("*").order("created_at", { ascending: false }),
+          admin.from("personal_video_folders").select("*").order("name", { ascending: true }),
+        ]);
+        if (linksRes.error) return errorResponse("Gagal ambil video links: " + linksRes.error.message);
+        if (foldersRes.error) return errorResponse("Gagal ambil folder: " + foldersRes.error.message);
+        return jsonResponse({ status: "success", links: linksRes.data || [], folders: foldersRes.data || [] });
+      }
+
+      case "saveVideoLink": {
+        const id = String(data.id || "");
+        const url = String(data.url || "").trim();
+        if (!url) return errorResponse("Link video wajib diisi.");
+        if (!/^https?:\/\//i.test(url)) return errorResponse("Link harus diawali http:// atau https://");
+        const payload = {
+          url,
+          title: data.title ? String(data.title).trim() : null,
+          folder_id: data.folderId ? String(data.folderId) : null,
+          notes: data.notes ? String(data.notes).trim() : null,
+          updated_at: new Date().toISOString(),
+        };
+        if (id) {
+          const { error } = await admin.from("personal_video_links").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update link: " + error.message);
+          return jsonResponse({ status: "success", id });
+        } else {
+          const { data: inserted, error } = await admin.from("personal_video_links").insert(payload).select("id").single();
+          if (error) return errorResponse("Gagal simpan link: " + error.message);
+          return jsonResponse({ status: "success", id: inserted.id });
+        }
+      }
+
+      case "deleteVideoLink": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID link kosong.");
+        const { error } = await admin.from("personal_video_links").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus link: " + error.message);
+        return jsonResponse({ status: "success", message: "Link dihapus." });
+      }
+
+      case "saveVideoFolder": {
+        const id = String(data.id || "");
+        const name = String(data.name || "").trim();
+        if (!name) return errorResponse("Nama folder wajib diisi.");
+        if (id) {
+          const { error } = await admin.from("personal_video_folders").update({ name }).eq("id", id);
+          if (error) return errorResponse("Gagal update folder: " + error.message);
+          return jsonResponse({ status: "success", id });
+        } else {
+          const { data: inserted, error } = await admin.from("personal_video_folders").insert({ name }).select("id").single();
+          if (error) return errorResponse("Gagal bikin folder: " + error.message);
+          return jsonResponse({ status: "success", id: inserted.id });
+        }
+      }
+
+      case "deleteVideoFolder": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID folder kosong.");
+        const { error } = await admin.from("personal_video_folders").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus folder: " + error.message);
+        return jsonResponse({ status: "success", message: "Folder dihapus." });
+      }
+
       default:
         return errorResponse("Aksi tidak dikenal: " + action);
     }

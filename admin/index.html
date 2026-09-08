@@ -3876,7 +3876,8 @@
     .note-folder-acc .note-list { margin-top: 0; }
 
     .note-folder-rename,
-    .note-folder-delete {
+    .note-folder-delete,
+    .note-folder-openall {
       background: none;
       border: none;
       color: var(--muted);
@@ -3887,7 +3888,8 @@
       border-radius: 6px;
     }
 
-    .note-folder-rename:hover {
+    .note-folder-rename:hover,
+    .note-folder-openall:hover {
       color: var(--brand);
       background: var(--brand-light);
     }
@@ -4383,6 +4385,9 @@
           </button>
           <button class="nav-btn" data-view="passwords">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg></span> Password Manager
+          </button>
+          <button class="nav-btn" data-view="videos">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445"/></svg></span> Video Links
           </button>
           </div>
           </details>
@@ -5301,6 +5306,22 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <p class="hint" style="margin:10px 0;">🔒 Password disimpan terenkripsi di server -- cuma bisa dibaca lewat dashboard admin ini.</p>
           <div id="pwList" style="margin-top:6px;"></div>
           <div class="empty" id="pwEmpty" style="display:none;"><div style="font-size:32px;margin-bottom:8px;">🔑</div>No passwords yet. Tap "New Password" to save your first one.</div>
+        </div>
+
+        <!-- ===== VIEW: VIDEO LINKS (personal, kayak Notes tapi buat link video
+             mau ditonton nanti -- bukan bisnis Seminggu Satu). Dikelompokkin
+             per folder, tiap folder ada tombol "Open All" (buka semua link
+             folder itu sekaligus di tab baru). ===== -->
+        <div class="wrap view" id="viewVideos" style="display:none;">
+          <div class="toolbar">
+            <button class="btn btn-sm" id="vidNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Link</button>
+            <button class="btn btn-sm btn-ghost" id="vidNewFolderBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5z"/></svg> New Folder</button>
+            <button class="btn btn-sm btn-ghost" id="vidReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+          </div>
+          <p class="hint" style="margin:10px 0;">▶️ "Open All" buka semua link folder itu di tab baru sekaligus (izinkan pop-up dulu kalau browser nanya). Link YouTube/Vimeo bisa langsung ditonton di sini lewat tombol "Watch".</p>
+          <div id="vidGroups"></div>
+          <div class="empty" id="vidEmpty" style="display:none;"><div style="font-size:32px;margin-bottom:8px;">🎬</div>No video links yet. Tap "New Link" to save your first one.</div>
+          <button type="button" class="note-fab" id="vidFabBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Link</button>
         </div>
 
         <!-- ===== VIEW: MEMBER (akun /warga, ultah, aktif) ===== -->
@@ -6340,6 +6361,28 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     </div>
   </div>
 
+  <!-- Layar Tambah/Edit Video Link (Personal) -->
+  <div id="vidFormOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="vidFormBackBtn" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="vidFormTitle">New Link</div>
+        <button class="filter-reset-link" id="vidFormDeleteBtn" style="display:none;color:var(--err);">Delete</button>
+      </div>
+      <div class="filter-overlay-body">
+        <input type="hidden" id="vidId">
+        <div class="konten-field"><label>Video URL</label><input class="form-control" type="url" id="vidUrl" placeholder="https://youtube.com/watch?v=..."></div>
+        <div class="konten-field"><label>Title (optional)</label><input class="form-control" type="text" id="vidTitle" placeholder="e.g. Tutorial bikin macrame"></div>
+        <div class="konten-field"><label>Folder</label><select class="form-control" id="vidFolderSelect"><option value="">No folder</option></select></div>
+        <div class="konten-field"><label>Notes (optional)</label><textarea class="form-control" id="vidNotes" rows="2"></textarea></div>
+        <div class="msg" id="vidMsg"></div>
+      </div>
+      <div class="filter-overlay-foot">
+        <button class="btn" id="vidSaveBtn" style="width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Save Link</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Layar Tambah/Edit Invoice -->
   <div id="invoiceFormOverlay" class="filter-overlay" style="display:none;">
     <div class="filter-overlay-box">
@@ -6476,6 +6519,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       star: '<path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>',
       receipt: '<path d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .801.13l.5 1A.5.5 0 0 1 15 2v12a.5.5 0 0 1-.053.224l-.5 1a.5.5 0 0 1-.8.13L13 14.707l-.646.647a.5.5 0 0 1-.708 0L11 14.707l-.646.647a.5.5 0 0 1-.708 0L9 14.707l-.646.647a.5.5 0 0 1-.708 0L7 14.707l-.646.647a.5.5 0 0 1-.708 0L5 14.707l-.646.647a.5.5 0 0 1-.708 0L3 14.707l-.646.647a.5.5 0 0 1-.801-.13l-.5-1A.5.5 0 0 1 1 14V2a.5.5 0 0 1 .053-.224l.5-1a.5.5 0 0 1 .367-.27m.217 1.338L2 2.118v11.764l.137.274.51-.51a.5.5 0 0 1 .707 0l.646.647.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.509.509.137-.274V2.118l-.137-.274-.51.51a.5.5 0 0 1-.707 0L12 1.707l-.646.647a.5.5 0 0 1-.708 0L10 1.707l-.646.647a.5.5 0 0 1-.708 0L8 1.707l-.646.647a.5.5 0 0 1-.708 0L6 1.707l-.646.647a.5.5 0 0 1-.708 0L4 1.707l-.646.647a.5.5 0 0 1-.708 0z"/><path d="M3 4.5a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5"/>',
       heart: '<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>',
+      playCircle: '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445"/>',
+      openLink: '<path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>',
     };
     // icon("trash") -> <svg> string. cls: class tambahan (mis. buat ukuran/warna).
     function icon(name, cls) {
@@ -7131,7 +7176,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2]);
     }
@@ -7171,6 +7216,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("viewPersonal").style.display = (view === "personal") ? "block" : "none";
       document.getElementById("viewNotes").style.display = (view === "notes") ? "block" : "none";
       document.getElementById("viewPasswords").style.display = (view === "passwords") ? "block" : "none";
+      document.getElementById("viewVideos").style.display = (view === "videos") ? "block" : "none";
       applySubtabBarHeightVar();
       applyMemSearchHeightVar();
       if (view === "overview") ensureOverview();
@@ -7192,6 +7238,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "personal") { ensurePersonal(); if (event && perTabsCtl) perTabsCtl.show(event); }
       if (view === "notes") ensureNotesView();
       if (view === "passwords") ensurePasswordsView();
+      if (view === "videos") ensureVideosView();
     }
 
     // ---------- KEUANGAN ----------
@@ -15683,6 +15730,267 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     async function ensurePasswordsView() {
       wirePasswordsOnce();
       await loadPasswords();
+    }
+
+    // ---------- PERSONAL VIDEO LINKS (sidebar > Personal > Video Links) ----------
+    // Sama pola foldering-nya kayak Personal Notes (folder opsional, hapus
+    // folder nggak ngilangin link-nya). Link YouTube/Vimeo bisa langsung
+    // ditonton inline (embed iframe, cuma dipasang pas tombol "Watch"
+    // diklik -- dilepas lagi pas di-hide biar videonya beneran berhenti,
+    // bukan cuma disembunyiin sambil audio jalan terus di background).
+    let PERSONAL_VIDEO_LINKS = [];
+    let PERSONAL_VIDEO_FOLDERS = [];
+    let videosInit = false;
+
+    function videoHostname(url) {
+      try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return url; }
+    }
+
+    // Cuma YouTube & Vimeo yang punya embed player standar (iframe langsung,
+    // ga perlu widget script tambahan) -- link platform lain (TikTok, IG,
+    // artikel biasa, dst) banyak yang blokir X-Frame-Options, jadi sengaja
+    // nggak dipaksain, tombol "Watch" ga muncul & tinggal pake "Open" biasa.
+    function videoEmbedSrc(url) {
+      try {
+        const u = new URL(url);
+        const host = u.hostname.replace(/^www\./, "").toLowerCase();
+        if (host === "youtube.com" || host === "m.youtube.com") {
+          let id = u.searchParams.get("v");
+          if (!id) {
+            const parts = u.pathname.split("/").filter(Boolean);
+            if (["shorts", "embed", "live"].includes(parts[0])) id = parts[1];
+          }
+          return id ? `https://www.youtube.com/embed/${id}` : null;
+        }
+        if (host === "youtu.be") {
+          const id = u.pathname.split("/").filter(Boolean)[0];
+          return id ? `https://www.youtube.com/embed/${id}` : null;
+        }
+        if (host === "vimeo.com") {
+          const id = u.pathname.split("/").filter(Boolean)[0];
+          return id && /^\d+$/.test(id) ? `https://player.vimeo.com/video/${id}` : null;
+        }
+        return null;
+      } catch (e) { return null; }
+    }
+
+    function fmtVidDate(iso) {
+      const d = new Date(iso);
+      if (isNaN(d)) return "";
+      return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    async function loadVideos() {
+      const groups = document.getElementById("vidGroups");
+      const empty = document.getElementById("vidEmpty");
+      groups.innerHTML = skelLines(3);
+      empty.style.display = "none";
+      try {
+        const r = await personalApi("getPersonalVideoLinks", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); groups.innerHTML = ""; return; }
+        PERSONAL_VIDEO_LINKS = r.links || [];
+        PERSONAL_VIDEO_FOLDERS = r.folders || [];
+        renderVideoList();
+      } catch (e) {
+        groups.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
+      }
+    }
+
+    function videoCardHtml(v) {
+      const embedSrc = videoEmbedSrc(v.url);
+      return `<div class="note-card" data-id="${v.id}">
+        <div class="note-card-title">${escapeHtml(v.title || videoHostname(v.url))}</div>
+        <div class="hint" style="margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(v.url)}</div>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;" onclick="event.stopPropagation()">
+          ${embedSrc ? `<button type="button" class="btn btn-sm btn-ghost" style="margin:0;" data-watch="${v.id}">${icon("playCircle")} Watch</button>` : ""}
+          <a href="${escapeHtml(v.url)}" target="_blank" rel="noopener" class="btn btn-sm btn-ghost" style="margin:0;text-decoration:none;">${icon("openLink")} Open</a>
+        </div>
+        <div id="vidEmbed-${v.id}"></div>
+        <div class="note-card-date">${fmtVidDate(v.updated_at)}</div>
+      </div>`;
+    }
+
+    function toggleVideoWatch(id, btn) {
+      const wrap = document.getElementById("vidEmbed-" + id);
+      if (!wrap) return;
+      if (wrap.dataset.open === "1") {
+        wrap.innerHTML = ""; // beneran dilepas (bukan cuma disembunyiin) biar video/audio-nya berhenti
+        wrap.dataset.open = "0";
+        btn.innerHTML = icon("playCircle") + " Watch";
+      } else {
+        const v = PERSONAL_VIDEO_LINKS.find(x => x.id === id);
+        const src = v ? videoEmbedSrc(v.url) : null;
+        if (!src) return;
+        wrap.innerHTML = `<div style="position:relative;padding-top:56.25%;height:0;overflow:hidden;border-radius:10px;margin-top:8px;">
+          <iframe src="${src}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>`;
+        wrap.dataset.open = "1";
+        btn.innerHTML = icon("eyeSlash") + " Hide";
+      }
+    }
+
+    // "Open All" -- browser bakal nganggep ini popup spam kalau linknya
+    // banyak (cuma tab PERTAMA yang dijamin lolos tanpa izin eksplisit),
+    // makanya dikasih konfirmasi dulu kalau >3 link sekaligus biar Arnold
+    // tau perlu izinin pop-up manual di browser.
+    function openAllInVideoFolder(folderId) {
+      const links = PERSONAL_VIDEO_LINKS.filter(v => (v.folder_id || "") === (folderId || ""));
+      if (!links.length) return;
+      if (links.length > 3 && !confirm(`Buka ${links.length} link sekaligus di tab baru? Kalau browser nge-block sebagian, izinkan pop-up buat halaman ini dulu ya.`)) return;
+      links.forEach(v => window.open(v.url, "_blank"));
+    }
+
+    // Groups video links into 1 accordion per folder (sama pola kayak
+    // renderNoteList) + trailing "No Folder" bucket, plus tombol "Open All"
+    // di header tiap folder yang isinya nggak kosong.
+    function renderVideoList() {
+      const groups = document.getElementById("vidGroups");
+      const empty = document.getElementById("vidEmpty");
+      if (!PERSONAL_VIDEO_LINKS.length && !PERSONAL_VIDEO_FOLDERS.length) {
+        groups.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      const byFolder = {};
+      const noFolder = [];
+      PERSONAL_VIDEO_LINKS.forEach(v => {
+        if (v.folder_id) { if (!byFolder[v.folder_id]) byFolder[v.folder_id] = []; byFolder[v.folder_id].push(v); }
+        else noFolder.push(v);
+      });
+
+      const folderSection = (id, name, links) => `
+        <details class="det-acc note-folder-acc" data-folder-id="${id || ""}" open>
+          <summary>
+            <span class="det-acc-title">${icon("folder")} ${escapeHtml(name)} <span class="acc-count">${links.length}</span></span>
+            <span style="display:flex;align-items:center;gap:4px;">
+              ${links.length ? `<button type="button" class="note-folder-openall" data-openall="${id || ""}" title="Open all links in this folder">${icon("playCircle")}</button>` : ""}
+              ${id ? `<button type="button" class="note-folder-rename" data-id="${id}" data-name="${escapeHtml(name)}" title="Rename folder">${icon("pencil")}</button>
+              <button type="button" class="note-folder-delete" data-id="${id}" data-name="${escapeHtml(name)}" title="Delete folder">${icon("trash")}</button>` : ""}
+              <span class="det-acc-chevron">▸</span>
+            </span>
+          </summary>
+          <div class="det-acc-body">
+            <div class="note-list">${links.length ? links.map(videoCardHtml).join("") : '<p class="hint">No links in this folder yet.</p>'}</div>
+          </div>
+        </details>`;
+
+      groups.innerHTML =
+        PERSONAL_VIDEO_FOLDERS.map(f => folderSection(f.id, f.name, byFolder[f.id] || [])).join("") +
+        (noFolder.length || !PERSONAL_VIDEO_FOLDERS.length ? folderSection("", "No Folder", noFolder) : "");
+
+      groups.querySelectorAll(".note-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const v = PERSONAL_VIDEO_LINKS.find(x => x.id === card.dataset.id);
+          if (v) openVideoForm(v);
+        });
+      });
+      groups.querySelectorAll("[data-watch]").forEach(btn => btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleVideoWatch(btn.dataset.watch, btn);
+      }));
+      groups.querySelectorAll("[data-openall]").forEach(b => b.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        openAllInVideoFolder(b.dataset.openall);
+      }));
+      groups.querySelectorAll(".note-folder-rename").forEach(b => b.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        renameVideoFolder(b.dataset.id, b.dataset.name);
+      }));
+      groups.querySelectorAll(".note-folder-delete").forEach(b => b.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        deleteVideoFolderFn(b.dataset.id, b.dataset.name);
+      }));
+    }
+
+    function populateVideoFolderSelect(selectedId) {
+      const sel = document.getElementById("vidFolderSelect");
+      sel.innerHTML = '<option value="">No folder</option>' +
+        PERSONAL_VIDEO_FOLDERS.map(f => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join("");
+      sel.value = selectedId || "";
+    }
+
+    function openVideoForm(v) {
+      document.getElementById("vidId").value = v ? v.id : "";
+      document.getElementById("vidFormTitle").textContent = v ? "Edit Link" : "New Link";
+      document.getElementById("vidFormDeleteBtn").style.display = v ? "inline-flex" : "none";
+      document.getElementById("vidUrl").value = v ? v.url : "";
+      document.getElementById("vidTitle").value = v ? (v.title || "") : "";
+      populateVideoFolderSelect(v ? v.folder_id : "");
+      document.getElementById("vidNotes").value = v ? (v.notes || "") : "";
+      document.getElementById("vidMsg").textContent = "";
+      document.getElementById("vidFormOverlay").style.display = "flex";
+      if (!v) document.getElementById("vidUrl").focus();
+    }
+
+    function closeVideoForm() { document.getElementById("vidFormOverlay").style.display = "none"; }
+
+    async function saveVideoLinkForm() {
+      const msg = document.getElementById("vidMsg");
+      const url = document.getElementById("vidUrl").value.trim();
+      if (!url) { msg.className = "msg err"; msg.textContent = "Video URL is required."; return; }
+      if (!/^https?:\/\//i.test(url)) { msg.className = "msg err"; msg.textContent = "Link harus diawali http:// atau https://"; return; }
+      msg.className = "msg"; msg.textContent = "Saving...";
+      const r = await personalApi("saveVideoLink", {
+        token: getToken(), id: document.getElementById("vidId").value, url,
+        title: document.getElementById("vidTitle").value.trim(),
+        folderId: document.getElementById("vidFolderSelect").value,
+        notes: document.getElementById("vidNotes").value.trim(),
+      });
+      if (r.status === "success") { closeVideoForm(); await loadVideos(); }
+      else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to save."; }
+    }
+
+    async function deleteVideoLinkForm() {
+      const id = document.getElementById("vidId").value;
+      if (!id || !confirm("Delete this video link?")) return;
+      const r = await personalApi("deleteVideoLink", { token: getToken(), id });
+      if (r.status === "success") { closeVideoForm(); await loadVideos(); }
+      else { handleAuthError(r); alert(r.message || "Failed to delete."); }
+    }
+
+    async function createVideoFolder() {
+      const name = prompt("Folder name:");
+      if (!name || !name.trim()) return;
+      const r = await personalApi("saveVideoFolder", { token: getToken(), name: name.trim() });
+      if (r.status === "success") await loadVideos();
+      else { handleAuthError(r); alert(r.message || "Failed to create folder."); }
+    }
+
+    async function renameVideoFolder(id, currentName) {
+      const name = prompt("Rename folder:", currentName);
+      if (!name || !name.trim() || name.trim() === currentName) return;
+      const r = await personalApi("saveVideoFolder", { token: getToken(), id, name: name.trim() });
+      if (r.status === "success") await loadVideos();
+      else { handleAuthError(r); alert(r.message || "Failed to rename folder."); }
+    }
+
+    async function deleteVideoFolderFn(id, name) {
+      if (!confirm(`Delete folder "${name}"? Links inside move to "No Folder" -- they won't be deleted.`)) return;
+      const r = await personalApi("deleteVideoFolder", { token: getToken(), id });
+      if (r.status === "success") await loadVideos();
+      else { handleAuthError(r); alert(r.message || "Failed to delete folder."); }
+    }
+
+    function wireVideosOnce() {
+      if (videosInit) return;
+      videosInit = true;
+      document.getElementById("vidNewBtn").addEventListener("click", () => openVideoForm(null));
+      document.getElementById("vidFabBtn").addEventListener("click", () => openVideoForm(null));
+      document.getElementById("vidNewFolderBtn").addEventListener("click", createVideoFolder);
+      document.getElementById("vidReloadBtn").addEventListener("click", loadVideos);
+      document.getElementById("vidFormBackBtn").addEventListener("click", closeVideoForm);
+      document.getElementById("vidFormOverlay").addEventListener("click", (e) => {
+        if (e.target.id === "vidFormOverlay") closeVideoForm();
+      });
+      document.getElementById("vidSaveBtn").addEventListener("click", saveVideoLinkForm);
+      document.getElementById("vidFormDeleteBtn").addEventListener("click", deleteVideoLinkForm);
+    }
+
+    async function ensureVideosView() {
+      wireVideosOnce();
+      await loadVideos();
     }
 
     function buildPrepTab(sec) {
