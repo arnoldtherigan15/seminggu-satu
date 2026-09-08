@@ -6326,8 +6326,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <label>Password</label>
           <div style="display:flex;gap:6px;">
             <input class="form-control" type="password" id="pwPassword" placeholder="Password" style="flex:1;" autocomplete="new-password">
-            <button type="button" class="btn btn-sm btn-ghost" id="pwToggleBtn" title="Show/hide"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg></button>
-            <button type="button" class="btn btn-sm btn-ghost" id="pwGenBtn" title="Generate strong password">🎲</button>
+            <button type="button" class="btn btn-sm btn-ghost" id="pwToggleBtn" title="Show/hide" style="margin:0;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg></button>
+            <button type="button" class="btn btn-sm btn-ghost" id="pwGenBtn" title="Generate strong password" style="margin:0;">🎲</button>
           </div>
         </div>
         <div class="konten-field"><label>URL (optional)</label><input class="form-control" type="url" id="pwUrl" placeholder="https://..."></div>
@@ -15559,13 +15559,13 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           </div>
           ${p.username ? `<div class="hint" style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
             <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(p.username)}</span>
-            <button type="button" class="btn btn-sm btn-ghost" data-copyuser="${p.id}" title="Copy username" style="padding:0;width:30px;height:30px;flex-shrink:0;">${icon("clipboard")}</button>
+            <button type="button" class="btn btn-sm btn-ghost" data-copyuser="${p.id}" title="Copy username" style="margin:0;padding:0;width:30px;height:30px;flex-shrink:0;">${icon("clipboard")}</button>
           </div>` : ""}
           <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
             <code style="background:var(--bg);padding:0 10px;border-radius:6px;height:30px;display:inline-flex;align-items:center;letter-spacing:${revealed ? "normal" : "2px"};flex:1;min-width:0;overflow:hidden;">${revealed ? escapeHtml(p.password) : "•".repeat(Math.min(10, Math.max(6, p.password.length)))}</code>
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-              <button type="button" class="btn btn-sm btn-ghost" data-togglepw="${p.id}" title="Show/hide" style="padding:0;width:30px;height:30px;">${icon(revealed ? "eyeSlash" : "eye")}</button>
-              <button type="button" class="btn btn-sm btn-ghost" data-copypw="${p.id}" title="Copy password" style="padding:0;width:30px;height:30px;">${icon("clipboard")}</button>
+              <button type="button" class="btn btn-sm btn-ghost" data-togglepw="${p.id}" title="Show/hide" style="margin:0;padding:0;width:30px;height:30px;">${icon(revealed ? "eyeSlash" : "eye")}</button>
+              <button type="button" class="btn btn-sm btn-ghost" data-copypw="${p.id}" title="Copy password" style="margin:0;padding:0;width:30px;height:30px;">${icon("clipboard")}</button>
             </div>
           </div>
           ${p.url ? `<a href="${escapeHtml(p.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="hint" style="color:var(--brand);display:inline-flex;align-items:center;gap:4px;margin-top:6px;">${icon("link")} ${escapeHtml(p.url)}</a>` : ""}
