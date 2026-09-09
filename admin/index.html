@@ -7182,7 +7182,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const parts = h.split(":");
       const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
-      switchView(view, parts[1], parts[2]);
+      switchView(view, parts[1], parts[2], parts[3]);
     }
 
     // `event` = 2nd hash segment -- for prep/pesanan/personal this is the
@@ -7190,7 +7190,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // such selector (keuangan/quest/members) it doubles as the subtab id.
     // `subtab` = 3rd hash segment, only used by prep/pesanan which already
     // spend the 2nd segment on the workshop/batch id.
-    function switchView(view, event, subtab) {
+    // `batchId` = 4th hash segment, prep-only -- which SPECIFIC batch to
+    // preselect when the workshop type has 2+ batches open at once (mis.
+    // Reka Rekat Vol 4/5/6 semua aktif bareng). Dipake dari kartu "Currently
+    // Open Events" di Overview (1 kartu = 1 batch spesifik, bukan cuma tipe
+    // workshop-nya) biar klik kartu Vol 5 beneran buka Prep Vol 5, bukan
+    // ketimpa default batch aktif pertama yang ketemu.
+    function switchView(view, event, subtab, batchId) {
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
       const activeBtn = document.querySelector(".nav-btn.active");
       if (activeBtn) {
@@ -7226,7 +7232,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "overview") ensureOverview();
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") { ensureFinanceLoaded(); if (event && finTabsCtl) finTabsCtl.show(event); }
-      if (view === "prep") ensurePrep(event, subtab);
+      if (view === "prep") ensurePrep(event, subtab, batchId);
       if (view === "config") ensureConfigLoaded();
       if (view === "partnerlist") ensurePartnerListView();
       if (view === "mou") ensureMouView();
@@ -8091,7 +8097,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         // Tap kartu workshop -> buka detail (tab Prep event itu) via hash
         document.getElementById("ovCards").addEventListener("click", (e) => {
           const card = e.target.closest(".ov-card[data-event]");
-          if (card) location.hash = "prep:" + card.dataset.event;
+          // Sertain batch id (bukan cuma tipe workshop) -- kalau ada 2+ batch
+          // tipe yang sama lagi buka bareng (mis. Vol 4/5/6), tanpa ini semua
+          // kartu nyasar ke batch default yang sama di Prep, bukan batch yang
+          // beneran diklik.
+          if (card) location.hash = "prep:" + card.dataset.event + ":" + ":" + (card.dataset.batch || "");
         });
         document.getElementById("recapBtn").addEventListener("click", openRecap);
         document.getElementById("recapClose").addEventListener("click", closeRecap);
@@ -8194,7 +8204,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const pct = b.maxQuota ? Math.min(100, Math.round(b.count / b.maxQuota * 100)) : 0;
         const badge = countdownBadge(b.eventDateIso ? isoToIdDate(b.eventDateIso) : "");
         const labelSuffix = b.label ? ` — ${escapeHtml(b.label)}` : "";
-        return `<div class="ov-card ov-card-clickable" data-event="${b.workshopType}" title="Tap for details & prep">
+        return `<div class="ov-card ov-card-clickable" data-event="${b.workshopType}" data-batch="${escapeHtml(b.batchId || "")}" title="Tap for details & prep">
           <div class="ov-card-top">
             <div class="ov-card-name">${escapeHtml(b.workshopName)}${labelSuffix}</div>
             ${badge}
@@ -14305,10 +14315,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let prepInit = false;
     let PREP_BATCHES = [];
     let prepInitialSubtab = null; // dari hash #prep:workshopId:subtabId, dipakai sekali di renderPrep() lalu direset
+    let prepInitialBatchId = null; // dari hash #prep:workshopId:subtabId:batchId (mis. dari kartu Overview), dipakai sekali di loadPrepBatches() lalu direset
     let RN_TAB_BODY = null; // bodyEl rich-note tab yg lagi aktif -- dipindah in/out overlay fullscreen (lihat openRichNoteFullScreen)
 
-    async function ensurePrep(event, subtab) {
+    async function ensurePrep(event, subtab, batchId) {
       if (subtab) prepInitialSubtab = subtab;
+      if (batchId) prepInitialBatchId = batchId;
       if (!prepInit) {
         const sel = document.getElementById("prepSelect");
         sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
@@ -14350,7 +14362,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           ? batches.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.active ? " • ACTIVE" : ""}</option>`).join("")
           : `<option value="">(no batches yet)</option>`;
         const activeIdx = batches.findIndex(b => b.active);
-        if (activeIdx >= 0) sel.selectedIndex = activeIdx;
+        if (prepInitialBatchId) {
+          const wantedIdx = batches.findIndex(b => b.id === prepInitialBatchId);
+          sel.selectedIndex = wantedIdx >= 0 ? wantedIdx : (activeIdx >= 0 ? activeIdx : 0);
+          prepInitialBatchId = null; // one-shot -- ganti workshop/batch manual abis ini balik ke default biasa
+        } else if (activeIdx >= 0) {
+          sel.selectedIndex = activeIdx;
+        }
       } catch (e) {
         sel.innerHTML = `<option value="">(failed to load)</option>`;
       }
