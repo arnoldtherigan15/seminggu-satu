@@ -9,6 +9,7 @@ import { uploadBase64, uploadFileBase64 } from "../_shared/storage.ts";
 import { getConfigValue, setConfigValue } from "../_shared/config.ts";
 import { adminLogin, requireAdminAuth } from "../_shared/admin-auth.ts";
 import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
+import { activeBirthdayVoucher } from "../_shared/birthday.ts";
 import { callGemini } from "../_shared/gemini.ts";
 import { mergeBatchConfig, currentPrice, isBatchOpen } from "../_shared/batch-merge.ts";
 
@@ -825,10 +826,25 @@ Kasih:
           .map((a) => ({ nickname: a.nickname, wa: a.wa, day: parseInt(a.birthDate.slice(8, 10), 10), birthDate: a.birthDate, ig: (a as { ig?: string }).ig || "" }))
           .sort((a, b) => a.day - b.day);
 
+        // Voucher ultah berlaku 1 BULAN PENUH sejak tanggal ultah asli (lihat
+        // activeBirthdayVoucher()) -- BEDA dari `birthdays` di atas yang cuma
+        // nangkep bulan kalender ultah. Tanpa ini, member ultah 17 Agustus
+        // nggak keliatan lagi di admin begitu masuk bulan September, padahal
+        // vouchernya masih aktif sampai 17 September.
+        const activeVouchers = accounts
+          .filter((a) => a.birthDate)
+          .map((a) => {
+            const v = activeBirthdayVoucher(a.birthDate);
+            if (!v) return null;
+            return { nickname: a.nickname, wa: a.wa, birthDate: a.birthDate, age: v.age, validUntil: v.validUntil, ig: (a as { ig?: string }).ig || "" };
+          })
+          .filter((x): x is NonNullable<typeof x> => !!x)
+          .sort((a, b) => a.validUntil.localeCompare(b.validUntil));
+
         return jsonResponse({
           status: "success", totalAccounts: accounts.length, totalLoyal: loyal.length, monthName,
           accounts: accounts.sort((a, b) => (a.nickname || "").localeCompare(b.nickname || "")),
-          notRegistered: notReg, birthdays,
+          notRegistered: notReg, birthdays, activeVouchers,
         });
       }
 

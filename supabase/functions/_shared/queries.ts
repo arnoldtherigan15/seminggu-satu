@@ -1,12 +1,14 @@
 import { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { waKey } from "./auth.ts";
+import { activeBirthdayVoucher } from "./birthday.ts";
 
 const LOYALTY_TARGET = 6; // stamp per hadiah
 
 export type LoyaltyMember = {
   key: string; wa: string; nickname: string; fullName: string; ig: string;
   count: number; claimed: number; progress: number; eligible: boolean;
-  questCount: number; notes: string[];
+  questCount: number; notes: string[]; birthDate: string;
+  voucherActive: boolean; voucherAge: number | null; voucherValidUntil: string;
   events: { workshop: string; label: string; eventDate: string; date: string }[];
 };
 
@@ -26,6 +28,16 @@ export async function loyaltyMembers(admin: SupabaseClient): Promise<LoyaltyMemb
   try { claims = JSON.parse(claimsRow?.value || "{}"); } catch (_e) { /* abaikan */ }
   try { notesMap = JSON.parse(notesRow?.value || "{}"); } catch (_e) { /* abaikan */ }
 
+  // Loyalty dibangun dari `registrations` (nggak punya birth_date) -- join
+  // manual ke `members` by wa key, biar detail peserta di admin (modal Loyalty
+  // Detail) bisa nampilin ultah & status voucher, bukan cuma kosong kayak dulu.
+  const { data: memberRows } = await admin.from("members").select("wa, birth_date");
+  const birthByKey: Record<string, string> = {};
+  for (const mm of memberRows || []) {
+    const k = waKey(mm.wa);
+    if (k && mm.birth_date) birthByKey[k] = mm.birth_date;
+  }
+
   const qmap = await questCountMap(admin);
 
   const byWa: Record<string, LoyaltyMember> = {};
@@ -33,7 +45,10 @@ export async function loyaltyMembers(admin: SupabaseClient): Promise<LoyaltyMemb
     const key = waKey(r.wa);
     if (!key) continue;
     if (!byWa[key]) {
-      byWa[key] = { key, wa: r.wa, nickname: "", fullName: "", ig: "", count: 0, claimed: 0, progress: 0, eligible: false, questCount: 0, notes: [], events: [] };
+      byWa[key] = {
+        key, wa: r.wa, nickname: "", fullName: "", ig: "", count: 0, claimed: 0, progress: 0, eligible: false,
+        questCount: 0, notes: [], birthDate: "", voucherActive: false, voucherAge: null, voucherValidUntil: "", events: [],
+      };
     }
     const m = byWa[key];
     if (!m.nickname && r.nickname) m.nickname = r.nickname;
@@ -53,6 +68,8 @@ export async function loyaltyMembers(admin: SupabaseClient): Promise<LoyaltyMemb
     const total = m.events.length;
     const claimed = Number(claims[m.key]) || 0;
     const progress = Math.max(0, total - claimed * LOYALTY_TARGET);
+    const birthDate = birthByKey[m.key] || "";
+    const voucher = birthDate ? activeBirthdayVoucher(birthDate) : null;
     return {
       ...m,
       count: total,
@@ -61,6 +78,10 @@ export async function loyaltyMembers(admin: SupabaseClient): Promise<LoyaltyMemb
       eligible: progress >= LOYALTY_TARGET,
       questCount: qmap[m.key] || 0,
       notes: Array.isArray(notesMap[m.key]) ? notesMap[m.key] : [],
+      birthDate,
+      voucherActive: !!voucher,
+      voucherAge: voucher?.age ?? null,
+      voucherValidUntil: voucher?.validUntil || "",
     };
   }).sort((a, b) => b.count - a.count);
 }
