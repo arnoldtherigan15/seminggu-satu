@@ -9,6 +9,7 @@ import { waKey } from "../_shared/auth.ts";
 import { notifyRegistration } from "../_shared/telegram.ts";
 import { getConfigValue } from "../_shared/config.ts";
 import { mergeBatchConfig } from "../_shared/batch-merge.ts";
+import { isMemberWa } from "../_shared/members.ts";
 
 const WORKSHOP_LABELS: Record<string, string> = {
   "3d-frame-journaling": "3D Frame Journaling",
@@ -96,16 +97,15 @@ Deno.serve(async (req) => {
     let wa = String(data.whatsapp || "");
 
     if (workshopType === "journaling-date") {
-      // Event gratis khusus member -- verifikasi member DI SERVER, jangan percaya klien
+      // Event gratis khusus member -- verifikasi member DI SERVER, jangan percaya klien.
+      // Pake isMemberWa() (loyaltyMembers() di baliknya, normalisasi wa di kode) --
+      // BUKAN `.eq("wa", key)` mentah ke DB. Sebagian baris `registrations.wa`
+      // hasil migrasi lama nggak tersimpan dalam format yang udah dinormalisasi
+      // persis, jadi exact-match query bisa false-negative padahal orangnya
+      // emang member (bug nyata: warga yang datanya ADA malah ditolak "belum
+      // terdaftar sebagai warga").
       const key = waKey(wa);
-      const { data: existing } = await admin
-        .from("registrations")
-        .select("id")
-        .eq("wa", key)
-        .neq("workshop_type", "journaling-date")
-        .limit(1)
-        .maybeSingle();
-      if (!existing) {
+      if (!(await isMemberWa(admin, key))) {
         return errorResponse("Nomor ini belum terdaftar sebagai warga. Yuk ikut salah satu event kami dulu ya ✨");
       }
 
