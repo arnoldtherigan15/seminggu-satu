@@ -652,21 +652,26 @@ async function loadEvents() {
     renderEventTicket(); // tiket countdown di Home baru bisa kerender setelah _evRegistered keisi
 
     const items = _ws
-        .map(w => ({ w: w, status: (typeof getWorkshopStatus === "function") ? getWorkshopStatus(w) : "open" }))
+        .map(w => {
+            // Batch data (workshop-batches, per-batch tanggal buka/tutup + sisa
+            // kuota batch itu sendiri) adalah sumber kebenaran -- BUKAN Config
+            // (getWorkshopStatus), yang cuma nyimpen 1 openDate/closeDate per
+            // TIPE & gampang basi begitu ada 2+ batch simultan dengan jadwal
+            // beda (mis. Vol 4 udah tutup tapi Vol 5 masih buka -- Config
+            // closeDate-nya kepatok ke Vol 4, jadi tanpa koreksi ini Vol 5 ikut
+            // ke-anggap tutup & ilang dari Events padahal masih bisa didaftar).
+            const openBatches = _openBatchesMap[w.id] || [];
+            const bestBatch = openBatches.filter(b => b.remaining == null || b.remaining > 0)[0] || null;
+            let status = (typeof getWorkshopStatus === "function") ? getWorkshopStatus(w) : "open";
+            if (bestBatch) status = "open";
+            return { w: w, status: status, bestBatch: bestBatch };
+        })
         .filter(x => x.status === "open" || x.status === "not-open-yet")
         .map(x => {
             const w = x.w;
             const isReg = !!registered[w.id];
-            // "Penuh"/sisa slot sekarang dicek dari batch yang BENERAN lagi
-            // buka (workshop-batches, per-batch), bukan total pendaftar semua
-            // batch `active` dibanding 1 angka maxQuota tipe -- keliru begitu
-            // ada batch lama yang closeDate-nya udah lewat tapi masih
-            // `active`, atau 2+ batch buka barengan (mis. Vol 4 penuh + Vol 5
-            // baru dibuka, harusnya masih nawarin Vol 5).
-            const openBatches = (x.status === "open") ? (_openBatchesMap[w.id] || []) : [];
-            const bestBatch = openBatches.filter(b => b.remaining == null || b.remaining > 0)[0];
-            const full = x.status === "open" && !bestBatch;
-            return Object.assign(x, { isReg: isReg, full: full, bestBatch: bestBatch });
+            const full = x.status === "open" && !x.bestBatch;
+            return Object.assign(x, { isReg: isReg, full: full });
         })
         // Sold out & bukan event kamu sendiri -> nggak usah ditampilin sama
         // sekali, jangan bikin orang mikir "oh ada nih" terus kecewa.
@@ -4285,7 +4290,11 @@ function mochiSmartMessages() {
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const evs = [];
         ws.forEach(w => {
-            if (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open") return;
+            // Batch data menang di atas Config (lihat catatan di loadEvents()) --
+            // kalau ada batch yang beneran masih available, jangan skip cuma
+            // gara-gara Config closeDate-nya basi (mis. Vol 4 tutup, Vol 5 buka).
+            const hasAvailableBatch = (_openBatchesMap[w.id] || []).some(b => b.remaining == null || b.remaining > 0);
+            if (!hasAvailableBatch && (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open")) return;
             if (_evRegistered && _evRegistered[w.id]) return; // udah daftar -> nggak perlu diingetin
             const d = (typeof parseDate === "function") ? parseDate(w.eventDate) : null;
             const days = d ? Math.round((d - today) / 86400000) : null;
@@ -8031,12 +8040,16 @@ function boardFlyers() {
     const ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
     const out = [];
     ws.forEach(w => {
-        if (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open") return;
-        let left = null;
-        if (w.maxQuota > 0 && _evCounts && typeof _evCounts[w.id] === "number") {
+        // Batch data menang di atas Config (lihat catatan di loadEvents()) --
+        // kalau ada batch yang beneran masih available, jangan skip cuma
+        // gara-gara Config closeDate-nya basi (mis. Vol 4 tutup, Vol 5 buka).
+        const bestBatch = (_openBatchesMap[w.id] || []).filter(b => b.remaining == null || b.remaining > 0)[0] || null;
+        if (!bestBatch && (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open")) return;
+        let left = bestBatch ? bestBatch.remaining : null;
+        if (left == null && w.maxQuota > 0 && _evCounts && typeof _evCounts[w.id] === "number") {
             left = Math.max(0, w.maxQuota - _evCounts[w.id]);
-            if (left === 0) return; // penuh -> nggak usah dipromoin
         }
+        if (left === 0) return; // penuh -> nggak usah dipromoin
         out.push({ t: "flyer", w: w, left: left });
     });
     return out;

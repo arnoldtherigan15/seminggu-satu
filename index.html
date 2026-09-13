@@ -724,18 +724,22 @@
                 if (ws.hasOwnProperty('isDisplay') && ws.isDisplay === false) return;
 
                 const currentCount = (counts && counts[ws.id]) || 0;
-                let status = getWorkshopStatus(ws);
-                // "Penuh" dicek dari batch yang BENERAN lagi buka (workshop-batches,
-                // per-batch, remaining udah dihitung dari kuota batch itu sendiri),
-                // BUKAN dari total pendaftar semua batch `active` dibanding 1 angka
-                // maxQuota tipe -- itu keliru begitu ada 2+ batch simultan (mis. Vol
-                // 4 penuh + Vol 5 baru dibuka -> totalnya kelewat maxQuota tipe,
-                // padahal Vol 5 sendiri masih longgar) atau batch lama yang
-                // closeDate-nya udah lewat tapi belum ditandain nonaktif.
+                // openBatchesMap (workshop-batches, per-batch tanggal buka/tutup +
+                // sisa kuota batch itu sendiri) adalah sumber kebenaran soal buka/
+                // tutup -- BUKAN Config (getWorkshopStatus), yang cuma nyimpen 1
+                // openDate/closeDate per TIPE dan gampang basi begitu ada 2+ batch
+                // simultan dengan jadwal beda (mis. Vol 4 udah tutup 12 Sept tapi
+                // Vol 5 masih buka sampai 26 Sept -- Config closeDate-nya kepatok
+                // ke Vol 4, jadi tanpa koreksi ini Vol 5 ikut ke-anggap tutup &
+                // kartunya ilang dari Home padahal masih bisa didaftar).
                 const openBatchesForType = openBatchesMap[ws.id] || [];
-                let isFull = false;
-                if (status === 'open') {
-                    isFull = !openBatchesForType.some(function (b) { return b.remaining == null || b.remaining > 0; });
+                const hasAvailableBatch = openBatchesForType.some(function (b) { return b.remaining == null || b.remaining > 0; });
+
+                let status = getWorkshopStatus(ws);
+                if (hasAvailableBatch) {
+                    status = 'open'; // ada batch valid & available -> menang di atas Config
+                } else if (status === 'open') {
+                    status = 'full'; // Config bilang buka tapi ga ada batch yang available -> penuh
                 }
 
                 // Tema/deskripsi bisa beda tiap batch (mis. Reka Rekat ganti tema
@@ -744,11 +748,6 @@
                 // bukan deskripsi Config yang bisa basi begitu batch-nya ganti.
                 const primaryBatch = openBatchesForType.filter(function (b) { return !b.hideFromPicker; })[0] || openBatchesForType[0];
                 const effectiveDescription = (primaryBatch && primaryBatch.description) || ws.description;
-
-                // Override status if full
-                if (status === 'open' && isFull) {
-                    status = 'full';
-                }
 
                 // Yang udah ditutup/penuh nggak usah nampil sama sekali -- jangan
                 // bikin pengunjung baru mikir "oh ada workshop nih" terus kecewa pas

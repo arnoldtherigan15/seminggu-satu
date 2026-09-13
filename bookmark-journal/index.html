@@ -17,12 +17,34 @@
         (function () {
             var ID = "bookmark-journal";
             var decided = false;
+            function redirectByConfig(w) {
+                var st = getWorkshopStatus(w);
+                if (st !== "open") window.location.replace("../closed.html?workshop=" + ID + "&reason=" + st);
+            }
             function decide() {
                 if (decided) return; decided = true;
                 var w = (typeof getWorkshopById === "function") ? getWorkshopById(ID) : null;
                 if (!w) return;
-                var st = getWorkshopStatus(w);
-                if (st !== "open") window.location.replace("../closed.html?workshop=" + ID + "&reason=" + st);
+                // Config (`w`) cuma nyimpen 1 openDate/closeDate per TIPE workshop --
+                // begitu ada 2+ batch buka bareng dgn jadwal beda2 (mis. Vol 4 udah
+                // tutup tapi Vol 5 masih buka), Config bisa basi (nunjuk ke batch yang
+                // udah lewat) padahal batch LAIN masih valid. Sebelum percaya Config
+                // buat mutusin "tutup" & redirect keluar, cek dulu ke workshop-batches
+                // (sumber kebenaran per-batch) -- kalau ada batch yang masih valid,
+                // JANGAN redirect, biarin main.js yang urus (udah batch-aware). Config
+                // cuma dipake buat alasan tutup yang BENERAN (semua batch abis/tipe
+                // di-disable/belum waktunya buka) atau kalau fetch-nya gagal.
+                if (typeof SUPABASE_URL === "string" && typeof SUPABASE_ANON_KEY === "string") {
+                    fetch(SUPABASE_URL + "/functions/v1/workshop-batches", { headers: { apikey: SUPABASE_ANON_KEY } })
+                        .then(function (r) { return r.json(); })
+                        .then(function (all) {
+                            var openBatches = (all && all[ID]) || [];
+                            if (!openBatches.length) redirectByConfig(w);
+                        })
+                        .catch(function () { redirectByConfig(w); });
+                } else {
+                    redirectByConfig(w);
+                }
             }
             // Putuskan buka/tutup pakai config TERBARU dari server (dikirim workshop-config.js
             // lewat event 'workshops:updated') -> nggak perlu fetch config sendiri (hemat request).

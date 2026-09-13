@@ -372,18 +372,21 @@
             var items = list
                 .filter(function (w) { return w && w.isDisplay !== false; })
                 .map(function (w) {
-                    var status = getWorkshopStatus(w);
+                    // Batch data (workshop-batches, per-batch tanggal buka/tutup +
+                    // sisa kuota batch itu sendiri) adalah sumber kebenaran --
+                    // BUKAN Config (getWorkshopStatus), yang cuma nyimpen 1
+                    // openDate/closeDate per TIPE & gampang basi begitu ada 2+
+                    // batch simultan dengan jadwal beda (mis. Vol 4 udah tutup
+                    // tapi Vol 5 masih buka -- Config closeDate-nya kepatok ke
+                    // Vol 4, jadi tanpa koreksi ini Vol 5 ikut ke-anggap tutup
+                    // & ilang dari halaman ini padahal masih bisa didaftar).
                     var bestBatch = null;
-                    // "Penuh" dicek dari batch yang BENERAN lagi buka
-                    // (workshop-batches, per-batch, remaining dihitung dari
-                    // kuota batch itu sendiri) -- BUKAN total pendaftar semua
-                    // batch `active` dibanding 1 angka maxQuota tipe, yang
-                    // keliru begitu ada batch lama closeDate-nya udah lewat
-                    // tapi masih `active`, atau 2+ batch buka barengan.
-                    if (status === "open" && countsReady) {
+                    var status = getWorkshopStatus(w);
+                    if (countsReady) {
                         var openBatches = openBatchesMap[w.id] || [];
-                        bestBatch = openBatches.filter(function (b) { return b.remaining == null || b.remaining > 0; })[0];
-                        if (!bestBatch) status = "full";
+                        bestBatch = openBatches.filter(function (b) { return b.remaining == null || b.remaining > 0; })[0] || null;
+                        if (bestBatch) status = "open";
+                        else if (status === "open") status = "full";
                     }
                     return { w: w, status: status, bestBatch: bestBatch };
                 })
