@@ -182,13 +182,19 @@ async function loadOpenBatches() {
         return; // fail-open -- server tetap validasi ulang pas submit
     }
     hideBlockerLoader();
-    if (!_openBatches.length) {
+    const visible = _openBatches.filter(function (b) { return !b.hideFromPicker; });
+    const queried = matchBatchFromQuery();
+    // Kalau nggak ada batch yang VISIBLE (mis. satu-satunya batch sengaja
+    // di-hide dulu buat akses privat/early-access ke orang tertentu sebelum
+    // diumumin publik) DAN nggak ada link langsung yang cocok, anggap "abis"
+    // -- JANGAN otomatis jatuh ke batch yang di-hide itu, orang random yang
+    // mampir tanpa link khusus nggak boleh ketemu form-nya sama sekali.
+    if (!_openBatches.length || (!visible.length && !queried)) {
         window.location.replace('../closed.html?workshop=bookmark-journal&reason=sold-out');
         return;
     }
     if (!_selectedBatchId || !_openBatches.find(function (b) { return b.id === _selectedBatchId; })) {
-        const visible = _openBatches.filter(function (b) { return !b.hideFromPicker; });
-        _selectedBatchId = matchBatchFromQuery() || (visible[0] || _openBatches[0]).id;
+        _selectedBatchId = queried || visible[0].id;
     }
     renderBatchPicker();
     applyBatchDisplay();

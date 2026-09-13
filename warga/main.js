@@ -660,8 +660,14 @@ async function loadEvents() {
             // beda (mis. Vol 4 udah tutup tapi Vol 5 masih buka -- Config
             // closeDate-nya kepatok ke Vol 4, jadi tanpa koreksi ini Vol 5 ikut
             // ke-anggap tutup & ilang dari Events padahal masih bisa didaftar).
+            // Batch yang di-hide dari picker (invite-only lewat link langsung,
+            // mis. sesi privat sebelum resmi diumumin) SENGAJA nggak dianggap
+            // "ada" di sini -- listing pasif kayak gini nggak boleh
+            // membocorkannya ke SEMUA member, cuma yang dikasih link langsung
+            // yang bisa akses (lihat matchBatchFromQuery() di halaman
+            // pendaftarannya masing-masing).
             const openBatches = _openBatchesMap[w.id] || [];
-            const bestBatch = openBatches.filter(b => b.remaining == null || b.remaining > 0)[0] || null;
+            const bestBatch = openBatches.filter(b => !b.hideFromPicker && (b.remaining == null || b.remaining > 0))[0] || null;
             let status = (typeof getWorkshopStatus === "function") ? getWorkshopStatus(w) : "open";
             if (bestBatch) status = "open";
             return { w: w, status: status, bestBatch: bestBatch };
@@ -4293,7 +4299,10 @@ function mochiSmartMessages() {
             // Batch data menang di atas Config (lihat catatan di loadEvents()) --
             // kalau ada batch yang beneran masih available, jangan skip cuma
             // gara-gara Config closeDate-nya basi (mis. Vol 4 tutup, Vol 5 buka).
-            const hasAvailableBatch = (_openBatchesMap[w.id] || []).some(b => b.remaining == null || b.remaining > 0);
+            // Batch invite-only (hideFromPicker) sengaja nggak bikin nudge --
+            // jangan sampai "reminder" ini malah ngebocorin sesi privat ke
+            // SEMUA member.
+            const hasAvailableBatch = (_openBatchesMap[w.id] || []).some(b => !b.hideFromPicker && (b.remaining == null || b.remaining > 0));
             if (!hasAvailableBatch && (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open")) return;
             if (_evRegistered && _evRegistered[w.id]) return; // udah daftar -> nggak perlu diingetin
             const d = (typeof parseDate === "function") ? parseDate(w.eventDate) : null;
@@ -8043,7 +8052,9 @@ function boardFlyers() {
         // Batch data menang di atas Config (lihat catatan di loadEvents()) --
         // kalau ada batch yang beneran masih available, jangan skip cuma
         // gara-gara Config closeDate-nya basi (mis. Vol 4 tutup, Vol 5 buka).
-        const bestBatch = (_openBatchesMap[w.id] || []).filter(b => b.remaining == null || b.remaining > 0)[0] || null;
+        // Batch invite-only (hideFromPicker) sengaja dikecualikan -- papan
+        // pengumuman komunitas ini bukan tempatnya buat sesi yang privat.
+        const bestBatch = (_openBatchesMap[w.id] || []).filter(b => !b.hideFromPicker && (b.remaining == null || b.remaining > 0))[0] || null;
         if (!bestBatch && (typeof getWorkshopStatus !== "function" || getWorkshopStatus(w) !== "open")) return;
         let left = bestBatch ? bestBatch.remaining : null;
         if (left == null && w.maxQuota > 0 && _evCounts && typeof _evCounts[w.id] === "number") {

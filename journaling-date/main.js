@@ -108,15 +108,22 @@ async function loadOpenBatches() {
         return;
     }
     _openBatches = (all && all[ID]) || [];
-    if (!_openBatches.length) {
+    const visible = _openBatches.filter(b => !b.hideFromPicker);
+    const queried = matchBatchFromQuery();
+    // Kalau nggak ada batch yang VISIBLE (mis. satu-satunya batch sengaja
+    // di-hide dulu buat akses privat/early-access ke orang tertentu sebelum
+    // diumumin publik) DAN nggak ada link langsung yang cocok, anggap "belum
+    // ada sesi buka" -- JANGAN otomatis jatuh ke batch yang di-hide itu,
+    // orang random yang mampir tanpa link khusus nggak boleh ketemu form-nya
+    // sama sekali.
+    if (!_openBatches.length || (!visible.length && !queried)) {
         document.getElementById("gateSection").style.display = "none";
         document.getElementById("formSection").style.display = "none";
         document.getElementById("closedSection").style.display = "block";
         return;
     }
     if (!_selectedBatchId || !_openBatches.find(b => b.id === _selectedBatchId)) {
-        const visible = _openBatches.filter(b => !b.hideFromPicker);
-        _selectedBatchId = matchBatchFromQuery() || (visible[0] || _openBatches[0]).id;
+        _selectedBatchId = queried || visible[0].id;
     }
     renderBatchPicker();
     applyBatchSelection();
