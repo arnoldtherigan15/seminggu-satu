@@ -16,6 +16,18 @@ import { mergeBatchConfig, currentPrice, isBatchOpen } from "../_shared/batch-me
 const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side"];
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
 const prepKey = (event: string, type: string) => `prep__${event}__${type}`;
+// Full Notes per BATCH (bukan per workshop kayak prepKey lainnya, tipe
+// "richnote" ini pengecualian) -- catatan panjang admin (venue, rundown,
+// vendor, dll) sering beda tiap batch/volume walau workshop-nya sama
+// (mis. Reka Rekat Vol 4 vs Vol 5), jadi nggak boleh numpuk 1 catatan
+// dishare semua batch kayak Prep Todos/Things to Bring/Notes & Links/
+// Tools & Materials yang emang sengaja tetap per-TIPE (biasanya masih
+// relevan lintas batch, mis. daftar alat beli sekali dipake berkali-kali).
+const prepRichNoteKey = (event: string, batchId: string) => `prep__${event}__richnote__${batchId || "general"}`;
+// Key LAMA (pre-per-batch) -- dipake sebagai fallback baca doang kalau versi
+// per-batch belum pernah diisi, biar catatan lama yang udah ada nggak
+// keliatan "ilang" abis migrasi ini (lihat pemakaiannya di getPrep).
+const prepRichNoteLegacyKey = (event: string) => prepKey(event, "richnote");
 // Konteks FAQ per BATCH (bukan per workshop kayak prepKey lainnya) --
 // venue/rute/bawaan beda tiap batch/volume event yang sama.
 const prepFaqKey = (event: string, batchId: string) => `prep__${event}__faqcontext__${batchId || "general"}`;
@@ -1020,8 +1032,19 @@ Aturan penting:
       case "getPrep": {
         const event = String(data.event || "");
         if (!WORKSHOP_TYPES.includes(event)) return errorResponse("Event tidak dikenal: " + event);
+        const batchId = String(data.batchId || "");
         const prep: Record<string, unknown[]> = {};
         for (const type of PREP_TYPES) {
+          if (type === "richnote") {
+            let json = await getConfigValue(admin, prepRichNoteKey(event, batchId));
+            // Belum pernah diisi buat batch ini secara spesifik -> fallback ke
+            // catatan lama (pre-per-batch), biar nggak keliatan "ilang" abis
+            // migrasi. Begitu batch ini disave sendiri, dia lepas dari
+            // fallback ini & jalan independen dari batch lain.
+            if (!json) json = await getConfigValue(admin, prepRichNoteLegacyKey(event));
+            try { prep[type] = json ? JSON.parse(json) : []; } catch (_e) { prep[type] = []; }
+            continue;
+          }
           const json = await getConfigValue(admin, prepKey(event, type));
           try { prep[type] = json ? JSON.parse(json) : []; } catch (_e) { prep[type] = []; }
         }
@@ -1033,7 +1056,8 @@ Aturan penting:
         const type = String(data.prepType || "");
         if (!WORKSHOP_TYPES.includes(event)) return errorResponse("Event tidak dikenal: " + event);
         if (!PREP_TYPES.includes(type)) return errorResponse("Tipe prep tidak dikenal: " + type);
-        await setConfigValue(admin, prepKey(event, type), JSON.stringify(Array.isArray(data.items) ? data.items : []));
+        const key = type === "richnote" ? prepRichNoteKey(event, String(data.batchId || "")) : prepKey(event, type);
+        await setConfigValue(admin, key, JSON.stringify(Array.isArray(data.items) ? data.items : []));
         return jsonResponse({ status: "success", message: "Tersimpan." });
       }
 

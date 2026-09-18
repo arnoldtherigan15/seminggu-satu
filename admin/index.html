@@ -14332,6 +14332,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("prepBatchSelect").addEventListener("change", () => {
           renderPrepHeader(document.getElementById("prepSelect").value);
           loadPrepParticipants(); loadPrepPesananSummary(); loadPrepFaqContext(); loadPrepPartnerRequests(); renderAsistenLink();
+          loadPrepRichNote(); // Full Notes sekarang per-batch juga, lihat catatan di prepRichNoteKey()
         });
         wirePreqTemplateOnce();
         prepInit = true;
@@ -14444,11 +14445,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function loadPrep() {
       const event = document.getElementById("prepSelect").value;
+      const batchId = document.getElementById("prepBatchSelect").value;
       renderPrepHeader(event);
       const cont = document.getElementById("prepSections");
       cont.innerHTML = skelLines(5);
       try {
-        const r = await api("getPrep", { token: getToken(), event });
+        // batchId cuma dipake server buat Full Notes (richnote) -- beda batch
+        // (mis. Vol 4 vs Vol 5) sekarang punya catatan sendiri-sendiri, nggak
+        // numpuk 1 kayak Todos/Bring/Notes & Links/Tools & Materials.
+        const r = await api("getPrep", { token: getToken(), event, batchId });
         if (document.getElementById("prepSelect").value !== event) return; // udah ganti workshop lain, buang hasil basi
         if (r.status !== "success") { handleAuthError(r); cont.innerHTML = ""; return; }
         PREP = r.prep || {};
@@ -14456,6 +14461,30 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       } catch (e) {
         cont.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
       }
+    }
+
+    // Ganti batch aja (tab Full Notes tetap kepasang, nggak dibongkar-pasang
+    // kayak loadPrep()) -- cuma refresh isi editornya sesuai batch yg baru
+    // dipilih, sama pola kayak loadPrepFaqContext(). Nggak nge-fetch
+    // todos/bring/notes/supplies ulang karena itu tetap per-TIPE, ga
+    // kepengaruh ganti batch.
+    async function loadPrepRichNote() {
+      const event = document.getElementById("prepSelect").value;
+      const batchId = document.getElementById("prepBatchSelect").value;
+      const editor = document.getElementById("rnEditor");
+      if (!editor) return; // tab Full Notes belom pernah dibuka di sesi ini
+      try {
+        const r = await api("getPrep", { token: getToken(), event, batchId });
+        if (document.getElementById("prepSelect").value !== event) return; // udah ganti workshop lain, buang hasil basi
+        if (document.getElementById("prepBatchSelect").value !== batchId) return; // udah ganti batch lain lagi, buang hasil basi
+        if (r.status !== "success") { handleAuthError(r); return; }
+        PREP.richnote = (r.prep && r.prep.richnote) || [];
+        editor.innerHTML = (Array.isArray(PREP.richnote) && PREP.richnote[0] && PREP.richnote[0].html) || "";
+        const saveBtn = document.getElementById("rnSaveBtn");
+        if (saveBtn) saveBtn.disabled = true;
+        const msg = document.getElementById("rnMsg");
+        if (msg) { msg.className = "msg"; msg.textContent = ""; }
+      } catch (e) { /* diamkan -- catatan batch sebelumnya tetap kepampang */ }
     }
 
     function renderPrep() {
@@ -15355,6 +15384,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
     async function saveRichNote() {
       const event = document.getElementById("prepSelect").value;
+      const batchId = document.getElementById("prepBatchSelect").value;
       const editor = document.getElementById("rnEditor");
       const saveBtn = document.getElementById("rnSaveBtn");
       const msg = document.getElementById("rnMsg");
@@ -15362,7 +15392,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const items = (html && html !== "<br>") ? [{ html: html }] : [];
       msg.className = "msg"; msg.textContent = "Saving...";
       try {
-        const r = await api("savePrep", { token: getToken(), event, prepType: "richnote", items });
+        const r = await api("savePrep", { token: getToken(), event, prepType: "richnote", items, batchId });
         if (r.status === "success") {
           PREP.richnote = items;
           saveBtn.disabled = true;
