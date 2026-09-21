@@ -82,8 +82,19 @@ export function mergeBatchConfig(batch: BatchRow, typeConfig: TypeConfig): Merge
       ? Number(batch.early_bird_max_count)
       : (typeConfig.earlyBirdMaxCount != null ? Number(typeConfig.earlyBirdMaxCount) : null),
     maxQuota: Number(batch.max_quota ?? typeConfig.maxQuota) || 0,
-    openDateIso: batch.open_date || idDateToIso(typeConfig.openDate),
-    closeDateIso: batch.close_date || idDateToIso(typeConfig.closeDate),
+    // SENGAJA TANPA fallback ke Config (beda dari field lain di fungsi ini) --
+    // openDate/closeDate Config itu tanggal STATIS yang ditulis buat SATU
+    // batch tertentu (biasanya yang pertama kali dibikin dulu) dan nggak
+    // pernah relevan lagi buat batch lain yang dibuat belakangan. Kalau
+    // di-fallback kayak field lain, batch BARU yang belum diisi Registration
+    // Close Date-nya sendiri bakal DIAM-DIAM ikut nutup tepat di tanggal
+    // closeDate Config yang lama itu -- BUG FATAL nyata: batch baru (mis. Vol
+    // 5) ke-anggap tutup begitu closeDate Vol 4 di Config lewat, padahal Vol
+    // 5 event-nya masih jauh ke depan. Kosong di sini = isBatchOpen() pakai
+    // fallback amannya sendiri (auto-tutup pas eventDateIso batch INI sendiri
+    // lewat), bukan tanggal Config yang basi.
+    openDateIso: batch.open_date || null,
+    closeDateIso: batch.close_date || null,
     // Murni per-batch, TANPA fallback Config -- ini soal "batch mana yang
     // ditampilin di picker publik", bukan default yang wajar diwarisin tipe.
     hideFromPicker: !!batch.hide_from_picker,

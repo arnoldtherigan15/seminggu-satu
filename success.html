@@ -906,7 +906,15 @@
             try {
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), 8000);
-                const res = await fetch(`${SUPABASE_URL}/functions/v1/workshop-batches`, {
+                // batchId disertain ke server -- endpoint ini biasanya cuma
+                // balikin batch yang MASIH "open" (buat kebutuhan pemilih sesi
+                // di halaman pendaftaran), tapi di sini kita mastiin data batch
+                // yang BARU AJA didaftarin, walau pas request ini jalan
+                // kuotanya udah abis/baru aja ketutup. Tanpa ini, tiket bisa
+                // "jatuh" balik ke data Config type-level yang basi (BUG FATAL
+                // yang pernah kejadian: sukses daftar Vol 5, tiket nunjukin
+                // Vol 4).
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/workshop-batches?batchId=${encodeURIComponent(batchId)}`, {
                     headers: { apikey: SUPABASE_ANON_KEY },
                     signal: controller.signal
                 });
