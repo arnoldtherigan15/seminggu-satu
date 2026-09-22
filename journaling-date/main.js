@@ -210,23 +210,44 @@ async function checkMember() {
 }
 
 // ---------- Foto (kompres + preview) ----------
-function compressImage(file, maxSize, quality) {
+// HEIC (foto iPhone) nggak bisa didecode browser di banyak kombinasi
+// device/OS -- FileReader/Image bisa gagal baca filenya sama sekali (BUG
+// nyata: peserta iPhone upload foto -> "Gagal membaca file gambar", nggak
+// bisa lanjut daftar). Konversi ke JPEG dulu kalau ketauan HEIC (heic2any
+// dimuat on-demand dari CDN, cuma pas ketemu file HEIC beneran).
+function isHeicFile(f) {
+    return /heic|heif/i.test((f && f.type) || '') || /\.(heic|heif)$/i.test((f && f.name) || '');
+}
+async function heicToJpeg(file) {
+    if (!window.heic2any) {
+        await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+            s.onload = res; s.onerror = () => rej(new Error('Gagal memuat konverter HEIC.'));
+            document.head.appendChild(s);
+        });
+    }
+    const out = await window.heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
+    return Array.isArray(out) ? out[0] : out;
+}
+
+async function compressImage(file, maxSize, quality) {
+    if (isHeicFile(file)) file = await heicToJpeg(file);
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let w = img.width, h = img.height;
-                if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
-                else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
-                canvas.width = w; canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                resolve(canvas.toDataURL('image/jpeg', quality));
-            };
-            img.onerror = reject; img.src = ev.target.result;
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
+            else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
         };
-        reader.onerror = reject; reader.readAsDataURL(file);
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Gagal memuat gambar buat dikompres -- coba pilih ulang fotonya.")); };
+        img.src = url;
     });
 }
 

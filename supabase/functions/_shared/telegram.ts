@@ -15,11 +15,27 @@ export async function sendTelegramText(text: string, replyMarkup?: any) {
   const payload: any = { chat_id: chatId, text, parse_mode: "Markdown" };
   if (replyMarkup) payload.reply_markup = replyMarkup;
 
-  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  // SEMUA caller (register-workshop, member-setup, submit-order, dll) manggil
+  // ini SETELAH data intinya udah sukses kesimpen, notif Telegram ini cuma
+  // best-effort (selalu dibungkus try/catch di caller) -- tapi TANPA batas
+  // waktu di sini, fetch yang lelet/nge-hang ke API Telegram bisa nahan
+  // RESPONSE ke user lama banget walau data aslinya udah aman. BUG nyata yang
+  // kejadian: peserta daftar workshop, datanya sukses masuk, tapi browser-nya
+  // nyerah duluan nunggu response (client-side timeout 60dtk) sebelum notif
+  // Telegram ini kelar -- keliatan kayak "nge-hang", padahal pendaftarannya
+  // sendiri udah beres dari awal.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function waButton(waRaw: string | undefined, nickname: string, sapaan: string) {

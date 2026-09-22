@@ -175,43 +175,65 @@ async function loadOpenBatches() {
 loadOpenBatches();
 
 // --- Image Compression ---
-function compressImage(file, maxSize, quality) {
+// HEIC (foto iPhone) nggak bisa didecode browser di banyak kombinasi
+// device/OS -- FileReader/Image bisa gagal baca filenya sama sekali (BUG
+// nyata: peserta iPhone upload foto -> "Gagal membaca file gambar", nggak
+// bisa lanjut daftar). Konversi ke JPEG dulu kalau ketauan HEIC (heic2any
+// dimuat on-demand dari CDN, cuma pas ketemu file HEIC beneran).
+function isHeicFile(f) {
+    return /heic|heif/i.test((f && f.type) || '') || /\.(heic|heif)$/i.test((f && f.name) || '');
+}
+async function heicToJpeg(file) {
+    if (!window.heic2any) {
+        await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+            s.onload = res; s.onerror = () => rej(new Error('Gagal memuat konverter HEIC.'));
+            document.head.appendChild(s);
+        });
+    }
+    const out = await window.heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
+    return Array.isArray(out) ? out[0] : out;
+}
+
+async function compressImage(file, maxSize, quality) {
+    if (isHeicFile(file)) file = await heicToJpeg(file);
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = event => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
 
-                if (width > height) {
-                    if (width > maxSize) {
-                        height *= maxSize / width;
-                        width = maxSize;
-                    }
-                } else {
-                    if (height > maxSize) {
-                        width *= maxSize / height;
-                        height = maxSize;
-                    }
+            if (width > height) {
+                if (width > maxSize) {
+                    height *= maxSize / width;
+                    width = maxSize;
                 }
+            } else {
+                if (height > maxSize) {
+                    width *= maxSize / height;
+                    height = maxSize;
+                }
+            }
 
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', quality));
-            };
-            img.onerror = () => reject(new Error("Gagal memuat gambar buat dikompres -- coba pilih ulang fotonya."));
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
         };
-        reader.onerror = () => reject(new Error("Gagal membaca file gambar -- coba pilih ulang fotonya."));
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Gagal memuat gambar buat dikompres -- coba pilih ulang fotonya.")); };
+        img.src = url;
     });
 }
 
-function fileToBase64(file) {
+async function fileToBase64(file) {
+    try {
+        if (isHeicFile(file)) file = await heicToJpeg(file);
+    } catch (e) { /* gagal convert HEIC -- coba baca file asli aja */ }
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -266,26 +288,20 @@ function setupImageUpload(inputId, previewBoxId, previewImgId, cardImgId, cardSl
             return;
         }
 
-        const isHeic = file.name.toLowerCase().endsWith('.heic') || 
-                       file.name.toLowerCase().endsWith('.heif') || 
-                       file.type === 'image/heic' || 
-                       file.type === 'image/heif';
-
         let targetBlob = file;
 
-        if (isHeic) {
-            if (typeof heic2any === 'undefined') {
-                alert("Pustaka konverter HEIC belum dimuat.");
-                return;
-            }
+        // isHeicFile()/heicToJpeg() -- helper yang sama dipake compressImage()
+        // di atas, punya loader on-demand yang BENERAN nyoba muat heic2any
+        // kalau belum ada (bukan cuma cek-lalu-nyerah). BUG lama di sini:
+        // kalau script heic2any dari <script src> statis di <head> belum
+        // sempat kelar dimuat (mis. koneksi lambat) pas user pilih foto,
+        // langsung nyerah dengan alert "belum dimuat" -- padahal tinggal
+        // ditunggu/dimuat ulang doang. Peserta iPhone yang motretnya cepat
+        // abis buka halaman ini yang paling sering kena.
+        if (isHeicFile(file)) {
             showBlockerLoader("Mengonversi foto HEIC ke JPEG...");
             try {
-                const result = await heic2any({
-                    blob: file,
-                    toType: "image/jpeg",
-                    quality: 0.8
-                });
-                targetBlob = Array.isArray(result) ? result[0] : result;
+                targetBlob = await heicToJpeg(file);
             } catch (err) {
                 console.error("HEIC conversion error:", err);
                 alert("Gagal memproses berkas HEIC. Silakan gunakan format JPG atau PNG.");
