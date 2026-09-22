@@ -757,12 +757,21 @@
 
                 displayedCount++;
 
-                // currentCount WAJIB dikasih -- earlyBirdMaxCount ("cuma buat N
-                // pendaftar pertama") baru bisa dicek kalau isEarlyBird tau udah
-                // berapa yang daftar. Tanpa ini, early bird nggak pernah otomatis
-                // berhenti begitu kuota early bird-nya penuh (cuma berhenti kalau
-                // pake batas TANGGAL).
-                const earlyBird = isEarlyBird(ws, currentCount);
+                // Harga -- pakai punya batch yang lagi ditawarin (primaryBatch,
+                // udah dihitung server per-batch termasuk early bird-nya
+                // SENDIRI) kalau ada, bukan angka Config type-level yang bisa
+                // basi begitu batch baru diisi harga beda (mis. Reka Rekat Vol
+                // 6 di-set Rp175rb di Batch Detail, tapi Home tetap nunjukin
+                // Rp275rb punya Config karena field ini kelewat ikut pola yang
+                // sama kayak effectiveDescription di atas).
+                const effectiveNormalPrice = (primaryBatch && primaryBatch.normalPrice != null) ? primaryBatch.normalPrice : ws.normalPrice;
+                // currentCount WAJIB dikasih ke isEarlyBird (fallback Config) --
+                // earlyBirdMaxCount ("cuma buat N pendaftar pertama") baru bisa
+                // dicek kalau isEarlyBird tau udah berapa yang daftar.
+                const effectiveCurrentPrice = (primaryBatch && primaryBatch.currentPrice != null)
+                    ? primaryBatch.currentPrice
+                    : (isEarlyBird(ws, currentCount) ? ws.earlyBirdPrice : ws.normalPrice);
+                const earlyBird = effectiveCurrentPrice < effectiveNormalPrice;
                 const card = document.createElement('div');
                 card.className = `workshop-card${status !== 'open' ? ' disabled' : ''}`;
                 if (animate) card.style.animationDelay = `${0.4 + index * 0.1}s`;
@@ -770,18 +779,18 @@
 
                 // Build price HTML (config dari cache/server, bukan statis basi)
                 let priceHTML = '';
-                if (ws.normalPrice > 0) {
+                if (effectiveNormalPrice > 0) {
                     if (earlyBird) {
                         priceHTML = `
                             <div class="price-row">
                                 <span class="early-bird-tag"><i data-lucide="flame"></i> Early Bird</span>
-                                <span class="price-original">${formatRupiah(ws.normalPrice)}</span>
-                                <span class="price-current">${formatRupiah(ws.earlyBirdPrice)}</span>
+                                <span class="price-original">${formatRupiah(effectiveNormalPrice)}</span>
+                                <span class="price-current">${formatRupiah(effectiveCurrentPrice)}</span>
                             </div>`;
                     } else if (status === 'open') {
                         priceHTML = `
                             <div class="price-row">
-                                <span class="price-normal-only">${formatRupiah(ws.normalPrice)}</span>
+                                <span class="price-normal-only">${formatRupiah(effectiveNormalPrice)}</span>
                             </div>`;
                     }
                 }
