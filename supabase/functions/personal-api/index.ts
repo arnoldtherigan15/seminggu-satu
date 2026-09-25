@@ -7,6 +7,7 @@ import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { requireAdminAuth } from "../_shared/admin-auth.ts";
 import { callGemini } from "../_shared/gemini.ts";
 import { encryptSecret, decryptSecret } from "../_shared/vault-crypto.ts";
+import { uploadBase64 } from "../_shared/storage.ts";
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -410,12 +411,29 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
         if (!amount) return errorResponse("Jumlah nggak boleh 0.");
         const date = String(data.date || "").trim();
         if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return errorResponse("Tanggal nggak valid.");
-        const payload = {
+
+        // Bukti bayar (foto struk/transfer) -- private bucket, sama pola
+        // kayak payment-proofs registrasi workshop. Cuma di-set kalau ada
+        // foto BARU yang diupload -- kalau nggak, biarin field ini apa
+        // adanya (jangan sampai edit pembayaran yang lain nge-wipe bukti
+        // yang udah keupload sebelumnya).
+        let proofUrl: string | undefined;
+        if (data.proofBase64) {
+          try {
+            proofUrl = await uploadBase64(admin, "payment-proofs", data.proofBase64, "liability-payment");
+          } catch (e) {
+            return errorResponse("Gagal upload bukti bayar: " + (e as Error).message);
+          }
+        }
+
+        const payload: Record<string, unknown> = {
           liability_id: liabilityId,
           amount,
           date,
           note: data.note ? String(data.note).slice(0, 300) : null,
         };
+        if (proofUrl !== undefined) payload.payment_proof_url = proofUrl;
+
         if (id) {
           const { error } = await admin.from("personal_liability_payments").update(payload).eq("id", id);
           if (error) return errorResponse("Gagal update pembayaran: " + error.message);

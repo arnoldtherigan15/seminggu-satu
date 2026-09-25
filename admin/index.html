@@ -5238,6 +5238,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <div class="konten-field" style="flex:1;min-width:150px;"><label>Amount (Rp, negative if debt increased)</label><input class="form-control" type="text" inputmode="numeric" id="liabPayAmount" placeholder="e.g. 500,000"></div>
                 </div>
                 <div class="konten-field"><label>Note (optional)</label><input class="form-control" type="text" id="liabPayNote" maxlength="300" placeholder="e.g. Cicilan bulan ini"></div>
+                <div class="konten-field">
+                  <label>Payment Proof (optional)</label>
+                  <input type="hidden" id="liabPayProofBase64">
+                  <input class="form-control" type="file" id="liabPayProofFile" accept="image/*">
+                  <div id="liabPayProofPreview" style="margin-top:6px;"></div>
+                </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
                   <button class="btn btn-sm" id="liabPaySaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Log Payment</button>
                 </div>
@@ -12603,6 +12609,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         });
         document.getElementById("liabIcon").innerHTML = PER_ICON_CHOICES.map(name => `<option value="${name}">${PER_ICON_LABELS[name] || name}</option>`).join("");
         document.getElementById("liabPaySaveBtn").addEventListener("click", saveLiabPayment);
+        document.getElementById("liabPayProofFile").addEventListener("change", onLiabPayProofPick);
         newLiabPayForm();
         document.getElementById("billSaveBtn").addEventListener("click", saveBill);
         document.getElementById("billAddBtn").addEventListener("click", () => { newBillForm(); openBillForm(false); });
@@ -13139,6 +13146,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div style="display:flex;align-items:center;gap:10px;">
             <div style="color:var(--err);flex-shrink:0;">${icon(l.icon || "receipt")}</div>
             <div style="flex:1;min-width:0;font-weight:800;">${escapeHtml(l.name)}${cleared ? ' <span class="per-badge income">Paid off! 🎉</span>' : ""}${l.archived ? ' <span class="subtab-count">archived</span>' : ""}</div>
+            ${l.public_token ? `<button class="btn btn-sm btn-ghost" data-copyliablink="${l.public_token}" title="Copy shareable link (read-only, for whoever you owe)" style="flex-shrink:0;">${icon("link")}</button>` : ""}
             <button class="btn btn-sm btn-ghost" data-archiveliab="${l.id}" data-archived="${l.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
           </div>
           <div style="margin-top:10px;">
@@ -13152,6 +13160,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       }).join("");
       list.querySelectorAll("[data-editliab]").forEach(b => b.addEventListener("click", () => editLiability(b.dataset.editliab)));
       list.querySelectorAll("[data-archiveliab]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archiveLiability(b.dataset.archiveliab, b.dataset.archived === "1"); }));
+      list.querySelectorAll("[data-copyliablink]").forEach(b => b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const link = siteOrigin() + "/debt.html?token=" + b.dataset.copyliablink;
+        copyToClipboardEl(link, b);
+      }));
     }
 
     function openLiabForm(isEdit) {
@@ -13222,12 +13235,16 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const liabName = (PER_LIABILITIES.find(l => l.id === p.liability_id) || {}).name || "?";
         const isNeg = Number(p.amount) < 0;
         const sign = isNeg ? "-" : "+";
-        return `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;">
+        const proofBtn = p.payment_proof_url
+          ? `<button type="button" class="cell-priv-link" data-privpath="${escapeHtml(p.payment_proof_url)}" style="flex-shrink:0;">${icon("lock")} Proof</button>`
+          : "";
+        return `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;flex-wrap:wrap;">
           <div style="flex:1;min-width:0;">
             <b>${escapeHtml(liabName)}</b>
             <div style="font-size:.8rem;color:#6b7280;">${fmtTxDate(p.date)}${p.note ? " · " + escapeHtml(p.note) : ""}</div>
           </div>
           <div style="font-weight:800;color:${isNeg ? "var(--err)" : "var(--ok)"};flex-shrink:0;">${sign}${rupiah(Math.abs(p.amount))}</div>
+          ${proofBtn}
           <button class="btn btn-sm" data-delliabpay="${p.id}" style="background:#fee2e2;color:var(--err);flex-shrink:0;">${icon("trash")}</button>
         </div>`;
       }).join("");
@@ -13239,7 +13256,22 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("liabPayDate").value = todayStr();
       document.getElementById("liabPayAmount").value = "";
       document.getElementById("liabPayNote").value = "";
+      document.getElementById("liabPayProofBase64").value = "";
+      document.getElementById("liabPayProofFile").value = "";
+      document.getElementById("liabPayProofPreview").innerHTML = "";
       document.getElementById("liabPayMsg").textContent = "";
+    }
+
+    // Sama pola kayak onCostItemImagePick -- qCompress() udah handle HEIC
+    // (foto iPhone) otomatis.
+    async function onLiabPayProofPick(e) {
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 8 * 1024 * 1024) { alert("Image size must be max 8MB."); e.target.value = ""; return; }
+      try {
+        const dataUrl = await qCompress(f, 1000, 0.8);
+        document.getElementById("liabPayProofBase64").value = dataUrl.split(",")[1];
+        document.getElementById("liabPayProofPreview").innerHTML = '<img src="' + dataUrl + '" style="width:100%;max-width:160px;border-radius:12px;">';
+      } catch (err) { alert("Failed to process image."); }
     }
 
     async function saveLiabPayment() {
@@ -13253,7 +13285,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await personalApi("saveLiabilityPayment", {
         token: getToken(), id: document.getElementById("liabPayId").value, liabilityId, amount, date,
-        note: document.getElementById("liabPayNote").value.trim()
+        note: document.getElementById("liabPayNote").value.trim(),
+        proofBase64: document.getElementById("liabPayProofBase64").value
       });
       if (r && r.status === "success") { newLiabPayForm(); await loadPersonalData(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Failed to save."; }

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <script src="theme.js"></script>
+    <script src="env.js"></script>
+    <title>Riwayat Pembayaran</title>
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f6fb;
+            --card-bg: #ffffff;
+            --text-primary: #10245e;
+            --text-secondary: #6b7794;
+            --border-color: #e4e9f5;
+            --brand: #5e72e4;
+            --brand-2: #825ee4;
+            --ok: #2dce89;
+            --ok-bg: #e5f9f0;
+            --err: #f5365c;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-color: #0d1526;
+            --card-bg: #172035;
+            --text-primary: #eaeffc;
+            --text-secondary: #9fabc9;
+            --border-color: #2a3550;
+            --ok-bg: rgba(45, 206, 137, .14);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2.5rem 1.25rem;
+        }
+
+        h1, h2 { font-family: 'Outfit', sans-serif; }
+
+        .brand-tag {
+            font-size: .75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1.75rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 2rem 1.75rem;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 20px 50px -20px rgba(20, 40, 120, .18);
+        }
+
+        .head-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .head-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(155deg, #5e72e4, #825ee4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .head-icon svg { width: 22px; height: 22px; }
+
+        .debt-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .due-label {
+            font-size: .8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .progress-block { margin-bottom: 1.75rem; }
+
+        .amounts-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: .6rem;
+        }
+
+        .remaining-label {
+            font-size: .8rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .remaining-amount {
+            font-size: 1.9rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: var(--err);
+        }
+
+        .remaining-amount.cleared { color: var(--ok); }
+
+        .principal-total {
+            font-size: .85rem;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        .bar-track {
+            display: block;
+            width: 100%;
+            height: 12px;
+            background: var(--border-color);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            display: block;
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #5e72e4, #825ee4);
+            transition: width .5s ease;
+        }
+
+        .bar-fill.cleared { background: linear-gradient(90deg, #2dce89, #2dcecc); }
+
+        .pct-label {
+            text-align: center;
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-top: .5rem;
+        }
+
+        .cleared-banner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--ok-bg);
+            color: var(--ok);
+            font-weight: 700;
+            font-size: .9rem;
+            border-radius: 12px;
+            padding: .7rem .9rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .section-title {
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: var(--text-secondary);
+            margin-bottom: .8rem;
+        }
+
+        .payment-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: .7rem 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .payment-row:first-child { border-top: none; }
+
+        .payment-info { flex: 1; min-width: 0; }
+
+        .payment-date {
+            font-size: .82rem;
+            font-weight: 600;
+        }
+
+        .payment-note {
+            font-size: .78rem;
+            color: var(--text-secondary);
+            margin-top: 1px;
+        }
+
+        .payment-amount {
+            font-weight: 700;
+            font-size: .9rem;
+            flex-shrink: 0;
+        }
+
+        .payment-amount.neg { color: var(--err); }
+        .payment-amount.pos { color: var(--text-primary); }
+
+        .proof-link {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .proof-link svg { width: 15px; height: 15px; }
+
+        .empty-payments {
+            font-size: .85rem;
+            color: var(--text-secondary);
+            padding: .6rem 0;
+        }
+
+        .state-box {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .state-box svg {
+            width: 34px;
+            height: 34px;
+            color: var(--text-secondary);
+            margin-bottom: .75rem;
+        }
+
+        .state-box p {
+            font-size: .9rem;
+            color: var(--text-secondary);
+        }
+
+        .skel {
+            height: 14px;
+            border-radius: 6px;
+            background: var(--border-color);
+            margin-bottom: 10px;
+            animation: pulse 1.3s ease-in-out infinite;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+    </style>
+</head>
+
+<body>
+
+    <div class="brand-tag">Riwayat Pembayaran</div>
+
+    <div class="card" id="card">
+        <div class="skel" style="width:70%;height:22px;"></div>
+        <div class="skel" style="width:100%;height:12px;margin-top:20px;"></div>
+        <div class="skel" style="width:40%;"></div>
+    </div>
+
+    <script>
+        const token = new URLSearchParams(location.search).get("token") || "";
+        const card = document.getElementById("card");
+
+        function fmtRupiah(n) {
+            return "Rp " + (Number(n) || 0).toLocaleString("id-ID");
+        }
+
+        function fmtDate(iso) {
+            const d = new Date(iso + "T00:00:00");
+            if (isNaN(d)) return iso;
+            return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+        }
+
+        function renderError(message) {
+            card.innerHTML = `
+                <div class="state-box">
+                    <i data-lucide="link-2-off"></i>
+                    <p>${message}</p>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function renderData(d) {
+            const pct = d.principalAmount > 0 ? Math.round((d.totalPaid / d.principalAmount) * 100) : 0;
+            const pctClamped = Math.max(0, Math.min(100, pct));
+            const clearedBanner = d.cleared
+                ? `<div class="cleared-banner"><i data-lucide="check-circle-2"></i> Lunas -- makasih ya! 🎉</div>`
+                : "";
+            const dueLabel = d.dueDate ? `<div class="due-label">Jatuh tempo ${fmtDate(d.dueDate)}</div>` : "";
+
+            const paymentsHtml = d.payments.length
+                ? d.payments.map(p => {
+                    const isNeg = p.amount < 0;
+                    const sign = isNeg ? "-" : "+";
+                    const proofLink = p.proofUrl
+                        ? `<a class="proof-link" href="${p.proofUrl}" target="_blank" rel="noopener" title="Lihat bukti"><i data-lucide="image"></i></a>`
+                        : "";
+                    return `
+                    <div class="payment-row">
+                        <div class="payment-info">
+                            <div class="payment-date">${fmtDate(p.date)}</div>
+                            ${p.note ? `<div class="payment-note">${p.note.replace(/</g, "&lt;")}</div>` : ""}
+                        </div>
+                        <div class="payment-amount ${isNeg ? "neg" : "pos"}">${sign}${fmtRupiah(Math.abs(p.amount))}</div>
+                        ${proofLink}
+                    </div>`;
+                }).join("")
+                : `<div class="empty-payments">Belum ada pembayaran tercatat.</div>`;
+
+            card.innerHTML = `
+                <div class="head-row">
+                    <div class="head-icon"><i data-lucide="wallet"></i></div>
+                    <div>
+                        <div class="debt-name">${d.name.replace(/</g, "&lt;")}</div>
+                        ${dueLabel}
+                    </div>
+                </div>
+
+                ${clearedBanner}
+
+                <div class="progress-block">
+                    <div class="amounts-row">
+                        <div>
+                            <div class="remaining-label">Sisa</div>
+                            <div class="remaining-amount ${d.cleared ? "cleared" : ""}">${fmtRupiah(d.remaining)}</div>
+                        </div>
+                        <div class="principal-total">dari total<br><b>${fmtRupiah(d.principalAmount)}</b></div>
+                    </div>
+                    <span class="bar-track"><span class="bar-fill ${d.cleared ? "cleared" : ""}" style="width:${pctClamped}%;"></span></span>
+                    <div class="pct-label">${pctClamped}% terbayar · ${fmtRupiah(d.totalPaid)} sudah dibayar</div>
+                </div>
+
+                <div class="section-title">Riwayat Pembayaran</div>
+                ${paymentsHtml}
+            `;
+            lucide.createIcons();
+        }
+
+        (async function load() {
+            if (!token) { renderError("Link tidak valid."); return; }
+            if (typeof SUPABASE_URL === "undefined" || !SUPABASE_URL) { renderError("Gagal memuat -- coba refresh halaman."); return; }
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/public-liability?token=${encodeURIComponent(token)}`, {
+                    headers: { apikey: SUPABASE_ANON_KEY }
+                });
+                const data = await res.json();
+                if (data.status !== "success") { renderError(data.message || "Link tidak ditemukan atau sudah tidak berlaku."); return; }
+                renderData(data);
+            } catch (e) {
+                renderError("Gagal memuat data. Coba refresh halaman ya.");
+            }
+        })();
+    </script>
+</body>
+
+</html>
