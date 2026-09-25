@@ -216,20 +216,58 @@
         .payment-amount.neg { color: var(--err); }
         .payment-amount.pos { color: var(--text-primary); }
 
-        .proof-link {
+        .proof-thumb {
             flex-shrink: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border-radius: 10px;
             border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            text-decoration: none;
+            object-fit: cover;
+            cursor: pointer;
+            display: block;
         }
 
-        .proof-link svg { width: 15px; height: 15px; }
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 35, .85);
+            /* theme.js's dark-mode toggle FAB sits at z-index:2000, fixed to
+               the same top-right corner -- kalau ga dinaikin di atasnya, FAB
+               itu nutupin/nyerobot klik tombol close si lightbox ini. */
+            z-index: 2100;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .lightbox.open { display: flex; }
+
+        .lightbox img {
+            max-width: 100%;
+            max-height: 85vh;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .4);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .12);
+            border: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 26px;
+            line-height: 1;
+            font-family: Arial, sans-serif;
+        }
 
         .empty-payments {
             font-size: .85rem;
@@ -276,6 +314,11 @@
         <div class="skel" style="width:40%;"></div>
     </div>
 
+    <div class="lightbox" id="lightbox">
+        <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Tutup">&times;</button>
+        <img id="lightboxImg" src="" alt="Bukti pembayaran">
+    </div>
+
     <script>
         const token = new URLSearchParams(location.search).get("token") || "";
         const card = document.getElementById("card");
@@ -312,7 +355,7 @@
                     const isNeg = p.amount < 0;
                     const sign = isNeg ? "-" : "+";
                     const proofLink = p.proofUrl
-                        ? `<a class="proof-link" href="${p.proofUrl}" target="_blank" rel="noopener" title="Lihat bukti"><i data-lucide="image"></i></a>`
+                        ? `<img class="proof-thumb" src="${p.proofUrl}" data-full="${p.proofUrl}" alt="Bukti pembayaran" title="Ketuk buat lihat lebih besar">`
                         : "";
                     return `
                     <div class="payment-row">
@@ -353,7 +396,27 @@
                 ${paymentsHtml}
             `;
             lucide.createIcons();
+            card.querySelectorAll(".proof-thumb").forEach(img => {
+                img.addEventListener("click", () => openLightbox(img.dataset.full));
+            });
         }
+
+        // Preview foto bukti bayar LANGSUNG di halaman ini (lightbox), bukan
+        // buka tab baru -- link signed URL-nya cuma berlaku sebentar, jadi
+        // lebih enak dibuka di tempat daripada nge-redirect ke tab lain.
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = document.getElementById("lightboxImg");
+        function openLightbox(url) {
+            lightboxImg.src = url;
+            lightbox.classList.add("open");
+        }
+        function closeLightbox() {
+            lightbox.classList.remove("open");
+            lightboxImg.src = "";
+        }
+        document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+        lightbox.addEventListener("click", (e) => { if (e.target === lightbox) closeLightbox(); });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
 
         (async function load() {
             if (!token) { renderError("Link tidak valid."); return; }
