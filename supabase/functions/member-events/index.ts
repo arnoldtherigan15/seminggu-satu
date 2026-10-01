@@ -42,11 +42,22 @@ Deno.serve(async (req) => {
     // buka bareng) -- dianggap "udah daftar" kalau dia kedaftar di SALAH SATU
     // dari batch-batch aktif tipe itu (batch terakhir yang ke-iterasi menang
     // kalau kebetulan kedaftar di lebih dari satu, kasus langka).
+    const today = new Date(); today.setHours(0, 0, 0, 0);
     for (const r of regs || []) {
       const batch = batchById.get(r.batch_id);
       if (!batch) continue;
       const typeConfig = cfgByType.get(r.workshop_type) || {};
       const merged = mergeBatchConfig(batch, typeConfig);
+      // Batch-nya masih `active` (admin belum sempat matiin manual pas bikin
+      // batch baru) TAPI acaranya sendiri udah lewat -- jangan dianggap
+      // "udah daftar" lagi. Tanpa ini, member yang daftar batch lama (mis.
+      // Vol 6, 19 Sept) tetep keliatan "kamu terdaftar" di Warga SELAMANYA
+      // walau batch baru (Vol 7) udah jadi yang aktif sekarang & event lama
+      // itu udah kejadian -- nyangkut nunjukin tiket basi.
+      if (merged.eventDateIso) {
+        const event = new Date(merged.eventDateIso + "T00:00:00");
+        if (today > event) continue;
+      }
       registered[r.workshop_type] = {
         batchId: r.batch_id,
         eventDateIso: merged.eventDateIso,
