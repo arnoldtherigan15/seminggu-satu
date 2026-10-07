@@ -484,7 +484,7 @@
           a.n ${DEFAULT_BANK.holder}<br>
           <span id="coTotalLine"></span>
         </div>
-        <div class="field"><label>Nomor WhatsApp</label><input type="tel" id="coWa" placeholder="08xxxxxxxxxx"></div>
+        <div class="field"><label>Nomor WhatsApp</label><input type="tel" id="coWa" placeholder="08xxxxxxxxxx" value="${(() => { try { return escapeHtml(localStorage.getItem('toko_wa') || ''); } catch (_e) { return ''; } })()}"></div>
         <div class="field"><label>Nama Penerima</label><input type="text" id="coName"></div>
         <div class="field">
           <label>📦 Cek Ongkir -- Kelurahan/Kecamatan Tujuan</label>
@@ -607,6 +607,7 @@
         const data = await res.json();
         if (data.status !== 'success') { msg.textContent = data.message || 'Gagal membuat pesanan.'; msg.className = 'msg err'; btn.disabled = false; btn.textContent = 'Kirim Pesanan'; return; }
 
+        try { localStorage.setItem('toko_wa', wa); } catch (_e) { /* abaikan -- private window/dll */ }
         state.orderDone = true;
         document.getElementById('drawerTitle').textContent = 'Pesanan Terkirim';
         document.getElementById('drawerBody').innerHTML = `

@@ -9,6 +9,7 @@ import { uploadBase64 } from "../_shared/storage.ts";
 import { genOrderCode, reservedUntilIso, cartWeightGrams } from "../_shared/shop.ts";
 import { getConfigValue } from "../_shared/config.ts";
 import { calculateCost } from "../_shared/rajaongkir.ts";
+import { sendTelegramText } from "../_shared/telegram.ts";
 
 interface CartLine { productId: string; variantId?: string; quantity: number }
 
@@ -148,6 +149,25 @@ Deno.serve(async (req) => {
     }
 
     await admin.from("shop_order_items").insert(items.map((it) => ({ ...it, order_id: order.id })));
+
+    // Notif Telegram -- best-effort, jangan gagalin pesanan yang udah sukses
+    // kesimpen cuma gara-gara ini (sama pola kayak member-setup).
+    try {
+      const itemLines = items.map((it) =>
+        `  • ${it.product_name_snapshot}${it.variant_label_snapshot ? " - " + it.variant_label_snapshot : ""} x${it.quantity}`
+      ).join("\n");
+      await sendTelegramText(
+        "🛍️ *Pesanan Toko Baru!*\n\n" +
+          `Kode: ${orderCode}\n` +
+          `👤 ${customerName}\n` +
+          `📱 ${waK}\n\n` +
+          `${itemLines}\n\n` +
+          `Subtotal: Rp ${subtotal.toLocaleString("id-ID")}\n` +
+          `Ongkir: Rp ${shippingCost.toLocaleString("id-ID")}\n` +
+          `*Total: Rp ${total.toLocaleString("id-ID")}*` +
+          (includesCommunityBundle ? "\n\n✨ Termasuk Kit + Akses Komunitas" : ""),
+      );
+    } catch (_e) { /* abaikan */ }
 
     return jsonResponse({ status: "success", orderCode, orderId: order.id, total });
   } catch (e) {

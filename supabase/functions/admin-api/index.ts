@@ -2328,7 +2328,7 @@ Kasih:
         }
         const orders = (rows || []).map((o) => ({
           id: o.id, orderCode: o.order_code, customerWa: o.customer_wa, customerName: o.customer_name,
-          shippingAddress: o.shipping_address, shippingCost: o.shipping_cost, subtotal: o.subtotal, total: o.total,
+          shippingAddress: o.shipping_address, shippingService: o.shipping_service, shippingCost: o.shipping_cost, subtotal: o.subtotal, total: o.total,
           status: o.status, paymentProofUrl: o.payment_proof_url, rejectReason: o.reject_reason, trackingNumber: o.tracking_number,
           includesCommunityBundle: o.includes_community_bundle, kitSessionId: o.kit_session_id,
           createdAt: o.created_at, reviewedAt: o.reviewed_at, items: itemsByOrder[o.id] || [],
@@ -2376,6 +2376,20 @@ Kasih:
         }).eq("id", orderId);
         if (error) return errorResponse("Pesanan tidak ditemukan.");
         return jsonResponse({ status: "success", message: "Resi disimpan, pesanan ditandai dikirim." });
+      }
+
+      case "completeShopOrder": {
+        // Belum ada integrasi tracking live -- admin cek resi manual sendiri
+        // (lewat web/app JNE), baru tandai "Selesai" di sini kalau emang udah
+        // beneran sampai. Skala masih kecil, manual aja cukup buat sekarang.
+        const orderId = String(data.orderId || "");
+        if (!orderId) return errorResponse("ID pesanan kosong.");
+        const { data: existing } = await admin.from("shop_orders").select("status").eq("id", orderId).maybeSingle();
+        if (!existing) return errorResponse("Pesanan tidak ditemukan.");
+        if (existing.status !== "shipped") return errorResponse("Pesanan ini belum berstatus 'Dikirim', nggak bisa ditandai selesai.");
+        const { error } = await admin.from("shop_orders").update({ status: "completed" }).eq("id", orderId);
+        if (error) return errorResponse("Gagal update status.");
+        return jsonResponse({ status: "success", message: "Pesanan ditandai selesai." });
       }
 
       default:

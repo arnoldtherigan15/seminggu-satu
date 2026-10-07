@@ -16272,7 +16272,12 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
               <input class="form-control" type="text" placeholder="No. resi JNE" data-trackinput="${o.id}" style="max-width:160px;">
               <button class="btn btn-sm" data-tracksave="${o.id}">Simpan Resi</button>
             ` : ""}
+            ${o.status === "shipped" ? `<button class="btn btn-sm btn-ghost" data-complete="${o.id}">Tandai Selesai (Sudah Diterima)</button>` : ""}
             ${o.trackingNumber ? `<span class="hint">Resi: ${escapeHtml(o.trackingNumber)}</span>` : ""}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+            ${o.status !== "pending_review" && o.status !== "rejected" && o.status !== "expired" ? `<button class="btn btn-sm btn-ghost" data-wathanks="${o.id}">💬 WA Terima Kasih</button>` : ""}
+            ${o.trackingNumber ? `<button class="btn btn-sm btn-ghost" data-waresi="${o.id}">💬 WA Resi</button>` : ""}
           </div>
         </div>
       `).join("");
@@ -16285,6 +16290,42 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         const input = el.querySelector(`[data-trackinput="${b.dataset.tracksave}"]`);
         setShopTrackingFn(b.dataset.tracksave, input ? input.value.trim() : "");
       }));
+      el.querySelectorAll("[data-complete]").forEach(b => b.addEventListener("click", () => completeShopOrderFn(b.dataset.complete)));
+      el.querySelectorAll("[data-wathanks]").forEach(b => b.addEventListener("click", () => {
+        const o = orders.find(x => x.id === b.dataset.wathanks);
+        if (o) openWaWithMessage(o.customerWa, waThankYouMessage(o));
+      }));
+      el.querySelectorAll("[data-waresi]").forEach(b => b.addEventListener("click", () => {
+        const o = orders.find(x => x.id === b.dataset.waresi);
+        if (o) openWaWithMessage(o.customerWa, waResiMessage(o));
+      }));
+    }
+
+    function openWaWithMessage(wa, message) {
+      const digits = String(wa || "").replace(/\D/g, "");
+      if (!digits) return;
+      window.open(`https://wa.me/${digits}?text=${encodeURIComponent(message)}`, "_blank");
+    }
+
+    function waThankYouMessage(o) {
+      return `Halo ${o.customerName}! 🐾✨\n\n` +
+        `Terima kasih banyak udah order di Toko Seminggu Satu (kode pesanan: ${o.orderCode}). ` +
+        `Pesanan kamu udah kami terima dan lagi kami siapkan ya. Nanti kami kabarin lagi begitu udah dikirim!\n\n` +
+        `Makasih udah mampir ✨`;
+    }
+
+    function waResiMessage(o) {
+      return `Halo ${o.customerName}! 📦\n\n` +
+        `Pesanan kamu (kode: ${o.orderCode}) udah kami kirim via JNE ${o.shippingService || ""}.\n` +
+        `No. Resi: ${o.trackingNumber}\n\n` +
+        `Bisa dicek status pengirimannya lewat app JNE atau web resminya ya. ` +
+        `Makasih udah belanja di Toko Seminggu Satu 🐾`;
+    }
+
+    async function completeShopOrderFn(orderId) {
+      const r = await api("completeShopOrder", { token: getToken(), orderId });
+      if (r.status !== "success") { handleAuthError(r); alert((r && r.message) || "Gagal update status."); return; }
+      await loadShopOrders();
     }
 
     async function reviewShopOrderFn(orderId, approve, rejectReason) {

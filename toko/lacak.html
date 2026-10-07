@@ -67,6 +67,7 @@
       const msg = document.getElementById('lookupMsg');
       const ordersEl = document.getElementById('orders');
       if (!wa) { msg.textContent = 'Masukin nomor WA dulu ya.'; msg.className = 'msg err'; return; }
+      try { localStorage.setItem('toko_wa', wa); } catch (_e) { /* abaikan -- private window/dll */ }
       msg.textContent = ''; ordersEl.innerHTML = '';
       const btn = document.getElementById('lookupBtn');
       btn.disabled = true; btn.textContent = 'Mencari...';
@@ -101,6 +102,13 @@
     }
     document.getElementById('lookupBtn').addEventListener('click', lookup);
     document.getElementById('waInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+
+    // Inget nomor WA terakhir (dari sini atau dari checkout toko.html) --
+    // nggak usah ngetik ulang tiap kali mau cek status pesanan.
+    try {
+      const savedWa = localStorage.getItem('toko_wa');
+      if (savedWa) { document.getElementById('waInput').value = savedWa; lookup(); }
+    } catch (_e) { /* abaikan -- private window/dll */ }
   </script>
 </body>
 
