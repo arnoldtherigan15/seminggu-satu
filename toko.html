@@ -150,13 +150,21 @@
     }
 
     function productPriceLabel(p) {
-      if (!p.variants.length) return rupiah(p.basePrice);
+      // Kit: variannya cuma opsi UPSELL (bundle Zoom), bukan pilihan motif/stok
+      // kayak produk lain -- harga yang ditampilin di kartu katalog harus tetap
+      // harga "Kit Saja" (basePrice), bukan ikut-ikutan dihitung dari harga
+      // bundle yang lebih mahal.
+      if (p.isKit || !p.variants.length) return rupiah(p.basePrice);
       const prices = p.variants.map(v => v.price != null ? v.price : p.basePrice);
       const min = Math.min(...prices), max = Math.max(...prices);
       return min === max ? rupiah(min) : `${rupiah(min)} - ${rupiah(max)}`;
     }
 
     function stockBadge(p) {
+      // Kit nggak punya "stok fisik" kayak decopaper/stiker -- variannya cuma
+      // opsi bundle (stock_qty-nya sengaja null = "nggak dibatasin fisik"),
+      // BUKAN berarti "pre-order". Jangan pakai logic stok generik di sini.
+      if (p.isKit) return '<span class="badge ok">Ready</span>';
       if (!p.variants.length) return '';
       const allSoldOut = p.variants.every(v => v.soldOut);
       if (allSoldOut) return '<span class="badge sold">Habis</span>';
@@ -303,7 +311,7 @@
         <div>${state.cart.map((it, i) => `
           <div class="cart-item">
             <div><div class="ci-name">${escapeHtml(it.name)}</div>
-            <div class="ci-sub">${it.includesCommunityBundle ? 'Kit + Akses Komunitas · ' : ''}${escapeHtml(it.variantLabel || '')} ${it.quantity > 1 ? `· x${it.quantity}` : ''}</div></div>
+            <div class="ci-sub">${it.includesCommunityBundle ? 'Kit + Akses Komunitas' : escapeHtml(it.variantLabel || '')} ${it.quantity > 1 ? `· x${it.quantity}` : ''}</div></div>
             <div style="text-align:right;"><div class="ci-price">${rupiah(it.price * it.quantity)}</div>
             <button data-remove="${i}" style="border:none;background:none;color:var(--err);font-size:.75rem;cursor:pointer;margin-top:.2rem;">Hapus</button></div>
           </div>`).join('')}
