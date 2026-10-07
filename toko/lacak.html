@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f4f7ff">
+  <script src="../theme.js"></script>
+  <script src="../env.js"></script>
+  <title>Lacak Pesanan — Seminggu Satu</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --blue: #0046ff; --yellow: #ffe600; --ink: #10245e; --bg: #f4f7ff; --card: #ffffff; --line: #e4e9f5; --muted: #6b7794; --ok: #0a7a3d; --ok-bg: #e9fbf0; --err: #b91c1c; --err-bg: #fee2e2; }
+    :root[data-theme="dark"] { --bg: #0d1526; --card: #172035; --ink: #eaeffc; --line: #2a3550; --muted: #9fabc9; --ok-bg: rgba(45,206,137,.14); --err-bg: rgba(245,54,92,.14); }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1.1rem; }
+    h1, h2, .brand { font-family: 'Outfit', sans-serif; }
+    .brand { font-weight: 800; font-size: 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 6px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 1.5rem; max-width: 480px; width: 100%; box-shadow: 0 18px 45px rgba(0,60,200,.08); margin-bottom: 1rem; }
+    .field input { width: 100%; padding: .8rem .95rem; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); font-size: .95rem; margin-bottom: .8rem; }
+    .btn { border: none; border-radius: 13px; padding: .85rem; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; cursor: pointer; width: 100%; background: var(--blue); color: #fff; }
+    .btn:disabled { opacity: .6; }
+
+    .status-pill { display: inline-block; padding: .25rem .65rem; border-radius: 999px; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
+    .status-pending_review { background: #fef9c3; color: #854d0e; }
+    .status-approved { background: var(--ok-bg); color: var(--ok); }
+    .status-shipped { background: #dbeafe; color: #1d4ed8; }
+    .status-completed { background: var(--ok-bg); color: var(--ok); }
+    .status-rejected { background: var(--err-bg); color: var(--err); }
+    .status-expired { background: var(--err-bg); color: var(--err); }
+
+    .order-item { display: flex; justify-content: space-between; font-size: .8rem; padding: .35rem 0; color: var(--muted); }
+    .order-foot { font-size: .8rem; color: var(--muted); margin-top: .6rem; }
+    .msg { font-size: .85rem; font-weight: 700; text-align: center; margin-top: .6rem; }
+    .msg.err { color: var(--err); }
+    .empty { text-align: center; color: var(--muted); padding: 2rem 0; }
+  </style>
+</head>
+
+<body>
+  <div class="brand">🐾 Lacak Pesanan</div>
+
+  <div class="card">
+    <div class="field"><input type="tel" id="waInput" placeholder="Nomor WhatsApp pas checkout"></div>
+    <button class="btn" id="lookupBtn">Cek Pesanan</button>
+    <div class="msg" id="lookupMsg"></div>
+  </div>
+
+  <div id="orders"></div>
+
+  <script>
+    const STATUS_LABEL = {
+      pending_review: 'Menunggu Verifikasi', approved: 'Disetujui, Siap Dikirim', shipped: 'Dikirim',
+      completed: 'Selesai', rejected: 'Ditolak', expired: 'Kedaluwarsa',
+    };
+
+    function rupiah(n) { return 'Rp ' + (Number(n) || 0).toLocaleString('id-ID'); }
+    function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function fmtDate(iso) { if (!iso) return ''; return new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }); }
+
+    async function lookup() {
+      const wa = document.getElementById('waInput').value.trim();
+      const msg = document.getElementById('lookupMsg');
+      const ordersEl = document.getElementById('orders');
+      if (!wa) { msg.textContent = 'Masukin nomor WA dulu ya.'; msg.className = 'msg err'; return; }
+      msg.textContent = ''; ordersEl.innerHTML = '';
+      const btn = document.getElementById('lookupBtn');
+      btn.disabled = true; btn.textContent = 'Mencari...';
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/shop-order-status`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+          body: JSON.stringify({ wa }),
+        });
+        const data = await res.json();
+        const orders = data.orders || [];
+        if (!orders.length) { ordersEl.innerHTML = '<div class="card"><div class="empty">Belum ada pesanan dengan nomor ini.</div></div>'; return; }
+        ordersEl.innerHTML = orders.map(o => `
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+              <strong>${o.orderCode}</strong>
+              <span class="status-pill status-${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+            </div>
+            ${o.items.map(it => `<div class="order-item"><span>${escapeHtml(it.name)}${it.variant ? ' - ' + escapeHtml(it.variant) : ''} ${it.quantity > 1 ? `x${it.quantity}` : ''}</span><span>${rupiah(it.price * it.quantity)}</span></div>`).join('')}
+            <div class="order-foot">
+              Dipesan ${fmtDate(o.createdAt)}
+              ${o.includesCommunityBundle ? '<br>✨ Termasuk akses sesi komunitas' : ''}
+              ${o.status === 'rejected' && o.rejectReason ? `<br><span style="color:var(--err);">Alasan ditolak: ${escapeHtml(o.rejectReason)}</span>` : ''}
+              ${o.trackingNumber ? `<br>No. Resi JNE: <strong>${escapeHtml(o.trackingNumber)}</strong>` : ''}
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        msg.textContent = 'Gagal memuat, coba lagi ya.'; msg.className = 'msg err';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Cek Pesanan';
+      }
+    }
+    document.getElementById('lookupBtn').addEventListener('click', lookup);
+    document.getElementById('waInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+  </script>
+</body>
+
+</html>

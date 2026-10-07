@@ -4375,6 +4375,14 @@
           </div>
           </details>
           <details class="nav-acc">
+          <summary class="nav-section-label">Toko <span class="nav-acc-chevron">&#9656;</span></summary>
+          <div class="nav-acc-body">
+          <button class="nav-btn" data-view="shop">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 2a1 1 0 0 1 1-1h1.22a1 1 0 0 1 .98.804l.31 1.496h11.49a1 1 0 0 1 .98 1.197l-1.25 6a1 1 0 0 1-.98.803H4.22l.22 1H13a1 1 0 0 1 0 2H4a1 1 0 0 1-.98-.804L1.39 2.98A.5.5 0 0 0 1.22 2H1a1 1 0 0 1-1-1zm3.14 3L4 11h8.78l1.25-6zM5 14a1 1 0 1 1 0 2 1 1 0 0 1 0-2m8 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg></span> Toko (Kit &amp; Stationery)
+          </button>
+          </div>
+          </details>
+          <details class="nav-acc">
           <summary class="nav-section-label">Personal <span class="nav-acc-chevron">&#9656;</span></summary>
           <div class="nav-acc-body">
           <button class="nav-btn" data-view="personal">
@@ -5329,6 +5337,92 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div id="vidGroups"></div>
           <div class="empty" id="vidEmpty" style="display:none;"><div style="font-size:32px;margin-bottom:8px;">🎬</div>No video links yet. Tap "New Link" to save your first one.</div>
           <button type="button" class="note-fab" id="vidFabBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> New Link</button>
+        </div>
+
+        <!-- ===== VIEW: TOKO (Journaling Kit & Stationery) ===== -->
+        <div class="wrap view" id="viewShop" style="display:none;">
+          <div class="toolbar">
+            <div style="font-weight:800;font-size:16px;">🛍️ Toko</div>
+            <button class="btn btn-sm btn-ghost" id="shopReloadBtn">Reload</button>
+          </div>
+          <div class="subtabs" id="shopSubtabs">
+            <div class="subtab-bar">
+              <button class="subtab-btn" type="button" data-tab="shopOrders"><span>Pesanan</span> <span class="subtab-count" id="shopOrdersCount">…</span></button>
+              <button class="subtab-btn" type="button" data-tab="shopProducts"><span>Produk</span></button>
+              <button class="subtab-btn" type="button" data-tab="shopSessions"><span>Sesi Kit</span></button>
+            </div>
+            <div class="subtab-panel" data-tab="shopOrders">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+                <select class="form-control" id="shopOrderStatusFilter" style="max-width:220px;">
+                  <option value="pending_review">Menunggu Verifikasi</option>
+                  <option value="approved">Disetujui</option>
+                  <option value="shipped">Dikirim</option>
+                  <option value="rejected">Ditolak</option>
+                  <option value="expired">Kedaluwarsa</option>
+                  <option value="">Semua</option>
+                </select>
+              </div>
+              <div id="shopOrdersList"></div>
+            </div>
+            <div class="subtab-panel" data-tab="shopProducts">
+              <button class="btn btn-sm" id="shopProductNewBtn" style="margin-bottom:10px;">+ Produk Baru</button>
+              <div id="shopProductsList"></div>
+            </div>
+            <div class="subtab-panel" data-tab="shopSessions">
+              <button class="btn btn-sm" id="shopSessionNewBtn" style="margin-bottom:10px;">+ Sesi Baru</button>
+              <div id="shopSessionsList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shop Product Form Overlay -->
+        <div class="modal" id="shopProductFormOverlay" style="display:none;">
+          <div class="modal-box">
+            <button type="button" class="modal-close" id="shopProductFormClose">&times;</button>
+            <h3 id="shopProductFormTitle">Produk Baru</h3>
+            <input type="hidden" id="shopProductId">
+            <div class="konten-field"><label>Nama Produk</label><input class="form-control" type="text" id="shopProductName"></div>
+            <div class="konten-field"><label>Kategori</label><input class="form-control" type="text" id="shopProductCategory" placeholder="kit / decopaper / washitape / stamp / memopad / sticker"></div>
+            <div class="konten-field"><label>Deskripsi</label><textarea class="form-control" id="shopProductDescription" rows="2"></textarea></div>
+            <div class="konten-field"><label>Harga Dasar (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="shopProductBasePrice"></div>
+            <div class="konten-field"><label>Foto Produk</label><input type="file" accept="image/*" id="shopProductImageFile"><div id="shopProductImagePreview" style="margin-top:6px;"></div></div>
+            <div class="konten-field">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="shopProductActive" checked> Aktif (tampil di toko)</label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:4px;"><input type="checkbox" id="shopProductIsKit"> Ini produk Journaling Kit (punya opsi bundle Akses Komunitas)</label>
+            </div>
+            <div class="konten-field">
+              <label>Varian</label>
+              <p class="hint">Untuk Journaling Kit, isi 1 varian = harga "Kit + Akses Komunitas". Stok kosong = made-to-order/pre-order terus.</p>
+              <div id="shopVariantRows"></div>
+              <button type="button" class="btn btn-sm btn-ghost" id="shopVariantAddBtn">+ Varian</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px;">
+              <button class="btn btn-sm" id="shopProductSaveBtn">Simpan</button>
+              <button class="btn btn-sm btn-ghost" id="shopProductCancelBtn">Batal</button>
+              <button class="btn btn-sm btn-ghost" id="shopProductDeleteBtn" style="margin-left:auto;color:var(--err);">Hapus</button>
+            </div>
+            <div class="msg" id="shopProductFormMsg"></div>
+          </div>
+        </div>
+
+        <!-- Shop Kit Session Form Overlay -->
+        <div class="modal" id="shopSessionFormOverlay" style="display:none;">
+          <div class="modal-box">
+            <button type="button" class="modal-close" id="shopSessionFormClose">&times;</button>
+            <h3>Sesi Kit</h3>
+            <input type="hidden" id="shopSessionId">
+            <div class="konten-field"><label>Label</label><input class="form-control" type="text" id="shopSessionLabel" placeholder="Batch #4"></div>
+            <div class="konten-field"><label>Jadwal Zoom</label><input class="form-control" type="datetime-local" id="shopSessionAt"></div>
+            <div class="konten-field"><label>Link Zoom</label><input class="form-control" type="text" id="shopSessionZoomLink"></div>
+            <div class="konten-field"><label>Kuota Maksimal (kosong = tanpa batas)</label><input class="form-control" type="text" inputmode="numeric" id="shopSessionMaxQuota"></div>
+            <div class="konten-field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="shopSessionActive" checked> Aktif</label></div>
+            <div style="display:flex;gap:8px;margin-top:14px;">
+              <button class="btn btn-sm" id="shopSessionSaveBtn">Simpan</button>
+              <button class="btn btn-sm btn-ghost" id="shopSessionCancelBtn">Batal</button>
+              <button class="btn btn-sm btn-ghost" id="shopSessionDeleteBtn" style="margin-left:auto;color:var(--err);">Hapus</button>
+            </div>
+            <div class="msg" id="shopSessionFormMsg"></div>
+          </div>
         </div>
 
         <!-- ===== VIEW: MEMBER (akun /warga, ultah, aktif) ===== -->
@@ -7187,7 +7281,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos", "shop"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2], parts[3]);
     }
@@ -7234,6 +7328,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("viewNotes").style.display = (view === "notes") ? "block" : "none";
       document.getElementById("viewPasswords").style.display = (view === "passwords") ? "block" : "none";
       document.getElementById("viewVideos").style.display = (view === "videos") ? "block" : "none";
+      document.getElementById("viewShop").style.display = (view === "shop") ? "block" : "none";
       applySubtabBarHeightVar();
       applyMemSearchHeightVar();
       if (view === "overview") ensureOverview();
@@ -7256,6 +7351,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "notes") ensureNotesView();
       if (view === "passwords") ensurePasswordsView();
       if (view === "videos") ensureVideosView();
+      if (view === "shop") { ensureShopView(); if (event && shopTabsCtl) shopTabsCtl.show(event); }
     }
 
     // ---------- KEUANGAN ----------
@@ -16105,6 +16201,273 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     async function ensureVideosView() {
       wireVideosOnce();
       await loadVideos();
+    }
+
+    // ---------- TOKO (Journaling Kit & Stationery) ----------
+    let shopTabsCtl = null;
+    let shopViewInit = false;
+    const SHOP_STATUS_LABEL = {
+      pending_review: "Menunggu Verifikasi", approved: "Disetujui", shipped: "Dikirim",
+      completed: "Selesai", rejected: "Ditolak", expired: "Kedaluwarsa",
+    };
+
+    function ensureShopView() {
+      if (!shopViewInit) {
+        shopViewInit = true;
+        shopTabsCtl = wireSubtabs(document.getElementById("shopSubtabs"), (tabId) => {
+          if (tabId === "shopOrders") loadShopOrders();
+          if (tabId === "shopProducts") loadShopProducts();
+          if (tabId === "shopSessions") loadShopSessions();
+        });
+        document.getElementById("shopReloadBtn").addEventListener("click", () => {
+          loadShopOrders(); loadShopProducts(); loadShopSessions();
+        });
+        document.getElementById("shopOrderStatusFilter").addEventListener("change", loadShopOrders);
+        document.getElementById("shopProductNewBtn").addEventListener("click", () => openShopProductForm(null));
+        document.getElementById("shopProductFormClose").addEventListener("click", closeShopProductForm);
+        document.getElementById("shopProductCancelBtn").addEventListener("click", closeShopProductForm);
+        document.getElementById("shopProductSaveBtn").addEventListener("click", saveShopProductFn);
+        document.getElementById("shopProductDeleteBtn").addEventListener("click", deleteShopProductFn);
+        document.getElementById("shopVariantAddBtn").addEventListener("click", () => addShopVariantRow({}));
+        document.getElementById("shopProductImageFile").addEventListener("change", onShopProductImagePick);
+        document.getElementById("shopSessionNewBtn").addEventListener("click", () => openShopSessionForm(null));
+        document.getElementById("shopSessionFormClose").addEventListener("click", closeShopSessionForm);
+        document.getElementById("shopSessionCancelBtn").addEventListener("click", closeShopSessionForm);
+        document.getElementById("shopSessionSaveBtn").addEventListener("click", saveShopSessionFn);
+        document.getElementById("shopSessionDeleteBtn").addEventListener("click", deleteShopSessionFn);
+      }
+    }
+
+    // --- Orders ---
+    async function loadShopOrders() {
+      const el = document.getElementById("shopOrdersList");
+      el.innerHTML = '<p class="hint">Memuat...</p>';
+      const status = document.getElementById("shopOrderStatusFilter").value;
+      const r = await api("listShopOrders", { token: getToken(), status });
+      if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
+      const orders = r.orders || [];
+      const cnt = document.getElementById("shopOrdersCount");
+      if (cnt) cnt.textContent = orders.filter(o => o.status === "pending_review").length;
+      if (!orders.length) { el.innerHTML = '<p class="hint">Belum ada pesanan di status ini.</p>'; return; }
+      el.innerHTML = orders.map(o => `
+        <div class="loy-card" style="margin-bottom:10px;">
+          <div class="loy-top">
+            <div>
+              <div class="loy-name">${escapeHtml(o.orderCode)} -- ${escapeHtml(o.customerName)}</div>
+              <div class="loy-wa">${escapeHtml(o.customerWa)} · ${SHOP_STATUS_LABEL[o.status] || o.status}${o.includesCommunityBundle ? " · ✨ Bundle Komunitas" : ""}</div>
+            </div>
+            <div class="loy-count">Rp ${Number(o.total).toLocaleString("id-ID")}</div>
+          </div>
+          <div style="font-size:13px;margin-top:8px;">
+            ${(o.items || []).map(it => `${escapeHtml(it.name)}${it.variant ? " - " + escapeHtml(it.variant) : ""} x${it.quantity}`).join("<br>")}
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;">${escapeHtml((o.shippingAddress && o.shippingAddress.address) || "")}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;">
+            ${o.paymentProofUrl ? `<button type="button" class="cell-priv-link" data-privpath="${escapeHtml(o.paymentProofUrl)}">${icon("lock")} Lihat Bukti Bayar</button>` : ""}
+            ${o.status === "pending_review" ? `
+              <button class="btn btn-sm" data-approve="${o.id}">Setujui</button>
+              <button class="btn btn-sm btn-ghost" data-reject="${o.id}" style="color:var(--err);">Tolak</button>
+            ` : ""}
+            ${o.status === "approved" ? `
+              <input class="form-control" type="text" placeholder="No. resi JNE" data-trackinput="${o.id}" style="max-width:160px;">
+              <button class="btn btn-sm" data-tracksave="${o.id}">Simpan Resi</button>
+            ` : ""}
+            ${o.trackingNumber ? `<span class="hint">Resi: ${escapeHtml(o.trackingNumber)}</span>` : ""}
+          </div>
+        </div>
+      `).join("");
+      el.querySelectorAll("[data-approve]").forEach(b => b.addEventListener("click", () => reviewShopOrderFn(b.dataset.approve, true)));
+      el.querySelectorAll("[data-reject]").forEach(b => b.addEventListener("click", () => {
+        const reason = prompt("Alasan ditolak (opsional):") || "";
+        reviewShopOrderFn(b.dataset.reject, false, reason);
+      }));
+      el.querySelectorAll("[data-tracksave]").forEach(b => b.addEventListener("click", () => {
+        const input = el.querySelector(`[data-trackinput="${b.dataset.tracksave}"]`);
+        setShopTrackingFn(b.dataset.tracksave, input ? input.value.trim() : "");
+      }));
+    }
+
+    async function reviewShopOrderFn(orderId, approve, rejectReason) {
+      const r = await api("reviewShopOrder", { token: getToken(), orderId, approve, rejectReason });
+      if (r.status !== "success") { handleAuthError(r); alert((r && r.message) || "Gagal memproses pesanan."); return; }
+      await loadShopOrders();
+    }
+
+    async function setShopTrackingFn(orderId, trackingNumber) {
+      if (!trackingNumber) { alert("Isi nomor resi dulu."); return; }
+      const r = await api("setShopTracking", { token: getToken(), orderId, trackingNumber });
+      if (r.status !== "success") { handleAuthError(r); alert((r && r.message) || "Gagal menyimpan resi."); return; }
+      await loadShopOrders();
+    }
+
+    // --- Products ---
+    let SHOP_PRODUCTS = [];
+    async function loadShopProducts() {
+      const el = document.getElementById("shopProductsList");
+      el.innerHTML = '<p class="hint">Memuat...</p>';
+      const r = await api("listShopProducts", { token: getToken() });
+      if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
+      SHOP_PRODUCTS = r.items || [];
+      if (!SHOP_PRODUCTS.length) { el.innerHTML = '<p class="hint">Belum ada produk.</p>'; return; }
+      el.innerHTML = SHOP_PRODUCTS.map(p => `
+        <div class="loy-card" style="margin-bottom:10px;cursor:pointer;" data-editproduct="${p.id}">
+          <div class="loy-top">
+            <div><div class="loy-name">${escapeHtml(p.name)} ${p.isKit ? "🎁" : ""} ${!p.active ? '<span class="hint">(nonaktif)</span>' : ""}</div>
+            <div class="loy-wa">${escapeHtml(p.category)} · ${p.variants.length} varian</div></div>
+            <div class="loy-count">Rp ${Number(p.basePrice).toLocaleString("id-ID")}</div>
+          </div>
+        </div>
+      `).join("");
+      el.querySelectorAll("[data-editproduct]").forEach(c => c.addEventListener("click", () => openShopProductForm(c.dataset.editproduct)));
+    }
+
+    function addShopVariantRow(v) {
+      const wrap = document.getElementById("shopVariantRows");
+      const row = document.createElement("div");
+      row.className = "shop-variant-row";
+      row.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px;padding:8px;border:1px solid var(--line);border-radius:10px;";
+      row.innerHTML = `
+        <input type="hidden" class="sv-id" value="${v.id || ""}">
+        <input class="form-control sv-label" type="text" placeholder="Label varian" value="${escapeHtml(v.label || "")}" style="flex:1;min-width:120px;">
+        <input class="form-control sv-price" type="text" inputmode="numeric" placeholder="Harga (ikut dasar)" value="${v.priceOverride != null ? v.priceOverride : ""}" style="width:120px;">
+        <input class="form-control sv-stock" type="text" inputmode="numeric" placeholder="Stok (kosong=PO)" value="${v.stockQty != null ? v.stockQty : ""}" style="width:110px;">
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;"><input type="checkbox" class="sv-preorder" ${v.isPreorder ? "checked" : ""}> PO</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;"><input type="checkbox" class="sv-active" ${v.active !== false ? "checked" : ""}> Aktif</label>
+        <button type="button" class="btn btn-sm btn-ghost sv-remove" style="color:var(--err);">Hapus</button>
+      `;
+      row.querySelector(".sv-remove").addEventListener("click", () => row.remove());
+      wrap.appendChild(row);
+    }
+
+    function openShopProductForm(id) {
+      const p = id ? SHOP_PRODUCTS.find(x => x.id === id) : null;
+      document.getElementById("shopProductFormTitle").textContent = p ? "Edit Produk" : "Produk Baru";
+      document.getElementById("shopProductId").value = p ? p.id : "";
+      document.getElementById("shopProductName").value = p ? p.name : "";
+      document.getElementById("shopProductCategory").value = p ? p.category : "";
+      document.getElementById("shopProductDescription").value = p ? p.description : "";
+      document.getElementById("shopProductBasePrice").value = p ? p.basePrice : "";
+      document.getElementById("shopProductActive").checked = p ? p.active : true;
+      document.getElementById("shopProductIsKit").checked = p ? p.isKit : false;
+      document.getElementById("shopProductImageFile").value = "";
+      document.getElementById("shopProductImagePreview").innerHTML = p && p.imageUrl ? `<img src="${p.imageUrl}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;">` : "";
+      document.getElementById("shopProductImagePreview").dataset.base64 = "";
+      document.getElementById("shopProductImagePreview").dataset.existing = (p && p.imageUrl) || "";
+      document.getElementById("shopVariantRows").innerHTML = "";
+      (p ? p.variants : []).forEach(v => addShopVariantRow(v));
+      document.getElementById("shopProductDeleteBtn").style.display = p ? "inline-flex" : "none";
+      document.getElementById("shopProductFormMsg").textContent = "";
+      document.getElementById("shopProductFormOverlay").style.display = "flex";
+    }
+    function closeShopProductForm() { document.getElementById("shopProductFormOverlay").style.display = "none"; }
+
+    async function onShopProductImagePick(e) {
+      const f = e.target.files[0]; if (!f) return;
+      try {
+        const dataUrl = await qCompress(f, 1000, 0.82);
+        document.getElementById("shopProductImagePreview").innerHTML = `<img src="${dataUrl}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;">`;
+        document.getElementById("shopProductImagePreview").dataset.base64 = dataUrl.split(",")[1];
+      } catch (err) { alert("Gagal memproses gambar."); }
+    }
+
+    async function saveShopProductFn() {
+      const msg = document.getElementById("shopProductFormMsg");
+      const variants = Array.from(document.querySelectorAll("#shopVariantRows .shop-variant-row")).map(row => ({
+        id: row.querySelector(".sv-id").value || undefined,
+        label: row.querySelector(".sv-label").value.trim(),
+        priceOverride: row.querySelector(".sv-price").value.trim() || null,
+        stockQty: row.querySelector(".sv-stock").value.trim() || null,
+        isPreorder: row.querySelector(".sv-preorder").checked,
+        active: row.querySelector(".sv-active").checked,
+      })).filter(v => v.label);
+
+      const payload = {
+        token: getToken(),
+        id: document.getElementById("shopProductId").value || undefined,
+        name: document.getElementById("shopProductName").value.trim(),
+        category: document.getElementById("shopProductCategory").value.trim(),
+        description: document.getElementById("shopProductDescription").value.trim(),
+        basePrice: document.getElementById("shopProductBasePrice").value.replace(/\D/g, ""),
+        active: document.getElementById("shopProductActive").checked,
+        isKit: document.getElementById("shopProductIsKit").checked,
+        image: document.getElementById("shopProductImagePreview").dataset.existing || "",
+        imageBase64: document.getElementById("shopProductImagePreview").dataset.base64 || "",
+        variants,
+      };
+      const r = await api("saveShopProduct", payload);
+      if (r.status !== "success") { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; return; }
+      closeShopProductForm();
+      await loadShopProducts();
+    }
+
+    async function deleteShopProductFn() {
+      const id = document.getElementById("shopProductId").value;
+      if (!id || !confirm("Hapus produk ini?")) return;
+      const r = await api("deleteShopProduct", { token: getToken(), id });
+      if (r.status !== "success") { handleAuthError(r); alert((r && r.message) || "Gagal menghapus."); return; }
+      closeShopProductForm();
+      await loadShopProducts();
+    }
+
+    // --- Kit Sessions ---
+    let SHOP_SESSIONS = [];
+    async function loadShopSessions() {
+      const el = document.getElementById("shopSessionsList");
+      el.innerHTML = '<p class="hint">Memuat...</p>';
+      const r = await api("listShopKitSessions", { token: getToken() });
+      if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; return; }
+      SHOP_SESSIONS = r.sessions || [];
+      if (!SHOP_SESSIONS.length) { el.innerHTML = '<p class="hint">Belum ada sesi.</p>'; return; }
+      el.innerHTML = SHOP_SESSIONS.map(s => `
+        <div class="loy-card" style="margin-bottom:10px;cursor:pointer;" data-editsession="${s.id}">
+          <div class="loy-top">
+            <div><div class="loy-name">${escapeHtml(s.label)} ${!s.active ? '<span class="hint">(nonaktif)</span>' : ""}</div>
+            <div class="loy-wa">${s.sessionAt ? new Date(s.sessionAt).toLocaleString("id-ID") : "Jadwal belum diisi"}</div></div>
+            <div class="loy-count">${s.maxQuota != null ? "Kuota " + s.maxQuota : "Tanpa batas"}</div>
+          </div>
+        </div>
+      `).join("");
+      el.querySelectorAll("[data-editsession]").forEach(c => c.addEventListener("click", () => openShopSessionForm(c.dataset.editsession)));
+    }
+
+    function openShopSessionForm(id) {
+      const s = id ? SHOP_SESSIONS.find(x => x.id === id) : null;
+      document.getElementById("shopSessionId").value = s ? s.id : "";
+      document.getElementById("shopSessionLabel").value = s ? s.label : "";
+      document.getElementById("shopSessionAt").value = s && s.sessionAt ? new Date(s.sessionAt).toISOString().slice(0, 16) : "";
+      document.getElementById("shopSessionZoomLink").value = s ? s.zoomLink : "";
+      document.getElementById("shopSessionMaxQuota").value = s && s.maxQuota != null ? s.maxQuota : "";
+      document.getElementById("shopSessionActive").checked = s ? s.active : true;
+      document.getElementById("shopSessionDeleteBtn").style.display = s ? "inline-flex" : "none";
+      document.getElementById("shopSessionFormMsg").textContent = "";
+      document.getElementById("shopSessionFormOverlay").style.display = "flex";
+    }
+    function closeShopSessionForm() { document.getElementById("shopSessionFormOverlay").style.display = "none"; }
+
+    async function saveShopSessionFn() {
+      const msg = document.getElementById("shopSessionFormMsg");
+      const sessionAtRaw = document.getElementById("shopSessionAt").value;
+      const r = await api("saveShopKitSession", {
+        token: getToken(),
+        id: document.getElementById("shopSessionId").value || undefined,
+        label: document.getElementById("shopSessionLabel").value.trim(),
+        sessionAt: sessionAtRaw ? new Date(sessionAtRaw).toISOString() : null,
+        zoomLink: document.getElementById("shopSessionZoomLink").value.trim(),
+        maxQuota: document.getElementById("shopSessionMaxQuota").value.replace(/\D/g, "") || null,
+        active: document.getElementById("shopSessionActive").checked,
+      });
+      if (r.status !== "success") { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; return; }
+      closeShopSessionForm();
+      await loadShopSessions();
+    }
+
+    async function deleteShopSessionFn() {
+      const id = document.getElementById("shopSessionId").value;
+      if (!id || !confirm("Hapus sesi ini?")) return;
+      const r = await api("deleteShopKitSession", { token: getToken(), id });
+      if (r.status !== "success") { handleAuthError(r); alert((r && r.message) || "Gagal menghapus."); return; }
+      closeShopSessionForm();
+      await loadShopSessions();
     }
 
     function buildPrepTab(sec) {
