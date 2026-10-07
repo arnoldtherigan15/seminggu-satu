@@ -438,21 +438,42 @@
       });
     }
 
+    // Ongkir Fase 2: alamat tujuan harus dicocokin ke id RajaOngkir dulu
+    // (server cuma ngerti level kelurahan/kecamatan, bukan teks bebas),
+    // baru layanan JNE-nya bisa dihitung & dipilih.
+    let _coDest = null; // {id, label}
+    let _coService = null; // {service, description, cost, etd}
+    let _coSearchTimer = null;
+
+    function updateCheckoutTotal() {
+      const subtotal = cartSubtotal();
+      const shipping = _coService ? _coService.cost : 0;
+      const el = document.getElementById('coTotalLine');
+      if (el) el.innerHTML = _coService
+        ? `Ongkir (${_coService.service}): <strong>${rupiah(shipping)}</strong><br>Total: <strong>${rupiah(subtotal + shipping)}</strong>`
+        : `Total: <strong>${rupiah(subtotal)}</strong> <span style="color:var(--muted);">(belum termasuk ongkir)</span>`;
+    }
+
     function renderCheckoutForm() {
       document.getElementById('drawerTitle').textContent = 'Checkout';
       const body = document.getElementById('drawerBody');
       const foot = document.getElementById('drawerFoot');
-      const subtotal = cartSubtotal();
       body.innerHTML = `
         <div class="bank-box">
           Transfer ke:<br>
           <span class="bnum">${DEFAULT_BANK.name} ${DEFAULT_BANK.account}</span><br>
           a.n ${DEFAULT_BANK.holder}<br>
-          Total: <strong>${rupiah(subtotal)}</strong>
+          <span id="coTotalLine"></span>
         </div>
         <div class="field"><label>Nomor WhatsApp</label><input type="tel" id="coWa" placeholder="08xxxxxxxxxx"></div>
         <div class="field"><label>Nama Penerima</label><input type="text" id="coName"></div>
-        <div class="field"><label>Alamat Lengkap</label><textarea id="coAddress" rows="3" placeholder="Jalan, nomor rumah, RT/RW, kelurahan, kecamatan, kota, kode pos"></textarea></div>
+        <div class="field">
+          <label>Kelurahan/Kecamatan Tujuan</label>
+          <input type="text" id="coDestSearch" placeholder="Ketik min. 3 huruf, mis. &quot;Pesanggrahan&quot;" autocomplete="off">
+          <div id="coDestResults"></div>
+        </div>
+        <div class="field"><label>Detail Alamat (jalan, nomor rumah, RT/RW)</label><textarea id="coAddress" rows="2" placeholder="Jl. ..., No. ..., RT/RW ..."></textarea></div>
+        <div class="field" id="coShippingField" style="display:none;"><label>Pilih Layanan JNE</label><div id="coShippingOptions"></div></div>
         <div class="field"><label>Bukti Transfer</label><input type="file" accept="image/*" id="coProof"></div>
         <div class="msg" id="checkoutMsg"></div>
       `;
@@ -460,8 +481,72 @@
         <button class="btn btn-yellow" id="submitOrderBtn">Kirim Pesanan</button>
         <button class="btn btn-ghost" id="backToCartBtn" style="margin-top:.6rem;">← Kembali ke Keranjang</button>
       `;
+      updateCheckoutTotal();
       document.getElementById('backToCartBtn').addEventListener('click', () => { state.checkoutMode = false; renderCart(); });
       document.getElementById('submitOrderBtn').addEventListener('click', submitOrder);
+
+      document.getElementById('coDestSearch').addEventListener('input', (e) => {
+        _coDest = null; _coService = null;
+        document.getElementById('coShippingField').style.display = 'none';
+        updateCheckoutTotal();
+        clearTimeout(_coSearchTimer);
+        const q = e.target.value.trim();
+        const resultsEl = document.getElementById('coDestResults');
+        if (q.length < 3) { resultsEl.innerHTML = ''; return; }
+        _coSearchTimer = setTimeout(async () => {
+          resultsEl.innerHTML = '<p class="hint" style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Mencari...</p>';
+          try {
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/shop-ongkir`, {
+              method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+              body: JSON.stringify({ action: 'search', query: q }),
+            });
+            const data = await res.json();
+            const results = (data.results || []).slice(0, 6);
+            if (!results.length) { resultsEl.innerHTML = '<p class="hint" style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Nggak ketemu, coba kata kunci lain.</p>'; return; }
+            resultsEl.innerHTML = results.map((r, i) => `<div class="opt-row" style="padding:.6rem .8rem;margin-bottom:.4rem;" data-destidx="${i}"><div class="osub" style="margin:0;">${escapeHtml(r.label)}</div></div>`).join('');
+            resultsEl.querySelectorAll('[data-destidx]').forEach(row => {
+              row.addEventListener('click', () => {
+                _coDest = results[Number(row.dataset.destidx)];
+                document.getElementById('coDestSearch').value = _coDest.label;
+                resultsEl.innerHTML = '';
+                calcShipping();
+              });
+            });
+          } catch (e) { resultsEl.innerHTML = '<p class="hint" style="font-size:.75rem;color:var(--err);margin-top:.3rem;">Gagal mencari, coba lagi.</p>'; }
+        }, 400);
+      });
+    }
+
+    async function calcShipping() {
+      if (!_coDest) return;
+      const field = document.getElementById('coShippingField');
+      const optsEl = document.getElementById('coShippingOptions');
+      field.style.display = 'block';
+      optsEl.innerHTML = '<p class="hint" style="font-size:.8rem;color:var(--muted);">Menghitung ongkir...</p>';
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/shop-ongkir`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+          body: JSON.stringify({ action: 'cost', destinationId: _coDest.id, items: state.cart.map(i => ({ productId: i.productId, quantity: i.quantity })) }),
+        });
+        const data = await res.json();
+        if (data.status !== 'success' || !data.options.length) { optsEl.innerHTML = `<p class="msg err">${data.message || 'JNE nggak tersedia buat tujuan ini.'}</p>`; return; }
+        optsEl.innerHTML = data.options.map((o, i) => `
+          <div class="opt-row ${i === 0 ? 'selected' : ''}" data-svcidx="${i}">
+            <div style="flex:1;"><div class="ohead"><span>JNE ${escapeHtml(o.service)}</span><span>${rupiah(o.cost)}</span></div>
+            <div class="osub">${escapeHtml(o.description)} · estimasi ${escapeHtml(o.etd)} hari</div></div>
+          </div>
+        `).join('');
+        _coService = data.options[0];
+        updateCheckoutTotal();
+        optsEl.querySelectorAll('[data-svcidx]').forEach(row => {
+          row.addEventListener('click', () => {
+            optsEl.querySelectorAll('[data-svcidx]').forEach(r => r.classList.remove('selected'));
+            row.classList.add('selected');
+            _coService = data.options[Number(row.dataset.svcidx)];
+            updateCheckoutTotal();
+          });
+        });
+      } catch (e) { optsEl.innerHTML = '<p class="msg err">Gagal menghitung ongkir, coba lagi.</p>'; }
     }
 
     async function submitOrder() {
@@ -471,6 +556,8 @@
       const address = document.getElementById('coAddress').value.trim();
       const proofFile = document.getElementById('coProof').files[0];
       if (!wa || !name || !address) { msg.textContent = 'Lengkapi semua data dulu ya.'; msg.className = 'msg err'; return; }
+      if (!_coDest) { msg.textContent = 'Pilih kelurahan/kecamatan tujuan dulu ya.'; msg.className = 'msg err'; return; }
+      if (!_coService) { msg.textContent = 'Pilih layanan JNE dulu ya.'; msg.className = 'msg err'; return; }
       if (!proofFile) { msg.textContent = 'Upload bukti transfer dulu ya.'; msg.className = 'msg err'; return; }
 
       const btn = document.getElementById('submitOrderBtn');
@@ -490,7 +577,8 @@
           body: JSON.stringify({
             wa, customerName: name,
             items: state.cart.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
-            shippingAddress: { recipient: name, phone: wa, address },
+            shippingAddress: { recipient: name, phone: wa, address, destinationId: _coDest.id, destinationLabel: _coDest.label },
+            courierService: _coService.service,
             paymentBase64: base64,
             includesCommunityBundle: !!bundleItem,
             kitSessionId: bundleItem ? bundleItem.kitSessionId : null,

@@ -6,7 +6,9 @@ import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { waKey } from "../_shared/auth.ts";
 import { uploadBase64 } from "../_shared/storage.ts";
-import { genOrderCode, reservedUntilIso } from "../_shared/shop.ts";
+import { genOrderCode, reservedUntilIso, cartWeightGrams } from "../_shared/shop.ts";
+import { getConfigValue } from "../_shared/config.ts";
+import { calculateCost } from "../_shared/rajaongkir.ts";
 
 interface CartLine { productId: string; variantId?: string; quantity: number }
 
@@ -25,9 +27,11 @@ Deno.serve(async (req) => {
     if (!lines.length) return errorResponse("Keranjang masih kosong.");
 
     const shippingAddress = data.shippingAddress && typeof data.shippingAddress === "object" ? data.shippingAddress : {};
-    if (!shippingAddress.address || !shippingAddress.recipient || !shippingAddress.phone) {
-      return errorResponse("Alamat pengiriman belum lengkap.");
+    if (!shippingAddress.address || !shippingAddress.recipient || !shippingAddress.phone || !shippingAddress.destinationId) {
+      return errorResponse("Alamat pengiriman belum lengkap -- pilih kelurahan/kecamatan tujuan dulu.");
     }
+    const courierService = String(data.courierService || "");
+    if (!courierService) return errorResponse("Pilih dulu layanan JNE-nya (REG/YES/dst).");
     if (!data.paymentBase64) return errorResponse("Upload bukti transfer dulu ya.");
 
     const admin = supabaseAdmin();
@@ -95,7 +99,22 @@ Deno.serve(async (req) => {
       }
     }
 
-    const shippingCost = Math.max(0, Number(data.shippingCost) || 0); // Fase 1: belum ada API ongkir, admin isi manual/placeholder
+    // Ongkir DIHITUNG ULANG di server (origin + berat dari DB, bukan dari
+    // client) -- JANGAN pernah percaya shippingCost kiriman client buat
+    // nentuin total tagihan.
+    const apiKey = Deno.env.get("RAJAONGKIR_API_KEY");
+    const originId = apiKey ? await getConfigValue(admin, "SHOP_ORIGIN_ID") : null;
+    let shippingCost = 0;
+    if (apiKey && originId) {
+      const weightGrams = await cartWeightGrams(admin, lines);
+      const options = await calculateCost(apiKey, originId, Number(shippingAddress.destinationId), weightGrams, "jne");
+      const chosen = options.find((o) => o.service === courierService);
+      if (!chosen) {
+        for (const r of reserved) await admin.rpc("release_shop_stock", { p_variant_id: r.variantId, p_qty: r.qty });
+        return errorResponse("Layanan JNE yang dipilih udah nggak tersedia, coba hitung ongkir ulang ya.");
+      }
+      shippingCost = chosen.cost;
+    }
     const total = subtotal + shippingCost;
 
     let proofUrl = "";
@@ -112,6 +131,7 @@ Deno.serve(async (req) => {
       customer_wa: waK,
       customer_name: customerName,
       shipping_address: shippingAddress,
+      shipping_service: courierService,
       shipping_cost: shippingCost,
       subtotal,
       total,
