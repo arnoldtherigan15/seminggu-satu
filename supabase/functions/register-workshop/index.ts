@@ -209,7 +209,12 @@ Deno.serve(async (req) => {
           if (url) photos.push(url);
         }
       }
-      extra = { colorStrap: String(data.colorStrap || ""), photos };
+      extra = {
+        colorStrap: String(data.colorStrap || ""),
+        bookColor: String(data.bookColor || ""),
+        bookType: String(data.bookType || ""),
+        photos,
+      };
     } else if (workshopType === "side-by-side") {
       // Parent & Kid Journal Playdate -- 1 tiket = 1 orang tua + 1 anak.
       // full_name diisi nama ORANG TUA (dia yang dikontak/bayar/masuk daftar

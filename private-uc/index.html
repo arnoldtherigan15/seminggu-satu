@@ -104,6 +104,34 @@
         .fnb-notice strong {
             color: #dc2626;
         }
+
+        .type-grid {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .type-btn {
+            padding: 0.6rem 1.1rem;
+            border-radius: 10px;
+            border: 2px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg, #fff);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .type-btn:hover {
+            border-color: var(--accent-color, #3b82f6);
+        }
+
+        .type-btn.active {
+            border-color: var(--accent-color, #3b82f6);
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-color, #3b82f6);
+        }
     </style>
 </head>
 
@@ -187,6 +215,22 @@
                     <div class="input-wrapper">
                         <i data-lucide="type"></i>
                         <input type="text" id="nickname" name="nickname" placeholder="Nama Panggilan" required>
+                    </div>
+                </div>
+
+                <input type="hidden" name="bookColor" id="inputBookColor" required>
+                <div class="picker-group">
+                    <label>Pilih Warna Buku Journal (A6)</label>
+                    <div class="color-grid" id="bookColorGrid">
+                        <!-- Colors inject via JS -->
+                    </div>
+                </div>
+
+                <input type="hidden" name="bookType" id="inputBookType" required>
+                <div class="picker-group">
+                    <label>Pilih Tipe Notebook</label>
+                    <div class="type-grid" id="bookTypeGrid">
+                        <!-- Types inject via JS -->
                     </div>
                 </div>
 

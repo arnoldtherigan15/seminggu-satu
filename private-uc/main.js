@@ -55,6 +55,72 @@ function matchBatchFromQuery() {
 }
 let _currentPrice = 0;
 
+// --- Pilihan Buku Journal A6 (warna cover + tipe notebook) -- pure
+// preference juga, sama pola kayak strap color di bawah.
+const bookColors = [
+    { name: 'Toska', hex: '#02bbe0' },
+    { name: 'Biru Langit', hex: '#0281e1' },
+    { name: 'Maroon', hex: '#af2e31' },
+    { name: 'Abu Tua', hex: '#707270' },
+    { name: 'Jingga', hex: '#fe8b30' },
+    { name: 'Hijau Tua', hex: '#147242' },
+    { name: 'Fusia', hex: '#fe0d88' },
+    { name: 'Ungu', hex: '#4904a3' },
+    { name: 'Lavender', hex: '#a27de2' },
+    { name: 'Kunyit', hex: '#f4b004' },
+    { name: 'Kuning', hex: '#f8e407' },
+    { name: 'Jambon', hex: '#f29b94' },
+];
+let selectedBookColor = bookColors[0];
+
+function renderBookColors() {
+    const grid = document.getElementById('bookColorGrid');
+    const input = document.getElementById('inputBookColor');
+    if (!grid) return;
+    grid.innerHTML = '';
+    bookColors.forEach(color => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `color-btn ${color.name === selectedBookColor.name ? 'active' : ''}`;
+        btn.style.backgroundColor = color.hex;
+        btn.title = color.name;
+        btn.onclick = () => {
+            selectedBookColor = color;
+            grid.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (input) input.value = color.name;
+        };
+        grid.appendChild(btn);
+    });
+    if (input) input.value = selectedBookColor.name;
+}
+
+const bookTypes = ['Dotted', 'Polos', 'Grid'];
+let selectedBookType = bookTypes[0];
+
+function renderBookTypes() {
+    const grid = document.getElementById('bookTypeGrid');
+    const input = document.getElementById('inputBookType');
+    if (!grid) return;
+    grid.innerHTML = '';
+    bookTypes.forEach(type => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `type-btn ${type === selectedBookType ? 'active' : ''}`;
+        btn.textContent = type;
+        btn.onclick = () => {
+            selectedBookType = type;
+            grid.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (input) input.value = type;
+        };
+        grid.appendChild(btn);
+    });
+    if (input) input.value = selectedBookType;
+}
+renderBookColors();
+renderBookTypes();
+
 // --- Pilihan Warna Tali (Closure) -- sama persis data & cara pilihnya kayak
 // upcycle-journal (pure preference, nggak ada stok/takenBags buat warna tali).
 const strapColors = [
