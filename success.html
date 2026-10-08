@@ -978,6 +978,16 @@
                 { label: 'Pita', name: colorPita, hex: pitaBase, pattern: pitaPattern },
                 { label: 'Rantai', name: colorRantai, hex: rantaiHex }
             ];
+        } else if (workshopId === 'private-uc') {
+            // Sesi private -- nggak ada visual mockup cover (bukan produk shopping
+            // bag/paper journal yang ada ilustrasinya), cuma rangkuman pilihan aja.
+            document.querySelector('.journal-preview-container').style.display = 'none';
+            metadataLabel.textContent = "Pilihan Journal & Talimu";
+            swatchData = [
+                { label: 'Warna Notebook', name: p.get('bookColor') || '-', hex: p.get('bookColorHex') || '#888' },
+                { label: 'Tipe Notebook', name: p.get('bookType') || '-', hex: '#cbd5e1' },
+                { label: 'Tali', name: colorStrap, hex: colorStrapHex },
+            ];
         } else {
             // Paper Journal
             metadataLabel.textContent = "Pilihan Warna Jurnalmu";

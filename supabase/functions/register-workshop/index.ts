@@ -213,6 +213,7 @@ Deno.serve(async (req) => {
         colorStrap: String(data.colorStrap || ""),
         bookColor: String(data.bookColor || ""),
         bookType: String(data.bookType || ""),
+        needCartonFromAdmin: yn(data.needCartonFromAdmin),
         photos,
       };
     } else if (workshopType === "side-by-side") {

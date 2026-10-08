@@ -538,7 +538,12 @@ form.addEventListener('submit', async (e) => {
                 name: payload.fullName || 'Peserta',
                 whatsapp: payload.whatsapp || '',
                 workshop: 'private-uc',
-                batchId: payload.batchId || ''
+                batchId: payload.batchId || '',
+                bookColor: selectedBookColor.name,
+                bookColorHex: selectedBookColor.hex,
+                bookType: selectedBookType,
+                colorStrap: selectedStrapColor.name,
+                colorStrapHex: selectedStrapColor.hex,
             });
             if (new URLSearchParams(location.search).get('from') === 'member') params.set('from', 'member');
 
