@@ -262,6 +262,38 @@
             margin-bottom: 1rem;
         }
 
+        /* --- Tanggal/jam/sisa tiket per batch --- */
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.85rem;
+        }
+
+        .card-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-2);
+        }
+
+        .card-meta-item i { width: 14px; height: 14px; flex-shrink: 0; }
+
+        .card-meta-item.seat-pill {
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 0.2rem 0.6rem;
+            border-radius: 99px;
+        }
+
+        .card-meta-item.seat-pill.seat-low {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
         /* --- Price --- */
         .price-row {
             display: flex;
@@ -732,8 +764,14 @@
                 // Vol 5 masih buka sampai 26 Sept -- Config closeDate-nya kepatok
                 // ke Vol 4, jadi tanpa koreksi ini Vol 5 ikut ke-anggap tutup &
                 // kartunya ilang dari Home padahal masih bisa didaftar).
+                // Batch yang di-hide dari picker (invite-only lewat link
+                // langsung) SENGAJA nggak dianggap "ada" di listing pasif kayak
+                // Home -- sama alasan kayak di warga/main.js.
                 const openBatchesForType = openBatchesMap[ws.id] || [];
-                const hasAvailableBatch = openBatchesForType.some(function (b) { return b.remaining == null || b.remaining > 0; });
+                const visibleBatches = openBatchesForType.filter(function (b) {
+                    return !b.hideFromPicker && (b.remaining == null || b.remaining > 0);
+                });
+                const hasAvailableBatch = visibleBatches.length > 0;
 
                 let status = getWorkshopStatus(ws);
                 if (hasAvailableBatch) {
@@ -742,92 +780,110 @@
                     status = 'full'; // Config bilang buka tapi ga ada batch yang available -> penuh
                 }
 
-                // Tema/deskripsi bisa beda tiap batch (mis. Reka Rekat ganti tema
-                // tiap volume) -- pakai punya batch yang lagi buka (yang bakal
-                // otomatis kepilih kalau pengunjung klik kartu ini tanpa ?vol=),
-                // bukan deskripsi Config yang bisa basi begitu batch-nya ganti.
-                const primaryBatch = openBatchesForType.filter(function (b) { return !b.hideFromPicker; })[0] || openBatchesForType[0];
-                const effectiveDescription = (primaryBatch && primaryBatch.description) || ws.description;
-
                 // Yang udah ditutup/penuh nggak usah nampil sama sekali -- jangan
                 // bikin pengunjung baru mikir "oh ada workshop nih" terus kecewa pas
                 // ternyata udah nggak bisa didaftarin. "Belum dibuka"/"segera hadir"
                 // tetap ditampilin (masih relevan buat bikin orang nunggu).
                 if (status === 'closed' || status === 'full') return;
 
-                displayedCount++;
+                // Kalau lagi buka & batch-nya lebih dari 1 (mis. Vol 4 & Vol 5
+                // buka bareng), render SATU KARTU PER BATCH -- masing-masing
+                // bawa tanggal/sisa tiket SENDIRI, biar pengunjung nggak salah
+                // pilih sesi (sebelumnya cuma 1 kartu gabungan yang kepake data
+                // batch "pertama" doang & nggak nunjukin ada pilihan lain sama
+                // sekali). Belum buka/segera hadir tetap 1 kartu placeholder.
+                const batchesToRender = status === 'open' ? visibleBatches : [null];
 
-                // Harga -- pakai punya batch yang lagi ditawarin (primaryBatch,
-                // udah dihitung server per-batch termasuk early bird-nya
-                // SENDIRI) kalau ada, bukan angka Config type-level yang bisa
-                // basi begitu batch baru diisi harga beda (mis. Reka Rekat Vol
-                // 6 di-set Rp175rb di Batch Detail, tapi Home tetap nunjukin
-                // Rp275rb punya Config karena field ini kelewat ikut pola yang
-                // sama kayak effectiveDescription di atas).
-                const effectiveNormalPrice = (primaryBatch && primaryBatch.normalPrice != null) ? primaryBatch.normalPrice : ws.normalPrice;
-                // currentCount WAJIB dikasih ke isEarlyBird (fallback Config) --
-                // earlyBirdMaxCount ("cuma buat N pendaftar pertama") baru bisa
-                // dicek kalau isEarlyBird tau udah berapa yang daftar.
-                const effectiveCurrentPrice = (primaryBatch && primaryBatch.currentPrice != null)
-                    ? primaryBatch.currentPrice
-                    : (isEarlyBird(ws, currentCount) ? ws.earlyBirdPrice : ws.normalPrice);
-                const earlyBird = effectiveCurrentPrice < effectiveNormalPrice;
-                const card = document.createElement('div');
-                card.className = `workshop-card${status !== 'open' ? ' disabled' : ''}`;
-                if (animate) card.style.animationDelay = `${0.4 + index * 0.1}s`;
-                else card.style.animation = 'none';
+                batchesToRender.forEach(function (batch) {
+                    // Tema/deskripsi/harga bisa beda tiap batch (mis. Reka Rekat
+                    // ganti tema tiap volume) -- pakai punya BATCH INI, bukan
+                    // Config type-level yang bisa basi begitu batch-nya ganti.
+                    const effectiveDescription = (batch && batch.description) || ws.description;
+                    const effectiveNormalPrice = (batch && batch.normalPrice != null) ? batch.normalPrice : ws.normalPrice;
+                    // currentCount WAJIB dikasih ke isEarlyBird (fallback Config) --
+                    // earlyBirdMaxCount ("cuma buat N pendaftar pertama") baru bisa
+                    // dicek kalau isEarlyBird tau udah berapa yang daftar.
+                    const effectiveCurrentPrice = (batch && batch.currentPrice != null)
+                        ? batch.currentPrice
+                        : (isEarlyBird(ws, currentCount) ? ws.earlyBirdPrice : ws.normalPrice);
+                    const earlyBird = effectiveCurrentPrice < effectiveNormalPrice;
+                    const card = document.createElement('div');
+                    card.className = `workshop-card${status !== 'open' ? ' disabled' : ''}`;
+                    if (animate) card.style.animationDelay = `${0.4 + displayedCount * 0.1}s`;
+                    else card.style.animation = 'none';
+                    displayedCount++;
 
-                // Build price HTML (config dari cache/server, bukan statis basi)
-                let priceHTML = '';
-                if (effectiveNormalPrice > 0) {
-                    if (earlyBird) {
-                        priceHTML = `
-                            <div class="price-row">
-                                <span class="early-bird-tag"><i data-lucide="flame"></i> Early Bird</span>
-                                <span class="price-original">${formatRupiah(effectiveNormalPrice)}</span>
-                                <span class="price-current">${formatRupiah(effectiveCurrentPrice)}</span>
-                            </div>`;
-                    } else if (status === 'open') {
-                        priceHTML = `
-                            <div class="price-row">
-                                <span class="price-normal-only">${formatRupiah(effectiveNormalPrice)}</span>
-                            </div>`;
+                    // Build price HTML (config dari cache/server, bukan statis basi)
+                    let priceHTML = '';
+                    if (effectiveNormalPrice > 0) {
+                        if (earlyBird) {
+                            priceHTML = `
+                                <div class="price-row">
+                                    <span class="early-bird-tag"><i data-lucide="flame"></i> Early Bird</span>
+                                    <span class="price-original">${formatRupiah(effectiveNormalPrice)}</span>
+                                    <span class="price-current">${formatRupiah(effectiveCurrentPrice)}</span>
+                                </div>`;
+                        } else if (status === 'open') {
+                            priceHTML = `
+                                <div class="price-row">
+                                    <span class="price-normal-only">${formatRupiah(effectiveNormalPrice)}</span>
+                                </div>`;
+                        }
                     }
-                }
 
-                // Build status badge (closed/full udah di-skip di atas, jadi cuma
-                // open/not-open-yet/coming-soon yang bisa nyampe sini)
-                let badgeHTML = '';
-                if (status === 'open') {
-                    badgeHTML = '<span class="status-badge badge-open"><i data-lucide="circle-check"></i> Buka</span>';
-                } else if (status === 'not-open-yet') {
-                    badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="clock"></i> Segera Dibuka</span>';
-                } else {
-                    badgeHTML = '<span class="status-badge badge-coming-soon"><i data-lucide="sparkles"></i> Segera Hadir</span>';
-                }
+                    // Tanggal + sisa tiket SESI INI -- supaya kalau ada 2+ batch
+                    // buka bareng, tiap kartu jelas beda tanggalnya & nggak
+                    // ambigu sisa tiketnya yang mana.
+                    let metaHTML = '';
+                    if (batch) {
+                        const metaParts = [];
+                        if (batch.displayDate) metaParts.push(`<span class="card-meta-item"><i data-lucide="calendar"></i> ${batch.displayDate}</span>`);
+                        if (batch.workshopTime) metaParts.push(`<span class="card-meta-item"><i data-lucide="clock"></i> ${batch.workshopTime}</span>`);
+                        if (batch.remaining != null) {
+                            const low = batch.remaining <= 2;
+                            metaParts.push(`<span class="card-meta-item seat-pill${low ? ' seat-low' : ''}"><i data-lucide="ticket"></i> Sisa ${batch.remaining} tiket</span>`);
+                        }
+                        if (metaParts.length) metaHTML = `<div class="card-meta">${metaParts.join('')}</div>`;
+                    }
 
-                // Build CTA
-                let ctaHTML = '';
-                if (status === 'open') {
-                    ctaHTML = `<a href="${ws.path}" class="cta-btn" id="cta-${ws.id}">Daftar Sekarang <i data-lucide="arrow-right"></i></a>`;
-                } else {
-                    ctaHTML = `<div class="cta-btn disabled-btn">${status === 'not-open-yet' ? 'Belum Dibuka' : 'Segera Hadir'}</div>`;
-                }
+                    // Build status badge (closed/full udah di-skip di atas, jadi cuma
+                    // open/not-open-yet/coming-soon yang bisa nyampe sini)
+                    let badgeHTML = '';
+                    if (status === 'open') {
+                        badgeHTML = '<span class="status-badge badge-open"><i data-lucide="circle-check"></i> Buka</span>';
+                    } else if (status === 'not-open-yet') {
+                        badgeHTML = '<span class="status-badge badge-not-open"><i data-lucide="clock"></i> Segera Dibuka</span>';
+                    } else {
+                        badgeHTML = '<span class="status-badge badge-coming-soon"><i data-lucide="sparkles"></i> Segera Hadir</span>';
+                    }
 
-                card.innerHTML = `
-                    ${badgeHTML}
-                    <div class="card-header">
-                        <div class="card-icon"><i data-lucide="${ws.icon}"></i></div>
-                        <div>
-                            <div class="card-title">${ws.name}</div>
+                    // Build CTA -- link langsung ke batch ini kalau ada 2+ sesi
+                    // buka bareng, biar pengunjung yang klik dari kartu Vol 5
+                    // nggak nyasar ke form yang default milih Vol 4.
+                    const ctaHref = (batch && visibleBatches.length > 1) ? `${ws.path}?batch=${encodeURIComponent(batch.label || '')}` : ws.path;
+                    let ctaHTML = '';
+                    if (status === 'open') {
+                        ctaHTML = `<a href="${ctaHref}" class="cta-btn" id="cta-${ws.id}">Daftar Sekarang <i data-lucide="arrow-right"></i></a>`;
+                    } else {
+                        ctaHTML = `<div class="cta-btn disabled-btn">${status === 'not-open-yet' ? 'Belum Dibuka' : 'Segera Hadir'}</div>`;
+                    }
+
+                    card.innerHTML = `
+                        ${badgeHTML}
+                        <div class="card-header">
+                            <div class="card-icon"><i data-lucide="${ws.icon}"></i></div>
+                            <div>
+                                <div class="card-title">${ws.name}${(batch && visibleBatches.length > 1) ? ' · ' + (batch.label || '') : ''}</div>
+                            </div>
                         </div>
-                    </div>
-                    <p class="card-desc">${effectiveDescription}</p>
-                    ${priceHTML}
-                    ${ctaHTML}
-                `;
+                        <p class="card-desc">${effectiveDescription}</p>
+                        ${metaHTML}
+                        ${priceHTML}
+                        ${ctaHTML}
+                    `;
 
-                listEl.appendChild(card);
+                    listEl.appendChild(card);
+                });
             });
 
             if (displayedCount === 0) {
