@@ -40,24 +40,7 @@ export async function loyaltyMembers(admin: SupabaseClient): Promise<LoyaltyMemb
 
   const qmap = await questCountMap(admin);
 
-  // Jembatan Toko -> warga: WA yang beli "Kit + Akses Komunitas" & udah
-  // disetujui adminnya (lihat shop-create-order/admin-api reviewShopOrder)
-  // dianggap qualifying paid event SAMA kayak abis ikut workshop berbayar,
-  // TANPA insert row palsu ke `registrations` (yang bakal ngotorin list/CSV/
-  // Prep admin dengan tipe yang bukan event beneran). count/events-nya
-  // sengaja tetep 0 -- orang ini emang nggak ikut event, masuknya lewat
-  // Toko, cuma perlu KETEMU di sini biar isMemberWa() balikin true.
-  const { data: grants } = await admin.from("community_access_grants").select("wa");
-
   const byWa: Record<string, LoyaltyMember> = {};
-  for (const g of grants || []) {
-    const key = waKey(g.wa);
-    if (!key) continue;
-    byWa[key] = {
-      key, wa: g.wa, nickname: "", fullName: "", ig: "", count: 0, claimed: 0, progress: 0, eligible: false,
-      questCount: 0, notes: [], birthDate: "", voucherActive: false, voucherAge: null, voucherValidUntil: "", events: [],
-    };
-  }
   for (const r of regs || []) {
     const key = waKey(r.wa);
     if (!key) continue;
