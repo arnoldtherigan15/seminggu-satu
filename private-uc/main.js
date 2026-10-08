@@ -55,6 +55,50 @@ function matchBatchFromQuery() {
 }
 let _currentPrice = 0;
 
+// --- Pilihan Warna Tali (Closure) -- sama persis data & cara pilihnya kayak
+// upcycle-journal (pure preference, nggak ada stok/takenBags buat warna tali).
+const strapColors = [
+    { name: 'Putih', hex: '#ebe5e5' },
+    { name: 'Cream', hex: '#cfac8c' },
+    { name: 'Kuning', hex: '#fde355' },
+    { name: 'Stabilo', hex: '#9dde6d' },
+    { name: 'Orange', hex: '#f05e37' },
+    { name: 'Merah', hex: '#b71c2c' },
+    { name: 'Pink', hex: '#f3c3b9' },
+    { name: 'Pink Magenta', hex: '#b65179' },
+    { name: 'Ungu', hex: '#692f4a' },
+    { name: 'Hijau', hex: '#97ab52' },
+    { name: 'Tosca', hex: '#77b59b' },
+    { name: 'Biru Muda', hex: '#5cd0ea' },
+    { name: 'Biru Tua', hex: '#0955a0' },
+    { name: 'Abu Abu', hex: '#6c6f79' },
+    { name: 'Coklat', hex: '#633114' },
+    { name: 'Hitam', hex: '#110d0c' },
+];
+let selectedStrapColor = strapColors.find(c => c.name === 'Orange');
+
+function renderStrapColors() {
+    const grid = document.getElementById('strapColorGrid');
+    const input = document.getElementById('inputColorStrap');
+    if (!grid) return;
+    grid.innerHTML = '';
+    strapColors.forEach(color => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `color-btn ${color.name === selectedStrapColor.name ? 'active' : ''}`;
+        btn.style.backgroundColor = color.hex;
+        btn.title = color.name;
+        btn.onclick = () => {
+            selectedStrapColor = color;
+            grid.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (input) input.value = color.name;
+        };
+        grid.appendChild(btn);
+    });
+}
+renderStrapColors();
+
 // Nampilin/kunci section foto berdasarkan config -- dipanggil di load AWAL *dan* tiap
 // config server datang (listener 'workshops:updated' di bawah).
 function applyPrintPhotoConfig(w) {
