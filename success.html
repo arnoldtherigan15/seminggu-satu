@@ -617,6 +617,59 @@
             opacity: 0.9;
         }
 
+        /* Komunitas banner -- SELALU tampil di semua halaman success, beda
+           dari #btnWaGroup di atas (itu link grup WA per-BATCH/event yang
+           cuma muncul kalau batch-nya ngisi whatsappGroupLink). Ini grup
+           komunitas journaling umum Seminggu Satu, sama buat semua orang
+           siapapun/apapun workshop-nya. */
+        .community-banner {
+            background: linear-gradient(135deg, #0955a0 0%, #0092ff 100%);
+            color: #fff;
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(9, 85, 160, 0.25);
+            animation: slideUp 0.4s ease 0.15s both;
+        }
+
+        .community-banner-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .community-banner h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .community-banner p {
+            font-size: 0.85rem;
+            opacity: 0.92;
+            line-height: 1.5;
+            margin-bottom: 1.1rem;
+        }
+
+        .community-banner-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #25D366;
+            color: #fff;
+            padding: 0.8rem 1.4rem;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+            animation: waHeartbeat 2s infinite;
+        }
+
+        .community-banner-btn i {
+            width: 18px;
+            height: 18px;
+        }
+
         @keyframes waHeartbeat {
             0% {
                 transform: scale(1);
@@ -755,6 +808,18 @@
                     <div class="ticket-id" id="ticketId">SMGST-2026-XXXX</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Komunitas Journaling Banner -- selalu tampil, semua workshop -->
+        <div class="community-banner">
+            <div class="community-banner-icon">🐾</div>
+            <h3>Kita Punya Komunitas Journaling!</h3>
+            <p>Yuk gabung Balai Warga Seminggu Satu -- tempat sharing karya, ikutan challenge seru, dan kenalan
+                sama warga lainnya.</p>
+            <a href="https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?mode=gi_t" target="_blank"
+                class="community-banner-btn">
+                <i data-lucide="message-circle"></i> Join Grup WA Komunitas
+            </a>
         </div>
 
         <!-- Share Section -->
