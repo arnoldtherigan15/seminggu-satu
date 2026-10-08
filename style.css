@@ -733,7 +733,15 @@ form {
     margin-bottom: 0.5rem;
 }
 
-.non-refund-notice i {
+/* Selector ini TARGET TAG "i", tapi lucide.createIcons() GANTI tag <i>
+   jadi <svg> baru begitu halaman load -- selector tag kayak gini otomatis
+   berhenti match abis konversi. Nggak kelihatan selama ini cuma karena teks
+   "Pembayaran bersifat non-refundable" pendek (nggak ada tekanan flex buat
+   nyusutin ikonnya) -- begitu ada halaman lain yang teksnya lebih panjang
+   (bikin baris ke-wrap 2+ baris), ikon ini bakal ke-squeeze flexbox jadi
+   gepeng (BUG nyata yang kejadian di private-uc, teksnya emang panjang).
+   Fix: target svg (tag HASIL konversi), bukan i (tag SEBELUM konversi). */
+.non-refund-notice svg {
     width: 16px;
     height: 16px;
     flex-shrink: 0;

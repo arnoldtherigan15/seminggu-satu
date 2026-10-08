@@ -93,12 +93,14 @@
             margin-bottom: 1rem;
         }
 
-        .fnb-notice i {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
+        .fnb-notice svg {
+            /* Ukuran/flex-shrink DIPASANG INLINE di tag <i> (lihat HTML) --
+               lucide.createIcons() ganti <i> jadi <svg> baru, jadi selector
+               tag "i" di sini nggak akan pernah ke-match lagi setelah
+               konversi (SVG-nya jadi ke-squeeze flexbox tanpa flex-shrink:0,
+               ini bug yang kejadian sebelumnya). Warna doang yang aman taro
+               di sini karena `color` tetap ke-inherit normal via cascade. */
             color: #ef4444;
-            margin-top: 1px;
         }
 
         .fnb-notice strong {
@@ -314,14 +316,14 @@
                 </div>
 
                 <div class="fnb-notice">
-                    <i data-lucide="alert-circle"></i>
+                    <i data-lucide="alert-circle" style="width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px;"></i>
                     <span>Harga di atas <strong>belum termasuk makanan/minuman</strong>. Setiap peserta
                         <strong>wajib memesan minimal 1 makanan atau minuman</strong> langsung di tempat (dibayar
                         terpisah ke venue, bukan ke Seminggu Satu).</span>
                 </div>
 
                 <div class="non-refund-notice">
-                    <i data-lucide="alert-circle"></i>
+                    <i data-lucide="alert-circle" style="width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px;"></i>
                     <span>Pembayaran bersifat <strong>non-refundable</strong>.</span>
                 </div>
 
