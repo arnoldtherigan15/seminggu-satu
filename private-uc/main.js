@@ -118,8 +118,38 @@ function renderBookTypes() {
     });
     if (input) input.value = selectedBookType;
 }
+
+// --- Kotak Susu 1L: punya sendiri atau perlu dibawain admin (pilihan biner,
+// pola sama persis kayak renderBookTypes di atas, cuma 2 opsi). ---
+const cartonChoices = [
+    { value: 'yes', label: 'Punya, bawa sendiri' },
+    { value: 'no', label: 'Tidak punya, tolong bawain' },
+];
+let selectedCartonChoice = cartonChoices[0];
+
+function renderCartonChoice() {
+    const grid = document.getElementById('cartonChoiceGrid');
+    const input = document.getElementById('inputHasOwnCarton');
+    if (!grid) return;
+    grid.innerHTML = '';
+    cartonChoices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `type-btn ${choice.value === selectedCartonChoice.value ? 'active' : ''}`;
+        btn.textContent = choice.label;
+        btn.onclick = () => {
+            selectedCartonChoice = choice;
+            grid.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (input) input.value = choice.value;
+        };
+        grid.appendChild(btn);
+    });
+    if (input) input.value = selectedCartonChoice.value;
+}
 renderBookColors();
 renderBookTypes();
+renderCartonChoice();
 
 // --- Pilihan Warna Tali (Closure) -- sama persis data & cara pilihnya kayak
 // upcycle-journal (pure preference, nggak ada stok/takenBags buat warna tali).
