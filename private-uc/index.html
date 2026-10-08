@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Upcycle Journal Private Session — Seminggu Satu</title>
+    <meta name="description"
+        content="Daftar Upcycle Journal Private Session oleh Seminggu Satu. Sesi private, maksimal 3 orang.">
+
+    <!-- Workshop Config — harus pertama untuk cek akses -->
+    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <script src="../theme.js"></script>
+    <script src="../env.js"></script>
+    <script src="../workshop-config.js?v=2"></script>
+    <script>
+        (function () {
+            var ID = "private-uc";
+            var decided = false;
+            function redirectByConfig(w) {
+                var st = getWorkshopStatus(w);
+                if (st !== "open") window.location.replace("../closed.html?workshop=" + ID + "&reason=" + st);
+            }
+            function decide() {
+                if (decided) return; decided = true;
+                var w = (typeof getWorkshopById === "function") ? getWorkshopById(ID) : null;
+                if (!w) return;
+                // Config (`w`) cuma nyimpen 1 openDate/closeDate per TIPE workshop --
+                // begitu ada 2+ batch buka bareng dgn jadwal beda2, Config bisa basi
+                // padahal batch LAIN masih valid. Sebelum percaya Config buat mutusin
+                // "tutup" & redirect keluar, cek dulu ke workshop-batches (sumber
+                // kebenaran per-batch) -- kalau ada batch yang masih valid, JANGAN
+                // redirect, biarin main.js yang urus (udah batch-aware).
+                if (typeof SUPABASE_URL === "string" && typeof SUPABASE_ANON_KEY === "string") {
+                    fetch(SUPABASE_URL + "/functions/v1/workshop-batches", { headers: { apikey: SUPABASE_ANON_KEY } })
+                        .then(function (r) { return r.json(); })
+                        .then(function (all) {
+                            var openBatches = (all && all[ID]) || [];
+                            if (!openBatches.length) redirectByConfig(w);
+                        })
+                        .catch(function () { redirectByConfig(w); });
+                } else {
+                    redirectByConfig(w);
+                }
+            }
+            window.addEventListener("workshops:updated", decide);
+            setTimeout(function () { decided = true; }, 6000);
+        })();
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- HEIC Image Converter -->
+    <script src="https://unpkg.com/heic2any@0.4.0/dist/heic2any.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .alert-banner {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-size: 0.85rem;
+            line-height: 1.45;
+        }
+
+        .fnb-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            background: #fff5f5;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 0.82rem;
+            color: #7f1d1d;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .fnb-notice i {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            color: #ef4444;
+            margin-top: 1px;
+        }
+
+        .fnb-notice strong {
+            color: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="hero">
+        <div class="brand">
+            <a href="../index.html" id="brandLink" style="text-decoration:none;">
+                <img src="../logo_seminggu.png" alt="Seminggu Satu" class="brand-logo" style="width: auto;">
+                <p>by Arnold</p>
+            </a>
+        </div>
+        <div class="hero-content">
+            <h2>Upcycle Journal Private Session!</h2>
+            <p class="subtitle">Sesi journaling private & intimate, maksimal 3 orang per sesi. Cocok buat kamu yang mau
+                ngejurnal lebih santai bareng teman dekat, tanpa keramaian.</p>
+
+            <div class="workshop-details">
+                <div id="batchPicker" style="display:none;margin-bottom:10px;"></div>
+                <div class="urgency-badge" id="urgencyBadge">
+                    <i data-lucide="flame"></i> <span id="urgencyText">Mengecek tiket...</span>
+                </div>
+
+                <div class="detail-item">
+                    <i data-lucide="calendar"></i>
+                    <span id="workshopDateText">Memuat tanggal...</span>
+                </div>
+
+                <div class="detail-item">
+                    <i data-lucide="clock"></i>
+                    <span id="workshopTimeText">Memuat waktu...</span>
+                </div>
+
+                <div class="detail-item">
+                    <i data-lucide="map-pin"></i>
+                    <a href="#" id="locationMapsLink" target="_blank" class="location-link">
+                        <span id="locationNameText">Memuat lokasi...</span>
+                    </a>
+                </div>
+                <div class="detail-item price">
+                    <i data-lucide="ticket"></i>
+                    <div class="price-box" id="priceBox">
+                        <span class="new-price" id="currentPriceEl"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-links">
+                <a href="https://www.instagram.com/seminggu_satu" target="_blank" class="social-btn">
+                    <img src="../images/Instagram.png" alt="Instagram"
+                        style="width:16px;height:16px;object-fit:contain;"> Instagram
+                </a>
+                <a href="https://www.tiktok.com/@seminggusatu" target="_blank" class="social-btn">
+                    <img src="../images/tiktok.png" alt="TikTok" style="width:16px;height:16px;object-fit:contain;">
+                    TikTok
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="registration-form-section">
+            <div class="section-header">
+                <h3>Form Pendaftaran & Data Peserta</h3>
+                <p>Silakan isi data diri Anda di bawah ini untuk booking tempat.</p>
+            </div>
+
+            <form id="workshopForm">
+
+                <div class="form-group">
+                    <label for="fullName">Nama Lengkap</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="user"></i>
+                        <input type="text" id="fullName" name="fullName" placeholder="Nama Lengkap" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nickname">Nickname (Nama Panggilan)</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="type"></i>
+                        <input type="text" id="nickname" name="nickname" placeholder="Nama Panggilan" required>
+                    </div>
+                </div>
+
+                <!-- Photo Upload Section (Controlled by config in main.js) -->
+                <div id="photoUploadSection" style="display: none;">
+                    <div class="alert-banner">
+                        <i data-lucide="info" style="width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px;"></i>
+                        <span><strong>Informasi Foto:</strong> Upload foto apapun yang ingin kamu tempel di halaman
+                            journal mu. Foto akan dicetak
+                            dalam bentuk <strong>square</strong> untuk keperluan journaling.</span>
+                    </div>
+
+                    <div class="form-group upload-group">
+                        <label>Foto 1</label>
+                        <div class="upload-area" id="photo1UploadArea">
+                            <i data-lucide="image-plus"></i>
+                            <span>Pilih Foto 1</span>
+                            <input type="file" id="photo1" name="photo1" accept="image/*">
+                            <img id="photo1Preview" class="preview-img" src="" alt="">
+                        </div>
+                        <input type="hidden" id="photo1Base64" name="photo1Base64">
+                        <input type="hidden" id="photo1MimeType" name="photo1MimeType">
+                    </div>
+
+                    <div class="form-group upload-group">
+                        <label>Foto 2</label>
+                        <div class="upload-area" id="photo2UploadArea">
+                            <i data-lucide="image-plus"></i>
+                            <span>Pilih Foto 2</span>
+                            <input type="file" id="photo2" name="photo2" accept="image/*">
+                            <img id="photo2Preview" class="preview-img" src="" alt="">
+                        </div>
+                        <input type="hidden" id="photo2Base64" name="photo2Base64">
+                        <input type="hidden" id="photo2MimeType" name="photo2MimeType">
+                    </div>
+
+                    <div class="form-group upload-group">
+                        <label>Foto 3</label>
+                        <div class="upload-area" id="photo3UploadArea">
+                            <i data-lucide="image-plus"></i>
+                            <span>Pilih Foto 3</span>
+                            <input type="file" id="photo3" name="photo3" accept="image/*">
+                            <img id="photo3Preview" class="preview-img" src="" alt="">
+                        </div>
+                        <input type="hidden" id="photo3Base64" name="photo3Base64">
+                        <input type="hidden" id="photo3MimeType" name="photo3MimeType">
+                    </div>
+
+                    <div class="form-group upload-group">
+                        <label>Foto 4</label>
+                        <div class="upload-area" id="photo4UploadArea">
+                            <i data-lucide="image-plus"></i>
+                            <span>Pilih Foto 4</span>
+                            <input type="file" id="photo4" name="photo4" accept="image/*">
+                            <img id="photo4Preview" class="preview-img" src="" alt="">
+                        </div>
+                        <input type="hidden" id="photo4Base64" name="photo4Base64">
+                        <input type="hidden" id="photo4MimeType" name="photo4MimeType">
+                    </div>
+                </div>
+
+                <div class="payment-info">
+                    <h4>Informasi Pembayaran</h4>
+                    <p>Transfer <strong id="paymentAmount"></strong> ke rekening berikut:</p>
+                    <div class="bank-card">
+                        <div class="bank-name" id="bankNameText">BCA</div>
+                        <div class="bank-account">
+                            <span id="accountNumber">6042825961</span>
+                            <button type="button" class="copy-btn" id="copyBtn"><i data-lucide="copy"></i></button>
+                        </div>
+                        <div class="bank-owner" id="bankOwnerText">a.n Arnold Therigan</div>
+                    </div>
+                </div>
+
+                <div class="fnb-notice">
+                    <i data-lucide="utensils"></i>
+                    <span>Harga di atas <strong>belum termasuk makanan/minuman</strong>. Setiap peserta
+                        <strong>wajib memesan minimal 1 makanan atau minuman</strong> langsung di tempat (dibayar
+                        terpisah ke venue, bukan ke Seminggu Satu).</span>
+                </div>
+
+                <div class="non-refund-notice">
+                    <i data-lucide="alert-circle"></i>
+                    <span>Pembayaran bersifat <strong>non-refundable</strong>.</span>
+                </div>
+
+                <div class="form-group upload-group">
+                    <label>Bukti Pembayaran</label>
+                    <div class="upload-area" id="paymentUploadArea">
+                        <i data-lucide="receipt"></i>
+                        <span>Upload bukti transfer</span>
+                        <input type="file" id="paymentPhoto" name="paymentPhoto" accept="image/*" required>
+                        <img id="paymentPreview" class="preview-img" src="" alt="">
+                    </div>
+                    <input type="hidden" id="paymentBase64" name="paymentBase64">
+                    <input type="hidden" id="paymentMimeType" name="paymentMimeType">
+                </div>
+
+                <div class="form-group">
+                    <label for="whatsapp">Nomor WhatsApp</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="phone"></i>
+                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="Contoh: 0812xxxxxxxx" required>
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="consentCheck">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Saya bersedia untuk didokumentasikan (foto/video) selama acara
+                            berlangsung untuk keperluan media sosial Seminggu Satu.</span>
+                    </label>
+                </div>
+
+                <div id="statusMessage" class="status-message"></div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span>Daftar Sekarang</span>
+                    <i data-lucide="arrow-right"></i>
+                </button>
+
+            </form>
+        </section>
+
+    </main>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div id="blockerLoader">
+        <div class="blocker-content">
+            <div class="blocker-spinner"></div>
+            <p id="blockerMessage">Sedang mengecek ketersediaan tiket...</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
+    </footer>
+
+    <audio id="bgMusic" src="../bg_music.mp3" loop preload="auto" autoplay></audio>
+
+    <script src="main.js?v=1"></script>
+    <script>
+        lucide.createIcons();
+
+        const bgMusic = document.getElementById('bgMusic');
+        bgMusic.volume = 0.35;
+        bgMusic.play().catch(() => {
+            const unlock = () => {
+                bgMusic.play();
+                document.removeEventListener('click', unlock);
+                document.removeEventListener('scroll', unlock);
+                document.removeEventListener('touchstart', unlock);
+            };
+            document.addEventListener('click', unlock, { once: true });
+            document.addEventListener('scroll', unlock, { once: true });
+            document.addEventListener('touchstart', unlock, { once: true });
+        });
+    </script>
+
+</body>
+
+</html>

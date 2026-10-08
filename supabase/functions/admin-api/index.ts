@@ -13,7 +13,7 @@ import { activeBirthdayVoucher } from "../_shared/birthday.ts";
 import { callGemini } from "../_shared/gemini.ts";
 import { mergeBatchConfig, currentPrice, isBatchOpen } from "../_shared/batch-merge.ts";
 
-const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side"];
+const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side", "private-uc"];
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
 const prepKey = (event: string, type: string) => `prep__${event}__${type}`;
 // Full Notes per BATCH (bukan per workshop kayak prepKey lainnya, tipe

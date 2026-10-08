@@ -19,6 +19,7 @@ const WORKSHOP_LABELS: Record<string, string> = {
   "reka-rekat": "Reka Rekat",
   "journaling-date": "Journaling Date",
   "side-by-side": "Side by Side",
+  "private-uc": "Upcycle Journal Private Session",
 };
 
 const yn = (v: unknown) => String(v || "").toLowerCase() === "on" || v === true;
@@ -189,6 +190,22 @@ Deno.serve(async (req) => {
       if (yn(data.isPrintPhoto)) {
         for (const k of ["photo1Base64", "photo2Base64", "photo3Base64", "photo4Base64"]) {
           const url = await uploadBase64(admin, "registration-photos", data[k], `rekarekat-${fullName}`);
+          if (url) photos.push(url);
+        }
+      }
+      extra = { photos };
+    } else if (workshopType === "private-uc") {
+      // Upcycle Journal Private Session -- sesi private kecil (kuota 3),
+      // field-nya sengaja lebih ringkas dari reka-rekat (tanpa Instagram),
+      // tapi mekanisme foto/bukti bayar sama persis.
+      fullName = String(data.fullName || "");
+      nickname = String(data.nickname || "");
+      consent = yn(data.consentCheck);
+      paymentUrl = await uploadBase64(admin, "payment-proofs", data.paymentBase64, `payment-${workshopType}`);
+      const photos = [];
+      if (yn(data.isPrintPhoto)) {
+        for (const k of ["photo1Base64", "photo2Base64", "photo3Base64", "photo4Base64"]) {
+          const url = await uploadBase64(admin, "registration-photos", data[k], `privateuc-${fullName}`);
           if (url) photos.push(url);
         }
       }
