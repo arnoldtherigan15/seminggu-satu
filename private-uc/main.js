@@ -241,6 +241,18 @@ function applyBatchDisplay() {
     document.getElementById('workshopTimeText').textContent = b.workshopTime || '';
     document.getElementById('locationNameText').textContent = b.locationName || '';
     if (b.mapsLink) document.getElementById('locationMapsLink').href = b.mapsLink;
+    // Toggle picker Tipe/Warna Journal & Warna Tali -- per BATCH (bukan
+    // per-tipe/Config), dipake admin pas journal-nya udah fix/dipaketin buat
+    // batch tertentu aja. `required` juga harus ikut dilepas pas disembunyiin,
+    // soalnya browser nolak submit form yang punya required field yang
+    // nggak focusable (display:none).
+    const showJournal = b.showJournalPicker !== false;
+    const journalSection = document.getElementById('journalPickersSection');
+    if (journalSection) journalSection.style.display = showJournal ? '' : 'none';
+    ['inputBookColor', 'inputBookType', 'inputColorStrap'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.required = showJournal;
+    });
     // Rekening pembayaran -- tetap type-level (kerja sama pihak ketiga bisa
     // beda rekening per WORKSHOP, tapi ga masuk akal beda per batch/sesi).
     const w = _workshopData;
@@ -533,6 +545,16 @@ form.addEventListener('submit', async (e) => {
     payload.batchId = _selectedBatchId || '';
     payload.isPrintPhoto = _workshopData.isPrintPhoto;
 
+    // Batch ini matiin picker Tipe/Warna Journal & Warna Tali -- jangan
+    // kirim nilai default yang nggak pernah beneran dipilih peserta.
+    const selBatchForSubmit = getSelectedBatch();
+    const journalPickerShown = !selBatchForSubmit || selBatchForSubmit.showJournalPicker !== false;
+    if (!journalPickerShown) {
+        delete payload.bookColor;
+        delete payload.bookType;
+        delete payload.colorStrap;
+    }
+
     // Double check quota before submitting (sesi yang DIPILIH)
     try {
         await loadOpenBatches();
@@ -569,12 +591,14 @@ form.addEventListener('submit', async (e) => {
                 whatsapp: payload.whatsapp || '',
                 workshop: 'private-uc',
                 batchId: payload.batchId || '',
-                bookColor: selectedBookColor.name,
-                bookColorHex: selectedBookColor.hex,
-                bookType: selectedBookType,
-                colorStrap: selectedStrapColor.name,
-                colorStrapHex: selectedStrapColor.hex,
             });
+            if (journalPickerShown) {
+                params.set('bookColor', selectedBookColor.name);
+                params.set('bookColorHex', selectedBookColor.hex);
+                params.set('bookType', selectedBookType);
+                params.set('colorStrap', selectedStrapColor.name);
+                params.set('colorStrapHex', selectedStrapColor.hex);
+            }
             if (new URLSearchParams(location.search).get('from') === 'member') params.set('from', 'member');
 
             window.location.href = '../success.html?' + params.toString();

@@ -992,6 +992,16 @@
                     if (batch.locationName) wsData.locationName = batch.locationName;
                     if (batch.whatsappGroupLink) wsData.whatsappGroupLink = batch.whatsappGroupLink;
                     renderWsDependentUI();
+                    // Toggle picker Tipe/Warna Journal & Warna Tali per BATCH
+                    // (private-uc) -- percaya data batch dari SERVER di sini
+                    // (bukan cuma param URL pas load), soalnya batch ini bisa
+                    // aja baru di-set hide_from_picker SETELAH peserta
+                    // mendaftar (mis. Arnold matiin picker abis journal-nya
+                    // fix/dipaketin).
+                    if (workshopId === 'private-uc' && batch.showJournalPicker === false) {
+                        const colorSection = document.getElementById('colorSection');
+                        if (colorSection) colorSection.style.display = 'none';
+                    }
                 }
             } catch (e) {
                 // fail-open -- tetap pakai data Config type-level yang udah kepaint

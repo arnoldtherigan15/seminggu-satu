@@ -4794,6 +4794,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <p class="hint" style="margin-top:4px;">Batch tetap aktif & bisa didaftarin -- cuma nggak muncul di pemilih sesi publik. Masih bisa diakses lewat link langsung <code>?vol=&lt;label/angka batch ini&gt;</code>.</p>
                 </div>
                 <div class="konten-field">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+                    <input type="checkbox" id="batchShowJournalPicker" style="width:16px;height:16px;" checked>
+                    Tampilkan pilihan Tipe/Warna Journal &amp; Warna Tali (khusus Upcycle Journal Private Session)
+                  </label>
+                  <p class="hint" style="margin-top:4px;">Uncheck kalau journal buat batch ini udah fix/dipaketin (nggak perlu peserta milih lagi) -- otomatis ke-hide juga di halaman sukses pendaftaran. Cuma ngaruh ke batch ini doang, batch lain tipe yang sama nggak kena.</p>
+                </div>
+                <div class="konten-field">
                   <label>Public Link (khusus batch ini)</label>
                   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
                     <input class="form-control" type="text" id="batchPublicLink" readonly style="flex:1;min-width:220px;background:var(--bg,#f8f9fc);">
@@ -9189,6 +9196,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("batchOpenDate").value = (b && b.openDate) || "";
       document.getElementById("batchCloseDate").value = (b && b.closeDate) || "";
       document.getElementById("batchHideFromPicker").checked = !!(b && b.hideFromPicker);
+      document.getElementById("batchShowJournalPicker").checked = !b || b.showJournalPicker !== false;
       updateBatchPublicLink();
     }
 
@@ -9240,6 +9248,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         openDate: document.getElementById("batchOpenDate").value,
         closeDate: document.getElementById("batchCloseDate").value,
         hideFromPicker: document.getElementById("batchHideFromPicker").checked,
+        showJournalPicker: document.getElementById("batchShowJournalPicker").checked,
       });
       if (r && r.status === "success") {
         // Refresh CFG_BATCHES TANPA reset pilihan dropdown (beda dari

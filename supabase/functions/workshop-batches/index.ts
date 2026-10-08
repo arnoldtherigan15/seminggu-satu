@@ -42,6 +42,7 @@ async function buildEntry(admin: SupabaseAdminClient, b: Record<string, unknown>
     // & tetap dihitung normal) -- ini cuma sinyal buat klien: jangan
     // tampilin di daftar pemilih sesi publik.
     hideFromPicker: merged.hideFromPicker,
+    showJournalPicker: merged.showJournalPicker,
     description: merged.description,
   };
 

@@ -56,6 +56,7 @@ export interface MergedBatch {
   openDateIso: string | null;
   closeDateIso: string | null;
   hideFromPicker: boolean;
+  showJournalPicker: boolean;
   description: string;
 }
 
@@ -98,6 +99,11 @@ export function mergeBatchConfig(batch: BatchRow, typeConfig: TypeConfig): Merge
     // Murni per-batch, TANPA fallback Config -- ini soal "batch mana yang
     // ditampilin di picker publik", bukan default yang wajar diwarisin tipe.
     hideFromPicker: !!batch.hide_from_picker,
+    // Murni per-batch juga (private-uc) -- admin bisa matiin pilihan
+    // Tipe/Warna Journal & Warna Tali di SATU batch doang (mis. journal-nya
+    // udah fix/dipaketin), batch lain tipe yang sama nggak kena. Default
+    // true (kolomnya sendiri udah default true di DB).
+    showJournalPicker: batch.show_journal_picker !== false,
     // Tema/deskripsi bisa beda tiap batch (mis. Reka Rekat ganti tema tiap
     // volume) -- kosong di batch = tetap ikut deskripsi Config.
     description: batch.description || typeConfig.description || "",

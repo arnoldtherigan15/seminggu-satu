@@ -453,7 +453,7 @@ Deno.serve(async (req) => {
             normalPrice: b.normal_price, earlyBirdPrice: b.early_bird_price,
             earlyBirdDueDate: b.early_bird_due_date || "", earlyBirdMaxCount: b.early_bird_max_count,
             maxQuota: b.max_quota, openDate: b.open_date || "", closeDate: b.close_date || "",
-            hideFromPicker: !!b.hide_from_picker, description: b.description || "",
+            hideFromPicker: !!b.hide_from_picker, showJournalPicker: b.show_journal_picker !== false, description: b.description || "",
           });
         }
         return jsonResponse({ status: "success", workshop, batches });
@@ -603,6 +603,7 @@ Deno.serve(async (req) => {
         // ini murni per-batch, selalu dikirim eksplisit true/false dari
         // checkbox di Batch Detail.
         if (data.hideFromPicker !== undefined) patch.hide_from_picker = !!data.hideFromPicker;
+        if (data.showJournalPicker !== undefined) patch.show_journal_picker = !!data.showJournalPicker;
         if (!Object.keys(patch).length) return errorResponse("Nggak ada yang diubah.");
         const { error } = await admin.from("batches").update(patch).eq("id", batchId);
         if (error) return errorResponse("Gagal menyimpan perubahan: " + error.message);
