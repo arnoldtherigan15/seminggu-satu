@@ -651,37 +651,46 @@ async function loadEvents() {
     } catch (e) { }
     renderEventTicket(); // tiket countdown di Home baru bisa kerender setelah _evRegistered keisi
 
-    const items = _ws
-        .map(w => {
-            // Batch data (workshop-batches, per-batch tanggal buka/tutup + sisa
-            // kuota batch itu sendiri) adalah sumber kebenaran -- BUKAN Config
-            // (getWorkshopStatus), yang cuma nyimpen 1 openDate/closeDate per
-            // TIPE & gampang basi begitu ada 2+ batch simultan dengan jadwal
-            // beda (mis. Vol 4 udah tutup tapi Vol 5 masih buka -- Config
-            // closeDate-nya kepatok ke Vol 4, jadi tanpa koreksi ini Vol 5 ikut
-            // ke-anggap tutup & ilang dari Events padahal masih bisa didaftar).
-            // Batch yang di-hide dari picker (invite-only lewat link langsung,
-            // mis. sesi privat sebelum resmi diumumin) SENGAJA nggak dianggap
-            // "ada" di sini -- listing pasif kayak gini nggak boleh
-            // membocorkannya ke SEMUA member, cuma yang dikasih link langsung
-            // yang bisa akses (lihat matchBatchFromQuery() di halaman
-            // pendaftarannya masing-masing).
-            const openBatches = _openBatchesMap[w.id] || [];
-            const bestBatch = openBatches.filter(b => !b.hideFromPicker && (b.remaining == null || b.remaining > 0))[0] || null;
-            let status = (typeof getWorkshopStatus === "function") ? getWorkshopStatus(w) : "open";
-            if (bestBatch) status = "open";
-            return { w: w, status: status, bestBatch: bestBatch };
-        })
-        .filter(x => x.status === "open" || x.status === "not-open-yet")
-        .map(x => {
-            const w = x.w;
-            const isReg = !!registered[w.id];
-            const full = x.status === "open" && !x.bestBatch;
-            return Object.assign(x, { isReg: isReg, full: full });
-        })
-        // Sold out & bukan event kamu sendiri -> nggak usah ditampilin sama
-        // sekali, jangan bikin orang mikir "oh ada nih" terus kecewa.
-        .filter(x => x.isReg || !x.full);
+    // Satu KARTU PER BATCH (bukan 1 kartu per tipe workshop lagi) -- kalau
+    // 2+ batch lagi buka bareng (mis. Vol 4 & Vol 5), tiap batch dapet
+    // kartunya sendiri dengan tanggal/sisa kuota masing-masing, sama pola
+    // kayak fix Home (index.html renderWorkshops()). Sebelumnya cuma
+    // nunjukin 1 kartu pakai data batch "pertama" doang, bikin batch lain
+    // ilang sama sekali dari Event walau sebenernya masih bisa didaftar.
+    const items = [];
+    _ws.forEach(w => {
+        // Batch data (workshop-batches, per-batch tanggal buka/tutup + sisa
+        // kuota batch itu sendiri) adalah sumber kebenaran -- BUKAN Config
+        // (getWorkshopStatus), yang cuma nyimpen 1 openDate/closeDate per
+        // TIPE & gampang basi begitu ada 2+ batch simultan dengan jadwal
+        // beda (mis. Vol 4 udah tutup tapi Vol 5 masih buka -- Config
+        // closeDate-nya kepatok ke Vol 4, jadi tanpa koreksi ini Vol 5 ikut
+        // ke-anggap tutup & ilang dari Events padahal masih bisa didaftar).
+        // Batch yang di-hide dari picker (invite-only lewat link langsung,
+        // mis. sesi privat sebelum resmi diumumin) SENGAJA nggak dianggap
+        // "ada" di sini -- listing pasif kayak gini nggak boleh
+        // membocorkannya ke SEMUA member, cuma yang dikasih link langsung
+        // yang bisa akses (lihat matchBatchFromQuery() di halaman
+        // pendaftarannya masing-masing).
+        const openBatches = _openBatchesMap[w.id] || [];
+        const visibleBatches = openBatches.filter(b => !b.hideFromPicker && (b.remaining == null || b.remaining > 0));
+        const regForType = registered[w.id] || null;
+
+        const cards = visibleBatches.map(b => ({ batch: b, isReg: !!(regForType && regForType.batchId === b.id) }));
+        // Member udah daftar di batch yang SEKARANG udah nggak kebagian di
+        // visibleBatches (mis. kuotanya abis abis dia daftar) -- tetep
+        // tampilin kartu "kamu terdaftar"-nya, jangan ilang dari Event cuma
+        // karena kuota udah penuh buat orang lain.
+        if (regForType && !cards.some(c => c.isReg)) cards.push({ batch: regForType, isReg: true });
+
+        if (!cards.length) {
+            const cfgStatus = (typeof getWorkshopStatus === "function") ? getWorkshopStatus(w) : "open";
+            if (cfgStatus === "not-open-yet") cards.push({ batch: null, isReg: false, notOpenYet: true });
+            else return; // penuh/ketutup & member nggak terdaftar -> skip tipe ini
+        }
+
+        cards.forEach(c => items.push({ w: w, status: c.notOpenYet ? "not-open-yet" : "open", batch: c.batch, isReg: c.isReg, multiCount: cards.length }));
+    });
 
     if (!items.length) {
         pane.innerHTML = '<div class="placeholder"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><h3>Belum ada event buka</h3><p>Pantau terus ya, event baru bakal muncul di sini 🌱</p></div>';
@@ -700,14 +709,14 @@ async function loadEvents() {
     items.forEach(x => {
         const w = x.w;
         const isReg = x.isReg;
-        const full = x.full;
-        const bestBatch = x.bestBatch;
+        const batch = x.batch;
         const used = counts[w.id] || 0;
-        const left = bestBatch ? bestBatch.remaining : null;
-        // Kalau udah daftar, pakai tanggal batch SPESIFIK-nya (registered[w.id]
-        // objek data batch) -- kalau belum, pakai batch yang lagi ditawarin
-        // (bestBatch) -- baru fallback Config kalau dua-duanya nggak ada.
-        const dateTxt = (isReg && registered[w.id].displayDate) || (bestBatch && bestBatch.displayDate) || w.workshopDate || (typeof formatDateIndo === "function" && w.eventDate ? formatDateIndo(w.eventDate) : "");
+        const left = batch ? batch.remaining : null;
+        // Tanggal batch SPESIFIK kartu ini (udah daftar -> tanggal batch yang
+        // beneran didaftarin; belum -> tanggal batch yang ditawarin kartu
+        // ini) -- baru fallback Config kalau batch-nya nggak ada sama sekali
+        // (status "not-open-yet", belum ada batch dibikin).
+        const dateTxt = (batch && batch.displayDate) || w.workshopDate || (typeof formatDateIndo === "function" && w.eventDate ? formatDateIndo(w.eventDate) : "");
         // Badge = harga dari config (ganti tag OPEN yang nggak informatif).
         // Early bird aktif -> harga normal dicoret. Nggak ada harga -> fallback OPEN.
         const kIDR = n => (n >= 1000 ? Math.round(n / 1000) : n); // 250000 -> 250
@@ -716,17 +725,16 @@ async function loadEvents() {
             badge = '<span class="ev-badge soon">SOON</span>';
         } else {
             // currentPrice dari batch yang beneran ditawarin kalau ada (udah
-            // dihitung server per-batch), fallback ke itungan type-level lama.
-            const cur = bestBatch ? bestBatch.currentPrice : ((typeof getCurrentPrice === "function") ? getCurrentPrice(w, used) : w.normalPrice);
+            // dihitung server per-batch), fallback ke itungan type-level lama
+            // (batch "kamu terdaftar" hasil fallback dari member-events nggak
+            // bawa currentPrice, jadi ikut fallback ini juga).
+            const cur = (batch && batch.currentPrice != null) ? batch.currentPrice : ((typeof getCurrentPrice === "function") ? getCurrentPrice(w, used) : w.normalPrice);
             const eb = (typeof isEarlyBird === "function") && isEarlyBird(w, used) && w.normalPrice > cur;
             badge = (cur > 0)
                 ? '<span class="ev-badge price">' + (eb ? '<s>' + kIDR(w.normalPrice) + '</s> ' : '') + kIDR(cur) + ' IDR</span>'
                 : '<span class="ev-badge open">FREE 🎉</span>';
         }
 
-        // "full" udah difilter keluar dari `items` di atas (kecuali punya
-        // sendiri, ke-cover cabang isReg) -- jadi begitu nyampe sini cuma
-        // "udah daftar" atau "masih bisa daftar" yang mungkin.
         let action;
         if (isReg) action = '<div class="ev-done">✅ You\'re in — see you there! 💙</div>';
         else if (x.status === "not-open-yet") action = '<div class="ev-meta">Registration opens soon</div>';
@@ -734,13 +742,21 @@ async function loadEvents() {
             let href = "../" + (w.path || "");
             // Bawa WA (nggak input ulang) + flag from=member (biar abis daftar balik ke portal warga, bukan homepage publik)
             href += (href.indexOf("?") >= 0 ? "&" : "?") + "wa=" + encodeURIComponent(_profile.wa) + "&from=member";
+            // Link langsung ke BATCH kartu ini -- klik dari kartu Vol 5 harus
+            // otomatis ke-pilih Vol 5 di form pendaftaran, bukan default ke
+            // batch lain (lihat matchBatchFromQuery() di halaman masing-masing).
+            if (batch && batch.label) href += "&batch=" + encodeURIComponent(batch.label);
             action = '<a class="btn-primary" href="' + esc(href) + '">Register →</a>';
         }
 
+        // Nama event + label batch -- cuma ditempelin kalau tipe ini punya
+        // 2+ kartu (biar nggak kebaca "Side by Side · Batch 1" pas emang cuma
+        // ada satu sesi, tapi jelas beda pas ada Vol 4 & Vol 5 bareng).
+        const nameTxt = (w.name || w.id) + (batch && batch.label && x.multiCount > 1 ? ' · ' + batch.label : '');
         const meta = [dateTxt, (left != null && !isReg ? (left + " seats left") : "")].filter(Boolean).join(" · ");
 
         html += '<div class="ev">' +
-            '<div class="ev-top"><div class="ev-name">' + esc(w.name || w.id) + '</div>' + badge + '</div>' +
+            '<div class="ev-top"><div class="ev-name">' + esc(nameTxt) + '</div>' + badge + '</div>' +
             (meta ? '<div class="ev-meta">' + esc(meta) + '</div>' : '') +
             '<div class="ev-action">' + action + '</div>' +
             '</div>';
