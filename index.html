@@ -298,8 +298,16 @@
         .price-row {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 0.75rem;
             margin-bottom: 1.15rem;
+            flex-wrap: wrap;
+        }
+
+        .price-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             flex-wrap: wrap;
         }
 
@@ -608,7 +616,7 @@
 
         <!-- Workshop List -->
         <section>
-            <h2 class="section-title">Workshop</h2>
+            <h2 class="section-title">Events</h2>
             <div id="workshopList" class="workshop-list">
                 <!-- Rendered by JS -->
             </div>
@@ -813,36 +821,52 @@
                     else card.style.animation = 'none';
                     displayedCount++;
 
+                    // Sisa tiket SESI INI -- ditaruh sejajar sama harga (harga
+                    // kiri, badge tiket kanan), bukan digabung ke baris
+                    // tanggal/jam, biar langsung kebaca bareng pas mata orang
+                    // ngelirik harga.
+                    let seatHTML = '';
+                    if (batch && batch.remaining != null) {
+                        const low = batch.remaining <= 2;
+                        seatHTML = `<span class="card-meta-item seat-pill${low ? ' seat-low' : ''}"><i data-lucide="ticket"></i> Sisa ${batch.remaining} tiket</span>`;
+                    }
+
                     // Build price HTML (config dari cache/server, bukan statis basi)
                     let priceHTML = '';
                     if (effectiveNormalPrice > 0) {
                         if (earlyBird) {
                             priceHTML = `
                                 <div class="price-row">
-                                    <span class="early-bird-tag"><i data-lucide="flame"></i> Early Bird</span>
-                                    <span class="price-original">${formatRupiah(effectiveNormalPrice)}</span>
-                                    <span class="price-current">${formatRupiah(effectiveCurrentPrice)}</span>
+                                    <div class="price-left">
+                                        <span class="early-bird-tag"><i data-lucide="flame"></i> Early Bird</span>
+                                        <span class="price-original">${formatRupiah(effectiveNormalPrice)}</span>
+                                        <span class="price-current">${formatRupiah(effectiveCurrentPrice)}</span>
+                                    </div>
+                                    ${seatHTML}
                                 </div>`;
                         } else if (status === 'open') {
                             priceHTML = `
                                 <div class="price-row">
-                                    <span class="price-normal-only">${formatRupiah(effectiveNormalPrice)}</span>
+                                    <div class="price-left">
+                                        <span class="price-normal-only">${formatRupiah(effectiveNormalPrice)}</span>
+                                    </div>
+                                    ${seatHTML}
                                 </div>`;
                         }
+                    } else if (seatHTML) {
+                        // Harga nggak kepakai (mis. 0/belum keisi) tapi sisa
+                        // tiket tetep ada -- badge-nya tetep harus muncul,
+                        // rata kanan sendirian.
+                        priceHTML = `<div class="price-row"><div class="price-left"></div>${seatHTML}</div>`;
                     }
 
-                    // Tanggal + sisa tiket SESI INI -- supaya kalau ada 2+ batch
-                    // buka bareng, tiap kartu jelas beda tanggalnya & nggak
-                    // ambigu sisa tiketnya yang mana.
+                    // Tanggal + jam SESI INI -- supaya kalau ada 2+ batch buka
+                    // bareng, tiap kartu jelas beda tanggalnya.
                     let metaHTML = '';
                     if (batch) {
                         const metaParts = [];
                         if (batch.displayDate) metaParts.push(`<span class="card-meta-item"><i data-lucide="calendar"></i> ${batch.displayDate}</span>`);
                         if (batch.workshopTime) metaParts.push(`<span class="card-meta-item"><i data-lucide="clock"></i> ${batch.workshopTime}</span>`);
-                        if (batch.remaining != null) {
-                            const low = batch.remaining <= 2;
-                            metaParts.push(`<span class="card-meta-item seat-pill${low ? ' seat-low' : ''}"><i data-lucide="ticket"></i> Sisa ${batch.remaining} tiket</span>`);
-                        }
                         if (metaParts.length) metaHTML = `<div class="card-meta">${metaParts.join('')}</div>`;
                     }
 
