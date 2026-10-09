@@ -104,7 +104,7 @@ async function loadOpenBatches() {
         // dan submit tanpa batchId eksplisit otomatis kepilih server kalau
         // cuma 1 sesi yang buka).
         const el = document.getElementById("jdSlotText");
-        if (el) el.textContent = "Slot terbatas (" + MAX_SLOT + " orang)";
+        if (el) el.textContent = "Tiket terbatas (" + MAX_SLOT + " orang)";
         return;
     }
     _openBatches = (all && all[ID]) || [];
@@ -143,7 +143,7 @@ function renderBatchPicker() {
         visibleBatches.map(b => `
         <div class="jd-batch-opt" data-batch="${b.id}" style="border:2px solid ${b.id === _selectedBatchId ? "var(--brand,#5e72e4)" : "#e5e7eb"};border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;">
             <div style="font-weight:700;">${b.label || "Sesi"}</div>
-            <div style="font-size:0.82rem;color:#6b7280;">${b.displayDate || "-"}${b.workshopTime ? " · " + b.workshopTime : ""} — sisa ${b.remaining == null ? "?" : b.remaining} slot</div>
+            <div style="font-size:0.82rem;color:#6b7280;">${b.displayDate || "-"}${b.workshopTime ? " · " + b.workshopTime : ""} — sisa ${b.remaining == null ? "?" : b.remaining} tiket</div>
         </div>`).join("");
     box.querySelectorAll("[data-batch]").forEach(el => el.addEventListener("click", () => {
         _selectedBatchId = el.dataset.batch;
@@ -163,10 +163,10 @@ function applyBatchSelection() {
     if (b && el && sub) {
         const left = b.remaining;
         if (left != null && left <= 0) {
-            el.textContent = "Slot penuh 😢";
-            sub.disabled = true; sub.innerHTML = "Slot Penuh";
+            el.textContent = "Tiket penuh 😢";
+            sub.disabled = true; sub.innerHTML = "Tiket Penuh";
         } else {
-            el.textContent = left == null ? "Slot terbatas" : ("Sisa " + left + " slot");
+            el.textContent = left == null ? "Tiket terbatas" : ("Sisa " + left + " tiket");
             sub.disabled = false;
         }
     }

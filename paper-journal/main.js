@@ -78,7 +78,7 @@ function renderBatchPicker() {
         visibleBatches.map(function (b) {
             return '<div class="batch-opt" data-batch="' + b.id + '" style="border:2px solid ' + (b.id === _selectedBatchId ? 'var(--brand,#5e72e4)' : '#e5e7eb') + ';border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;">' +
                 '<div style="font-weight:700;">' + (b.label || 'Sesi') + '</div>' +
-                '<div style="font-size:0.82rem;color:#6b7280;">' + (b.displayDate || '-') + (b.workshopTime ? ' · ' + b.workshopTime : '') + ' — sisa ' + (b.remaining == null ? '?' : b.remaining) + ' slot</div></div>';
+                '<div style="font-size:0.82rem;color:#6b7280;">' + (b.displayDate || '-') + (b.workshopTime ? ' · ' + b.workshopTime : '') + ' — sisa ' + (b.remaining == null ? '?' : b.remaining) + ' tiket</div></div>';
         }).join('');
     Array.prototype.forEach.call(box.querySelectorAll('[data-batch]'), function (el) {
         el.addEventListener('click', function () {
