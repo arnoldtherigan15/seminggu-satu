@@ -149,6 +149,16 @@ function applyBatchDisplay() {
     document.getElementById('accountNumber').textContent = (w && w.bankAccountNumber) || '6042825961';
     document.getElementById('bankOwnerText').textContent = 'a.n ' + ((w && w.bankAccountHolder) || 'Arnold Therigan');
     updatePriceDisplay();
+    // Badge "Sisa X Tiket!" HARUS ikut update tiap ganti sesi di batch picker --
+    // sebelumnya cuma di-set SEKALI di loadOpenBatches() pas load awal, jadi
+    // begitu user klik batch LAIN di "Pilih sesi", badge-nya nyangkut kepake
+    // sisa tiket batch pertama terus (BUG NYATA: batch lain yang remaining-nya
+    // beda tetap kepampang angka batch pertama).
+    if (urgencyBadge && urgencyText) {
+        urgencyBadge.classList.add('show');
+        const left = b.remaining;
+        urgencyText.textContent = left == null ? 'Tiket tersedia' : `Sisa ${left} Tiket!`;
+    }
 }
 
 // DOM Elements
@@ -203,9 +213,6 @@ async function loadOpenBatches() {
     }
     renderBatchPicker();
     applyBatchDisplay();
-    urgencyBadge.classList.add('show');
-    const left = getSelectedBatch().remaining;
-    urgencyText.textContent = left == null ? 'Tiket tersedia' : `Sisa ${left} Tiket!`;
 }
 loadOpenBatches();
 

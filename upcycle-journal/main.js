@@ -127,6 +127,17 @@ function applyBatchDisplay() {
     renderBagSliders();
     renderStrapColors();
     if (window.lucide) lucide.createIcons();
+
+    // Badge "Sisa X Tiket!" HARUS ikut update tiap ganti sesi di batch picker --
+    // sebelumnya cuma di-set SEKALI di loadOpenBatches() pas load awal, jadi
+    // begitu user klik batch LAIN di "Pilih sesi", badge-nya nyangkut kepake
+    // sisa tiket batch pertama terus (BUG NYATA: batch lain yang remaining-nya
+    // beda tetap kepampang angka batch pertama).
+    if (urgencyBadge && urgencyText) {
+        urgencyBadge.classList.add('show');
+        const left = b.remaining;
+        urgencyText.textContent = left == null ? 'Tiket tersedia' : `Sisa ${left} Tiket!`;
+    }
 }
 
 // ============================================================
@@ -276,10 +287,7 @@ async function loadOpenBatches() {
         _selectedBatchId = queried || visible[0].id;
     }
     renderBatchPicker();
-    applyBatchDisplay(); // ini juga yang manggil renderBagSliders/renderStrapColors
-    urgencyBadge.classList.add('show');
-    const left = getSelectedBatch().remaining;
-    urgencyText.textContent = left == null ? 'Tiket tersedia' : `Sisa ${left} Tiket!`;
+    applyBatchDisplay(); // ini juga yang manggil renderBagSliders/renderStrapColors & update badge tiket
 }
 
 // --- Initialize Bag Sliders ---
