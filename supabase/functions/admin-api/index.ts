@@ -1202,7 +1202,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         // Upload gambar generik dari admin panel (dipakai KONTEN editor,
         // mis. foto item Rekomendasi) -- whitelist bucket biar nggak
         // disalahgunain upload ke bucket sembarangan.
-        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos", "account-photos", "note-photos"];
+        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos", "account-photos", "note-photos", "rec-batch-photos"];
         const bucket = String(data.bucket || "");
         if (!ALLOWED_BUCKETS.includes(bucket)) return errorResponse("Bucket tidak dikenal: " + bucket);
         if (!data.imageBase64) return errorResponse("Gambar belum dipilih.");
@@ -1247,6 +1247,92 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           await admin.from("content_items").insert(rows);
         }
         return jsonResponse({ status: "success", message: `Konten '${type}' tersimpan (${items.length} item).` });
+      }
+
+      // ---------- Koleksi Rekomendasi (rec_batches) ----------
+      // Beda dari getContent/saveContent "recommendation" di atas (yang satu
+      // list global doang) -- ini banyak KOLEKSI terpisah, tiap satu punya
+      // judul/slug/item sendiri, buat di-share lewat link/QR per koleksi
+      // (mis. beda konten promo buat kolaborasi A vs B).
+      case "listRecBatches": {
+        const { data: rows } = await admin.from("rec_batches")
+          .select("id, slug, title, description, active, items, created_at")
+          .order("created_at", { ascending: false });
+        // deno-lint-ignore no-explicit-any
+        const batches = (rows || []).map((r: any) => ({
+          id: r.id, slug: r.slug, title: r.title, description: r.description || "",
+          active: !!r.active, itemCount: Array.isArray(r.items) ? r.items.length : 0,
+          createdAt: r.created_at,
+        }));
+        return jsonResponse({ status: "success", batches });
+      }
+
+      case "getRecBatch": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID tidak valid.");
+        const { data: row } = await admin.from("rec_batches").select("*").eq("id", id).maybeSingle();
+        if (!row) return errorResponse("Koleksi tidak ditemukan.");
+        return jsonResponse({
+          status: "success",
+          batch: {
+            id: row.id, slug: row.slug, title: row.title, description: row.description || "",
+            active: !!row.active, items: Array.isArray(row.items) ? row.items : [],
+          },
+        });
+      }
+
+      case "saveRecBatch": {
+        const title = String(data.title || "").trim();
+        if (!title) return errorResponse("Judul koleksi wajib diisi.");
+        // deno-lint-ignore no-explicit-any
+        const items = (Array.isArray(data.items) ? data.items : [])
+          // deno-lint-ignore no-explicit-any
+          .map((it: any) => ({
+            name: String(it?.name || "").trim(),
+            description: String(it?.description || "").trim(),
+            image: String(it?.image || "").trim(),
+            link: String(it?.link || "").trim(),
+          }))
+          // deno-lint-ignore no-explicit-any
+          .filter((it: any) => it.name || it.link); // item kosong (belum diisi apa-apa) dibuang
+        const description = data.description != null ? String(data.description).trim() : "";
+        const active = data.active !== undefined ? !!data.active : true;
+        const id = data.id ? String(data.id) : "";
+
+        if (id) {
+          const { error } = await admin.from("rec_batches")
+            .update({ title, items, description, active, updated_at: new Date().toISOString() })
+            .eq("id", id);
+          if (error) return errorResponse("Gagal menyimpan koleksi: " + error.message);
+          return jsonResponse({ status: "success", message: "Koleksi diperbarui." });
+        }
+
+        // Bikin slug unik dari judul -- murni auto, admin nggak perlu mikirin
+        // URL manual. Tabrakan (judul sama persis dibikin dua kali) ditambahin
+        // angka di belakang sampai ketemu yang belum kepake.
+        const base = title.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "")
+          .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "koleksi";
+        let slug = base;
+        let n = 2;
+        for (let tries = 0; tries < 50; tries++) {
+          const { data: existing } = await admin.from("rec_batches").select("id").eq("slug", slug).maybeSingle();
+          if (!existing) break;
+          slug = `${base}-${n++}`;
+        }
+
+        const { data: inserted, error: insErr } = await admin.from("rec_batches")
+          .insert({ slug, title, description, items, active })
+          .select("id, slug").single();
+        if (insErr) return errorResponse("Gagal membuat koleksi: " + insErr.message);
+        return jsonResponse({ status: "success", message: "Koleksi dibuat.", id: inserted?.id, slug: inserted?.slug });
+      }
+
+      case "deleteRecBatch": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID tidak valid.");
+        const { error } = await admin.from("rec_batches").delete().eq("id", id);
+        if (error) return errorResponse("Gagal menghapus koleksi: " + error.message);
+        return jsonResponse({ status: "success", message: "Koleksi dihapus." });
       }
 
       case "getModal": {

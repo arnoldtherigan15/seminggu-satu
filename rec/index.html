@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekomendasi — Seminggu Satu by Arnold</title>
+    <meta name="description" content="Koleksi rekomendasi produk dari Seminggu Satu.">
+    <meta name="theme-color" content="#0046ff" data-light="#0046ff" data-dark="#0d1526">
+
+    <script src="../theme.js"></script>
+    <script src="../env.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        :root {
+            --blue: #0046ff;
+            --blue-2: #0092ff;
+            --yellow: #ffe600;
+            --ink: #10245e;
+            --bg: #f4f7ff;
+            --card: #ffffff;
+            --line: #e4e9f5;
+            --muted: #6b7794;
+        }
+
+        :root[data-theme="dark"] {
+            --ink: #eaeffc;
+            --bg: #0d1526;
+            --card: #172035;
+            --line: #2a3550;
+            --muted: #9fabc9;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        .wrap {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 1.75rem 1.1rem 3rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .brand img { height: 28px; }
+
+        .brand span {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--ink);
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            line-height: 1.3;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .item-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 1.1rem;
+            margin-bottom: 0.9rem;
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+        }
+
+        .item-img {
+            width: 76px;
+            height: 76px;
+            border-radius: 12px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: var(--bg);
+        }
+
+        .item-body { flex: 1; min-width: 0; }
+
+        .item-name {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.98rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .item-desc {
+            color: var(--muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 0.65rem;
+        }
+
+        .item-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--blue);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 0.45rem 0.85rem;
+            border-radius: 10px;
+            transition: transform 0.15s ease;
+        }
+
+        .item-link:active { transform: scale(0.97); }
+        .item-link i { width: 14px; height: 14px; }
+
+        .state-box {
+            text-align: center;
+            padding: 3rem 1.25rem;
+            background: var(--card);
+            border: 1.5px dashed var(--line);
+            border-radius: 16px;
+        }
+
+        .state-box i { width: 36px; height: 36px; color: var(--muted); margin-bottom: 0.85rem; }
+        .state-box h3 { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .state-box p { color: var(--muted); font-size: 0.88rem; line-height: 1.55; }
+
+        .retry-btn {
+            margin-top: 1rem;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 0.65rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Shimmer */
+        @keyframes shimmer { 0% { background-position: -300px 0; } 100% { background-position: 300px 0; } }
+        .sk-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 1.1rem;
+            margin-bottom: 0.9rem;
+            display: flex;
+            gap: 0.9rem;
+        }
+        .sk-box, .sk-line {
+            background: linear-gradient(90deg, var(--line) 25%, var(--bg) 37%, var(--line) 63%);
+            background-size: 400px 100%;
+            animation: shimmer 1.4s infinite linear;
+            border-radius: 8px;
+        }
+        .sk-box { width: 76px; height: 76px; border-radius: 12px; flex-shrink: 0; }
+        .sk-line { height: 12px; margin-bottom: 8px; }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+        .footer a { color: var(--blue); text-decoration: none; font-weight: 700; }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <a class="brand" href="../index.html" style="text-decoration:none;">
+            <img src="../logo_seminggu.png" alt="Seminggu Satu">
+            <span>Seminggu Satu</span>
+        </a>
+
+        <div class="hero" id="heroBox" style="display:none;">
+            <h1 id="batchTitle"></h1>
+            <p id="batchDesc" style="display:none;"></p>
+        </div>
+
+        <div id="itemList"></div>
+
+        <div class="footer">
+            Dibuat oleh <a href="../index.html">Seminggu Satu</a> 🐾
+        </div>
+    </div>
+
+    <script>
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function shimmerHtml(n) {
+            let h = '';
+            for (let i = 0; i < n; i++) {
+                h += '<div class="sk-card"><div class="sk-box"></div><div style="flex:1;">' +
+                    '<div class="sk-line" style="width:55%"></div>' +
+                    '<div class="sk-line" style="width:90%"></div>' +
+                    '<div class="sk-line" style="width:40%"></div>' +
+                    '</div></div>';
+            }
+            return h;
+        }
+
+        function renderError(message) {
+            document.getElementById('heroBox').style.display = 'none';
+            document.getElementById('itemList').innerHTML =
+                '<div class="state-box">' +
+                '<i data-lucide="package-x"></i>' +
+                '<h3>Koleksi tidak ditemukan</h3>' +
+                '<p>' + esc(message || 'Link ini mungkin sudah tidak aktif atau salah.') + '</p>' +
+                '</div>';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderEmpty() {
+            document.getElementById('itemList').innerHTML =
+                '<div class="state-box">' +
+                '<i data-lucide="package-open"></i>' +
+                '<h3>Belum ada item</h3>' +
+                '<p>Koleksi ini belum punya rekomendasi produk.</p>' +
+                '</div>';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderBatch(data) {
+            const heroBox = document.getElementById('heroBox');
+            heroBox.style.display = 'block';
+            document.getElementById('batchTitle').textContent = data.title || 'Rekomendasi';
+            document.title = (data.title || 'Rekomendasi') + ' — Seminggu Satu by Arnold';
+            const descEl = document.getElementById('batchDesc');
+            if (data.description) {
+                descEl.textContent = data.description;
+                descEl.style.display = 'block';
+            }
+
+            const items = Array.isArray(data.items) ? data.items : [];
+            if (!items.length) { renderEmpty(); return; }
+
+            const listEl = document.getElementById('itemList');
+            listEl.innerHTML = items.map(function (it) {
+                const img = it.image
+                    ? '<img class="item-img" src="' + esc(it.image) + '" alt="' + esc(it.name || '') + '" loading="lazy">'
+                    : '<div class="item-img" style="display:flex;align-items:center;justify-content:center;"><i data-lucide="image" style="width:24px;height:24px;color:var(--muted);"></i></div>';
+                const linkBtn = it.link
+                    ? '<a class="item-link" href="' + esc(it.link) + '" target="_blank" rel="noopener">Lihat Produk <i data-lucide="arrow-up-right"></i></a>'
+                    : '';
+                return '<div class="item-card">' + img +
+                    '<div class="item-body">' +
+                    '<div class="item-name">' + esc(it.name || 'Produk') + '</div>' +
+                    (it.description ? '<div class="item-desc">' + esc(it.description) + '</div>' : '') +
+                    linkBtn +
+                    '</div></div>';
+            }).join('');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        (function load() {
+            const slug = new URLSearchParams(location.search).get('s') || '';
+            document.getElementById('itemList').innerHTML = shimmerHtml(3);
+            if (!slug) { renderError('Link koleksi nggak lengkap.'); return; }
+            if (typeof SUPABASE_URL === 'undefined' || !SUPABASE_URL) { renderError('Gagal memuat — coba lagi ya.'); return; }
+
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 12000);
+            fetch(SUPABASE_URL + '/functions/v1/rec-batch?slug=' + encodeURIComponent(slug), {
+                headers: { apikey: SUPABASE_ANON_KEY },
+                signal: controller.signal
+            })
+                .then(function (res) { return res.json().then(function (body) { return { ok: res.ok, body: body }; }); })
+                .then(function (r) {
+                    clearTimeout(timer);
+                    if (!r.ok || r.body.status === 'error') { renderError(r.body && r.body.message); return; }
+                    renderBatch(r.body);
+                })
+                .catch(function () {
+                    clearTimeout(timer);
+                    renderError('Koneksi gagal. Cek internetmu lalu muat ulang halaman ini.');
+                });
+        })();
+    </script>
+</body>
+
+</html>
