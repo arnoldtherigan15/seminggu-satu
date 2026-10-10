@@ -4955,42 +4955,65 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
         <!-- ===== VIEW: KOLEKSI REKOMENDASI (rec_batches, share via link/QR) ===== -->
         <div class="wrap view" id="viewRecBatch" style="display:none;">
-          <div id="recBatchListWrap">
-            <div class="toolbar">
-              <button class="btn btn-sm" id="recBatchNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Koleksi Baru</button>
-              <button class="btn btn-sm btn-ghost" id="recBatchReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
-            </div>
-            <p class="hint" style="margin-bottom:12px;">Bikin koleksi rekomendasi produk (beda-beda isinya per koleksi), tiap koleksi dapet <b>link + QR sendiri</b> buat di-share -- beda dari list Rekomendasi Alat &amp; Bahan yang satu-satunya & global di Content.</p>
-            <div id="recBatchList"></div>
-          </div>
-
-          <div id="recBatchEditorWrap" style="display:none;">
-            <div class="toolbar">
-              <button class="btn btn-sm btn-ghost" id="recBatchBackBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg> Kembali ke Daftar</button>
-            </div>
-            <div class="fin-card">
-              <div class="konten-field"><label>Judul Koleksi</label><input class="form-control" type="text" id="recBatchTitle" placeholder="mis. Starter Kit Journaling Oktober"></div>
-              <div class="konten-field"><label>Deskripsi (opsional, tampil di halaman share)</label><textarea class="form-control" id="recBatchDesc" rows="2"></textarea></div>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:0.9rem;">
-                <input type="checkbox" id="recBatchActive" style="width:16px;height:16px;" checked> Aktif (uncheck buat nonaktifin link sementara tanpa hapus)
-              </label>
+          <div class="subtabs" id="recBatchSubtabs">
+            <div class="subtab-bar">
+              <button class="subtab-btn" type="button" data-tab="koleksi"><span>Koleksi Produk</span></button>
+              <button class="subtab-btn" type="button" data-tab="qrgen"><span>QR Generator</span></button>
             </div>
 
-            <div class="fin-card" id="recBatchShareCard" style="margin-top:12px;display:none;">
-              <!-- Diisi JS setelah koleksi punya slug (baru dibuat / sudah ada) -->
-            </div>
-
-            <div class="fin-card" style="margin-top:12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                <label style="font-weight:700;">Item Produk</label>
-                <button class="btn btn-sm" id="recBatchAddItemBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Item</button>
+            <div class="subtab-panel" data-tab="koleksi">
+              <div id="recBatchListWrap">
+                <div class="toolbar">
+                  <button class="btn btn-sm" id="recBatchNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Koleksi Baru</button>
+                  <button class="btn btn-sm btn-ghost" id="recBatchReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+                </div>
+                <p class="hint" style="margin-bottom:12px;">Bikin koleksi rekomendasi produk (beda-beda isinya per koleksi), tiap koleksi dapet <b>link + QR sendiri</b> buat di-share -- beda dari list Rekomendasi Alat &amp; Bahan yang satu-satunya & global di Content.</p>
+                <div id="recBatchList"></div>
               </div>
-              <div id="recBatchItemList"></div>
+
+              <div id="recBatchEditorWrap" style="display:none;">
+                <div class="toolbar">
+                  <button class="btn btn-sm btn-ghost" id="recBatchBackBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg> Kembali ke Daftar</button>
+                </div>
+                <div class="fin-card">
+                  <div class="konten-field"><label>Judul Koleksi</label><input class="form-control" type="text" id="recBatchTitle" placeholder="mis. Starter Kit Journaling Oktober"></div>
+                  <div class="konten-field"><label>Deskripsi (opsional, tampil di halaman share)</label><textarea class="form-control" id="recBatchDesc" rows="2"></textarea></div>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:0.9rem;">
+                    <input type="checkbox" id="recBatchActive" style="width:16px;height:16px;" checked> Aktif (uncheck buat nonaktifin link sementara tanpa hapus)
+                  </label>
+                </div>
+
+                <div class="fin-card" id="recBatchShareCard" style="margin-top:12px;display:none;">
+                  <!-- Diisi JS setelah koleksi punya slug (baru dibuat / sudah ada) -->
+                </div>
+
+                <div class="fin-card" style="margin-top:12px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <label style="font-weight:700;">Item Produk</label>
+                    <button class="btn btn-sm" id="recBatchAddItemBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Item</button>
+                  </div>
+                  <div id="recBatchItemList"></div>
+                </div>
+
+                <div class="fin-card" style="margin-top:12px;">
+                  <button class="btn" id="recBatchSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Koleksi</button>
+                  <div class="msg" id="recBatchMsg"></div>
+                </div>
+              </div>
             </div>
 
-            <div class="fin-card" style="margin-top:12px;">
-              <button class="btn" id="recBatchSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Koleksi</button>
-              <div class="msg" id="recBatchMsg"></div>
+            <div class="subtab-panel" data-tab="qrgen">
+              <p class="hint" style="margin-bottom:12px;">Generate QR buat link APA AJA (nggak lewat halaman share kita) -- mis. link grup WhatsApp komunitas, Instagram, atau link lain yang mau kamu taro di print-an/poster. Judul cuma buat label kamu sendiri di daftar ini.</p>
+              <div class="fin-card">
+                <div class="konten-field"><label>Judul (buat label kamu sendiri)</label><input class="form-control" type="text" id="qrLinkTitle" placeholder="mis. Grup WA Komunitas"></div>
+                <div class="konten-field"><label>Link</label><input class="form-control" type="text" id="qrLinkUrl" placeholder="https://chat.whatsapp.com/..."></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button class="btn" id="qrLinkSaveBtn" type="button" style="flex:1;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> <span id="qrLinkSaveBtnLabel">Generate QR</span></button>
+                  <button class="btn btn-sm btn-ghost" id="qrLinkCancelEditBtn" type="button" style="display:none;">Batal Edit</button>
+                </div>
+                <div class="msg" id="qrLinkMsg"></div>
+              </div>
+              <div id="qrLinkList" style="margin-top:12px;"></div>
             </div>
           </div>
         </div>
@@ -10969,6 +10992,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     // ---------- KOLEKSI REKOMENDASI (rec_batches -- share link/QR per koleksi) ----------
     let recBatchInit = false;
+    let recBatchTabsCtl = null;
     let RECBATCH_LIST = [];
     let RECBATCH_CURRENT = null; // null = lagi bikin baru; object = lagi edit yang sudah ada
 
@@ -10985,9 +11009,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           if (last) { last.scrollIntoView({ behavior: "smooth", block: "center" }); const fi = last.querySelector("[data-key]"); if (fi) fi.focus(); }
         });
         document.getElementById("recBatchSaveBtn").addEventListener("click", saveRecBatchFn);
+        document.getElementById("qrLinkSaveBtn").addEventListener("click", saveQrLinkFn);
+        document.getElementById("qrLinkCancelEditBtn").addEventListener("click", cancelQrLinkEdit);
+        recBatchTabsCtl = wireSubtabs(document.getElementById("recBatchSubtabs"), () => { });
         recBatchInit = true;
       }
       loadRecBatchList();
+      loadQrLinkList();
     }
 
     async function loadRecBatchList() {
@@ -11078,6 +11106,31 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // yang bener apapun dari mana admin-nya diakses.
     const REC_SHARE_ORIGIN = "https://seminggusatu.com";
 
+    // Dipake buat QR Koleksi Rekomendasi & QR Generator -- qrcodejs gambar
+    // PERSIS pas-pasan ke tepi canvas-nya, NOL quiet zone (border putih
+    // kosong di sekeliling modul QR). Standar QR WAJIB ada quiet zone biar
+    // scanner HP beneran bisa deteksi -- tanpa ini, decoder longgar kayak
+    // jsQR masih bisa baca, tapi kamera HP asli gagal total dengan "No
+    // usable data found" (BUG NYATA yang dilaporin Arnold). Render ke
+    // container tersembunyi dulu, baru komposit ke canvas target dengan
+    // border putih di sekelilingnya -- itu yang ditampilin & didownload.
+    function drawQrWithQuietZone(canvasEl, text, coreSize, quiet) {
+      if (!window.QRCode || !text) return false;
+      const hiddenBox = document.createElement("div");
+      hiddenBox.style.cssText = "position:absolute;left:-9999px;top:-9999px;";
+      document.body.appendChild(hiddenBox);
+      new QRCode(hiddenBox, { text: text, width: coreSize, height: coreSize, correctLevel: QRCode.CorrectLevel.M });
+      const srcCanvas = hiddenBox.querySelector("canvas");
+      canvasEl.width = srcCanvas.width + quiet * 2;
+      canvasEl.height = srcCanvas.height + quiet * 2;
+      const ctx = canvasEl.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+      ctx.drawImage(srcCanvas, quiet, quiet);
+      document.body.removeChild(hiddenBox);
+      return true;
+    }
+
     function renderRecBatchShareCard() {
       const card = document.getElementById("recBatchShareCard");
       if (!RECBATCH_CURRENT || !RECBATCH_CURRENT.slug) { card.style.display = "none"; card.innerHTML = ""; return; }
@@ -11097,29 +11150,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       card.querySelector("#recBatchCopyBtn").addEventListener("click", () => copyRecBatchLink(shareUrl));
 
       const outCanvas = card.querySelector("#recBatchQrCanvas");
-      if (window.QRCode) {
-        // qrcodejs gambar PERSIS pas-pasan ke tepi canvas-nya, NOL quiet zone
-        // (border putih kosong di sekeliling modul QR). Standar QR WAJIB ada
-        // quiet zone buat scanner HP beneran bisa deteksi -- tanpa ini,
-        // decoder longgar kayak jsQR masih bisa baca, tapi kamera HP asli
-        // (yang jadi cara orang beneran scan link ini) gagal total dengan
-        // "No usable data found" (BUG NYATA yang dilaporin Arnold). Render ke
-        // container tersembunyi dulu, baru komposit ke canvas final dengan
-        // border putih di sekelilingnya -- ini yang ditampilin & didownload.
-        const hiddenBox = document.createElement("div");
-        hiddenBox.style.cssText = "position:absolute;left:-9999px;top:-9999px;";
-        document.body.appendChild(hiddenBox);
-        new QRCode(hiddenBox, { text: shareUrl, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
-        const srcCanvas = hiddenBox.querySelector("canvas");
-        const QUIET = 24; // px, kira-kira 4 modul -- minimum rekomendasi standar QR
-        outCanvas.width = srcCanvas.width + QUIET * 2;
-        outCanvas.height = srcCanvas.height + QUIET * 2;
-        const ctx = outCanvas.getContext("2d");
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, outCanvas.width, outCanvas.height);
-        ctx.drawImage(srcCanvas, QUIET, QUIET);
-        document.body.removeChild(hiddenBox);
-      }
+      drawQrWithQuietZone(outCanvas, shareUrl, 240, 24);
 
       card.querySelector("#recBatchQrDownloadBtn").addEventListener("click", () => {
         if (!outCanvas.width) { alert("QR belum siap, coba lagi sebentar."); return; }
@@ -11223,6 +11254,125 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const r = await api("deleteRecBatch", { token: getToken(), id });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
         loadRecBatchList();
+      } catch (e) {
+        alert("Failed to connect to the server.");
+      }
+    }
+
+    // ---------- QR Generator (qr_links) -- submenu Koleksi Rekomendasi.
+    // QR-nya encode LINK EKSTERNAL LANGSUNG (mis. link grup WA komunitas),
+    // BUKAN halaman share /rec/ kita -- murni alat bantu, nggak ada endpoint
+    // publik sama sekali buat fitur ini.
+    let QRLINKS_LIST = [];
+    let qrLinkEditId = null;
+
+    async function loadQrLinkList() {
+      const listEl = document.getElementById("qrLinkList");
+      listEl.innerHTML = skelLines(2);
+      try {
+        const r = await api("listQrLinks", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); listEl.innerHTML = ""; return; }
+        QRLINKS_LIST = r.links || [];
+        renderQrLinkList();
+      } catch (e) {
+        listEl.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
+      }
+    }
+
+    function qrLinkFileName(title) {
+      return "qr-" + (String(title || "link").toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "link") + ".png";
+    }
+
+    function renderQrLinkList() {
+      const listEl = document.getElementById("qrLinkList");
+      if (!QRLINKS_LIST.length) { listEl.innerHTML = `<p class="hint">Belum ada QR. Isi form di atas buat bikin yang pertama.</p>`; return; }
+      listEl.innerHTML = "";
+      QRLINKS_LIST.forEach(q => {
+        const div = document.createElement("div");
+        div.className = "fin-card";
+        div.style.marginBottom = "10px";
+        div.innerHTML =
+          `<div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+             <canvas class="qrl-canvas" style="border:1px solid var(--line);border-radius:8px;flex-shrink:0;"></canvas>
+             <div style="flex:1;min-width:180px;">
+               <div style="font-weight:700;">${escapeHtml(q.title)}</div>
+               <div class="hint" style="margin-top:2px;word-break:break-all;">${escapeHtml(q.link)}</div>
+               <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+                 <button class="btn btn-sm btn-ghost" data-act="copy">Copy Link</button>
+                 <button class="btn btn-sm btn-ghost" data-act="download">Download QR</button>
+                 <button class="btn btn-sm btn-ghost" data-act="edit">Edit</button>
+                 <button class="btn btn-sm btn-ghost" data-act="del" style="color:var(--err);">Delete</button>
+               </div>
+             </div>
+           </div>`;
+        const canvas = div.querySelector(".qrl-canvas");
+        drawQrWithQuietZone(canvas, q.link, 160, 18);
+        div.querySelector('[data-act="copy"]').addEventListener("click", () => copyRecBatchLink(q.link));
+        div.querySelector('[data-act="download"]').addEventListener("click", () => {
+          if (!canvas.width) { alert("QR belum siap, coba lagi sebentar."); return; }
+          const a = document.createElement("a");
+          a.href = canvas.toDataURL("image/png");
+          a.download = qrLinkFileName(q.title);
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        });
+        div.querySelector('[data-act="edit"]').addEventListener("click", () => startQrLinkEdit(q));
+        div.querySelector('[data-act="del"]').addEventListener("click", () => deleteQrLinkFn(q.id, q.title));
+        listEl.appendChild(div);
+      });
+    }
+
+    function startQrLinkEdit(q) {
+      qrLinkEditId = q.id;
+      document.getElementById("qrLinkTitle").value = q.title;
+      document.getElementById("qrLinkUrl").value = q.link;
+      document.getElementById("qrLinkSaveBtnLabel").textContent = "Simpan Perubahan";
+      document.getElementById("qrLinkCancelEditBtn").style.display = "inline-flex";
+      const titleInput = document.getElementById("qrLinkTitle");
+      titleInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      titleInput.focus();
+    }
+
+    function cancelQrLinkEdit() {
+      qrLinkEditId = null;
+      document.getElementById("qrLinkTitle").value = "";
+      document.getElementById("qrLinkUrl").value = "";
+      document.getElementById("qrLinkSaveBtnLabel").textContent = "Generate QR";
+      document.getElementById("qrLinkCancelEditBtn").style.display = "none";
+      document.getElementById("qrLinkMsg").textContent = "";
+    }
+
+    async function saveQrLinkFn() {
+      const title = document.getElementById("qrLinkTitle").value.trim();
+      const link = document.getElementById("qrLinkUrl").value.trim();
+      if (!title) { alert("Judul wajib diisi."); return; }
+      if (!link) { alert("Link wajib diisi."); return; }
+      const btn = document.getElementById("qrLinkSaveBtn");
+      const msg = document.getElementById("qrLinkMsg");
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      try {
+        const r = await api("saveQrLink", { token: getToken(), id: qrLinkEditId || undefined, title, link });
+        if (r.status === "success") {
+          cancelQrLinkEdit(); // reset form -- jalanin SEBELUM nulis pesan sukses di bawah, soalnya ini ikut nge-reset teks msg juga
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
+          loadQrLinkList();
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteQrLinkFn(id, title) {
+      if (!confirm(`Hapus QR "${title}"?`)) return;
+      try {
+        const r = await api("deleteQrLink", { token: getToken(), id });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
+        loadQrLinkList();
       } catch (e) {
         alert("Failed to connect to the server.");
       }

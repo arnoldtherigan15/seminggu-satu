@@ -1335,6 +1335,41 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         return jsonResponse({ status: "success", message: "Koleksi dihapus." });
       }
 
+      // ---------- QR Generator (qr_links) -- submenu Koleksi Rekomendasi.
+      // Beda dari rec_batches: QR-nya langsung encode LINK EKSTERNAL (mis.
+      // link grup WA), bukan halaman share /rec/ kita -- jadi nggak butuh
+      // endpoint publik sama sekali, murni alat bantu admin.
+      case "listQrLinks": {
+        const { data: rows } = await admin.from("qr_links").select("id, title, link, created_at").order("created_at", { ascending: false });
+        // deno-lint-ignore no-explicit-any
+        const links = (rows || []).map((r: any) => ({ id: r.id, title: r.title, link: r.link, createdAt: r.created_at }));
+        return jsonResponse({ status: "success", links });
+      }
+
+      case "saveQrLink": {
+        const title = String(data.title || "").trim();
+        const link = String(data.link || "").trim();
+        if (!title) return errorResponse("Judul wajib diisi.");
+        if (!link) return errorResponse("Link wajib diisi.");
+        const id = data.id ? String(data.id) : "";
+        if (id) {
+          const { error } = await admin.from("qr_links").update({ title, link }).eq("id", id);
+          if (error) return errorResponse("Gagal menyimpan: " + error.message);
+          return jsonResponse({ status: "success", message: "QR diperbarui.", id });
+        }
+        const { data: inserted, error: insErr } = await admin.from("qr_links").insert({ title, link }).select("id").single();
+        if (insErr) return errorResponse("Gagal membuat QR: " + insErr.message);
+        return jsonResponse({ status: "success", message: "QR dibuat.", id: inserted?.id });
+      }
+
+      case "deleteQrLink": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID tidak valid.");
+        const { error } = await admin.from("qr_links").delete().eq("id", id);
+        if (error) return errorResponse("Gagal menghapus: " + error.message);
+        return jsonResponse({ status: "success", message: "QR dihapus." });
+      }
+
       case "getModal": {
         const { data: rows } = await admin.from("workshop_costs").select("*");
         const modal: Record<string, Record<string, { nama: string; biaya: number; tipe: string; excludeFromBudget: boolean }[]>> = {};
