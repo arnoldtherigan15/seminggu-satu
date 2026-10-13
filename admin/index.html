@@ -12338,7 +12338,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
       function selectProduct(p) {
         shopOrdSelectedProductId = p ? p.id : "";
-        searchInput.value = p ? shopOrdProductLabel(p) : "";
+        // Field cuma nunjukin NAMA polos abis kepilih -- harga/stok itu
+        // cuma informasi bantu pas lagi milih di daftar saran, bukan buat
+        // nyangkut permanen di kotak input begitu udah dipilih.
+        searchInput.value = p ? p.name : "";
         suggestBox.style.display = "none";
       }
       function renderSuggestions(query) {
