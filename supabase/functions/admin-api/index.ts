@@ -1587,10 +1587,19 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           const total = items.reduce((sum: number, it: any) => sum + it.lineTotal, 0);
           return {
             id: o.id, workshopType: o.workshop_type, batchId: o.batch_id, registrationId: o.registration_id,
-            buyerName: o.buyer_name, buyerWa: o.buyer_wa, items, total, createdAt: o.created_at,
+            buyerName: o.buyer_name, buyerWa: o.buyer_wa, isPaid: !!o.is_paid, items, total, createdAt: o.created_at,
           };
         });
         return jsonResponse({ status: "success", orders: result });
+      }
+
+      case "setShopOrderPaid": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID tidak valid.");
+        const isPaid = !!data.isPaid;
+        const { error } = await admin.from("shop_orders").update({ is_paid: isPaid }).eq("id", id);
+        if (error) return errorResponse("Gagal update status bayar: " + error.message);
+        return jsonResponse({ status: "success", message: isPaid ? "Ditandai lunas." : "Ditandai belum bayar.", isPaid });
       }
 
       case "saveShopOrder": {

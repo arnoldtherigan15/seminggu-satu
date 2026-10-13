@@ -5136,22 +5136,56 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
         <!-- ===== VIEW: SHOP > ORDER TOKO (shop_orders + shop_sales per event/batch) ===== -->
         <div class="wrap view" id="viewShopOrders" style="display:none;">
-          <div id="shopOrdListWrap">
-            <div class="toolbar">
-              <div class="field">
-                <label for="shopOrdWorkshopSelect">Event</label>
-                <select class="form-control" id="shopOrdWorkshopSelect"></select>
-              </div>
-              <div class="field">
-                <label for="shopOrdBatchSelect">Batch</label>
-                <select class="form-control" id="shopOrdBatchSelect"></select>
-              </div>
-              <button class="btn btn-sm btn-ghost" id="shopOrdReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+          <div class="subtabs" id="shopOrdSubtabs">
+            <div class="subtab-bar">
+              <button class="subtab-btn" type="button" data-tab="event"><span>Peserta Event</span></button>
+              <button class="subtab-btn" type="button" data-tab="walkin"><span>Pembeli Lain</span></button>
             </div>
-            <p class="hint" style="margin-bottom:12px;">Pilih event + batch buat liat daftar peserta &amp; bikin order penjualan produk ke mereka. Bisa juga tambahin pembeli yang bukan peserta lewat tombol di bawah.</p>
-            <div id="shopOrdList"></div>
-            <div class="fin-card" style="margin-top:14px;">
-              <button class="btn btn-sm" id="shopOrdAddWalkinBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Pembeli Lain (Bukan Peserta)</button>
+
+            <div class="subtab-panel" data-tab="event">
+              <div class="toolbar">
+                <div class="field">
+                  <label for="shopOrdWorkshopSelect">Event</label>
+                  <select class="form-control" id="shopOrdWorkshopSelect"></select>
+                </div>
+                <div class="field">
+                  <label for="shopOrdBatchSelect">Batch</label>
+                  <select class="form-control" id="shopOrdBatchSelect"></select>
+                </div>
+                <button class="btn btn-sm btn-ghost" id="shopOrdReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+              </div>
+              <p class="hint" style="margin-bottom:12px;">Pilih event + batch buat liat daftar peserta &amp; bikin order penjualan produk ke mereka. Peserta yang belum punya order dikumpulin di bagian yang bisa dibuka/tutup di bawah, biar daftarnya nggak kepanjangan.</p>
+              <div id="shopOrdList"></div>
+            </div>
+
+            <div class="subtab-panel" data-tab="walkin">
+              <div class="toolbar">
+                <button class="btn btn-sm" id="shopOrdWalkinNewBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Pembeli Baru</button>
+                <div class="field">
+                  <label for="shopOrdWalkinYearSelect">Tahun</label>
+                  <select class="form-control" id="shopOrdWalkinYearSelect"></select>
+                </div>
+                <div class="field">
+                  <label for="shopOrdWalkinMonthSelect">Bulan</label>
+                  <select class="form-control" id="shopOrdWalkinMonthSelect">
+                    <option value="">Semua Bulan</option>
+                    <option value="0">Januari</option>
+                    <option value="1">Februari</option>
+                    <option value="2">Maret</option>
+                    <option value="3">April</option>
+                    <option value="4">Mei</option>
+                    <option value="5">Juni</option>
+                    <option value="6">Juli</option>
+                    <option value="7">Agustus</option>
+                    <option value="8">September</option>
+                    <option value="9">Oktober</option>
+                    <option value="10">November</option>
+                    <option value="11">Desember</option>
+                  </select>
+                </div>
+              </div>
+              <p class="hint" style="margin-bottom:12px;">Pembeli yang bukan peserta event manapun (mis. yang nongkrong di booth) -- nggak ketempel ke event/batch tertentu, jadi difilter per tahun/bulan di sini biar gampang nyarinya begitu udah banyak.</p>
+              <div id="shopOrdWalkinList"></div>
             </div>
           </div>
 
@@ -5162,6 +5196,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <div class="fin-card">
               <div class="konten-field"><label>Nama Pembeli</label><input class="form-control" type="text" id="shopOrdBuyerName"></div>
               <div class="konten-field"><label>Nomor WA</label><input class="form-control" type="text" id="shopOrdBuyerWa" placeholder="08xx..."></div>
+              <div style="display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap;">
+                <span class="hint" style="margin:0;">Status Bayar:</span>
+                <button class="btn btn-sm btn-ghost" id="shopOrdPaidToggleBtn" type="button"></button>
+              </div>
               <button class="btn btn-sm btn-ghost" id="shopOrdSaveInfoBtn" type="button">Simpan Info Pembeli</button>
             </div>
 
@@ -12143,9 +12181,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let SHOPORD_BATCHES = [];
     let SHOPORD_REGISTRANTS = [];
     let SHOPORD_ORDERS = [];
+    let SHOPORD_WALKIN_ORDERS = [];
     let SHOPORD_PRODUCTS_CACHE = [];
     let SHOPORD_CURRENT = null;
     let shopOrdSelectedProductId = "";
+    let shopOrdEditorSource = "event"; // "event" | "walkin" -- nentuin balik ke daftar mana & reload apa pas "Kembali ke Daftar"
 
     function ensureShopOrdersView() {
       if (!shopOrdInit) {
@@ -12154,14 +12194,20 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         sel.addEventListener("change", async () => { await loadShopOrdBatches(); await loadShopOrdList(); });
         document.getElementById("shopOrdBatchSelect").addEventListener("change", loadShopOrdList);
         document.getElementById("shopOrdReloadBtn").addEventListener("click", loadShopOrdList);
-        document.getElementById("shopOrdAddWalkinBtn").addEventListener("click", () => startNewShopOrder(null));
+        document.getElementById("shopOrdWalkinNewBtn").addEventListener("click", () => startNewShopOrder(null, true));
+        document.getElementById("shopOrdWalkinYearSelect").addEventListener("change", renderShopOrdWalkinList);
+        document.getElementById("shopOrdWalkinMonthSelect").addEventListener("change", renderShopOrdWalkinList);
         document.getElementById("shopOrdBackBtn").addEventListener("click", closeShopOrdEditor);
         document.getElementById("shopOrdSaveInfoBtn").addEventListener("click", saveShopOrdInfoFn);
+        document.getElementById("shopOrdPaidToggleBtn").addEventListener("click", toggleShopOrdPaidFn);
         document.getElementById("shopOrdAddItemBtn").addEventListener("click", addShopOrdItemFn);
         document.getElementById("shopOrdInvoiceBtn").addEventListener("click", downloadShopOrderInvoiceFn);
         document.getElementById("shopOrdWaBtn").addEventListener("click", openShopOrdWaFn);
         document.getElementById("shopOrdDeleteBtn").addEventListener("click", deleteShopOrdFn);
         wireShopOrdProdSearch();
+        wireSubtabs(document.getElementById("shopOrdSubtabs"), (tabId) => {
+          if (tabId === "walkin") loadShopOrdWalkinList();
+        });
         shopOrdInit = true;
       }
       loadShopOrdBatches().then(loadShopOrdList);
@@ -12211,10 +12257,16 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     function renderShopOrdRow(name, order, reg) {
       if (order) {
+        const paidBtn = order.isPaid
+          ? `<button class="btn btn-sm" data-ord-paid="${escapeHtml(order.id)}" data-cur="1" style="background:#dcfce7;color:#166534;">✓ Lunas</button>`
+          : `<button class="btn btn-sm btn-ghost" data-ord-paid="${escapeHtml(order.id)}" data-cur="0" style="color:var(--err);">Belum Bayar</button>`;
         return `<div class="fin-card" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
           <div><div style="font-weight:700;">${escapeHtml(name)}</div>
           <div class="hint">${order.items.length} item &middot; <b>${rupiah(order.total)}</b></div></div>
-          <button class="btn btn-sm" data-ord-open="${escapeHtml(order.id)}">Lihat Order</button>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            ${paidBtn}
+            <button class="btn btn-sm" data-ord-open="${escapeHtml(order.id)}">Lihat Order</button>
+          </div>
         </div>`;
       }
       return `<div class="fin-card" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
@@ -12223,43 +12275,126 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>`;
     }
 
-    function renderShopOrdList() {
-      const listEl = document.getElementById("shopOrdList");
-      if (!SHOPORD_REGISTRANTS.length && !SHOPORD_ORDERS.length) {
-        listEl.innerHTML = `<p class="hint">Belum ada peserta terdaftar di batch ini.</p>`;
-        return;
-      }
-      const orderByRegId = new Map(SHOPORD_ORDERS.filter(o => o.registrationId).map(o => [o.registrationId, o]));
-      const walkinOrders = SHOPORD_ORDERS.filter(o => !o.registrationId);
-
-      let html = "";
-      SHOPORD_REGISTRANTS.forEach(reg => {
-        const order = orderByRegId.get(reg.id);
-        html += renderShopOrdRow(reg.full_name || reg.nickname || "(tanpa nama)", order, reg);
-      });
-      if (walkinOrders.length) {
-        html += `<p class="hint" style="margin:14px 0 6px;font-weight:700;">Pembeli Lain</p>`;
-        walkinOrders.forEach(o => { html += renderShopOrdRow(o.buyerName, o, null); });
-      }
-      listEl.innerHTML = html || `<p class="hint">Belum ada peserta/order.</p>`;
-
-      listEl.querySelectorAll("[data-ord-new]").forEach(btn => {
+    // Dipake list peserta event & list pembeli lain -- nentuin sumber data
+    // yang bener (SHOPORD_ORDERS vs SHOPORD_WALKIN_ORDERS) pas tombol
+    // "Lihat Order"/toggle lunas di-klik, berdasarkan `source` ("event"/"walkin").
+    function wireShopOrdRowHandlers(container, source) {
+      container.querySelectorAll("[data-ord-new]").forEach(btn => {
         btn.addEventListener("click", () => {
           const reg = SHOPORD_REGISTRANTS.find(r => r.id === btn.dataset.ordNew);
-          if (reg) startNewShopOrder(reg);
+          if (reg) startNewShopOrder(reg, false);
         });
       });
-      listEl.querySelectorAll("[data-ord-open]").forEach(btn => {
+      container.querySelectorAll("[data-ord-open]").forEach(btn => {
         btn.addEventListener("click", () => {
-          const order = SHOPORD_ORDERS.find(o => o.id === btn.dataset.ordOpen);
-          if (order) openShopOrdEditor(order);
+          const list = source === "walkin" ? SHOPORD_WALKIN_ORDERS : SHOPORD_ORDERS;
+          const order = list.find(o => o.id === btn.dataset.ordOpen);
+          if (order) openShopOrdEditor(order, source);
+        });
+      });
+      container.querySelectorAll("[data-ord-paid]").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.ordPaid;
+          const newVal = btn.dataset.cur !== "1";
+          btn.disabled = true;
+          try {
+            const r = await api("setShopOrderPaid", { token: getToken(), id, isPaid: newVal });
+            if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to update."); btn.disabled = false; return; }
+            const updateIn = (arr) => { const o = arr.find(x => x.id === id); if (o) o.isPaid = newVal; };
+            updateIn(SHOPORD_ORDERS); updateIn(SHOPORD_WALKIN_ORDERS);
+            if (source === "walkin") renderShopOrdWalkinList(); else renderShopOrdList();
+          } catch (err) {
+            alert("Failed to connect to the server.");
+            btn.disabled = false;
+          }
         });
       });
     }
 
-    async function startNewShopOrder(reg) {
-      const workshop = document.getElementById("shopOrdWorkshopSelect").value;
-      const batchId = document.getElementById("shopOrdBatchSelect").value;
+    // Peserta yang UDAH punya order ditampilin flat (penting, langsung
+    // keliatan) -- yang BELUM dikumpulin di <details> yang bisa
+    // dibuka/tutup, biar daftar nama yang panjang (mayoritas "+ Buat
+    // Order" doang) nggak bikin halaman kepanjangan & nutupin hal lain.
+    function renderShopOrdList() {
+      const listEl = document.getElementById("shopOrdList");
+      if (!SHOPORD_REGISTRANTS.length) {
+        listEl.innerHTML = `<p class="hint">Belum ada peserta terdaftar di batch ini.</p>`;
+        return;
+      }
+      const orderByRegId = new Map(SHOPORD_ORDERS.filter(o => o.registrationId).map(o => [o.registrationId, o]));
+      const withOrder = [];
+      const withoutOrder = [];
+      SHOPORD_REGISTRANTS.forEach(reg => {
+        const order = orderByRegId.get(reg.id);
+        if (order) withOrder.push({ reg, order }); else withoutOrder.push({ reg });
+      });
+
+      let html = withOrder.length
+        ? withOrder.map(({ reg, order }) => renderShopOrdRow(reg.full_name || reg.nickname || "(tanpa nama)", order, reg)).join("")
+        : `<p class="hint">Belum ada order di batch ini -- buka daftar peserta di bawah buat mulai bikin order.</p>`;
+      if (withoutOrder.length) {
+        html += `<details style="margin-top:10px;">
+          <summary style="cursor:pointer;font-weight:700;padding:10px 4px;">Peserta Belum Order (${withoutOrder.length})</summary>
+          <div style="margin-top:8px;">
+            ${withoutOrder.map(({ reg }) => renderShopOrdRow(reg.full_name || reg.nickname || "(tanpa nama)", null, reg)).join("")}
+          </div>
+        </details>`;
+      }
+      listEl.innerHTML = html;
+      wireShopOrdRowHandlers(listEl, "event");
+    }
+
+    // "Pembeli Lain" -- SENGAJA nggak ketempel event/batch manapun (batch_id
+    // null), jadi nggak ada "daftar peserta" buat di-join kayak subtab
+    // sebelah -- cuma daftar order lepas, difilter per tahun/bulan (dari
+    // created_at) biar nggak numpuk begitu jumlahnya banyak.
+    async function loadShopOrdWalkinList() {
+      const listEl = document.getElementById("shopOrdWalkinList");
+      listEl.innerHTML = skelLines(3);
+      try {
+        const [rOrd, rProd] = await Promise.all([
+          api("listShopOrders", { token: getToken(), batchId: null }),
+          api("listShopProducts", { token: getToken() }),
+        ]);
+        SHOPORD_WALKIN_ORDERS = (rOrd.status === "success") ? (rOrd.orders || []) : [];
+        SHOPORD_PRODUCTS_CACHE = (rProd.status === "success") ? (rProd.products || []) : [];
+        populateShopOrdWalkinYearFilter();
+        renderShopOrdWalkinList();
+      } catch (e) {
+        listEl.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
+      }
+    }
+
+    function populateShopOrdWalkinYearFilter() {
+      const sel = document.getElementById("shopOrdWalkinYearSelect");
+      const years = Array.from(new Set(SHOPORD_WALKIN_ORDERS.map(o => new Date(o.createdAt).getFullYear())));
+      const nowYear = new Date().getFullYear();
+      if (!years.includes(nowYear)) years.push(nowYear);
+      years.sort((a, b) => b - a);
+      const prevVal = sel.value;
+      sel.innerHTML = `<option value="">Semua Tahun</option>` + years.map(y => `<option value="${y}">${y}</option>`).join("");
+      sel.value = (prevVal && years.some(y => String(y) === prevVal)) ? prevVal : String(nowYear);
+    }
+
+    function renderShopOrdWalkinList() {
+      const listEl = document.getElementById("shopOrdWalkinList");
+      const yearVal = document.getElementById("shopOrdWalkinYearSelect").value;
+      const monthVal = document.getElementById("shopOrdWalkinMonthSelect").value;
+      let filtered = SHOPORD_WALKIN_ORDERS;
+      if (yearVal) filtered = filtered.filter(o => new Date(o.createdAt).getFullYear() === Number(yearVal));
+      if (monthVal !== "") filtered = filtered.filter(o => new Date(o.createdAt).getMonth() === Number(monthVal));
+      if (!filtered.length) { listEl.innerHTML = `<p class="hint">Belum ada pembeli lain di periode ini.</p>`; return; }
+      listEl.innerHTML = filtered.map(o => renderShopOrdRow(o.buyerName, o, null)).join("");
+      wireShopOrdRowHandlers(listEl, "walkin");
+    }
+
+    async function startNewShopOrder(reg, walkin) {
+      let workshop = null, batchId = null;
+      if (!walkin) {
+        workshop = document.getElementById("shopOrdWorkshopSelect").value;
+        batchId = document.getElementById("shopOrdBatchSelect").value;
+      }
       const buyerName = reg ? (reg.full_name || reg.nickname || "") : (prompt("Nama pembeli:") || "").trim();
       if (!buyerName) return;
       const buyerWa = reg ? (reg.wa || "") : "";
@@ -12271,16 +12406,17 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to create order."); return; }
         openShopOrdEditor({
           id: r.id, workshopType: workshop, batchId, registrationId: reg ? reg.id : null,
-          buyerName, buyerWa, items: [], total: 0,
-        });
+          buyerName, buyerWa, items: [], total: 0, isPaid: false,
+        }, walkin ? "walkin" : "event");
       } catch (e) {
         alert("Failed to connect to the server.");
       }
     }
 
-    function openShopOrdEditor(order) {
+    function openShopOrdEditor(order, source) {
+      shopOrdEditorSource = source || "event";
       SHOPORD_CURRENT = Object.assign({}, order, { items: (order.items || []).map(it => Object.assign({}, it)) });
-      document.getElementById("shopOrdListWrap").style.display = "none";
+      document.getElementById("shopOrdSubtabs").style.display = "none";
       document.getElementById("shopOrdEditorWrap").style.display = "block";
       document.getElementById("shopOrdBuyerName").value = SHOPORD_CURRENT.buyerName || "";
       document.getElementById("shopOrdBuyerWa").value = SHOPORD_CURRENT.buyerWa || "";
@@ -12289,15 +12425,46 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       shopOrdSelectedProductId = "";
       document.getElementById("shopOrdAddItemMsg").textContent = "";
       document.getElementById("shopOrdMsg").textContent = "";
+      renderShopOrdPaidToggleBtn();
       renderShopOrdItems();
       window.scrollTo(0, 0);
     }
 
     function closeShopOrdEditor() {
       document.getElementById("shopOrdEditorWrap").style.display = "none";
-      document.getElementById("shopOrdListWrap").style.display = "block";
+      document.getElementById("shopOrdSubtabs").style.display = "block";
       SHOPORD_CURRENT = null;
-      loadShopOrdList();
+      if (shopOrdEditorSource === "walkin") loadShopOrdWalkinList();
+      else loadShopOrdList();
+    }
+
+    function renderShopOrdPaidToggleBtn() {
+      const btn = document.getElementById("shopOrdPaidToggleBtn");
+      if (SHOPORD_CURRENT.isPaid) {
+        btn.className = "btn btn-sm";
+        btn.style.background = "#dcfce7"; btn.style.color = "#166534";
+        btn.textContent = "✓ Lunas";
+      } else {
+        btn.className = "btn btn-sm btn-ghost";
+        btn.style.background = ""; btn.style.color = "var(--err)";
+        btn.textContent = "Belum Bayar";
+      }
+    }
+
+    async function toggleShopOrdPaidFn() {
+      const newVal = !SHOPORD_CURRENT.isPaid;
+      const btn = document.getElementById("shopOrdPaidToggleBtn");
+      btn.disabled = true;
+      try {
+        const r = await api("setShopOrderPaid", { token: getToken(), id: SHOPORD_CURRENT.id, isPaid: newVal });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to update."); return; }
+        SHOPORD_CURRENT.isPaid = newVal;
+        renderShopOrdPaidToggleBtn();
+      } catch (e) {
+        alert("Failed to connect to the server.");
+      } finally {
+        btn.disabled = false;
+      }
     }
 
     function renderShopOrdItems() {
