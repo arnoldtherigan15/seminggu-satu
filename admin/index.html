@@ -7446,7 +7446,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     // ---------- KEUANGAN ----------
-    function rupiah(n) { return "Rp " + (Number(n) || 0).toLocaleString("id-ID"); }
+    // Math.round -- Rupiah nggak pernah ditampilin pake desimal (mis. harga
+    // per satuan hasil bagi kayak 150000/20 = 7500 aman, tapi kalau baginya
+    // nggak bulat, mis. 139996.8, bakal kepampang "Rp 139.996,8" yang aneh
+    // kalau nggak dibulatin di sini).
+    function rupiah(n) { return "Rp " + Math.round(Number(n) || 0).toLocaleString("id-ID"); }
 
     // Input harga bertitik-ribuan (mis. "100.000") -- input tetap type="text"
     // (browser ga bisa format type="number" pakai separator), digit non-angka
@@ -11756,6 +11760,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       loadShopProdList();
     }
 
+    function shopMatLabel(m) { return `${m.name} (${rupiah(m.unitCost)}/${m.unit})`; }
+
+    // Ketik-buat-cari (bukan <select> polos) -- begitu bahan udah banyak,
+    // scroll dropdown native jadi ribet nyari satu-satu (keluhan nyata:
+    // "kayak ketik aja yg kasih rekomendasi, biar gampang kalau bahannya
+    // udah banyak bgt"). Pola combobox standar: input teks + daftar saran
+    // yang difilter live, klik buat milih, blur-dengan-delay biar klik
+    // suggestion sempat kebaca sebelum listnya ketutup.
     function renderShopProdMatRows() {
       const listEl = document.getElementById("shopProdMatList");
       const rows = SHOPPROD_CURRENT.materials;
@@ -11764,13 +11776,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       rows.forEach((row, idx) => {
         const div = document.createElement("div");
         div.style.cssText = "display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line);";
-        const options = SHOPPROD_MATERIALS_CACHE.map(m =>
-          `<option value="${escapeHtml(m.id)}" ${m.id === row.materialId ? "selected" : ""}>${escapeHtml(m.name)} (${rupiah(m.unitCost)}/${escapeHtml(m.unit)})</option>`
-        ).join("");
+        const initialMat = SHOPPROD_MATERIALS_CACHE.find(m => m.id === row.materialId);
         div.innerHTML =
-          `<div style="flex:2;min-width:160px;">
+          `<div style="flex:2;min-width:160px;position:relative;">
              <label class="hint" style="display:block;margin-bottom:4px;">Bahan</label>
-             <select class="form-control" data-mat-select><option value="">-- pilih bahan --</option>${options}</select>
+             <input class="form-control" type="text" autocomplete="off" placeholder="Ketik nama bahan..."
+               value="${escapeHtml(initialMat ? shopMatLabel(initialMat) : "")}" data-mat-search>
+             <div data-mat-suggest style="display:none;position:absolute;z-index:30;top:100%;left:0;right:0;margin-top:4px;
+               background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow-md);
+               max-height:220px;overflow-y:auto;"></div>
            </div>
            <div style="flex:1;min-width:90px;">
              <label class="hint" style="display:block;margin-bottom:4px;">Qty</label>
@@ -11781,16 +11795,82 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
              <div class="form-control" style="background:var(--bg);display:flex;align-items:center;" data-mat-cost>Rp 0</div>
            </div>
            <button class="btn btn-sm btn-ghost" type="button" data-mat-del style="color:var(--err);">Hapus</button>`;
-        const select = div.querySelector("[data-mat-select]");
+        const searchInput = div.querySelector("[data-mat-search]");
+        const suggestBox = div.querySelector("[data-mat-suggest]");
         const qtyInput = div.querySelector("[data-mat-qty]");
         const costEl = div.querySelector("[data-mat-cost]");
+
+        // Pilihan TERAKHIR YANG BENERAN DIKONFIRMASI (beda dari row.materialId,
+        // yang sengaja dikosongin SEMENTARA pas user lagi ngetik ulang buat
+        // nyari). Dipake buat balikin pilihan ini kalau user ngetik² terus
+        // keluar fokus tanpa jadi milih yang baru -- tanpa ini, pilihan lama
+        // bisa ke-ilang diam-diam cuma gara-gara nyoba cari ganti terus batal.
+        let committedMaterial = initialMat || null;
+
         function syncLineCost() {
-          const mat = SHOPPROD_MATERIALS_CACHE.find(mm => mm.id === select.value);
+          const mat = SHOPPROD_MATERIALS_CACHE.find(m => m.id === row.materialId);
           const qty = Number(qtyInput.value) || 0;
           costEl.textContent = rupiah(mat ? mat.unitCost * qty : 0);
         }
-        select.addEventListener("change", () => { row.materialId = select.value; syncLineCost(); updateShopProdSummary(); });
-        qtyInput.addEventListener("input", () => { row.qty = Number(qtyInput.value) || 0; syncLineCost(); updateShopProdSummary(); });
+        function selectMaterial(mat) {
+          committedMaterial = mat || null;
+          row.materialId = mat ? mat.id : "";
+          searchInput.value = mat ? shopMatLabel(mat) : "";
+          suggestBox.style.display = "none";
+          syncLineCost();
+          updateShopProdSummary();
+        }
+        function renderSuggestions(query) {
+          const q = query.trim().toLowerCase();
+          const matches = SHOPPROD_MATERIALS_CACHE.filter(m => !q || m.name.toLowerCase().includes(q));
+          suggestBox.innerHTML = matches.length
+            ? matches.map(m =>
+                `<div class="shop-mat-suggest-item" data-id="${escapeHtml(m.id)}" style="padding:9px 12px;cursor:pointer;font-size:0.9rem;${m.id === row.materialId ? "background:var(--brand-light);font-weight:700;" : ""}">${escapeHtml(shopMatLabel(m))}</div>`
+              ).join("")
+            : `<div style="padding:10px 12px;color:var(--muted);font-size:0.85rem;">Nggak ketemu bahan apa-apa.</div>`;
+          suggestBox.querySelectorAll(".shop-mat-suggest-item").forEach(el => {
+            // mousedown (bukan click) + preventDefault -- supaya kepilih
+            // SEBELUM event blur nutup suggestion box di bawah.
+            el.addEventListener("mousedown", (e) => {
+              e.preventDefault();
+              selectMaterial(SHOPPROD_MATERIALS_CACHE.find(m => m.id === el.dataset.id));
+            });
+          });
+          suggestBox.style.display = "block";
+        }
+        // Fokus = anggap "mau liat semua pilihan lagi" (biar gampang ganti
+        // pilihan), bukan nerusin filter dari label yang udah kepilih --
+        // select() sekalian biar user bisa langsung ngetik nimpa tanpa perlu
+        // hapus manual dulu.
+        searchInput.addEventListener("focus", () => { searchInput.select(); renderSuggestions(""); });
+        searchInput.addEventListener("input", () => {
+          row.materialId = ""; // lagi ngetik ulang -- jangan nyangkut ke pilihan lama sampai beneran milih lagi
+          renderSuggestions(searchInput.value);
+          syncLineCost();
+          updateShopProdSummary();
+        });
+        searchInput.addEventListener("keydown", (e) => {
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          const q = searchInput.value.trim().toLowerCase();
+          const match = SHOPPROD_MATERIALS_CACHE.find(m => m.name.toLowerCase().includes(q));
+          if (match) selectMaterial(match);
+        });
+        searchInput.addEventListener("blur", () => {
+          setTimeout(() => {
+            suggestBox.style.display = "none";
+            // Nggak jadi milih apa-apa baru pas keluar fokus (row.materialId
+            // masih kosong dari handler "input") -- balikin ke pilihan
+            // TERAKHIR yang beneran kekonfirmasi, BUKAN kosongin ("asal
+            // ngetik² buat lihat-lihat lalu klik keluar" nggak boleh
+            // ngilangin pilihan yang udah ada).
+            if (!row.materialId && committedMaterial) row.materialId = committedMaterial.id;
+            const current = SHOPPROD_MATERIALS_CACHE.find(m => m.id === row.materialId);
+            searchInput.value = current ? shopMatLabel(current) : "";
+            syncLineCost();
+            updateShopProdSummary();
+          }, 150);
+        });
         div.querySelector("[data-mat-del]").addEventListener("click", () => { SHOPPROD_CURRENT.materials.splice(idx, 1); renderShopProdMatRows(); });
         syncLineCost();
         listEl.appendChild(div);
