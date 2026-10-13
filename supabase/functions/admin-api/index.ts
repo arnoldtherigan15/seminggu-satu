@@ -1700,6 +1700,61 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         return jsonResponse({ status: "success", message: "Order dihapus." });
       }
 
+      // Laporan Keuangan Toko -- SATU sumber kebenaran "pendapatan beneran
+      // masuk" buat dua jenis penjualan yang beda sifatnya:
+      //   - Scan QR (shop_sales.order_id NULL) -- transaksi tunai langsung
+      //     di tempat, SELALU dianggap lunas saat itu juga, nggak ada
+      //     status "belum bayar" buat jenis ini.
+      //   - Lewat Order (order_id keisi) -- bisa aja masih nunggu transfer
+      //     (tab belanja peserta event), jadi CUMA DIHITUNG kalau
+      //     shop_orders.is_paid == true. Order yang belum ditandai lunas
+      //     sengaja DIBUANG dari laporan ini -- itu piutang, bukan
+      //     pendapatan yang udah beneran diterima.
+      // Fetch SEMUA (nggak difilter tahun/bulan di server) -- volume
+      // realistis kecil, filter per tahun/bulan dikerjain di klien (sama
+      // pola kayak listShopOrders buat "Pembeli Lain").
+      case "getShopFinanceReport": {
+        const { data: sales } = await admin.from("shop_sales").select("*").order("created_at", { ascending: false });
+        // deno-lint-ignore no-explicit-any
+        const orderIds = Array.from(new Set((sales || []).map((s: any) => s.order_id).filter(Boolean)));
+        // deno-lint-ignore no-explicit-any
+        let orders: any[] = [];
+        if (orderIds.length) {
+          const { data: oRows } = await admin.from("shop_orders").select("id, buyer_name, is_paid").in("id", orderIds);
+          orders = oRows || [];
+        }
+        // deno-lint-ignore no-explicit-any
+        const orderById = new Map(orders.map((o: any) => [o.id, o]));
+        const { data: prodRows } = await admin.from("shop_products").select("id, name");
+        // deno-lint-ignore no-explicit-any
+        const prodNameById = new Map((prodRows || []).map((p: any) => [p.id, p.name]));
+
+        // deno-lint-ignore no-explicit-any
+        const entries: any[] = [];
+        // deno-lint-ignore no-explicit-any
+        for (const s of (sales || []) as any[]) {
+          let source = "Scan QR";
+          if (s.order_id) {
+            const order = orderById.get(s.order_id);
+            if (!order || !order.is_paid) continue; // belum lunas / order-nya udah dihapus -- bukan pendapatan yg udah diterima
+            source = "Order: " + order.buyer_name;
+          }
+          const qty = Number(s.qty) || 0;
+          const revenue = qty * (Number(s.unit_sell_price) || 0);
+          const hpp = qty * (Number(s.unit_hpp) || 0);
+          entries.push({
+            id: s.id, createdAt: s.created_at, source,
+            productName: prodNameById.get(s.product_id) || "(produk dihapus)",
+            qty, revenue, hpp, profit: revenue - hpp,
+          });
+        }
+        // deno-lint-ignore no-explicit-any
+        const totalRevenue = entries.reduce((sum: number, e: any) => sum + e.revenue, 0);
+        // deno-lint-ignore no-explicit-any
+        const totalHpp = entries.reduce((sum: number, e: any) => sum + e.hpp, 0);
+        return jsonResponse({ status: "success", entries, totalRevenue, totalHpp, totalProfit: totalRevenue - totalHpp });
+      }
+
       case "getModal": {
         const { data: rows } = await admin.from("workshop_costs").select("*");
         const modal: Record<string, Record<string, { nama: string; biaya: number; tipe: string; excludeFromBudget: boolean }[]>> = {};

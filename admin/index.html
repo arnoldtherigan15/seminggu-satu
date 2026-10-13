@@ -4393,6 +4393,9 @@
           <button class="nav-btn" data-view="shoporders">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0"/><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg></span> Order Toko
           </button>
+          <button class="nav-btn" data-view="shopfinance">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 11H2v3h2zm5-4H7v7h2zm5-5v12h-2V2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm-5 6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-5 4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/></svg></span> Laporan Keuangan
+          </button>
           </div>
           </details>
           <details class="nav-acc">
@@ -5235,6 +5238,42 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <div class="msg" id="shopOrdMsg"></div>
             </div>
           </div>
+        </div>
+
+        <!-- ===== VIEW: SHOP > LAPORAN KEUANGAN (shop_sales yang udah lunas) ===== -->
+        <div class="wrap view" id="viewShopFinance" style="display:none;">
+          <div class="toolbar">
+            <div class="field">
+              <label for="shopFinYearSelect">Tahun</label>
+              <select class="form-control" id="shopFinYearSelect"></select>
+            </div>
+            <div class="field">
+              <label for="shopFinMonthSelect">Bulan</label>
+              <select class="form-control" id="shopFinMonthSelect">
+                <option value="">Semua Bulan</option>
+                <option value="0">Januari</option>
+                <option value="1">Februari</option>
+                <option value="2">Maret</option>
+                <option value="3">April</option>
+                <option value="4">Mei</option>
+                <option value="5">Juni</option>
+                <option value="6">Juli</option>
+                <option value="7">Agustus</option>
+                <option value="8">September</option>
+                <option value="9">Oktober</option>
+                <option value="10">November</option>
+                <option value="11">Desember</option>
+              </select>
+            </div>
+            <button class="btn btn-sm btn-ghost" id="shopFinReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+          </div>
+          <p class="hint" style="margin-bottom:12px;">Pendapatan yang BENERAN udah diterima: penjualan scan QR dianggap lunas instan, penjualan lewat Order cuma dihitung kalau statusnya udah ditandai "Lunas" di Order Toko -- yang masih "Belum Bayar" dianggap piutang, belum masuk laporan ini.</p>
+          <div class="fin-card" style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Pendapatan</span><b id="shopFinRevenue">Rp 0</b></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Modal (HPP)</span><b id="shopFinHpp">Rp 0</b></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);margin-top:6px;font-size:1.1rem;"><span style="font-weight:700;">Keuntungan</span><b id="shopFinProfit" style="color:var(--brand);">Rp 0</b></div>
+          </div>
+          <div id="shopFinList"></div>
         </div>
 
         <!-- ===== VIEW: SIDE QUEST ===== -->
@@ -7485,7 +7524,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "recbatch", "shopstock", "shopproduct", "shoporders", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "recbatch", "shopstock", "shopproduct", "shoporders", "shopfinance", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2], parts[3]);
     }
@@ -7525,6 +7564,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("viewShopStock").style.display = (view === "shopstock") ? "block" : "none";
       document.getElementById("viewShopProduct").style.display = (view === "shopproduct") ? "block" : "none";
       document.getElementById("viewShopOrders").style.display = (view === "shoporders") ? "block" : "none";
+      document.getElementById("viewShopFinance").style.display = (view === "shopfinance") ? "block" : "none";
       document.getElementById("viewLeads").style.display = (view === "leads") ? "block" : "none";
       document.getElementById("viewQuest").style.display = (view === "quest") ? "block" : "none";
       document.getElementById("viewActivity").style.display = (view === "activity") ? "block" : "none";
@@ -7551,6 +7591,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "shopstock") ensureShopStockView();
       if (view === "shopproduct") ensureShopProductView();
       if (view === "shoporders") ensureShopOrdersView();
+      if (view === "shopfinance") ensureShopFinanceView();
       if (view === "leads") ensureLeads();
       if (view === "quest") { ensureQuest(); if (event && questTabsCtl) questTabsCtl.show(event); }
       if (view === "activity") ensureActivity();
@@ -12202,6 +12243,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("shopOrdWalkinNewBtn").addEventListener("click", () => startNewShopOrder(null, true));
         document.getElementById("shopOrdWalkinYearSelect").addEventListener("change", renderShopOrdWalkinList);
         document.getElementById("shopOrdWalkinMonthSelect").addEventListener("change", renderShopOrdWalkinList);
+        // Default bulan filter = bulan SEKARANG (bukan "Semua Bulan") --
+        // sekali doang pas pertama kali dibuka, biar pilihan manual user
+        // nanti nggak ke-reset tiap list-nya di-reload.
+        document.getElementById("shopOrdWalkinMonthSelect").value = String(new Date().getMonth());
         document.getElementById("shopOrdBackBtn").addEventListener("click", closeShopOrdEditor);
         document.getElementById("shopOrdSaveInfoBtn").addEventListener("click", saveShopOrdInfoFn);
         document.getElementById("shopOrdPaidToggleBtn").addEventListener("click", toggleShopOrdPaidFn);
@@ -12683,6 +12728,85 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       } catch (e) {
         alert("Failed to connect to the server.");
       }
+    }
+
+    // ---------- SHOP > LAPORAN KEUANGAN ----------
+    // Fetch SEKALI (semua baris, server nggak filter tahun/bulan), difilter
+    // di klien -- sama pola kayak "Pembeli Lain" (volume realistis kecil,
+    // nggak butuh query server terpisah per periode).
+    let shopFinInit = false;
+    let SHOPFIN_ENTRIES = [];
+    let SHOPFIN_TOTALS = { revenue: 0, hpp: 0, profit: 0 };
+
+    function ensureShopFinanceView() {
+      if (!shopFinInit) {
+        document.getElementById("shopFinYearSelect").addEventListener("change", renderShopFinList);
+        document.getElementById("shopFinMonthSelect").addEventListener("change", renderShopFinList);
+        document.getElementById("shopFinReloadBtn").addEventListener("click", loadShopFinReport);
+        // Default bulan = bulan SEKARANG (bukan "Semua Bulan"), sekali doang
+        // pas pertama kali dibuka -- sama alasan kayak filter Pembeli Lain.
+        document.getElementById("shopFinMonthSelect").value = String(new Date().getMonth());
+        shopFinInit = true;
+      }
+      loadShopFinReport();
+    }
+
+    async function loadShopFinReport() {
+      const listEl = document.getElementById("shopFinList");
+      listEl.innerHTML = skelLines(3);
+      try {
+        const r = await api("getShopFinanceReport", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); listEl.innerHTML = ""; return; }
+        SHOPFIN_ENTRIES = r.entries || [];
+        SHOPFIN_TOTALS = { revenue: r.totalRevenue || 0, hpp: r.totalHpp || 0, profit: r.totalProfit || 0 };
+        populateShopFinYearFilter();
+        renderShopFinList();
+      } catch (e) {
+        listEl.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
+      }
+    }
+
+    function populateShopFinYearFilter() {
+      const sel = document.getElementById("shopFinYearSelect");
+      const years = Array.from(new Set(SHOPFIN_ENTRIES.map(e => new Date(e.createdAt).getFullYear())));
+      const nowYear = new Date().getFullYear();
+      if (!years.includes(nowYear)) years.push(nowYear);
+      years.sort((a, b) => b - a);
+      const prevVal = sel.value;
+      sel.innerHTML = `<option value="">Semua Tahun</option>` + years.map(y => `<option value="${y}">${y}</option>`).join("");
+      sel.value = (prevVal && years.some(y => String(y) === prevVal)) ? prevVal : String(nowYear);
+    }
+
+    function renderShopFinList() {
+      const listEl = document.getElementById("shopFinList");
+      const yearVal = document.getElementById("shopFinYearSelect").value;
+      const monthVal = document.getElementById("shopFinMonthSelect").value;
+      let filtered = SHOPFIN_ENTRIES;
+      if (yearVal) filtered = filtered.filter(e => new Date(e.createdAt).getFullYear() === Number(yearVal));
+      if (monthVal !== "") filtered = filtered.filter(e => new Date(e.createdAt).getMonth() === Number(monthVal));
+
+      // Total di atas ikut angka TERFILTER (bukan grand total semua waktu) --
+      // biar relevan sama periode yang lagi dilihat.
+      const revenue = filtered.reduce((s, e) => s + e.revenue, 0);
+      const hpp = filtered.reduce((s, e) => s + e.hpp, 0);
+      document.getElementById("shopFinRevenue").textContent = rupiah(revenue);
+      document.getElementById("shopFinHpp").textContent = rupiah(hpp);
+      document.getElementById("shopFinProfit").textContent = rupiah(revenue - hpp);
+
+      if (!filtered.length) { listEl.innerHTML = `<p class="hint">Belum ada pendapatan tercatat di periode ini.</p>`; return; }
+      listEl.innerHTML = filtered.map(e => {
+        const date = new Date(e.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+        return `<div class="fin-card" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:700;">${escapeHtml(e.productName)} &times;${e.qty}</div>
+            <div class="hint">${escapeHtml(e.source)} &middot; ${escapeHtml(date)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700;">${rupiah(e.revenue)}</div>
+            <div class="hint" style="color:${e.profit >= 0 ? "#166534" : "var(--err)"};">untung ${rupiah(e.profit)}</div>
+          </div>
+        </div>`;
+      }).join("");
     }
 
     // ---------- MEMBER (akun /warga, ultah, aktif) ----------
