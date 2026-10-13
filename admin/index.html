@@ -10775,7 +10775,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // instead of white. Renders the doc off-screen with html2canvas, one
     // image per page, and assembles them with jsPDF -- so the output looks
     // identical everywhere and nothing but our own content ends up on it.
-    async function downloadDocPdf(html, fileName) {
+    async function downloadDocPdf(html, fileName, opts) {
       const PAGE_W_MM = 210, PAGE_H_MM = 297;
       const MARGIN_MM = { top: 20, right: 16, bottom: 20, left: 16 };
       const PX_PER_MM = 96 / 25.4;
@@ -10842,6 +10842,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           pdf.addImage(sliceCanvas.toDataURL("image/jpeg", 0.95), "JPEG", MARGIN_MM.left, MARGIN_MM.top, contentWMm, (end - cursor) / PX_PER_MM);
           cursor = end;
         }
+        // opts.returnBlob -- dipake buat share langsung (mis. WhatsApp lewat
+        // Web Share API) tanpa maksa download ke disk dulu. Default (nggak
+        // dikasih) tetep auto-save kayak sebelumnya -- MOU/Invoice Partner
+        // yang udah ada nggak kena pengaruh sama sekali.
+        if (opts && opts.returnBlob) return pdf.output("blob");
         pdf.save(fileName + ".pdf");
       } finally {
         stage.remove();
@@ -10914,7 +10919,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       downloadInvoicePdf({ title: f.title, doc_date: f.docDate, data: f.data });
     }
 
-    async function downloadInvoicePdf(doc) {
+    async function downloadInvoicePdf(doc, opts) {
       const d = doc.data || {};
       const dateId = doc.doc_date ? formatDateEn(doc.doc_date) : "";
       const items = (d.items || []).map(normalizeInvoiceItem);
@@ -10965,7 +10970,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
           </div>
         </div>`;
-      await downloadDocPdf(html, safeFileName(doc.title || "Invoice"));
+      return await downloadDocPdf(html, safeFileName(doc.title || "Invoice"), opts);
     }
 
     // ---------- KONTEN EDITOR (galeri/testimoni/rekomendasi) ----------
@@ -12608,8 +12613,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // Invoice PDF numpang downloadInvoicePdf() yang udah ada (dipake MOU/
     // Invoice Partner) -- satu sumber doang buat layout PDF-nya, bank info
     // pakai default BCA Arnold yang sama kayak di form Invoice Partner.
-    async function downloadShopOrderInvoiceFn() {
-      if (!SHOPORD_CURRENT.items.length) { alert("Belum ada item di order ini."); return; }
+    // asBlob=true -> balikin Blob PDF-nya (buat di-share, lihat
+    // openShopOrdWaFn) BUKAN auto-download; dipake juga apa adanya (asBlob
+    // kosong) buat tombol "Download Invoice PDF" yang auto-save kayak biasa.
+    async function downloadShopOrderInvoiceFn(asBlob) {
+      if (!SHOPORD_CURRENT.items.length) { if (!asBlob) alert("Belum ada item di order ini."); return null; }
       const doc = {
         title: "Invoice - " + SHOPORD_CURRENT.buyerName,
         doc_date: new Date().toISOString().slice(0, 10),
@@ -12624,14 +12632,45 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           signerName: "Arnold Therigan",
         },
       };
-      await downloadInvoicePdf(doc);
+      return await downloadInvoicePdf(doc, asBlob ? { returnBlob: true } : undefined);
     }
 
-    function openShopOrdWaFn() {
+    // WhatsApp (wa.me / api.whatsapp.com) SENGAJA nggak nyediain cara buka
+    // chat ke nomor tertentu SEKALIGUS nempelin file -- itu batasan
+    // WhatsApp sendiri (cuma bisa prefill teks lewat ?text=), bukan
+    // sesuatu yang bisa diakalin dari kode. Yang BISA dilakuin: kalau
+    // device-nya dukung Web Share API buat file (kebanyakan HP, BUKAN
+    // desktop), lampirin PDF invoice-nya lewat share sheet bawaan OS --
+    // WA bakal jadi salah satu pilihan di situ, tapi Arnold tetep harus
+    // milih kontaknya manual di dalam WA (itu juga batasan WhatsApp, share
+    // sheet nggak bisa "lempar langsung" ke kontak tertentu). Kalau device
+    // nggak dukung (umumnya desktop) atau generate PDF-nya gagal, fallback
+    // ke buka chat teks doang kayak sebelumnya.
+    async function openShopOrdWaFn() {
       const wa = waNormalize(SHOPORD_CURRENT.buyerWa);
       if (!wa) { alert("Nomor WA pembeli belum diisi."); return; }
       const itemsText = SHOPORD_CURRENT.items.map(it => `- ${it.productName || "Produk"} x${it.qty} = ${rupiah(it.lineTotal)}`).join("\n");
       const text = `Halo ${SHOPORD_CURRENT.buyerName}! Ini rincian belanjamu:\n${itemsText}\n\nTotal: ${rupiah(SHOPORD_CURRENT.total)}\n\nTransfer ke BCA 6042825961 a.n Arnold Therigan ya. Terima kasih! 🐾`;
+
+      let file = null;
+      if (SHOPORD_CURRENT.items.length && navigator.canShare) {
+        try {
+          const blob = await downloadShopOrderInvoiceFn(true);
+          if (blob) {
+            const candidate = new File([blob], safeFileName("Invoice - " + SHOPORD_CURRENT.buyerName) + ".pdf", { type: "application/pdf" });
+            if (navigator.canShare({ files: [candidate] })) file = candidate;
+          }
+        } catch (e) { /* gagal generate PDF -- lanjut tanpa lampiran di bawah */ }
+      }
+
+      if (file) {
+        try {
+          await navigator.share({ files: [file], text });
+          return; // user udah milih aplikasi (WA/lainnya) & kontaknya dari share sheet OS
+        } catch (e) {
+          if (e && e.name === "AbortError") return; // sengaja dibatalin user -- JANGAN maksa fallback buka WA
+        }
+      }
       window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(text), "_blank");
     }
 
