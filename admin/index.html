@@ -5057,7 +5057,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <div class="konten-field"><label>Jumlah per Beli</label><input class="form-control" type="number" id="shopMatPurchaseQty" placeholder="mis. 100" min="0" step="any"></div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <div class="konten-field"><label>Harga Beli (Rp, buat jumlah di atas)</label><input class="form-control" type="number" id="shopMatPrice" placeholder="mis. 40000" min="0" step="any"></div>
+                <div class="konten-field"><label>Harga Beli (Rp, buat jumlah di atas)</label><input class="form-control" type="text" inputmode="numeric" id="shopMatPrice" placeholder="mis. 40.000"></div>
                 <div class="konten-field"><label>Stok Sekarang</label><input class="form-control" type="number" id="shopMatStock" placeholder="otomatis = jumlah per beli kalau kosong" min="0" step="any"></div>
               </div>
               <p class="hint">Harga per satuan: <b id="shopMatUnitCostPreview">Rp 0</b></p>
@@ -5109,7 +5109,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Biaya Bahan</span><b id="shopProdMatTotal">Rp 0</b></div>
               <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Biaya Lain</span><b id="shopProdCostTotal">Rp 0</b></div>
               <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);margin-top:6px;font-size:1.1rem;"><span style="font-weight:700;">HPP Total</span><b id="shopProdHppTotal" style="color:var(--brand);">Rp 0</b></div>
-              <div class="konten-field" style="margin-top:10px;"><label>Harga Jual (opsional, buat liat margin)</label><input class="form-control" type="number" id="shopProdSellPrice" placeholder="mis. 25000" min="0" step="any"></div>
+              <div class="konten-field" style="margin-top:10px;"><label>Harga Jual (opsional, buat liat margin)</label><input class="form-control" type="text" inputmode="numeric" id="shopProdSellPrice" placeholder="mis. 25.000"></div>
               <div id="shopProdMarginBox" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;"></div>
             </div>
 
@@ -11503,6 +11503,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("shopMatReloadBtn").addEventListener("click", loadShopMatList);
         document.getElementById("shopMatBackBtn").addEventListener("click", closeShopMatEditor);
         document.getElementById("shopMatSaveBtn").addEventListener("click", saveShopMatFn);
+        wireRibuanInput(document.getElementById("shopMatPrice"));
         ["shopMatPurchaseQty", "shopMatPrice", "shopMatUnit"].forEach(id => {
           document.getElementById(id).addEventListener("input", updateShopMatUnitCostPreview);
         });
@@ -11568,7 +11569,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("shopMatLink").value = SHOPMAT_CURRENT.link || "";
       document.getElementById("shopMatUnit").value = SHOPMAT_CURRENT.unit || "pcs";
       document.getElementById("shopMatPurchaseQty").value = SHOPMAT_CURRENT.purchaseQty || "";
-      document.getElementById("shopMatPrice").value = SHOPMAT_CURRENT.price || "";
+      document.getElementById("shopMatPrice").value = SHOPMAT_CURRENT.price ? formatRibuan(SHOPMAT_CURRENT.price) : "";
       // Bahan baru: kosongin placeholder-nya aja (server default stok = purchaseQty
       // kalau dikosongin) -- bahan lama: tunjukin stok SEKARANG yang sebenarnya,
       // walau 0 (JANGAN "|| ''" di sini, itu bakal nge-drop angka 0 yang valid).
@@ -11587,7 +11588,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     function updateShopMatUnitCostPreview() {
       const qty = Number(document.getElementById("shopMatPurchaseQty").value) || 0;
-      const price = Number(document.getElementById("shopMatPrice").value) || 0;
+      const price = parseRibuan(document.getElementById("shopMatPrice").value);
       const unit = document.getElementById("shopMatUnit").value.trim() || "satuan";
       const cost = qty > 0 ? price / qty : 0;
       document.getElementById("shopMatUnitCostPreview").textContent = rupiah(cost) + " / " + unit;
@@ -11625,7 +11626,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         link: document.getElementById("shopMatLink").value.trim(),
         unit: document.getElementById("shopMatUnit").value.trim() || "pcs",
         purchaseQty: document.getElementById("shopMatPurchaseQty").value,
-        price: document.getElementById("shopMatPrice").value,
+        price: parseRibuan(document.getElementById("shopMatPrice").value),
         stockQty: document.getElementById("shopMatStock").value,
       };
       const btn = document.getElementById("shopMatSaveBtn");
@@ -11683,6 +11684,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           SHOPPROD_CURRENT.extraCosts.push({ label: "", amount: 0 });
           renderShopProdCostRows();
         });
+        wireRibuanInput(document.getElementById("shopProdSellPrice"));
         document.getElementById("shopProdSellPrice").addEventListener("input", updateShopProdSummary);
         document.getElementById("shopProdSaveBtn").addEventListener("click", saveShopProdFn);
         shopProdInit = true;
@@ -11745,7 +11747,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("shopProdListWrap").style.display = "none";
       document.getElementById("shopProdEditorWrap").style.display = "block";
       document.getElementById("shopProdName").value = SHOPPROD_CURRENT.name || "";
-      document.getElementById("shopProdSellPrice").value = SHOPPROD_CURRENT.sellPrice != null ? SHOPPROD_CURRENT.sellPrice : "";
+      document.getElementById("shopProdSellPrice").value = SHOPPROD_CURRENT.sellPrice != null ? formatRibuan(SHOPPROD_CURRENT.sellPrice) : "";
       document.getElementById("shopProdMsg").textContent = "";
       document.getElementById("shopProdNoMatsHint").style.display = SHOPPROD_MATERIALS_CACHE.length ? "none" : "block";
       renderShopProdMatRows();
@@ -11893,11 +11895,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
            </div>
            <div style="flex:1;min-width:110px;">
              <label class="hint" style="display:block;margin-bottom:4px;">Jumlah (Rp)</label>
-             <input class="form-control" type="number" min="0" step="any" value="${row.amount || ""}" data-cost-amount>
+             <input class="form-control" type="text" inputmode="numeric" value="${row.amount ? formatRibuan(row.amount) : ""}" data-cost-amount>
            </div>
            <button class="btn btn-sm btn-ghost" type="button" data-cost-del style="color:var(--err);">Hapus</button>`;
         div.querySelector("[data-cost-label]").addEventListener("input", (e) => { row.label = e.target.value; });
-        div.querySelector("[data-cost-amount]").addEventListener("input", (e) => { row.amount = Number(e.target.value) || 0; updateShopProdSummary(); });
+        const costAmountEl = div.querySelector("[data-cost-amount]");
+        wireRibuanInput(costAmountEl);
+        costAmountEl.addEventListener("input", (e) => { row.amount = parseRibuan(e.target.value); updateShopProdSummary(); });
         div.querySelector("[data-cost-del]").addEventListener("click", () => { SHOPPROD_CURRENT.extraCosts.splice(idx, 1); renderShopProdCostRows(); });
         listEl.appendChild(div);
       });
@@ -11919,7 +11923,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const sellPriceRaw = document.getElementById("shopProdSellPrice").value;
       const box = document.getElementById("shopProdMarginBox");
       if (sellPriceRaw !== "") {
-        const sellPrice = Number(sellPriceRaw) || 0;
+        const sellPrice = parseRibuan(sellPriceRaw);
         const margin = sellPrice - hpp;
         const marginPct = sellPrice > 0 ? (margin / sellPrice) * 100 : 0;
         const ok = margin >= 0;
@@ -11942,7 +11946,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         name,
         materials: SHOPPROD_CURRENT.materials.filter(m => m.materialId && Number(m.qty) > 0),
         extraCosts: SHOPPROD_CURRENT.extraCosts.filter(e => e.label && e.label.trim()),
-        sellPrice: sellPriceRaw !== "" ? Number(sellPriceRaw) : null,
+        sellPrice: sellPriceRaw !== "" ? parseRibuan(sellPriceRaw) : null,
       };
       const btn = document.getElementById("shopProdSaveBtn");
       const msg = document.getElementById("shopProdMsg");
