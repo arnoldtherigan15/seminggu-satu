@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surat dari Mochi — Seminggu Satu</title>
+    <meta name="description" content="Buka surat dari Mochi, dapetin prompt journaling harian buat refleksi diri.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0046ff" data-light="#0046ff" data-dark="#0d1526">
+
+    <script src="../theme.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        :root {
+            --blue: #0046ff;
+            --yellow: #ffe600;
+            --ink: #10245e;
+            --bg: #f4f7ff;
+            --card: #ffffff;
+            --line: #e4e9f5;
+            --muted: #6b7794;
+        }
+        :root[data-theme="dark"] { --ink: #eaeffc; --bg: #0d1526; --card: #172035; --line: #2a3550; --muted: #9fabc9; }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(rgba(16, 36, 94, .06) 1px, transparent 1.2px);
+            background-size: 16px 16px;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+        :root[data-theme="dark"] body { background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px); }
+
+        .page-wrap { width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+        .mochi-box {
+            position: relative;
+            width: 100%;
+            background-color: #fffdf6;
+            background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px);
+            background-size: 14px 14px;
+            border-radius: 22px;
+            padding: 22px 18px 24px;
+            box-shadow: 0 24px 60px rgba(0, 10, 60, .22);
+        }
+        :root[data-theme="dark"] .mochi-box {
+            background-color: #1b2438;
+            background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px);
+        }
+
+        .mp-imgstk { position: absolute; pointer-events: none; z-index: 1; filter: drop-shadow(0 4px 7px rgba(0, 0, 0, .2)); }
+
+        .mp-head { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.25rem; color: var(--ink); text-align: center; }
+        .mp-sub { font-size: .82rem; color: var(--muted); text-align: center; margin-top: 2px; }
+
+        /* amplop kuning bersegel wax paw -- dipindah dari komponen member hub (warga/main.js
+           renderMochiEnvelope), disederhanakan: tanpa mode ultah/fortune/voucher karena
+           halaman ini publik & single-purpose (cuma prompt journaling). */
+        .env-scene { padding: 30px 0 8px; }
+
+        .envelope {
+            position: relative;
+            width: 280px;
+            height: 186px;
+            margin: 0 auto;
+            cursor: pointer;
+            filter: drop-shadow(0 16px 26px rgba(0, 30, 120, .22));
+            transition: transform .15s ease;
+        }
+        .envelope:active { transform: scale(.96) rotate(-1deg); }
+
+        .env-back { position: absolute; inset: 0; background: #f5d800; border-radius: 12px; }
+
+        .env-letter {
+            position: absolute;
+            left: 14px; right: 14px; top: 8px; bottom: 0;
+            background: #fffdf6;
+            border: 1px solid #eadfbb;
+            border-radius: 8px 8px 0 0;
+            z-index: 2;
+            opacity: 0;
+            transition: transform .8s cubic-bezier(.2, .7, .2, 1) .25s, opacity .3s ease .3s;
+            background-image: repeating-linear-gradient(transparent, transparent 15px, rgba(16, 36, 94, .12) 16px);
+            background-position: 0 26px;
+        }
+        .envelope.open .env-letter { opacity: 1; transform: translateY(-72%); }
+
+        .env-front {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, #ffee55 0%, #ffe600 55%, #f7d800 100%);
+            border-radius: 12px;
+            z-index: 3;
+        }
+
+        .env-addr {
+            position: absolute;
+            bottom: 26px; left: 20px; right: 96px;
+            text-align: left;
+            z-index: 4;
+            font-size: .78rem;
+            font-weight: 700;
+            font-style: italic;
+            color: rgba(16, 36, 94, .75);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .env-postage {
+            position: absolute;
+            bottom: 12px; right: 14px;
+            z-index: 4;
+            width: 44px; height: 52px;
+            background: #fff;
+            border: 2px dashed rgba(16, 36, 94, .35);
+            border-radius: 4px;
+            padding: 3px;
+            transform: rotate(4deg);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, .12);
+        }
+        .env-postage img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; border-radius: 2px; display: block; }
+
+        .env-flap {
+            position: absolute;
+            left: 0; right: 0; top: 0;
+            height: 60%;
+            background: linear-gradient(180deg, #ffdf00, #f2cf00);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            border-radius: 12px 12px 0 0;
+            transform-origin: top center;
+            z-index: 5;
+            transition: transform .5s ease .12s;
+            backface-visibility: hidden;
+            filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .14));
+        }
+        .env-flap::before { content: ''; position: absolute; inset: 0; background: #fff; }
+        .env-flap::after { content: ''; position: absolute; inset: 0; background: inherit; clip-path: polygon(3px 0, calc(100% - 3px) 0, 50% calc(100% - 4px)); }
+        .envelope.open .env-flap { transform: rotateX(180deg); z-index: 1; }
+
+        .env-seal {
+            position: absolute;
+            left: 50%; top: 56%;
+            width: 84px;
+            transform: translate(-50%, -50%) rotate(-4deg);
+            z-index: 6;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .25));
+        }
+        .envelope.open .env-seal { animation: sealPop .75s ease forwards; }
+        @keyframes sealPop {
+            0% { transform: translate(-50%, -50%) rotate(-4deg); opacity: 1; }
+            35% { transform: translate(-50%, -72%) rotate(-14deg) scale(1.12); opacity: 1; }
+            100% { transform: translate(-30%, 90px) rotate(32deg) scale(.85); opacity: 0; }
+        }
+
+        .env-tape { position: absolute; width: 64px; height: 17px; border: 1px dashed rgba(16, 36, 94, .25); box-shadow: 0 2px 4px rgba(0, 0, 0, .1); z-index: 7; pointer-events: none; }
+        .env-tape.a { top: -8px; left: -14px; transform: rotate(-32deg); background: rgba(0, 70, 255, .3); }
+        .env-tape.b { bottom: -7px; left: 34%; transform: rotate(6deg); background: rgba(255, 92, 138, .42); }
+
+        .env-stk { position: absolute; font-size: 1.45rem; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .2)); pointer-events: none; z-index: 7; }
+        .env-stk.s1 { top: -14px; right: 22px; transform: rotate(14deg); }
+        .env-stk.s2 { top: 38%; left: -16px; transform: rotate(-12deg); }
+        .env-stk.s3 { bottom: -12px; right: -10px; transform: rotate(10deg); }
+        .env-stk.s4 { top: 30%; right: -15px; transform: rotate(8deg); }
+        .env-stk.s5 { bottom: -14px; left: 16px; transform: rotate(-8deg); }
+
+        .env-hint { text-align: center; margin-top: 20px; font-size: .82rem; font-weight: 700; color: var(--muted); animation: envBounce 1.4s ease-in-out infinite; }
+        @keyframes envBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+        /* kartu prompt (isi surat) */
+        .mp-card {
+            position: relative;
+            margin-top: 20px;
+            background: var(--card);
+            border: 1.5px dashed var(--line);
+            border-radius: 16px;
+            padding: 20px 16px 16px;
+            transform: rotate(-.5deg);
+            box-shadow: 0 10px 26px rgba(0, 30, 120, .12);
+            text-align: center;
+        }
+        .mp-card.pop { animation: wrPop .5s cubic-bezier(.2, .8, .3, 1.18); }
+        @keyframes wrPop { from { opacity: 0; transform: translateY(16px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .mp-kicker { font-family: 'Outfit', sans-serif; font-size: .66rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+
+        .mp-cat {
+            display: inline-block;
+            margin-top: 10px;
+            background: var(--yellow);
+            color: #10245e;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: .72rem;
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 1.5px dashed rgba(16, 36, 94, .3);
+            transform: rotate(-2deg);
+        }
+
+        .mp-text { margin-top: 14px; font-size: 1.02rem; font-weight: 600; line-height: 1.6; color: var(--ink); }
+
+        .mp-actions { display: flex; gap: 8px; margin-top: 18px; }
+
+        .mp-btn {
+            flex: 1;
+            border: none;
+            border-radius: 12px;
+            padding: .75rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: .85rem;
+            cursor: pointer;
+            background: var(--yellow);
+            color: #10245e;
+            box-shadow: 0 4px 12px rgba(255, 214, 0, .4);
+            transition: transform .15s ease;
+        }
+        .mp-btn:active { transform: scale(.96); }
+        .mp-btn.ghost { background: var(--bg); border: 1.5px solid var(--line); color: var(--ink); box-shadow: none; flex: 0 0 auto; padding: .75rem 1rem; }
+
+        .mp-mochi {
+            position: absolute;
+            top: -24px; right: 10px;
+            width: 46px; height: 46px;
+            object-fit: cover;
+            object-position: center 20%;
+            border-radius: 50%;
+            border: 2.5px solid var(--yellow);
+            transform: rotate(8deg);
+            box-shadow: 0 6px 14px rgba(16, 36, 94, .25);
+            background: #fff;
+        }
+
+        .back-link { font-size: .82rem; font-weight: 700; color: var(--muted); text-decoration: none; }
+        .back-link:hover { color: var(--blue); }
+
+        .state-box { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: .9rem; }
+    </style>
+</head>
+
+<body>
+    <div class="page-wrap">
+        <div class="mochi-box" id="mochiBox">
+            <img class="mp-imgstk" src="../images/sticker/str-6.png" style="width:62px;bottom:8px;left:6px;transform:rotate(-8deg);" alt="">
+            <img class="mp-imgstk" src="../images/sticker/str-11.png" style="width:58px;bottom:10px;right:8px;transform:rotate(11deg);" alt="">
+            <div class="mp-head">💌 Surat dari Mochi</div>
+            <div class="mp-sub">Ada prompt journaling harian buat kamu~</div>
+
+            <div class="env-scene" id="envScene">
+                <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Buka amplop">
+                    <div class="env-back"></div>
+                    <div class="env-letter"></div>
+                    <div class="env-front"></div>
+                    <div class="env-addr">Untuk: Kamu ✍️</div>
+                    <div class="env-postage"><img src="../images/mochi_maskot_sm.png" alt=""></div>
+                    <div class="env-flap"></div>
+                    <img class="env-seal" src="../warga/seal-paw.png" alt="">
+                    <span class="env-tape a"></span><span class="env-tape b"></span>
+                    <span class="env-stk s1">✂️</span><span class="env-stk s2">🌟</span><span class="env-stk s3">📎</span><span class="env-stk s4">🌈</span><span class="env-stk s5">🐾</span>
+                </div>
+                <div class="env-hint">ketuk amplopnya buat buka 💌</div>
+            </div>
+
+            <div class="mp-card" id="mpCard" style="display:none;">
+                <img class="mp-mochi" src="../images/mochi_maskot_sm.png" alt="">
+                <div class="mp-kicker" id="mpKicker"></div>
+                <div><span class="mp-cat" id="mpCat"></span></div>
+                <div class="mp-text" id="mpText"></div>
+                <div class="mp-actions">
+                    <button class="mp-btn ghost" id="mpCopy">📋 Salin</button>
+                    <button class="mp-btn" id="mpRandom">🎲 Prompt acak lainnya</button>
+                </div>
+            </div>
+
+            <div class="state-box" id="errBox" style="display:none;"></div>
+        </div>
+
+        <a class="back-link" href="../index.html">🐾 Kenalan sama Seminggu Satu</a>
+    </div>
+
+    <script>
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+        const $ = (id) => document.getElementById(id);
+
+        // Prompt dimuat via <script> injection (bukan fetch) -- sama pola kayak
+        // warga/main.js biar data publiknya konsisten satu sumber (list_prompt.js).
+        function loadPrompts() {
+            return new Promise((resolve, reject) => {
+                if (Array.isArray(window.SS_PROMPTS) && window.SS_PROMPTS.length) { resolve(window.SS_PROMPTS); return; }
+                const s = document.createElement("script");
+                s.src = "../warga/list_prompt.js";
+                s.onload = () => {
+                    if (Array.isArray(window.SS_PROMPTS) && window.SS_PROMPTS.length) resolve(window.SS_PROMPTS);
+                    else reject(new Error("daftar prompt kosong"));
+                };
+                s.onerror = () => reject(new Error("gagal load daftar prompt"));
+                document.body.appendChild(s);
+            });
+        }
+
+        // Prompt harian: deterministik per tanggal (sehari sama terus, besok ganti).
+        function dailyPrompt(list) {
+            const d = new Date();
+            let seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+            seed = (seed * 9301 + 49297) % 233280;
+            return list[seed % list.length];
+        }
+
+        let _lastId = 0;
+        function randomPrompt(list) {
+            const it = list[Math.floor(Math.random() * list.length)];
+            if (list.length > 1 && it.id === _lastId) return randomPrompt(list);
+            return it;
+        }
+
+        function playSfx(name) {
+            try {
+                const a = new Audio("../sound-effect/" + name + ".mp3");
+                a.volume = 0.9;
+                a.play().catch(() => { });
+            } catch (e) { }
+        }
+
+        const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const now = new Date();
+        const dateStr = now.getDate() + " " + MON[now.getMonth()] + " " + now.getFullYear();
+
+        function showPrompt(list, it, isDaily) {
+            _lastId = it.id;
+            $("mpKicker").textContent = isDaily ? "DAILY PROMPT · " + dateStr : "RANDOM PROMPT 🎲";
+            $("mpCat").textContent = "🏷️ " + (it.category || "Journaling");
+            $("mpText").textContent = "“" + it.prompt + "”";
+            const card = $("mpCard");
+            card.classList.remove("pop");
+            void card.offsetWidth;
+            card.classList.add("pop");
+        }
+
+        loadPrompts().then((list) => {
+            const env = $("envelope");
+            let opened = false;
+            env.addEventListener("click", () => {
+                if (opened) return;
+                opened = true;
+                playSfx("open-mail");
+                env.classList.add("open");
+                if (typeof confetti === "function") {
+                    setTimeout(() => confetti({ particleCount: 100, spread: 80, origin: { y: 0.55 }, colors: ['#0046ff', '#ffe600', '#00b4ff', '#ff007f'] }), 500);
+                }
+                setTimeout(() => {
+                    $("envScene").style.display = "none";
+                    $("mpCard").style.display = "block";
+                    showPrompt(list, dailyPrompt(list), true);
+                }, 1000);
+            });
+            env.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); env.click(); } });
+
+            $("mpRandom").addEventListener("click", () => showPrompt(list, randomPrompt(list), false));
+            $("mpCopy").addEventListener("click", async () => {
+                const btn = $("mpCopy");
+                try { await navigator.clipboard.writeText($("mpText").textContent.replace(/[“”]/g, "")); btn.textContent = "✓ Tersalin"; }
+                catch (e) { btn.textContent = "Salin manual ya"; }
+                setTimeout(() => { btn.textContent = "📋 Salin"; }, 1800);
+            });
+        }).catch(() => {
+            $("envScene").style.display = "none";
+            const err = $("errBox");
+            err.style.display = "block";
+            err.textContent = "Gagal memuat surat 😢 Coba muat ulang halaman ini ya.";
+        });
+    </script>
+</body>
+
+</html>
