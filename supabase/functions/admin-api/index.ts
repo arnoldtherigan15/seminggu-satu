@@ -1202,7 +1202,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         // Upload gambar generik dari admin panel (dipakai KONTEN editor,
         // mis. foto item Rekomendasi) -- whitelist bucket biar nggak
         // disalahgunain upload ke bucket sembarangan.
-        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos", "account-photos", "note-photos", "rec-batch-photos"];
+        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos", "account-photos", "note-photos", "rec-batch-photos", "shop-material-photos"];
         const bucket = String(data.bucket || "");
         if (!ALLOWED_BUCKETS.includes(bucket)) return errorResponse("Bucket tidak dikenal: " + bucket);
         if (!data.imageBase64) return errorResponse("Gambar belum dipilih.");
@@ -1368,6 +1368,140 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         const { error } = await admin.from("qr_links").delete().eq("id", id);
         if (error) return errorResponse("Gagal menghapus: " + error.message);
         return jsonResponse({ status: "success", message: "QR dihapus." });
+      }
+
+      // ---------- Shop: Stok Bahan + Kalkulasi HPP (shop_materials/shop_products)
+      // Alat hitung modal internal Arnold -- BUKAN toko online buat customer
+      // (itu udah dibatalin, lihat drop_shop migration). shop_products.materials
+      // SENGAJA cuma nyimpen {materialId, qty}, harga per satuan dihitung LIVE
+      // dari shop_materials tiap kali di-list/get -- ini kalkulator
+      // PERENCANAAN (harus ikut keupdate begitu harga bahan berubah), bukan
+      // catatan transaksi historis yang perlu freeze harga.
+      case "listShopMaterials": {
+        const { data: rows } = await admin.from("shop_materials").select("*").order("created_at", { ascending: false });
+        // deno-lint-ignore no-explicit-any
+        const materials = (rows || []).map((r: any) => ({
+          id: r.id, name: r.name, image: r.image || "", link: r.link || "",
+          unit: r.unit, purchaseQty: Number(r.purchase_qty) || 0, price: Number(r.price) || 0,
+          stockQty: Number(r.stock_qty) || 0,
+          unitCost: Number(r.purchase_qty) > 0 ? Number(r.price) / Number(r.purchase_qty) : 0,
+          createdAt: r.created_at,
+        }));
+        return jsonResponse({ status: "success", materials });
+      }
+
+      case "saveShopMaterial": {
+        const name = String(data.name || "").trim();
+        if (!name) return errorResponse("Nama bahan wajib diisi.");
+        const unit = String(data.unit || "pcs").trim() || "pcs";
+        const purchaseQty = Number(data.purchaseQty) || 0;
+        const price = Number(data.price) || 0;
+        const stockQty = data.stockQty != null && String(data.stockQty).trim() !== "" ? Number(data.stockQty) : purchaseQty;
+        const image = data.image != null ? String(data.image).trim() : "";
+        const link = data.link != null ? String(data.link).trim() : "";
+        const id = data.id ? String(data.id) : "";
+        const patch = {
+          name, unit, purchase_qty: purchaseQty, price, stock_qty: stockQty,
+          image: image || null, link: link || null,
+        };
+        if (id) {
+          const { error } = await admin.from("shop_materials").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
+          if (error) return errorResponse("Gagal menyimpan bahan: " + error.message);
+          return jsonResponse({ status: "success", message: "Bahan diperbarui.", id });
+        }
+        const { data: inserted, error: insErr } = await admin.from("shop_materials").insert(patch).select("id").single();
+        if (insErr) return errorResponse("Gagal membuat bahan: " + insErr.message);
+        return jsonResponse({ status: "success", message: "Bahan dibuat.", id: inserted?.id });
+      }
+
+      case "deleteShopMaterial": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID tidak valid.");
+        const { error } = await admin.from("shop_materials").delete().eq("id", id);
+        if (error) return errorResponse("Gagal menghapus bahan: " + error.message);
+        return jsonResponse({ status: "success", message: "Bahan dihapus." });
+      }
+
+      case "listShopProducts": {
+        const { data: rows } = await admin.from("shop_products").select("*").order("created_at", { ascending: false });
+        const { data: matRows } = await admin.from("shop_materials").select("id, name, unit, purchase_qty, price");
+        // deno-lint-ignore no-explicit-any
+        const matById = new Map((matRows || []).map((m: any) => [m.id, m]));
+        // deno-lint-ignore no-explicit-any
+        const products = (rows || []).map((r: any) => {
+          const materials = Array.isArray(r.materials) ? r.materials : [];
+          const extraCosts = Array.isArray(r.extra_costs) ? r.extra_costs : [];
+          let materialCost = 0;
+          // deno-lint-ignore no-explicit-any
+          const materialLines = materials.map((m: any) => {
+            const mat = matById.get(m.materialId);
+            const unitCost = mat && Number(mat.purchase_qty) > 0 ? Number(mat.price) / Number(mat.purchase_qty) : 0;
+            const qty = Number(m.qty) || 0;
+            const lineCost = unitCost * qty;
+            materialCost += lineCost;
+            // materialName null = bahan ini udah dihapus dari shop_materials --
+            // tetep ditampilin apa adanya (biar admin sadar & bisa bersihin),
+            // bukan di-skip diam-diam (itu bakal bikin HPP keliatan lebih
+            // murah dari yang sebenarnya tanpa penjelasan).
+            return {
+              materialId: m.materialId, qty,
+              materialName: mat ? mat.name : null,
+              unit: mat ? mat.unit : "", unitCost, lineCost,
+            };
+          });
+          // deno-lint-ignore no-explicit-any
+          const extraTotal = extraCosts.reduce((sum: number, e: any) => sum + (Number(e.amount) || 0), 0);
+          const hpp = materialCost + extraTotal;
+          const sellPrice = r.sell_price != null ? Number(r.sell_price) : null;
+          return {
+            id: r.id, name: r.name,
+            materials: materialLines,
+            // deno-lint-ignore no-explicit-any
+            extraCosts: extraCosts.map((e: any) => ({ label: e.label, amount: Number(e.amount) || 0 })),
+            materialCost, extraTotal, hpp, sellPrice,
+            margin: sellPrice != null ? sellPrice - hpp : null,
+            marginPct: sellPrice != null && sellPrice > 0 ? ((sellPrice - hpp) / sellPrice) * 100 : null,
+            createdAt: r.created_at,
+          };
+        });
+        return jsonResponse({ status: "success", products });
+      }
+
+      case "saveShopProduct": {
+        const name = String(data.name || "").trim();
+        if (!name) return errorResponse("Nama produk wajib diisi.");
+        // deno-lint-ignore no-explicit-any
+        const materials = (Array.isArray(data.materials) ? data.materials : [])
+          // deno-lint-ignore no-explicit-any
+          .map((m: any) => ({ materialId: String(m?.materialId || ""), qty: Number(m?.qty) || 0 }))
+          // deno-lint-ignore no-explicit-any
+          .filter((m: any) => m.materialId && m.qty > 0);
+        // deno-lint-ignore no-explicit-any
+        const extraCosts = (Array.isArray(data.extraCosts) ? data.extraCosts : [])
+          // deno-lint-ignore no-explicit-any
+          .map((e: any) => ({ label: String(e?.label || "").trim(), amount: Number(e?.amount) || 0 }))
+          // deno-lint-ignore no-explicit-any
+          .filter((e: any) => e.label);
+        const sellPrice = data.sellPrice !== undefined && data.sellPrice !== null && String(data.sellPrice).trim() !== ""
+          ? Number(data.sellPrice) : null;
+        const id = data.id ? String(data.id) : "";
+        const patch = { name, materials, extra_costs: extraCosts, sell_price: sellPrice };
+        if (id) {
+          const { error } = await admin.from("shop_products").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
+          if (error) return errorResponse("Gagal menyimpan produk: " + error.message);
+          return jsonResponse({ status: "success", message: "Produk diperbarui.", id });
+        }
+        const { data: inserted, error: insErr } = await admin.from("shop_products").insert(patch).select("id").single();
+        if (insErr) return errorResponse("Gagal membuat produk: " + insErr.message);
+        return jsonResponse({ status: "success", message: "Produk dibuat.", id: inserted?.id });
+      }
+
+      case "deleteShopProduct": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID tidak valid.");
+        const { error } = await admin.from("shop_products").delete().eq("id", id);
+        if (error) return errorResponse("Gagal menghapus produk: " + error.message);
+        return jsonResponse({ status: "success", message: "Produk dihapus." });
       }
 
       case "getModal": {

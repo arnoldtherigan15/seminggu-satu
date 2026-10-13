@@ -4382,6 +4382,17 @@
           </div>
           </details>
           <details class="nav-acc">
+          <summary class="nav-section-label">Shop <span class="nav-acc-chevron">&#9656;</span></summary>
+          <div class="nav-acc-body">
+          <button class="nav-btn" data-view="shopstock">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2.5a1 1 0 0 1-1 1v7.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-7.5a1 1 0 0 1-1-1zm1 3.5v7.5h12v-7.5zm13-1V2H1v2.5zM5 7a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 7"/></svg></span> Stok Bahan
+          </button>
+          <button class="nav-btn" data-view="shopproduct">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/></svg></span> Kalkulasi HPP
+          </button>
+          </div>
+          </details>
+          <details class="nav-acc">
           <summary class="nav-section-label">Personal <span class="nav-acc-chevron">&#9656;</span></summary>
           <div class="nav-acc-body">
           <button class="nav-btn" data-view="personal">
@@ -5014,6 +5025,97 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <div class="msg" id="qrLinkMsg"></div>
               </div>
               <div id="qrLinkList" style="margin-top:12px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== VIEW: SHOP > STOK BAHAN (shop_materials) ===== -->
+        <div class="wrap view" id="viewShopStock" style="display:none;">
+          <div id="shopMatListWrap">
+            <div class="toolbar">
+              <button class="btn btn-sm" id="shopMatNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Bahan Baru</button>
+              <button class="btn btn-sm btn-ghost" id="shopMatReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+            </div>
+            <p class="hint" style="margin-bottom:12px;">Bahan baku yang kamu BELI buat dipake bikin produk jualanmu sendiri (mis. notebook kosongan, kertas) -- bukan produk jadi. Stok di sini diupdate MANUAL (nggak auto-kurang), dipake juga sama Kalkulasi HPP buat hitung harga per satuan.</p>
+            <div id="shopMatList"></div>
+          </div>
+
+          <div id="shopMatEditorWrap" style="display:none;">
+            <div class="toolbar">
+              <button class="btn btn-sm btn-ghost" id="shopMatBackBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg> Kembali ke Daftar</button>
+            </div>
+            <div class="fin-card">
+              <div class="konten-field"><label>Nama Bahan</label><input class="form-control" type="text" id="shopMatName" placeholder="mis. Notebook A6 Kosongan"></div>
+              <div class="konten-field"><label>Gambar</label>
+                <input class="form-control" type="text" id="shopMatImage" placeholder="Upload di bawah, atau tempel URL manual">
+                <input class="form-control" type="file" accept="image/*" id="shopMatImagePick" style="margin-top:6px;">
+                <div id="shopMatImagePreview" style="margin-top:8px;"></div>
+              </div>
+              <div class="konten-field"><label>Link (toko tempat beli, opsional)</label><input class="form-control" type="text" id="shopMatLink" placeholder="https://..."></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="konten-field"><label>Satuan</label><input class="form-control" type="text" id="shopMatUnit" placeholder="pcs / lembar / gram"></div>
+                <div class="konten-field"><label>Jumlah per Beli</label><input class="form-control" type="number" id="shopMatPurchaseQty" placeholder="mis. 100" min="0" step="any"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="konten-field"><label>Harga Beli (Rp, buat jumlah di atas)</label><input class="form-control" type="number" id="shopMatPrice" placeholder="mis. 40000" min="0" step="any"></div>
+                <div class="konten-field"><label>Stok Sekarang</label><input class="form-control" type="number" id="shopMatStock" placeholder="otomatis = jumlah per beli kalau kosong" min="0" step="any"></div>
+              </div>
+              <p class="hint">Harga per satuan: <b id="shopMatUnitCostPreview">Rp 0</b></p>
+            </div>
+            <div class="fin-card" style="margin-top:12px;">
+              <button class="btn" id="shopMatSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Bahan</button>
+              <div class="msg" id="shopMatMsg"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== VIEW: SHOP > KALKULASI HPP (shop_products) ===== -->
+        <div class="wrap view" id="viewShopProduct" style="display:none;">
+          <div id="shopProdListWrap">
+            <div class="toolbar">
+              <button class="btn btn-sm" id="shopProdNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Produk Baru</button>
+              <button class="btn btn-sm btn-ghost" id="shopProdReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+            </div>
+            <p class="hint" style="margin-bottom:12px;">Hitung HPP (Harga Pokok Penjualan) produk jualanmu: pilih bahan dari Stok Bahan + berapa yang kepake, tambahin biaya lain yang nggak butuh stok (ongkos print, ongkos kerja, dst) -- total HPP keitung otomatis & ikut keupdate kalau harga bahan berubah.</p>
+            <div id="shopProdList"></div>
+          </div>
+
+          <div id="shopProdEditorWrap" style="display:none;">
+            <div class="toolbar">
+              <button class="btn btn-sm btn-ghost" id="shopProdBackBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg> Kembali ke Daftar</button>
+            </div>
+            <div class="fin-card">
+              <div class="konten-field"><label>Nama Produk</label><input class="form-control" type="text" id="shopProdName" placeholder="mis. Deco Paper Matcha Series"></div>
+            </div>
+
+            <div class="fin-card" style="margin-top:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <label style="font-weight:700;">Bahan yang Dipakai</label>
+                <button class="btn btn-sm" id="shopProdAddMatBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Bahan</button>
+              </div>
+              <div id="shopProdMatList"></div>
+              <p class="hint" id="shopProdNoMatsHint" style="display:none;">Belum ada bahan di Stok Bahan -- tambahin dulu di menu "Stok Bahan".</p>
+            </div>
+
+            <div class="fin-card" style="margin-top:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <label style="font-weight:700;">Biaya Lain (tanpa stok)</label>
+                <button class="btn btn-sm" id="shopProdAddCostBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Biaya</button>
+              </div>
+              <div id="shopProdCostList"></div>
+            </div>
+
+            <div class="fin-card" style="margin-top:12px;">
+              <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Biaya Bahan</span><b id="shopProdMatTotal">Rp 0</b></div>
+              <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Biaya Lain</span><b id="shopProdCostTotal">Rp 0</b></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);margin-top:6px;font-size:1.1rem;"><span style="font-weight:700;">HPP Total</span><b id="shopProdHppTotal" style="color:var(--brand);">Rp 0</b></div>
+              <div class="konten-field" style="margin-top:10px;"><label>Harga Jual (opsional, buat liat margin)</label><input class="form-control" type="number" id="shopProdSellPrice" placeholder="mis. 25000" min="0" step="any"></div>
+              <div id="shopProdMarginBox" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;"></div>
+            </div>
+
+            <div class="fin-card" style="margin-top:12px;">
+              <button class="btn" id="shopProdSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Produk</button>
+              <div class="msg" id="shopProdMsg"></div>
             </div>
           </div>
         </div>
@@ -7266,7 +7368,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "recbatch", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "recbatch", "shopstock", "shopproduct", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2], parts[3]);
     }
@@ -7303,6 +7405,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("viewInvoice").style.display = (view === "invoice") ? "block" : "none";
       document.getElementById("viewKonten").style.display = (view === "konten") ? "block" : "none";
       document.getElementById("viewRecBatch").style.display = (view === "recbatch") ? "block" : "none";
+      document.getElementById("viewShopStock").style.display = (view === "shopstock") ? "block" : "none";
+      document.getElementById("viewShopProduct").style.display = (view === "shopproduct") ? "block" : "none";
       document.getElementById("viewLeads").style.display = (view === "leads") ? "block" : "none";
       document.getElementById("viewQuest").style.display = (view === "quest") ? "block" : "none";
       document.getElementById("viewActivity").style.display = (view === "activity") ? "block" : "none";
@@ -7326,6 +7430,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "invoice") ensureInvoiceView();
       if (view === "konten") ensureKontenLoaded();
       if (view === "recbatch") ensureRecBatchView();
+      if (view === "shopstock") ensureShopStockView();
+      if (view === "shopproduct") ensureShopProductView();
       if (view === "leads") ensureLeads();
       if (view === "quest") { ensureQuest(); if (event && questTabsCtl) questTabsCtl.show(event); }
       if (view === "activity") ensureActivity();
@@ -11373,6 +11479,416 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const r = await api("deleteQrLink", { token: getToken(), id });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
         loadQrLinkList();
+      } catch (e) {
+        alert("Failed to connect to the server.");
+      }
+    }
+
+    // ---------- SHOP > STOK BAHAN (shop_materials) ----------
+    // Bahan baku yang Arnold BELI buat dipake bikin produk jualannya sendiri
+    // (mis. notebook kosongan) -- stok diupdate MANUAL (bukan auto-deduct),
+    // ini kalkulator perencanaan modal, bukan sistem gudang/POS. unitCost
+    // (price/purchaseQty) dihitung SERVER, dipake juga sama Kalkulasi HPP.
+    let shopMatInit = false;
+    let SHOPMAT_LIST = [];
+    let SHOPMAT_CURRENT = null; // null dipakai sbg penanda "belum ada form dibuka", bukan "lagi bikin baru"
+
+    function ensureShopStockView() {
+      if (!shopMatInit) {
+        document.getElementById("shopMatNewBtn").addEventListener("click", () => openShopMatEditor(null));
+        document.getElementById("shopMatReloadBtn").addEventListener("click", loadShopMatList);
+        document.getElementById("shopMatBackBtn").addEventListener("click", closeShopMatEditor);
+        document.getElementById("shopMatSaveBtn").addEventListener("click", saveShopMatFn);
+        ["shopMatPurchaseQty", "shopMatPrice", "shopMatUnit"].forEach(id => {
+          document.getElementById(id).addEventListener("input", updateShopMatUnitCostPreview);
+        });
+        document.getElementById("shopMatImagePick").addEventListener("change", onShopMatImagePick);
+        shopMatInit = true;
+      }
+      loadShopMatList();
+    }
+
+    async function loadShopMatList() {
+      const listEl = document.getElementById("shopMatList");
+      listEl.innerHTML = skelLines(3);
+      try {
+        const r = await api("listShopMaterials", { token: getToken() });
+        if (r.status !== "success") { handleAuthError(r); listEl.innerHTML = ""; return; }
+        SHOPMAT_LIST = r.materials || [];
+        renderShopMatList();
+      } catch (e) {
+        listEl.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
+      }
+    }
+
+    function renderShopMatList() {
+      const listEl = document.getElementById("shopMatList");
+      if (!SHOPMAT_LIST.length) { listEl.innerHTML = `<p class="hint">Belum ada bahan. Klik "Bahan Baru" buat nambahin.</p>`; return; }
+      listEl.innerHTML = "";
+      SHOPMAT_LIST.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "fin-card";
+        div.style.marginBottom = "10px";
+        const img = m.image
+          ? `<img src="${escapeHtml(m.image)}" style="width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+          : `<div style="width:56px;height:56px;border-radius:10px;background:var(--bg);flex-shrink:0;"></div>`;
+        div.innerHTML =
+          `<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+             ${img}
+             <div style="flex:1;min-width:160px;">
+               <div style="font-weight:700;">${escapeHtml(m.name)}</div>
+               <div class="hint" style="margin-top:2px;">${rupiah(m.unitCost)} / ${escapeHtml(m.unit)} &middot; stok: ${m.stockQty} ${escapeHtml(m.unit)}</div>
+               ${m.link ? `<div class="hint" style="margin-top:2px;word-break:break-all;">${escapeHtml(m.link)}</div>` : ""}
+               <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+                 <button class="btn btn-sm btn-ghost" data-act="edit">Edit</button>
+                 <button class="btn btn-sm btn-ghost" data-act="del" style="color:var(--err);">Delete</button>
+               </div>
+             </div>
+           </div>`;
+        div.querySelector('[data-act="edit"]').addEventListener("click", () => openShopMatEditor(m));
+        div.querySelector('[data-act="del"]').addEventListener("click", () => deleteShopMatFn(m.id, m.name));
+        listEl.appendChild(div);
+      });
+    }
+
+    function openShopMatEditor(m) {
+      SHOPMAT_CURRENT = m
+        ? Object.assign({}, m)
+        : { id: null, name: "", image: "", link: "", unit: "pcs", purchaseQty: "", price: "", stockQty: "" };
+      document.getElementById("shopMatListWrap").style.display = "none";
+      document.getElementById("shopMatEditorWrap").style.display = "block";
+      document.getElementById("shopMatName").value = SHOPMAT_CURRENT.name || "";
+      document.getElementById("shopMatImage").value = SHOPMAT_CURRENT.image || "";
+      document.getElementById("shopMatImagePreview").innerHTML = SHOPMAT_CURRENT.image
+        ? `<img src="${escapeHtml(SHOPMAT_CURRENT.image)}" style="width:100%;max-width:160px;border-radius:12px;display:block;">` : "";
+      document.getElementById("shopMatLink").value = SHOPMAT_CURRENT.link || "";
+      document.getElementById("shopMatUnit").value = SHOPMAT_CURRENT.unit || "pcs";
+      document.getElementById("shopMatPurchaseQty").value = SHOPMAT_CURRENT.purchaseQty || "";
+      document.getElementById("shopMatPrice").value = SHOPMAT_CURRENT.price || "";
+      // Bahan baru: kosongin placeholder-nya aja (server default stok = purchaseQty
+      // kalau dikosongin) -- bahan lama: tunjukin stok SEKARANG yang sebenarnya,
+      // walau 0 (JANGAN "|| ''" di sini, itu bakal nge-drop angka 0 yang valid).
+      document.getElementById("shopMatStock").value = m ? SHOPMAT_CURRENT.stockQty : "";
+      document.getElementById("shopMatMsg").textContent = "";
+      updateShopMatUnitCostPreview();
+      window.scrollTo(0, 0);
+    }
+
+    function closeShopMatEditor() {
+      document.getElementById("shopMatEditorWrap").style.display = "none";
+      document.getElementById("shopMatListWrap").style.display = "block";
+      SHOPMAT_CURRENT = null;
+      loadShopMatList();
+    }
+
+    function updateShopMatUnitCostPreview() {
+      const qty = Number(document.getElementById("shopMatPurchaseQty").value) || 0;
+      const price = Number(document.getElementById("shopMatPrice").value) || 0;
+      const unit = document.getElementById("shopMatUnit").value.trim() || "satuan";
+      const cost = qty > 0 ? price / qty : 0;
+      document.getElementById("shopMatUnitCostPreview").textContent = rupiah(cost) + " / " + unit;
+    }
+
+    async function onShopMatImagePick() {
+      const input = document.getElementById("shopMatImagePick");
+      const f = input.files && input.files[0];
+      if (!f) return;
+      if (f.size > 8 * 1024 * 1024) { alert("Image size must be max 8MB."); input.value = ""; return; }
+      const prev = document.getElementById("shopMatImagePreview");
+      prev.innerHTML = `<p class="hint">Mengupload…</p>`;
+      try {
+        const dataUrl = await qCompress(f, 1400, 0.82);
+        const r = await api("uploadImage", { token: getToken(), bucket: "shop-material-photos", imageBase64: dataUrl.split(",")[1], prefix: document.getElementById("shopMatName").value || "bahan" });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to upload."); prev.innerHTML = ""; return; }
+        document.getElementById("shopMatImage").value = r.url;
+        prev.innerHTML = `<img src="${escapeHtml(r.url)}" style="width:100%;max-width:160px;border-radius:12px;display:block;">`;
+      } catch (err) {
+        alert("Failed to upload image: " + (err.message || ""));
+        prev.innerHTML = "";
+      } finally {
+        input.value = "";
+      }
+    }
+
+    async function saveShopMatFn() {
+      const name = document.getElementById("shopMatName").value.trim();
+      if (!name) { alert("Nama bahan wajib diisi."); return; }
+      const payload = {
+        token: getToken(),
+        id: SHOPMAT_CURRENT.id || undefined,
+        name,
+        image: document.getElementById("shopMatImage").value.trim(),
+        link: document.getElementById("shopMatLink").value.trim(),
+        unit: document.getElementById("shopMatUnit").value.trim() || "pcs",
+        purchaseQty: document.getElementById("shopMatPurchaseQty").value,
+        price: document.getElementById("shopMatPrice").value,
+        stockQty: document.getElementById("shopMatStock").value,
+      };
+      const btn = document.getElementById("shopMatSaveBtn");
+      const msg = document.getElementById("shopMatMsg");
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      try {
+        const r = await api("saveShopMaterial", payload);
+        if (r.status === "success") {
+          if (r.id) SHOPMAT_CURRENT.id = r.id;
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteShopMatFn(id, name) {
+      if (!confirm(`Hapus bahan "${name}"? Produk yang masih pakai bahan ini bakal nunjukin "bahan dihapus" di Kalkulasi HPP.`)) return;
+      try {
+        const r = await api("deleteShopMaterial", { token: getToken(), id });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
+        loadShopMatList();
+      } catch (e) {
+        alert("Failed to connect to the server.");
+      }
+    }
+
+    // ---------- SHOP > KALKULASI HPP (shop_products) ----------
+    // HPP (Harga Pokok Penjualan) = total biaya bahan (qty dipakai x harga
+    // per satuan bahan, dari Stok Bahan) + biaya lain tanpa stok (ongkos
+    // print, ongkos kerja, dst). SENGAJA dihitung ULANG tiap kali data
+    // bahan berubah (bukan di-freeze saat produk dibikin) -- ini kalkulator
+    // PERENCANAAN, Arnold harus liat HPP TERBARU begitu harga bahan naik,
+    // bukan angka basi dari kapan produk ini pertama kali diset.
+    let shopProdInit = false;
+    let SHOPPROD_LIST = [];
+    let SHOPPROD_CURRENT = null;
+    let SHOPPROD_MATERIALS_CACHE = []; // snapshot Stok Bahan terbaru, dipake buat dropdown pilih bahan + hitung live
+
+    function ensureShopProductView() {
+      if (!shopProdInit) {
+        document.getElementById("shopProdNewBtn").addEventListener("click", () => openShopProdEditor(null));
+        document.getElementById("shopProdReloadBtn").addEventListener("click", loadShopProdList);
+        document.getElementById("shopProdBackBtn").addEventListener("click", closeShopProdEditor);
+        document.getElementById("shopProdAddMatBtn").addEventListener("click", () => {
+          SHOPPROD_CURRENT.materials.push({ materialId: "", qty: 1 });
+          renderShopProdMatRows();
+        });
+        document.getElementById("shopProdAddCostBtn").addEventListener("click", () => {
+          SHOPPROD_CURRENT.extraCosts.push({ label: "", amount: 0 });
+          renderShopProdCostRows();
+        });
+        document.getElementById("shopProdSellPrice").addEventListener("input", updateShopProdSummary);
+        document.getElementById("shopProdSaveBtn").addEventListener("click", saveShopProdFn);
+        shopProdInit = true;
+      }
+      loadShopProdList();
+    }
+
+    async function loadShopProdList() {
+      const listEl = document.getElementById("shopProdList");
+      listEl.innerHTML = skelLines(3);
+      try {
+        const [rProd, rMat] = await Promise.all([
+          api("listShopProducts", { token: getToken() }),
+          api("listShopMaterials", { token: getToken() }),
+        ]);
+        if (rProd.status !== "success") { handleAuthError(rProd); listEl.innerHTML = ""; return; }
+        SHOPPROD_LIST = rProd.products || [];
+        SHOPPROD_MATERIALS_CACHE = (rMat.status === "success") ? (rMat.materials || []) : [];
+        renderShopProdList();
+      } catch (e) {
+        listEl.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
+      }
+    }
+
+    function renderShopProdList() {
+      const listEl = document.getElementById("shopProdList");
+      if (!SHOPPROD_LIST.length) { listEl.innerHTML = `<p class="hint">Belum ada produk. Klik "Produk Baru" buat mulai hitung HPP.</p>`; return; }
+      listEl.innerHTML = "";
+      SHOPPROD_LIST.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "fin-card";
+        div.style.marginBottom = "10px";
+        let marginHtml = "";
+        if (p.sellPrice != null) {
+          const ok = p.margin >= 0;
+          marginHtml = `<div class="hint" style="margin-top:2px;">Jual ${rupiah(p.sellPrice)} &middot; margin <b style="color:${ok ? "#166534" : "var(--err)"}">${rupiah(p.margin)} (${p.marginPct.toFixed(1)}%)</b></div>`;
+        }
+        div.innerHTML =
+          `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+             <div style="min-width:0;">
+               <div style="font-weight:700;">${escapeHtml(p.name)}</div>
+               <div class="hint" style="margin-top:2px;">HPP: <b>${rupiah(p.hpp)}</b> (${p.materials.length} bahan + ${p.extraCosts.length} biaya lain)</div>
+               ${marginHtml}
+             </div>
+             <div style="display:flex;gap:6px;flex-wrap:wrap;">
+               <button class="btn btn-sm btn-ghost" data-act="edit">Edit</button>
+               <button class="btn btn-sm btn-ghost" data-act="del" style="color:var(--err);">Delete</button>
+             </div>
+           </div>`;
+        div.querySelector('[data-act="edit"]').addEventListener("click", () => openShopProdEditor(p));
+        div.querySelector('[data-act="del"]').addEventListener("click", () => deleteShopProdFn(p.id, p.name));
+        listEl.appendChild(div);
+      });
+    }
+
+    function openShopProdEditor(p) {
+      SHOPPROD_CURRENT = p
+        ? { id: p.id, name: p.name, materials: p.materials.map(m => ({ materialId: m.materialId, qty: m.qty })), extraCosts: p.extraCosts.map(e => Object.assign({}, e)), sellPrice: p.sellPrice }
+        : { id: null, name: "", materials: [], extraCosts: [], sellPrice: null };
+      document.getElementById("shopProdListWrap").style.display = "none";
+      document.getElementById("shopProdEditorWrap").style.display = "block";
+      document.getElementById("shopProdName").value = SHOPPROD_CURRENT.name || "";
+      document.getElementById("shopProdSellPrice").value = SHOPPROD_CURRENT.sellPrice != null ? SHOPPROD_CURRENT.sellPrice : "";
+      document.getElementById("shopProdMsg").textContent = "";
+      document.getElementById("shopProdNoMatsHint").style.display = SHOPPROD_MATERIALS_CACHE.length ? "none" : "block";
+      renderShopProdMatRows();
+      renderShopProdCostRows();
+      window.scrollTo(0, 0);
+    }
+
+    function closeShopProdEditor() {
+      document.getElementById("shopProdEditorWrap").style.display = "none";
+      document.getElementById("shopProdListWrap").style.display = "block";
+      SHOPPROD_CURRENT = null;
+      loadShopProdList();
+    }
+
+    function renderShopProdMatRows() {
+      const listEl = document.getElementById("shopProdMatList");
+      const rows = SHOPPROD_CURRENT.materials;
+      if (!rows.length) { listEl.innerHTML = `<p class="hint">Belum ada bahan dipilih.</p>`; updateShopProdSummary(); return; }
+      listEl.innerHTML = "";
+      rows.forEach((row, idx) => {
+        const div = document.createElement("div");
+        div.style.cssText = "display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line);";
+        const options = SHOPPROD_MATERIALS_CACHE.map(m =>
+          `<option value="${escapeHtml(m.id)}" ${m.id === row.materialId ? "selected" : ""}>${escapeHtml(m.name)} (${rupiah(m.unitCost)}/${escapeHtml(m.unit)})</option>`
+        ).join("");
+        div.innerHTML =
+          `<div style="flex:2;min-width:160px;">
+             <label class="hint" style="display:block;margin-bottom:4px;">Bahan</label>
+             <select class="form-control" data-mat-select><option value="">-- pilih bahan --</option>${options}</select>
+           </div>
+           <div style="flex:1;min-width:90px;">
+             <label class="hint" style="display:block;margin-bottom:4px;">Qty</label>
+             <input class="form-control" type="number" min="0" step="any" value="${row.qty || ""}" data-mat-qty>
+           </div>
+           <div style="flex:1;min-width:110px;">
+             <label class="hint" style="display:block;margin-bottom:4px;">Biaya</label>
+             <div class="form-control" style="background:var(--bg);display:flex;align-items:center;" data-mat-cost>Rp 0</div>
+           </div>
+           <button class="btn btn-sm btn-ghost" type="button" data-mat-del style="color:var(--err);">Hapus</button>`;
+        const select = div.querySelector("[data-mat-select]");
+        const qtyInput = div.querySelector("[data-mat-qty]");
+        const costEl = div.querySelector("[data-mat-cost]");
+        function syncLineCost() {
+          const mat = SHOPPROD_MATERIALS_CACHE.find(mm => mm.id === select.value);
+          const qty = Number(qtyInput.value) || 0;
+          costEl.textContent = rupiah(mat ? mat.unitCost * qty : 0);
+        }
+        select.addEventListener("change", () => { row.materialId = select.value; syncLineCost(); updateShopProdSummary(); });
+        qtyInput.addEventListener("input", () => { row.qty = Number(qtyInput.value) || 0; syncLineCost(); updateShopProdSummary(); });
+        div.querySelector("[data-mat-del]").addEventListener("click", () => { SHOPPROD_CURRENT.materials.splice(idx, 1); renderShopProdMatRows(); });
+        syncLineCost();
+        listEl.appendChild(div);
+      });
+      updateShopProdSummary();
+    }
+
+    function renderShopProdCostRows() {
+      const listEl = document.getElementById("shopProdCostList");
+      const rows = SHOPPROD_CURRENT.extraCosts;
+      if (!rows.length) { listEl.innerHTML = `<p class="hint">Belum ada biaya lain.</p>`; updateShopProdSummary(); return; }
+      listEl.innerHTML = "";
+      rows.forEach((row, idx) => {
+        const div = document.createElement("div");
+        div.style.cssText = "display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line);";
+        div.innerHTML =
+          `<div style="flex:2;min-width:140px;">
+             <label class="hint" style="display:block;margin-bottom:4px;">Label</label>
+             <input class="form-control" type="text" value="${escapeHtml(row.label || "")}" data-cost-label placeholder="mis. Ongkos Print">
+           </div>
+           <div style="flex:1;min-width:110px;">
+             <label class="hint" style="display:block;margin-bottom:4px;">Jumlah (Rp)</label>
+             <input class="form-control" type="number" min="0" step="any" value="${row.amount || ""}" data-cost-amount>
+           </div>
+           <button class="btn btn-sm btn-ghost" type="button" data-cost-del style="color:var(--err);">Hapus</button>`;
+        div.querySelector("[data-cost-label]").addEventListener("input", (e) => { row.label = e.target.value; });
+        div.querySelector("[data-cost-amount]").addEventListener("input", (e) => { row.amount = Number(e.target.value) || 0; updateShopProdSummary(); });
+        div.querySelector("[data-cost-del]").addEventListener("click", () => { SHOPPROD_CURRENT.extraCosts.splice(idx, 1); renderShopProdCostRows(); });
+        listEl.appendChild(div);
+      });
+      updateShopProdSummary();
+    }
+
+    function updateShopProdSummary() {
+      if (!SHOPPROD_CURRENT) return;
+      const matTotal = SHOPPROD_CURRENT.materials.reduce((sum, row) => {
+        const mat = SHOPPROD_MATERIALS_CACHE.find(m => m.id === row.materialId);
+        return sum + (mat ? mat.unitCost * (Number(row.qty) || 0) : 0);
+      }, 0);
+      const costTotal = SHOPPROD_CURRENT.extraCosts.reduce((sum, row) => sum + (Number(row.amount) || 0), 0);
+      const hpp = matTotal + costTotal;
+      document.getElementById("shopProdMatTotal").textContent = rupiah(matTotal);
+      document.getElementById("shopProdCostTotal").textContent = rupiah(costTotal);
+      document.getElementById("shopProdHppTotal").textContent = rupiah(hpp);
+
+      const sellPriceRaw = document.getElementById("shopProdSellPrice").value;
+      const box = document.getElementById("shopProdMarginBox");
+      if (sellPriceRaw !== "") {
+        const sellPrice = Number(sellPriceRaw) || 0;
+        const margin = sellPrice - hpp;
+        const marginPct = sellPrice > 0 ? (margin / sellPrice) * 100 : 0;
+        const ok = margin >= 0;
+        box.style.display = "block";
+        box.style.background = ok ? "#dcfce7" : "#fdd9e0";
+        box.style.color = ok ? "#166534" : "var(--err)";
+        box.innerHTML = `Margin: <b>${rupiah(margin)}</b> (${marginPct.toFixed(1)}%)`;
+      } else {
+        box.style.display = "none";
+      }
+    }
+
+    async function saveShopProdFn() {
+      const name = document.getElementById("shopProdName").value.trim();
+      if (!name) { alert("Nama produk wajib diisi."); return; }
+      const sellPriceRaw = document.getElementById("shopProdSellPrice").value;
+      const payload = {
+        token: getToken(),
+        id: SHOPPROD_CURRENT.id || undefined,
+        name,
+        materials: SHOPPROD_CURRENT.materials.filter(m => m.materialId && Number(m.qty) > 0),
+        extraCosts: SHOPPROD_CURRENT.extraCosts.filter(e => e.label && e.label.trim()),
+        sellPrice: sellPriceRaw !== "" ? Number(sellPriceRaw) : null,
+      };
+      const btn = document.getElementById("shopProdSaveBtn");
+      const msg = document.getElementById("shopProdMsg");
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      try {
+        const r = await api("saveShopProduct", payload);
+        if (r.status === "success") {
+          if (r.id) SHOPPROD_CURRENT.id = r.id;
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteShopProdFn(id, name) {
+      if (!confirm(`Hapus produk "${name}"?`)) return;
+      try {
+        const r = await api("deleteShopProduct", { token: getToken(), id });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
+        loadShopProdList();
       } catch (e) {
         alert("Failed to connect to the server.");
       }
