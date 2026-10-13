@@ -4390,6 +4390,9 @@
           <button class="nav-btn" data-view="shopproduct">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/></svg></span> Kalkulasi HPP
           </button>
+          <button class="nav-btn" data-view="shoporders">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0"/><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg></span> Order Toko
+          </button>
           </div>
           </details>
           <details class="nav-acc">
@@ -5086,6 +5089,17 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
             <div class="fin-card">
               <div class="konten-field"><label>Nama Produk</label><input class="form-control" type="text" id="shopProdName" placeholder="mis. Deco Paper Matcha Series"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="konten-field"><label>Stok Produk Jadi</label><input class="form-control" type="number" id="shopProdStock" min="0" step="any" placeholder="0"></div>
+                <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+                  <p class="hint" style="margin:0;">Terjual: <b id="shopProdSoldInfo">0</b></p>
+                  <p class="hint" style="margin:0;">Keuntungan: <b id="shopProdProfitInfo" style="color:#166534;">Rp 0</b></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="fin-card" id="shopProdShareCard" style="margin-top:12px;display:none;">
+              <!-- Diisi JS -- QR "scan buat jual" (sell_token), cuma muncul kalau produk udah tersimpan -->
             </div>
 
             <div class="fin-card" style="margin-top:12px;">
@@ -5116,6 +5130,71 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <div class="fin-card" style="margin-top:12px;">
               <button class="btn" id="shopProdSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan Produk</button>
               <div class="msg" id="shopProdMsg"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== VIEW: SHOP > ORDER TOKO (shop_orders + shop_sales per event/batch) ===== -->
+        <div class="wrap view" id="viewShopOrders" style="display:none;">
+          <div id="shopOrdListWrap">
+            <div class="toolbar">
+              <div class="field">
+                <label for="shopOrdWorkshopSelect">Event</label>
+                <select class="form-control" id="shopOrdWorkshopSelect"></select>
+              </div>
+              <div class="field">
+                <label for="shopOrdBatchSelect">Batch</label>
+                <select class="form-control" id="shopOrdBatchSelect"></select>
+              </div>
+              <button class="btn btn-sm btn-ghost" id="shopOrdReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+            </div>
+            <p class="hint" style="margin-bottom:12px;">Pilih event + batch buat liat daftar peserta &amp; bikin order penjualan produk ke mereka. Bisa juga tambahin pembeli yang bukan peserta lewat tombol di bawah.</p>
+            <div id="shopOrdList"></div>
+            <div class="fin-card" style="margin-top:14px;">
+              <button class="btn btn-sm" id="shopOrdAddWalkinBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Pembeli Lain (Bukan Peserta)</button>
+            </div>
+          </div>
+
+          <div id="shopOrdEditorWrap" style="display:none;">
+            <div class="toolbar">
+              <button class="btn btn-sm btn-ghost" id="shopOrdBackBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg> Kembali ke Daftar</button>
+            </div>
+            <div class="fin-card">
+              <div class="konten-field"><label>Nama Pembeli</label><input class="form-control" type="text" id="shopOrdBuyerName"></div>
+              <div class="konten-field"><label>Nomor WA</label><input class="form-control" type="text" id="shopOrdBuyerWa" placeholder="08xx..."></div>
+              <button class="btn btn-sm btn-ghost" id="shopOrdSaveInfoBtn" type="button">Simpan Info Pembeli</button>
+            </div>
+
+            <div class="fin-card" style="margin-top:12px;">
+              <label style="font-weight:700;display:block;margin-bottom:10px;">Tambah Item</label>
+              <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+                <div style="flex:2;min-width:160px;position:relative;">
+                  <label class="hint" style="display:block;margin-bottom:4px;">Produk</label>
+                  <input class="form-control" type="text" id="shopOrdProdSearch" placeholder="Ketik nama produk..." autocomplete="off">
+                  <div id="shopOrdProdSuggest" style="display:none;position:absolute;z-index:30;top:100%;left:0;right:0;margin-top:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow-md);max-height:220px;overflow-y:auto;"></div>
+                </div>
+                <div style="flex:1;min-width:80px;">
+                  <label class="hint" style="display:block;margin-bottom:4px;">Qty</label>
+                  <input class="form-control" type="number" id="shopOrdProdQty" min="1" value="1">
+                </div>
+                <button class="btn btn-sm" id="shopOrdAddItemBtn" type="button">Tambah</button>
+              </div>
+              <div class="msg" id="shopOrdAddItemMsg"></div>
+            </div>
+
+            <div class="fin-card" style="margin-top:12px;">
+              <label style="font-weight:700;display:block;margin-bottom:10px;">Item Dibeli</label>
+              <div id="shopOrdItemList"></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);margin-top:10px;font-size:1.1rem;"><span style="font-weight:700;">Total</span><b id="shopOrdTotal" style="color:var(--brand);">Rp 0</b></div>
+            </div>
+
+            <div class="fin-card" style="margin-top:12px;">
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-sm btn-ghost" id="shopOrdInvoiceBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5zM3 12v-2h2v2zm0 1h2v2H4a1 1 0 0 1-1-1zm3 2v-2h3v2zm4 0v-2h3v1a1 1 0 0 1-1 1zm3-3h-3v-2h3zm-7-2H3V9h2zm1 0V9h3v2zm4 0V9h3v2z"/></svg> Download Invoice PDF</button>
+                <button class="btn btn-sm btn-ghost" id="shopOrdWaBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.336-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" /></svg> Buka WA</button>
+                <button class="btn btn-sm btn-ghost" id="shopOrdDeleteBtn" type="button" style="color:var(--err);margin-left:auto;">Hapus Order</button>
+              </div>
+              <div class="msg" id="shopOrdMsg"></div>
             </div>
           </div>
         </div>
@@ -7368,7 +7447,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "recbatch", "shopstock", "shopproduct", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "mou", "invoice", "konten", "recbatch", "shopstock", "shopproduct", "shoporders", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2], parts[3]);
     }
@@ -7407,6 +7486,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("viewRecBatch").style.display = (view === "recbatch") ? "block" : "none";
       document.getElementById("viewShopStock").style.display = (view === "shopstock") ? "block" : "none";
       document.getElementById("viewShopProduct").style.display = (view === "shopproduct") ? "block" : "none";
+      document.getElementById("viewShopOrders").style.display = (view === "shoporders") ? "block" : "none";
       document.getElementById("viewLeads").style.display = (view === "leads") ? "block" : "none";
       document.getElementById("viewQuest").style.display = (view === "quest") ? "block" : "none";
       document.getElementById("viewActivity").style.display = (view === "activity") ? "block" : "none";
@@ -7432,6 +7512,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "recbatch") ensureRecBatchView();
       if (view === "shopstock") ensureShopStockView();
       if (view === "shopproduct") ensureShopProductView();
+      if (view === "shoporders") ensureShopOrdersView();
       if (view === "leads") ensureLeads();
       if (view === "quest") { ensureQuest(); if (event && questTabsCtl) questTabsCtl.show(event); }
       if (view === "activity") ensureActivity();
@@ -11728,12 +11809,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                <div style="font-weight:700;">${escapeHtml(p.name)}</div>
                <div class="hint" style="margin-top:2px;">HPP: <b>${rupiah(p.hpp)}</b> (${p.materials.length} bahan + ${p.extraCosts.length} biaya lain)</div>
                ${marginHtml}
+               <div class="hint" style="margin-top:2px;">Stok: <b>${p.stockQty}</b> &middot; Terjual: <b>${p.soldQty}</b> &middot; Untung: <b style="color:${p.profit >= 0 ? "#166534" : "var(--err)"}">${rupiah(p.profit)}</b></div>
              </div>
              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+               <button class="btn btn-sm btn-ghost" data-act="stock">+ Stok</button>
                <button class="btn btn-sm btn-ghost" data-act="edit">Edit</button>
                <button class="btn btn-sm btn-ghost" data-act="del" style="color:var(--err);">Delete</button>
              </div>
            </div>`;
+        div.querySelector('[data-act="stock"]').addEventListener("click", () => quickAdjustShopStock(p));
         div.querySelector('[data-act="edit"]').addEventListener("click", () => openShopProdEditor(p));
         div.querySelector('[data-act="del"]').addEventListener("click", () => deleteShopProdFn(p.id, p.name));
         listEl.appendChild(div);
@@ -11742,14 +11826,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     function openShopProdEditor(p) {
       SHOPPROD_CURRENT = p
-        ? { id: p.id, name: p.name, materials: p.materials.map(m => ({ materialId: m.materialId, qty: m.qty })), extraCosts: p.extraCosts.map(e => Object.assign({}, e)), sellPrice: p.sellPrice }
-        : { id: null, name: "", materials: [], extraCosts: [], sellPrice: null };
+        ? { id: p.id, name: p.name, materials: p.materials.map(m => ({ materialId: m.materialId, qty: m.qty })), extraCosts: p.extraCosts.map(e => Object.assign({}, e)), sellPrice: p.sellPrice, sellToken: p.sellToken }
+        : { id: null, name: "", materials: [], extraCosts: [], sellPrice: null, sellToken: null };
       document.getElementById("shopProdListWrap").style.display = "none";
       document.getElementById("shopProdEditorWrap").style.display = "block";
       document.getElementById("shopProdName").value = SHOPPROD_CURRENT.name || "";
+      document.getElementById("shopProdStock").value = p ? p.stockQty : "";
+      document.getElementById("shopProdSoldInfo").textContent = p ? p.soldQty : 0;
+      document.getElementById("shopProdProfitInfo").textContent = rupiah(p ? p.profit : 0);
       document.getElementById("shopProdSellPrice").value = SHOPPROD_CURRENT.sellPrice != null ? formatRibuan(SHOPPROD_CURRENT.sellPrice) : "";
       document.getElementById("shopProdMsg").textContent = "";
       document.getElementById("shopProdNoMatsHint").style.display = SHOPPROD_MATERIALS_CACHE.length ? "none" : "block";
+      renderShopProdShareCard();
       renderShopProdMatRows();
       renderShopProdCostRows();
       window.scrollTo(0, 0);
@@ -11760,6 +11848,52 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("shopProdListWrap").style.display = "block";
       SHOPPROD_CURRENT = null;
       loadShopProdList();
+    }
+
+    // QR "scan buat jual" -- link publik /shop-sell/?t=<sellToken>, scan
+    // kamera HP (BUKAN dari dalam app admin) -- buka halaman situ buat catat
+    // penjualan & otomatis ngurangin stok. Cuma muncul kalau produk UDAH
+    // tersimpan (sell_token digenerate server pas insert pertama).
+    function renderShopProdShareCard() {
+      const card = document.getElementById("shopProdShareCard");
+      if (!SHOPPROD_CURRENT.id || !SHOPPROD_CURRENT.sellToken) { card.style.display = "none"; card.innerHTML = ""; return; }
+      const shareUrl = REC_SHARE_ORIGIN + "/shop-sell/?t=" + encodeURIComponent(SHOPPROD_CURRENT.sellToken);
+      card.style.display = "block";
+      card.innerHTML =
+        `<label style="font-weight:700;display:block;margin-bottom:8px;">QR Scan buat Jual</label>
+         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+           <input class="form-control" type="text" readonly value="${escapeHtml(shareUrl)}" style="flex:1;min-width:200px;">
+           <button class="btn btn-sm" id="shopProdCopyBtn" type="button">Copy Link</button>
+         </div>
+         <div style="display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap;">
+           <canvas id="shopProdQrCanvas" style="border:1px solid var(--line);border-radius:8px;"></canvas>
+           <button class="btn btn-sm btn-ghost" id="shopProdQrDownloadBtn" type="button">Download QR (PNG)</button>
+         </div>
+         <p class="hint" style="margin-top:8px;">Scan pake kamera HP buat buka halaman catat-penjualan produk ini -- nggak perlu login admin.</p>`;
+      card.querySelector("#shopProdCopyBtn").addEventListener("click", () => copyRecBatchLink(shareUrl));
+      const outCanvas = card.querySelector("#shopProdQrCanvas");
+      drawQrWithQuietZone(outCanvas, shareUrl, 240, 24);
+      card.querySelector("#shopProdQrDownloadBtn").addEventListener("click", () => {
+        if (!outCanvas.width) { alert("QR belum siap, coba lagi sebentar."); return; }
+        const a = document.createElement("a");
+        a.href = outCanvas.toDataURL("image/png");
+        a.download = "qr-jual-" + (SHOPPROD_CURRENT.name || "produk").toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".png";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      });
+    }
+
+    async function quickAdjustShopStock(p) {
+      const raw = prompt(`Tambah/kurang stok "${p.name}" (stok sekarang: ${p.stockQty}).\nIsi angka positif buat nambah, negatif buat ngurang:`, "");
+      if (raw == null || raw.trim() === "") return;
+      const delta = Number(raw);
+      if (!delta) { alert("Masukin angka yang valid."); return; }
+      try {
+        const r = await api("adjustShopProductStock", { token: getToken(), id: p.id, delta });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to update stock."); return; }
+        loadShopProdList();
+      } catch (e) {
+        alert("Failed to connect to the server.");
+      }
     }
 
     function shopMatLabel(m) { return `${m.name} (${rupiah(m.unitCost)}/${m.unit})`; }
@@ -11940,6 +12074,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const name = document.getElementById("shopProdName").value.trim();
       if (!name) { alert("Nama produk wajib diisi."); return; }
       const sellPriceRaw = document.getElementById("shopProdSellPrice").value;
+      const stockRaw = document.getElementById("shopProdStock").value;
       const payload = {
         token: getToken(),
         id: SHOPPROD_CURRENT.id || undefined,
@@ -11947,6 +12082,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         materials: SHOPPROD_CURRENT.materials.filter(m => m.materialId && Number(m.qty) > 0),
         extraCosts: SHOPPROD_CURRENT.extraCosts.filter(e => e.label && e.label.trim()),
         sellPrice: sellPriceRaw !== "" ? parseRibuan(sellPriceRaw) : null,
+        stockQty: stockRaw !== "" ? stockRaw : undefined,
       };
       const btn = document.getElementById("shopProdSaveBtn");
       const msg = document.getElementById("shopProdMsg");
@@ -11956,6 +12092,22 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         if (r.status === "success") {
           if (r.id) SHOPPROD_CURRENT.id = r.id;
           msg.className = "msg ok"; msg.textContent = "Saved ✓";
+          // Produk BARU baru punya sell_token/stock setelah di-generate server
+          // -- tarik ulang biar kartu QR "scan buat jual" langsung muncul
+          // tanpa perlu keluar-masuk editor lagi.
+          if (!SHOPPROD_CURRENT.sellToken) {
+            const r2 = await api("listShopProducts", { token: getToken() });
+            if (r2.status === "success") {
+              const fresh = (r2.products || []).find(x => x.id === SHOPPROD_CURRENT.id);
+              if (fresh) {
+                SHOPPROD_CURRENT.sellToken = fresh.sellToken;
+                document.getElementById("shopProdStock").value = fresh.stockQty;
+                document.getElementById("shopProdSoldInfo").textContent = fresh.soldQty;
+                document.getElementById("shopProdProfitInfo").textContent = rupiah(fresh.profit);
+                renderShopProdShareCard();
+              }
+            }
+          }
         } else {
           handleAuthError(r);
           msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
@@ -11973,6 +12125,352 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const r = await api("deleteShopProduct", { token: getToken(), id });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
         loadShopProdList();
+      } catch (e) {
+        alert("Failed to connect to the server.");
+      }
+    }
+
+    // ---------- SHOP > ORDER TOKO (shop_orders + shop_sales per event/batch)
+    // ----------
+    // Satu "order" = satu tab belanja per pembeli (peserta event ATAU
+    // pembeli lain yang bukan peserta) di satu batch. Nambah item di sini
+    // manggil addShopOrderItem yang JUGA ngurangin stok shop_products --
+    // sama persis mekanismenya kayak scan QR shop-sell, cuma lewat admin &
+    // tercatat ke order tertentu. Invoice PDF numpang fungsi
+    // downloadInvoicePdf() yang UDAH ADA (dipake MOU/Invoice Partner) biar
+    // layout & logic PDF-nya satu sumber doang.
+    let shopOrdInit = false;
+    let SHOPORD_BATCHES = [];
+    let SHOPORD_REGISTRANTS = [];
+    let SHOPORD_ORDERS = [];
+    let SHOPORD_PRODUCTS_CACHE = [];
+    let SHOPORD_CURRENT = null;
+    let shopOrdSelectedProductId = "";
+
+    function ensureShopOrdersView() {
+      if (!shopOrdInit) {
+        const sel = document.getElementById("shopOrdWorkshopSelect");
+        sel.innerHTML = WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
+        sel.addEventListener("change", async () => { await loadShopOrdBatches(); await loadShopOrdList(); });
+        document.getElementById("shopOrdBatchSelect").addEventListener("change", loadShopOrdList);
+        document.getElementById("shopOrdReloadBtn").addEventListener("click", loadShopOrdList);
+        document.getElementById("shopOrdAddWalkinBtn").addEventListener("click", () => startNewShopOrder(null));
+        document.getElementById("shopOrdBackBtn").addEventListener("click", closeShopOrdEditor);
+        document.getElementById("shopOrdSaveInfoBtn").addEventListener("click", saveShopOrdInfoFn);
+        document.getElementById("shopOrdAddItemBtn").addEventListener("click", addShopOrdItemFn);
+        document.getElementById("shopOrdInvoiceBtn").addEventListener("click", downloadShopOrderInvoiceFn);
+        document.getElementById("shopOrdWaBtn").addEventListener("click", openShopOrdWaFn);
+        document.getElementById("shopOrdDeleteBtn").addEventListener("click", deleteShopOrdFn);
+        wireShopOrdProdSearch();
+        shopOrdInit = true;
+      }
+      loadShopOrdBatches().then(loadShopOrdList);
+    }
+
+    async function loadShopOrdBatches() {
+      const workshop = document.getElementById("shopOrdWorkshopSelect").value;
+      const sel = document.getElementById("shopOrdBatchSelect");
+      sel.innerHTML = `<option>Loading...</option>`;
+      try {
+        const r = await api("listBatches", { token: getToken(), workshop });
+        if (document.getElementById("shopOrdWorkshopSelect").value !== workshop) return; // udah ganti event lain, buang hasil basi
+        if (r.status !== "success") { handleAuthError(r); return; }
+        const batches = r.batches || [];
+        SHOPORD_BATCHES = batches;
+        sel.innerHTML = batches.length
+          ? batches.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.label)}${b.active ? " • ACTIVE" : ""}</option>`).join("")
+          : `<option value="">(belum ada batch)</option>`;
+        const activeIdx = batches.findIndex(b => b.active);
+        if (activeIdx >= 0) sel.selectedIndex = activeIdx;
+      } catch (e) {
+        sel.innerHTML = `<option value="">(gagal memuat)</option>`;
+      }
+    }
+
+    async function loadShopOrdList() {
+      const workshop = document.getElementById("shopOrdWorkshopSelect").value;
+      const batchId = document.getElementById("shopOrdBatchSelect").value;
+      const listEl = document.getElementById("shopOrdList");
+      listEl.innerHTML = skelLines(3);
+      if (!batchId) { listEl.innerHTML = `<p class="hint">Belum ada batch buat event ini.</p>`; return; }
+      try {
+        const [rReg, rOrd, rProd] = await Promise.all([
+          api("getRegistrations", { token: getToken(), workshop, batchId }),
+          api("listShopOrders", { token: getToken(), batchId }),
+          api("listShopProducts", { token: getToken() }),
+        ]);
+        if (rReg.status !== "success") { handleAuthError(rReg); listEl.innerHTML = ""; return; }
+        SHOPORD_REGISTRANTS = (rReg.items || []).filter(r => !r.archived);
+        SHOPORD_ORDERS = (rOrd.status === "success") ? (rOrd.orders || []) : [];
+        SHOPORD_PRODUCTS_CACHE = (rProd.status === "success") ? (rProd.products || []) : [];
+        renderShopOrdList();
+      } catch (e) {
+        listEl.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
+      }
+    }
+
+    function renderShopOrdRow(name, order, reg) {
+      if (order) {
+        return `<div class="fin-card" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+          <div><div style="font-weight:700;">${escapeHtml(name)}</div>
+          <div class="hint">${order.items.length} item &middot; <b>${rupiah(order.total)}</b></div></div>
+          <button class="btn btn-sm" data-ord-open="${escapeHtml(order.id)}">Lihat Order</button>
+        </div>`;
+      }
+      return `<div class="fin-card" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div style="font-weight:700;">${escapeHtml(name)}</div>
+        <button class="btn btn-sm btn-ghost" data-ord-new="${escapeHtml(reg.id)}">+ Buat Order</button>
+      </div>`;
+    }
+
+    function renderShopOrdList() {
+      const listEl = document.getElementById("shopOrdList");
+      if (!SHOPORD_REGISTRANTS.length && !SHOPORD_ORDERS.length) {
+        listEl.innerHTML = `<p class="hint">Belum ada peserta terdaftar di batch ini.</p>`;
+        return;
+      }
+      const orderByRegId = new Map(SHOPORD_ORDERS.filter(o => o.registrationId).map(o => [o.registrationId, o]));
+      const walkinOrders = SHOPORD_ORDERS.filter(o => !o.registrationId);
+
+      let html = "";
+      SHOPORD_REGISTRANTS.forEach(reg => {
+        const order = orderByRegId.get(reg.id);
+        html += renderShopOrdRow(reg.full_name || reg.nickname || "(tanpa nama)", order, reg);
+      });
+      if (walkinOrders.length) {
+        html += `<p class="hint" style="margin:14px 0 6px;font-weight:700;">Pembeli Lain</p>`;
+        walkinOrders.forEach(o => { html += renderShopOrdRow(o.buyerName, o, null); });
+      }
+      listEl.innerHTML = html || `<p class="hint">Belum ada peserta/order.</p>`;
+
+      listEl.querySelectorAll("[data-ord-new]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const reg = SHOPORD_REGISTRANTS.find(r => r.id === btn.dataset.ordNew);
+          if (reg) startNewShopOrder(reg);
+        });
+      });
+      listEl.querySelectorAll("[data-ord-open]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const order = SHOPORD_ORDERS.find(o => o.id === btn.dataset.ordOpen);
+          if (order) openShopOrdEditor(order);
+        });
+      });
+    }
+
+    async function startNewShopOrder(reg) {
+      const workshop = document.getElementById("shopOrdWorkshopSelect").value;
+      const batchId = document.getElementById("shopOrdBatchSelect").value;
+      const buyerName = reg ? (reg.full_name || reg.nickname || "") : (prompt("Nama pembeli:") || "").trim();
+      if (!buyerName) return;
+      const buyerWa = reg ? (reg.wa || "") : "";
+      try {
+        const r = await api("saveShopOrder", {
+          token: getToken(), workshopType: workshop, batchId, registrationId: reg ? reg.id : null,
+          buyerName, buyerWa,
+        });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to create order."); return; }
+        openShopOrdEditor({
+          id: r.id, workshopType: workshop, batchId, registrationId: reg ? reg.id : null,
+          buyerName, buyerWa, items: [], total: 0,
+        });
+      } catch (e) {
+        alert("Failed to connect to the server.");
+      }
+    }
+
+    function openShopOrdEditor(order) {
+      SHOPORD_CURRENT = Object.assign({}, order, { items: (order.items || []).map(it => Object.assign({}, it)) });
+      document.getElementById("shopOrdListWrap").style.display = "none";
+      document.getElementById("shopOrdEditorWrap").style.display = "block";
+      document.getElementById("shopOrdBuyerName").value = SHOPORD_CURRENT.buyerName || "";
+      document.getElementById("shopOrdBuyerWa").value = SHOPORD_CURRENT.buyerWa || "";
+      document.getElementById("shopOrdProdSearch").value = "";
+      document.getElementById("shopOrdProdQty").value = "1";
+      shopOrdSelectedProductId = "";
+      document.getElementById("shopOrdAddItemMsg").textContent = "";
+      document.getElementById("shopOrdMsg").textContent = "";
+      renderShopOrdItems();
+      window.scrollTo(0, 0);
+    }
+
+    function closeShopOrdEditor() {
+      document.getElementById("shopOrdEditorWrap").style.display = "none";
+      document.getElementById("shopOrdListWrap").style.display = "block";
+      SHOPORD_CURRENT = null;
+      loadShopOrdList();
+    }
+
+    function renderShopOrdItems() {
+      const listEl = document.getElementById("shopOrdItemList");
+      const items = SHOPORD_CURRENT.items;
+      if (!items.length) {
+        listEl.innerHTML = `<p class="hint">Belum ada item.</p>`;
+      } else {
+        listEl.innerHTML = items.map(it => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px;">
+            <div><div style="font-weight:700;">${escapeHtml(it.productName || "(produk dihapus)")}</div>
+            <div class="hint">${it.qty} x ${rupiah(it.unitSellPrice)}</div></div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <b>${rupiah(it.lineTotal)}</b>
+              <button class="btn btn-sm btn-ghost" data-item-del="${escapeHtml(it.id)}" style="color:var(--err);">Hapus</button>
+            </div>
+          </div>`).join("");
+        listEl.querySelectorAll("[data-item-del]").forEach(btn => {
+          btn.addEventListener("click", () => deleteShopOrdItemFn(btn.dataset.itemDel));
+        });
+      }
+      const total = items.reduce((s, it) => s + it.lineTotal, 0);
+      SHOPORD_CURRENT.total = total;
+      document.getElementById("shopOrdTotal").textContent = rupiah(total);
+    }
+
+    function shopOrdProductLabel(p) {
+      return `${p.name} (${p.sellPrice != null ? rupiah(p.sellPrice) : "?"}) -- stok: ${p.stockQty}`;
+    }
+
+    // Combobox ketik-buat-cari produk -- beda dari combobox bahan di
+    // Kalkulasi HPP (yang nyimpen pilihan PERSISTEN per baris), ini sekali
+    // pakai: pilih produk -> klik "Tambah" -> field kereset buat nambah
+    // item berikutnya, jadi nggak butuh logic "revert ke commit terakhir".
+    function wireShopOrdProdSearch() {
+      const searchInput = document.getElementById("shopOrdProdSearch");
+      const suggestBox = document.getElementById("shopOrdProdSuggest");
+
+      function selectProduct(p) {
+        shopOrdSelectedProductId = p ? p.id : "";
+        searchInput.value = p ? shopOrdProductLabel(p) : "";
+        suggestBox.style.display = "none";
+      }
+      function renderSuggestions(query) {
+        const q = query.trim().toLowerCase();
+        const matches = SHOPORD_PRODUCTS_CACHE.filter(p => !q || p.name.toLowerCase().includes(q));
+        suggestBox.innerHTML = matches.length
+          ? matches.map(p => `<div class="shop-ord-suggest-item" data-id="${escapeHtml(p.id)}" style="padding:9px 12px;cursor:pointer;font-size:0.9rem;">${escapeHtml(shopOrdProductLabel(p))}</div>`).join("")
+          : `<div style="padding:10px 12px;color:var(--muted);font-size:0.85rem;">Nggak ketemu produk apa-apa.</div>`;
+        suggestBox.querySelectorAll(".shop-ord-suggest-item").forEach(el => {
+          el.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            selectProduct(SHOPORD_PRODUCTS_CACHE.find(p => p.id === el.dataset.id));
+          });
+        });
+        suggestBox.style.display = "block";
+      }
+      searchInput.addEventListener("focus", () => { searchInput.select(); renderSuggestions(""); });
+      searchInput.addEventListener("input", () => { shopOrdSelectedProductId = ""; renderSuggestions(searchInput.value); });
+      searchInput.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        const q = searchInput.value.trim().toLowerCase();
+        const match = SHOPORD_PRODUCTS_CACHE.find(p => p.name.toLowerCase().includes(q));
+        if (match) selectProduct(match);
+      });
+      searchInput.addEventListener("blur", () => { setTimeout(() => { suggestBox.style.display = "none"; }, 150); });
+    }
+
+    async function addShopOrdItemFn() {
+      const qty = Number(document.getElementById("shopOrdProdQty").value) || 0;
+      const msg = document.getElementById("shopOrdAddItemMsg");
+      if (!shopOrdSelectedProductId) { msg.className = "msg err"; msg.textContent = "Pilih produk dulu."; return; }
+      if (qty <= 0) { msg.className = "msg err"; msg.textContent = "Jumlah harus lebih dari 0."; return; }
+      msg.className = "msg"; msg.textContent = "Menambahkan...";
+      try {
+        const r = await api("addShopOrderItem", { token: getToken(), orderId: SHOPORD_CURRENT.id, productId: shopOrdSelectedProductId, qty });
+        if (r.status !== "success") { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to add."; return; }
+        msg.className = "msg ok"; msg.textContent = "Ditambahkan ✓";
+        document.getElementById("shopOrdProdSearch").value = "";
+        document.getElementById("shopOrdProdQty").value = "1";
+        shopOrdSelectedProductId = "";
+        await refreshShopOrdCurrent();
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
+      }
+    }
+
+    // Tarik ulang order yang lagi dibuka dari server -- dipake abis nambah/
+    // hapus item, biar daftar item & total SELALU sinkron sama stok/HPP
+    // server (bukan diitung ulang di klien).
+    async function refreshShopOrdCurrent() {
+      const r = await api("listShopOrders", { token: getToken(), batchId: SHOPORD_CURRENT.batchId });
+      if (r.status === "success") {
+        const fresh = (r.orders || []).find(o => o.id === SHOPORD_CURRENT.id);
+        if (fresh) {
+          SHOPORD_CURRENT.items = fresh.items;
+          renderShopOrdItems();
+        }
+      }
+    }
+
+    async function deleteShopOrdItemFn(id) {
+      if (!confirm("Hapus item ini dari order? Stok bakal dibalikin.")) return;
+      try {
+        const r = await api("deleteShopOrderItem", { token: getToken(), id });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
+        await refreshShopOrdCurrent();
+      } catch (e) {
+        alert("Failed to connect to the server.");
+      }
+    }
+
+    async function saveShopOrdInfoFn() {
+      const buyerName = document.getElementById("shopOrdBuyerName").value.trim();
+      if (!buyerName) { alert("Nama pembeli wajib diisi."); return; }
+      const buyerWa = document.getElementById("shopOrdBuyerWa").value.trim();
+      const msg = document.getElementById("shopOrdMsg");
+      msg.className = "msg"; msg.textContent = "Saving...";
+      try {
+        const r = await api("saveShopOrder", {
+          token: getToken(), id: SHOPORD_CURRENT.id, workshopType: SHOPORD_CURRENT.workshopType,
+          batchId: SHOPORD_CURRENT.batchId, registrationId: SHOPORD_CURRENT.registrationId,
+          buyerName, buyerWa,
+        });
+        if (r.status === "success") {
+          SHOPORD_CURRENT.buyerName = buyerName; SHOPORD_CURRENT.buyerWa = buyerWa;
+          msg.className = "msg ok"; msg.textContent = "Saved ✓";
+        } else {
+          handleAuthError(r);
+          msg.className = "msg err"; msg.textContent = r.message || "Failed to save.";
+        }
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "Failed to connect to the server.";
+      }
+    }
+
+    // Invoice PDF numpang downloadInvoicePdf() yang udah ada (dipake MOU/
+    // Invoice Partner) -- satu sumber doang buat layout PDF-nya, bank info
+    // pakai default BCA Arnold yang sama kayak di form Invoice Partner.
+    async function downloadShopOrderInvoiceFn() {
+      if (!SHOPORD_CURRENT.items.length) { alert("Belum ada item di order ini."); return; }
+      const doc = {
+        title: "Invoice - " + SHOPORD_CURRENT.buyerName,
+        doc_date: new Date().toISOString().slice(0, 10),
+        data: {
+          orderNumber: SHOPORD_CURRENT.id.slice(0, 8).toUpperCase(),
+          toName: SHOPORD_CURRENT.buyerName,
+          items: SHOPORD_CURRENT.items.map(it => ({ description: it.productName || "Produk dihapus", qty: it.qty, price: it.unitSellPrice })),
+          bankName: "BCA",
+          bankAccountName: "Arnold Therigan",
+          bankAccountNo: "6042825961",
+          signerRole: "Penjual",
+          signerName: "Arnold Therigan",
+        },
+      };
+      await downloadInvoicePdf(doc);
+    }
+
+    function openShopOrdWaFn() {
+      const wa = waNormalize(SHOPORD_CURRENT.buyerWa);
+      if (!wa) { alert("Nomor WA pembeli belum diisi."); return; }
+      const itemsText = SHOPORD_CURRENT.items.map(it => `- ${it.productName || "Produk"} x${it.qty} = ${rupiah(it.lineTotal)}`).join("\n");
+      const text = `Halo ${SHOPORD_CURRENT.buyerName}! Ini rincian belanjamu:\n${itemsText}\n\nTotal: ${rupiah(SHOPORD_CURRENT.total)}\n\nTransfer ke BCA 6042825961 a.n Arnold Therigan ya. Terima kasih! 🐾`;
+      window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(text), "_blank");
+    }
+
+    async function deleteShopOrdFn() {
+      if (!confirm(`Hapus order "${SHOPORD_CURRENT.buyerName}"? Semua item di dalamnya ikut terhapus & stok dikembalikan.`)) return;
+      try {
+        const r = await api("deleteShopOrder", { token: getToken(), id: SHOPORD_CURRENT.id });
+        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
+        closeShopOrdEditor();
       } catch (e) {
         alert("Failed to connect to the server.");
       }

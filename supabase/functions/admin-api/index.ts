@@ -1427,6 +1427,19 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         const { data: matRows } = await admin.from("shop_materials").select("id, name, unit, purchase_qty, price");
         // deno-lint-ignore no-explicit-any
         const matById = new Map((matRows || []).map((m: any) => [m.id, m]));
+        // Agregat terjual/untung PER PRODUK dari shop_sales (angka historis
+        // yang udah di-snapshot pas transaksi terjadi -- nggak ikut berubah
+        // walau HPP sekarang beda, lihat komentar di migration-nya).
+        const { data: saleRows } = await admin.from("shop_sales").select("product_id, qty, unit_sell_price, unit_hpp");
+        const salesByProduct = new Map<string, { soldQty: number; profit: number }>();
+        // deno-lint-ignore no-explicit-any
+        for (const s of (saleRows || []) as any[]) {
+          const cur = salesByProduct.get(s.product_id) || { soldQty: 0, profit: 0 };
+          const qty = Number(s.qty) || 0;
+          cur.soldQty += qty;
+          cur.profit += (Number(s.unit_sell_price) - Number(s.unit_hpp)) * qty;
+          salesByProduct.set(s.product_id, cur);
+        }
         // deno-lint-ignore no-explicit-any
         const products = (rows || []).map((r: any) => {
           const materials = Array.isArray(r.materials) ? r.materials : [];
@@ -1453,6 +1466,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           const extraTotal = extraCosts.reduce((sum: number, e: any) => sum + (Number(e.amount) || 0), 0);
           const hpp = materialCost + extraTotal;
           const sellPrice = r.sell_price != null ? Number(r.sell_price) : null;
+          const sold = salesByProduct.get(r.id) || { soldQty: 0, profit: 0 };
           return {
             id: r.id, name: r.name,
             materials: materialLines,
@@ -1461,6 +1475,9 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
             materialCost, extraTotal, hpp, sellPrice,
             margin: sellPrice != null ? sellPrice - hpp : null,
             marginPct: sellPrice != null && sellPrice > 0 ? ((sellPrice - hpp) / sellPrice) * 100 : null,
+            stockQty: Number(r.stock_qty) || 0,
+            sellToken: r.sell_token,
+            soldQty: sold.soldQty, profit: sold.profit,
             createdAt: r.created_at,
           };
         });
@@ -1485,7 +1502,17 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         const sellPrice = data.sellPrice !== undefined && data.sellPrice !== null && String(data.sellPrice).trim() !== ""
           ? Number(data.sellPrice) : null;
         const id = data.id ? String(data.id) : "";
-        const patch = { name, materials, extra_costs: extraCosts, sell_price: sellPrice };
+        // deno-lint-ignore no-explicit-any
+        const patch: Record<string, any> = { name, materials, extra_costs: extraCosts, sell_price: sellPrice };
+        // stockQty cuma dipatch kalau eksplisit dikirim (koreksi manual dari
+        // editor) -- BUKAN lewat sini pas bikin produk baru, biar nggak
+        // ketimpa 0 tiap kali save padahal ada penjualan yang udah
+        // ngurangin stok di antaranya. Restock/koreksi cepat lebih sering
+        // lewat action "adjustShopProductStock" (nambah/ngurang dari angka
+        // SEKARANG), bukan field ini (nimpa absolut).
+        if (data.stockQty !== undefined && data.stockQty !== null && String(data.stockQty).trim() !== "") {
+          patch.stock_qty = Number(data.stockQty);
+        }
         if (id) {
           const { error } = await admin.from("shop_products").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
           if (error) return errorResponse("Gagal menyimpan produk: " + error.message);
@@ -1502,6 +1529,166 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         const { error } = await admin.from("shop_products").delete().eq("id", id);
         if (error) return errorResponse("Gagal menghapus produk: " + error.message);
         return jsonResponse({ status: "success", message: "Produk dihapus." });
+      }
+
+      case "adjustShopProductStock": {
+        const id = String(data.id || "");
+        const delta = Number(data.delta) || 0;
+        if (!id) return errorResponse("ID tidak valid.");
+        if (!delta) return errorResponse("Jumlah penyesuaian tidak valid.");
+        const { data: product } = await admin.from("shop_products").select("stock_qty").eq("id", id).maybeSingle();
+        if (!product) return errorResponse("Produk tidak ditemukan.");
+        const newStock = (Number(product.stock_qty) || 0) + delta;
+        if (newStock < 0) return errorResponse("Stok nggak bisa minus.");
+        const { error } = await admin.from("shop_products").update({ stock_qty: newStock }).eq("id", id);
+        if (error) return errorResponse("Gagal update stok: " + error.message);
+        return jsonResponse({ status: "success", message: "Stok diperbarui.", stockQty: newStock });
+      }
+
+      // ---------- Shop Orders (tab belanja per pembeli di suatu batch,
+      // atau order lepas di luar event) + item-nya (shop_sales dengan
+      // order_id keisi). Dasar hitung HPP/stok di addShopOrderItem SAMA
+      // PERSIS kayak endpoint publik shop-sell (scan QR) -- dua-duanya
+      // ngehasilin baris shop_sales yang sama, bedanya cuma order_id
+      // keisi atau nggak.
+      case "listShopOrders": {
+        let q = admin.from("shop_orders").select("*").order("created_at", { ascending: true });
+        if (data.batchId !== undefined) {
+          q = data.batchId ? q.eq("batch_id", String(data.batchId)) : q.is("batch_id", null);
+        }
+        const { data: orders } = await q;
+        // deno-lint-ignore no-explicit-any
+        const orderIds = (orders || []).map((o: any) => o.id);
+        // deno-lint-ignore no-explicit-any
+        const salesByOrder = new Map<string, any[]>();
+        if (orderIds.length) {
+          const { data: sales } = await admin.from("shop_sales").select("*").in("order_id", orderIds);
+          const { data: prodRows } = await admin.from("shop_products").select("id, name");
+          // deno-lint-ignore no-explicit-any
+          const prodNameById = new Map((prodRows || []).map((p: any) => [p.id, p.name]));
+          // deno-lint-ignore no-explicit-any
+          for (const s of (sales || []) as any[]) {
+            const arr = salesByOrder.get(s.order_id) || [];
+            const qty = Number(s.qty) || 0;
+            const unitSellPrice = Number(s.unit_sell_price) || 0;
+            arr.push({
+              id: s.id, productId: s.product_id, productName: prodNameById.get(s.product_id) || null,
+              qty, unitSellPrice, unitHpp: Number(s.unit_hpp) || 0,
+              lineTotal: qty * unitSellPrice,
+              createdAt: s.created_at,
+            });
+            salesByOrder.set(s.order_id, arr);
+          }
+        }
+        // deno-lint-ignore no-explicit-any
+        const result = (orders || []).map((o: any) => {
+          const items = salesByOrder.get(o.id) || [];
+          // deno-lint-ignore no-explicit-any
+          const total = items.reduce((sum: number, it: any) => sum + it.lineTotal, 0);
+          return {
+            id: o.id, workshopType: o.workshop_type, batchId: o.batch_id, registrationId: o.registration_id,
+            buyerName: o.buyer_name, buyerWa: o.buyer_wa, items, total, createdAt: o.created_at,
+          };
+        });
+        return jsonResponse({ status: "success", orders: result });
+      }
+
+      case "saveShopOrder": {
+        const buyerName = String(data.buyerName || "").trim();
+        if (!buyerName) return errorResponse("Nama pembeli wajib diisi.");
+        const id = data.id ? String(data.id) : "";
+        const patch = {
+          workshop_type: data.workshopType ? String(data.workshopType) : null,
+          batch_id: data.batchId ? String(data.batchId) : null,
+          registration_id: data.registrationId ? String(data.registrationId) : null,
+          buyer_name: buyerName,
+          buyer_wa: data.buyerWa ? String(data.buyerWa).trim() : null,
+        };
+        if (id) {
+          const { error } = await admin.from("shop_orders").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
+          if (error) return errorResponse("Gagal menyimpan order: " + error.message);
+          return jsonResponse({ status: "success", message: "Order diperbarui.", id });
+        }
+        const { data: inserted, error: insErr } = await admin.from("shop_orders").insert(patch).select("id").single();
+        if (insErr) return errorResponse("Gagal membuat order: " + insErr.message);
+        return jsonResponse({ status: "success", message: "Order dibuat.", id: inserted?.id });
+      }
+
+      case "addShopOrderItem": {
+        const orderId = String(data.orderId || "");
+        const productId = String(data.productId || "");
+        const qty = Number(data.qty) || 0;
+        if (!orderId) return errorResponse("Order belum dipilih.");
+        if (!productId) return errorResponse("Produk belum dipilih.");
+        if (qty <= 0) return errorResponse("Jumlah harus lebih dari 0.");
+
+        const { data: product } = await admin.from("shop_products").select("*").eq("id", productId).maybeSingle();
+        if (!product) return errorResponse("Produk tidak ditemukan.");
+        const currentStock = Number(product.stock_qty) || 0;
+        if (qty > currentStock) return errorResponse(`Stok "${product.name}" cuma tersisa ${currentStock}.`);
+
+        // Hitung HPP SAAT INI & snapshot ke shop_sales -- logic sama persis
+        // kayak Edge Function publik shop-sell (scan QR).
+        const materials = Array.isArray(product.materials) ? product.materials : [];
+        const extraCosts = Array.isArray(product.extra_costs) ? product.extra_costs : [];
+        let materialCost = 0;
+        if (materials.length) {
+          // deno-lint-ignore no-explicit-any
+          const ids = materials.map((m: any) => m.materialId).filter(Boolean);
+          const { data: matRows } = await admin.from("shop_materials").select("id, purchase_qty, price").in("id", ids);
+          // deno-lint-ignore no-explicit-any
+          const matById = new Map((matRows || []).map((m: any) => [m.id, m]));
+          // deno-lint-ignore no-explicit-any
+          for (const m of materials as any[]) {
+            const mat = matById.get(m.materialId);
+            const unitCost = mat && Number(mat.purchase_qty) > 0 ? Number(mat.price) / Number(mat.purchase_qty) : 0;
+            materialCost += unitCost * (Number(m.qty) || 0);
+          }
+        }
+        // deno-lint-ignore no-explicit-any
+        const extraTotal = extraCosts.reduce((sum: number, e: any) => sum + (Number(e.amount) || 0), 0);
+        const unitHpp = Math.round(materialCost + extraTotal);
+        const unitSellPrice = product.sell_price != null ? Number(product.sell_price) : 0;
+
+        const { error: saleErr } = await admin.from("shop_sales").insert({
+          product_id: productId, qty, unit_sell_price: unitSellPrice, unit_hpp: unitHpp, order_id: orderId,
+        });
+        if (saleErr) return errorResponse("Gagal menambah item: " + saleErr.message);
+        const { error: stockErr } = await admin.from("shop_products").update({ stock_qty: currentStock - qty }).eq("id", productId);
+        if (stockErr) return errorResponse("Gagal update stok: " + stockErr.message);
+        return jsonResponse({ status: "success", message: "Item ditambahkan." });
+      }
+
+      case "deleteShopOrderItem": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID tidak valid.");
+        const { data: sale } = await admin.from("shop_sales").select("product_id, qty").eq("id", id).maybeSingle();
+        if (!sale) return errorResponse("Item tidak ditemukan.");
+        const { error } = await admin.from("shop_sales").delete().eq("id", id);
+        if (error) return errorResponse("Gagal menghapus item: " + error.message);
+        // Batal jual (bukan beneran laku) -- kembaliin stok yang kepotong tadi.
+        const { data: product } = await admin.from("shop_products").select("stock_qty").eq("id", sale.product_id).maybeSingle();
+        if (product) {
+          await admin.from("shop_products").update({ stock_qty: (Number(product.stock_qty) || 0) + Number(sale.qty) }).eq("id", sale.product_id);
+        }
+        return jsonResponse({ status: "success", message: "Item dihapus." });
+      }
+
+      case "deleteShopOrder": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID tidak valid.");
+        const { data: sales } = await admin.from("shop_sales").select("product_id, qty").eq("order_id", id);
+        // deno-lint-ignore no-explicit-any
+        for (const s of (sales || []) as any[]) {
+          const { data: product } = await admin.from("shop_products").select("stock_qty").eq("id", s.product_id).maybeSingle();
+          if (product) {
+            await admin.from("shop_products").update({ stock_qty: (Number(product.stock_qty) || 0) + Number(s.qty) }).eq("id", s.product_id);
+          }
+        }
+        // shop_sales.order_id udah ON DELETE CASCADE -- ikut kehapus otomatis.
+        const { error } = await admin.from("shop_orders").delete().eq("id", id);
+        if (error) return errorResponse("Gagal menghapus order: " + error.message);
+        return jsonResponse({ status: "success", message: "Order dihapus." });
       }
 
       case "getModal": {

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catat Penjualan — Seminggu Satu</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0046ff" data-light="#0046ff" data-dark="#0d1526">
+
+    <script src="../theme.js"></script>
+    <script src="../env.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        :root {
+            --blue: #0046ff;
+            --yellow: #ffe600;
+            --ink: #10245e;
+            --bg: #f4f7ff;
+            --card: #ffffff;
+            --line: #e4e9f5;
+            --muted: #6b7794;
+        }
+        :root[data-theme="dark"] { --ink: #eaeffc; --bg: #0d1526; --card: #172035; --line: #2a3550; --muted: #9fabc9; }
+
+        body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+        .wrap { max-width: 440px; margin: 0 auto; padding: 1.75rem 1.1rem 3rem; }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0,30,120,.08);
+        }
+
+        h1 { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.3rem; margin-bottom: 0.3rem; }
+        .sub { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.25rem; }
+
+        .stat-row { display: flex; gap: 10px; margin-bottom: 1.25rem; }
+        .stat-box { flex: 1; background: var(--bg); border-radius: 12px; padding: 0.85rem 1rem; }
+        .stat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+        .stat-val { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.15rem; }
+
+        label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; }
+        input[type="number"] {
+            width: 100%;
+            font-size: 1.4rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            text-align: center;
+            padding: 0.8rem;
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            background: var(--card);
+            color: var(--ink);
+            margin-bottom: 1.1rem;
+        }
+        input[type="number"]:focus { outline: none; border-color: var(--blue); }
+
+        .btn {
+            width: 100%;
+            padding: 0.95rem;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: 13px;
+            font-size: 1rem;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .msg { margin-top: 1rem; font-size: 0.88rem; text-align: center; }
+        .msg.err { color: #b91c1c; }
+        .msg.ok { color: #166534; font-weight: 700; }
+
+        .state-box { text-align: center; padding: 2rem 1rem; }
+        .state-box i { width: 36px; height: 36px; color: var(--muted); margin-bottom: 0.75rem; }
+        .state-box h3 { font-family: 'Outfit', sans-serif; font-weight: 700; margin-bottom: 0.4rem; }
+        .state-box p { color: var(--muted); font-size: 0.88rem; }
+
+        .success-check { width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; color: #166534; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+        .success-check i { width: 32px; height: 32px; }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="card" id="cardBox">
+            <div class="state-box" id="loadingBox">
+                <p>Memuat…</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+        function rupiah(n) { return 'Rp ' + Math.round(Number(n) || 0).toLocaleString('id-ID'); }
+
+        const token = new URLSearchParams(location.search).get('t') || '';
+        const cardBox = document.getElementById('cardBox');
+
+        function renderError(message) {
+            cardBox.innerHTML =
+                '<div class="state-box"><i data-lucide="package-x"></i><h3>Nggak Bisa Diproses</h3><p>' + esc(message) + '</p></div>';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderForm(info) {
+            cardBox.innerHTML =
+                '<h1>' + esc(info.name) + '</h1>' +
+                '<p class="sub">Catat penjualan produk ini -- stok otomatis berkurang.</p>' +
+                '<div class="stat-row">' +
+                '<div class="stat-box"><div class="stat-label">Harga</div><div class="stat-val">' + esc(info.sellPrice != null ? rupiah(info.sellPrice) : '-') + '</div></div>' +
+                '<div class="stat-box"><div class="stat-label">Stok</div><div class="stat-val" id="stockVal">' + esc(info.stockQty) + '</div></div>' +
+                '</div>' +
+                '<label for="qtyInput">Jumlah Terjual</label>' +
+                '<input type="number" id="qtyInput" value="1" min="1" max="' + esc(info.stockQty) + '" inputmode="numeric">' +
+                '<button class="btn" id="sellBtn" type="button"' + (info.stockQty <= 0 ? ' disabled' : '') + '><i data-lucide="check-circle"></i> Tandai Terjual</button>' +
+                '<div class="msg" id="formMsg"></div>';
+            if (window.lucide) lucide.createIcons();
+            document.getElementById('sellBtn').addEventListener('click', () => recordSale(info));
+        }
+
+        function renderSuccess(productName, qty, newStock) {
+            cardBox.innerHTML =
+                '<div class="state-box">' +
+                '<div class="success-check"><i data-lucide="check"></i></div>' +
+                '<h3>Tercatat!</h3>' +
+                '<p>' + esc(qty) + ' ' + esc(productName) + ' terjual. Sisa stok: <b>' + esc(newStock) + '</b></p>' +
+                '</div>' +
+                '<button class="btn" id="againBtn" type="button" style="margin-top:1rem;"><i data-lucide="rotate-ccw"></i> Catat Lagi</button>';
+            if (window.lucide) lucide.createIcons();
+            document.getElementById('againBtn').addEventListener('click', load);
+        }
+
+        async function recordSale(info) {
+            const qtyInput = document.getElementById('qtyInput');
+            const btn = document.getElementById('sellBtn');
+            const msg = document.getElementById('formMsg');
+            const qty = Number(qtyInput.value) || 0;
+            if (qty <= 0) { msg.className = 'msg err'; msg.textContent = 'Jumlah harus lebih dari 0.'; return; }
+            btn.disabled = true;
+            msg.className = 'msg'; msg.textContent = 'Menyimpan…';
+            try {
+                const res = await fetch(SUPABASE_URL + '/functions/v1/shop-sell', {
+                    method: 'POST',
+                    headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ t: token, qty })
+                });
+                const body = await res.json();
+                if (!res.ok || body.status === 'error') {
+                    msg.className = 'msg err'; msg.textContent = body.message || 'Gagal menyimpan.';
+                    btn.disabled = false;
+                    return;
+                }
+                renderSuccess(body.productName || info.name, qty, body.newStock);
+            } catch (e) {
+                msg.className = 'msg err'; msg.textContent = 'Koneksi gagal. Coba lagi.';
+                btn.disabled = false;
+            }
+        }
+
+        function load() {
+            cardBox.innerHTML = '<div class="state-box"><p>Memuat…</p></div>';
+            if (!token) { renderError('Link nggak lengkap (token nggak ada).'); return; }
+            if (typeof SUPABASE_URL === 'undefined' || !SUPABASE_URL) { renderError('Gagal memuat -- coba lagi ya.'); return; }
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 12000);
+            fetch(SUPABASE_URL + '/functions/v1/shop-sell?t=' + encodeURIComponent(token), {
+                headers: { apikey: SUPABASE_ANON_KEY },
+                signal: controller.signal
+            })
+                .then(res => res.json().then(body => ({ ok: res.ok, body })))
+                .then(r => {
+                    clearTimeout(timer);
+                    if (!r.ok || r.body.status === 'error') { renderError(r.body && r.body.message); return; }
+                    renderForm(r.body);
+                })
+                .catch(() => { clearTimeout(timer); renderError('Koneksi gagal. Cek internetmu lalu muat ulang halaman ini.'); });
+        }
+        load();
+    </script>
+</body>
+
+</html>
