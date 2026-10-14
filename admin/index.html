@@ -2722,7 +2722,7 @@
 
     /* Invoice -- deliberately its own clean sans-serif style (not the
        serif legal-doc look used by MOU), matching the reference layout. */
-    .doc-print-invoice { font-family: Arial, Helvetica, sans-serif; color: #111; position: relative; padding-bottom: 150px; }
+    .doc-print-invoice { font-family: Arial, Helvetica, sans-serif; color: #111; position: relative; }
     .doc-invoice-topline { display: flex; justify-content: space-between; align-items: center; }
     .doc-invoice-ordernum-label { font-size: 11px; font-weight: 700; letter-spacing: .5px; }
     .doc-invoice-ordernum-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
@@ -2731,7 +2731,13 @@
     .doc-invoice-brand img { height: 130px; width: auto; }
     /* Stempel status bayar -- pojok kanan bawah, paling bawah invoice (bukan
        di atas deket nomor order) -- lunas pake gambar stempel beneran,
-       belum bayar pake teks (belum ada aset gambarnya). */
+       belum bayar pake teks (belum ada aset gambarnya). Spacer pake HEIGHT
+       (bukan margin/padding) SENGAJA -- downloadDocPdf nge-override
+       docEl.style.padding = "0" pas generate PDF (biar nggak dobel sama
+       margin halaman PDF), jadi padding-bottom di sini bakal ke-reset;
+       margin-bottom child juga rawan collapse ke edge parent. Blok kosong
+       ber-height nggak kena dua masalah itu, jadi beneran mesen ruang. */
+    .doc-invoice-stamp-spacer { height: 140px; }
     .doc-invoice-stamp-img { position: absolute; right: 0; bottom: 0; width: 120px; opacity: .92; }
     .doc-invoice-stamp-text {
       position: absolute; right: 0; bottom: 14px;
@@ -11050,6 +11056,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
           </div>
 
+          ${d.paymentStatus ? `<div class="doc-invoice-stamp-spacer"></div>` : ""}
           ${d.paymentStatus === "paid" ? `<img class="doc-invoice-stamp-img" src="${SHOP_LUNAS_STAMP_DATA_URI}" alt="LUNAS">` : ""}
           ${d.paymentStatus === "unpaid" ? `<div class="doc-invoice-stamp-text">BELUM BAYAR</div>` : ""}
         </div>`;
