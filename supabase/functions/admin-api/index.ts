@@ -1575,6 +1575,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
               id: s.id, productId: s.product_id, productName: prodNameById.get(s.product_id) || null,
               qty, unitSellPrice, unitHpp: Number(s.unit_hpp) || 0,
               lineTotal: qty * unitSellPrice,
+              notes: s.notes || null,
               createdAt: s.created_at,
             });
             salesByOrder.set(s.order_id, arr);
@@ -1587,7 +1588,9 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           const total = items.reduce((sum: number, it: any) => sum + it.lineTotal, 0);
           return {
             id: o.id, workshopType: o.workshop_type, batchId: o.batch_id, registrationId: o.registration_id,
-            buyerName: o.buyer_name, buyerWa: o.buyer_wa, isPaid: !!o.is_paid, items, total, createdAt: o.created_at,
+            buyerName: o.buyer_name, buyerWa: o.buyer_wa, isPaid: !!o.is_paid,
+            deliveryAddress: o.delivery_address || null, isCod: !!o.is_cod,
+            items, total, createdAt: o.created_at,
           };
         });
         return jsonResponse({ status: "success", orders: result });
@@ -1612,6 +1615,8 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           registration_id: data.registrationId ? String(data.registrationId) : null,
           buyer_name: buyerName,
           buyer_wa: data.buyerWa ? String(data.buyerWa).trim() : null,
+          delivery_address: data.deliveryAddress ? String(data.deliveryAddress).trim() : null,
+          is_cod: !!data.isCod,
         };
         if (id) {
           const { error } = await admin.from("shop_orders").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
@@ -1627,6 +1632,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         const orderId = String(data.orderId || "");
         const productId = String(data.productId || "");
         const qty = Number(data.qty) || 0;
+        const notes = data.notes ? String(data.notes).trim() : null;
         if (!orderId) return errorResponse("Order belum dipilih.");
         if (!productId) return errorResponse("Produk belum dipilih.");
         if (qty <= 0) return errorResponse("Jumlah harus lebih dari 0.");
@@ -1660,7 +1666,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         const unitSellPrice = product.sell_price != null ? Number(product.sell_price) : 0;
 
         const { error: saleErr } = await admin.from("shop_sales").insert({
-          product_id: productId, qty, unit_sell_price: unitSellPrice, unit_hpp: unitHpp, order_id: orderId,
+          product_id: productId, qty, unit_sell_price: unitSellPrice, unit_hpp: unitHpp, order_id: orderId, notes,
         });
         if (saleErr) return errorResponse("Gagal menambah item: " + saleErr.message);
         const { error: stockErr } = await admin.from("shop_products").update({ stock_qty: currentStock - qty }).eq("id", productId);

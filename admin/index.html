@@ -5211,6 +5211,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <div class="fin-card">
               <div class="konten-field"><label>Nama Pembeli</label><input class="form-control" type="text" id="shopOrdBuyerName"></div>
               <div class="konten-field"><label>Nomor WA</label><input class="form-control" type="text" id="shopOrdBuyerWa" placeholder="08xx..."></div>
+              <div style="display:flex;align-items:center;gap:8px;margin:10px 0 4px;">
+                <input type="checkbox" id="shopOrdCodCheck" style="width:18px;height:18px;">
+                <label for="shopOrdCodCheck" style="margin:0;cursor:pointer;">COD -- ketemu langsung, nggak perlu alamat</label>
+              </div>
+              <div class="konten-field" id="shopOrdAddressWrap"><label>Alamat Pengiriman</label><textarea class="form-control" id="shopOrdAddress" rows="2" placeholder="Alamat lengkap buat dikirim..."></textarea></div>
               <div style="display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap;">
                 <span class="hint" style="margin:0;">Status Bayar:</span>
                 <button class="btn btn-sm btn-ghost" id="shopOrdPaidToggleBtn" type="button"></button>
@@ -5229,6 +5234,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <div style="flex:1;min-width:80px;">
                   <label class="hint" style="display:block;margin-bottom:4px;">Qty</label>
                   <input class="form-control" type="number" id="shopOrdProdQty" min="1" value="1">
+                </div>
+                <div style="flex:2;min-width:160px;">
+                  <label class="hint" style="display:block;margin-bottom:4px;">Catatan (opsional)</label>
+                  <input class="form-control" type="text" id="shopOrdProdNotes" placeholder="Misal: Merah 1, Kuning 3">
                 </div>
                 <button class="btn btn-sm" id="shopOrdAddItemBtn" type="button">Tambah</button>
               </div>
@@ -11002,6 +11011,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
           </div>
 
+          ${d.deliveryInfo ? `<div class="doc-invoice-meta" style="margin-top:4px;">
+            <div>
+              <div class="doc-invoice-meta-label">PENGIRIMAN:</div>
+              <div class="doc-invoice-meta-value">${escapeHtml(d.deliveryInfo)}</div>
+            </div>
+          </div>` : ""}
+
           <div class="doc-table-plain-wrap"><table class="doc-table-plain">
             <thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Price</th><th style="text-align:right;">Total</th></tr></thead>
             <tbody>${items.map(it => `<tr><td>${escapeHtml(it.description || "-")}</td><td style="text-align:center;">${it.qty}</td><td style="text-align:right;">${rupiah(it.price)}</td><td style="text-align:right;">${rupiah(it.lineTotal)}</td></tr>`).join("")}</tbody>
@@ -12273,6 +12289,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("shopOrdWalkinMonthSelect").value = String(new Date().getMonth());
         document.getElementById("shopOrdBackBtn").addEventListener("click", closeShopOrdEditor);
         document.getElementById("shopOrdSaveInfoBtn").addEventListener("click", saveShopOrdInfoFn);
+        document.getElementById("shopOrdCodCheck").addEventListener("change", updateShopOrdAddressVisibility);
         document.getElementById("shopOrdPaidToggleBtn").addEventListener("click", toggleShopOrdPaidFn);
         document.getElementById("shopOrdAddItemBtn").addEventListener("click", addShopOrdItemFn);
         document.getElementById("shopOrdInvoiceBtn").addEventListener("click", downloadShopOrderInvoiceFn);
@@ -12507,8 +12524,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("shopOrdEditorWrap").style.display = "block";
       document.getElementById("shopOrdBuyerName").value = SHOPORD_CURRENT.buyerName || "";
       document.getElementById("shopOrdBuyerWa").value = SHOPORD_CURRENT.buyerWa || "";
+      document.getElementById("shopOrdCodCheck").checked = !!SHOPORD_CURRENT.isCod;
+      document.getElementById("shopOrdAddress").value = SHOPORD_CURRENT.deliveryAddress || "";
+      updateShopOrdAddressVisibility();
       document.getElementById("shopOrdProdSearch").value = "";
       document.getElementById("shopOrdProdQty").value = "1";
+      document.getElementById("shopOrdProdNotes").value = "";
       shopOrdSelectedProductId = "";
       document.getElementById("shopOrdAddItemMsg").textContent = "";
       document.getElementById("shopOrdMsg").textContent = "";
@@ -12523,6 +12544,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       SHOPORD_CURRENT = null;
       if (shopOrdEditorSource === "walkin") loadShopOrdWalkinList();
       else loadShopOrdList();
+    }
+
+    // COD = ketemu langsung, alamat jadi nggak relevan -- disembunyiin (bukan
+    // dihapus isinya) biar kalau COD di-uncheck lagi alamat yang udah keketik
+    // nggak ilang percuma.
+    function updateShopOrdAddressVisibility() {
+      const isCod = document.getElementById("shopOrdCodCheck").checked;
+      document.getElementById("shopOrdAddressWrap").style.display = isCod ? "none" : "block";
     }
 
     function renderShopOrdPaidToggleBtn() {
@@ -12563,7 +12592,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         listEl.innerHTML = items.map(it => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px;">
             <div><div style="font-weight:700;">${escapeHtml(it.productName || "(produk dihapus)")}</div>
-            <div class="hint">${it.qty} x ${rupiah(it.unitSellPrice)}</div></div>
+            <div class="hint">${it.qty} x ${rupiah(it.unitSellPrice)}</div>
+            ${it.notes ? `<div class="hint" style="font-style:italic;">${escapeHtml(it.notes)}</div>` : ""}</div>
             <div style="display:flex;align-items:center;gap:10px;">
               <b>${rupiah(it.lineTotal)}</b>
               <button class="btn btn-sm btn-ghost" data-item-del="${escapeHtml(it.id)}" style="color:var(--err);">Hapus</button>
@@ -12626,16 +12656,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function addShopOrdItemFn() {
       const qty = Number(document.getElementById("shopOrdProdQty").value) || 0;
+      const notes = document.getElementById("shopOrdProdNotes").value.trim();
       const msg = document.getElementById("shopOrdAddItemMsg");
       if (!shopOrdSelectedProductId) { msg.className = "msg err"; msg.textContent = "Pilih produk dulu."; return; }
       if (qty <= 0) { msg.className = "msg err"; msg.textContent = "Jumlah harus lebih dari 0."; return; }
       msg.className = "msg"; msg.textContent = "Menambahkan...";
       try {
-        const r = await api("addShopOrderItem", { token: getToken(), orderId: SHOPORD_CURRENT.id, productId: shopOrdSelectedProductId, qty });
+        const r = await api("addShopOrderItem", { token: getToken(), orderId: SHOPORD_CURRENT.id, productId: shopOrdSelectedProductId, qty, notes });
         if (r.status !== "success") { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed to add."; return; }
         msg.className = "msg ok"; msg.textContent = "Ditambahkan ✓";
         document.getElementById("shopOrdProdSearch").value = "";
         document.getElementById("shopOrdProdQty").value = "1";
+        document.getElementById("shopOrdProdNotes").value = "";
         shopOrdSelectedProductId = "";
         await refreshShopOrdCurrent();
       } catch (e) {
@@ -12672,16 +12704,19 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const buyerName = document.getElementById("shopOrdBuyerName").value.trim();
       if (!buyerName) { alert("Nama pembeli wajib diisi."); return; }
       const buyerWa = document.getElementById("shopOrdBuyerWa").value.trim();
+      const isCod = document.getElementById("shopOrdCodCheck").checked;
+      const deliveryAddress = isCod ? "" : document.getElementById("shopOrdAddress").value.trim();
       const msg = document.getElementById("shopOrdMsg");
       msg.className = "msg"; msg.textContent = "Saving...";
       try {
         const r = await api("saveShopOrder", {
           token: getToken(), id: SHOPORD_CURRENT.id, workshopType: SHOPORD_CURRENT.workshopType,
           batchId: SHOPORD_CURRENT.batchId, registrationId: SHOPORD_CURRENT.registrationId,
-          buyerName, buyerWa,
+          buyerName, buyerWa, isCod, deliveryAddress,
         });
         if (r.status === "success") {
           SHOPORD_CURRENT.buyerName = buyerName; SHOPORD_CURRENT.buyerWa = buyerWa;
+          SHOPORD_CURRENT.isCod = isCod; SHOPORD_CURRENT.deliveryAddress = deliveryAddress;
           msg.className = "msg ok"; msg.textContent = "Saved ✓";
         } else {
           handleAuthError(r);
@@ -12700,13 +12735,20 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // kosong) buat tombol "Download Invoice PDF" yang auto-save kayak biasa.
     async function downloadShopOrderInvoiceFn(asBlob) {
       if (!SHOPORD_CURRENT.items.length) { if (!asBlob) alert("Belum ada item di order ini."); return null; }
+      const deliveryInfo = SHOPORD_CURRENT.isCod
+        ? "COD -- Ketemu Langsung"
+        : (SHOPORD_CURRENT.deliveryAddress || "");
       const doc = {
         title: "Invoice - " + SHOPORD_CURRENT.buyerName,
         doc_date: new Date().toISOString().slice(0, 10),
         data: {
           orderNumber: SHOPORD_CURRENT.id.slice(0, 8).toUpperCase(),
           toName: SHOPORD_CURRENT.buyerName,
-          items: SHOPORD_CURRENT.items.map(it => ({ description: it.productName || "Produk dihapus", qty: it.qty, price: it.unitSellPrice })),
+          deliveryInfo,
+          items: SHOPORD_CURRENT.items.map(it => ({
+            description: (it.productName || "Produk dihapus") + (it.notes ? " — " + it.notes : ""),
+            qty: it.qty, price: it.unitSellPrice,
+          })),
           bankName: "BCA",
           bankAccountName: "Arnold Therigan",
           bankAccountNo: "6042825961",
@@ -12731,7 +12773,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     async function openShopOrdWaFn() {
       const wa = waNormalize(SHOPORD_CURRENT.buyerWa);
       if (!wa) { alert("Nomor WA pembeli belum diisi."); return; }
-      const itemsText = SHOPORD_CURRENT.items.map(it => `- ${it.productName || "Produk"} x${it.qty} = ${rupiah(it.lineTotal)}`).join("\n");
+      const itemsText = SHOPORD_CURRENT.items.map(it => `- ${it.productName || "Produk"}${it.notes ? ` (${it.notes})` : ""} x${it.qty} = ${rupiah(it.lineTotal)}`).join("\n");
       const text = `Halo ${SHOPORD_CURRENT.buyerName}! Ini rincian belanjamu:\n${itemsText}\n\nTotal: ${rupiah(SHOPORD_CURRENT.total)}\n\nTransfer ke BCA 6042825961 a.n Arnold Therigan ya. Terima kasih! 🐾`;
 
       let file = null;
