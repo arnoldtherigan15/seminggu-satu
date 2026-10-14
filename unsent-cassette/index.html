@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unsent Cassette 📼</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f7f3ed">
+
+  <script src="../env.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f7f3ed;
+      --card-bg: #ffffff;
+      --text-main: #332c27;
+      --text-muted: #7a6e65;
+      --accent-pink: #f4c3c2;
+      --accent-brown: #a87d65;
+      --accent-blue: #b3cdd4;
+      --accent-yellow: #f8e5b9;
+      --border-radius: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      background-image: radial-gradient(#e2d9cd 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border: 1px solid #ebd8c7;
+      text-align: center;
+      position: relative;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--accent-brown);
+      margin-bottom: 6px;
+    }
+    header p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+
+    .body-text { font-size: 0.92rem; line-height: 1.6; color: var(--text-main); margin-bottom: 22px; }
+    .body-text b { color: var(--accent-brown); }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 2px solid #332c27;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      color: var(--text-main);
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-primary { background: var(--accent-brown); color: #fff; }
+    .btn-rec { background: #e76f51; color: #fff; }
+    .btn-rec.recording { background: #d62828; animation: pulse 1s infinite alternate; }
+    .btn-ghost { background: #faf8f5; border-color: #d8ccbe; }
+
+    @keyframes pulse { 0% { opacity: 1; } 100% { opacity: 0.7; } }
+
+    .hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; }
+
+    /* ---- Feelings picker ---- */
+    .feel-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .feel-chip {
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 2px solid #ebd8c7;
+      background: #faf8f5;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+      color: var(--text-main);
+    }
+    .feel-chip.on { color: #fff; border-color: #332c27; transform: scale(1.05); }
+    .feel-chip.shake { animation: shake 0.3s; }
+    @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+    .feel-counter { font-size: 0.8rem; color: var(--text-muted); margin: 14px 0 18px; }
+
+    /* ---- Breathing ---- */
+    .breath-wrap { display: flex; justify-content: center; align-items: center; height: 180px; margin-bottom: 10px; }
+    .breath-circle {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff, var(--accent-blue));
+      border: 3px solid #332c27;
+      animation: breathe 4.5s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { transform: scale(0.85); }
+      50% { transform: scale(1.25); }
+    }
+    .breath-label { font-size: 0.95rem; font-weight: 700; color: var(--accent-brown); margin-bottom: 20px; min-height: 1.3em; }
+
+    /* ---- Cassette visual ---- */
+    .cassette-box {
+      width: 100%;
+      height: 180px;
+      border-radius: 16px;
+      background: var(--accent-pink);
+      border: 3px solid #332c27;
+      position: relative;
+      padding: 16px;
+      margin-bottom: 20px;
+      transition: background 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+    .cassette-label {
+      background: #fff;
+      border: 2px solid #332c27;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #332c27;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    .cassette-wheels {
+      display: flex; justify-content: space-around; align-items: center;
+      margin: 10px 0; background: rgba(255,255,255,0.4); border-radius: 12px;
+      padding: 10px; border: 2px solid #332c27;
+    }
+    .wheel {
+      width: 45px; height: 45px; border-radius: 50%; background: #fff;
+      border: 3px solid #332c27; position: relative;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .wheel::after { content: ''; width: 14px; height: 14px; background: #332c27; border-radius: 50%; }
+    .wheel-spokes { position: absolute; width: 100%; height: 100%; border-radius: 50%; }
+    .wheel-spokes::before, .wheel-spokes::after {
+      content: ''; position: absolute; background: #332c27;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+    }
+    .wheel-spokes::before { width: 100%; height: 3px; }
+    .wheel-spokes::after { width: 3px; height: 100%; }
+    .spinning .wheel-spokes { animation: spin 2s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .countdown-big {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.2rem;
+      color: var(--accent-brown);
+      margin: 10px 0 20px;
+    }
+
+    .timer-ring-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 18px; }
+    .timer-ring-wrap svg { transform: rotate(-90deg); }
+    .timer-ring-bg { fill: none; stroke: #ebd8c7; stroke-width: 8; }
+    .timer-ring-fg { fill: none; stroke: #e76f51; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+    .timer-ring-text {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 700; color: var(--text-main);
+    }
+
+    audio { width: 100%; margin: 14px 0; }
+
+    .sharing-options { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
+    .radio-card {
+      display: flex; align-items: flex-start; text-align: left;
+      padding: 12px 14px; border: 1.5px solid #e2d9cd; border-radius: 12px;
+      cursor: pointer; font-size: 0.85rem; gap: 10px; background: #faf8f5;
+    }
+    .radio-card b { display: block; margin-bottom: 2px; }
+    .radio-card span.sub { color: var(--text-muted); font-size: 0.78rem; }
+
+    .success-badge {
+      display: inline-block; background: #d4edda; color: #155724;
+      padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 14px;
+    }
+
+    .state-box { padding: 1rem; }
+    .err-box { color: #b91c1c; font-size: 0.85rem; margin-top: 10px; }
+
+    .lounge-link { display: block; margin-top: 16px; font-size: 0.82rem; color: var(--accent-brown); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- ===== SCREEN: INTRO ===== -->
+    <div class="screen active" id="screenIntro">
+      <header>
+        <h1>Unsent Cassette</h1>
+        <p>Words We Never Said 📼</p>
+      </header>
+      <p class="body-text">Kamu udah nulis di kertas tadi. Sekarang giliran suaramu.<br><br>Nggak perlu sempurna -- ini cuma buat <b>1-2 kalimat paling jujur</b> yang mau kamu ucapkan, ke orang yang kamu tulis di Prompt 1 tadi, atau ke dirimu sendiri.</p>
+      <button class="btn btn-primary" onclick="goTo('screenFeelings')">Mulai 🎙️</button>
+    </div>
+
+    <!-- ===== SCREEN: FEELINGS ===== -->
+    <div class="screen" id="screenFeelings">
+      <header>
+        <h1>Pilih 3 Perasaan</h1>
+        <p>Yang paling nggambarin hatimu sekarang</p>
+      </header>
+      <div class="feel-grid" id="feelGrid"></div>
+      <div class="feel-counter" id="feelCounter">0 / 3 dipilih</div>
+      <button class="btn btn-primary" id="feelNextBtn" disabled onclick="goTo('screenBreath')">Lanjut</button>
+    </div>
+
+    <!-- ===== SCREEN: BREATHE ===== -->
+    <div class="screen" id="screenBreath">
+      <header>
+        <h1>Tarik Napas Dulu</h1>
+      </header>
+      <div class="breath-wrap"><div class="breath-circle"></div></div>
+      <div class="breath-label" id="breathLabel">Tarik napas... lalu embuskan pelan-pelan.</div>
+      <button class="btn btn-primary" id="breathReadyBtn" disabled onclick="enterRecordScreen()">Aku Siap 🎙️</button>
+      <p class="hint">Mic bakal diminta izinnya sebentar lagi ya.</p>
+    </div>
+
+    <!-- ===== SCREEN: RECORD ===== -->
+    <div class="screen" id="screenRecord">
+      <header>
+        <h1>Rekam Pesanmu</h1>
+        <p id="recordHint">Maks. 30 detik -- tanpa takut di-judge.</p>
+      </header>
+      <div class="cassette-box" id="cassetteBox">
+        <div class="cassette-label" id="tapeLabelDisplay">Unsent Note</div>
+        <div class="cassette-wheels" id="cassetteWheels">
+          <div class="wheel"><div class="wheel-spokes"></div></div>
+          <div class="wheel"><div class="wheel-spokes"></div></div>
+        </div>
+        <div style="font-size: 0.7rem; font-weight: 700; opacity: 0.6; text-align: right;">30 SEC TAPE</div>
+      </div>
+
+      <div id="countdownWrap" style="display:none;">
+        <div class="countdown-big" id="countdownNum">3</div>
+      </div>
+
+      <div id="recordingWrap" style="display:none;">
+        <div class="timer-ring-wrap">
+          <svg width="120" height="120">
+            <circle class="timer-ring-bg" cx="60" cy="60" r="52"></circle>
+            <circle class="timer-ring-fg" id="timerRingFg" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="timer-ring-text" id="timerRingText">30</div>
+        </div>
+        <button class="btn btn-rec recording" onclick="stopRecording()">⏹️ Selesai Sekarang</button>
+      </div>
+
+      <div id="preRecordWrap">
+        <button class="btn btn-rec" id="startRecBtn" onclick="startCountdown()">🎙️ Siap, Mulai Rekam</button>
+      </div>
+
+      <div class="err-box" id="recordErr"></div>
+    </div>
+
+    <!-- ===== SCREEN: PLAYBACK ===== -->
+    <div class="screen" id="screenPlayback">
+      <header>
+        <h1>Dengerin Lagi</h1>
+        <p>Udah pas belum sama yang mau kamu sampein?</p>
+      </header>
+      <audio id="audioPlayer" controls></audio>
+      <button class="btn btn-ghost" style="margin-bottom:18px;" onclick="reRecord()">🔁 Rekam Ulang</button>
+
+      <div class="step-title" style="text-align:left;font-size:0.85rem;font-weight:700;color:var(--accent-brown);margin-bottom:10px;">Mau disimpan ke mana?</div>
+      <div class="sharing-options">
+        <label class="radio-card">
+          <input type="radio" name="privacy" value="private" checked>
+          <span><b>🔒 Private</b><span class="sub">Nggak diupload ke mana-mana. Cuma ada barusan, di HP-mu sendiri.</span></span>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="privacy" value="community">
+          <span><b>📻 Community Airwaves</b><span class="sub">Diputer anonim pas Listening Lounge nanti -- nggak ada nama/identitas yang ikut.</span></span>
+        </label>
+      </div>
+
+      <button class="btn btn-primary" id="submitBtn" onclick="finishTape()">Lanjut</button>
+    </div>
+
+    <!-- ===== SCREEN: DONE ===== -->
+    <div class="screen" id="screenDone">
+      <div class="success-badge" id="doneBadge">✨ Selesai</div>
+      <p class="body-text" id="doneText"></p>
+      <div id="downloadWrap" style="display:none;margin-bottom:14px;">
+        <a class="btn btn-ghost" id="downloadLink" download="unsent-cassette.webm">⬇️ Unduh Buat Diri Sendiri</a>
+      </div>
+      <button class="btn btn-primary" onclick="resetAll()">🎙️ Rekam Lagi</button>
+      <a class="lounge-link" href="lounge.html">🎧 Dengerin Community Airwaves &rarr;</a>
+    </div>
+
+  </div>
+
+  <script>
+    const FEELINGS = [
+      { k: "Kangen",     c: "#f4c3c2" },
+      { k: "Lega",       c: "#b3cdd4" },
+      { k: "Marah",      c: "#e3a9a0" },
+      { k: "Ikhlas",     c: "#cfe0c3" },
+      { k: "Penasaran",  c: "#f8e5b9" },
+      { k: "Bangga",     c: "#d9c2e8" },
+      { k: "Sedih",      c: "#a9c2d9" },
+      { k: "Hangat",     c: "#a87d65" },
+      { k: "Senang",     c: "#f6d9a0" },
+      { k: "Greget",     c: "#e0b8c7" },
+    ];
+
+    let selectedFeelings = [];
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let audioChunks = [];
+    let audioBlob = null;
+    let recMime = "audio/webm";
+    let timerInterval = null;
+    let secondsLeft = 30;
+    const TOTAL_SECONDS = 30;
+    const RING_CIRCUMFERENCE = 2 * Math.PI * 52;
+
+    function goTo(screenId) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(screenId).classList.add("active");
+    }
+
+    // ---------- Feelings picker ----------
+    function renderFeelGrid() {
+      const grid = document.getElementById("feelGrid");
+      grid.innerHTML = FEELINGS.map(f =>
+        `<div class="feel-chip" data-k="${f.k}" style="--c:${f.c}" onclick="toggleFeeling('${f.k}', this)">${f.k}</div>`
+      ).join("");
+    }
+
+    function toggleFeeling(k, el) {
+      const idx = selectedFeelings.indexOf(k);
+      if (idx >= 0) {
+        selectedFeelings.splice(idx, 1);
+        el.classList.remove("on");
+        el.style.background = "";
+        el.style.borderColor = "";
+      } else {
+        if (selectedFeelings.length >= 3) {
+          el.classList.add("shake");
+          setTimeout(() => el.classList.remove("shake"), 300);
+          return;
+        }
+        selectedFeelings.push(k);
+        const feel = FEELINGS.find(f => f.k === k);
+        el.classList.add("on");
+        el.style.background = feel.c;
+        el.style.borderColor = "#332c27";
+      }
+      document.getElementById("feelCounter").textContent = selectedFeelings.length + " / 3 dipilih";
+      document.getElementById("feelNextBtn").disabled = selectedFeelings.length !== 3;
+    }
+
+    function blendColors(hexes) {
+      let r = 0, g = 0, b = 0;
+      hexes.forEach(h => {
+        r += parseInt(h.slice(1, 3), 16);
+        g += parseInt(h.slice(3, 5), 16);
+        b += parseInt(h.slice(5, 7), 16);
+      });
+      const n = hexes.length;
+      const toHex = v => Math.round(v / n).toString(16).padStart(2, "0");
+      return "#" + toHex(r) + toHex(g) + toHex(b);
+    }
+
+    // ---------- Breathing screen ----------
+    function onEnterBreathScreen() {
+      document.getElementById("breathReadyBtn").disabled = true;
+      const label = document.getElementById("breathLabel");
+      label.textContent = "Tarik napas...";
+      setTimeout(() => { label.textContent = "...lalu embuskan pelan-pelan."; }, 2250);
+      setTimeout(() => {
+        label.textContent = "Siap kalau kamu siap.";
+        document.getElementById("breathReadyBtn").disabled = false;
+      }, 4500);
+    }
+
+    // ---------- Record screen ----------
+    function enterRecordScreen() {
+      const colors = selectedFeelings.map(k => FEELINGS.find(f => f.k === k).c);
+      const blended = blendColors(colors);
+      document.getElementById("cassetteBox").style.background = blended;
+      document.getElementById("tapeLabelDisplay").textContent = selectedFeelings.join(" · ");
+      goTo("screenRecord");
+    }
+
+    function pickMimeType() {
+      const candidates = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"];
+      for (const c of candidates) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)) return c;
+      }
+      return "";
+    }
+
+    async function startCountdown() {
+      const errBox = document.getElementById("recordErr");
+      errBox.textContent = "";
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (e) {
+        errBox.textContent = "Akses mikrofon ditolak atau nggak didukung di browser ini. Coba pakai Chrome/Safari terbaru ya.";
+        return;
+      }
+      document.getElementById("preRecordWrap").style.display = "none";
+      document.getElementById("countdownWrap").style.display = "block";
+      let n = 3;
+      document.getElementById("countdownNum").textContent = n;
+      const iv = setInterval(() => {
+        n--;
+        if (n <= 0) {
+          clearInterval(iv);
+          document.getElementById("countdownWrap").style.display = "none";
+          beginRecording();
+        } else {
+          document.getElementById("countdownNum").textContent = n;
+        }
+      }, 800);
+    }
+
+    function beginRecording() {
+      const mime = pickMimeType();
+      recMime = mime ? mime.split(";")[0] : "audio/webm";
+      audioChunks = [];
+      try {
+        mediaRecorder = mime ? new MediaRecorder(mediaStream, { mimeType: mime }) : new MediaRecorder(mediaStream);
+      } catch (e) {
+        mediaRecorder = new MediaRecorder(mediaStream);
+      }
+      mediaRecorder.ondataavailable = e => { if (e.data && e.data.size) audioChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        audioBlob = new Blob(audioChunks, { type: recMime });
+        const url = URL.createObjectURL(audioBlob);
+        document.getElementById("audioPlayer").src = url;
+        goTo("screenPlayback");
+      };
+      mediaRecorder.start();
+
+      document.getElementById("recordingWrap").style.display = "block";
+      document.getElementById("cassetteWheels").classList.add("spinning");
+
+      secondsLeft = TOTAL_SECONDS;
+      updateRing();
+      timerInterval = setInterval(() => {
+        secondsLeft--;
+        updateRing();
+        if (secondsLeft <= 0) stopRecording();
+      }, 1000);
+    }
+
+    function updateRing() {
+      document.getElementById("timerRingText").textContent = secondsLeft;
+      const fg = document.getElementById("timerRingFg");
+      const frac = secondsLeft / TOTAL_SECONDS;
+      fg.style.strokeDasharray = RING_CIRCUMFERENCE;
+      fg.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - frac);
+    }
+
+    function stopRecording() {
+      clearInterval(timerInterval);
+      if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+      if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+      document.getElementById("cassetteWheels").classList.remove("spinning");
+    }
+
+    function reRecord() {
+      document.getElementById("recordingWrap").style.display = "none";
+      document.getElementById("preRecordWrap").style.display = "block";
+      document.getElementById("recordErr").textContent = "";
+      goTo("screenRecord");
+    }
+
+    // ---------- Submit ----------
+    async function finishTape() {
+      const privacy = document.querySelector('input[name="privacy"]:checked').value;
+      const submitBtn = document.getElementById("submitBtn");
+
+      if (privacy === "private") {
+        showDone(false);
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Mengirim...";
+      try {
+        const base64 = await blobToBase64(audioBlob);
+        const colors = selectedFeelings.map(k => FEELINGS.find(f => f.k === k).c);
+        const res = await fetch(SUPABASE_URL + "/functions/v1/journaling-tape", {
+          method: "POST",
+          headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({ color: blendColors(colors), feelings: selectedFeelings, audioBase64: base64, mime: recMime }),
+        });
+        const body = await res.json();
+        if (!res.ok || body.status === "error") {
+          alert(body.message || "Gagal mengirim ke Community Airwaves. Coba lagi ya.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Lanjut";
+          return;
+        }
+        showDone(true);
+      } catch (e) {
+        alert("Koneksi gagal. Coba lagi ya.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Lanjut";
+      }
+    }
+
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function showDone(shared) {
+      document.getElementById("doneBadge").textContent = shared ? "📻 Masuk Koleksi Bersama" : "🔒 Tersimpan Buat Diri Sendiri";
+      document.getElementById("doneText").innerHTML = shared
+        ? "Kasetmu udah masuk ke <b>Community Airwaves</b>, anonim -- nanti diputer bareng-bareng pas Listening Lounge di akhir sesi."
+        : "Kaset ini cuma ada barusan. Boleh diunduh buat disimpen sendiri, atau dibiarin aja pergi -- itu juga nggak apa-apa.";
+      const downloadWrap = document.getElementById("downloadWrap");
+      if (!shared && audioBlob) {
+        downloadWrap.style.display = "block";
+        const ext = recMime.includes("mp4") ? "m4a" : recMime.includes("ogg") ? "ogg" : "webm";
+        const link = document.getElementById("downloadLink");
+        link.href = URL.createObjectURL(audioBlob);
+        link.download = "unsent-cassette." + ext;
+      } else {
+        downloadWrap.style.display = "none";
+      }
+      goTo("screenDone");
+    }
+
+    function resetAll() {
+      selectedFeelings = [];
+      audioBlob = null;
+      document.getElementById("feelCounter").textContent = "0 / 3 dipilih";
+      document.getElementById("feelNextBtn").disabled = true;
+      document.getElementById("submitBtn").disabled = false;
+      document.getElementById("submitBtn").textContent = "Lanjut";
+      document.getElementById("preRecordWrap").style.display = "block";
+      document.getElementById("recordingWrap").style.display = "none";
+      document.querySelector('input[name="privacy"][value="private"]').checked = true;
+      renderFeelGrid();
+      goTo("screenIntro");
+    }
+
+    renderFeelGrid();
+    document.getElementById("screenBreath").addEventListener("transitionstart", () => {});
+    // Trigger breathing pacing when that screen becomes active (observed via goTo wrapper below).
+    const _origGoTo = goTo;
+    goTo = function(id) {
+      _origGoTo(id);
+      if (id === "screenBreath") onEnterBreathScreen();
+    };
+  </script>
+</body>
+</html>
