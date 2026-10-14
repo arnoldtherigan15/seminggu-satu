@@ -249,7 +249,14 @@
         <h1>Pilih Warna Kasetmu</h1>
         <p>Sekadar biar ini jadi punya kamu</p>
       </header>
+      <div class="cassette-box" id="colorPreviewBox" style="height:110px;margin-bottom:18px;">
+        <div class="cassette-wheels" style="margin:0;">
+          <div class="wheel"><div class="wheel-spokes"></div></div>
+          <div class="wheel"><div class="wheel-spokes"></div></div>
+        </div>
+      </div>
       <div class="color-grid" id="colorGrid"></div>
+      <button class="btn btn-primary" style="margin-top:22px;" onclick="goTo('screenBreath')">Lanjut</button>
     </div>
 
     <!-- ===== SCREEN: BREATHE ===== -->
@@ -380,13 +387,17 @@
           <div class="color-name">${c.name}</div>
         </div>`
       ).join("");
+      document.getElementById("colorPreviewBox").style.background = COLORS[0].hex;
     }
 
+    // Preview langsung keliatan di kaset mini, GANTI-GANTI dulu bebas --
+    // baru lanjut pas udah mantep (nggak auto-advance kayak sebelumnya,
+    // biar bisa coba-coba warna dulu).
     function pickColor(hex, el) {
       selectedColor = hex;
       document.querySelectorAll(".color-pick").forEach(p => p.classList.remove("chosen"));
       el.classList.add("chosen");
-      setTimeout(() => goTo("screenBreath"), 280);
+      document.getElementById("colorPreviewBox").style.background = hex;
     }
 
     // ---------- Breathing screen ----------
