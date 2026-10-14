@@ -105,19 +105,21 @@
     .color-pick.chosen .color-dot { transform: scale(1.12); box-shadow: 0 0 0 3px #fff, 0 0 0 6px #332c27; }
     .color-name { font-size: 0.74rem; font-weight: 700; color: var(--text-muted); }
 
-    /* ---- Breathing ---- */
-    .breath-wrap { display: flex; justify-content: center; align-items: center; height: 180px; margin-bottom: 10px; }
-    .breath-circle {
-      width: 90px; height: 90px; border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #fff, var(--accent-blue));
-      border: 3px solid #332c27;
-      animation: breathe 4.5s ease-in-out infinite;
+    /* ---- Breathing (dipindah dari "Napas Bareng Mochi" di Balai Warga --
+       sama persis: 3 putaran tarik-hembus, lingkaran + stiker, suara
+       breath.mp3 disinkronin per siklus) ---- */
+    .br-scene { display: flex; align-items: center; justify-content: center; height: 190px; margin-top: 8px; }
+    .br-circle {
+      width: 110px; height: 110px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, rgba(255, 230, 0, .35), rgba(0, 70, 255, .18));
+      border: 2.5px dashed rgba(255, 230, 0, .6);
+      display: flex; align-items: center; justify-content: center;
+      transform: scale(1);
+      will-change: transform;
     }
-    @keyframes breathe {
-      0%, 100% { transform: scale(0.85); }
-      50% { transform: scale(1.25); }
-    }
-    .breath-label { font-size: 0.95rem; font-weight: 700; color: var(--accent-brown); margin-bottom: 20px; min-height: 1.3em; }
+    .br-circle img { width: 62px; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .25)); }
+    .br-circle.done { border-style: solid; box-shadow: 0 0 24px rgba(255, 230, 0, .35); }
+    .br-text { text-align: center; font-weight: 700; font-size: 0.95rem; color: var(--accent-brown); margin: 14px 0 20px; min-height: 1.4em; }
 
     /* ---- Cassette visual ---- */
     .cassette-box {
@@ -262,12 +264,14 @@
     <!-- ===== SCREEN: BREATHE ===== -->
     <div class="screen" id="screenBreath">
       <header>
-        <h1>Tarik Napas Dulu</h1>
+        <h1>Napas Dulu, Yuk</h1>
+        <p>Ikutin lingkarannya -- 3 putaran aja, pelan-pelan</p>
       </header>
-      <div class="breath-wrap"><div class="breath-circle"></div></div>
-      <div class="breath-label" id="breathLabel">Tarik napas... lalu embuskan pelan-pelan.</div>
-      <button class="btn btn-primary" id="breathReadyBtn" disabled onclick="enterRecordScreen()">Aku Siap 🎙️</button>
-      <p class="hint">Mic bakal diminta izinnya sebentar lagi ya.</p>
+      <div class="br-scene"><div class="br-circle" id="brCircle"><img src="../images/sticker/str-6.png" alt=""></div></div>
+      <div class="br-text" id="brText">Siap? Duduk yang nyaman dulu 🪑</div>
+      <button class="btn btn-primary" id="brStartBtn" onclick="startBreathCycle()">Mulai 🌬️</button>
+      <button class="btn btn-primary" id="breathReadyBtn" style="display:none;margin-top:10px;" onclick="enterRecordScreen()">Aku Siap 🎙️</button>
+      <p class="hint">Mic bakal diminta izinnya abis ini ya.</p>
     </div>
 
     <!-- ===== SCREEN: RECORD ===== -->
@@ -400,16 +404,58 @@
       document.getElementById("colorPreviewBox").style.background = hex;
     }
 
-    // ---------- Breathing screen ----------
-    function onEnterBreathScreen() {
-      document.getElementById("breathReadyBtn").disabled = true;
-      const label = document.getElementById("breathLabel");
-      label.textContent = "Tarik napas...";
-      setTimeout(() => { label.textContent = "...lalu embuskan pelan-pelan."; }, 2250);
-      setTimeout(() => {
-        label.textContent = "Siap kalau kamu siap.";
-        document.getElementById("breathReadyBtn").disabled = false;
-      }, 4500);
+    // ---------- Breathing screen (sama persis kayak "Napas Bareng Mochi"
+    // di Balai Warga -- 3 putaran tarik/hembus, suara breath.mp3 diputer
+    // UTUH per siklus biar nggak kepatah-patah) ----------
+    let brAudio = null;
+    function brSound(action) {
+      try {
+        if (!brAudio) brAudio = new Audio("../sound-effect/breath.mp3");
+        if (action === "start") { brAudio.currentTime = 0; brAudio.play().catch(() => {}); }
+        else if (action === "stop") { brAudio.pause(); brAudio.currentTime = 0; }
+      } catch (e) {}
+    }
+    const BREATH_PHASES = [
+      { t: "Tarik napas… 👃", ms: 2500, s: 1.35, a: "start" },
+      { t: "Hembusin pelan… 🌬️", ms: 2600, s: 1, a: "" },
+    ];
+    function runBreathCycle(cycle, pi) {
+      const circle = document.getElementById("brCircle");
+      const txt = document.getElementById("brText");
+      if (!circle.isConnected) { brSound("stop"); return; }
+      if (cycle >= 3) {
+        txt.textContent = "Selesai. Udah lebih tenang? 💙";
+        circle.classList.add("done");
+        try { new Audio("../sound-effect/love.mp3").play().catch(() => {}); } catch (e) {}
+        document.getElementById("brStartBtn").style.display = "none";
+        document.getElementById("breathReadyBtn").style.display = "flex";
+        return;
+      }
+      const ph = BREATH_PHASES[pi];
+      txt.textContent = ph.t + "  (" + (cycle + 1) + "/3)";
+      if (ph.a) brSound(ph.a);
+      circle.style.transition = "transform " + ph.ms + "ms ease-in-out";
+      circle.style.transform = "scale(" + ph.s + ")";
+      setTimeout(() => runBreathCycle(pi === 1 ? cycle + 1 : cycle, (pi + 1) % 2), ph.ms);
+    }
+    function startBreathCycle() {
+      document.getElementById("brStartBtn").disabled = true;
+      const circle = document.getElementById("brCircle");
+      circle.classList.remove("done");
+      circle.style.transform = "scale(1)";
+      runBreathCycle(0, 0);
+    }
+    function resetBreathScreen() {
+      brSound("stop");
+      const circle = document.getElementById("brCircle");
+      circle.classList.remove("done");
+      circle.style.transition = "none";
+      circle.style.transform = "scale(1)";
+      document.getElementById("brText").textContent = "Siap? Duduk yang nyaman dulu 🪑";
+      const startBtn = document.getElementById("brStartBtn");
+      startBtn.style.display = "flex";
+      startBtn.disabled = false;
+      document.getElementById("breathReadyBtn").style.display = "none";
     }
 
     // ---------- Record screen ----------
@@ -582,7 +628,7 @@
     const _origGoTo = goTo;
     goTo = function(id) {
       _origGoTo(id);
-      if (id === "screenBreath") onEnterBreathScreen();
+      if (id === "screenBreath") resetBreathScreen();
     };
   </script>
 </body>
