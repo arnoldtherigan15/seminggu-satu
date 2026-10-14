@@ -94,30 +94,16 @@
 
     .hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; }
 
-    /* ---- Feelings picker ---- */
-    .feel-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 8px;
+    /* ---- Color picker ---- */
+    .color-grid { display: flex; justify-content: center; gap: 16px; margin: 26px 0 10px; flex-wrap: wrap; }
+    .color-pick { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+    .color-dot {
+      width: 54px; height: 54px; border-radius: 50%;
+      border: 3px solid #332c27; transition: transform 0.15s ease;
     }
-    .feel-chip {
-      padding: 9px 14px;
-      border-radius: 999px;
-      border: 2px solid #ebd8c7;
-      background: #faf8f5;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
-      color: var(--text-main);
-    }
-    .feel-chip.on { color: #fff; border-color: #332c27; transform: scale(1.05); }
-    .feel-chip.shake { animation: shake 0.3s; }
-    @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-
-    .feel-counter { font-size: 0.8rem; color: var(--text-muted); margin: 14px 0 18px; }
+    .color-pick:active .color-dot { transform: scale(0.88); }
+    .color-pick.chosen .color-dot { transform: scale(1.12); box-shadow: 0 0 0 3px #fff, 0 0 0 6px #332c27; }
+    .color-name { font-size: 0.74rem; font-weight: 700; color: var(--text-muted); }
 
     /* ---- Breathing ---- */
     .breath-wrap { display: flex; justify-content: center; align-items: center; height: 180px; margin-bottom: 10px; }
@@ -198,14 +184,39 @@
 
     audio { width: 100%; margin: 14px 0; }
 
-    .sharing-options { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
-    .radio-card {
-      display: flex; align-items: flex-start; text-align: left;
-      padding: 12px 14px; border: 1.5px solid #e2d9cd; border-radius: 12px;
-      cursor: pointer; font-size: 0.85rem; gap: 10px; background: #faf8f5;
+    /* ---- Seal ritual (private/share choice) ---- */
+    .seal-intro { font-size: 0.85rem; font-weight: 700; color: var(--accent-brown); margin-bottom: 14px; text-align: left; }
+    .seal-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 10px; }
+    .seal-card {
+      position: relative;
+      padding: 18px 16px;
+      border: 2.5px solid #332c27;
+      border-radius: 16px;
+      background: #faf8f5;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.15s ease, background 0.3s ease;
+      overflow: hidden;
     }
-    .radio-card b { display: block; margin-bottom: 2px; }
-    .radio-card span.sub { color: var(--text-muted); font-size: 0.78rem; }
+    .seal-card:active { transform: scale(0.97); }
+    .seal-card.disabled { pointer-events: none; opacity: 0.4; }
+    .seal-card.chosen { background: var(--accent-yellow); }
+    .seal-icon { font-size: 1.7rem; display: block; margin-bottom: 4px; }
+    .seal-title { font-weight: 700; font-size: 0.98rem; margin-bottom: 3px; }
+    .seal-sub { font-size: 0.78rem; color: var(--text-muted); }
+    .seal-stamp-mark {
+      position: absolute; top: 50%; right: 16px; width: 56px; height: 56px;
+      border: 3px solid var(--accent-brown); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; opacity: 0; pointer-events: none;
+      transform: translateY(-50%) scale(1.6) rotate(-18deg);
+    }
+    .seal-card.chosen .seal-stamp-mark { animation: stampIn 0.5s ease forwards; }
+    @keyframes stampIn {
+      0% { opacity: 0; transform: translateY(-50%) scale(1.8) rotate(-18deg); }
+      60% { opacity: 1; transform: translateY(-50%) scale(0.85) rotate(-6deg); }
+      100% { opacity: 1; transform: translateY(-50%) scale(1) rotate(-6deg); }
+    }
 
     .success-badge {
       display: inline-block; background: #d4edda; color: #155724;
@@ -228,19 +239,17 @@
         <h1>Unsent Cassette</h1>
         <p>Words We Never Said 📼</p>
       </header>
-      <p class="body-text">Kamu udah nulis di kertas tadi. Sekarang giliran suaramu.<br><br>Nggak perlu sempurna -- ini cuma buat <b>1-2 kalimat paling jujur</b> yang mau kamu ucapkan, ke orang yang kamu tulis di Prompt 1 tadi, atau ke dirimu sendiri.</p>
-      <button class="btn btn-primary" onclick="goTo('screenFeelings')">Mulai 🎙️</button>
+      <p class="body-text">Nggak perlu sempurna -- ini cuma buat <b>1-2 kalimat paling jujur</b> yang pengen kamu ucapkan, ke seseorang atau ke dirimu sendiri. Nggak ada yang bakal nge-judge.</p>
+      <button class="btn btn-primary" onclick="goTo('screenColor')">Mulai 🎙️</button>
     </div>
 
-    <!-- ===== SCREEN: FEELINGS ===== -->
-    <div class="screen" id="screenFeelings">
+    <!-- ===== SCREEN: COLOR ===== -->
+    <div class="screen" id="screenColor">
       <header>
-        <h1>Pilih 3 Perasaan</h1>
-        <p>Yang paling nggambarin hatimu sekarang</p>
+        <h1>Pilih Warna Kasetmu</h1>
+        <p>Sekadar biar ini jadi punya kamu</p>
       </header>
-      <div class="feel-grid" id="feelGrid"></div>
-      <div class="feel-counter" id="feelCounter">0 / 3 dipilih</div>
-      <button class="btn btn-primary" id="feelNextBtn" disabled onclick="goTo('screenBreath')">Lanjut</button>
+      <div class="color-grid" id="colorGrid"></div>
     </div>
 
     <!-- ===== SCREEN: BREATHE ===== -->
@@ -298,21 +307,30 @@
         <p>Udah pas belum sama yang mau kamu sampein?</p>
       </header>
       <audio id="audioPlayer" controls></audio>
-      <button class="btn btn-ghost" style="margin-bottom:18px;" onclick="reRecord()">🔁 Rekam Ulang</button>
+      <button class="btn btn-ghost" onclick="reRecord()">🔁 Rekam Ulang</button>
+      <button class="btn btn-primary" style="margin-top:12px;" onclick="goTo('screenSeal')">Lanjut</button>
+    </div>
 
-      <div class="step-title" style="text-align:left;font-size:0.85rem;font-weight:700;color:var(--accent-brown);margin-bottom:10px;">Mau disimpan ke mana?</div>
-      <div class="sharing-options">
-        <label class="radio-card">
-          <input type="radio" name="privacy" value="private" checked>
-          <span><b>🔒 Private</b><span class="sub">Nggak diupload ke mana-mana. Cuma ada barusan, di HP-mu sendiri.</span></span>
-        </label>
-        <label class="radio-card">
-          <input type="radio" name="privacy" value="community">
-          <span><b>📻 Community Airwaves</b><span class="sub">Diputer anonim pas Listening Lounge nanti -- nggak ada nama/identitas yang ikut.</span></span>
-        </label>
+    <!-- ===== SCREEN: SEAL (ritual private/share choice) ===== -->
+    <div class="screen" id="screenSeal">
+      <header>
+        <h1>Mau Diapain Kasetnya?</h1>
+      </header>
+      <div class="seal-grid">
+        <div class="seal-card" id="sealPrivate" onclick="chooseSeal('private', this)">
+          <span class="seal-icon">🕯️</span>
+          <div class="seal-title">Simpan Diam-Diam</div>
+          <div class="seal-sub">Nggak diupload ke mana-mana -- cuma ada barusan, di HP-mu sendiri.</div>
+          <div class="seal-stamp-mark">🕯️</div>
+        </div>
+        <div class="seal-card" id="sealCommunity" onclick="chooseSeal('community', this)">
+          <span class="seal-icon">📻</span>
+          <div class="seal-title">Lepas ke Udara</div>
+          <div class="seal-sub">Masuk Community Airwaves, anonim -- diputer bareng pas Listening Lounge.</div>
+          <div class="seal-stamp-mark">📻</div>
+        </div>
       </div>
-
-      <button class="btn btn-primary" id="submitBtn" onclick="finishTape()">Lanjut</button>
+      <div class="err-box" id="sealErr"></div>
     </div>
 
     <!-- ===== SCREEN: DONE ===== -->
@@ -329,20 +347,15 @@
   </div>
 
   <script>
-    const FEELINGS = [
-      { k: "Kangen",     c: "#f4c3c2" },
-      { k: "Lega",       c: "#b3cdd4" },
-      { k: "Marah",      c: "#e3a9a0" },
-      { k: "Ikhlas",     c: "#cfe0c3" },
-      { k: "Penasaran",  c: "#f8e5b9" },
-      { k: "Bangga",     c: "#d9c2e8" },
-      { k: "Sedih",      c: "#a9c2d9" },
-      { k: "Hangat",     c: "#a87d65" },
-      { k: "Senang",     c: "#f6d9a0" },
-      { k: "Greget",     c: "#e0b8c7" },
+    const COLORS = [
+      { name: "Pink",   hex: "#f4c3c2" },
+      { name: "Coklat", hex: "#a87d65" },
+      { name: "Biru",   hex: "#b3cdd4" },
+      { name: "Kuning", hex: "#f8e5b9" },
+      { name: "Sage",   hex: "#cfe0c3" },
     ];
 
-    let selectedFeelings = [];
+    let selectedColor = COLORS[0].hex;
     let mediaRecorder = null;
     let mediaStream = null;
     let audioChunks = [];
@@ -358,47 +371,22 @@
       document.getElementById(screenId).classList.add("active");
     }
 
-    // ---------- Feelings picker ----------
-    function renderFeelGrid() {
-      const grid = document.getElementById("feelGrid");
-      grid.innerHTML = FEELINGS.map(f =>
-        `<div class="feel-chip" data-k="${f.k}" style="--c:${f.c}" onclick="toggleFeeling('${f.k}', this)">${f.k}</div>`
+    // ---------- Color picker ----------
+    function renderColorGrid() {
+      const grid = document.getElementById("colorGrid");
+      grid.innerHTML = COLORS.map((c, i) =>
+        `<div class="color-pick${i === 0 ? ' chosen' : ''}" data-hex="${c.hex}" onclick="pickColor('${c.hex}', this)">
+          <div class="color-dot" style="background:${c.hex};"></div>
+          <div class="color-name">${c.name}</div>
+        </div>`
       ).join("");
     }
 
-    function toggleFeeling(k, el) {
-      const idx = selectedFeelings.indexOf(k);
-      if (idx >= 0) {
-        selectedFeelings.splice(idx, 1);
-        el.classList.remove("on");
-        el.style.background = "";
-        el.style.borderColor = "";
-      } else {
-        if (selectedFeelings.length >= 3) {
-          el.classList.add("shake");
-          setTimeout(() => el.classList.remove("shake"), 300);
-          return;
-        }
-        selectedFeelings.push(k);
-        const feel = FEELINGS.find(f => f.k === k);
-        el.classList.add("on");
-        el.style.background = feel.c;
-        el.style.borderColor = "#332c27";
-      }
-      document.getElementById("feelCounter").textContent = selectedFeelings.length + " / 3 dipilih";
-      document.getElementById("feelNextBtn").disabled = selectedFeelings.length !== 3;
-    }
-
-    function blendColors(hexes) {
-      let r = 0, g = 0, b = 0;
-      hexes.forEach(h => {
-        r += parseInt(h.slice(1, 3), 16);
-        g += parseInt(h.slice(3, 5), 16);
-        b += parseInt(h.slice(5, 7), 16);
-      });
-      const n = hexes.length;
-      const toHex = v => Math.round(v / n).toString(16).padStart(2, "0");
-      return "#" + toHex(r) + toHex(g) + toHex(b);
+    function pickColor(hex, el) {
+      selectedColor = hex;
+      document.querySelectorAll(".color-pick").forEach(p => p.classList.remove("chosen"));
+      el.classList.add("chosen");
+      setTimeout(() => goTo("screenBreath"), 280);
     }
 
     // ---------- Breathing screen ----------
@@ -415,10 +403,7 @@
 
     // ---------- Record screen ----------
     function enterRecordScreen() {
-      const colors = selectedFeelings.map(k => FEELINGS.find(f => f.k === k).c);
-      const blended = blendColors(colors);
-      document.getElementById("cassetteBox").style.background = blended;
-      document.getElementById("tapeLabelDisplay").textContent = selectedFeelings.join(" · ");
+      document.getElementById("cassetteBox").style.background = selectedColor;
       goTo("screenRecord");
     }
 
@@ -507,38 +492,34 @@
       goTo("screenRecord");
     }
 
-    // ---------- Submit ----------
-    async function finishTape() {
-      const privacy = document.querySelector('input[name="privacy"]:checked').value;
-      const submitBtn = document.getElementById("submitBtn");
+    // ---------- Seal ritual + submit ----------
+    async function chooseSeal(type, el) {
+      document.querySelectorAll(".seal-card").forEach(c => c.classList.add("disabled"));
+      el.classList.add("chosen");
+      document.getElementById("sealErr").textContent = "";
 
-      if (privacy === "private") {
-        showDone(false);
+      if (type === "private") {
+        setTimeout(() => showDone(false, 0), 600);
         return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Mengirim...";
       try {
         const base64 = await blobToBase64(audioBlob);
-        const colors = selectedFeelings.map(k => FEELINGS.find(f => f.k === k).c);
         const res = await fetch(SUPABASE_URL + "/functions/v1/journaling-tape", {
           method: "POST",
           headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
-          body: JSON.stringify({ color: blendColors(colors), feelings: selectedFeelings, audioBase64: base64, mime: recMime }),
+          body: JSON.stringify({ color: selectedColor, audioBase64: base64, mime: recMime }),
         });
         const body = await res.json();
         if (!res.ok || body.status === "error") {
-          alert(body.message || "Gagal mengirim ke Community Airwaves. Coba lagi ya.");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Lanjut";
+          document.getElementById("sealErr").textContent = body.message || "Gagal mengirim. Coba lagi ya.";
+          document.querySelectorAll(".seal-card").forEach(c => c.classList.remove("disabled", "chosen"));
           return;
         }
-        showDone(true);
+        setTimeout(() => showDone(true, body.tapeCount || 0), 600);
       } catch (e) {
-        alert("Koneksi gagal. Coba lagi ya.");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Lanjut";
+        document.getElementById("sealErr").textContent = "Koneksi gagal. Coba lagi ya.";
+        document.querySelectorAll(".seal-card").forEach(c => c.classList.remove("disabled", "chosen"));
       }
     }
 
@@ -551,11 +532,18 @@
       });
     }
 
-    function showDone(shared) {
+    function showDone(shared, tapeCount) {
       document.getElementById("doneBadge").textContent = shared ? "📻 Masuk Koleksi Bersama" : "🔒 Tersimpan Buat Diri Sendiri";
-      document.getElementById("doneText").innerHTML = shared
-        ? "Kasetmu udah masuk ke <b>Community Airwaves</b>, anonim -- nanti diputer bareng-bareng pas Listening Lounge di akhir sesi."
-        : "Kaset ini cuma ada barusan. Boleh diunduh buat disimpen sendiri, atau dibiarin aja pergi -- itu juga nggak apa-apa.";
+      if (shared) {
+        const countLine = tapeCount > 1
+          ? `Kamu bukan satu-satunya -- udah ada <b>${tapeCount}</b> suara di Koleksi Bersama.`
+          : "Kasetmu yang pertama masuk ke Koleksi Bersama~";
+        document.getElementById("doneText").innerHTML =
+          `Kasetmu udah masuk ke <b>Community Airwaves</b>, anonim -- nanti diputer bareng-bareng pas Listening Lounge di akhir sesi.<br><br>${countLine}`;
+      } else {
+        document.getElementById("doneText").innerHTML =
+          "Kaset ini cuma ada barusan. Boleh diunduh buat disimpen sendiri, atau dibiarin aja pergi -- itu juga nggak apa-apa.";
+      }
       const downloadWrap = document.getElementById("downloadWrap");
       if (!shared && audioBlob) {
         downloadWrap.style.display = "block";
@@ -570,22 +558,16 @@
     }
 
     function resetAll() {
-      selectedFeelings = [];
       audioBlob = null;
-      document.getElementById("feelCounter").textContent = "0 / 3 dipilih";
-      document.getElementById("feelNextBtn").disabled = true;
-      document.getElementById("submitBtn").disabled = false;
-      document.getElementById("submitBtn").textContent = "Lanjut";
+      selectedColor = COLORS[0].hex;
       document.getElementById("preRecordWrap").style.display = "block";
       document.getElementById("recordingWrap").style.display = "none";
-      document.querySelector('input[name="privacy"][value="private"]').checked = true;
-      renderFeelGrid();
+      document.querySelectorAll(".seal-card").forEach(c => c.classList.remove("disabled", "chosen"));
+      renderColorGrid();
       goTo("screenIntro");
     }
 
-    renderFeelGrid();
-    document.getElementById("screenBreath").addEventListener("transitionstart", () => {});
-    // Trigger breathing pacing when that screen becomes active (observed via goTo wrapper below).
+    renderColorGrid();
     const _origGoTo = goTo;
     goTo = function(id) {
       _origGoTo(id);

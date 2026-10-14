@@ -44,14 +44,9 @@
       margin-bottom: 14px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.05);
     }
-    .tape-swatch {
-      width: 100%; height: 10px; border-radius: 6px; margin-bottom: 12px;
-    }
-    .tape-feelings { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-    .tape-feel-tag {
-      font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;
-      background: #faf8f5; border: 1.5px solid #ebd8c7; color: var(--text-main);
-    }
+    .tape-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .tape-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #332c27; flex-shrink: 0; }
+    .tape-label { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
     audio { width: 100%; }
 
     .state-box { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); }
@@ -95,10 +90,12 @@
           listEl.innerHTML = '<div class="state-box"><div class="emoji">📭</div>Belum ada kaset yang dibagikan.</div>';
           return;
         }
-        listEl.innerHTML = tapes.map(t => `
+        listEl.innerHTML = tapes.map((t, i) => `
           <div class="tape-card">
-            <div class="tape-swatch" style="background:${esc(t.color || '#ccc')};"></div>
-            <div class="tape-feelings">${(t.feelings || []).map(f => `<span class="tape-feel-tag">${esc(f)}</span>`).join("")}</div>
+            <div class="tape-head">
+              <div class="tape-dot" style="background:${esc(t.color || '#ccc')};"></div>
+              <div class="tape-label">Kaset #${i + 1}</div>
+            </div>
             <audio controls preload="none" src="${esc(t.audioUrl)}"></audio>
           </div>
         `).join("");
