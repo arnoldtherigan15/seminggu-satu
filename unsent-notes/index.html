@@ -349,7 +349,7 @@
       <div class="success-badge" id="doneBadge">✨ Selesai</div>
       <p class="body-text" id="doneText"></p>
       <div id="downloadWrap" style="display:none;margin-bottom:14px;">
-        <a class="btn btn-ghost" id="downloadLink" download="unsent-cassette.webm">⬇️ Unduh Buat Diri Sendiri</a>
+        <a class="btn btn-ghost" id="downloadLink" download="unsent-notes.webm">⬇️ Unduh Buat Diri Sendiri</a>
       </div>
       <button class="btn btn-primary" onclick="resetAll()">🎙️ Rekam Lagi</button>
       <a class="lounge-link" href="lounge.html">🎧 Dengerin Community Airwaves &rarr;</a>
@@ -607,7 +607,7 @@
         const ext = recMime.includes("mp4") ? "m4a" : recMime.includes("ogg") ? "ogg" : "webm";
         const link = document.getElementById("downloadLink");
         link.href = URL.createObjectURL(audioBlob);
-        link.download = "unsent-cassette." + ext;
+        link.download = "unsent-notes." + ext;
       } else {
         downloadWrap.style.display = "none";
       }

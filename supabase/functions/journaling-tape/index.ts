@@ -1,5 +1,5 @@
-// Endpoint publik -- dipake /unsent-cassette/ (rekam + submit, buka lewat QR
-// pas Reka Rekat Vol 6) dan /unsent-cassette/lounge.html (listen-only,
+// Endpoint publik -- dipake /unsent-notes/ (rekam + submit, buka lewat QR
+// pas Reka Rekat Vol 6) dan /unsent-notes/lounge.html (listen-only,
 // dibuka Arnold pas sesi "Listening Lounge" di penutup acara). Nggak ada
 // auth admin sama sekali -- sama prinsipnya kayak shop-sell, dan memang
 // Community Airwaves dirancang bisa didengerin siapa aja tanpa login.
@@ -10,7 +10,7 @@
 //         di layar penutup, tanpa bocorin isi kaset orang lain). Kaset
 //         "private" (pilih nggak di-share) NGGAK PERNAH manggil endpoint
 //         ini sama sekali -- murni lokal di browser peserta, lihat
-//         unsent-cassette/index.html.
+//         unsent-notes/index.html.
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { safeKeyPart } from "../_shared/storage.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
