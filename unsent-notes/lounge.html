@@ -52,12 +52,16 @@
     .state-box { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); }
     .state-box .emoji { font-size: 2.2rem; margin-bottom: 10px; }
 
-    .reload-btn {
-      display: block; margin: 0 auto 20px; padding: 10px 20px;
+    .top-actions { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .reload-btn, .record-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin: 0; padding: 10px 20px;
       border-radius: 999px; border: 2px solid #332c27; background: #fff;
       font-weight: 700; font-size: 0.85rem; cursor: pointer;
+      color: var(--text-main); text-decoration: none;
     }
-    .reload-btn:active { transform: scale(0.96); }
+    .reload-btn:active, .record-link:active { transform: scale(0.96); }
+    .record-link { background: var(--accent-brown); color: #fff; }
   </style>
 </head>
 <body>
@@ -66,7 +70,10 @@
       <h1>Community Airwaves 📻</h1>
       <p>Kaset yang dibagikan anonim -- Reka Rekat Vol 6</p>
     </header>
-    <button class="reload-btn" onclick="load()">🔄 Reload</button>
+    <div class="top-actions">
+      <a class="record-link" href="index.html">🎙️ Rekam Lagi</a>
+      <button class="reload-btn" onclick="load()">🔄 Reload</button>
+    </div>
     <div id="list"><div class="state-box">Memuat…</div></div>
   </div>
 

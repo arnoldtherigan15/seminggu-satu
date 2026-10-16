@@ -525,6 +525,7 @@
       <p class="body-text">Nggak perlu sempurna, pikirin <b>1-2 kalimat paling jujur</b> yang pengen kamu ucapkan, ke
         seseorang atau ke dirimu sendiri. Nggak ada yang bakal nge judge.</p>
       <button class="btn btn-primary" onclick="goTo('screenColor')">Mulai 🎙️</button>
+      <a class="lounge-link" id="introLoungeLink" href="lounge.html" style="display:none;">🎧 Dengerin Community Airwaves &rarr;</a>
     </div>
 
     <!-- ===== SCREEN: COLOR ===== -->
@@ -883,6 +884,8 @@
     }
 
     function showDone(shared, tapeCount) {
+      try { localStorage.setItem("unsentNotesRecorded", "1"); } catch (e) {}
+      updateIntroLoungeLink();
       document.getElementById("doneBadge").textContent = shared ? "📻 Masuk Koleksi Bersama" : "🔒 Tersimpan Buat Diri Sendiri";
       if (shared) {
         const countLine = tapeCount > 1
@@ -917,7 +920,18 @@
       goTo("screenIntro");
     }
 
+    // Nunjukin link "Dengerin Community Airwaves" di layar pembuka CUMA
+    // kalau orangnya udah pernah selesai rekam sebelumnya (localStorage,
+    // nggak ada akun/login di sini) -- biar nggak nawarin dengerin koleksi
+    // ke orang yang belum pernah ngerekam apa-apa.
+    function updateIntroLoungeLink() {
+      let recorded = false;
+      try { recorded = localStorage.getItem("unsentNotesRecorded") === "1"; } catch (e) {}
+      document.getElementById("introLoungeLink").style.display = recorded ? "block" : "none";
+    }
+
     renderColorGrid();
+    updateIntroLoungeLink();
     const _origGoTo = goTo;
     goTo = function (id) {
       _origGoTo(id);
