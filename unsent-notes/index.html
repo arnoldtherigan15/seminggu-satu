@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap"
+    rel="stylesheet">
 
   <style>
     :root {
@@ -26,7 +29,12 @@
       --border-radius: 20px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
 
     body {
       background-color: var(--bg-color);
@@ -46,14 +54,19 @@
       background: var(--card-bg);
       border-radius: var(--border-radius);
       padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       border: 1px solid #ebd8c7;
       text-align: center;
       position: relative;
     }
 
-    .screen { display: none; }
-    .screen.active { display: block; }
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
 
     header h1 {
       font-family: 'Playfair Display', serif;
@@ -61,10 +74,23 @@
       color: var(--accent-brown);
       margin-bottom: 6px;
     }
-    header p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
 
-    .body-text { font-size: 0.92rem; line-height: 1.6; color: var(--text-main); margin-bottom: 22px; }
-    .body-text b { color: var(--accent-brown); }
+    header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .body-text {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text-main);
+      margin-bottom: 22px;
+    }
+
+    .body-text b {
+      color: var(--accent-brown);
+    }
 
     .btn {
       width: 100%;
@@ -82,44 +108,135 @@
       background: #fff;
       color: var(--text-main);
     }
-    .btn:active { transform: scale(0.97); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    .btn-primary { background: var(--accent-brown); color: #fff; }
-    .btn-rec { background: #e76f51; color: #fff; }
-    .btn-rec.recording { background: #d62828; animation: pulse 1s infinite alternate; }
-    .btn-ghost { background: #faf8f5; border-color: #d8ccbe; }
+    .btn:active {
+      transform: scale(0.97);
+    }
 
-    @keyframes pulse { 0% { opacity: 1; } 100% { opacity: 0.7; } }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
 
-    .hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; }
+    .btn-primary {
+      background: var(--accent-brown);
+      color: #fff;
+    }
+
+    .btn-rec {
+      background: #e76f51;
+      color: #fff;
+    }
+
+    .btn-rec.recording {
+      background: #d62828;
+      animation: pulse 1s infinite alternate;
+    }
+
+    .btn-ghost {
+      background: #faf8f5;
+      border-color: #d8ccbe;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0.7;
+      }
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
 
     /* ---- Color picker ---- */
-    .color-grid { display: flex; justify-content: center; gap: 16px; margin: 26px 0 10px; flex-wrap: wrap; }
-    .color-pick { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
-    .color-dot {
-      width: 54px; height: 54px; border-radius: 50%;
-      border: 3px solid #332c27; transition: transform 0.15s ease;
+    .color-grid {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 26px 0 10px;
+      flex-wrap: wrap;
     }
-    .color-pick:active .color-dot { transform: scale(0.88); }
-    .color-pick.chosen .color-dot { transform: scale(1.12); box-shadow: 0 0 0 3px #fff, 0 0 0 6px #332c27; }
-    .color-name { font-size: 0.74rem; font-weight: 700; color: var(--text-muted); }
+
+    .color-pick {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .color-dot {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 3px solid #332c27;
+      transition: transform 0.15s ease;
+    }
+
+    .color-pick:active .color-dot {
+      transform: scale(0.88);
+    }
+
+    .color-pick.chosen .color-dot {
+      transform: scale(1.12);
+      box-shadow: 0 0 0 3px #fff, 0 0 0 6px #332c27;
+    }
+
+    .color-name {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
 
     /* ---- Breathing (dipindah dari "Napas Bareng Mochi" di Balai Warga --
        sama persis: 3 putaran tarik-hembus, lingkaran + stiker, suara
        breath.mp3 disinkronin per siklus) ---- */
-    .br-scene { display: flex; align-items: center; justify-content: center; height: 190px; margin-top: 8px; }
+    .br-scene {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 190px;
+      margin-top: 8px;
+    }
+
     .br-circle {
-      width: 110px; height: 110px; border-radius: 50%;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
       background: radial-gradient(circle at 35% 30%, rgba(255, 230, 0, .35), rgba(0, 70, 255, .18));
       border: 2.5px dashed rgba(255, 230, 0, .6);
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transform: scale(1);
       will-change: transform;
     }
-    .br-circle img { width: 62px; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .25)); }
-    .br-circle.done { border-style: solid; box-shadow: 0 0 24px rgba(255, 230, 0, .35); }
-    .br-text { text-align: center; font-weight: 700; font-size: 0.95rem; color: var(--accent-brown); margin: 14px 0 20px; min-height: 1.4em; }
+
+    .br-circle img {
+      width: 62px;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .25));
+    }
+
+    .br-circle.done {
+      border-style: solid;
+      box-shadow: 0 0 24px rgba(255, 230, 0, .35);
+    }
+
+    .br-text {
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--accent-brown);
+      margin: 14px 0 20px;
+      min-height: 1.4em;
+    }
 
     /* ---- Cassette visual ---- */
     .cassette-box {
@@ -135,8 +252,9 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
     }
+
     .cassette-label {
       background: #fff;
       border: 2px solid #332c27;
@@ -145,28 +263,78 @@
       font-size: 0.78rem;
       font-weight: 700;
       color: #332c27;
-      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
+
     .cassette-wheels {
-      display: flex; justify-content: space-around; align-items: center;
-      margin: 10px 0; background: rgba(255,255,255,0.4); border-radius: 12px;
-      padding: 10px; border: 2px solid #332c27;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin: 10px 0;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      padding: 10px;
+      border: 2px solid #332c27;
     }
+
     .wheel {
-      width: 45px; height: 45px; border-radius: 50%; background: #fff;
-      border: 3px solid #332c27; position: relative;
-      display: flex; justify-content: center; align-items: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #332c27;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    .wheel::after { content: ''; width: 14px; height: 14px; background: #332c27; border-radius: 50%; }
-    .wheel-spokes { position: absolute; width: 100%; height: 100%; border-radius: 50%; }
-    .wheel-spokes::before, .wheel-spokes::after {
-      content: ''; position: absolute; background: #332c27;
-      top: 50%; left: 50%; transform: translate(-50%, -50%);
+
+    .wheel::after {
+      content: '';
+      width: 14px;
+      height: 14px;
+      background: #332c27;
+      border-radius: 50%;
     }
-    .wheel-spokes::before { width: 100%; height: 3px; }
-    .wheel-spokes::after { width: 3px; height: 100%; }
-    .spinning .wheel-spokes { animation: spin 2s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .wheel-spokes {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+
+    .wheel-spokes::before,
+    .wheel-spokes::after {
+      content: '';
+      position: absolute;
+      background: #332c27;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .wheel-spokes::before {
+      width: 100%;
+      height: 3px;
+    }
+
+    .wheel-spokes::after {
+      width: 3px;
+      height: 100%;
+    }
+
+    .spinning .wheel-spokes {
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
 
     .countdown-big {
       font-family: 'Playfair Display', serif;
@@ -175,20 +343,63 @@
       margin: 10px 0 20px;
     }
 
-    .timer-ring-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 18px; }
-    .timer-ring-wrap svg { transform: rotate(-90deg); }
-    .timer-ring-bg { fill: none; stroke: #ebd8c7; stroke-width: 8; }
-    .timer-ring-fg { fill: none; stroke: #e76f51; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
-    .timer-ring-text {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem; font-weight: 700; color: var(--text-main);
+    .timer-ring-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 18px;
     }
 
-    audio { width: 100%; margin: 14px 0; }
+    .timer-ring-wrap svg {
+      transform: rotate(-90deg);
+    }
+
+    .timer-ring-bg {
+      fill: none;
+      stroke: #ebd8c7;
+      stroke-width: 8;
+    }
+
+    .timer-ring-fg {
+      fill: none;
+      stroke: #e76f51;
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .timer-ring-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    audio {
+      width: 100%;
+      margin: 14px 0;
+    }
 
     /* ---- Seal ritual (private/share choice) ---- */
-    .seal-intro { font-size: 0.85rem; font-weight: 700; color: var(--accent-brown); margin-bottom: 14px; text-align: left; }
-    .seal-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 10px; }
+    .seal-intro {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-brown);
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .seal-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
     .seal-card {
       position: relative;
       padding: 18px 16px;
@@ -200,37 +411,107 @@
       transition: transform 0.15s ease, background 0.3s ease;
       overflow: hidden;
     }
-    .seal-card:active { transform: scale(0.97); }
-    .seal-card.disabled { pointer-events: none; opacity: 0.4; }
-    .seal-card.chosen { background: var(--accent-yellow); }
-    .seal-icon { font-size: 1.7rem; display: block; margin-bottom: 4px; }
-    .seal-title { font-weight: 700; font-size: 0.98rem; margin-bottom: 3px; }
-    .seal-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+    .seal-card:active {
+      transform: scale(0.97);
+    }
+
+    .seal-card.disabled {
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    .seal-card.chosen {
+      background: var(--accent-yellow);
+    }
+
+    .seal-icon {
+      font-size: 1.7rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .seal-title {
+      font-weight: 700;
+      font-size: 0.98rem;
+      margin-bottom: 3px;
+    }
+
+    .seal-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
     .seal-stamp-mark {
-      position: absolute; top: 50%; right: 16px; width: 56px; height: 56px;
-      border: 3px solid var(--accent-brown); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; opacity: 0; pointer-events: none;
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      width: 56px;
+      height: 56px;
+      border: 3px solid var(--accent-brown);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
       transform: translateY(-50%) scale(1.6) rotate(-18deg);
     }
-    .seal-card.chosen .seal-stamp-mark { animation: stampIn 0.5s ease forwards; }
+
+    .seal-card.chosen .seal-stamp-mark {
+      animation: stampIn 0.5s ease forwards;
+    }
+
     @keyframes stampIn {
-      0% { opacity: 0; transform: translateY(-50%) scale(1.8) rotate(-18deg); }
-      60% { opacity: 1; transform: translateY(-50%) scale(0.85) rotate(-6deg); }
-      100% { opacity: 1; transform: translateY(-50%) scale(1) rotate(-6deg); }
+      0% {
+        opacity: 0;
+        transform: translateY(-50%) scale(1.8) rotate(-18deg);
+      }
+
+      60% {
+        opacity: 1;
+        transform: translateY(-50%) scale(0.85) rotate(-6deg);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1) rotate(-6deg);
+      }
     }
 
     .success-badge {
-      display: inline-block; background: #d4edda; color: #155724;
-      padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 14px;
+      display: inline-block;
+      background: #d4edda;
+      color: #155724;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 14px;
     }
 
-    .state-box { padding: 1rem; }
-    .err-box { color: #b91c1c; font-size: 0.85rem; margin-top: 10px; }
+    .state-box {
+      padding: 1rem;
+    }
 
-    .lounge-link { display: block; margin-top: 16px; font-size: 0.82rem; color: var(--accent-brown); font-weight: 700; text-decoration: none; }
+    .err-box {
+      color: #b91c1c;
+      font-size: 0.85rem;
+      margin-top: 10px;
+    }
+
+    .lounge-link {
+      display: block;
+      margin-top: 16px;
+      font-size: 0.82rem;
+      color: var(--accent-brown);
+      font-weight: 700;
+      text-decoration: none;
+    }
   </style>
 </head>
+
 <body>
 
   <div class="container">
@@ -241,7 +522,8 @@
         <h1>Unsent Cassette</h1>
         <p>Words We Never Said 📼</p>
       </header>
-      <p class="body-text">Nggak perlu sempurna -- ini cuma buat <b>1-2 kalimat paling jujur</b> yang pengen kamu ucapkan, ke seseorang atau ke dirimu sendiri. Nggak ada yang bakal nge-judge.</p>
+      <p class="body-text">Nggak perlu sempurna, pikirin <b>1-2 kalimat paling jujur</b> yang pengen kamu ucapkan, ke
+        seseorang atau ke dirimu sendiri. Nggak ada yang bakal nge judge.</p>
       <button class="btn btn-primary" onclick="goTo('screenColor')">Mulai 🎙️</button>
     </div>
 
@@ -253,8 +535,12 @@
       </header>
       <div class="cassette-box" id="colorPreviewBox" style="height:110px;margin-bottom:18px;">
         <div class="cassette-wheels" style="margin:0;">
-          <div class="wheel"><div class="wheel-spokes"></div></div>
-          <div class="wheel"><div class="wheel-spokes"></div></div>
+          <div class="wheel">
+            <div class="wheel-spokes"></div>
+          </div>
+          <div class="wheel">
+            <div class="wheel-spokes"></div>
+          </div>
         </div>
       </div>
       <div class="color-grid" id="colorGrid"></div>
@@ -267,10 +553,13 @@
         <h1>Napas Dulu, Yuk</h1>
         <p>Ikutin lingkarannya -- 3 putaran aja, pelan-pelan</p>
       </header>
-      <div class="br-scene"><div class="br-circle" id="brCircle"><img src="../images/sticker/str-6.png" alt=""></div></div>
+      <div class="br-scene">
+        <div class="br-circle" id="brCircle"><img src="../images/sticker/str-6.png" alt=""></div>
+      </div>
       <div class="br-text" id="brText">Siap? Duduk yang nyaman dulu 🪑</div>
       <button class="btn btn-primary" id="brStartBtn" onclick="startBreathCycle()">Mulai 🌬️</button>
-      <button class="btn btn-primary" id="breathReadyBtn" style="display:none;margin-top:10px;" onclick="enterRecordScreen()">Aku Siap 🎙️</button>
+      <button class="btn btn-primary" id="breathReadyBtn" style="display:none;margin-top:10px;"
+        onclick="enterRecordScreen()">Aku Siap 🎙️</button>
       <p class="hint">Mic bakal diminta izinnya abis ini ya.</p>
     </div>
 
@@ -283,8 +572,12 @@
       <div class="cassette-box" id="cassetteBox">
         <div class="cassette-label" id="tapeLabelDisplay">Unsent Note</div>
         <div class="cassette-wheels" id="cassetteWheels">
-          <div class="wheel"><div class="wheel-spokes"></div></div>
-          <div class="wheel"><div class="wheel-spokes"></div></div>
+          <div class="wheel">
+            <div class="wheel-spokes"></div>
+          </div>
+          <div class="wheel">
+            <div class="wheel-spokes"></div>
+          </div>
         </div>
         <div style="font-size: 0.7rem; font-weight: 700; opacity: 0.6; text-align: right;">30 SEC TAPE</div>
       </div>
@@ -359,11 +652,11 @@
 
   <script>
     const COLORS = [
-      { name: "Pink",   hex: "#f4c3c2" },
+      { name: "Pink", hex: "#f4c3c2" },
       { name: "Coklat", hex: "#a87d65" },
-      { name: "Biru",   hex: "#b3cdd4" },
+      { name: "Biru", hex: "#b3cdd4" },
       { name: "Kuning", hex: "#f8e5b9" },
-      { name: "Sage",   hex: "#cfe0c3" },
+      { name: "Sage", hex: "#cfe0c3" },
     ];
 
     let selectedColor = COLORS[0].hex;
@@ -411,9 +704,9 @@
     function brSound(action) {
       try {
         if (!brAudio) brAudio = new Audio("../sound-effect/breath.mp3");
-        if (action === "start") { brAudio.currentTime = 0; brAudio.play().catch(() => {}); }
+        if (action === "start") { brAudio.currentTime = 0; brAudio.play().catch(() => { }); }
         else if (action === "stop") { brAudio.pause(); brAudio.currentTime = 0; }
-      } catch (e) {}
+      } catch (e) { }
     }
     const BREATH_PHASES = [
       { t: "Tarik napas… 👃", ms: 2500, s: 1.35, a: "start" },
@@ -426,7 +719,7 @@
       if (cycle >= 3) {
         txt.textContent = "Selesai. Udah lebih tenang? 💙";
         circle.classList.add("done");
-        try { new Audio("../sound-effect/love.mp3").play().catch(() => {}); } catch (e) {}
+        try { new Audio("../sound-effect/love.mp3").play().catch(() => { }); } catch (e) { }
         document.getElementById("brStartBtn").style.display = "none";
         document.getElementById("breathReadyBtn").style.display = "flex";
         return;
@@ -626,10 +919,11 @@
 
     renderColorGrid();
     const _origGoTo = goTo;
-    goTo = function(id) {
+    goTo = function (id) {
       _origGoTo(id);
       if (id === "screenBreath") resetBreathScreen();
     };
   </script>
 </body>
+
 </html>
