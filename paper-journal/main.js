@@ -117,8 +117,8 @@ function applyBatchDisplay() {
     // Rekening pembayaran -- tetap type-level (kerja sama pihak ketiga bisa
     // beda rekening per WORKSHOP, tapi ga masuk akal beda per batch/sesi).
     const w = _workshopData;
-    document.getElementById('bankNameText').textContent = (w && w.bankName) || 'BCA';
-    document.getElementById('accountNumber').textContent = (w && w.bankAccountNumber) || '6042825961';
+    document.getElementById('bankNameText').textContent = (w && w.bankName) || 'Blu by BCA Digital';
+    document.getElementById('accountNumber').textContent = (w && w.bankAccountNumber) || '090163537583';
     document.getElementById('bankOwnerText').textContent = 'a.n ' + ((w && w.bankAccountHolder) || 'Arnold Therigan');
     // Badge "Sisa X Tiket!" HARUS ikut update tiap ganti sesi di batch picker --
     // sebelumnya cuma di-set SEKALI di loadOpenBatches() pas load awal, jadi

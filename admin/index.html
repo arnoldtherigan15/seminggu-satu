@@ -6800,9 +6800,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="hint" style="text-align:right;font-weight:700;color:var(--ink);margin-bottom:8px;">Total: <span id="invoiceTotalOut">Rp 0</span></div>
         <p class="hint" style="margin:8px 0 4px;">Bank Transfer</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div class="konten-field" style="flex:1;min-width:120px;"><label>Bank Name</label><input class="form-control" type="text" id="invoiceBankName" value="BCA"></div>
+          <div class="konten-field" style="flex:1;min-width:120px;"><label>Bank Name</label><input class="form-control" type="text" id="invoiceBankName" value="Blu by BCA Digital"></div>
           <div class="konten-field" style="flex:1;min-width:170px;"><label>Account Name</label><input class="form-control" type="text" id="invoiceBankAccountName" value="Arnold Therigan"></div>
-          <div class="konten-field" style="flex:1;min-width:150px;"><label>Account No</label><input class="form-control" type="text" id="invoiceBankAccountNo" value="6042825961"></div>
+          <div class="konten-field" style="flex:1;min-width:150px;"><label>Account No</label><input class="form-control" type="text" id="invoiceBankAccountNo" value="090163537583"></div>
         </div>
         <p class="hint" style="margin:8px 0 4px;">Signature</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -9261,7 +9261,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       { key: "enabled", label: "Active (open for registration) — kill-switch for all batches of this type", type: "checkbox" },
       { key: "isDisplay", label: "Show on homepage", type: "checkbox" },
       { key: "isPrintPhoto", label: "Requires photo upload (print)", type: "checkbox" },
-      { key: "bankName", label: "Bank Name (blank = use BCA default)", type: "text" },
+      { key: "bankName", label: "Bank Name (blank = use Blu by BCA Digital default)", type: "text" },
       { key: "bankAccountNumber", label: "Account Number (blank = use Arnold's default)", type: "text" },
       { key: "bankAccountHolder", label: "Account Holder Name (without \"a.n\", blank = default)", type: "text" },
       { key: "icon", label: "Icon (lucide name)", type: "text" },
@@ -9814,7 +9814,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         subEl.textContent = "General Config";
         bodyEl.innerHTML = `
           <div class="hint">Active: <b>${w.enabled ? "Yes" : "No"}</b> · Show on homepage: <b>${w.isDisplay ? "Yes" : "No"}</b></div>
-          <div class="hint" style="margin-top:4px;">Bank: <b>${escapeHtml(w.bankName || "BCA (default)")}</b></div>`;
+          <div class="hint" style="margin-top:4px;">Bank: <b>${escapeHtml(w.bankName || "Blu by BCA Digital (default)")}</b></div>`;
       } else {
         const b = CFG_BATCHES.find(x => x.id === batchId);
         titleEl.textContent = (b && b.label) || "Batch";
@@ -10744,9 +10744,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("invoiceToName").value = "";
       document.getElementById("invoiceItemRows").innerHTML = "";
       addInvoiceItemRow({});
-      document.getElementById("invoiceBankName").value = "BCA";
+      document.getElementById("invoiceBankName").value = "Blu by BCA Digital";
       document.getElementById("invoiceBankAccountName").value = "Arnold Therigan";
-      document.getElementById("invoiceBankAccountNo").value = "6042825961";
+      document.getElementById("invoiceBankAccountNo").value = "090163537583";
       document.getElementById("invoiceSignerName").value = "Arnold Therigan";
       document.getElementById("invoiceSignerRole").value = "Founder Seminggu Satu";
       document.getElementById("invoiceMsg").textContent = "";
@@ -10766,9 +10766,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("invoiceToName").value = d.toName || "";
       document.getElementById("invoiceItemRows").innerHTML = "";
       (d.items && d.items.length ? d.items : [{}]).forEach(it => addInvoiceItemRow(it));
-      document.getElementById("invoiceBankName").value = d.bankName || "BCA";
+      document.getElementById("invoiceBankName").value = d.bankName || "Blu by BCA Digital";
       document.getElementById("invoiceBankAccountName").value = d.bankAccountName || "Arnold Therigan";
-      document.getElementById("invoiceBankAccountNo").value = d.bankAccountNo || "6042825961";
+      document.getElementById("invoiceBankAccountNo").value = d.bankAccountNo || "090163537583";
       document.getElementById("invoiceSignerName").value = d.signerName || "Arnold Therigan";
       document.getElementById("invoiceSignerRole").value = d.signerRole || "Founder Seminggu Satu";
       document.getElementById("invoiceMsg").textContent = "";
@@ -12771,9 +12771,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             description: (it.productName || "Produk dihapus") + (it.notes ? " — " + it.notes : ""),
             qty: it.qty, price: it.unitSellPrice,
           })),
-          bankName: "BCA",
+          bankName: "Blu by BCA Digital",
           bankAccountName: "Arnold Therigan",
-          bankAccountNo: "6042825961",
+          bankAccountNo: "090163537583",
           signerRole: "Penjual",
           signerName: "Seminggu Satu",
         },
@@ -12796,7 +12796,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const wa = waNormalize(SHOPORD_CURRENT.buyerWa);
       if (!wa) { alert("Nomor WA pembeli belum diisi."); return; }
       const itemsText = SHOPORD_CURRENT.items.map(it => `- ${it.productName || "Produk"}${it.notes ? ` (${it.notes})` : ""} x${it.qty} = ${rupiah(it.lineTotal)}`).join("\n");
-      const text = `Halo ${SHOPORD_CURRENT.buyerName}! Ini rincian belanjamu:\n${itemsText}\n\nTotal: ${rupiah(SHOPORD_CURRENT.total)}\n\nTransfer ke BCA 6042825961 a.n Arnold Therigan ya. Terima kasih! 🐾`;
+      const text = `Halo ${SHOPORD_CURRENT.buyerName}! Ini rincian belanjamu:\n${itemsText}\n\nTotal: ${rupiah(SHOPORD_CURRENT.total)}\n\nTransfer ke Blu by BCA Digital 090163537583 a.n Arnold Therigan ya. Terima kasih! 🐾`;
 
       let file = null;
       if (SHOPORD_CURRENT.items.length && navigator.canShare) {
