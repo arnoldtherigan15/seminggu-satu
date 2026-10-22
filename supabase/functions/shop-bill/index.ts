@@ -83,6 +83,25 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const action = String(body.action || "");
 
+    // Rekomendasi nama -- biar peserta nggak perlu ngetik manual nama
+    // lengkap, cukup pilih dari daftar peserta batch-batch AKTIF "reka-rekat"
+    // (ini halaman dipakenya emang khusus event Reka Rekat). BISA lebih dari
+    // satu batch aktif bersamaan (mis. Vol 4/5/6 kebuka sekaligus) -- halaman
+    // ini nggak tau pembelinya dari batch yang mana, jadi digabung semua.
+    // Cuma balikin full_name doang (bukan WA/data lain) -- data publik
+    // seminim mungkin.
+    if (action === "activeNames") {
+      const { data: activeBatches } = await admin.from("batches").select("id")
+        .eq("workshop_type", "reka-rekat").eq("active", true);
+      const batchIds = (activeBatches || []).map((b: { id: string }) => b.id);
+      if (!batchIds.length) return jsonResponse({ status: "success", names: [] });
+      const { data: regs } = await admin.from("registrations").select("full_name")
+        .in("batch_id", batchIds).eq("archived", false);
+      // deno-lint-ignore no-explicit-any
+      const names = Array.from(new Set((regs || []).map((r: any) => String(r.full_name || "").trim()).filter(Boolean)));
+      return jsonResponse({ status: "success", names });
+    }
+
     if (action === "start") {
       const { data: inserted, error } = await admin.from("shop_orders").insert({
         buyer_name: "Pembeli (belum isi nama)", buyer_wa: null, batch_id: null, registration_id: null, workshop_type: null,

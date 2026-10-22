@@ -136,6 +136,28 @@
             if (window.lucide) lucide.createIcons();
         }
 
+        // Rekomendasi nama -- daftar peserta batch Reka Rekat yang lagi aktif,
+        // dipasang ke <datalist> biar bisa milih (bukan ngetik manual) & nama
+        // yang masuk invoice konsisten sama data pendaftaran. Di-fetch SEKALI
+        // (cache promise-nya), dipanggil dari render() tiap checkout card
+        // dibikin ulang.
+        let nameSuggestionsPromise = null;
+        function loadNameSuggestions() {
+            if (!nameSuggestionsPromise) {
+                nameSuggestionsPromise = apiCall({ action: 'activeNames' })
+                    .then(body => (body.status === 'success') ? (body.names || []) : [])
+                    .catch(() => []);
+            }
+            return nameSuggestionsPromise;
+        }
+
+        async function populateNameDatalist() {
+            const dl = document.getElementById('nameSuggestions');
+            if (!dl) return;
+            const names = await loadNameSuggestions();
+            dl.innerHTML = names.map(n => '<option value="' + esc(n) + '"></option>').join('');
+        }
+
         async function apiCall(payload) {
             const res = await fetch(SUPABASE_URL + '/functions/v1/shop-bill', {
                 method: 'POST',
@@ -180,7 +202,8 @@
             } else {
                 checkoutCard.innerHTML =
                     '<label for="nameInput">Nama Kamu</label>' +
-                    '<input type="text" id="nameInput" placeholder="Nama buat invoice" value="' + (nameSet ? esc(bill.buyerName) : '') + '">' +
+                    '<input type="text" id="nameInput" list="nameSuggestions" autocomplete="off" placeholder="Nama buat invoice" value="' + (nameSet ? esc(bill.buyerName) : '') + '">' +
+                    '<datalist id="nameSuggestions"></datalist>' +
                     '<label for="waInput">Nomor WA (opsional)</label>' +
                     '<input type="text" id="waInput" placeholder="08xx..." value="' + esc(bill.buyerWa || '') + '">' +
                     '<button class="btn btn-wa" id="checkoutBtn" type="button"><i data-lucide="send"></i> Checkout &amp; Kirim ke WA</button>' +
@@ -189,6 +212,7 @@
             }
             cardBox.insertAdjacentElement('afterend', checkoutCard);
             if (window.lucide) lucide.createIcons();
+            populateNameDatalist();
 
             const checkoutBtn = document.getElementById('checkoutBtn');
             if (checkoutBtn) checkoutBtn.addEventListener('click', checkout);
@@ -255,6 +279,7 @@
         }
 
         load();
+        loadNameSuggestions();
     </script>
 </body>
 
