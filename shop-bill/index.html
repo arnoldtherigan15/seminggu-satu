@@ -136,26 +136,92 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        // Rekomendasi nama -- daftar peserta batch Reka Rekat yang lagi aktif,
-        // dipasang ke <datalist> biar bisa milih (bukan ngetik manual) & nama
-        // yang masuk invoice konsisten sama data pendaftaran. Di-fetch SEKALI
-        // (cache promise-nya), dipanggil dari render() tiap checkout card
-        // dibikin ulang.
-        let nameSuggestionsPromise = null;
-        function loadNameSuggestions() {
-            if (!nameSuggestionsPromise) {
-                nameSuggestionsPromise = apiCall({ action: 'activeNames' })
-                    .then(body => (body.status === 'success') ? (body.names || []) : [])
-                    .catch(() => []);
-            }
-            return nameSuggestionsPromise;
+        // Dropdown "Event" + rekomendasi nama -- peserta milih batch Reka
+        // Rekat yang lagi aktif (auto-pilih yang event_date-nya = hari ini),
+        // terus nama (lengkap ATAU nickname, dua-duanya ditawarin) direkomen
+        // dari peserta batch itu. Milih nama yang PAS otomatis isi WA-nya
+        // juga, dan pas checkout order ini kebawa ketempel batch_id +
+        // registration_id yang bener (muncul rapi di tab "Peserta Event"
+        // admin, bukan numpuk ke "Pembeli Lain").
+        let ACTIVE_BATCHES = [];
+        let selectedBatchId = null; // null = belum pernah di-set (beda sama "" = sengaja kosong)
+        let PARTICIPANTS = [];
+        let participantsByKey = {}; // nama (lengkap/nickname) -> {id, wa}
+
+        function todayStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         }
 
-        async function populateNameDatalist() {
+        function formatEventDate(d) {
+            if (!d) return '';
+            try {
+                return new Date(d + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            } catch (e) { return d; }
+        }
+
+        function waDisplay(wa) {
+            const d = String(wa || '').replace(/\D/g, '');
+            return d.indexOf('62') === 0 ? '0' + d.slice(2) : d;
+        }
+
+        async function loadActiveBatches() {
+            if (!ACTIVE_BATCHES.length) {
+                try {
+                    const body = await apiCall({ action: 'listActiveBatches' });
+                    ACTIVE_BATCHES = (body.status === 'success') ? (body.batches || []) : [];
+                } catch (e) { ACTIVE_BATCHES = []; }
+            }
+            if (selectedBatchId === null) {
+                const today = todayStr();
+                const todayMatch = ACTIVE_BATCHES.find(b => b.eventDate === today);
+                selectedBatchId = todayMatch ? todayMatch.id : "";
+            }
+            return ACTIVE_BATCHES;
+        }
+
+        async function loadParticipants(batchId) {
+            participantsByKey = {};
+            PARTICIPANTS = [];
+            if (!batchId) return;
+            try {
+                const body = await apiCall({ action: 'batchParticipants', batchId });
+                PARTICIPANTS = (body.status === 'success') ? (body.participants || []) : [];
+            } catch (e) { PARTICIPANTS = []; }
+            PARTICIPANTS.forEach(p => {
+                if (p.fullName) participantsByKey[p.fullName] = p;
+                if (p.nickname) participantsByKey[p.nickname] = p;
+            });
+        }
+
+        function renderNameDatalist() {
             const dl = document.getElementById('nameSuggestions');
             if (!dl) return;
-            const names = await loadNameSuggestions();
-            dl.innerHTML = names.map(n => '<option value="' + esc(n) + '"></option>').join('');
+            const opts = [];
+            PARTICIPANTS.forEach(p => {
+                if (p.fullName) opts.push(p.fullName);
+                if (p.nickname && p.nickname !== p.fullName) opts.push(p.nickname);
+            });
+            dl.innerHTML = opts.map(n => '<option value="' + esc(n) + '"></option>').join('');
+        }
+
+        async function populateEventAndNames() {
+            const evSel = document.getElementById('eventSelect');
+            if (!evSel) return;
+            await loadActiveBatches();
+            evSel.innerHTML = '<option value="">(Bukan peserta / pilih manual)</option>' +
+                ACTIVE_BATCHES.map(b =>
+                    '<option value="' + esc(b.id) + '">' + esc(b.label) +
+                    (b.eventDate ? ' (' + esc(formatEventDate(b.eventDate)) + ')' : '') + '</option>'
+                ).join('');
+            evSel.value = selectedBatchId || '';
+            await loadParticipants(evSel.value);
+            renderNameDatalist();
+            evSel.addEventListener('change', async () => {
+                selectedBatchId = evSel.value;
+                await loadParticipants(selectedBatchId);
+                renderNameDatalist();
+            });
         }
 
         async function apiCall(payload) {
@@ -201,6 +267,8 @@
                 checkoutCard.innerHTML = '<p class="sub" style="margin:0;">Tagihan masih kosong -- scan QR produk yang mau kamu beli dulu ya.</p>';
             } else {
                 checkoutCard.innerHTML =
+                    '<label for="eventSelect">Event</label>' +
+                    '<select id="eventSelect" style="width:100%;font-size:1rem;padding:0.8rem;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin-bottom:0.9rem;"><option>Memuat…</option></select>' +
                     '<label for="nameInput">Nama Kamu</label>' +
                     '<input type="text" id="nameInput" list="nameSuggestions" autocomplete="off" placeholder="Nama buat invoice" value="' + (nameSet ? esc(bill.buyerName) : '') + '">' +
                     '<datalist id="nameSuggestions"></datalist>' +
@@ -212,8 +280,15 @@
             }
             cardBox.insertAdjacentElement('afterend', checkoutCard);
             if (window.lucide) lucide.createIcons();
-            populateNameDatalist();
+            populateEventAndNames();
 
+            const nameInput = document.getElementById('nameInput');
+            if (nameInput) {
+                nameInput.addEventListener('input', () => {
+                    const p = participantsByKey[nameInput.value.trim()];
+                    if (p && p.wa) document.getElementById('waInput').value = waDisplay(p.wa);
+                });
+            }
             const checkoutBtn = document.getElementById('checkoutBtn');
             if (checkoutBtn) checkoutBtn.addEventListener('click', checkout);
             const newBillBtn = document.getElementById('newBillBtn');
@@ -256,7 +331,11 @@
             btn.disabled = true;
             msg.className = 'msg'; msg.textContent = 'Menyimpan…';
             try {
-                const body = await apiCall({ action: 'setBuyer', orderId, buyerName: name, buyerWa: waInput.value.trim() });
+                const matched = participantsByKey[name];
+                const payload = { action: 'setBuyer', orderId, buyerName: name, buyerWa: waInput.value.trim() };
+                if (selectedBatchId) payload.batchId = selectedBatchId;
+                if (matched) payload.registrationId = matched.id;
+                const body = await apiCall(payload);
                 if (body.status === 'error') { msg.className = 'msg err'; msg.textContent = body.message || 'Gagal menyimpan.'; btn.disabled = false; return; }
                 const bill = body.bill;
                 const itemsText = bill.items.map(it => '- ' + it.productName + ' x' + it.qty + ' = ' + rupiah(it.lineTotal)).join('\n');
@@ -279,7 +358,7 @@
         }
 
         load();
-        loadNameSuggestions();
+        loadActiveBatches();
     </script>
 </body>
 

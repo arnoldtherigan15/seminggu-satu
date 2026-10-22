@@ -83,23 +83,40 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const action = String(body.action || "");
 
-    // Rekomendasi nama -- biar peserta nggak perlu ngetik manual nama
-    // lengkap, cukup pilih dari daftar peserta batch-batch AKTIF "reka-rekat"
-    // (ini halaman dipakenya emang khusus event Reka Rekat). BISA lebih dari
-    // satu batch aktif bersamaan (mis. Vol 4/5/6 kebuka sekaligus) -- halaman
-    // ini nggak tau pembelinya dari batch yang mana, jadi digabung semua.
-    // Cuma balikin full_name doang (bukan WA/data lain) -- data publik
-    // seminim mungkin.
-    if (action === "activeNames") {
-      const { data: activeBatches } = await admin.from("batches").select("id")
-        .eq("workshop_type", "reka-rekat").eq("active", true);
-      const batchIds = (activeBatches || []).map((b: { id: string }) => b.id);
-      if (!batchIds.length) return jsonResponse({ status: "success", names: [] });
-      const { data: regs } = await admin.from("registrations").select("full_name")
-        .in("batch_id", batchIds).eq("archived", false);
-      // deno-lint-ignore no-explicit-any
-      const names = Array.from(new Set((regs || []).map((r: any) => String(r.full_name || "").trim()).filter(Boolean)));
-      return jsonResponse({ status: "success", names });
+    // Dropdown "Event" di layar checkout -- daftar batch "reka-rekat" yang
+    // lagi AKTIF, biar pembeli milih sendiri dia ikut sesi yang mana (nentuin
+    // batch_id order-nya, biar order ini muncul rapi di tab "Peserta Event"
+    // admin, bukan numpuk di "Pembeli Lain" doang). Diurutin created_at DESC
+    // -- frontend auto-pilih yang event_date-nya = hari ini, kalau ada 2+
+    // yang samaan tanggalnya, yang PALING ATAS (hasil urutan ini) yang kepilih.
+    if (action === "listActiveBatches") {
+      const { data: batches } = await admin.from("batches").select("id, label, event_date")
+        .eq("workshop_type", "reka-rekat").eq("active", true).order("created_at", { ascending: false });
+      return jsonResponse({
+        status: "success",
+        // deno-lint-ignore no-explicit-any
+        batches: (batches || []).map((b: any) => ({ id: b.id, label: b.label || "", eventDate: b.event_date || "" })),
+      });
+    }
+
+    // Rekomendasi nama buat batch yang lagi dipilih di dropdown Event --
+    // nama LENGKAP & nickname dua-duanya ditawarin (orang suka lebih kenal
+    // nickname-nya sendiri daripada nama lengkap di KTP). WA dibalikin juga
+    // (TAPI cuma dipake buat auto-isi field WA begitu nama yang PAS kepilih
+    // -- nggak ditampilin ke orang lain, cuma ke pemilik nama itu sendiri).
+    if (action === "batchParticipants") {
+      const batchId = String(body.batchId || "");
+      if (!batchId) return jsonResponse({ status: "success", participants: [] });
+      const { data: regs } = await admin.from("registrations").select("id, full_name, nickname, wa")
+        .eq("batch_id", batchId).eq("archived", false);
+      const participants = (regs || [])
+        // deno-lint-ignore no-explicit-any
+        .map((r: any) => ({
+          id: r.id, fullName: String(r.full_name || "").trim(), nickname: String(r.nickname || "").trim(), wa: r.wa || "",
+        }))
+        // deno-lint-ignore no-explicit-any
+        .filter((p: any) => p.fullName || p.nickname);
+      return jsonResponse({ status: "success", participants });
     }
 
     if (action === "start") {
@@ -168,11 +185,19 @@ Deno.serve(async (req) => {
       const orderId = String(body.orderId || "");
       const buyerName = String(body.buyerName || "").trim();
       const buyerWa = body.buyerWa ? String(body.buyerWa).trim() : null;
+      const batchId = body.batchId ? String(body.batchId) : null;
+      const registrationId = body.registrationId ? String(body.registrationId) : null;
       if (!orderId) return errorResponse("Tagihan tidak ditemukan.");
       if (!buyerName) return errorResponse("Nama wajib diisi.");
-      const { error } = await admin.from("shop_orders")
-        .update({ buyer_name: buyerName, buyer_wa: buyerWa, updated_at: new Date().toISOString() })
-        .eq("id", orderId);
+      // deno-lint-ignore no-explicit-any
+      const patch: Record<string, any> = { buyer_name: buyerName, buyer_wa: buyerWa, updated_at: new Date().toISOString() };
+      // batchId/registrationId OPSIONAL -- diisi kalau pembeli milih Event di
+      // dropdown (+ nama-nya PAS cocok sama salah satu peserta batch itu),
+      // biar order ini nyambung ke "Peserta Event" di admin, bukan selalu
+      // "Pembeli Lain".
+      if (batchId) { patch.batch_id = batchId; patch.workshop_type = "reka-rekat"; }
+      if (registrationId) patch.registration_id = registrationId;
+      const { error } = await admin.from("shop_orders").update(patch).eq("id", orderId);
       if (error) return errorResponse("Gagal menyimpan nama: " + error.message);
       const bill = await buildBillResponse(admin, orderId);
       return jsonResponse({ status: "success", bill });
