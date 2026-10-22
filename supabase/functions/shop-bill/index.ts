@@ -21,6 +21,7 @@
 // udah dibawa fisik sesuai stok, Arnold nambahin stok manual kalau meleset.
 import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
+import { getConfigValue } from "../_shared/config.ts";
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 
 // deno-lint-ignore no-explicit-any
@@ -83,40 +84,64 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const action = String(body.action || "");
 
-    // Dropdown "Event" di layar checkout -- daftar batch "reka-rekat" yang
-    // lagi AKTIF, biar pembeli milih sendiri dia ikut sesi yang mana (nentuin
-    // batch_id order-nya, biar order ini muncul rapi di tab "Peserta Event"
-    // admin, bukan numpuk di "Pembeli Lain" doang). Diurutin created_at DESC
-    // -- frontend auto-pilih yang event_date-nya = hari ini, kalau ada 2+
-    // yang samaan tanggalnya, yang PALING ATAS (hasil urutan ini) yang kepilih.
-    if (action === "listActiveBatches") {
-      const { data: batches } = await admin.from("batches").select("id, label, event_date")
-        .eq("workshop_type", "reka-rekat").eq("active", true).order("created_at", { ascending: false });
-      return jsonResponse({
-        status: "success",
-        // deno-lint-ignore no-explicit-any
-        batches: (batches || []).map((b: any) => ({ id: b.id, label: b.label || "", eventDate: b.event_date || "" })),
-      });
-    }
+    // Dropdown "Event" + rekomendasi nama di layar checkout -- SEMUA tipe
+    // workshop (bukan cuma reka-rekat), batch mana aja yang event_date-nya
+    // masih "relevan" (sekitar hari ini -- bukan ngandelin flag `active`,
+    // soalnya Arnold nggak selalu balikin flag itu ke false begitu event-nya
+    // udah lewat, jadi batch lama ikutan numpuk kalau kepake buat filter).
+    // Frontend yang nentuin default pilihan (match event_date = hari ini),
+    // tapi daftar nama peserta-nya DIGABUNG dari SEMUA batch yang ditampilin
+    // di sini -- biar nama tetep ketemu walau Event yang lagi dipilih bukan
+    // yang itu (milih nama yang PAS otomatis pindahin Event-nya juga, lihat
+    // frontend). Nama LENGKAP & nickname dua-duanya ditawarin, WA dibalikin
+    // juga tapi CUMA buat auto-isi field WA begitu nama yang PAS kepilih.
+    if (action === "getCheckoutContext") {
+      const now = new Date();
+      const toIso = (d: Date) => d.toISOString().slice(0, 10);
+      const minDate = toIso(new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000));
+      const maxDate = toIso(new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000));
 
-    // Rekomendasi nama buat batch yang lagi dipilih di dropdown Event --
-    // nama LENGKAP & nickname dua-duanya ditawarin (orang suka lebih kenal
-    // nickname-nya sendiri daripada nama lengkap di KTP). WA dibalikin juga
-    // (TAPI cuma dipake buat auto-isi field WA begitu nama yang PAS kepilih
-    // -- nggak ditampilin ke orang lain, cuma ke pemilik nama itu sendiri).
-    if (action === "batchParticipants") {
-      const batchId = String(body.batchId || "");
-      if (!batchId) return jsonResponse({ status: "success", participants: [] });
-      const { data: regs } = await admin.from("registrations").select("id, full_name, nickname, wa")
-        .eq("batch_id", batchId).eq("archived", false);
-      const participants = (regs || [])
+      const { data: batchRows } = await admin.from("batches")
+        .select("id, workshop_type, label, event_date")
+        .eq("archived", false)
+        .not("event_date", "is", null)
+        .gte("event_date", minDate)
+        .lte("event_date", maxDate)
+        .order("event_date", { ascending: true });
+
+      // deno-lint-ignore no-explicit-any
+      let workshopNames: Record<string, any> = {};
+      try {
+        const json = await getConfigValue(admin, "WORKSHOPS_JSON");
+        const list = JSON.parse(json || "[]");
         // deno-lint-ignore no-explicit-any
-        .map((r: any) => ({
-          id: r.id, fullName: String(r.full_name || "").trim(), nickname: String(r.nickname || "").trim(), wa: r.wa || "",
-        }))
-        // deno-lint-ignore no-explicit-any
-        .filter((p: any) => p.fullName || p.nickname);
-      return jsonResponse({ status: "success", participants });
+        workshopNames = Object.fromEntries(list.map((w: any) => [w.id, w.name || w.id]));
+      } catch (_e) { /* abaikan -- fallback ke workshop_type mentah */ }
+
+      // deno-lint-ignore no-explicit-any
+      const batches = (batchRows || []).map((b: any) => ({
+        id: b.id, label: b.label || "", eventDate: b.event_date || "",
+        workshopType: b.workshop_type, workshopName: workshopNames[b.workshop_type] || b.workshop_type,
+      }));
+
+      // deno-lint-ignore no-explicit-any
+      const batchIds = batches.map((b: any) => b.id);
+      // deno-lint-ignore no-explicit-any
+      let participants: any[] = [];
+      if (batchIds.length) {
+        const { data: regs } = await admin.from("registrations").select("id, full_name, nickname, wa, batch_id")
+          .in("batch_id", batchIds).eq("archived", false);
+        participants = (regs || [])
+          // deno-lint-ignore no-explicit-any
+          .map((r: any) => ({
+            id: r.id, batchId: r.batch_id,
+            fullName: String(r.full_name || "").trim(), nickname: String(r.nickname || "").trim(), wa: r.wa || "",
+          }))
+          // deno-lint-ignore no-explicit-any
+          .filter((p: any) => p.fullName || p.nickname);
+      }
+
+      return jsonResponse({ status: "success", batches, participants });
     }
 
     if (action === "start") {
@@ -186,6 +211,7 @@ Deno.serve(async (req) => {
       const buyerName = String(body.buyerName || "").trim();
       const buyerWa = body.buyerWa ? String(body.buyerWa).trim() : null;
       const batchId = body.batchId ? String(body.batchId) : null;
+      const workshopType = body.workshopType ? String(body.workshopType) : null;
       const registrationId = body.registrationId ? String(body.registrationId) : null;
       if (!orderId) return errorResponse("Tagihan tidak ditemukan.");
       if (!buyerName) return errorResponse("Nama wajib diisi.");
@@ -194,8 +220,9 @@ Deno.serve(async (req) => {
       // batchId/registrationId OPSIONAL -- diisi kalau pembeli milih Event di
       // dropdown (+ nama-nya PAS cocok sama salah satu peserta batch itu),
       // biar order ini nyambung ke "Peserta Event" di admin, bukan selalu
-      // "Pembeli Lain".
-      if (batchId) { patch.batch_id = batchId; patch.workshop_type = "reka-rekat"; }
+      // "Pembeli Lain". workshopType dikirim frontend (dropdown-nya sekarang
+      // ngegabung SEMUA tipe workshop, bukan reka-rekat doang).
+      if (batchId) { patch.batch_id = batchId; patch.workshop_type = workshopType; }
       if (registrationId) patch.registration_id = registrationId;
       const { error } = await admin.from("shop_orders").update(patch).eq("id", orderId);
       if (error) return errorResponse("Gagal menyimpan nama: " + error.message);

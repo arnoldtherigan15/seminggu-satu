@@ -136,17 +136,20 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        // Dropdown "Event" + rekomendasi nama -- peserta milih batch Reka
-        // Rekat yang lagi aktif (auto-pilih yang event_date-nya = hari ini),
-        // terus nama (lengkap ATAU nickname, dua-duanya ditawarin) direkomen
-        // dari peserta batch itu. Milih nama yang PAS otomatis isi WA-nya
-        // juga, dan pas checkout order ini kebawa ketempel batch_id +
-        // registration_id yang bener (muncul rapi di tab "Peserta Event"
-        // admin, bukan numpuk ke "Pembeli Lain").
-        let ACTIVE_BATCHES = [];
+        // Dropdown "Event" + rekomendasi nama -- SEMUA tipe workshop (bukan
+        // reka-rekat doang), batch yang event_date-nya "relevan" (sekitar
+        // hari ini -- backend yang nentuin jendela waktunya, BUKAN ngandelin
+        // flag `active` yang suka nggak kebalikin false abis event lewat).
+        // Auto-pilih batch yang event_date-nya = hari ini (kalau 2+ samaan
+        // tanggal, yang PALING ATAS/awal di hasil urutan backend yang menang).
+        //
+        // Daftar nama DIGABUNG dari SEMUA batch yang ditampilin (bukan
+        // di-scope per-batch) -- biar nama tetep ketemu walau Event yang lagi
+        // kepilih bukan yang itu. Milih nama yang PAS otomatis mindahin
+        // dropdown Event ke batch peserta itu + isi WA-nya.
+        let CONTEXT_BATCHES = [];
         let selectedBatchId = null; // null = belum pernah di-set (beda sama "" = sengaja kosong)
-        let PARTICIPANTS = [];
-        let participantsByKey = {}; // nama (lengkap/nickname) -> {id, wa}
+        let participantsByKey = {}; // nama (lengkap/nickname) -> {id, batchId, wa}
 
         function todayStr() {
             const d = new Date();
@@ -165,63 +168,50 @@
             return d.indexOf('62') === 0 ? '0' + d.slice(2) : d;
         }
 
-        async function loadActiveBatches() {
-            if (!ACTIVE_BATCHES.length) {
-                try {
-                    const body = await apiCall({ action: 'listActiveBatches' });
-                    ACTIVE_BATCHES = (body.status === 'success') ? (body.batches || []) : [];
-                } catch (e) { ACTIVE_BATCHES = []; }
+        let checkoutContextPromise = null;
+        function loadCheckoutContext() {
+            if (!checkoutContextPromise) {
+                checkoutContextPromise = apiCall({ action: 'getCheckoutContext' })
+                    .then(body => (body.status === 'success') ? body : { batches: [], participants: [] })
+                    .catch(() => ({ batches: [], participants: [] }));
             }
-            if (selectedBatchId === null) {
-                const today = todayStr();
-                const todayMatch = ACTIVE_BATCHES.find(b => b.eventDate === today);
-                selectedBatchId = todayMatch ? todayMatch.id : "";
-            }
-            return ACTIVE_BATCHES;
-        }
-
-        async function loadParticipants(batchId) {
-            participantsByKey = {};
-            PARTICIPANTS = [];
-            if (!batchId) return;
-            try {
-                const body = await apiCall({ action: 'batchParticipants', batchId });
-                PARTICIPANTS = (body.status === 'success') ? (body.participants || []) : [];
-            } catch (e) { PARTICIPANTS = []; }
-            PARTICIPANTS.forEach(p => {
-                if (p.fullName) participantsByKey[p.fullName] = p;
-                if (p.nickname) participantsByKey[p.nickname] = p;
-            });
+            return checkoutContextPromise;
         }
 
         function renderNameDatalist() {
             const dl = document.getElementById('nameSuggestions');
             if (!dl) return;
             const opts = [];
-            PARTICIPANTS.forEach(p => {
-                if (p.fullName) opts.push(p.fullName);
-                if (p.nickname && p.nickname !== p.fullName) opts.push(p.nickname);
-            });
+            Object.keys(participantsByKey).forEach(name => opts.push(name));
             dl.innerHTML = opts.map(n => '<option value="' + esc(n) + '"></option>').join('');
         }
 
         async function populateEventAndNames() {
             const evSel = document.getElementById('eventSelect');
             if (!evSel) return;
-            await loadActiveBatches();
+            const ctx = await loadCheckoutContext();
+            CONTEXT_BATCHES = ctx.batches || [];
+
+            participantsByKey = {};
+            (ctx.participants || []).forEach(p => {
+                if (p.fullName) participantsByKey[p.fullName] = p;
+                if (p.nickname) participantsByKey[p.nickname] = p;
+            });
+            renderNameDatalist();
+
+            if (selectedBatchId === null) {
+                const today = todayStr();
+                const todayMatch = CONTEXT_BATCHES.find(b => b.eventDate === today);
+                selectedBatchId = todayMatch ? todayMatch.id : "";
+            }
+
             evSel.innerHTML = '<option value="">(Bukan peserta / pilih manual)</option>' +
-                ACTIVE_BATCHES.map(b =>
-                    '<option value="' + esc(b.id) + '">' + esc(b.label) +
+                CONTEXT_BATCHES.map(b =>
+                    '<option value="' + esc(b.id) + '">' + esc(b.workshopName) + ' - ' + esc(b.label) +
                     (b.eventDate ? ' (' + esc(formatEventDate(b.eventDate)) + ')' : '') + '</option>'
                 ).join('');
             evSel.value = selectedBatchId || '';
-            await loadParticipants(evSel.value);
-            renderNameDatalist();
-            evSel.addEventListener('change', async () => {
-                selectedBatchId = evSel.value;
-                await loadParticipants(selectedBatchId);
-                renderNameDatalist();
-            });
+            evSel.addEventListener('change', () => { selectedBatchId = evSel.value; });
         }
 
         async function apiCall(payload) {
@@ -286,7 +276,16 @@
             if (nameInput) {
                 nameInput.addEventListener('input', () => {
                     const p = participantsByKey[nameInput.value.trim()];
-                    if (p && p.wa) document.getElementById('waInput').value = waDisplay(p.wa);
+                    if (!p) return;
+                    if (p.wa) document.getElementById('waInput').value = waDisplay(p.wa);
+                    // Nama yang PAS kepilih = kita tau dia beneran peserta batch
+                    // mana -- pindahin dropdown Event ke situ otomatis, biar
+                    // nggak perlu nebak sendiri batch mana yang bener.
+                    if (p.batchId) {
+                        selectedBatchId = p.batchId;
+                        const evSel = document.getElementById('eventSelect');
+                        if (evSel) evSel.value = p.batchId;
+                    }
                 });
             }
             const checkoutBtn = document.getElementById('checkoutBtn');
@@ -333,7 +332,11 @@
             try {
                 const matched = participantsByKey[name];
                 const payload = { action: 'setBuyer', orderId, buyerName: name, buyerWa: waInput.value.trim() };
-                if (selectedBatchId) payload.batchId = selectedBatchId;
+                if (selectedBatchId) {
+                    payload.batchId = selectedBatchId;
+                    const batch = CONTEXT_BATCHES.find(b => b.id === selectedBatchId);
+                    if (batch) payload.workshopType = batch.workshopType;
+                }
                 if (matched) payload.registrationId = matched.id;
                 const body = await apiCall(payload);
                 if (body.status === 'error') { msg.className = 'msg err'; msg.textContent = body.message || 'Gagal menyimpan.'; btn.disabled = false; return; }
@@ -358,7 +361,7 @@
         }
 
         load();
-        loadActiveBatches();
+        loadCheckoutContext();
     </script>
 </body>
 
