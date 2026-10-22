@@ -176,13 +176,25 @@ Deno.serve(async (req) => {
       const currentStock = Number(product.stock_qty) || 0;
       if (qty > currentStock) return errorResponse(`Stok "${product.name}" cuma tersisa ${currentStock}.`);
 
-      const unitHpp = await computeUnitHpp(admin, product);
-      const unitSellPrice = product.sell_price != null ? Number(product.sell_price) : 0;
+      // Scan ulang produk yang SAMA di tagihan yang SAMA -> gabung ke baris
+      // yang udah ada (qty ditambah), BUKAN bikin baris baru -- orang scan
+      // ulang QR produk yang sama ngarepin qty-nya nambah, bukan muncul
+      // baris duplikat kayak "x1" + "x1" padahal maksudnya "x2".
+      const { data: existing } = await admin.from("shop_sales").select("id, qty")
+        .eq("order_id", orderId).eq("product_id", product.id).maybeSingle();
 
-      const { error: saleErr } = await admin.from("shop_sales").insert({
-        product_id: product.id, qty, unit_sell_price: unitSellPrice, unit_hpp: unitHpp, order_id: orderId,
-      });
-      if (saleErr) return errorResponse("Gagal menambah item: " + saleErr.message);
+      if (existing) {
+        const { error: updErr } = await admin.from("shop_sales")
+          .update({ qty: Number(existing.qty) + qty }).eq("id", existing.id);
+        if (updErr) return errorResponse("Gagal menambah item: " + updErr.message);
+      } else {
+        const unitHpp = await computeUnitHpp(admin, product);
+        const unitSellPrice = product.sell_price != null ? Number(product.sell_price) : 0;
+        const { error: saleErr } = await admin.from("shop_sales").insert({
+          product_id: product.id, qty, unit_sell_price: unitSellPrice, unit_hpp: unitHpp, order_id: orderId,
+        });
+        if (saleErr) return errorResponse("Gagal menambah item: " + saleErr.message);
+      }
       const { error: stockErr } = await admin.from("shop_products").update({ stock_qty: currentStock - qty }).eq("id", product.id);
       if (stockErr) return errorResponse("Gagal update stok: " + stockErr.message);
 
