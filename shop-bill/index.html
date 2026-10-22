@@ -172,8 +172,8 @@
         function loadCheckoutContext() {
             if (!checkoutContextPromise) {
                 checkoutContextPromise = apiCall({ action: 'getCheckoutContext' })
-                    .then(body => (body.status === 'success') ? body : { batches: [], participants: [] })
-                    .catch(() => ({ batches: [], participants: [] }));
+                    .then(body => (body.status === 'success') ? body : { batches: [], participants: [], failed: true })
+                    .catch(() => ({ batches: [], participants: [], failed: true }));
             }
             return checkoutContextPromise;
         }
@@ -205,6 +205,12 @@
                 selectedBatchId = todayMatch ? todayMatch.id : "";
             }
 
+            if (ctx.failed) {
+                evSel.innerHTML = '<option value="">(Gagal memuat daftar event -- coba reload halaman ini)</option>';
+                evSel.disabled = true;
+                return;
+            }
+            evSel.disabled = false;
             evSel.innerHTML = '<option value="">(Bukan peserta / pilih manual)</option>' +
                 CONTEXT_BATCHES.map(b =>
                     '<option value="' + esc(b.id) + '">' + esc(b.workshopName) + ' - ' + esc(b.label) +
