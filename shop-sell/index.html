@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catat Penjualan — Seminggu Satu</title>
+    <title>Beli Produk — Seminggu Satu</title>
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#0046ff" data-light="#0046ff" data-dark="#0d1526">
 
@@ -87,6 +87,7 @@
         }
         .btn:active { transform: scale(0.98); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-ghost { background: var(--bg); color: var(--ink); border: 1.5px solid var(--line); }
 
         .msg { margin-top: 1rem; font-size: 0.88rem; text-align: center; }
         .msg.err { color: #b91c1c; }
@@ -99,6 +100,25 @@
 
         .success-check { width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; color: #166534; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
         .success-check i { width: 32px; height: 32px; }
+
+        .bill-strip {
+            margin-top: 1.1rem;
+            background: var(--bg);
+            border: 1.5px dashed var(--line);
+            border-radius: 12px;
+            padding: 0.9rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .bill-strip-info { font-size: 0.85rem; }
+        .bill-strip-info b { font-family: 'Outfit', sans-serif; font-size: 1rem; display: block; }
+        .bill-strip a { color: var(--blue); font-weight: 800; font-size: 0.85rem; text-decoration: none; white-space: nowrap; }
+
+        details.admin-mode { margin-top: 1.4rem; }
+        details.admin-mode summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+        details.admin-mode .btn { margin-top: 0.75rem; background: var(--muted); }
     </style>
 </head>
 
@@ -118,6 +138,14 @@
         const token = new URLSearchParams(location.search).get('t') || '';
         const cardBox = document.getElementById('cardBox');
 
+        // Tagihan terbuka (open bill) -- satu ID dipake lintas-produk, simpen
+        // di localStorage HP peserta sendiri biar nyambung pas scan produk
+        // LAIN. Nggak ada login -- ID ini (UUID, susah ditebak) itu sendiri
+        // "kuncinya", sama prinsipnya kayak token produk.
+        const BILL_KEY = "ss_shop_bill_id";
+        function getBillId() { try { return localStorage.getItem(BILL_KEY) || ""; } catch (e) { return ""; } }
+        function setBillId(id) { try { localStorage.setItem(BILL_KEY, id); } catch (e) { } }
+
         function renderError(message) {
             cardBox.innerHTML =
                 '<div class="state-box"><i data-lucide="package-x"></i><h3>Nggak Bisa Diproses</h3><p>' + esc(message) + '</p></div>';
@@ -127,29 +155,85 @@
         function renderForm(info) {
             cardBox.innerHTML =
                 '<h1>' + esc(info.name) + '</h1>' +
-                '<p class="sub">Catat penjualan produk ini -- stok otomatis berkurang.</p>' +
+                '<p class="sub">Mau beli ini? Tambahin ke tagihanmu -- bisa scan produk lain juga, checkout belakangan.</p>' +
                 '<div class="stat-row">' +
                 '<div class="stat-box"><div class="stat-label">Harga</div><div class="stat-val">' + esc(info.sellPrice != null ? rupiah(info.sellPrice) : '-') + '</div></div>' +
                 '<div class="stat-box"><div class="stat-label">Stok</div><div class="stat-val" id="stockVal">' + esc(info.stockQty) + '</div></div>' +
                 '</div>' +
-                '<label for="qtyInput">Jumlah Terjual</label>' +
+                '<label for="qtyInput">Jumlah</label>' +
                 '<input type="number" id="qtyInput" value="1" min="1" max="' + esc(info.stockQty) + '" inputmode="numeric">' +
-                '<button class="btn" id="sellBtn" type="button"' + (info.stockQty <= 0 ? ' disabled' : '') + '><i data-lucide="check-circle"></i> Tandai Terjual</button>' +
-                '<div class="msg" id="formMsg"></div>';
+                '<button class="btn" id="addBtn" type="button"' + (info.stockQty <= 0 ? ' disabled' : '') + '><i data-lucide="shopping-cart"></i> Tambah ke Tagihanku</button>' +
+                '<div class="msg" id="formMsg"></div>' +
+                '<div id="billStrip"></div>' +
+                '<details class="admin-mode">' +
+                '<summary>Mode Admin: Catat Jual Langsung</summary>' +
+                '<button class="btn" id="sellBtn" type="button"' + (info.stockQty <= 0 ? ' disabled' : '') + '><i data-lucide="check-circle"></i> Tandai Terjual Instan (nggak masuk tagihan)</button>' +
+                '</details>';
             if (window.lucide) lucide.createIcons();
+            document.getElementById('addBtn').addEventListener('click', () => addToBill(info));
             document.getElementById('sellBtn').addEventListener('click', () => recordSale(info));
+            renderBillStrip();
         }
 
-        function renderSuccess(productName, qty, newStock) {
-            cardBox.innerHTML =
-                '<div class="state-box">' +
-                '<div class="success-check"><i data-lucide="check"></i></div>' +
-                '<h3>Tercatat!</h3>' +
-                '<p>' + esc(qty) + ' ' + esc(productName) + ' terjual. Sisa stok: <b>' + esc(newStock) + '</b></p>' +
-                '</div>' +
-                '<button class="btn" id="againBtn" type="button" style="margin-top:1rem;"><i data-lucide="rotate-ccw"></i> Catat Lagi</button>';
-            if (window.lucide) lucide.createIcons();
-            document.getElementById('againBtn').addEventListener('click', load);
+        function renderBillStrip() {
+            const billId = getBillId();
+            const strip = document.getElementById('billStrip');
+            if (!strip) return;
+            if (!billId) { strip.innerHTML = ''; return; }
+            strip.innerHTML =
+                '<div class="bill-strip">' +
+                '<div class="bill-strip-info">Tagihanmu lagi jalan</div>' +
+                '<a href="../shop-bill/?o=' + encodeURIComponent(billId) + '">Lihat &amp; Checkout &rarr;</a>' +
+                '</div>';
+        }
+
+        async function addToBill(info) {
+            const qtyInput = document.getElementById('qtyInput');
+            const btn = document.getElementById('addBtn');
+            const msg = document.getElementById('formMsg');
+            const qty = Number(qtyInput.value) || 0;
+            if (qty <= 0) { msg.className = 'msg err'; msg.textContent = 'Jumlah harus lebih dari 0.'; return; }
+            btn.disabled = true;
+            msg.className = 'msg'; msg.textContent = 'Menambahkan…';
+            try {
+                let billId = getBillId();
+                if (!billId) {
+                    const startRes = await fetch(SUPABASE_URL + '/functions/v1/shop-bill', {
+                        method: 'POST',
+                        headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'start' })
+                    });
+                    const startBody = await startRes.json();
+                    if (!startRes.ok || startBody.status === 'error') {
+                        msg.className = 'msg err'; msg.textContent = startBody.message || 'Gagal membuat tagihan.';
+                        btn.disabled = false;
+                        return;
+                    }
+                    billId = startBody.orderId;
+                    setBillId(billId);
+                }
+                const res = await fetch(SUPABASE_URL + '/functions/v1/shop-bill', {
+                    method: 'POST',
+                    headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'addItem', orderId: billId, token, qty })
+                });
+                const body = await res.json();
+                if (!res.ok || body.status === 'error') {
+                    msg.className = 'msg err'; msg.textContent = body.message || 'Gagal menambahkan.';
+                    btn.disabled = false;
+                    return;
+                }
+                msg.className = 'msg ok'; msg.textContent = '✓ Ditambahkan ke tagihan!';
+                document.getElementById('stockVal').textContent = Math.max(0, Number(info.stockQty) - qty);
+                info.stockQty = Math.max(0, Number(info.stockQty) - qty);
+                qtyInput.value = 1;
+                qtyInput.max = info.stockQty;
+                btn.disabled = info.stockQty <= 0;
+                renderBillStrip();
+            } catch (e) {
+                msg.className = 'msg err'; msg.textContent = 'Koneksi gagal. Coba lagi.';
+                btn.disabled = false;
+            }
         }
 
         async function recordSale(info) {
@@ -177,6 +261,18 @@
                 msg.className = 'msg err'; msg.textContent = 'Koneksi gagal. Coba lagi.';
                 btn.disabled = false;
             }
+        }
+
+        function renderSuccess(productName, qty, newStock) {
+            cardBox.innerHTML =
+                '<div class="state-box">' +
+                '<div class="success-check"><i data-lucide="check"></i></div>' +
+                '<h3>Tercatat!</h3>' +
+                '<p>' + esc(qty) + ' ' + esc(productName) + ' terjual. Sisa stok: <b>' + esc(newStock) + '</b></p>' +
+                '</div>' +
+                '<button class="btn" id="againBtn" type="button" style="margin-top:1rem;"><i data-lucide="rotate-ccw"></i> Catat Lagi</button>';
+            if (window.lucide) lucide.createIcons();
+            document.getElementById('againBtn').addEventListener('click', load);
         }
 
         function load() {
