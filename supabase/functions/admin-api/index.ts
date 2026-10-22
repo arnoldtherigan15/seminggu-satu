@@ -454,6 +454,7 @@ Deno.serve(async (req) => {
             earlyBirdDueDate: b.early_bird_due_date || "", earlyBirdMaxCount: b.early_bird_max_count,
             maxQuota: b.max_quota, openDate: b.open_date || "", closeDate: b.close_date || "",
             hideFromPicker: !!b.hide_from_picker, showJournalPicker: b.show_journal_picker !== false, description: b.description || "",
+            qrisImage: b.qris_image || "",
           });
         }
         return jsonResponse({ status: "success", workshop, batches });
@@ -604,6 +605,7 @@ Deno.serve(async (req) => {
         // checkbox di Batch Detail.
         if (data.hideFromPicker !== undefined) patch.hide_from_picker = !!data.hideFromPicker;
         if (data.showJournalPicker !== undefined) patch.show_journal_picker = !!data.showJournalPicker;
+        if (data.qrisImage != null) patch.qris_image = String(data.qrisImage).trim() || null;
         if (!Object.keys(patch).length) return errorResponse("Nggak ada yang diubah.");
         const { error } = await admin.from("batches").update(patch).eq("id", batchId);
         if (error) return errorResponse("Gagal menyimpan perubahan: " + error.message);
@@ -1202,7 +1204,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         // Upload gambar generik dari admin panel (dipakai KONTEN editor,
         // mis. foto item Rekomendasi) -- whitelist bucket biar nggak
         // disalahgunain upload ke bucket sembarangan.
-        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos", "account-photos", "note-photos", "rec-batch-photos", "shop-material-photos"];
+        const ALLOWED_BUCKETS = ["recommendation-photos", "cost-item-photos", "account-photos", "note-photos", "rec-batch-photos", "shop-material-photos", "shop-product-photos", "batch-qris-photos"];
         const bucket = String(data.bucket || "");
         if (!ALLOWED_BUCKETS.includes(bucket)) return errorResponse("Bucket tidak dikenal: " + bucket);
         if (!data.imageBase64) return errorResponse("Gambar belum dipilih.");
@@ -1468,7 +1470,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           const sellPrice = r.sell_price != null ? Number(r.sell_price) : null;
           const sold = salesByProduct.get(r.id) || { soldQty: 0, profit: 0 };
           return {
-            id: r.id, name: r.name,
+            id: r.id, name: r.name, image: r.image || "",
             materials: materialLines,
             // deno-lint-ignore no-explicit-any
             extraCosts: extraCosts.map((e: any) => ({ label: e.label, amount: Number(e.amount) || 0 })),
@@ -1502,8 +1504,9 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         const sellPrice = data.sellPrice !== undefined && data.sellPrice !== null && String(data.sellPrice).trim() !== ""
           ? Number(data.sellPrice) : null;
         const id = data.id ? String(data.id) : "";
+        const image = data.image != null ? String(data.image).trim() : "";
         // deno-lint-ignore no-explicit-any
-        const patch: Record<string, any> = { name, materials, extra_costs: extraCosts, sell_price: sellPrice };
+        const patch: Record<string, any> = { name, materials, extra_costs: extraCosts, sell_price: sellPrice, image: image || null };
         // stockQty cuma dipatch kalau eksplisit dikirim (koreksi manual dari
         // editor) -- BUKAN lewat sini pas bikin produk baru, biar nggak
         // ketimpa 0 tiap kali save padahal ada penjualan yang udah
