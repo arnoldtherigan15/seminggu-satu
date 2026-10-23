@@ -64,7 +64,7 @@ h4 {
 }
 
 .brand-logo {
-    height: 80px;
+    height: 112px;
     width: auto;
     max-width: 300px;
     object-fit: contain;
@@ -1084,6 +1084,9 @@ footer {
 }
 :root[data-theme="dark"] .hero {
     background: linear-gradient(to bottom, #172035, #0d1526);
+}
+:root[data-theme="dark"] .brand-logo {
+    filter: invert(1);
 }
 :root[data-theme="dark"] .workshop-details,
 :root[data-theme="dark"] .bank-card,

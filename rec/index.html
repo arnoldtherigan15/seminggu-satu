@@ -68,6 +68,8 @@
         }
 
         .brand img { height: 28px; }
+        #siteLogo { height: 40px; width: auto; }
+        :root[data-theme="dark"] #siteLogo { filter: invert(1); }
 
         .brand span {
             font-family: 'Outfit', sans-serif;
@@ -205,7 +207,7 @@
 <body>
     <div class="wrap">
         <a class="brand" href="../index.html" style="text-decoration:none;">
-            <img src="../logo_seminggu.png" alt="Seminggu Satu">
+            <img id="siteLogo" src="../images/black.png" alt="Seminggu Satu">
             <span>Seminggu Satu</span>
         </a>
 

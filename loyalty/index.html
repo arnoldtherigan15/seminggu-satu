@@ -78,6 +78,8 @@
             height: 42px;
             width: auto;
         }
+        #siteLogo { height: 58px; width: auto; }
+        :root[data-theme="dark"] #siteLogo { filter: invert(1); }
 
         .top .by {
             font-size: 0.72rem;
@@ -860,7 +862,7 @@
     <div class="wrap">
         <div class="top">
             <a href="../index.html" id="brandLink">
-                <img src="../logo_seminggu.png" alt="Seminggu Satu">
+                <img id="siteLogo" src="../images/black.png" alt="Seminggu Satu">
                 <div class="by">JOURNALING PASSPORT</div>
             </a>
         </div>

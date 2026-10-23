@@ -191,6 +191,8 @@
         .top img {
             height: 40px;
         }
+        #siteLogo { height: 56px; width: auto; }
+        :root[data-theme="dark"] #siteLogo { filter: invert(1); }
 
         .top .by {
             font-size: 0.7rem;
@@ -14439,7 +14441,7 @@
     <div class="wrap">
         <div class="seasonal-strip" id="seasonalStrip" style="display:none;"></div>
         <div class="top">
-            <a href="../index.html"><img src="../logo_seminggu.png" alt="Seminggu Satu"></a>
+            <a href="../index.html"><img id="siteLogo" src="../images/black.png" alt="Seminggu Satu"></a>
             <div class="by">BALAI WARGA</div>
             <div class="seasonal-badge-row" id="seasonalBadgeRow" style="display:none;">
                 <img class="seasonal-badge-ic" id="seasonalBadgeIc" alt="" style="display:none;">
