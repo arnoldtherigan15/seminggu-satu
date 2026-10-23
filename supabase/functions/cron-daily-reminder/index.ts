@@ -38,11 +38,18 @@ Deno.serve(async (_req) => {
 
   const { data: activeBatches } = await admin.from("batches").select("*").eq("active", true);
 
+  // Batch yang tanggal acaranya udah LEWAT otomatis dinonaktifin -- dulu flag
+  // `active` cuma bisa dimatiin manual, jadi batch lama nyangkut "ACTIVE"
+  // selamanya di admin. Pendaftaran publiknya sendiri udah ketutup dari dulu
+  // (isBatchOpen), ini cuma ngerapihin flag-nya. Hari-H masih aktif, baru
+  // mati besok paginya. Tanggal pakai aturan merge (batch > Config) yang sama.
+  const pastIds: string[] = [];
   const blocks: string[] = [];
   for (const batch of activeBatches || []) {
     const typeConfig = cfgByType.get(batch.workshop_type) || {};
     const merged = mergeBatchConfig(batch, typeConfig);
     if (!merged.eventDateIso) continue;
+    if (merged.eventDateIso < todayIso) { pastIds.push(batch.id); continue; }
     let when: string | null = null;
     if (merged.eventDateIso === tomorrowIso) when = "BESOK";
     else if (merged.eventDateIso === todayIso) when = "HARI INI";
@@ -58,6 +65,10 @@ Deno.serve(async (_req) => {
       `📍 ${merged.locationName || "-"}\n` +
       `👥 *${count ?? 0}*${merged.maxQuota ? `/${merged.maxQuota}` : ""} peserta terdaftar`,
     );
+  }
+
+  if (pastIds.length) {
+    await admin.from("batches").update({ active: false }).in("id", pastIds);
   }
 
   // Ultah dikirim sebagai PESAN TERPISAH (bukan disatuin ke reminder event)
@@ -80,8 +91,8 @@ Deno.serve(async (_req) => {
     }
   } catch (_e) { /* jangan ganggu reminder event kalau ini gagal */ }
 
-  if (!blocks.length) return new Response(JSON.stringify({ status: "success", sent: false, reason: "no events today/tomorrow" }));
+  if (!blocks.length) return new Response(JSON.stringify({ status: "success", sent: false, reason: "no events today/tomorrow", deactivated: pastIds.length }));
 
   await sendTelegramText(`⏰ *Reminder Event*\n\n${blocks.join("\n\n")}\n\n_Cek tab Prep buat checklist persiapan & barang bawaan ya!_ 💪`);
-  return new Response(JSON.stringify({ status: "success", sent: true, events: blocks.length }), { headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify({ status: "success", sent: true, events: blocks.length, deactivated: pastIds.length }), { headers: { "Content-Type": "application/json" } });
 });
