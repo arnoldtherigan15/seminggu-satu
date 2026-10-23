@@ -12066,11 +12066,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const div = document.createElement("div");
         div.className = "fin-card";
         div.style.marginBottom = "10px";
-        let marginHtml = "";
-        if (p.sellPrice != null) {
-          const ok = p.margin >= 0;
-          marginHtml = `<div class="hint" style="margin-top:2px;">Jual ${rupiah(p.sellPrice)} &middot; margin <b style="color:${ok ? "#166534" : "var(--err)"}">${rupiah(p.margin)} (${p.marginPct.toFixed(1)}%)</b></div>`;
-        }
+        // Harga jual = angka yang paling sering dicari -> paling gede & tebal,
+        // HPP + margin jadi baris pendukung di bawahnya.
+        const priceHtml = p.sellPrice != null
+          ? `<div style="font-size:1.25rem;font-weight:800;line-height:1.2;margin-top:6px;color:var(--ink);">${rupiah(p.sellPrice)}</div>`
+          : `<div class="hint" style="margin-top:6px;font-style:italic;">Belum ada harga jual</div>`;
+        const marginHtml = p.sellPrice != null
+          ? ` &middot; margin <b style="color:${p.margin >= 0 ? "#166534" : "var(--err)"}">${rupiah(p.margin)} (${p.marginPct.toFixed(1)}%)</b>`
+          : "";
         const img = p.image
           ? `<img src="${escapeHtml(p.image)}" style="width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
           : `<div style="width:56px;height:56px;border-radius:10px;background:var(--bg);flex-shrink:0;"></div>`;
@@ -12079,10 +12082,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
              <div style="display:flex;gap:12px;align-items:flex-start;min-width:0;">
                ${img}
                <div style="min-width:0;">
-                 <div style="font-weight:700;">${escapeHtml(p.name)}</div>
-                 ${p.code ? `<div class="hint" style="margin-top:2px;">Kode: <b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em;">${escapeHtml(p.code)}</b></div>` : ""}
-                 <div class="hint" style="margin-top:2px;">HPP: <b>${rupiah(p.hpp)}</b> (${p.materials.length} bahan + ${p.extraCosts.length} biaya lain)</div>
-                 ${marginHtml}
+                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                   <span style="font-weight:700;">${escapeHtml(p.name)}</span>
+                   ${p.code ? `<span style="font-family:ui-monospace,Menlo,monospace;font-size:.75rem;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:6px;background:var(--bg);color:var(--muted);">${escapeHtml(p.code)}</span>` : ""}
+                 </div>
+                 ${priceHtml}
+                 <div class="hint" style="margin-top:4px;">HPP <b>${rupiah(p.hpp)}</b>${marginHtml} <span style="opacity:.8;white-space:nowrap;">(${p.materials.length} bahan + ${p.extraCosts.length} biaya lain)</span></div>
                  <div class="hint" style="margin-top:2px;">Stok: <b>${p.stockQty}</b> &middot; Terjual: <b>${p.soldQty}</b> &middot; Untung: <b style="color:${p.profit >= 0 ? "#166534" : "var(--err)"}">${rupiah(p.profit)}</b></div>
                </div>
              </div>
