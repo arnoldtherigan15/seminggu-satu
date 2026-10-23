@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0046ff" data-light="#0046ff" data-dark="#0d1526">
+    <script src="../theme.js"></script>
+    <title>Kolaborasi dengan Seminggu Satu</title>
+    <meta name="description" content="Portofolio event journaling Seminggu Satu + skema kolaborasi buat cafe, venue, komunitas, dan organisasi.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script async src="https://www.instagram.com/embed.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        :root {
+            --blue: #0046ff;
+            --blue-2: #0092ff;
+            --yellow: #ffe600;
+            --ink: #10245e;
+            --bg: #f4f7ff;
+            --card: #ffffff;
+            --line: #e4e9f5;
+            --muted: #6b7794;
+        }
+        :root[data-theme="dark"] { --ink: #eaeffc; --bg: #0d1526; --card: #172035; --line: #2a3550; --muted: #9fabc9; }
+
+        body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+        .wrap { max-width: 920px; margin: 0 auto; padding: 0 1.1rem 5rem; }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; font-weight: 800; }
+        a { color: inherit; }
+
+        /* ---- Hero ---- */
+        .hero {
+            background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%);
+            color: #fff;
+            padding: 2.4rem 1.1rem 3rem;
+            border-radius: 0 0 28px 28px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2.2rem;
+            text-align: center;
+        }
+        .hero::before, .hero::after {
+            content: ""; position: absolute; border-radius: 50%; filter: blur(40px);
+            background: rgba(255,255,255,.18);
+        }
+        .hero::before { width: 220px; height: 220px; top: -80px; right: -60px; }
+        .hero::after { width: 160px; height: 160px; bottom: -60px; left: -40px; background: rgba(255,230,0,.18); }
+        .hero-inner { position: relative; max-width: 640px; margin: 0 auto; }
+        .hero-logo { width: 56px; height: 56px; margin: 0 auto 1rem; display: block; }
+        .hero-eyebrow { font-size: 0.78rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--yellow); margin-bottom: 0.7rem; }
+        .hero h1 { font-size: 1.9rem; line-height: 1.2; margin-bottom: 0.8rem; }
+        .hero p.lead { font-size: 1rem; opacity: 0.92; line-height: 1.55; margin-bottom: 1.6rem; }
+        .hero-stats { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.8rem; }
+        .hero-stat { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 0.45rem 0.95rem; font-size: 0.82rem; font-weight: 700; backdrop-filter: blur(4px); }
+
+        .btn-wa {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: #25D366; color: #fff; font-weight: 800; font-family: 'Open Sans', sans-serif;
+            padding: 0.95rem 1.6rem; border-radius: 14px; border: none; cursor: pointer; font-size: 1rem;
+            text-decoration: none; box-shadow: 0 10px 24px rgba(0,0,0,.18);
+            transition: transform .15s;
+        }
+        .btn-wa:active { transform: scale(0.97); }
+
+        /* ---- Sections ---- */
+        section { margin-bottom: 2.6rem; }
+        .section-head { text-align: center; margin-bottom: 1.4rem; }
+        .section-eyebrow { font-size: 0.75rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 0.4rem; }
+        .section-head h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .section-head p { color: var(--muted); font-size: 0.92rem; max-width: 560px; margin: 0 auto; line-height: 1.55; }
+
+        .card {
+            background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+            padding: 1.3rem; box-shadow: 0 8px 20px rgba(0,30,120,.06);
+        }
+
+        /* ---- About ---- */
+        .about-card { padding: 1.6rem 1.4rem; }
+        .about-card p { color: var(--ink); line-height: 1.7; font-size: 0.97rem; }
+        .about-card p + p { margin-top: 0.8rem; }
+
+        /* ---- Portfolio grid ---- */
+        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.9rem; }
+        .event-card { display: flex; flex-direction: column; gap: 0.55rem; }
+        .event-emoji { font-size: 1.6rem; }
+        .event-card h3 { font-size: 1.02rem; }
+        .event-card p { color: var(--muted); font-size: 0.86rem; line-height: 1.5; flex: 1; }
+        .event-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.3rem; }
+        .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; }
+        .tag-audience { background: #e9eefb; color: var(--blue); }
+        .tag-status { background: #fef9c3; color: #854d0e; }
+
+        /* ---- Gallery ---- */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+        .gallery-item { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: var(--card); }
+        .gallery-item iframe, .gallery-item blockquote { width: 100% !important; margin: 0 !important; }
+        .gallery-cta { text-align: center; margin-top: 1.2rem; }
+        .gallery-cta a { color: var(--blue); font-weight: 700; text-decoration: none; font-size: 0.92rem; }
+
+        /* ---- Collab schemes ---- */
+        .scheme-card { position: relative; padding: 1.5rem 1.4rem; border-top: 4px solid var(--blue); }
+        .scheme-card.b { border-top-color: #00b894; }
+        .scheme-card.c { border-top-color: #825ee4; }
+        .scheme-badge { display: inline-block; font-size: 0.7rem; font-weight: 800; padding: 4px 11px; border-radius: 999px; background: #e9eefb; color: var(--blue); margin-bottom: 0.7rem; }
+        .scheme-card.b .scheme-badge { background: #e5f9f0; color: #00875a; }
+        .scheme-card.c .scheme-badge { background: #efe8fd; color: #6c3ce0; }
+        .scheme-card h3 { font-size: 1.12rem; margin-bottom: 0.5rem; }
+        .scheme-card .scheme-sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5; }
+        .scheme-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; }
+        .scheme-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; line-height: 1.5; }
+        .scheme-list li svg { flex-shrink: 0; margin-top: 2px; color: var(--blue); }
+        .scheme-card.b .scheme-list li svg { color: #00875a; }
+        .scheme-card.c .scheme-list li svg { color: #6c3ce0; }
+        .scheme-math {
+            background: var(--bg); border: 1.5px dashed var(--line); border-radius: 12px;
+            padding: 0.9rem 1rem; font-size: 0.86rem; line-height: 1.7; margin-bottom: 0.9rem;
+        }
+        .scheme-math b { font-family: 'Outfit', sans-serif; }
+        .scheme-total { display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem; margin-top: 0.4rem; border-top: 1px solid var(--line); }
+        .scheme-total b { font-size: 1.15rem; color: var(--blue); }
+        .scheme-note { font-size: 0.78rem; color: var(--muted); font-style: italic; }
+
+        /* ---- Footer CTA ---- */
+        .footer-cta {
+            background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%);
+            color: #fff; border-radius: 22px; padding: 2.2rem 1.4rem; text-align: center;
+            box-shadow: 0 18px 45px rgba(0,60,200,.28);
+        }
+        .footer-cta h2 { color: #fff; font-size: 1.35rem; margin-bottom: 0.6rem; }
+        .footer-cta p { opacity: 0.92; font-size: 0.92rem; margin-bottom: 1.4rem; line-height: 1.55; }
+        .footer-ig { margin-top: 1rem; font-size: 0.85rem; opacity: 0.85; }
+        .footer-ig a { text-decoration: none; font-weight: 700; color: #fff; }
+
+        .page-footer { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 2.5rem; }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 1.55rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero">
+        <div class="hero-inner">
+            <img src="../logo_seminggu.png" alt="Seminggu Satu" class="hero-logo">
+            <div class="hero-eyebrow">Seminggu Satu × Kamu</div>
+            <h1>Yuk Kolaborasi Bikin Event Journaling Bareng</h1>
+            <p class="lead">Seminggu Satu itu komunitas sekaligus penyelenggara workshop journaling kreatif di Jakarta. Dari cafe, coworking space, sampai toko buku &amp; organisasi — ini portofolio kita + skema kolaborasi yang bisa langsung kita diskusiin.</p>
+            <div class="hero-stats">
+                <span class="hero-stat">📝 Reka Rekat udah Vol. 6+</span>
+                <span class="hero-stat">🎨 7 jenis workshop journaling</span>
+                <span class="hero-stat">📍 Kolaborasi di Jakarta</span>
+            </div>
+            <a class="btn-wa" href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20aku%20mau%20diskusi%20kolaborasi%20event%20journaling%20buat%20tempat%2Forganisasi%20kami." target="_blank" rel="noopener">
+                <i data-lucide="message-circle"></i> Chat Arnold buat Diskusi
+            </a>
+        </div>
+    </div>
+
+    <div class="wrap">
+
+        <section>
+            <div class="card about-card">
+                <p><b>Seminggu Satu</b> adalah komunitas &amp; penyelenggara event journaling kreatif. Kita percaya journaling bisa jadi momen buat <i>connect</i> — sama diri sendiri, sama orang terdekat, atau sama orang baru yang punya minat yang sama.</p>
+                <p>Dari sesi santai berdua pasangan/teman sampai journaling bareng orang tua &amp; anak — tiap event didesain biar pesertanya nggak cuma pulang bawa karya, tapi juga cerita. Event rutin jalan dan udah beberapa kali kolaborasi bareng cafe &amp; venue di Jakarta.</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-head">
+                <div class="section-eyebrow">Portofolio</div>
+                <h2>Jenis-Jenis Workshop</h2>
+                <p>Semua workshop pakai konsep "journaling kit" — peserta nggak perlu bawa alat apa-apa, tinggal datang &amp; berkarya.</p>
+            </div>
+            <div class="portfolio-grid">
+                <div class="card event-card">
+                    <div class="event-emoji">📝</div>
+                    <h3>Reka Rekat (Journaling Date)</h3>
+                    <p>Creative date, sesi journaling bareng. Tiap sesi ada tema &amp; challenge visual yang beda-beda jadi nggak monoton.</p>
+                    <div class="event-tags"><span class="tag tag-audience">Dewasa, umum</span><span class="tag tag-status">Sudah Vol. 6+</span></div>
+                </div>
+                <div class="card event-card">
+                    <div class="event-emoji">👨‍👩‍👧</div>
+                    <h3>Side by Side</h3>
+                    <p>Parent &amp; Kid Journal Playdate — journaling bareng si kecil, abadikan momen berdua langsung di halaman jurnal.</p>
+                    <div class="event-tags"><span class="tag tag-audience">Orang tua &amp; anak</span></div>
+                </div>
+                <div class="card event-card">
+                    <div class="event-emoji">♻️</div>
+                    <h3>Upcycle Bag Journal</h3>
+                    <p>Ubah shopping bag bekas (spunbond bag) favorit jadi cover jurnal yang estetik.</p>
+                    <div class="event-tags"><span class="tag tag-audience">Dewasa, umum</span></div>
+                </div>
+                <div class="card event-card">
+                    <div class="event-emoji">🤍</div>
+                    <h3>Upcycle Journal — Private Session</h3>
+                    <p>Versi private &amp; intimate dari Upcycle Journal, maksimal 3 orang per sesi. Cocok buat yang mau santai bareng teman dekat.</p>
+                    <div class="event-tags"><span class="tag tag-audience">Grup kecil / privat</span></div>
+                </div>
+                <div class="card event-card">
+                    <div class="event-emoji">📄</div>
+                    <h3>Paper Journal</h3>
+                    <p>Journal custom dari kertas spesial, pilih kombinasi warna favorit sendiri.</p>
+                    <div class="event-tags"><span class="tag tag-audience">Dewasa, umum</span></div>
+                </div>
+                <div class="card event-card">
+                    <div class="event-emoji">🔖</div>
+                    <h3>Pull &amp; Pop (Bookmark Journal)</h3>
+                    <p>Bookmark interaktif dengan mekanisme pull &amp; pop, pilih pita &amp; rantai favorit sendiri.</p>
+                    <div class="event-tags"><span class="tag tag-audience">Semua umur</span></div>
+                </div>
+                <div class="card event-card">
+                    <div class="event-emoji">🖼️</div>
+                    <h3>3D Layered Journaling</h3>
+                    <p>Frame, Texture &amp; Motion — cara baru buat journaling langsung di dalam frame.</p>
+                    <div class="event-tags"><span class="tag tag-audience">Dewasa, suka craft</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-head">
+                <div class="section-eyebrow">Dokumentasi</div>
+                <h2>Galeri Event</h2>
+                <p>Cuplikan dari beberapa sesi yang udah berjalan.</p>
+            </div>
+            <div class="gallery-grid" id="galleryGrid">
+                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DZ2W-Kwpcrh/" data-instgrm-version="14"></blockquote></div>
+                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DapdB2kJuuc/" data-instgrm-version="14"></blockquote></div>
+                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DYcXKTjpWDk/" data-instgrm-version="14"></blockquote></div>
+                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DYmw3pOpsn2/" data-instgrm-version="14"></blockquote></div>
+                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DXjrCKQicfb/" data-instgrm-version="14"></blockquote></div>
+                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DWeM_G4khOM/" data-instgrm-version="14"></blockquote></div>
+            </div>
+            <div class="gallery-cta"><a href="https://www.instagram.com/seminggu_satu" target="_blank" rel="noopener">Lihat dokumentasi lengkap di Instagram @seminggu_satu →</a></div>
+        </section>
+
+        <section>
+            <div class="section-head">
+                <div class="section-eyebrow">Kolaborasi</div>
+                <h2>Skema Kolaborasi</h2>
+                <p>Ada 3 skema yang bisa dipilih sesuai jenis kolaborasinya — semua masih bisa didiskusikan lagi sesuai kebutuhan.</p>
+            </div>
+
+            <div class="card scheme-card a" style="margin-bottom:1rem;">
+                <span class="scheme-badge">Skema A · Buat Cafe / Venue</span>
+                <h3>Kolaborasi Venue</h3>
+                <p class="scheme-sub">Event dilangsungkan di tempat kamu — durasi sesi 90–150 menit, plus 1 jam sebelum &amp; sesudah buat load/unload barang.</p>
+                <ul class="scheme-list">
+                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2 1a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm0 1h2v2H2zm7-1a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm0 1h2v2H9zm-7 6a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1zm0 1h2v2H2z"/></svg><span>Harga tiket peserta Rp185.000/orang (all-in journaling kit).</span></li>
+                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8"/></svg><span>Seminggu Satu beli voucher F&amp;B dari venue, <b>Rp50.000 × 12 peserta = Rp600.000 bersih</b> langsung dibayar ke venue (bukan dipotong dari peserta).</span></li>
+                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="m8 15 7-7-7-7-1 1 5.5 5.5H1v1h12.5L7 14z"/></svg><span>Venue dapat <b>1× post collaboration</b> sebelum event, <b>1× reels collaboration</b> setelah event, dan <b>Instagram story</b> di hari-H.</span></li>
+                </ul>
+                <p class="scheme-note">Open for discussion — jumlah peserta &amp; nominal masih bisa disesuaikan dengan venue.</p>
+            </div>
+
+            <div class="card scheme-card b" style="margin-bottom:1rem;">
+                <span class="scheme-badge">Skema B · Buat Event / Toko Buku / Organisasi</span>
+                <h3>Revenue Share</h3>
+                <p class="scheme-sub">Cocok buat kolaborasi non-venue — ikut acara yang udah ada, kolaborasi sama toko buku, atau organisasi/komunitas lain.</p>
+                <ul class="scheme-list">
+                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 11H2v3h2zm5-4H7v7h2zm5-5v12h-2V2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm-5 6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-5 4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/></svg><span>Seminggu Satu dapat <b>20% dari revenue</b> acara.</span></li>
+                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h11A1.5 1.5 0 0 1 14 3.5v8.75a.75.75 0 0 1-1.5.75H1.5A1.5 1.5 0 0 1 0 11.25z"/></svg><span>Fee transport dihitung <b>terpisah</b>, di luar bagi hasil.</span></li>
+                </ul>
+            </div>
+
+            <div class="card scheme-card c">
+                <span class="scheme-badge">Skema C · Buat Audiens Lebih Besar</span>
+                <h3>Paket Per Jam</h3>
+                <p class="scheme-sub">Cocok buat company gathering, komunitas besar, atau acara dengan jumlah peserta yang lebih fleksibel.</p>
+                <div class="scheme-math">
+                    Rp1.250.000 <span style="color:var(--muted);">/ jam</span> + Rp20.000 <span style="color:var(--muted);">/ kit journaling per peserta</span>
+                    <div class="scheme-total"><span style="color:var(--muted);">Contoh: 2 jam, 20 peserta</span><b>Rp2.900.000</b></div>
+                </div>
+                <p class="scheme-note">(2 × Rp1.250.000) + (20 × Rp20.000) = Rp2.500.000 + Rp400.000 = Rp2.900.000. Durasi &amp; jumlah peserta menyesuaikan kebutuhan kamu.</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="footer-cta">
+                <h2>Cocok yang Mana?</h2>
+                <p>Masih ada pertanyaan atau mau diskusi skema yang pas buat kalian? Chat langsung aja, open for discussion kok 💙</p>
+                <a class="btn-wa" href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20aku%20mau%20diskusi%20kolaborasi%20event%20journaling%20buat%20tempat%2Forganisasi%20kami." target="_blank" rel="noopener" style="background:#fff;color:var(--blue);">
+                    <i data-lucide="message-circle"></i> Chat via WhatsApp
+                </a>
+                <div class="footer-ig">Instagram <a href="https://www.instagram.com/seminggu_satu" target="_blank" rel="noopener">@seminggu_satu</a></div>
+            </div>
+        </section>
+
+        <div class="page-footer">Seminggu Satu · Dibuat buat kebutuhan diskusi kolaborasi</div>
+    </div>
+
+    <script>
+        if (window.lucide) lucide.createIcons();
+
+        // Instagram embed.js dimuat async -- proses ulang beberapa kali kalau
+        // belum siap pas DOM-nya udah ada (sama pola kayak index.html).
+        let igTries = 0;
+        const igInterval = setInterval(() => {
+            igTries++;
+            if (window.instgrm && window.instgrm.Embeds) {
+                window.instgrm.Embeds.process();
+                clearInterval(igInterval);
+            }
+            if (igTries > 20) clearInterval(igInterval);
+        }, 300);
+    </script>
+</body>
+
+</html>
