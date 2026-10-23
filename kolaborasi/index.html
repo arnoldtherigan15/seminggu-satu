@@ -204,7 +204,7 @@
             .mobile-slider-hint { display: block; }
             .events-grid {
                 display: flex !important;
-                gap: 1.25rem;
+                gap: 1rem;
                 overflow-x: auto;
                 scroll-snap-type: x mandatory;
                 -webkit-overflow-scrolling: touch;
@@ -214,8 +214,46 @@
             .events-grid::-webkit-scrollbar { display: none; }
             .events-grid { -ms-overflow-style: none; scrollbar-width: none; }
             .events-grid .event-card {
-                flex: 0 0 85%;
-                max-width: 320px;
+                flex: 0 0 78%;
+                max-width: 280px;
+                scroll-snap-align: start;
+            }
+
+            /* Skema Kolaborasi -- sama kayak katalog workshop, slider di
+               mobile, grid biasa (lg:grid-cols-3) di desktop. */
+            .scheme-grid {
+                display: flex !important;
+                gap: 1rem;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                padding: 0.25rem 0.25rem 1rem;
+                margin: 0 -0.25rem;
+            }
+            .scheme-grid::-webkit-scrollbar { display: none; }
+            .scheme-grid { -ms-overflow-style: none; scrollbar-width: none; }
+            .scheme-grid > div {
+                flex: 0 0 82%;
+                max-width: 300px;
+                scroll-snap-align: start;
+            }
+
+            /* Value props (Footfall/Revenue/Exposure/Full Package) -- sama,
+               slider di mobile aja. */
+            .value-props-grid {
+                display: flex !important;
+                gap: 1rem;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                padding: 0.25rem 0.25rem 1rem;
+                margin: 0 -0.25rem;
+            }
+            .value-props-grid::-webkit-scrollbar { display: none; }
+            .value-props-grid { -ms-overflow-style: none; scrollbar-width: none; }
+            .value-props-grid > div {
+                flex: 0 0 78%;
+                max-width: 270px;
                 scroll-snap-align: start;
             }
         }
@@ -258,6 +296,11 @@
             section, .glass-card, .print-flatten, .print-flatten-hero { break-inside: avoid; page-break-inside: avoid; }
             .events-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; overflow: visible !important; }
             .events-grid .event-card { flex: none !important; max-width: none !important; }
+            .scheme-grid { display: block !important; overflow: visible !important; }
+            .scheme-grid > div { flex: none !important; max-width: none !important; margin-bottom: 1rem !important; }
+            .value-props-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; overflow: visible !important; }
+            .value-props-grid > div { flex: none !important; max-width: none !important; }
+            .photo-slider { flex-wrap: wrap !important; overflow: visible !important; }
             .mobile-slider-hint { display: none !important; }
         }
     </style>
@@ -360,7 +403,9 @@
             </div>
 
             <!-- Value Props Grid for Partners -->
-            <div class="md:col-span-7 grid sm:grid-cols-2 gap-4">
+            <div class="md:col-span-7 flex flex-col">
+                <p class="mobile-slider-hint">&larr; Geser buat lihat semua keuntungan &rarr;</p>
+                <div class="value-props-grid grid sm:grid-cols-2 gap-4">
                 <div
                     class="print-flatten reveal-init delay-100 bg-slate-800/80 border border-slate-700/60 rounded-3xl p-6 text-white flex flex-col justify-between card-interactive">
                     <div>
@@ -407,9 +452,32 @@
                             class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4">
                             <i data-lucide="sparkles" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="font-outfit text-lg font-bold mb-2">Nol Repot Operasional</h3>
+                        <h3 class="font-outfit text-lg font-bold mb-2">Full Package</h3>
                         <p class="text-slate-300 text-xs leading-relaxed">Semua kebutuhan alat craft, fasilitator,
                             materi workshop, hingga pendaftaran peserta ditangani penuh oleh tim Seminggu Satu.</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Real community photos -->
+            <div class="md:col-span-12 reveal-init delay-100">
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-3">Momen Asli dari Event Kami</p>
+                <div class="photo-slider flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1 snap-x">
+                    <div class="snap-start shrink-0 w-56 sm:w-64 aspect-[4/3] rounded-2xl overflow-hidden border border-slate-700/60">
+                        <img src="photos/IMG_5025.jpg" alt="Peserta Reka Rekat menunjukkan hasil journaling mereka" class="w-full h-full object-cover">
+                    </div>
+                    <div class="snap-start shrink-0 w-56 sm:w-64 aspect-[4/3] rounded-2xl overflow-hidden border border-slate-700/60">
+                        <img src="photos/IMG_5504.jpg" alt="Workshop journaling bareng komunitas di The Matcha Tokyo" class="w-full h-full object-cover">
+                    </div>
+                    <div class="snap-start shrink-0 w-56 sm:w-64 aspect-[4/3] rounded-2xl overflow-hidden border border-slate-700/60">
+                        <img src="photos/IMG_5508.jpg" alt="Sesi journaling santai bareng peserta Seminggu Satu" class="w-full h-full object-cover object-[center_70%]">
+                    </div>
+                    <div class="snap-start shrink-0 w-56 sm:w-64 aspect-[4/3] rounded-2xl overflow-hidden border border-slate-700/60">
+                        <img src="photos/IMG_6345.jpg" alt="Komunitas Seminggu Satu berkumpul sambil journaling" class="w-full h-full object-cover">
+                    </div>
+                    <div class="snap-start shrink-0 w-56 sm:w-64 aspect-[4/3] rounded-2xl overflow-hidden border border-slate-700/60">
+                        <img src="photos/IMG_7492.jpg" alt="Event Reka Rekat di mall bareng peserta" class="w-full h-full object-cover object-[center_78%]">
                     </div>
                 </div>
             </div>
@@ -552,8 +620,9 @@
                 <p class="text-slate-400 text-sm mt-2">Pilih skema yang paling cocok dengan model bisnis venue, acara,
                     atau event gathering Anda.</p>
             </div>
+            <p class="mobile-slider-hint">&larr; Geser buat lihat semua skema &rarr;</p>
 
-            <div class="grid lg:grid-cols-3 gap-6 items-stretch">
+            <div class="scheme-grid grid lg:grid-cols-3 gap-6 items-stretch">
 
                 <!-- SCHEME A: CAFE & VENUE -->
                 <div
