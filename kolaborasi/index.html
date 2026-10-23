@@ -56,12 +56,15 @@
         .hero::before { width: 220px; height: 220px; top: -80px; right: -60px; }
         .hero::after { width: 160px; height: 160px; bottom: -60px; left: -40px; background: rgba(255,230,0,.18); }
         .hero-inner { position: relative; max-width: 640px; margin: 0 auto; }
-        .hero-logo { width: 56px; height: 56px; margin: 0 auto 1rem; display: block; }
+        .hero-logo { width: 120px; height: 120px; object-fit: contain; margin: 0 auto 0.4rem; display: block; }
         .hero-eyebrow { font-size: 0.78rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--yellow); margin-bottom: 0.7rem; }
         .hero h1 { font-size: 1.9rem; line-height: 1.2; margin-bottom: 0.8rem; }
         .hero p.lead { font-size: 1rem; opacity: 0.92; line-height: 1.55; margin-bottom: 1.6rem; }
         .hero-stats { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.8rem; }
-        .hero-stat { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 0.45rem 0.95rem; font-size: 0.82rem; font-weight: 700; backdrop-filter: blur(4px); }
+        .hero-stat { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 0.45rem 0.95rem; font-size: 0.82rem; font-weight: 700; backdrop-filter: blur(4px); }
+        .hero-stat svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+        .hero-actions { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
 
         .btn-wa {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -71,6 +74,14 @@
             transition: transform .15s;
         }
         .btn-wa:active { transform: scale(0.97); }
+
+        .btn-pdf {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: rgba(255,255,255,.16); color: #fff; font-weight: 800; font-family: 'Open Sans', sans-serif;
+            padding: 0.95rem 1.4rem; border-radius: 14px; border: 1.5px solid rgba(255,255,255,.5); cursor: pointer; font-size: 1rem;
+            transition: transform .15s;
+        }
+        .btn-pdf:active { transform: scale(0.97); }
 
         /* ---- Sections ---- */
         section { margin-bottom: 2.6rem; }
@@ -92,7 +103,8 @@
         /* ---- Portfolio grid ---- */
         .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.9rem; }
         .event-card { display: flex; flex-direction: column; gap: 0.55rem; }
-        .event-emoji { font-size: 1.6rem; }
+        .event-icon { width: 40px; height: 40px; border-radius: 12px; background: #e9eefb; color: var(--blue); display: flex; align-items: center; justify-content: center; }
+        .event-icon svg { width: 20px; height: 20px; }
         .event-card h3 { font-size: 1.02rem; }
         .event-card p { color: var(--muted); font-size: 0.86rem; line-height: 1.5; flex: 1; }
         .event-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.3rem; }
@@ -100,10 +112,50 @@
         .tag-audience { background: #e9eefb; color: var(--blue); }
         .tag-status { background: #fef9c3; color: #854d0e; }
 
+        /* ---- Scheme cards wrapper (block-stacked on desktop, slider on mobile) ---- */
+        .scheme-slider { display: block; }
+        .scheme-slider .scheme-card { margin-bottom: 1rem; }
+        .scheme-slider .scheme-card:last-child { margin-bottom: 0; }
+
+        .mobile-slider-hint { display: none; text-align: center; color: var(--muted); font-size: 0.8rem; margin-bottom: 0.8rem; }
+
+        /* ---- Mobile: long vertical stacks become horizontal scroll-snap sliders ---- */
+        @media (max-width: 680px) {
+            .mobile-slider-hint { display: block; }
+            .portfolio-grid {
+                display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch; padding: 0.2rem 0.2rem 0.8rem; margin: 0 -0.2rem;
+            }
+            .portfolio-grid::-webkit-scrollbar { height: 6px; }
+            .portfolio-grid::-webkit-scrollbar-track { background: transparent; }
+            .portfolio-grid::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+            .portfolio-grid .event-card { flex: 0 0 82%; max-width: 320px; scroll-snap-align: start; }
+
+            .scheme-slider {
+                display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch; padding: 0.2rem 0.2rem 0.8rem; margin: 0 -0.2rem;
+            }
+            .scheme-slider::-webkit-scrollbar { height: 6px; }
+            .scheme-slider::-webkit-scrollbar-track { background: transparent; }
+            .scheme-slider::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+            .scheme-slider .scheme-card { flex: 0 0 86%; max-width: 340px; scroll-snap-align: start; margin-bottom: 0; }
+        }
+
         /* ---- Gallery ---- */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
-        .gallery-item { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: var(--card); }
+        .gallery-slider {
+            display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch; padding: 0.2rem 0.2rem 0.8rem; margin: 0 -0.2rem;
+        }
+        .gallery-slider::-webkit-scrollbar { height: 6px; }
+        .gallery-slider::-webkit-scrollbar-track { background: transparent; }
+        .gallery-slider::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+        .gallery-item {
+            flex: 0 0 82%; max-width: 320px; scroll-snap-align: start;
+            border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: var(--card);
+        }
         .gallery-item iframe, .gallery-item blockquote { width: 100% !important; margin: 0 !important; }
+        .gallery-hint { text-align: center; color: var(--muted); font-size: 0.8rem; margin-bottom: 0.8rem; }
+        @media (min-width: 540px) { .gallery-item { flex-basis: 300px; } }
         .gallery-cta { text-align: center; margin-top: 1.2rem; }
         .gallery-cta a { color: var(--blue); font-weight: 700; text-decoration: none; font-size: 0.92rem; }
 
@@ -146,24 +198,53 @@
         @media (max-width: 480px) {
             .hero h1 { font-size: 1.55rem; }
         }
+
+        .print-only { display: none; }
+
+        /* ---- Print / "Download PDF" (window.print, no server needed) ---- */
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+            :root {
+                --ink: #10245e !important; --bg: #f4f7ff !important; --card: #ffffff !important;
+                --line: #e4e9f5 !important; --muted: #6b7794 !important;
+            }
+            body { background: var(--bg) !important; color: var(--ink) !important; }
+            #ssThemeFab, .btn-pdf, .gallery-hint, .gallery-slider, .mobile-slider-hint { display: none !important; }
+            .print-only { display: block !important; }
+            .hero { border-radius: 0; margin-bottom: 1.4rem; }
+            .wrap { max-width: 100%; padding: 0 0.6rem 1rem; }
+            section { margin-bottom: 1.3rem; }
+            .card, .scheme-card, .footer-cta, .event-card { box-shadow: none !important; break-inside: avoid; page-break-inside: avoid; }
+            /* slider -> grid/block biasa pas print, scroll horizontal nggak kepake di kertas */
+            .portfolio-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 0.6rem; overflow: visible !important; }
+            .portfolio-grid .event-card { flex: none !important; max-width: none !important; }
+            .scheme-slider { display: block !important; overflow: visible !important; }
+            .scheme-slider .scheme-card { flex: none !important; max-width: none !important; margin-bottom: 1rem !important; }
+            a[href]:after { content: ""; }
+        }
     </style>
 </head>
 
 <body>
     <div class="hero">
         <div class="hero-inner">
-            <img src="../logo_seminggu.png" alt="Seminggu Satu" class="hero-logo">
+            <img src="../images/white.png" alt="Seminggu Satu" class="hero-logo">
             <div class="hero-eyebrow">Seminggu Satu × Kamu</div>
             <h1>Yuk Kolaborasi Bikin Event Journaling Bareng</h1>
-            <p class="lead">Seminggu Satu itu komunitas sekaligus penyelenggara workshop journaling kreatif di Jakarta. Dari cafe, coworking space, sampai toko buku &amp; organisasi — ini portofolio kita + skema kolaborasi yang bisa langsung kita diskusiin.</p>
+            <p class="lead">Seminggu Satu itu komunitas sekaligus penyelenggara workshop journaling kreatif di Jakarta. Dari cafe, coworking space, sampai event &amp; organisasi — ini portofolio kita + skema kolaborasi yang bisa langsung kita diskusiin.</p>
             <div class="hero-stats">
-                <span class="hero-stat">📝 Reka Rekat udah Vol. 6+</span>
-                <span class="hero-stat">🎨 7 jenis workshop journaling</span>
-                <span class="hero-stat">📍 Kolaborasi di Jakarta</span>
+                <span class="hero-stat"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/></svg> Reka Rekat udah Vol. 6+</span>
+                <span class="hero-stat"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="m8.235 1.559 7.825 4.605a.5.5 0 0 1 0 .861L8.235 11.63a.5.5 0 0 1-.47 0L.235 7.025a.5.5 0 0 1 0-.861L7.764 1.56a.5.5 0 0 1 .47 0zM2.78 6.596 8 9.724l5.22-3.128L8 3.468z"/><path d="m.233 8.794 1.465-.879 6.302 3.785 6.302-3.785 1.465.879-7.767 4.667a.5.5 0 0 1-.47 0z"/><path d="m.233 11.794 1.465-.879 6.302 3.785 6.302-3.785 1.465.879-7.767 4.667a.5.5 0 0 1-.47 0z"/></svg> 5 jenis workshop journaling</span>
+                <span class="hero-stat"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/></svg> Kolaborasi di Jakarta</span>
             </div>
-            <a class="btn-wa" href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20aku%20mau%20diskusi%20kolaborasi%20event%20journaling%20buat%20tempat%2Forganisasi%20kami." target="_blank" rel="noopener">
-                <i data-lucide="message-circle"></i> Chat Arnold buat Diskusi
-            </a>
+            <div class="hero-actions">
+                <a class="btn-wa" href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20aku%20mau%20diskusi%20kolaborasi%20event%20journaling%20buat%20tempat%2Forganisasi%20kami." target="_blank" rel="noopener">
+                    <i data-lucide="message-circle"></i> Chat Arnold buat Diskusi
+                </a>
+                <button class="btn-pdf" type="button" id="downloadPdfBtn">
+                    <i data-lucide="download"></i> Download PDF
+                </button>
+            </div>
         </div>
     </div>
 
@@ -182,45 +263,34 @@
                 <h2>Jenis-Jenis Workshop</h2>
                 <p>Semua workshop pakai konsep "journaling kit" — peserta nggak perlu bawa alat apa-apa, tinggal datang &amp; berkarya.</p>
             </div>
+            <p class="mobile-slider-hint">← Geser buat lihat semua jenis →</p>
             <div class="portfolio-grid">
                 <div class="card event-card">
-                    <div class="event-emoji">📝</div>
+                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/></svg></div>
                     <h3>Reka Rekat (Journaling Date)</h3>
                     <p>Creative date, sesi journaling bareng. Tiap sesi ada tema &amp; challenge visual yang beda-beda jadi nggak monoton.</p>
                     <div class="event-tags"><span class="tag tag-audience">Dewasa, umum</span><span class="tag tag-status">Sudah Vol. 6+</span></div>
                 </div>
                 <div class="card event-card">
-                    <div class="event-emoji">👨‍👩‍👧</div>
+                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg></div>
                     <h3>Side by Side</h3>
                     <p>Parent &amp; Kid Journal Playdate — journaling bareng si kecil, abadikan momen berdua langsung di halaman jurnal.</p>
                     <div class="event-tags"><span class="tag tag-audience">Orang tua &amp; anak</span></div>
                 </div>
                 <div class="card event-card">
-                    <div class="event-emoji">♻️</div>
-                    <h3>Upcycle Bag Journal</h3>
-                    <p>Ubah shopping bag bekas (spunbond bag) favorit jadi cover jurnal yang estetik.</p>
-                    <div class="event-tags"><span class="tag tag-audience">Dewasa, umum</span></div>
-                </div>
-                <div class="card event-card">
-                    <div class="event-emoji">🤍</div>
+                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg></div>
                     <h3>Upcycle Journal — Private Session</h3>
                     <p>Versi private &amp; intimate dari Upcycle Journal, maksimal 3 orang per sesi. Cocok buat yang mau santai bareng teman dekat.</p>
                     <div class="event-tags"><span class="tag tag-audience">Grup kecil / privat</span></div>
                 </div>
                 <div class="card event-card">
-                    <div class="event-emoji">📄</div>
-                    <h3>Paper Journal</h3>
-                    <p>Journal custom dari kertas spesial, pilih kombinasi warna favorit sendiri.</p>
-                    <div class="event-tags"><span class="tag tag-audience">Dewasa, umum</span></div>
-                </div>
-                <div class="card event-card">
-                    <div class="event-emoji">🔖</div>
+                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2"/></svg></div>
                     <h3>Pull &amp; Pop (Bookmark Journal)</h3>
                     <p>Bookmark interaktif dengan mekanisme pull &amp; pop, pilih pita &amp; rantai favorit sendiri.</p>
                     <div class="event-tags"><span class="tag tag-audience">Semua umur</span></div>
                 </div>
                 <div class="card event-card">
-                    <div class="event-emoji">🖼️</div>
+                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm10 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/></svg></div>
                     <h3>3D Layered Journaling</h3>
                     <p>Frame, Texture &amp; Motion — cara baru buat journaling langsung di dalam frame.</p>
                     <div class="event-tags"><span class="tag tag-audience">Dewasa, suka craft</span></div>
@@ -234,7 +304,8 @@
                 <h2>Galeri Event</h2>
                 <p>Cuplikan dari beberapa sesi yang udah berjalan.</p>
             </div>
-            <div class="gallery-grid" id="galleryGrid">
+            <p class="gallery-hint">← Geser buat lihat lebih banyak →</p>
+            <div class="gallery-slider" id="galleryGrid">
                 <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DZ2W-Kwpcrh/" data-instgrm-version="14"></blockquote></div>
                 <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DapdB2kJuuc/" data-instgrm-version="14"></blockquote></div>
                 <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DYcXKTjpWDk/" data-instgrm-version="14"></blockquote></div>
@@ -243,6 +314,7 @@
                 <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DWeM_G4khOM/" data-instgrm-version="14"></blockquote></div>
             </div>
             <div class="gallery-cta"><a href="https://www.instagram.com/seminggu_satu" target="_blank" rel="noopener">Lihat dokumentasi lengkap di Instagram @seminggu_satu →</a></div>
+            <p class="print-only" style="text-align:center;color:var(--muted);font-size:0.85rem;">Dokumentasi foto &amp; video lengkap ada di Instagram <b>@seminggu_satu</b> (instagram.com/seminggu_satu)</p>
         </section>
 
         <section>
@@ -251,8 +323,9 @@
                 <h2>Skema Kolaborasi</h2>
                 <p>Ada 3 skema yang bisa dipilih sesuai jenis kolaborasinya — semua masih bisa didiskusikan lagi sesuai kebutuhan.</p>
             </div>
-
-            <div class="card scheme-card a" style="margin-bottom:1rem;">
+            <p class="mobile-slider-hint">← Geser buat lihat semua skema →</p>
+            <div class="scheme-slider">
+            <div class="card scheme-card a">
                 <span class="scheme-badge">Skema A · Buat Cafe / Venue</span>
                 <h3>Kolaborasi Venue</h3>
                 <p class="scheme-sub">Event dilangsungkan di tempat kamu — durasi sesi 90–150 menit, plus 1 jam sebelum &amp; sesudah buat load/unload barang.</p>
@@ -264,12 +337,12 @@
                 <p class="scheme-note">Open for discussion — jumlah peserta &amp; nominal masih bisa disesuaikan dengan venue.</p>
             </div>
 
-            <div class="card scheme-card b" style="margin-bottom:1rem;">
-                <span class="scheme-badge">Skema B · Buat Event / Toko Buku / Organisasi</span>
+            <div class="card scheme-card b">
+                <span class="scheme-badge">Skema B · Buat Event / Organisasi</span>
                 <h3>Revenue Share</h3>
-                <p class="scheme-sub">Cocok buat kolaborasi non-venue — ikut acara yang udah ada, kolaborasi sama toko buku, atau organisasi/komunitas lain.</p>
+                <p class="scheme-sub">Cocok buat kolaborasi non-venue — ikut acara yang udah ada, atau kolaborasi sama organisasi/komunitas lain.</p>
                 <ul class="scheme-list">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 11H2v3h2zm5-4H7v7h2zm5-5v12h-2V2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm-5 6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-5 4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/></svg><span>Seminggu Satu dapat <b>20% dari revenue</b> acara.</span></li>
+                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 11H2v3h2zm5-4H7v7h2zm5-5v12h-2V2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm-5 6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-5 4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/></svg><span>Partner dapat <b>20% dari revenue</b> acara, Seminggu Satu <b>80%</b>.</span></li>
                     <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h11A1.5 1.5 0 0 1 14 3.5v8.75a.75.75 0 0 1-1.5.75H1.5A1.5 1.5 0 0 1 0 11.25z"/></svg><span>Fee transport dihitung <b>terpisah</b>, di luar bagi hasil.</span></li>
                 </ul>
             </div>
@@ -282,14 +355,15 @@
                     Rp1.250.000 <span style="color:var(--muted);">/ jam</span> + Rp20.000 <span style="color:var(--muted);">/ kit journaling per peserta</span>
                     <div class="scheme-total"><span style="color:var(--muted);">Contoh: 2 jam, 20 peserta</span><b>Rp2.900.000</b></div>
                 </div>
-                <p class="scheme-note">(2 × Rp1.250.000) + (20 × Rp20.000) = Rp2.500.000 + Rp400.000 = Rp2.900.000. Durasi &amp; jumlah peserta menyesuaikan kebutuhan kamu.</p>
+                <p class="scheme-note">(2 × Rp1.250.000) + (20 × Rp20.000) = Rp2.500.000 + Rp400.000 = Rp2.900.000. Belum termasuk fee transport (dihitung terpisah). Durasi &amp; jumlah peserta menyesuaikan kebutuhan kamu.</p>
+            </div>
             </div>
         </section>
 
         <section>
             <div class="footer-cta">
                 <h2>Cocok yang Mana?</h2>
-                <p>Masih ada pertanyaan atau mau diskusi skema yang pas buat kalian? Chat langsung aja, open for discussion kok 💙</p>
+                <p>Masih ada pertanyaan atau mau diskusi skema yang pas buat kalian? Chat langsung aja, open for discussion kok.</p>
                 <a class="btn-wa" href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20aku%20mau%20diskusi%20kolaborasi%20event%20journaling%20buat%20tempat%2Forganisasi%20kami." target="_blank" rel="noopener" style="background:#fff;color:var(--blue);">
                     <i data-lucide="message-circle"></i> Chat via WhatsApp
                 </a>
@@ -302,6 +376,13 @@
 
     <script>
         if (window.lucide) lucide.createIcons();
+
+        // "Download PDF" -- lewat print dialog browser (Save as PDF), bukan
+        // generate file di server. Stylesheet @media print di atas yang
+        // ngerapihin tampilannya (buang galeri Instagram yang nggak print
+        // dengan baik, paksa tema terang, dst).
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        if (downloadPdfBtn) downloadPdfBtn.addEventListener('click', () => window.print());
 
         // Instagram embed.js dimuat async -- proses ulang beberapa kali kalau
         // belum siap pas DOM-nya udah ada (sama pola kayak index.html).
