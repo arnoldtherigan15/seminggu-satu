@@ -1,391 +1,960 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0046ff" data-light="#0046ff" data-dark="#0d1526">
-    <script src="../theme.js"></script>
-    <title>Kolaborasi dengan Seminggu Satu</title>
-    <meta name="description" content="Portofolio event journaling Seminggu Satu + skema kolaborasi buat cafe, venue, komunitas, dan organisasi.">
-    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0046ff">
+    <title>Proposal Kolaborasi — Seminggu Satu</title>
+    <meta name="description"
+        content="Deck Proposal & Portofolio Kolaborasi Workshop Journaling Kreatif Seminggu Satu untuk Cafe, Venue, Komunitas, dan Corporate Gathering.">
 
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap"
         rel="stylesheet">
+
+    <!-- Lucide Icons & Tailwind CSS -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script async src="https://www.instagram.com/embed.js"></script>
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-
-        :root {
-            --blue: #0046ff;
-            --blue-2: #0092ff;
-            --yellow: #ffe600;
-            --ink: #10245e;
-            --bg: #f4f7ff;
-            --card: #ffffff;
-            --line: #e4e9f5;
-            --muted: #6b7794;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#0046ff',
+                            darkblue: '#0031b8',
+                            navy: '#0a192f',
+                            ink: '#10245e',
+                            yellow: '#ffe600',
+                            lightbg: '#f4f7ff',
+                            card: '#ffffff',
+                            line: '#e2e8f0',
+                            muted: '#64748b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        outfit: ['"Outfit"', 'sans-serif'],
+                    }
+                }
+            }
         }
-        :root[data-theme="dark"] { --ink: #eaeffc; --bg: #0d1526; --card: #172035; --line: #2a3550; --muted: #9fabc9; }
+    </script>
 
-        body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
-        .wrap { max-width: 920px; margin: 0 auto; padding: 0 1.1rem 5rem; }
-        h1, h2, h3 { font-family: 'Outfit', sans-serif; font-weight: 800; }
-        a { color: inherit; }
+    <style>
+        * {
+            -webkit-font-smoothing: antialiased;
+        }
 
-        /* ---- Hero ---- */
-        .hero {
-            background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%);
-            color: #fff;
-            padding: 2.4rem 1.1rem 3rem;
-            border-radius: 0 0 28px 28px;
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #080f1e;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism subtle effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        /* Hero Animated Gradient Background */
+        .hero-gradient {
+            background: linear-gradient(-45deg, #0a192f, #0031b8, #0055ff, #091a3a);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating Animation for Badges & Accents */
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .animate-pulse-slow {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(1.08);
+            }
+        }
+
+        /* Interactive Card Micro-interactions */
+        .card-interactive {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            will-change: transform, box-shadow;
+        }
+
+        .card-interactive:hover {
+            transform: translateY(-8px) scale(1.015);
+            box-shadow: 0 20px 35px -10px rgba(0, 70, 255, 0.25), 0 0 15px rgba(255, 230, 0, 0.15);
+            border-color: rgba(0, 70, 255, 0.4);
+        }
+
+        /* Shiny Button Effect */
+        .btn-shine {
             position: relative;
             overflow: hidden;
-            margin-bottom: 2.2rem;
-            text-align: center;
-        }
-        .hero::before, .hero::after {
-            content: ""; position: absolute; border-radius: 50%; filter: blur(40px);
-            background: rgba(255,255,255,.18);
-        }
-        .hero::before { width: 220px; height: 220px; top: -80px; right: -60px; }
-        .hero::after { width: 160px; height: 160px; bottom: -60px; left: -40px; background: rgba(255,230,0,.18); }
-        .hero-inner { position: relative; max-width: 640px; margin: 0 auto; }
-        .hero-logo { width: 120px; height: 120px; object-fit: contain; margin: 0 auto 0.4rem; display: block; }
-        .hero-eyebrow { font-size: 0.78rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--yellow); margin-bottom: 0.7rem; }
-        .hero h1 { font-size: 1.9rem; line-height: 1.2; margin-bottom: 0.8rem; }
-        .hero p.lead { font-size: 1rem; opacity: 0.92; line-height: 1.55; margin-bottom: 1.6rem; }
-        .hero-stats { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.8rem; }
-        .hero-stat { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 0.45rem 0.95rem; font-size: 0.82rem; font-weight: 700; backdrop-filter: blur(4px); }
-        .hero-stat svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-        .hero-actions { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
-
-        .btn-wa {
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            background: #25D366; color: #fff; font-weight: 800; font-family: 'Open Sans', sans-serif;
-            padding: 0.95rem 1.6rem; border-radius: 14px; border: none; cursor: pointer; font-size: 1rem;
-            text-decoration: none; box-shadow: 0 10px 24px rgba(0,0,0,.18);
-            transition: transform .15s;
-        }
-        .btn-wa:active { transform: scale(0.97); }
-
-        .btn-pdf {
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            background: rgba(255,255,255,.16); color: #fff; font-weight: 800; font-family: 'Open Sans', sans-serif;
-            padding: 0.95rem 1.4rem; border-radius: 14px; border: 1.5px solid rgba(255,255,255,.5); cursor: pointer; font-size: 1rem;
-            transition: transform .15s;
-        }
-        .btn-pdf:active { transform: scale(0.97); }
-
-        /* ---- Sections ---- */
-        section { margin-bottom: 2.6rem; }
-        .section-head { text-align: center; margin-bottom: 1.4rem; }
-        .section-eyebrow { font-size: 0.75rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 0.4rem; }
-        .section-head h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-        .section-head p { color: var(--muted); font-size: 0.92rem; max-width: 560px; margin: 0 auto; line-height: 1.55; }
-
-        .card {
-            background: var(--card); border: 1px solid var(--line); border-radius: 18px;
-            padding: 1.3rem; box-shadow: 0 8px 20px rgba(0,30,120,.06);
         }
 
-        /* ---- About ---- */
-        .about-card { padding: 1.6rem 1.4rem; }
-        .about-card p { color: var(--ink); line-height: 1.7; font-size: 0.97rem; }
-        .about-card p + p { margin-top: 0.8rem; }
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(30deg) translateX(-100%);
+            transition: transform 0.8s ease;
+        }
 
-        /* ---- Portfolio grid ---- */
-        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.9rem; }
-        .event-card { display: flex; flex-direction: column; gap: 0.55rem; }
-        .event-icon { width: 40px; height: 40px; border-radius: 12px; background: #e9eefb; color: var(--blue); display: flex; align-items: center; justify-content: center; }
-        .event-icon svg { width: 20px; height: 20px; }
-        .event-card h3 { font-size: 1.02rem; }
-        .event-card p { color: var(--muted); font-size: 0.86rem; line-height: 1.5; flex: 1; }
-        .event-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.3rem; }
-        .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; }
-        .tag-audience { background: #e9eefb; color: var(--blue); }
-        .tag-status { background: #fef9c3; color: #854d0e; }
+        .btn-shine:hover::after {
+            transform: rotate(30deg) translateX(100%);
+        }
 
-        /* ---- Scheme cards wrapper (block-stacked on desktop, slider on mobile) ---- */
-        .scheme-slider { display: block; }
-        .scheme-slider .scheme-card { margin-bottom: 1rem; }
-        .scheme-slider .scheme-card:last-child { margin-bottom: 0; }
+        /* Scroll Reveal Utility Classes */
+        .reveal-init {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
 
-        .mobile-slider-hint { display: none; text-align: center; color: var(--muted); font-size: 0.8rem; margin-bottom: 0.8rem; }
+        .reveal-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-        /* ---- Mobile: long vertical stacks become horizontal scroll-snap sliders ---- */
-        @media (max-width: 680px) {
+        /* Staggered Delay Helpers */
+        .delay-100 {
+            transition-delay: 100ms;
+        }
+
+        .delay-200 {
+            transition-delay: 200ms;
+        }
+
+        .delay-300 {
+            transition-delay: 300ms;
+        }
+
+        .delay-400 {
+            transition-delay: 400ms;
+        }
+
+        /* Custom Scrollbar for Gallery & Sliders */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .mobile-slider-hint { display: none; text-align: center; color: #94a3b8; font-size: 0.75rem; margin-bottom: 1.25rem; }
+
+        /* Katalog Workshop -- long vertical stack di layar sempit, jadi
+           horizontal scroll-snap slider di mobile aja (desktop tetep grid). */
+        @media (max-width: 639px) {
             .mobile-slider-hint { display: block; }
-            .portfolio-grid {
-                display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
-                -webkit-overflow-scrolling: touch; padding: 0.2rem 0.2rem 0.8rem; margin: 0 -0.2rem;
+            .events-grid {
+                display: flex !important;
+                gap: 1.25rem;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                padding: 0.25rem 0.25rem 1rem;
+                margin: 0 -0.25rem;
             }
-            .portfolio-grid::-webkit-scrollbar { height: 6px; }
-            .portfolio-grid::-webkit-scrollbar-track { background: transparent; }
-            .portfolio-grid::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
-            .portfolio-grid .event-card { flex: 0 0 82%; max-width: 320px; scroll-snap-align: start; }
-
-            .scheme-slider {
-                display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
-                -webkit-overflow-scrolling: touch; padding: 0.2rem 0.2rem 0.8rem; margin: 0 -0.2rem;
+            .events-grid::-webkit-scrollbar { display: none; }
+            .events-grid { -ms-overflow-style: none; scrollbar-width: none; }
+            .events-grid .event-card {
+                flex: 0 0 85%;
+                max-width: 320px;
+                scroll-snap-align: start;
             }
-            .scheme-slider::-webkit-scrollbar { height: 6px; }
-            .scheme-slider::-webkit-scrollbar-track { background: transparent; }
-            .scheme-slider::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
-            .scheme-slider .scheme-card { flex: 0 0 86%; max-width: 340px; scroll-snap-align: start; margin-bottom: 0; }
         }
 
-        /* ---- Gallery ---- */
-        .gallery-slider {
-            display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch; padding: 0.2rem 0.2rem 0.8rem; margin: 0 -0.2rem;
-        }
-        .gallery-slider::-webkit-scrollbar { height: 6px; }
-        .gallery-slider::-webkit-scrollbar-track { background: transparent; }
-        .gallery-slider::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
-        .gallery-item {
-            flex: 0 0 82%; max-width: 320px; scroll-snap-align: start;
-            border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: var(--card);
-        }
-        .gallery-item iframe, .gallery-item blockquote { width: 100% !important; margin: 0 !important; }
-        .gallery-hint { text-align: center; color: var(--muted); font-size: 0.8rem; margin-bottom: 0.8rem; }
-        @media (min-width: 540px) { .gallery-item { flex-basis: 300px; } }
-        .gallery-cta { text-align: center; margin-top: 1.2rem; }
-        .gallery-cta a { color: var(--blue); font-weight: 700; text-decoration: none; font-size: 0.92rem; }
-
-        /* ---- Collab schemes ---- */
-        .scheme-card { position: relative; padding: 1.5rem 1.4rem; border-top: 4px solid var(--blue); }
-        .scheme-card.b { border-top-color: #00b894; }
-        .scheme-card.c { border-top-color: #825ee4; }
-        .scheme-badge { display: inline-block; font-size: 0.7rem; font-weight: 800; padding: 4px 11px; border-radius: 999px; background: #e9eefb; color: var(--blue); margin-bottom: 0.7rem; }
-        .scheme-card.b .scheme-badge { background: #e5f9f0; color: #00875a; }
-        .scheme-card.c .scheme-badge { background: #efe8fd; color: #6c3ce0; }
-        .scheme-card h3 { font-size: 1.12rem; margin-bottom: 0.5rem; }
-        .scheme-card .scheme-sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5; }
-        .scheme-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; }
-        .scheme-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; line-height: 1.5; }
-        .scheme-list li svg { flex-shrink: 0; margin-top: 2px; color: var(--blue); }
-        .scheme-card.b .scheme-list li svg { color: #00875a; }
-        .scheme-card.c .scheme-list li svg { color: #6c3ce0; }
-        .scheme-math {
-            background: var(--bg); border: 1.5px dashed var(--line); border-radius: 12px;
-            padding: 0.9rem 1rem; font-size: 0.86rem; line-height: 1.7; margin-bottom: 0.9rem;
-        }
-        .scheme-math b { font-family: 'Outfit', sans-serif; }
-        .scheme-total { display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem; margin-top: 0.4rem; border-top: 1px solid var(--line); }
-        .scheme-total b { font-size: 1.15rem; color: var(--blue); }
-        .scheme-note { font-size: 0.78rem; color: var(--muted); font-style: italic; }
-
-        /* ---- Footer CTA ---- */
-        .footer-cta {
-            background: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%);
-            color: #fff; border-radius: 22px; padding: 2.2rem 1.4rem; text-align: center;
-            box-shadow: 0 18px 45px rgba(0,60,200,.28);
-        }
-        .footer-cta h2 { color: #fff; font-size: 1.35rem; margin-bottom: 0.6rem; }
-        .footer-cta p { opacity: 0.92; font-size: 0.92rem; margin-bottom: 1.4rem; line-height: 1.55; }
-        .footer-ig { margin-top: 1rem; font-size: 0.85rem; opacity: 0.85; }
-        .footer-ig a { text-decoration: none; font-weight: 700; color: #fff; }
-
-        .page-footer { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 2.5rem; }
-
-        @media (max-width: 480px) {
-            .hero h1 { font-size: 1.55rem; }
+        .print-only {
+            display: none;
         }
 
-        .print-only { display: none; }
-
-        /* ---- Print / "Download PDF" (window.print, no server needed) ---- */
+        /* ---- Print / "Download PDF" (window.print, no server needed) ----
+           Sengaja DIBEDAIN dari tampilan layar: section yang di layar pakai
+           background gelap + teks putih (hero, kartu value-prop, kotak
+           tarif Skema C, CTA final) di-flatten jadi putih + teks hitam pas
+           print. Dipaksa pakai `* { color: #000 !important; }` (bukan cuma
+           di body) -- elemen yang punya class warna Tailwind SENDIRI
+           (text-brand-yellow, text-white, dst) itu declare `color` LANGSUNG
+           di elemennya, jadi ngalahin warna yang cuma KEWARIS dari body
+           walopun body-nya !important (inheritance kalah sama declare
+           langsung, !important atau bukan). Makanya musti match tiap
+           elemen langsung lewat `*`, bukan andelin pewarisan dari body. */
         @media print {
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-            :root {
-                --ink: #10245e !important; --bg: #f4f7ff !important; --card: #ffffff !important;
-                --line: #e4e9f5 !important; --muted: #6b7794 !important;
-            }
-            body { background: var(--bg) !important; color: var(--ink) !important; }
-            #ssThemeFab, .btn-pdf, .gallery-hint, .gallery-slider, .mobile-slider-hint { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color: #000 !important; }
+            body { background: #fff !important; }
+            .no-print { display: none !important; }
             .print-only { display: block !important; }
-            .hero { border-radius: 0; margin-bottom: 1.4rem; }
-            .wrap { max-width: 100%; padding: 0 0.6rem 1rem; }
-            section { margin-bottom: 1.3rem; }
-            .card, .scheme-card, .footer-cta, .event-card { box-shadow: none !important; break-inside: avoid; page-break-inside: avoid; }
-            /* slider -> grid/block biasa pas print, scroll horizontal nggak kepake di kertas */
-            .portfolio-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 0.6rem; overflow: visible !important; }
-            .portfolio-grid .event-card { flex: none !important; max-width: none !important; }
-            .scheme-slider { display: block !important; overflow: visible !important; }
-            .scheme-slider .scheme-card { flex: none !important; max-width: none !important; margin-bottom: 1rem !important; }
-            a[href]:after { content: ""; }
+            .print-full { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .glass-card { box-shadow: none !important; border: 1px solid #ccc !important; }
+            .reveal-init { opacity: 1 !important; transform: none !important; }
+            .card-interactive:hover { transform: none !important; box-shadow: none !important; }
+
+            .print-flatten, .print-flatten-hero {
+                background: #fff !important; border: 1px solid #ccc !important;
+            }
+            .print-flatten-hero {
+                animation: none !important; border: none !important; border-radius: 0 !important;
+                border-bottom: 2px solid #000 !important;
+            }
+            .print-flatten-hero .absolute { display: none !important; }
+            .print-flatten-hero img { filter: invert(1); } /* logo putih -> hitam, background hero dipaksa putih pas print */
+
+            section, .glass-card, .print-flatten, .print-flatten-hero { break-inside: avoid; page-break-inside: avoid; }
+            .events-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; overflow: visible !important; }
+            .events-grid .event-card { flex: none !important; max-width: none !important; }
+            .mobile-slider-hint { display: none !important; }
         }
     </style>
 </head>
 
-<body>
-    <div class="hero">
-        <div class="hero-inner">
-            <img src="../images/white.png" alt="Seminggu Satu" class="hero-logo">
-            <div class="hero-eyebrow">Seminggu Satu × Kamu</div>
-            <h1>Yuk Kolaborasi Bikin Event Journaling Bareng</h1>
-            <p class="lead">Seminggu Satu itu komunitas sekaligus penyelenggara workshop journaling kreatif di Jakarta. Dari cafe, coworking space, sampai event &amp; organisasi — ini portofolio kita + skema kolaborasi yang bisa langsung kita diskusiin.</p>
-            <div class="hero-stats">
-                <span class="hero-stat"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/></svg> Reka Rekat udah Vol. 6+</span>
-                <span class="hero-stat"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="m8.235 1.559 7.825 4.605a.5.5 0 0 1 0 .861L8.235 11.63a.5.5 0 0 1-.47 0L.235 7.025a.5.5 0 0 1 0-.861L7.764 1.56a.5.5 0 0 1 .47 0zM2.78 6.596 8 9.724l5.22-3.128L8 3.468z"/><path d="m.233 8.794 1.465-.879 6.302 3.785 6.302-3.785 1.465.879-7.767 4.667a.5.5 0 0 1-.47 0z"/><path d="m.233 11.794 1.465-.879 6.302 3.785 6.302-3.785 1.465.879-7.767 4.667a.5.5 0 0 1-.47 0z"/></svg> 5 jenis workshop journaling</span>
-                <span class="hero-stat"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/></svg> Kolaborasi di Jakarta</span>
+<body class="bg-slate-900 min-h-screen text-slate-800 antialiased selection:bg-brand-yellow selection:text-slate-900">
+
+    <!-- Top Glow Header Banner -->
+    <div
+        class="print-flatten-hero relative overflow-hidden hero-gradient text-white pt-12 pb-20 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+        <!-- Floating Ambient Blurs -->
+        <div
+            class="absolute -top-24 -left-20 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl pointer-events-none animate-pulse-slow">
+        </div>
+        <div class="absolute top-1/2 -right-20 w-96 h-96 bg-brand-yellow/15 rounded-full blur-3xl pointer-events-none animate-pulse-slow"
+            style="animation-delay: 1.5s;"></div>
+
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <img src="../images/white.png" alt="Seminggu Satu"
+                class="reveal-init w-20 h-20 sm:w-24 sm:h-24 object-contain mx-auto mb-5">
+
+            <!-- Floating Brand Tag -->
+            <div
+                class="reveal-init inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-semibold text-brand-yellow mb-6 shadow-lg animate-float">
+                <i data-lucide="sparkles" class="w-4 h-4 text-brand-yellow"></i>
+                Deck Media Kit & Proposal Kolaborasi
             </div>
-            <div class="hero-actions">
-                <a class="btn-wa" href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20aku%20mau%20diskusi%20kolaborasi%20event%20journaling%20buat%20tempat%2Forganisasi%20kami." target="_blank" rel="noopener">
-                    <i data-lucide="message-circle"></i> Chat Arnold buat Diskusi
+
+            <!-- Title -->
+            <h1
+                class="reveal-init delay-100 font-outfit text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white mb-5">
+                Bikin Event Journaling <br class="hidden sm:inline" />
+                <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-brand-yellow to-white">Seru
+                    & Berkesan</span> Bareng Kami
+            </h1>
+
+            <p
+                class="reveal-init delay-200 max-w-2xl mx-auto text-base sm:text-lg text-slate-300 font-normal leading-relaxed mb-9">
+                <strong>Seminggu Satu</strong> adalah penyelenggara workshop journaling kreatif di Jakarta. Kami
+                menghadirkan event interaktif yang meramaikan venue, membangun komunitas, dan memberikan
+                <em>experience</em> unik bagi pengunjung tempat Anda.
+            </p>
+
+            <!-- Quick Key Metrics -->
+            <div class="reveal-init delay-300 flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-10">
+                <div
+                    class="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold flex items-center gap-2 hover:bg-white/20 transition-all">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> Reka Rekat Vol. 6+
+                </div>
+                <div
+                    class="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold flex items-center gap-2 hover:bg-white/20 transition-all">
+                    <i data-lucide="palette" class="w-4 h-4 text-blue-300"></i> 5 Variasi Workshop
+                </div>
+                <div
+                    class="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold flex items-center gap-2 hover:bg-white/20 transition-all">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-rose-400"></i> Jabodetabek Area
+                </div>
+            </div>
+
+            <!-- Call To Actions -->
+            <div class="reveal-init delay-400 flex flex-wrap items-center justify-center gap-4 no-print">
+                <a href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20saya%20tertarik%20untuk%20diskusi%20kolaborasi%20event%20journaling%20Seminggu%20Satu."
+                    target="_blank" rel="noopener"
+                    class="btn-shine px-7 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm sm:text-base transition-all shadow-lg shadow-emerald-500/25 flex items-center gap-2.5 active:scale-95">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    Diskusi via WhatsApp
                 </a>
-                <button class="btn-pdf" type="button" id="downloadPdfBtn">
-                    <i data-lucide="download"></i> Download PDF
-                </button>
             </div>
         </div>
     </div>
 
-    <div class="wrap">
+    <!-- Main Content Wrapper -->
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-16 space-y-20">
 
-        <section>
-            <div class="card about-card">
-                <p><b>Seminggu Satu</b> adalah komunitas &amp; penyelenggara event journaling kreatif. Kita percaya journaling bisa jadi momen buat <i>connect</i> — sama diri sendiri, sama orang terdekat, atau sama orang baru yang punya minat yang sama.</p>
-                <p>Dari sesi santai berdua pasangan/teman sampai journaling bareng orang tua &amp; anak — tiap event didesain biar pesertanya nggak cuma pulang bawa karya, tapi juga cerita. Event rutin jalan dan udah beberapa kali kolaborasi bareng cafe &amp; venue di Jakarta.</p>
+        <!-- SECTION 1: ABOUT US & VALUE PROP -->
+        <section class="grid md:grid-cols-12 gap-6 items-stretch">
+            <div
+                class="reveal-init md:col-span-5 glass-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between border border-slate-200 card-interactive">
+                <div>
+                    <span class="text-brand-blue font-bold text-xs uppercase tracking-widest block mb-2">Siapa
+                        Kami?</span>
+                    <h2 class="font-outfit text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4">Membangun Momen &
+                        Koneksi Lewat Karya</h2>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        <strong>Seminggu Satu</strong> bukan sekadar kelas art & craft. Kami merancang ruang interaktif
+                        di mana orang bisa rehat sejenak, bercerita, dan menuangkan ekspresi kreatif ke dalam media
+                        jurnal.
+                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Mulai dari semua usia (<em>journaling date</em>), sesi santai akhir pekan, hingga
+                        aktivitas kreatif orang tua dan anak.
+                    </p>
+                </div>
+                <div
+                    class="pt-6 border-t border-slate-100 mt-6 flex items-center justify-between text-xs text-slate-500 font-medium">
+                    <span><strong class="text-slate-900 font-bold">100% All-In Kit:</strong> Peserta tinggal datang
+                        tanpa perlu bawa alat.</span>
+                </div>
+            </div>
+
+            <!-- Value Props Grid for Partners -->
+            <div class="md:col-span-7 grid sm:grid-cols-2 gap-4">
+                <div
+                    class="print-flatten reveal-init delay-100 bg-slate-800/80 border border-slate-700/60 rounded-3xl p-6 text-white flex flex-col justify-between card-interactive">
+                    <div>
+                        <div
+                            class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-outfit text-lg font-bold mb-2">Footfall / Crowd Baru</h3>
+                        <p class="text-slate-300 text-xs leading-relaxed">Mendatangkan puluhan peserta berpotensi
+                            menjadi pelanggan setia baru untuk cafe/venue Anda, terutama pada jam <em>off-peak</em>.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="print-flatten reveal-init delay-200 bg-slate-800/80 border border-slate-700/60 rounded-3xl p-6 text-white flex flex-col justify-between card-interactive">
+                    <div>
+                        <div
+                            class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4">
+                            <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-outfit text-lg font-bold mb-2">Guaranteed Revenue</h3>
+                        <p class="text-slate-300 text-xs leading-relaxed">Sistem minimum spend F&B pasti dibayar di
+                            depan untuk venue, atau pembagian hasil (Revenue Share) yang menguntungkan tanpa risiko.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="print-flatten reveal-init delay-300 bg-slate-800/80 border border-slate-700/60 rounded-3xl p-6 text-white flex flex-col justify-between card-interactive">
+                    <div>
+                        <div
+                            class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
+                            <i data-lucide="share-2" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-outfit text-lg font-bold mb-2">Exposure Social Media</h3>
+                        <p class="text-slate-300 text-xs leading-relaxed">Mendapatkan publikasi via Instagram Colab
+                            Post, Reels dokumentasi, dan Story promosi dari akun @seminggu_satu.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="print-flatten reveal-init delay-400 bg-slate-800/80 border border-slate-700/60 rounded-3xl p-6 text-white flex flex-col justify-between card-interactive">
+                    <div>
+                        <div
+                            class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-outfit text-lg font-bold mb-2">Nol Repot Operasional</h3>
+                        <p class="text-slate-300 text-xs leading-relaxed">Semua kebutuhan alat craft, fasilitator,
+                            materi workshop, hingga pendaftaran peserta ditangani penuh oleh tim Seminggu Satu.</p>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- SECTION 2: WORKSHOP CATALOGUE WITH FILTER -->
         <section>
-            <div class="section-head">
-                <div class="section-eyebrow">Portofolio</div>
-                <h2>Jenis-Jenis Workshop</h2>
-                <p>Semua workshop pakai konsep "journaling kit" — peserta nggak perlu bawa alat apa-apa, tinggal datang &amp; berkarya.</p>
+            <div class="reveal-init text-center max-w-xl mx-auto mb-8">
+                <span class="text-brand-yellow font-bold text-xs uppercase tracking-widest block mb-2">Katalog
+                    Workshop</span>
+                <h2 class="font-outfit text-3xl font-extrabold text-white">Pilihan Sesi Kreatif</h2>
+                <p class="text-slate-400 text-sm mt-2">Dapat disesuaikan dengan profil pengunjung venue atau audiens
+                    target Anda.</p>
             </div>
-            <p class="mobile-slider-hint">← Geser buat lihat semua jenis →</p>
-            <div class="portfolio-grid">
-                <div class="card event-card">
-                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/></svg></div>
-                    <h3>Reka Rekat (Journaling Date)</h3>
-                    <p>Creative date, sesi journaling bareng. Tiap sesi ada tema &amp; challenge visual yang beda-beda jadi nggak monoton.</p>
-                    <div class="event-tags"><span class="tag tag-audience">Dewasa, umum</span><span class="tag tag-status">Sudah Vol. 6+</span></div>
+
+            <p class="mobile-slider-hint">&larr; Geser buat lihat semua jenis &rarr;</p>
+
+            <!-- Event Cards Grid (slider di mobile, grid di desktop) -->
+            <div class="events-grid grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="eventsGrid">
+
+                <!-- Card 1 -->
+                <div class="reveal-init delay-100 event-card glass-card rounded-2xl p-6 flex flex-col justify-between card-interactive">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span
+                                class="px-2.5 py-1 rounded-md bg-blue-100 text-brand-blue font-bold text-[11px] uppercase tracking-wide">Popular</span>
+                            <span class="text-xs text-slate-400 font-medium">Dewasa / Umum</span>
+                        </div>
+                        <h3 class="font-outfit text-lg font-bold text-slate-900 mb-2">Reka Rekat (Journaling Date)</h3>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-4">Momen Journaling bersama target audience
+                            untuk minimal 12 Tahun ke atas. Dilengkapi challenge visual dan tema unik di tiap batch
+                            agar selalu fresh.</p>
+                    </div>
+                    <div
+                        class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <span><i data-lucide="check" class="w-3.5 h-3.5 inline text-emerald-500"></i> Sudah Vol.
+                            6+</span>
+                        <span class="text-brand-blue font-bold">Durasi ~2 Jam 30 Menit</span>
+                    </div>
                 </div>
-                <div class="card event-card">
-                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg></div>
-                    <h3>Side by Side</h3>
-                    <p>Parent &amp; Kid Journal Playdate — journaling bareng si kecil, abadikan momen berdua langsung di halaman jurnal.</p>
-                    <div class="event-tags"><span class="tag tag-audience">Orang tua &amp; anak</span></div>
+
+                <!-- Card 2 -->
+                <div class="reveal-init delay-200 event-card glass-card rounded-2xl p-6 flex flex-col justify-between card-interactive">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span
+                                class="px-2.5 py-1 rounded-md bg-amber-100 text-amber-800 font-bold text-[11px] uppercase tracking-wide">Parent
+                                & Kid</span>
+                            <span class="text-xs text-slate-400 font-medium">Orang Tua & Anak</span>
+                        </div>
+                        <h3 class="font-outfit text-lg font-bold text-slate-900 mb-2">Side by Side (Playdate Journal)
+                        </h3>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-4">Aktivitas bonding bagi orang
+                            tua dan anak. Mengabadikan foto dan cerita manis langsung di lembar jurnal karya
+                            bersama.</p>
+                    </div>
+                    <div
+                        class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <span><i data-lucide="heart" class="w-3.5 h-3.5 inline text-rose-500"></i> High
+                            Engagement</span>
+                        <span class="text-brand-blue font-bold">Durasi ~2 Jam 30 Menit</span>
+                    </div>
                 </div>
-                <div class="card event-card">
-                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg></div>
-                    <h3>Upcycle Journal — Private Session</h3>
-                    <p>Versi private &amp; intimate dari Upcycle Journal, maksimal 3 orang per sesi. Cocok buat yang mau santai bareng teman dekat.</p>
-                    <div class="event-tags"><span class="tag tag-audience">Grup kecil / privat</span></div>
+
+                <!-- Card 3 -->
+                <div class="reveal-init delay-300 event-card glass-card rounded-2xl p-6 flex flex-col justify-between card-interactive">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span
+                                class="px-2.5 py-1 rounded-md bg-purple-100 text-purple-800 font-bold text-[11px] uppercase tracking-wide">Private
+                                / VIP</span>
+                            <span class="text-xs text-slate-400 font-medium">Small Group (Max 4-6)</span>
+                        </div>
+                        <h3 class="font-outfit text-lg font-bold text-slate-900 mb-2">Upcycle Journal Private</h3>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-4">Sesi intimate mendaur ulang kemasan
+                            minuman
+                            menjadi jurnal yang baru. Cocok untuk private workshop cafe vip area.</p>
+                    </div>
+                    <div
+                        class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <span><i data-lucide="sparkles" class="w-3.5 h-3.5 inline text-purple-500"></i> Exclusive
+                            Material</span>
+                        <span class="text-brand-blue font-bold">Durasi ~2 Jam</span>
+                    </div>
                 </div>
-                <div class="card event-card">
-                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2"/></svg></div>
-                    <h3>Pull &amp; Pop (Bookmark Journal)</h3>
-                    <p>Bookmark interaktif dengan mekanisme pull &amp; pop, pilih pita &amp; rantai favorit sendiri.</p>
-                    <div class="event-tags"><span class="tag tag-audience">Semua umur</span></div>
+
+                <!-- Card 4 -->
+                <div class="reveal-init delay-100 event-card glass-card rounded-2xl p-6 flex flex-col justify-between card-interactive">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span
+                                class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 font-bold text-[11px] uppercase tracking-wide">Fun
+                                & Quick</span>
+                            <span class="text-xs text-slate-400 font-medium">Semua Umur (Min 12 Thn)</span>
+                        </div>
+                        <h3 class="font-outfit text-lg font-bold text-slate-900 mb-2">Pull & Pop Bookmark</h3>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-4">Kreasi pembatas buku interaktif dengan
+                            mekanisme pop up</p>
+                    </div>
+                    <div
+                        class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <span><i data-lucide="bookmark" class="w-3.5 h-3.5 inline text-emerald-500"></i> Quick
+                            Result</span>
+                        <span class="text-brand-blue font-bold">Durasi ~2 Jam</span>
+                    </div>
                 </div>
-                <div class="card event-card">
-                    <div class="event-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm10 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/></svg></div>
-                    <h3>3D Layered Journaling</h3>
-                    <p>Frame, Texture &amp; Motion — cara baru buat journaling langsung di dalam frame.</p>
-                    <div class="event-tags"><span class="tag tag-audience">Dewasa, suka craft</span></div>
+
+                <!-- Card 5 -->
+                <div class="reveal-init delay-200 event-card glass-card rounded-2xl p-6 flex flex-col justify-between card-interactive">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span
+                                class="px-2.5 py-1 rounded-md bg-indigo-100 text-indigo-800 font-bold text-[11px] uppercase tracking-wide">3D
+                                & Frame</span>
+                            <span class="text-xs text-slate-400 font-medium">Craft Enthusiast</span>
+                        </div>
+                        <h3 class="font-outfit text-lg font-bold text-slate-900 mb-2">3D Layered Journaling</h3>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-4">Teknik journaling dengan
+                            kedalaman layer visual, bermain dengan tekstur, dan teknik interactive pop up yang siap
+                            dipajang.</p>
+                    </div>
+                    <div
+                        class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <span><i data-lucide="layers" class="w-3.5 h-3.5 inline text-indigo-500"></i> Displayable
+                            Art</span>
+                        <span class="text-brand-blue font-bold">Durasi ~2 Jam</span>
+                    </div>
                 </div>
+
             </div>
         </section>
 
+        <!-- SECTION 3: COLLABORATION SCHEMES -->
         <section>
-            <div class="section-head">
-                <div class="section-eyebrow">Dokumentasi</div>
-                <h2>Galeri Event</h2>
-                <p>Cuplikan dari beberapa sesi yang udah berjalan.</p>
-            </div>
-            <p class="gallery-hint">← Geser buat lihat lebih banyak →</p>
-            <div class="gallery-slider" id="galleryGrid">
-                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DZ2W-Kwpcrh/" data-instgrm-version="14"></blockquote></div>
-                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DapdB2kJuuc/" data-instgrm-version="14"></blockquote></div>
-                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DYcXKTjpWDk/" data-instgrm-version="14"></blockquote></div>
-                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DYmw3pOpsn2/" data-instgrm-version="14"></blockquote></div>
-                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DXjrCKQicfb/" data-instgrm-version="14"></blockquote></div>
-                <div class="gallery-item"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DWeM_G4khOM/" data-instgrm-version="14"></blockquote></div>
-            </div>
-            <div class="gallery-cta"><a href="https://www.instagram.com/seminggu_satu" target="_blank" rel="noopener">Lihat dokumentasi lengkap di Instagram @seminggu_satu →</a></div>
-            <p class="print-only" style="text-align:center;color:var(--muted);font-size:0.85rem;">Dokumentasi foto &amp; video lengkap ada di Instagram <b>@seminggu_satu</b> (instagram.com/seminggu_satu)</p>
-        </section>
-
-        <section>
-            <div class="section-head">
-                <div class="section-eyebrow">Kolaborasi</div>
-                <h2>Skema Kolaborasi</h2>
-                <p>Ada 3 skema yang bisa dipilih sesuai jenis kolaborasinya — semua masih bisa didiskusikan lagi sesuai kebutuhan.</p>
-            </div>
-            <p class="mobile-slider-hint">← Geser buat lihat semua skema →</p>
-            <div class="scheme-slider">
-            <div class="card scheme-card a">
-                <span class="scheme-badge">Skema A · Buat Cafe / Venue</span>
-                <h3>Kolaborasi Venue</h3>
-                <p class="scheme-sub">Event dilangsungkan di tempat kamu — durasi sesi 90–150 menit, plus 1 jam sebelum &amp; sesudah buat load/unload barang.</p>
-                <ul class="scheme-list">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2 1a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm0 1h2v2H2zm7-1a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm0 1h2v2H9zm-7 6a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1zm0 1h2v2H2z"/></svg><span>Harga tiket peserta Rp185.000/orang (all-in journaling kit).</span></li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8"/></svg><span>Seminggu Satu beli voucher F&amp;B dari venue, <b>Rp50.000 × 12 peserta = Rp600.000 bersih</b> langsung dibayar ke venue (bukan dipotong dari peserta).</span></li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="m8 15 7-7-7-7-1 1 5.5 5.5H1v1h12.5L7 14z"/></svg><span>Venue dapat <b>1× post collaboration</b> sebelum event, <b>1× reels collaboration</b> setelah event, dan <b>Instagram story</b> di hari-H.</span></li>
-                </ul>
-                <p class="scheme-note">Open for discussion — jumlah peserta &amp; nominal masih bisa disesuaikan dengan venue.</p>
+            <div class="reveal-init text-center max-w-2xl mx-auto mb-12">
+                <span class="text-brand-yellow font-bold text-xs uppercase tracking-widest block mb-2">Model Kerja
+                    Sama</span>
+                <h2 class="font-outfit text-3xl sm:text-4xl font-extrabold text-white">3 Skema Fleksibel Sesuai
+                    Kebutuhan Anda</h2>
+                <p class="text-slate-400 text-sm mt-2">Pilih skema yang paling cocok dengan model bisnis venue, acara,
+                    atau event gathering Anda.</p>
             </div>
 
-            <div class="card scheme-card b">
-                <span class="scheme-badge">Skema B · Buat Event / Organisasi</span>
-                <h3>Revenue Share</h3>
-                <p class="scheme-sub">Cocok buat kolaborasi non-venue — ikut acara yang udah ada, atau kolaborasi sama organisasi/komunitas lain.</p>
-                <ul class="scheme-list">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 11H2v3h2zm5-4H7v7h2zm5-5v12h-2V2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm-5 6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-5 4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/></svg><span>Partner dapat <b>20% dari revenue</b> acara, Seminggu Satu <b>80%</b>.</span></li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h11A1.5 1.5 0 0 1 14 3.5v8.75a.75.75 0 0 1-1.5.75H1.5A1.5 1.5 0 0 1 0 11.25z"/></svg><span>Fee transport dihitung <b>terpisah</b>, di luar bagi hasil.</span></li>
-                </ul>
-            </div>
+            <div class="grid lg:grid-cols-3 gap-6 items-stretch">
 
-            <div class="card scheme-card c">
-                <span class="scheme-badge">Skema C · Buat Audiens Lebih Besar</span>
-                <h3>Paket Per Jam</h3>
-                <p class="scheme-sub">Cocok buat company gathering, komunitas besar, atau acara dengan jumlah peserta yang lebih fleksibel.</p>
-                <div class="scheme-math">
-                    Rp1.250.000 <span style="color:var(--muted);">/ jam</span> + Rp20.000 <span style="color:var(--muted);">/ kit journaling per peserta</span>
-                    <div class="scheme-total"><span style="color:var(--muted);">Contoh: 2 jam, 20 peserta</span><b>Rp2.900.000</b></div>
+                <!-- SCHEME A: CAFE & VENUE -->
+                <div
+                    class="reveal-init delay-100 glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden border-2 border-brand-blue card-interactive">
+                    <div
+                        class="absolute top-0 right-0 bg-brand-blue text-white text-[10px] font-extrabold uppercase px-4 py-1.5 rounded-bl-2xl tracking-wider">
+                        Rekomendasi Cafe
+                    </div>
+
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-blue-100 text-brand-blue flex items-center justify-center font-bold text-xl mb-4">
+                            A
+                        </div>
+                        <h3 class="font-outfit text-xl font-bold text-slate-900">Kolaborasi Cafe & Venue</h3>
+                        <p class="text-slate-500 text-xs mt-1 mb-6">Sangat cocok untuk Cafe, Roastery, Coworking Space,
+                            & Resto yang ingin meramaikan area di jam tertentu.</p>
+
+                        <!-- Highlight Benefit Box -->
+                        <div class="p-4 rounded-2xl bg-blue-50 border border-blue-100 mb-6">
+                            <span class="text-xs font-semibold text-brand-blue block mb-1">Keuntungan Bersih
+                                Venue:</span>
+                            <div class="font-outfit text-xl font-extrabold text-slate-900 mb-1">
+                                Minimum Spend Rp 600.000+
+                            </div>
+                            <p class="text-[11px] text-slate-600 leading-normal">
+                                Seminggu Satu <strong>membeli voucher F&B</strong> senilai Rp 50.000 x 12 peserta (atau
+                                disesuaikan). Uang langsung dibayar tunai ke kasir venue Anda!
+                            </p>
+                        </div>
+
+                        <ul class="space-y-3 text-xs text-slate-700 mb-6">
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <span><strong>Harga Tiket Peserta:</strong> Rp 185.000/org (All-in journaling kit &
+                                    fasilitas).</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <span><strong>Fasilitas Venue:</strong> Menyediakan space meja & kursi untuk 10–12
+                                    peserta selama sesi (90 menit), ditambah 1 jam sebelum & sesudah untuk
+                                    load/unload barang.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <span><strong>Paket Marketing Sosial Media:</strong> 1x Instagram Co-Author Post, Reels
+                                    dokumentasi & Story lokasi venue.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-200/80">
+                        <a href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20saya%20tertarik%20pilih%20Skema%20A%20(Cafe%2FVenue)"
+                            target="_blank" rel="noopener"
+                            class="btn-shine w-full py-3.5 rounded-xl bg-brand-blue hover:bg-brand-darkblue text-white font-bold text-xs text-center block transition-all shadow-md shadow-blue-500/20 active:scale-95">
+                            Pilih Skema Venue
+                        </a>
+                    </div>
                 </div>
-                <p class="scheme-note">(2 × Rp1.250.000) + (20 × Rp20.000) = Rp2.500.000 + Rp400.000 = Rp2.900.000. Belum termasuk fee transport (dihitung terpisah). Durasi &amp; jumlah peserta menyesuaikan kebutuhan kamu.</p>
-            </div>
+
+                <!-- SCHEME B: REVENUE SHARE -->
+                <div
+                    class="reveal-init delay-200 glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between border border-slate-200 card-interactive">
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl mb-4">
+                            B
+                        </div>
+                        <h3 class="font-outfit text-xl font-bold text-slate-900">Revenue Share 80 : 20</h3>
+                        <p class="text-slate-500 text-xs mt-1 mb-6">Ideal untuk Event Organizer, Festival Kreatif,
+                            Pop-up Market, Komunitas, atau Non-Venue Partner.</p>
+
+                        <!-- Highlight Benefit Box -->
+                        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 mb-6">
+                            <span class="text-xs font-semibold text-emerald-800 block mb-1">Bagi Hasil Penjualan
+                                Tiket:</span>
+                            <div class="font-outfit text-xl font-extrabold text-slate-900 mb-1">
+                                Partner Dapat 20% Net
+                            </div>
+                            <p class="text-[11px] text-slate-600 leading-normal">
+                                Tanpa risiko modal! Anda bantu publikasi / sediakan slot event, kami urus pendaftaran,
+                                kit, instruktur, dan jalannya kelas.
+                            </p>
+                        </div>
+
+                        <ul class="space-y-3 text-xs text-slate-700 mb-6">
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <span><strong>Bagi Hasil Bersih:</strong> Partner 20% | Seminggu Satu 80%.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <span><strong>Nol Biaya Operasional:</strong> Seluruh alat craft, stiker, dan instruktur
+                                    disiapkan penuh oleh kami.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <span><strong>Di Luar Bagi Hasil:</strong> Fee transport dihitung terpisah.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                <span><strong>Fleksibel:</strong> Cocok disisipkan sebagai <em>side activity</em> di
+                                    event skala besar Anda.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-200/80">
+                        <a href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20saya%20tertarik%20pilih%20Skema%20B%20(Revenue%20Share)"
+                            target="_blank" rel="noopener"
+                            class="btn-shine w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs text-center block transition-all active:scale-95">
+                            Pilih Revenue Share
+                        </a>
+                    </div>
+                </div>
+
+                <!-- SCHEME C: CORPORATE & PRIVATE (WITH INTERACTIVE CALCULATOR) -->
+                <div
+                    class="reveal-init delay-300 glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between border border-slate-200 card-interactive">
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xl mb-4">
+                            C
+                        </div>
+                        <h3 class="font-outfit text-xl font-bold text-slate-900">Corporate & Private Event</h3>
+                        <p class="text-slate-500 text-xs mt-1 mb-4">Cocok untuk Company Gathering, Team Building,
+                            Private Birthday, atau Sesi Komunitas Besar.</p>
+
+                        <!-- Formula Unit Rate -->
+                        <div class="print-flatten bg-slate-900 text-white p-3.5 rounded-2xl mb-2 text-xs">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-slate-400">Jasa Instructor & Session:</span>
+                                <span class="font-bold text-brand-yellow">Rp 1.250.000 / Jam</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Material Kit Peserta:</span>
+                                <span class="font-bold text-emerald-400">Rp 20.000 / Org</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mb-4">Belum termasuk fee transport (dihitung terpisah
+                            sesuai lokasi).</p>
+
+                        <!-- INTERACTIVE SIMULATOR CARD -->
+                        <div
+                            class="p-4 rounded-2xl bg-purple-50/80 border border-purple-200/60 mb-6 space-y-3.5 no-print">
+                            <div class="flex items-center justify-between text-xs font-bold text-purple-900">
+                                <span><i data-lucide="calculator" class="w-3.5 h-3.5 inline mr-1"></i> Simulator Biaya
+                                    Interaktif</span>
+                            </div>
+
+                            <!-- Slider Durasi -->
+                            <div>
+                                <div class="flex justify-between text-[11px] font-semibold text-slate-700 mb-1">
+                                    <span>Durasi Sesi:</span>
+                                    <span id="durasiVal" class="text-brand-blue font-bold transition-all">2 Jam</span>
+                                </div>
+                                <input type="range" id="durasiRange" min="1" max="5" value="2" step="1"
+                                    class="w-full accent-brand-blue h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+
+                            <!-- Slider Peserta -->
+                            <div>
+                                <div class="flex justify-between text-[11px] font-semibold text-slate-700 mb-1">
+                                    <span>Jumlah Peserta:</span>
+                                    <span id="pesertaVal" class="text-brand-blue font-bold transition-all">20
+                                        Orang</span>
+                                </div>
+                                <input type="range" id="pesertaRange" min="5" max="100" value="20" step="5"
+                                    class="w-full accent-brand-blue h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+
+                            <!-- Calculated Total with Smooth Count Animation -->
+                            <div class="pt-2 border-t border-purple-200 flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-800">Estimasi Total:</span>
+                                <span id="totalCostCalc"
+                                    class="font-outfit text-lg font-extrabold text-brand-blue transition-all">Rp
+                                    2.900.000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-200/80">
+                        <a id="simWaBtn"
+                            href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20saya%20mau%20tanya%20Private%20Event%20(2%20jam%2C%2020%20peserta)."
+                            target="_blank" rel="noopener"
+                            class="btn-shine w-full py-3.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs text-center block transition-all shadow-md shadow-purple-500/20 active:scale-95">
+                            Book Private Event
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </section>
 
-        <section>
-            <div class="footer-cta">
-                <h2>Cocok yang Mana?</h2>
-                <p>Masih ada pertanyaan atau mau diskusi skema yang pas buat kalian? Chat langsung aja, open for discussion kok.</p>
-                <a class="btn-wa" href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20aku%20mau%20diskusi%20kolaborasi%20event%20journaling%20buat%20tempat%2Forganisasi%20kami." target="_blank" rel="noopener" style="background:#fff;color:var(--blue);">
-                    <i data-lucide="message-circle"></i> Chat via WhatsApp
+        <!-- SECTION 4: INSTAGRAM GALLERY & DOKUMENTASI -->
+        <section class="reveal-init glass-card rounded-3xl p-6 sm:p-8 border border-slate-200 card-interactive">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
+                <div>
+                    <span class="text-brand-blue font-bold text-xs uppercase tracking-widest block mb-1">Dokumentasi
+                        Visual</span>
+                    <h2 class="font-outfit text-2xl sm:text-3xl font-extrabold text-slate-900">Suasana Event yang
+                        Berjalan</h2>
+                </div>
+                <a href="https://www.instagram.com/seminggu_satu" target="_blank" rel="noopener"
+                    class="text-xs font-bold text-brand-blue hover:underline flex items-center gap-1.5 no-print group">
+                    <i data-lucide="instagram" class="w-4 h-4 group-hover:scale-110 transition-transform"></i> Follow
+                    Instagram @seminggu_satu &rarr;
                 </a>
-                <div class="footer-ig">Instagram <a href="https://www.instagram.com/seminggu_satu" target="_blank" rel="noopener">@seminggu_satu</a></div>
+            </div>
+
+            <!-- Horizontal Scroll Gallery -->
+            <div class="no-print flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-2 px-2 snap-x">
+                <div
+                    class="snap-start shrink-0 w-64 sm:w-72 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm transition-transform hover:scale-105">
+                    <blockquote class="instagram-media"
+                        data-instgrm-permalink="https://www.instagram.com/reel/DZ2W-Kwpcrh/" data-instgrm-version="14">
+                    </blockquote>
+                </div>
+                <div
+                    class="snap-start shrink-0 w-64 sm:w-72 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm transition-transform hover:scale-105">
+                    <blockquote class="instagram-media"
+                        data-instgrm-permalink="https://www.instagram.com/reel/DapdB2kJuuc/" data-instgrm-version="14">
+                    </blockquote>
+                </div>
+                <div
+                    class="snap-start shrink-0 w-64 sm:w-72 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm transition-transform hover:scale-105">
+                    <blockquote class="instagram-media"
+                        data-instgrm-permalink="https://www.instagram.com/reel/DYcXKTjpWDk/" data-instgrm-version="14">
+                    </blockquote>
+                </div>
+                <div
+                    class="snap-start shrink-0 w-64 sm:w-72 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm transition-transform hover:scale-105">
+                    <blockquote class="instagram-media"
+                        data-instgrm-permalink="https://www.instagram.com/reel/DYmw3pOpsn2/" data-instgrm-version="14">
+                    </blockquote>
+                </div>
+            </div>
+            <p class="no-print text-center text-xs text-slate-400 mt-2 font-medium">Geser untuk melihat dokumentasi
+                video reels event kami &rarr;</p>
+            <p class="print-only text-center text-xs text-slate-500">Dokumentasi foto &amp; video lengkap ada di
+                Instagram <strong>@seminggu_satu</strong> (instagram.com/seminggu_satu)</p>
+        </section>
+
+        <!-- SECTION 5: FINAL CALL TO ACTION -->
+        <section
+            class="print-flatten reveal-init bg-gradient-to-r from-brand-blue via-blue-600 to-indigo-700 rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden shadow-2xl shadow-blue-500/20">
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <h2 class="font-outfit text-3xl sm:text-4xl font-extrabold mb-4">Siap Bikin Event Seru Bareng Kami?</h2>
+                <p class="text-blue-100 text-sm sm:text-base leading-relaxed mb-8">
+                    Punya konsep khusus atau ingin berdiskusi skema mana yang paling cocok dengan tempat Anda? Kami
+                    sangat terbuka untuk berdiskusi (<em>open for discussion</em>).
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4 no-print">
+                    <a href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20saya%20mau%20diskusi%20kolaborasi%20event%20journaling."
+                        target="_blank" rel="noopener"
+                        class="btn-shine px-8 py-4 rounded-2xl bg-white text-brand-blue font-extrabold text-sm sm:text-base hover:bg-brand-yellow hover:text-slate-900 transition-all shadow-lg active:scale-95 flex items-center gap-2">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                        Hubungi Arnold (WhatsApp)
+                    </a>
+                </div>
             </div>
         </section>
 
-        <div class="page-footer">Seminggu Satu · Dibuat buat kebutuhan diskusi kolaborasi</div>
+        <!-- FOOTER -->
+        <footer class="text-center text-xs text-slate-500 border-t border-slate-800 pt-8 pb-12">
+            <p class="mb-1 font-semibold text-slate-400">Seminggu Satu — Journaling Community & Event Organizer</p>
+            <p>Jakarta &amp; Area Sekitarnya &bull; Instagram @seminggu_satu</p>
+        </footer>
+
     </div>
 
+    <!-- FLOATING STICKY WHATSAPP CTA BAR -->
+    <div id="stickyCta"
+        class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md transition-all duration-500 transform translate-y-24 opacity-0 pointer-events-none no-print">
+        <div
+            class="bg-slate-900/90 backdrop-blur-md border border-white/20 p-3 rounded-2xl shadow-2xl flex items-center justify-between gap-3 text-white">
+            <div class="flex items-center gap-2.5 pl-2">
+                <span class="relative flex h-3 w-3">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <div class="text-xs">
+                    <p class="font-bold">Diskusi Kolaborasi</p>
+                    <p class="text-[10px] text-slate-300">Tanyakan jadwal &amp; tempat</p>
+                </div>
+            </div>
+            <a href="https://wa.me/6281214574782?text=Halo%20Arnold%2C%20saya%20tertarik%20untuk%20diskusi%20kolaborasi%20event%20journaling."
+                target="_blank" rel="noopener"
+                class="btn-shine px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition-all flex items-center gap-1.5 shrink-0 active:scale-95 shadow-md shadow-emerald-500/20">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                Chat Arnold
+            </a>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT ANIMATION LOGIC -->
     <script>
-        if (window.lucide) lucide.createIcons();
+        // Initialize Lucide Icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
 
-        // "Download PDF" -- lewat print dialog browser (Save as PDF), bukan
-        // generate file di server. Stylesheet @media print di atas yang
-        // ngerapihin tampilannya (buang galeri Instagram yang nggak print
-        // dengan baik, paksa tema terang, dst).
-        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-        if (downloadPdfBtn) downloadPdfBtn.addEventListener('click', () => window.print());
+        // 1. Scroll Reveal IntersectionObserver
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px 0px -50px 0px',
+                threshold: 0.15
+            };
 
-        // Instagram embed.js dimuat async -- proses ulang beberapa kali kalau
-        // belum siap pas DOM-nya udah ada (sama pola kayak index.html).
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal-active');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal-init').forEach(el => {
+                revealObserver.observe(el);
+            });
+
+            // 2. Floating WhatsApp Bar Visibility on Scroll
+            const stickyCta = document.getElementById('stickyCta');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 400) {
+                    stickyCta.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+                    stickyCta.classList.add('translate-y-0', 'opacity-100');
+                } else {
+                    stickyCta.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+                    stickyCta.classList.remove('translate-y-0', 'opacity-100');
+                }
+            });
+        });
+
+        // 4. Smooth Count-Up Animation for Simulator Cost
+        let currentCostValue = 2900000;
+
+        function animateCostCount(start, end, duration) {
+            const obj = document.getElementById('totalCostCalc');
+            if (!obj) return;
+
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const currentValue = Math.floor(progress * (end - start) + start);
+
+                obj.innerText = new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    maximumFractionDigits: 0
+                }).format(currentValue);
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        const durasiRange = document.getElementById('durasiRange');
+        const pesertaRange = document.getElementById('pesertaRange');
+        const durasiVal = document.getElementById('durasiVal');
+        const pesertaVal = document.getElementById('pesertaVal');
+        const simWaBtn = document.getElementById('simWaBtn');
+
+        function updateCostCalculator() {
+            if (!durasiRange || !pesertaRange) return;
+
+            const hours = parseInt(durasiRange.value);
+            const guests = parseInt(pesertaRange.value);
+
+            durasiVal.innerText = hours + ' Jam';
+            pesertaVal.innerText = guests + ' Orang';
+
+            // Formula: (Jam * 1.250.000) + (Peserta * 20.000)
+            const targetTotal = (hours * 1250000) + (guests * 20000);
+
+            // Animate number count-up/down
+            animateCostCount(currentCostValue, targetTotal, 300);
+            currentCostValue = targetTotal;
+
+            // Dynamic WA Link
+            const formattedTotal = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
+            }).format(targetTotal);
+
+            const waMsg = encodeURIComponent(`Halo Arnold, saya mau reservasi Private Event (${hours} jam, ${guests} peserta, est: ${formattedTotal}).`);
+            simWaBtn.href = `https://wa.me/6281214574782?text=${waMsg}`;
+        }
+
+        if (durasiRange && pesertaRange) {
+            durasiRange.addEventListener('input', updateCostCalculator);
+            pesertaRange.addEventListener('input', updateCostCalculator);
+        }
+
+        // 5. Instagram Embed Re-processor Loop
         let igTries = 0;
         const igInterval = setInterval(() => {
             igTries++;
