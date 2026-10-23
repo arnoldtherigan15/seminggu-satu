@@ -968,6 +968,9 @@
       line-height: 0;
     }
 
+    .cell-color { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .cell-swatch { width: 16px; height: 16px; border-radius: 50%; flex: none; border: 1px solid rgba(15, 23, 42, .2); }
+
     .cell-img {
       width: 54px;
       height: 54px;
@@ -7300,7 +7303,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       frame: "Frame", initial: "Initials", frontCoverWord: "Cover Word",
       colorCover: "Cover Color", colorFlap: "Flap Color", colorStrap: "Strap Color",
       charmUrl: "Charm Photo", coverType: "Cover Type (Bag)", flapType: "Flap Type (Bag)",
-      rantai: "Chain Color", pita: "Ribbon Color", childName: "Child's Name"
+      rantai: "Chain Color", pita: "Ribbon Color", childName: "Child's Name",
+      colorBody: "Body Color", colorPita: "Ribbon Color", colorRantai: "Chain Color",
+      bookColor: "Book Color", bookType: "Book Type"
     };
     // Ubah `items` (array objek registrations) jadi shape lama {headers, rows, ids} biar
     // semua render/cari/export tabel yang udah ada nggak perlu ditulis ulang.
@@ -7344,7 +7349,47 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       return `<a href="${src}" target="_blank" rel="noopener" class="cell-img-link" data-full="${src}">` +
         `<img class="cell-img" src="${src}" alt="${escapeHtml(String(val))}" loading="lazy"></a>`;
     }
-    function frameCellHtml(val) { return `<td>${frameValueHtml(val)}</td>`; }
+    // Palet warna per workshop, DISALIN dari array warna di form pendaftaran
+    // masing-masing -- form cuma nyimpen NAMA warna, jadi admin butuh ini buat
+    // nampilin swatch-nya. Nama sama bisa beda hex antar workshop (mis. "Hijau
+    // Tua"), makanya dipisah per workshop. Kalau warna di form diubah/ditambah,
+    // ubah juga di sini. Nilai array = [base, pattern, bgSize] (pita bermotif).
+    const PAL_PJ_BODY = { "Putih Tulang": "#e6e3da", "Beige Krem": "#d3c4ac", "Coklat Muda": "#c1a88a", "Kuning Muda": "#e7dd5e", "Kuning": "#dccf43", "Orange": "#e94630", "Merah": "#d7181e", "Pink Muda": "#e4b9c8", "Pink Magenta": "#f2507b", "Ungu Muda": "#827cba", "Ungu Tua": "#7e4da5", "Biru Pastel": "#7dc9f0", "Biru Tua": "#0955a0", "Mint": "#8ebc9f", "Hijau Pastel": "#aecdbb", "Hijau Tua": "#0c5c3c", "Coklat": "#764432", "Hitam": "#2f2f31" }; // paper-journal/main.js `colors`
+    const PAL_PJ_STRAP = { "Putih": "#ebe5e5", "Cream": "#cfac8c", "Kuning": "#fde355", "Stabilo": "#9dde6d", "Orange": "#f05e37", "Merah": "#b71c2c", "Pink": "#f3c3b9", "Pink Magenta": "#b65179", "Ungu": "#692f4a", "Hijau": "#97ab52", "Tosca": "#77b59b", "Biru Muda": "#5cd0ea", "Biru Tua": "#0955a0", "Abu Abu": "#6c6f79", "Coklat": "#633114", "Hitam": "#110d0c" }; // paper-journal/main.js `strapColors`
+    const PAL_UJ_STRAP = { "Putih": "#ebe5e5", "Cream": "#cfac8c", "Kuning": "#fde355", "Stabilo": "#9dde6d", "Orange": "#f05e37", "Merah": "#b71c2c", "Pink": "#f3c3b9", "Pink Magenta": "#b65179", "Ungu": "#692f4a", "Hijau": "#97ab52", "Tosca": "#77b59b", "Biru Muda": "#5cd0ea", "Biru Tua": "#0955a0", "Abu Abu": "#6c6f79", "Coklat": "#633114", "Hitam": "#110d0c" }; // upcycle-journal/main.js `strapColors`
+    const PAL_PUC_BOOK = { "Toska": "#02bbe0", "Biru Langit": "#0281e1", "Maroon": "#af2e31", "Abu Tua": "#707270", "Jingga": "#fe8b30", "Hijau Tua": "#147242", "Fusia": "#fe0d88", "Ungu": "#4904a3", "Lavender": "#a27de2", "Kunyit": "#f4b004", "Kuning": "#f8e407", "Jambon": "#f29b94" }; // private-uc/main.js `bookColors`
+    const PAL_PUC_STRAP = { "Putih": "#ebe5e5", "Cream": "#cfac8c", "Kuning": "#fde355", "Stabilo": "#9dde6d", "Orange": "#f05e37", "Merah": "#b71c2c", "Pink": "#f3c3b9", "Pink Magenta": "#b65179", "Ungu": "#692f4a", "Hijau": "#97ab52", "Tosca": "#77b59b", "Biru Muda": "#5cd0ea", "Biru Tua": "#0955a0", "Abu Abu": "#6c6f79", "Coklat": "#633114", "Hitam": "#110d0c" }; // private-uc/main.js `strapColors`
+    const PAL_BJ_PITA = { "Hijau dot": ["#4CAF50", "radial-gradient(circle, #fff 25%, transparent 28%)", "10px 10px"], "Merah dot": ["#F44336", "radial-gradient(circle, #fff 25%, transparent 28%)", "10px 10px"], "Pink tua dot": ["#E91E63", "radial-gradient(circle, #fff 25%, transparent 28%)", "10px 10px"], "Biru tua dot": ["#1565C0", "radial-gradient(circle, #fff 25%, transparent 28%)", "10px 10px"], "Pink muda dot": ["#F48FB1", "radial-gradient(circle, #fff 25%, transparent 28%)", "10px 10px"], "Orange dot": ["#FF9800", "radial-gradient(circle, #fff 25%, transparent 28%)", "10px 10px"], "Hijau muda strip": ["#8BC34A", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Ungu strip": ["#9C27B0", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Biru tua strip": ["#1565C0", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Hitam strip": ["#212121", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Hijau tua strip": ["#2E7D32", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Biru muda strip": ["#03A9F4", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Merah strip": ["#F44336", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Coklat strip": ["#795548", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Kuning strip": ["#FFEB3B", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Orange strip": ["#FF9800", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"], "Fanta strip": ["#FF4081", "linear-gradient(90deg, rgba(255,255,255,0.5) 50%, transparent 50%), linear-gradient(rgba(255,255,255,0.5) 50%, transparent 50%)", "8px 8px"] }; // bookmark-journal/main.js `pitaColors`
+    const PAL_BJ_RANTAI = { "Putih": "#FFFFFF", "Kuning": "#FFEB3B", "Orange": "#FF9800", "Pink": "#E91E63", "Merah": "#F44336", "Ungu": "#9C27B0", "Tosca": "#009688", "Biru": "#2196F3", "Hijau": "#4CAF50", "Hitam": "#212121", "Gold": "#FFD700", "Silver": "#C0C0C0" }; // bookmark-journal/main.js `rantaiColors`
+    const REG_COLOR_PALETTES = {
+      "paper-journal": { colorBody: PAL_PJ_BODY, colorCover: PAL_PJ_BODY, colorFlap: PAL_PJ_BODY, colorStrap: PAL_PJ_STRAP },
+      "upcycle-journal": { colorStrap: PAL_UJ_STRAP },
+      "private-uc": { bookColor: PAL_PUC_BOOK, colorStrap: PAL_PUC_STRAP },
+      "bookmark-journal": { colorPita: PAL_BJ_PITA, pita: PAL_BJ_PITA, colorRantai: PAL_BJ_RANTAI, rantai: PAL_BJ_RANTAI }
+    };
+
+    function colorSwatchStyle(v) {
+      return Array.isArray(v)
+        ? `background-color:${v[0]};background-image:${v[1]};background-size:${v[2]};`
+        : `background:${v};`;
+    }
+    function regColorFor(workshop, key, val) {
+      const pal = (REG_COLOR_PALETTES[workshop] || {})[key];
+      const name = String(val || "").trim();
+      if (!pal || !name) return null;
+      if (pal[name]) return pal[name];
+      const hit = Object.keys(pal).find(n => n.toLowerCase() === name.toLowerCase());
+      return hit ? pal[hit] : null;
+    }
+    // Isi 1 sel data peserta berdasarkan key kolomnya: frame -> foto frame,
+    // kolom warna -> swatch + nama warna (biar pas prep nggak nebak warnanya),
+    // sisanya teks/gambar biasa.
+    function regValueHtml(key, val, workshop) {
+      if (key === "frame") return frameValueHtml(val);
+      const col = regColorFor(workshop, key, val);
+      if (col) return `<span class="cell-color"><span class="cell-swatch" style="${colorSwatchStyle(col)}"></span>${escapeHtml(String(val))}</span>`;
+      return cellValueHtml(val);
+    }
 
     async function loadRegistrations() {
       const workshop = document.getElementById("wsSelect").value;
@@ -7371,7 +7416,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         // Timestamp (tanggal+jam submit) ditampilin -- kepake buat cocokin
         // sama mutasi bank kalau bukti bayarnya nggak jelas.
         const tsIdx = shaped.headers.findIndex(h => /timestamp|waktu|registered/i.test(String(h)));
-        const frameIdx = shaped.keys ? shaped.keys.indexOf("frame") : -1;
         head.innerHTML = "<th>#</th>" + shaped.headers.map(h => `<th>${h}</th>`).join("") + "<th>Aksi</th>";
 
         if (!shaped.rows.length) {
@@ -7405,11 +7449,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           const archiveBtn = `<button class="sg-archive${isArchived ? " is-archived" : ""}" data-archivereg="${escapeHtml(regId)}" data-archived="${isArchived ? "0" : "1"}" title="${isArchived ? "Cancel their spot, but still counted in quota/loyalty/profit -- click to unarchive" : "Registered but not attending & already given a free slot at another event -- archive so it's excluded from quota/loyalty/profit, row stays saved"}">${icon("archive")} ${isArchived ? "Archived" : "Archive"}</button>`;
           const delBtn = `<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Delete</button>`;
 
-          const cells = row.map((c, idx) => idx === tsIdx ? `<td>${escapeHtml(fmtDateTime(c))}</td>` : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).join("");
+          const cells = row.map((c, idx) => idx === tsIdx ? `<td>${escapeHtml(fmtDateTime(c))}</td>` : `<td>${regValueHtml(shaped.keys[idx], c, workshop)}</td>`).join("");
           tableRows.push(`<tr style="${isArchived ? "opacity:.55;" : ""}"><td>${i + 1}</td>${cells}<td>${voidBadge}${photoBtn}${archiveBtn}${delBtn}</td></tr>`);
 
           const fieldsHtml = row.map((c, idx) => {
-            const val = idx === tsIdx ? escapeHtml(fmtDateTime(c)) : idx === frameIdx ? frameValueHtml(c) : cellValueHtml(c);
+            const val = idx === tsIdx ? escapeHtml(fmtDateTime(c)) : regValueHtml(shaped.keys[idx], c, workshop);
             if (val === "" || val == null) return null;
             return `<div class="mobile-card-field"><b>${escapeHtml(shaped.headers[idx])}:</b> ${val}</div>`;
           }).filter(Boolean).join("");
@@ -18542,7 +18586,6 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         const igIdx = headers.findIndex(h => /instagram|\big\b/i.test(h));
         const hadirIdx = headers.findIndex(h => String(h) === "Attendance");
         const tsIdx = headers.findIndex(h => /timestamp|waktu|registered/i.test(String(h)));
-        const frameIdx = shaped.keys ? shaped.keys.indexOf("frame") : -1;
         // Nama untuk sapaan: utamakan Nickname, fallback ke Nama Lengkap KALAU
         // Nickname-nya kosong buat baris itu (bukan cuma kalau kolomnya nggak
         // ada sama sekali -- banyak event lama belum ngumpulin Nickname).
@@ -18579,7 +18622,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           }
           const isPrinted = printedSet.has(id);
 
-          const cells = row.map((c, idx) => hideIdx(idx) ? null : idx === frameIdx ? frameCellHtml(c) : cellHtml(c)).filter(x => x !== null).join("");
+          const cells = row.map((c, idx) => hideIdx(idx) ? null : `<td>${regValueHtml(shaped.keys[idx], c, event)}</td>`).filter(x => x !== null).join("");
           const attCell = `<td><input type="checkbox" class="att-check" data-id="${escapeHtml(id)}" ${isHadir ? "checked" : ""}/></td>`;
           const action = hasAction ? `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>` : "";
           const printCell = `<td><input type="checkbox" class="print-check" data-id="${escapeHtml(id)}" ${isPrinted ? "checked" : ""} title="Tandai udah dicetak fotonya"/></td>`;
@@ -18587,7 +18630,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
           const fieldsHtml = row.map((c, idx) => {
             if (hideIdx(idx) || idx === nameIdx) return null;
-            const val = idx === frameIdx ? frameValueHtml(c) : cellValueHtml(c);
+            const val = regValueHtml(shaped.keys[idx], c, event);
             if (val === "" || val == null) return null;
             return `<div class="mobile-card-field"><b>${escapeHtml(headers[idx])}:</b> ${val}</div>`;
           }).filter(Boolean).join("");
