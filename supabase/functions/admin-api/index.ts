@@ -1470,7 +1470,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           const sellPrice = r.sell_price != null ? Number(r.sell_price) : null;
           const sold = salesByProduct.get(r.id) || { soldQty: 0, profit: 0 };
           return {
-            id: r.id, name: r.name, image: r.image || "",
+            id: r.id, code: r.code || "", name: r.name, image: r.image || "",
             materials: materialLines,
             // deno-lint-ignore no-explicit-any
             extraCosts: extraCosts.map((e: any) => ({ label: e.label, amount: Number(e.amount) || 0 })),

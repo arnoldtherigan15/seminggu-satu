@@ -5086,6 +5086,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div id="shopProdListWrap">
             <div class="toolbar">
               <button class="btn btn-sm" id="shopProdNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Produk Baru</button>
+              <div class="field">
+                <label for="shopProdSearch">Cari Produk</label>
+                <input class="form-control" type="text" id="shopProdSearch" placeholder="Cari nama / kode produk...">
+              </div>
               <button class="btn btn-sm btn-ghost" id="shopProdReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
             </div>
             <p class="hint" style="margin-bottom:12px;">Hitung HPP (Harga Pokok Penjualan) produk jualanmu: pilih bahan dari Stok Bahan + berapa yang kepake, tambahin biaya lain yang nggak butuh stok (ongkos print, ongkos kerja, dst) -- total HPP keitung otomatis & ikut keupdate kalau harga bahan berubah.</p>
@@ -5098,6 +5102,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
             <div class="fin-card">
               <div class="konten-field"><label>Nama Produk</label><input class="form-control" type="text" id="shopProdName" placeholder="mis. Deco Paper Matcha Series"></div>
+              <p class="hint" id="shopProdCodeInfo" style="margin:-4px 0 12px;"></p>
               <div class="konten-field"><label>Foto Produk</label>
                 <input class="form-control" type="text" id="shopProdImage" placeholder="Upload di bawah, atau tempel URL manual">
                 <input class="form-control" type="file" accept="image/*" id="shopProdImagePick" style="margin-top:6px;">
@@ -12012,6 +12017,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!shopProdInit) {
         document.getElementById("shopProdNewBtn").addEventListener("click", () => openShopProdEditor(null));
         document.getElementById("shopProdReloadBtn").addEventListener("click", loadShopProdList);
+        document.getElementById("shopProdSearch").addEventListener("input", renderShopProdList);
         document.getElementById("shopProdBackBtn").addEventListener("click", closeShopProdEditor);
         document.getElementById("shopProdAddMatBtn").addEventListener("click", () => {
           SHOPPROD_CURRENT.materials.push({ materialId: "", qty: 1 });
@@ -12050,8 +12056,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function renderShopProdList() {
       const listEl = document.getElementById("shopProdList");
       if (!SHOPPROD_LIST.length) { listEl.innerHTML = `<p class="hint">Belum ada produk. Klik "Produk Baru" buat mulai hitung HPP.</p>`; return; }
+      const searchVal = (document.getElementById("shopProdSearch").value || "").trim().toLowerCase();
+      const filtered = searchVal
+        ? SHOPPROD_LIST.filter(p => (p.name || "").toLowerCase().includes(searchVal) || (p.code || "").toLowerCase().includes(searchVal))
+        : SHOPPROD_LIST;
+      if (!filtered.length) { listEl.innerHTML = `<p class="hint">Nggak ada produk yang cocok dengan pencarian.</p>`; return; }
       listEl.innerHTML = "";
-      SHOPPROD_LIST.forEach(p => {
+      filtered.forEach(p => {
         const div = document.createElement("div");
         div.className = "fin-card";
         div.style.marginBottom = "10px";
@@ -12069,6 +12080,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                ${img}
                <div style="min-width:0;">
                  <div style="font-weight:700;">${escapeHtml(p.name)}</div>
+                 ${p.code ? `<div class="hint" style="margin-top:2px;">Kode: <b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em;">${escapeHtml(p.code)}</b></div>` : ""}
                  <div class="hint" style="margin-top:2px;">HPP: <b>${rupiah(p.hpp)}</b> (${p.materials.length} bahan + ${p.extraCosts.length} biaya lain)</div>
                  ${marginHtml}
                  <div class="hint" style="margin-top:2px;">Stok: <b>${p.stockQty}</b> &middot; Terjual: <b>${p.soldQty}</b> &middot; Untung: <b style="color:${p.profit >= 0 ? "#166534" : "var(--err)"}">${rupiah(p.profit)}</b></div>
@@ -12094,6 +12106,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("shopProdListWrap").style.display = "none";
       document.getElementById("shopProdEditorWrap").style.display = "block";
       document.getElementById("shopProdName").value = SHOPPROD_CURRENT.name || "";
+      // Kode dibikin otomatis di DB (inisial nama + 4 digit) & nggak ikut
+      // berubah walau namanya diganti -- di sini cuma ditampilin.
+      document.getElementById("shopProdCodeInfo").innerHTML = p && p.code
+        ? `Kode produk: <b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em;">${escapeHtml(p.code)}</b>`
+        : "Kode produk dibuat otomatis pas disimpan (inisial nama + 4 angka).";
       document.getElementById("shopProdImage").value = SHOPPROD_CURRENT.image || "";
       document.getElementById("shopProdImagePreview").innerHTML = SHOPPROD_CURRENT.image
         ? `<img src="${escapeHtml(SHOPPROD_CURRENT.image)}" style="width:100%;max-width:160px;border-radius:12px;display:block;">` : "";
