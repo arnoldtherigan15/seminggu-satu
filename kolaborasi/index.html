@@ -256,6 +256,28 @@
                 max-width: 270px;
                 scroll-snap-align: start;
             }
+
+            /* overflow-x:auto bikin overflow-y ikut auto -- kalau kartu
+               kegeser dikit (hover/reveal), slider jadi scroller vertikal
+               dan "nyolong" swipe ke bawah. Kunci cuma horizontal. */
+            .events-grid, .scheme-grid, .value-props-grid, .photo-slider {
+                overflow-y: hidden;
+                touch-action: pan-x pan-y;
+                overscroll-behavior-x: contain;
+            }
+
+            /* Kartu di dalam slider langsung tampil, tanpa animasi apa pun. */
+            :is(.events-grid, .scheme-grid, .value-props-grid, .photo-slider) * {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+
+        /* Di layar sentuh, tap = hover yang nyangkut. Matikan efek naiknya. */
+        @media (hover: none) {
+            .card-interactive:hover { transform: none; }
         }
 
         .print-only {
