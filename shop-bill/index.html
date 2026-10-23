@@ -241,8 +241,82 @@
             return res.json();
         }
 
+        function buildWaText(bill, eventInfo) {
+            const itemsText = bill.items.map(it => '- ' + it.productName + ' x' + it.qty + ' = ' + rupiah(it.lineTotal)).join('\n');
+            const eventPhrase = eventInfo ? (' di ' + eventInfo.workshopName + (eventInfo.label ? ' - ' + eventInfo.label : '')) : '';
+            const invoiceLink = location.href.split('?')[0] + '?o=' + orderId;
+            return 'Halo Arnold! Aku ' + bill.buyerName + ', mau checkout belanja' + eventPhrase + ':\n' + itemsText +
+                '\n\nTotal: ' + rupiah(bill.total) +
+                '\n\nLink Invoice: ' + invoiceLink;
+        }
+
+        // Tagihan yang UDAH di-checkout (checkedOutAt kesisi) -- kalau link-nya
+        // dibuka lagi (Arnold ngecek dari WA, pembeli buka ulang, dst), ini
+        // harus nunjukin invoice READ-ONLY, bukan form checkout yang masih
+        // bisa diedit kayak belum pernah di-checkout.
+        function renderInvoice(bill) {
+            const itemsHtml = bill.items.length
+                ? bill.items.map(it =>
+                    '<div class="item-row">' +
+                    '<div><div class="item-name">' + esc(it.productName) + '</div>' +
+                    '<div class="item-sub">' + it.qty + ' &times; ' + rupiah(it.unitSellPrice) + '</div></div>' +
+                    '<div class="item-total">' + rupiah(it.lineTotal) + '</div>' +
+                    '</div>'
+                ).join("")
+                : '<p class="sub" style="margin:0;">Tagihan ini kosong.</p>';
+            const eventLine = bill.event ? (esc(bill.event.workshopName) + (bill.event.label ? ' - ' + esc(bill.event.label) : '')) : '';
+
+            cardBox.innerHTML =
+                '<h1>Invoice Belanja</h1>' +
+                '<p class="sub">' + esc(bill.buyerName) + (eventLine ? ' &middot; ' + eventLine : '') + '</p>' +
+                (bill.isPaid
+                    ? '<div class="paid-badge">✓ Sudah Dikonfirmasi Lunas</div>'
+                    : '<div class="paid-badge" style="background:#fef9c3;color:#854d0e;">Menunggu Konfirmasi Pembayaran</div>') +
+                itemsHtml +
+                '<div class="total-row"><span>Total</span><b>' + rupiah(bill.total) + '</b></div>';
+            if (window.lucide) lucide.createIcons();
+
+            const actionCard = document.createElement('div');
+            actionCard.className = 'card';
+            actionCard.innerHTML =
+                '<div class="bank-box">' +
+                '<div class="bank-box-title">💳 Transfer ke rekening ini</div>' +
+                '<div class="bank-row"><div>' +
+                '<div class="bank-name">' + esc(BANK_NAME) + '</div>' +
+                '<div class="bank-acc">' + esc(BANK_ACCOUNT_NUMBER) + '</div>' +
+                '<div class="bank-owner">' + esc(BANK_OWNER) + '</div>' +
+                '</div><button class="copy-btn" id="copyBankBtn" type="button">Salin</button></div>' +
+                '</div>' +
+                (bill.buyerWa ? '<p class="sub">WA: ' + esc(waDisplay(bill.buyerWa)) + '</p>' : '') +
+                '<button class="btn btn-wa" id="resendBtn" type="button"><i data-lucide="send"></i> Kirim Ulang ke WA</button>' +
+                '<button class="btn btn-ghost" id="newBillBtn" type="button">Mulai Tagihan Baru</button>' +
+                '<div class="msg" id="checkoutMsg"></div>';
+            cardBox.insertAdjacentElement('afterend', actionCard);
+            if (window.lucide) lucide.createIcons();
+
+            const copyBankBtn = document.getElementById('copyBankBtn');
+            if (copyBankBtn) {
+                copyBankBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(BANK_ACCOUNT_NUMBER).then(() => {
+                        const old = copyBankBtn.textContent;
+                        copyBankBtn.textContent = 'Tersalin!';
+                        setTimeout(() => { copyBankBtn.textContent = old; }, 1500);
+                    }).catch(() => { alert('Nomor rekening: ' + BANK_ACCOUNT_NUMBER); });
+                });
+            }
+            const resendBtn = document.getElementById('resendBtn');
+            if (resendBtn) {
+                resendBtn.addEventListener('click', () => {
+                    window.open('https://wa.me/' + ARNOLD_WA + '?text=' + encodeURIComponent(buildWaText(bill, bill.event)), '_blank');
+                });
+            }
+            const newBillBtn = document.getElementById('newBillBtn');
+            if (newBillBtn) newBillBtn.addEventListener('click', startNewBill);
+        }
+
         function render(bill) {
             CURRENT_BILL = bill;
+            if (bill.checkedOutAt) { renderInvoice(bill); return; }
             const nameSet = bill.buyerName && bill.buyerName !== "Pembeli (belum isi nama)";
             const itemsHtml = bill.items.length
                 ? bill.items.map(it =>
@@ -378,15 +452,13 @@
                 const body = await apiCall(payload);
                 if (body.status === 'error') { msg.className = 'msg err'; msg.textContent = body.message || 'Gagal menyimpan.'; btn.disabled = false; return; }
                 const bill = body.bill;
-                const itemsText = bill.items.map(it => '- ' + it.productName + ' x' + it.qty + ' = ' + rupiah(it.lineTotal)).join('\n');
-                const eventPhrase = batch ? (' di ' + batch.workshopName + (batch.label ? ' - ' + batch.label : '')) : '';
-                const invoiceLink = location.href.split('?')[0] + '?o=' + orderId;
-                const text = 'Halo Arnold! Aku ' + name + ', mau checkout belanja' + eventPhrase + ':\n' + itemsText +
-                    '\n\nTotal: ' + rupiah(bill.total) +
-                    '\n\nLink Invoice: ' + invoiceLink;
                 try { localStorage.removeItem(BILL_KEY); } catch (e) { }
-                window.open('https://wa.me/' + ARNOLD_WA + '?text=' + encodeURIComponent(text), '_blank');
-                msg.className = 'msg ok'; msg.textContent = 'Terkirim! Tinggal tunggu konfirmasi dari Arnold ya.';
+                window.open('https://wa.me/' + ARNOLD_WA + '?text=' + encodeURIComponent(buildWaText(bill, bill.event)), '_blank');
+                // Checkout sukses -> tagihan ini sekarang "checkedOutAt" kesisi
+                // di backend, render ulang buat langsung pindah ke tampilan
+                // invoice read-only (bukan nahan di form checkout).
+                document.querySelectorAll('.card').forEach((el, i) => { if (i > 0) el.remove(); });
+                render(bill);
             } catch (e) {
                 msg.className = 'msg err'; msg.textContent = 'Koneksi gagal. Coba lagi.';
                 btn.disabled = false;

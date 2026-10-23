@@ -69,8 +69,28 @@ async function buildBillResponse(admin: SupabaseClient, orderId: string) {
   });
   // deno-lint-ignore no-explicit-any
   const total = items.reduce((s: number, it: any) => s + it.lineTotal, 0);
+
+  // Dipake halaman invoice (checkedOutAt != null) buat nunjukin ini order
+  // dari event mana -- nama manusiawinya, bukan workshop_type mentah.
+  let event: { workshopName: string; label: string } | null = null;
+  if (order.batch_id) {
+    const { data: batch } = await admin.from("batches").select("label, workshop_type").eq("id", order.batch_id).maybeSingle();
+    if (batch) {
+      let workshopName = batch.workshop_type;
+      try {
+        const json = await getConfigValue(admin, "WORKSHOPS_JSON");
+        const list = JSON.parse(json || "[]");
+        // deno-lint-ignore no-explicit-any
+        const found = (list as any[]).find((w: any) => w.id === batch.workshop_type);
+        if (found?.name) workshopName = found.name;
+      } catch (_e) { /* abaikan -- fallback ke workshop_type mentah */ }
+      event = { workshopName, label: batch.label || "" };
+    }
+  }
+
   return {
     orderId: order.id, buyerName: order.buyer_name, buyerWa: order.buyer_wa, isPaid: !!order.is_paid,
+    checkedOutAt: order.checked_out_at || null, event,
     items, total,
   };
 }
@@ -171,8 +191,9 @@ Deno.serve(async (req) => {
       if (!token) return errorResponse("Produk tidak ditemukan.");
       if (qty <= 0) return errorResponse("Jumlah harus lebih dari 0.");
 
-      const { data: order } = await admin.from("shop_orders").select("id").eq("id", orderId).maybeSingle();
+      const { data: order } = await admin.from("shop_orders").select("id, checked_out_at").eq("id", orderId).maybeSingle();
       if (!order) return errorResponse("Tagihan tidak ditemukan.", 404);
+      if (order.checked_out_at) return errorResponse("Tagihan ini udah di-checkout. Scan ulang QR buat mulai tagihan baru.");
 
       const { data: product } = await admin.from("shop_products").select("*").eq("sell_token", token).maybeSingle();
       if (!product) return errorResponse("Produk tidak ditemukan.", 404);
@@ -211,6 +232,8 @@ Deno.serve(async (req) => {
       if (!orderId || !itemId) return errorResponse("Item tidak ditemukan.");
       const { data: sale } = await admin.from("shop_sales").select("product_id, qty, order_id").eq("id", itemId).maybeSingle();
       if (!sale || sale.order_id !== orderId) return errorResponse("Item tidak ditemukan.", 404);
+      const { data: order } = await admin.from("shop_orders").select("checked_out_at").eq("id", orderId).maybeSingle();
+      if (order?.checked_out_at) return errorResponse("Tagihan ini udah di-checkout, nggak bisa diubah lagi.");
       const { error } = await admin.from("shop_sales").delete().eq("id", itemId);
       if (error) return errorResponse("Gagal menghapus item: " + error.message);
       const { data: product } = await admin.from("shop_products").select("stock_qty").eq("id", sale.product_id).maybeSingle();
@@ -231,7 +254,14 @@ Deno.serve(async (req) => {
       if (!orderId) return errorResponse("Tagihan tidak ditemukan.");
       if (!buyerName) return errorResponse("Nama wajib diisi.");
       // deno-lint-ignore no-explicit-any
-      const patch: Record<string, any> = { buyer_name: buyerName, buyer_wa: buyerWa, updated_at: new Date().toISOString() };
+      const patch: Record<string, any> = {
+        buyer_name: buyerName, buyer_wa: buyerWa, updated_at: new Date().toISOString(),
+        // setBuyer cuma kepanggil pas tombol "WA Arnold untuk Konfirmasi"
+        // ditekan -- nandain tagihan ini UDAH di-checkout, biar kalau
+        // link-nya dibuka lagi, shop-bill nunjukin invoice read-only,
+        // bukan form checkout yang masih bisa diedit.
+        checked_out_at: new Date().toISOString(),
+      };
       // batchId/registrationId OPSIONAL -- diisi kalau pembeli milih Event di
       // dropdown (+ nama-nya PAS cocok sama salah satu peserta batch itu),
       // biar order ini nyambung ke "Peserta Event" di admin, bukan selalu
