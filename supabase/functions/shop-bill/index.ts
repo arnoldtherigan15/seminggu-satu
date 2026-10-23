@@ -152,13 +152,16 @@ Deno.serve(async (req) => {
       // deno-lint-ignore no-explicit-any
       let participants: any[] = [];
       if (batchIds.length) {
-        const { data: regs } = await admin.from("registrations").select("id, full_name, nickname, wa, batch_id")
+        // Nomor WA peserta SENGAJA nggak diikutin di response ini -- endpoint
+        // publik, dan WA orang lain nggak boleh kebuka ke sembarang pembeli
+        // cuma karena ketik nama yang kebetulan cocok.
+        const { data: regs } = await admin.from("registrations").select("id, full_name, nickname, batch_id")
           .in("batch_id", batchIds).eq("archived", false);
         participants = (regs || [])
           // deno-lint-ignore no-explicit-any
           .map((r: any) => ({
             id: r.id, batchId: r.batch_id,
-            fullName: String(r.full_name || "").trim(), nickname: String(r.nickname || "").trim(), wa: r.wa || "",
+            fullName: String(r.full_name || "").trim(), nickname: String(r.nickname || "").trim(),
           }))
           // deno-lint-ignore no-explicit-any
           .filter((p: any) => p.fullName || p.nickname);

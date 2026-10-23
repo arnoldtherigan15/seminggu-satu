@@ -174,13 +174,14 @@
         // Auto-pilih batch yang event_date-nya = hari ini (kalau 2+ samaan
         // tanggal, yang PALING ATAS/awal di hasil urutan backend yang menang).
         //
-        // Daftar nama DIGABUNG dari SEMUA batch yang ditampilin (bukan
-        // di-scope per-batch) -- biar nama tetep ketemu walau Event yang lagi
-        // kepilih bukan yang itu. Milih nama yang PAS otomatis mindahin
-        // dropdown Event ke batch peserta itu + isi WA-nya.
+        // Daftar nama DI-SCOPE ke batch yang lagi KEPILIH aja (bukan digabung
+        // semua batch) -- biar peserta satu event nggak keliatan daftar nama
+        // peserta event LAIN. Ganti Event di dropdown = daftar nama ikut
+        // di-refresh ke batch itu.
         let CONTEXT_BATCHES = [];
         let selectedBatchId = null; // null = belum pernah di-set (beda sama "" = sengaja kosong)
-        let participantsByKey = {}; // nama (lengkap/nickname) -> {id, batchId, wa}
+        let ALL_PARTICIPANTS = []; // peserta MENTAH dari semua batch (belum di-scope)
+        let participantsByKey = {}; // nama (lengkap/nickname) -> {id, batchId} -- CUMA peserta batch yang lagi kepilih
 
         function todayStr() {
             const d = new Date();
@@ -209,23 +210,30 @@
             return checkoutContextPromise;
         }
 
+        // Daftar nama di-scope ke batch yang LAGI kepilih aja -- dipanggil
+        // ulang tiap Event di dropdown diganti.
+        function rebuildParticipantsByKey() {
+            participantsByKey = {};
+            if (!selectedBatchId) return; // "(Bukan peserta / pilih manual)" -> nggak ada rekomendasi nama
+            ALL_PARTICIPANTS.filter(p => p.batchId === selectedBatchId).forEach(p => {
+                if (p.fullName) participantsByKey[p.fullName] = p;
+                if (p.nickname) participantsByKey[p.nickname] = p;
+            });
+        }
+
         async function populateEventAndNames() {
             const evSel = document.getElementById('eventSelect');
             if (!evSel) return;
             const ctx = await loadCheckoutContext();
             CONTEXT_BATCHES = ctx.batches || [];
-
-            participantsByKey = {};
-            (ctx.participants || []).forEach(p => {
-                if (p.fullName) participantsByKey[p.fullName] = p;
-                if (p.nickname) participantsByKey[p.nickname] = p;
-            });
+            ALL_PARTICIPANTS = ctx.participants || [];
 
             if (selectedBatchId === null) {
                 const today = todayStr();
                 const todayMatch = CONTEXT_BATCHES.find(b => b.eventDate === today);
                 selectedBatchId = todayMatch ? todayMatch.id : "";
             }
+            rebuildParticipantsByKey();
 
             if (ctx.failed) {
                 evSel.innerHTML = '<option value="">(Gagal memuat daftar event -- coba reload halaman ini)</option>';
@@ -239,7 +247,14 @@
                     (b.eventDate ? ' (' + esc(formatEventDate(b.eventDate)) + ')' : '') + '</option>'
                 ).join('');
             evSel.value = selectedBatchId || '';
-            evSel.addEventListener('change', () => { selectedBatchId = evSel.value; });
+            evSel.addEventListener('change', () => {
+                selectedBatchId = evSel.value;
+                rebuildParticipantsByKey();
+                // kalau dropdown nama lagi kebuka, tutup -- daripada nunjukin
+                // daftar nama basi dari Event sebelumnya sampe diketik ulang.
+                const dd = document.getElementById('nameSuggestDropdown');
+                if (dd) dd.style.display = 'none';
+            });
         }
 
         async function apiCall(payload) {
@@ -387,19 +402,6 @@
             const nameInput = document.getElementById('nameInput');
             const nameDropdown = document.getElementById('nameSuggestDropdown');
             if (nameInput && nameDropdown) {
-                // Nama yang PAS cocok = kita tau dia beneran peserta batch mana
-                // -- auto-isi WA-nya + pindahin dropdown Event ke situ, biar
-                // nggak perlu nebak sendiri batch mana yang bener.
-                function applyNameMatch(name) {
-                    const p = participantsByKey[name];
-                    if (!p) return;
-                    if (p.wa) document.getElementById('waInput').value = waDisplay(p.wa);
-                    if (p.batchId) {
-                        selectedBatchId = p.batchId;
-                        const evSel = document.getElementById('eventSelect');
-                        if (evSel) evSel.value = p.batchId;
-                    }
-                }
                 // Dropdown custom gantiin <datalist> -- <datalist> hampir nggak
                 // kelihatan di Safari iOS (cuma strip "AutoFill" tipis di atas
                 // keyboard, bukan daftar beneran), jadi suggestion-nya dirender
@@ -421,17 +423,12 @@
                         // mousedown (bukan click) -- jalan SEBELUM blur nutup dropdown-nya
                         el.addEventListener('mousedown', (e) => {
                             e.preventDefault();
-                            const name = el.dataset.name;
-                            nameInput.value = name;
-                            applyNameMatch(name);
+                            nameInput.value = el.dataset.name;
                             nameDropdown.style.display = 'none';
                         });
                     });
                 }
-                nameInput.addEventListener('input', () => {
-                    applyNameMatch(nameInput.value.trim());
-                    renderNameSuggestions();
-                });
+                nameInput.addEventListener('input', renderNameSuggestions);
                 nameInput.addEventListener('focus', renderNameSuggestions);
                 nameInput.addEventListener('blur', () => { setTimeout(() => { nameDropdown.style.display = 'none'; }, 150); });
             }
