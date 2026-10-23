@@ -113,6 +113,25 @@
         .bank-owner { font-size: 0.78rem; color: var(--muted); }
         .copy-btn { background: var(--blue); color: #fff; border: none; border-radius: 10px; padding: 0.5rem 0.8rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; white-space: nowrap; font-family: inherit; }
         .copy-btn:active { transform: scale(0.96); }
+
+        .name-suggest-wrap { position: relative; }
+        .name-suggest-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% - 0.6rem);
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 10px 24px rgba(0,30,120,.14);
+            max-height: 230px;
+            overflow-y: auto;
+            z-index: 20;
+        }
+        .name-suggest-item { padding: 0.7rem 0.9rem; font-size: 0.95rem; cursor: pointer; border-bottom: 1px solid var(--line); }
+        .name-suggest-item:last-child { border-bottom: none; }
+        .name-suggest-item:active, .name-suggest-item.hi { background: var(--bg); }
     </style>
 </head>
 
@@ -190,14 +209,6 @@
             return checkoutContextPromise;
         }
 
-        function renderNameDatalist() {
-            const dl = document.getElementById('nameSuggestions');
-            if (!dl) return;
-            const opts = [];
-            Object.keys(participantsByKey).forEach(name => opts.push(name));
-            dl.innerHTML = opts.map(n => '<option value="' + esc(n) + '"></option>').join('');
-        }
-
         async function populateEventAndNames() {
             const evSel = document.getElementById('eventSelect');
             if (!evSel) return;
@@ -209,7 +220,6 @@
                 if (p.fullName) participantsByKey[p.fullName] = p;
                 if (p.nickname) participantsByKey[p.nickname] = p;
             });
-            renderNameDatalist();
 
             if (selectedBatchId === null) {
                 const today = todayStr();
@@ -360,8 +370,10 @@
                     '</div><button class="copy-btn" id="copyBankBtn" type="button">Salin</button></div>' +
                     '</div>' +
                     '<label for="nameInput">Nama Kamu</label>' +
-                    '<input type="text" id="nameInput" list="nameSuggestions" autocomplete="off" placeholder="Nama buat invoice" value="' + (nameSet ? esc(bill.buyerName) : '') + '">' +
-                    '<datalist id="nameSuggestions"></datalist>' +
+                    '<div class="name-suggest-wrap">' +
+                    '<input type="text" id="nameInput" autocomplete="off" placeholder="Nama buat invoice" value="' + (nameSet ? esc(bill.buyerName) : '') + '">' +
+                    '<div class="name-suggest-dropdown" id="nameSuggestDropdown"></div>' +
+                    '</div>' +
                     '<label for="waInput">Nomor WA (opsional)</label>' +
                     '<input type="text" id="waInput" placeholder="08xx..." value="' + esc(bill.buyerWa || '') + '">' +
                     '<button class="btn btn-wa" id="checkoutBtn" type="button"><i data-lucide="send"></i> WA Arnold untuk Konfirmasi</button>' +
@@ -373,20 +385,55 @@
             populateEventAndNames();
 
             const nameInput = document.getElementById('nameInput');
-            if (nameInput) {
-                nameInput.addEventListener('input', () => {
-                    const p = participantsByKey[nameInput.value.trim()];
+            const nameDropdown = document.getElementById('nameSuggestDropdown');
+            if (nameInput && nameDropdown) {
+                // Nama yang PAS cocok = kita tau dia beneran peserta batch mana
+                // -- auto-isi WA-nya + pindahin dropdown Event ke situ, biar
+                // nggak perlu nebak sendiri batch mana yang bener.
+                function applyNameMatch(name) {
+                    const p = participantsByKey[name];
                     if (!p) return;
                     if (p.wa) document.getElementById('waInput').value = waDisplay(p.wa);
-                    // Nama yang PAS kepilih = kita tau dia beneran peserta batch
-                    // mana -- pindahin dropdown Event ke situ otomatis, biar
-                    // nggak perlu nebak sendiri batch mana yang bener.
                     if (p.batchId) {
                         selectedBatchId = p.batchId;
                         const evSel = document.getElementById('eventSelect');
                         if (evSel) evSel.value = p.batchId;
                     }
+                }
+                // Dropdown custom gantiin <datalist> -- <datalist> hampir nggak
+                // kelihatan di Safari iOS (cuma strip "AutoFill" tipis di atas
+                // keyboard, bukan daftar beneran), jadi suggestion-nya dirender
+                // manual di sini, tetep bisa diketik bebas juga.
+                function renderNameSuggestions() {
+                    const q = nameInput.value.trim().toLowerCase();
+                    const all = Object.keys(participantsByKey);
+                    let matches = q ? all.filter(n => n.toLowerCase().includes(q)) : all;
+                    matches.sort((a, b) => {
+                        const aw = a.toLowerCase().startsWith(q) ? 0 : 1;
+                        const bw = b.toLowerCase().startsWith(q) ? 0 : 1;
+                        return aw !== bw ? aw - bw : a.localeCompare(b);
+                    });
+                    matches = matches.slice(0, 8);
+                    if (!matches.length) { nameDropdown.style.display = 'none'; nameDropdown.innerHTML = ''; return; }
+                    nameDropdown.innerHTML = matches.map(n => '<div class="name-suggest-item" data-name="' + esc(n) + '">' + esc(n) + '</div>').join('');
+                    nameDropdown.style.display = 'block';
+                    nameDropdown.querySelectorAll('[data-name]').forEach(el => {
+                        // mousedown (bukan click) -- jalan SEBELUM blur nutup dropdown-nya
+                        el.addEventListener('mousedown', (e) => {
+                            e.preventDefault();
+                            const name = el.dataset.name;
+                            nameInput.value = name;
+                            applyNameMatch(name);
+                            nameDropdown.style.display = 'none';
+                        });
+                    });
+                }
+                nameInput.addEventListener('input', () => {
+                    applyNameMatch(nameInput.value.trim());
+                    renderNameSuggestions();
                 });
+                nameInput.addEventListener('focus', renderNameSuggestions);
+                nameInput.addEventListener('blur', () => { setTimeout(() => { nameDropdown.style.display = 'none'; }, 150); });
             }
             const checkoutBtn = document.getElementById('checkoutBtn');
             if (checkoutBtn) checkoutBtn.addEventListener('click', checkout);
