@@ -18,7 +18,6 @@
         rel="stylesheet">
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -291,7 +290,7 @@
                     '<datalist id="nameSuggestions"></datalist>' +
                     '<label for="waInput">Nomor WA (opsional)</label>' +
                     '<input type="text" id="waInput" placeholder="08xx..." value="' + esc(bill.buyerWa || '') + '">' +
-                    '<button class="btn btn-wa" id="checkoutBtn" type="button"><i data-lucide="send"></i> Checkout &amp; Kirim ke WA</button>' +
+                    '<button class="btn btn-wa" id="checkoutBtn" type="button"><i data-lucide="send"></i> WA Arnold untuk Konfirmasi</button>' +
                     '<button class="btn btn-ghost" id="newBillBtn" type="button">Mulai Tagihan Baru</button>' +
                     '<div class="msg" id="checkoutMsg"></div>';
             }
@@ -357,72 +356,6 @@
             }
         }
 
-        function invoiceRow(label, value) {
-            return '<div style="display:flex;justify-content:space-between;margin-bottom:4px;gap:10px;">' +
-                '<span style="color:#6b7794;">' + label + '</span>' +
-                '<span style="font-weight:700;text-align:right;">' + value + '</span></div>';
-        }
-
-        function invoiceDateStr(d) {
-            try {
-                return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) +
-                    ', ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-            } catch (e) { return d.toISOString(); }
-        }
-
-        // Invoice ini CUMA catatan visual buat pembeli (download aja) --
-        // bukan pengganti link tagihan (link sebelumnya sering gagal dibuka
-        // Arnold karena cuma baca dari localStorage, bukan dari query param
-        // secara konsisten di semua browser). Order yang sebenernya udah
-        // tercatat ke admin lewat setBuyer, invoice ini cuma display.
-        async function renderAndDownloadInvoice(bill, name, wa, batch) {
-            const invNo = orderId.slice(0, 8).toUpperCase();
-            const itemsRows = bill.items.map(it =>
-                '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #e4e9f5;font-size:0.82rem;">' +
-                '<span>' + esc(it.productName) + ' <span style="color:#6b7794;">x' + it.qty + '</span></span>' +
-                '<span style="font-weight:700;white-space:nowrap;">' + rupiah(it.lineTotal) + '</span>' +
-                '</div>'
-            ).join('');
-
-            const card = document.createElement('div');
-            card.style.cssText = 'position:fixed;left:-10000px;top:0;width:380px;background:#ffffff;font-family:"Open Sans",sans-serif;color:#10245e;padding:30px 26px;';
-            card.innerHTML =
-                '<div style="text-align:center;margin-bottom:18px;">' +
-                '<div style="font-family:\'Outfit\',sans-serif;font-weight:800;font-size:1.35rem;color:#0046ff;">Seminggu Satu</div>' +
-                '<div style="font-size:0.72rem;color:#6b7794;letter-spacing:1.5px;margin-top:2px;">INVOICE BELANJA</div>' +
-                '</div>' +
-                '<div style="border-top:1.5px dashed #e4e9f5;border-bottom:1.5px dashed #e4e9f5;padding:12px 0;margin-bottom:14px;font-size:0.82rem;">' +
-                invoiceRow('No. Invoice', '#' + invNo) +
-                invoiceRow('Tanggal', invoiceDateStr(new Date())) +
-                invoiceRow('Nama', esc(name)) +
-                (wa ? invoiceRow('WA', esc(wa)) : '') +
-                (batch ? invoiceRow('Event', esc(batch.workshopName) + (batch.label ? ' - ' + esc(batch.label) : '')) : '') +
-                '</div>' +
-                itemsRows +
-                '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:6px;border-top:2px solid #10245e;">' +
-                '<span style="font-weight:800;">Total</span>' +
-                '<span style="font-family:\'Outfit\',sans-serif;font-weight:800;font-size:1.2rem;color:#0046ff;">' + rupiah(bill.total) + '</span>' +
-                '</div>' +
-                '<div style="text-align:center;margin-top:18px;">' +
-                '<span style="display:inline-block;background:#fef9c3;color:#854d0e;font-size:0.72rem;font-weight:800;padding:5px 14px;border-radius:20px;">MENUNGGU PEMBAYARAN</span>' +
-                '</div>' +
-                '<div style="text-align:center;margin-top:14px;font-size:0.7rem;color:#6b7794;">Simpan invoice ini sebagai catatan belanjamu 💙</div>';
-            document.body.appendChild(card);
-            try {
-                const canvas = await html2canvas(card, { scale: 2, backgroundColor: '#ffffff' });
-                const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-                if (blob) {
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = 'invoice-' + invNo + '.png';
-                    a.click();
-                    URL.revokeObjectURL(a.href);
-                }
-            } finally {
-                card.remove();
-            }
-        }
-
         async function checkout() {
             const nameInput = document.getElementById('nameInput');
             const waInput = document.getElementById('waInput');
@@ -431,16 +364,11 @@
             const name = nameInput.value.trim();
             if (!name) { msg.className = 'msg err'; msg.textContent = 'Isi namamu dulu ya.'; nameInput.focus(); return; }
             btn.disabled = true;
-            const bill = CURRENT_BILL;
-            const wa = waInput.value.trim();
-            const batch = CONTEXT_BATCHES.find(b => b.id === selectedBatchId) || null;
-
-            msg.className = 'msg'; msg.textContent = 'Menyiapkan invoice…';
-            try { await renderAndDownloadInvoice(bill, name, wa, batch); } catch (e) { /* invoice gagal dibuat, jangan blokir checkout */ }
-
-            msg.textContent = 'Menyimpan…';
+            msg.className = 'msg'; msg.textContent = 'Menyimpan…';
             try {
                 const matched = participantsByKey[name];
+                const wa = waInput.value.trim();
+                const batch = CONTEXT_BATCHES.find(b => b.id === selectedBatchId) || null;
                 const payload = { action: 'setBuyer', orderId, buyerName: name, buyerWa: wa };
                 if (selectedBatchId) {
                     payload.batchId = selectedBatchId;
@@ -449,15 +377,16 @@
                 if (matched) payload.registrationId = matched.id;
                 const body = await apiCall(payload);
                 if (body.status === 'error') { msg.className = 'msg err'; msg.textContent = body.message || 'Gagal menyimpan.'; btn.disabled = false; return; }
-
+                const bill = body.bill;
                 const itemsText = bill.items.map(it => '- ' + it.productName + ' x' + it.qty + ' = ' + rupiah(it.lineTotal)).join('\n');
                 const eventPhrase = batch ? (' di ' + batch.workshopName + (batch.label ? ' - ' + batch.label : '')) : '';
+                const invoiceLink = location.href.split('?')[0] + '?o=' + orderId;
                 const text = 'Halo Arnold! Aku ' + name + ', mau checkout belanja' + eventPhrase + ':\n' + itemsText +
                     '\n\nTotal: ' + rupiah(bill.total) +
-                    '\n\nBerikut bukti bayarnya';
+                    '\n\nLink Invoice: ' + invoiceLink;
                 try { localStorage.removeItem(BILL_KEY); } catch (e) { }
                 window.open('https://wa.me/' + ARNOLD_WA + '?text=' + encodeURIComponent(text), '_blank');
-                msg.className = 'msg ok'; msg.textContent = 'Invoice udah ke-download & WA ke Arnold udah dibuka. Lampirkan bukti transfernya di chat ya!';
+                msg.className = 'msg ok'; msg.textContent = 'Terkirim! Tinggal tunggu konfirmasi dari Arnold ya.';
             } catch (e) {
                 msg.className = 'msg err'; msg.textContent = 'Koneksi gagal. Coba lagi.';
                 btn.disabled = false;
