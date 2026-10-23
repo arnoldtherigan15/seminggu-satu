@@ -86,9 +86,12 @@ Deno.serve(async (req) => {
 
     // Dropdown "Event" + rekomendasi nama di layar checkout -- SEMUA tipe
     // workshop (bukan cuma reka-rekat), batch mana aja yang event_date-nya
-    // masih "relevan" (sekitar hari ini -- bukan ngandelin flag `active`,
-    // soalnya Arnold nggak selalu balikin flag itu ke false begitu event-nya
-    // udah lewat, jadi batch lama ikutan numpuk kalau kepake buat filter).
+    // hari ini atau ke depan -- bukan ngandelin flag `active`, soalnya
+    // Arnold nggak selalu balikin flag itu ke false begitu event-nya udah
+    // lewat, jadi batch lama ikutan numpuk kalau kepake buat filter. Event
+    // yang tanggalnya udah lewat nggak relevan buat self-checkout (nggak
+    // ada yang lagi checkout di event yang udah selesai), makanya nggak ada
+    // buffer ke belakang sama sekali.
     // Frontend yang nentuin default pilihan (match event_date = hari ini),
     // tapi daftar nama peserta-nya DIGABUNG dari SEMUA batch yang ditampilin
     // di sini -- biar nama tetep ketemu walau Event yang lagi dipilih bukan
@@ -98,7 +101,7 @@ Deno.serve(async (req) => {
     if (action === "getCheckoutContext") {
       const now = new Date();
       const toIso = (d: Date) => d.toISOString().slice(0, 10);
-      const minDate = toIso(new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000));
+      const minDate = toIso(now);
       const maxDate = toIso(new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000));
 
       const { data: batchRows } = await admin.from("batches")
