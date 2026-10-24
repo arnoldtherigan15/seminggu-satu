@@ -12601,6 +12601,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       }
     }
 
+    // Semua list pembeli diurutin dari yang paling baru (backend ngirim
+    // ascending -- yang terbaru malah nyangkut paling bawah).
+    const byNewestOrder = (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+
     function renderShopOrdRow(name, order, reg) {
       if (order) {
         const paidBtn = order.isPaid
@@ -12686,6 +12690,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         listEl.innerHTML = `<p class="hint">Nggak ada peserta yang cocok dengan pencarian.</p>`;
         return;
       }
+      withOrder.sort((a, b) => byNewestOrder(a.order, b.order));
+      withoutOrder.sort((a, b) => new Date(b.reg.created_at || 0) - new Date(a.reg.created_at || 0));
 
       let html = withOrder.length
         ? withOrder.map(({ reg, order }) => renderShopOrdRow(reg.full_name || reg.nickname || "(tanpa nama)", order, reg)).join("")
@@ -12747,7 +12753,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         listEl.innerHTML = `<p class="hint">${searchVal ? "Nggak ada pembeli yang cocok dengan pencarian." : "Belum ada pembeli lain di periode ini."}</p>`;
         return;
       }
-      listEl.innerHTML = filtered.map(o => renderShopOrdRow(o.buyerName, o, null)).join("");
+      listEl.innerHTML = filtered.slice().sort(byNewestOrder).map(o => renderShopOrdRow(o.buyerName, o, null)).join("");
       wireShopOrdRowHandlers(listEl, "walkin");
     }
 
@@ -12810,7 +12816,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         listEl.innerHTML = `<p class="hint">${searchVal ? "Nggak ada order yang cocok dengan pencarian." : "Belum ada order di periode ini."}</p>`;
         return;
       }
-      listEl.innerHTML = filtered.map(o => renderShopOrdRow(o.buyerName, o, null)).join("");
+      listEl.innerHTML = filtered.slice().sort(byNewestOrder).map(o => renderShopOrdRow(o.buyerName, o, null)).join("");
       wireShopOrdRowHandlers(listEl, "semua");
     }
 
