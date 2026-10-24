@@ -663,17 +663,34 @@
                 bar.id = 'evCartBar';
                 bar.innerHTML =
                     '<div class="cartbar-inner"><div><div class="cartbar-count" id="evBarCount"></div><div class="cartbar-total" id="evBarTotal"></div></div>' +
-                    '<button class="btn" id="evBarBtn" type="button">Checkout</button></div>';
+                    '<button class="btn" id="evBarBtn" type="button">Lanjut ke Pembayaran ↓</button></div>';
                 document.body.appendChild(bar);
                 document.getElementById('evBarBtn').addEventListener('click', () => {
                     checkoutCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 });
+                // Bar bawah cuma buat yang MASIH milih produk -- begitu kartu
+                // checkout keliatan, bar-nya ngilang, biar tombol yang tersisa
+                // cuma satu: "WA Arnold untuk Konfirmasi" (dulu ada 2 tombol
+                // biru+hijau barengan & pembeli ngira "Checkout" yang ngirim).
+                if ('IntersectionObserver' in window) {
+                    new IntersectionObserver(entries => {
+                        checkoutInView = entries[0].isIntersecting;
+                        syncCartBar();
+                    }, { threshold: 0.15 }).observe(checkoutCard);
+                }
                 wireNameSuggest(document.getElementById('nameInput'), document.getElementById('nameSuggestDropdown'));
                 wireCopyBank();
                 document.getElementById('checkoutBtn').addEventListener('click', checkoutEvent);
             }
             if (window.lucide) lucide.createIcons();
             updateEventCart();
+        }
+
+        let checkoutInView = false;
+        function syncCartBar() {
+            const bar = document.getElementById('evCartBar');
+            if (!bar) return;
+            bar.style.display = (cartLines().length > 0 && !checkoutInView) ? '' : 'none';
         }
 
         function updateEventCart() {
@@ -705,10 +722,9 @@
             const total = lines.reduce((s, l) => s + l.lineTotal, 0);
             const count = lines.reduce((s, l) => s + l.qty, 0);
             const checkoutCard = document.getElementById('evCheckout');
-            const bar = document.getElementById('evCartBar');
             const has = lines.length > 0;
             if (checkoutCard) checkoutCard.style.display = has ? '' : 'none';
-            if (bar) bar.style.display = has ? '' : 'none';
+            syncCartBar();
             document.querySelector('.wrap').classList.toggle('has-cartbar', has);
             if (!has) return;
             document.getElementById('evSummary').innerHTML =
