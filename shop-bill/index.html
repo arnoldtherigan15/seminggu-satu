@@ -445,16 +445,32 @@
             if (!nameInput || !nameDropdown) return;
             function renderNameSuggestions() {
                 const q = nameInput.value.trim().toLowerCase();
-                const all = Object.keys(participantsByKey);
-                let matches = q ? all.filter(n => n.toLowerCase().includes(q)) : all;
+                // participantsByKey nyimpen nama lengkap & nickname sebagai 2
+                // key yang nunjuk ke peserta yang SAMA -- dedupe per id biar
+                // satu orang cuma muncul sekali (dulu "Febrina P" + "Febri"
+                // muncul dobel). Tetep bisa dicari pake salah satunya.
+                const seen = new Set();
+                const people = Object.values(participantsByKey).filter(pp => {
+                    if (seen.has(pp.id)) return false;
+                    seen.add(pp.id);
+                    return true;
+                });
+                const display = pp => pp.fullName || pp.nickname;
+                const hit = pp => [pp.fullName, pp.nickname].some(n => n && n.toLowerCase().includes(q));
+                const starts = pp => [pp.fullName, pp.nickname].some(n => n && n.toLowerCase().startsWith(q));
+                let matches = q ? people.filter(hit) : people;
                 matches.sort((a, b) => {
-                    const aw = a.toLowerCase().startsWith(q) ? 0 : 1;
-                    const bw = b.toLowerCase().startsWith(q) ? 0 : 1;
-                    return aw !== bw ? aw - bw : a.localeCompare(b);
+                    const aw = starts(a) ? 0 : 1, bw = starts(b) ? 0 : 1;
+                    return aw !== bw ? aw - bw : display(a).localeCompare(display(b));
                 });
                 matches = matches.slice(0, 8);
                 if (!matches.length) { nameDropdown.style.display = 'none'; nameDropdown.innerHTML = ''; return; }
-                nameDropdown.innerHTML = matches.map(n => '<div class="name-suggest-item" data-name="' + esc(n) + '">' + esc(n) + '</div>').join('');
+                nameDropdown.innerHTML = matches.map(pp => {
+                    const main = display(pp);
+                    const nick = pp.fullName && pp.nickname && pp.nickname.toLowerCase() !== pp.fullName.toLowerCase() ? pp.nickname : '';
+                    return '<div class="name-suggest-item" data-name="' + esc(main) + '">' + esc(main) +
+                        (nick ? ' <span style="color:var(--muted);font-size:0.85em;">(' + esc(nick) + ')</span>' : '') + '</div>';
+                }).join('');
                 nameDropdown.style.display = 'block';
                 nameDropdown.querySelectorAll('[data-name]').forEach(el => {
                     // mousedown (bukan click) -- jalan SEBELUM blur nutup dropdown-nya
