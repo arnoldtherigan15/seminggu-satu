@@ -257,7 +257,7 @@ function withTimeout(promise, ms, label) {
     });
 }
 
-async function getCompressedBase64(file) {
+async function compressToBase64(file) {
     try {
         // Try canvas-based compression first (max 800px width/height, 0.7 quality)
         const compressedDataUrl = await withTimeout(compressImage(file, 800, 0.7), 20000, 'Kompres gambar');
@@ -267,6 +267,23 @@ async function getCompressedBase64(file) {
         // Fallback to reading file directly as base64
         return await withTimeout(fileToBase64(file), 20000, 'Baca gambar');
     }
+}
+
+// Chrome Android: File dari galeri (terutama Google Photos / foto di cloud)
+// cuma boleh dibaca sebentar setelah dipilih. Dulu foto baru dibaca pas
+// submit (bisa menit-an kemudian, abis ngisi form) -> izin bacanya udah
+// dicabut -> "Gagal membaca file gambar" (BUG nyata: pendaftar Reka Rekat &
+// Side by Side, Android). Sekarang dikompres LANGSUNG pas dipilih; hasilnya
+// (base64 kecil) disimpen di sini & dipakai ulang pas submit.
+const _compressedCache = new WeakMap();
+function primeCompressed(file) {
+    const p = compressToBase64(file);
+    _compressedCache.set(file, p);
+    p.catch(() => _compressedCache.delete(file));
+    return p;
+}
+function getCompressedBase64(file) {
+    return _compressedCache.get(file) || compressToBase64(file);
 }
 
 const selectedFiles = {};
@@ -324,6 +341,22 @@ function setupImageUpload(inputId, previewBoxId, previewImgId, cardImgId, cardSl
 
         // Store targetBlob in selectedFiles (converted JPEG)
         selectedFiles[inputId] = targetBlob;
+
+        // Kompres SEKARANG selagi izin bacanya masih ada (lihat _compressedCache).
+        showBlockerLoader('Menyiapkan foto...');
+        try {
+            await primeCompressed(targetBlob);
+        } catch (err) {
+            console.error('Photo read error:', err);
+            alert('Foto ini gagal dibaca HP kamu -- coba pilih ulang. Kalau fotonya dari Google Photos/cloud, download dulu ke galeri HP.');
+            input.value = '';
+            previewBox.classList.remove('has-image');
+            if (cardSlot) cardSlot.classList.remove('has-image');
+            delete selectedFiles[inputId];
+            return;
+        } finally {
+            hideBlockerLoader();
+        }
 
         // Instant preview using Object URL (safe for converted JPEG)
         const objectUrl = URL.createObjectURL(targetBlob);
