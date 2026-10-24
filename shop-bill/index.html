@@ -132,6 +132,34 @@
         .name-suggest-item { padding: 0.7rem 0.9rem; font-size: 0.95rem; cursor: pointer; border-bottom: 1px solid var(--line); }
         .name-suggest-item:last-child { border-bottom: none; }
         .name-suggest-item:active, .name-suggest-item.hi { background: var(--bg); }
+
+        /* ===== Belanja per event (?e=<batch_id>) ===== */
+        .wrap.has-cartbar { padding-bottom: 7rem; }
+        .prod-row { display: flex; align-items: center; gap: 12px; padding: 0.85rem 0; border-bottom: 1px solid var(--line); }
+        .prod-row:last-child { border-bottom: none; }
+        .prod-img { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .prod-info { flex: 1; min-width: 0; }
+        .prod-name { font-weight: 700; line-height: 1.3; }
+        .prod-price { font-family: 'Outfit', sans-serif; font-weight: 800; color: var(--blue); margin-top: 2px; }
+        .prod-stock { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
+        .prod-soldout { display: inline-block; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); }
+        .stepper { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .step-btn { width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font-size: 1.2rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform .1s, background .15s; font-family: inherit; }
+        .step-btn:active { transform: scale(0.92); }
+        .step-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .step-btn.plus { background: var(--blue); border-color: var(--blue); color: #fff; }
+        .step-qty { min-width: 22px; text-align: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.05rem; }
+        .add-btn { padding: 0.6rem 0.95rem; border-radius: 12px; border: none; background: var(--blue); color: #fff; font-weight: 800; font-size: 0.85rem; cursor: pointer; font-family: inherit; white-space: nowrap; transition: transform .1s; }
+        .add-btn:active { transform: scale(0.95); }
+        .cartbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom)); background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); }
+        :root[data-theme="dark"] .cartbar { background: rgba(13,21,38,0.92); }
+        .cartbar-inner { max-width: 460px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .cartbar-count { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+        .cartbar-total { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.2rem; }
+        .cartbar .btn { width: auto; padding: 0.8rem 1.2rem; }
+        .qris-box { text-align: center; margin-bottom: 1rem; }
+        .qris-box img { width: 100%; max-width: 240px; border-radius: 14px; border: 1px solid var(--line); background: #fff; }
+        .qris-box .bank-box-title { margin-bottom: 0.6rem; }
     </style>
 </head>
 
@@ -154,9 +182,14 @@
         const BANK_ACCOUNT_NUMBER = "090163537583";
         const BANK_OWNER = "a.n Arnold Therigan";
 
-        const orderId = new URLSearchParams(location.search).get('o') || (function () {
+        const PARAMS = new URLSearchParams(location.search);
+        // ?e=<batch_id> = belanja per EVENT (satu QR per event, pilih produk
+        // sendiri). ?o=<order_id> = tagihan/invoice. Tanpa dua-duanya =
+        // tagihan lama yang lagi jalan di HP ini (alur QR per produk).
+        const eventId = PARAMS.get('e') || '';
+        let orderId = PARAMS.get('o') || (eventId ? '' : (function () {
             try { return localStorage.getItem(BILL_KEY) || ""; } catch (e) { return ""; }
-        })();
+        })());
 
         const cardBox = document.getElementById('cardBox');
         let CURRENT_BILL = null;
@@ -303,32 +336,19 @@
 
             const actionCard = document.createElement('div');
             actionCard.className = 'card';
+            const qris = (bill.event && !bill.isPaid) ? bill.event.qrisImage : '';
+            const shopAgainId = bill.event && bill.event.batchId;
             actionCard.innerHTML =
-                '<div class="bank-box">' +
-                '<div class="bank-box-title">💳 Transfer ke rekening ini</div>' +
-                '<div class="bank-row"><div>' +
-                '<div class="bank-name">' + esc(BANK_NAME) + '</div>' +
-                '<div class="bank-acc">' + esc(BANK_ACCOUNT_NUMBER) + '</div>' +
-                '<div class="bank-owner">' + esc(BANK_OWNER) + '</div>' +
-                '</div><button class="copy-btn" id="copyBankBtn" type="button">Salin</button></div>' +
-                '</div>' +
+                (bill.isPaid ? '' : paymentHtml(qris, 'Transfer ke rekening ini')) +
                 (bill.buyerWa ? '<p class="sub">WA: ' + esc(waDisplay(bill.buyerWa)) + '</p>' : '') +
                 '<button class="btn btn-wa" id="resendBtn" type="button"><i data-lucide="send"></i> Kirim Ulang ke WA</button>' +
-                '<button class="btn btn-ghost" id="newBillBtn" type="button">Mulai Tagihan Baru</button>' +
+                (shopAgainId
+                    ? '<a class="btn btn-ghost" style="text-decoration:none;" href="?e=' + encodeURIComponent(shopAgainId) + '">Belanja Lagi</a>'
+                    : '<button class="btn btn-ghost" id="newBillBtn" type="button">Mulai Tagihan Baru</button>') +
                 '<div class="msg" id="checkoutMsg"></div>';
             cardBox.insertAdjacentElement('afterend', actionCard);
             if (window.lucide) lucide.createIcons();
-
-            const copyBankBtn = document.getElementById('copyBankBtn');
-            if (copyBankBtn) {
-                copyBankBtn.addEventListener('click', () => {
-                    navigator.clipboard.writeText(BANK_ACCOUNT_NUMBER).then(() => {
-                        const old = copyBankBtn.textContent;
-                        copyBankBtn.textContent = 'Tersalin!';
-                        setTimeout(() => { copyBankBtn.textContent = old; }, 1500);
-                    }).catch(() => { alert('Nomor rekening: ' + BANK_ACCOUNT_NUMBER); });
-                });
-            }
+            wireCopyBank();
             const resendBtn = document.getElementById('resendBtn');
             if (resendBtn) {
                 resendBtn.addEventListener('click', () => {
@@ -399,39 +419,7 @@
             if (window.lucide) lucide.createIcons();
             populateEventAndNames();
 
-            const nameInput = document.getElementById('nameInput');
-            const nameDropdown = document.getElementById('nameSuggestDropdown');
-            if (nameInput && nameDropdown) {
-                // Dropdown custom gantiin <datalist> -- <datalist> hampir nggak
-                // kelihatan di Safari iOS (cuma strip "AutoFill" tipis di atas
-                // keyboard, bukan daftar beneran), jadi suggestion-nya dirender
-                // manual di sini, tetep bisa diketik bebas juga.
-                function renderNameSuggestions() {
-                    const q = nameInput.value.trim().toLowerCase();
-                    const all = Object.keys(participantsByKey);
-                    let matches = q ? all.filter(n => n.toLowerCase().includes(q)) : all;
-                    matches.sort((a, b) => {
-                        const aw = a.toLowerCase().startsWith(q) ? 0 : 1;
-                        const bw = b.toLowerCase().startsWith(q) ? 0 : 1;
-                        return aw !== bw ? aw - bw : a.localeCompare(b);
-                    });
-                    matches = matches.slice(0, 8);
-                    if (!matches.length) { nameDropdown.style.display = 'none'; nameDropdown.innerHTML = ''; return; }
-                    nameDropdown.innerHTML = matches.map(n => '<div class="name-suggest-item" data-name="' + esc(n) + '">' + esc(n) + '</div>').join('');
-                    nameDropdown.style.display = 'block';
-                    nameDropdown.querySelectorAll('[data-name]').forEach(el => {
-                        // mousedown (bukan click) -- jalan SEBELUM blur nutup dropdown-nya
-                        el.addEventListener('mousedown', (e) => {
-                            e.preventDefault();
-                            nameInput.value = el.dataset.name;
-                            nameDropdown.style.display = 'none';
-                        });
-                    });
-                }
-                nameInput.addEventListener('input', renderNameSuggestions);
-                nameInput.addEventListener('focus', renderNameSuggestions);
-                nameInput.addEventListener('blur', () => { setTimeout(() => { nameDropdown.style.display = 'none'; }, 150); });
-            }
+            wireNameSuggest(document.getElementById('nameInput'), document.getElementById('nameSuggestDropdown'));
             const checkoutBtn = document.getElementById('checkoutBtn');
             if (checkoutBtn) checkoutBtn.addEventListener('click', checkout);
             const newBillBtn = document.getElementById('newBillBtn');
@@ -446,6 +434,66 @@
                     }).catch(() => { alert('Nomor rekening: ' + BANK_ACCOUNT_NUMBER); });
                 });
             }
+        }
+
+        // Dropdown custom gantiin <datalist> -- <datalist> hampir nggak
+        // kelihatan di Safari iOS (cuma strip "AutoFill" tipis di atas
+        // keyboard, bukan daftar beneran), jadi suggestion-nya dirender
+        // manual di sini, tetep bisa diketik bebas juga. Sumber nama =
+        // participantsByKey (udah di-scope ke satu batch).
+        function wireNameSuggest(nameInput, nameDropdown) {
+            if (!nameInput || !nameDropdown) return;
+            function renderNameSuggestions() {
+                const q = nameInput.value.trim().toLowerCase();
+                const all = Object.keys(participantsByKey);
+                let matches = q ? all.filter(n => n.toLowerCase().includes(q)) : all;
+                matches.sort((a, b) => {
+                    const aw = a.toLowerCase().startsWith(q) ? 0 : 1;
+                    const bw = b.toLowerCase().startsWith(q) ? 0 : 1;
+                    return aw !== bw ? aw - bw : a.localeCompare(b);
+                });
+                matches = matches.slice(0, 8);
+                if (!matches.length) { nameDropdown.style.display = 'none'; nameDropdown.innerHTML = ''; return; }
+                nameDropdown.innerHTML = matches.map(n => '<div class="name-suggest-item" data-name="' + esc(n) + '">' + esc(n) + '</div>').join('');
+                nameDropdown.style.display = 'block';
+                nameDropdown.querySelectorAll('[data-name]').forEach(el => {
+                    // mousedown (bukan click) -- jalan SEBELUM blur nutup dropdown-nya
+                    el.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        nameInput.value = el.dataset.name;
+                        nameDropdown.style.display = 'none';
+                    });
+                });
+            }
+            nameInput.addEventListener('input', renderNameSuggestions);
+            nameInput.addEventListener('focus', renderNameSuggestions);
+            nameInput.addEventListener('blur', () => { setTimeout(() => { nameDropdown.style.display = 'none'; }, 150); });
+        }
+
+        // Kotak pembayaran -- QRIS batch (kalau Arnold udah upload) + rekening.
+        function paymentHtml(qrisImage, title) {
+            return (qrisImage
+                ? '<div class="qris-box"><div class="bank-box-title">📱 Scan QRIS</div><img src="' + esc(qrisImage) + '" alt="QRIS pembayaran"></div>'
+                : '') +
+                '<div class="bank-box">' +
+                '<div class="bank-box-title">💳 ' + esc(qrisImage ? 'Atau transfer ke rekening ini' : title) + '</div>' +
+                '<div class="bank-row"><div>' +
+                '<div class="bank-name">' + esc(BANK_NAME) + '</div>' +
+                '<div class="bank-acc">' + esc(BANK_ACCOUNT_NUMBER) + '</div>' +
+                '<div class="bank-owner">' + esc(BANK_OWNER) + '</div>' +
+                '</div><button class="copy-btn" id="copyBankBtn" type="button">Salin</button></div>' +
+                '</div>';
+        }
+        function wireCopyBank() {
+            const copyBankBtn = document.getElementById('copyBankBtn');
+            if (!copyBankBtn) return;
+            copyBankBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(BANK_ACCOUNT_NUMBER).then(() => {
+                    const old = copyBankBtn.textContent;
+                    copyBankBtn.textContent = 'Tersalin!';
+                    setTimeout(() => { copyBankBtn.textContent = old; }, 1500);
+                }).catch(() => { alert('Nomor rekening: ' + BANK_ACCOUNT_NUMBER); });
+            });
         }
 
         async function load() {
@@ -515,8 +563,209 @@
             renderError('Tagihan baru siap -- scan QR produk buat mulai belanja lagi.');
         }
 
-        load();
-        loadCheckoutContext();
+        // ===================== Belanja per EVENT =====================
+        let EV = null;        // { event, products, participants } dari getEventShop
+        let CART = {};        // productId -> qty
+        const CART_KEY = 'ss_event_cart_' + eventId;
+        function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(CART)); } catch (e) { } }
+        function readCart() { try { return JSON.parse(localStorage.getItem(CART_KEY) || '{}') || {}; } catch (e) { return {}; } }
+
+        // Rapihin keranjang sesuai stok terbaru (barang bisa keburu dibeli
+        // orang lain / dihapus Arnold dari daftar event).
+        function clampCart() {
+            const byId = new Map(EV.products.map(p => [p.productId, p]));
+            Object.keys(CART).forEach(id => {
+                const p = byId.get(id);
+                if (!p || p.available <= 0 || !(CART[id] > 0)) delete CART[id];
+                else CART[id] = Math.min(CART[id], p.available);
+            });
+            saveCart();
+        }
+        function cartLines() {
+            return EV.products.filter(p => CART[p.productId] > 0)
+                .map(p => ({ productId: p.productId, name: p.name, qty: CART[p.productId], price: p.sellPrice, lineTotal: CART[p.productId] * p.sellPrice }));
+        }
+
+        async function fetchEventShop() {
+            const body = await apiCall({ action: 'getEventShop', batchId: eventId });
+            if (body.status === 'error') throw new Error(body.message || 'Event nggak ketemu.');
+            return body;
+        }
+
+        async function loadEventShop() {
+            cardBox.innerHTML = '<div class="state-box"><p>Sebentar ya, lagi nyiapin daftar produknya…</p></div>';
+            try {
+                EV = await fetchEventShop();
+            } catch (e) {
+                renderError(e.message === 'Failed to fetch' ? 'Koneksi gagal. Cek internetmu lalu muat ulang halaman ini.' : e.message);
+                return;
+            }
+            participantsByKey = {};
+            EV.participants.forEach(p => {
+                if (p.fullName) participantsByKey[p.fullName] = p;
+                if (p.nickname) participantsByKey[p.nickname] = p;
+            });
+            CART = readCart();
+            clampCart();
+            renderEventShop();
+        }
+
+        // Kerangka dirender SEKALI -- tombol +/- cuma nge-update bagian
+        // produk & ringkasan, biar nama/WA yang lagi diketik nggak ke-reset.
+        function renderEventShop() {
+            const ev = EV.event;
+            const dateTxt = ev.eventDate ? formatEventDate(ev.eventDate) : '';
+            document.title = 'Belanja di ' + ev.workshopName + ' — Seminggu Satu';
+            cardBox.innerHTML =
+                '<h1>🛍️ Belanja di ' + esc(ev.workshopName) + '</h1>' +
+                '<p class="sub">' + esc([ev.label, dateTxt].filter(Boolean).join(' · ')) + '</p>' +
+                (EV.products.length
+                    ? '<p class="sub" style="margin-top:-0.5rem;">Pilih barang yang mau kamu bawa pulang, terus checkout di bawah ya ✨</p><div id="evProducts"></div>'
+                    : '<div class="state-box"><i data-lucide="package-open"></i><h3>Belum ada produk</h3><p>Produk buat event ini belum disiapin. Tanya Arnold langsung ya 🙌</p></div>');
+
+            if (EV.products.length) {
+                const checkoutCard = document.createElement('div');
+                checkoutCard.className = 'card';
+                checkoutCard.id = 'evCheckout';
+                checkoutCard.innerHTML =
+                    '<h1 style="font-size:1.1rem;">Checkout</h1>' +
+                    '<div id="evSummary" style="margin-bottom:1rem;"></div>' +
+                    '<label for="nameInput">Nama Kamu</label>' +
+                    '<div class="name-suggest-wrap">' +
+                    '<input type="text" id="nameInput" autocomplete="off" placeholder="Nama buat invoice">' +
+                    '<div class="name-suggest-dropdown" id="nameSuggestDropdown"></div>' +
+                    '</div>' +
+                    '<label for="waInput">Nomor WA (opsional)</label>' +
+                    '<input type="text" id="waInput" inputmode="tel" placeholder="08xx...">' +
+                    paymentHtml(ev.qrisImage, 'Transfer ke rekening ini') +
+                    '<button class="btn btn-wa" id="checkoutBtn" type="button"><i data-lucide="send"></i> WA Arnold untuk Konfirmasi</button>' +
+                    '<div class="msg" id="checkoutMsg"></div>';
+                cardBox.insertAdjacentElement('afterend', checkoutCard);
+
+                const bar = document.createElement('div');
+                bar.className = 'cartbar';
+                bar.id = 'evCartBar';
+                bar.innerHTML =
+                    '<div class="cartbar-inner"><div><div class="cartbar-count" id="evBarCount"></div><div class="cartbar-total" id="evBarTotal"></div></div>' +
+                    '<button class="btn" id="evBarBtn" type="button">Checkout</button></div>';
+                document.body.appendChild(bar);
+                document.getElementById('evBarBtn').addEventListener('click', () => {
+                    checkoutCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+                wireNameSuggest(document.getElementById('nameInput'), document.getElementById('nameSuggestDropdown'));
+                wireCopyBank();
+                document.getElementById('checkoutBtn').addEventListener('click', checkoutEvent);
+            }
+            if (window.lucide) lucide.createIcons();
+            updateEventCart();
+        }
+
+        function updateEventCart() {
+            const listEl = document.getElementById('evProducts');
+            if (!listEl) return;
+            listEl.innerHTML = EV.products.map(p => {
+                const qty = CART[p.productId] || 0;
+                const img = p.image
+                    ? '<img class="prod-img" src="' + esc(p.image) + '" alt="" loading="lazy">'
+                    : '<div class="prod-img">🛍️</div>';
+                let ctrl;
+                if (p.available <= 0) ctrl = '<span class="prod-soldout">Habis</span>';
+                else if (!qty) ctrl = '<button class="add-btn" data-plus="' + esc(p.productId) + '" type="button">+ Tambah</button>';
+                else ctrl = '<div class="stepper">' +
+                    '<button class="step-btn" data-minus="' + esc(p.productId) + '" type="button" aria-label="Kurangi">−</button>' +
+                    '<span class="step-qty">' + qty + '</span>' +
+                    '<button class="step-btn plus" data-plus="' + esc(p.productId) + '" type="button" aria-label="Tambah"' + (qty >= p.available ? ' disabled' : '') + '>+</button>' +
+                    '</div>';
+                return '<div class="prod-row">' + img +
+                    '<div class="prod-info"><div class="prod-name">' + esc(p.name) + '</div>' +
+                    '<div class="prod-price">' + rupiah(p.sellPrice) + '</div>' +
+                    (p.available > 0 ? '<div class="prod-stock">Sisa ' + p.available + '</div>' : '') +
+                    '</div>' + ctrl + '</div>';
+            }).join('');
+            listEl.querySelectorAll('[data-plus]').forEach(b => b.addEventListener('click', () => changeQty(b.dataset.plus, 1)));
+            listEl.querySelectorAll('[data-minus]').forEach(b => b.addEventListener('click', () => changeQty(b.dataset.minus, -1)));
+
+            const lines = cartLines();
+            const total = lines.reduce((s, l) => s + l.lineTotal, 0);
+            const count = lines.reduce((s, l) => s + l.qty, 0);
+            const checkoutCard = document.getElementById('evCheckout');
+            const bar = document.getElementById('evCartBar');
+            const has = lines.length > 0;
+            if (checkoutCard) checkoutCard.style.display = has ? '' : 'none';
+            if (bar) bar.style.display = has ? '' : 'none';
+            document.querySelector('.wrap').classList.toggle('has-cartbar', has);
+            if (!has) return;
+            document.getElementById('evSummary').innerHTML =
+                lines.map(l =>
+                    '<div class="item-row"><div><div class="item-name">' + esc(l.name) + '</div>' +
+                    '<div class="item-sub">' + l.qty + ' &times; ' + rupiah(l.price) + '</div></div>' +
+                    '<div class="item-total">' + rupiah(l.lineTotal) + '</div></div>'
+                ).join('') +
+                '<div class="total-row"><span>Total</span><b>' + rupiah(total) + '</b></div>';
+            document.getElementById('evBarCount').textContent = count + ' barang';
+            document.getElementById('evBarTotal').textContent = rupiah(total);
+        }
+
+        function changeQty(productId, delta) {
+            const p = EV.products.find(x => x.productId === productId);
+            if (!p) return;
+            const next = Math.max(0, Math.min((CART[productId] || 0) + delta, p.available));
+            if (next) CART[productId] = next; else delete CART[productId];
+            saveCart();
+            updateEventCart();
+        }
+
+        async function checkoutEvent() {
+            const nameInput = document.getElementById('nameInput');
+            const waInput = document.getElementById('waInput');
+            const btn = document.getElementById('checkoutBtn');
+            const msg = document.getElementById('checkoutMsg');
+            const name = nameInput.value.trim();
+            if (!name) { msg.className = 'msg err'; msg.textContent = 'Isi namamu dulu ya.'; nameInput.focus(); return; }
+            const lines = cartLines();
+            if (!lines.length) { msg.className = 'msg err'; msg.textContent = 'Keranjangmu masih kosong.'; return; }
+            btn.disabled = true;
+            msg.className = 'msg'; msg.textContent = 'Menyimpan pesananmu…';
+            try {
+                const matched = participantsByKey[name];
+                const body = await apiCall({
+                    action: 'checkoutEvent', batchId: eventId, buyerName: name, buyerWa: waInput.value.trim(),
+                    registrationId: matched ? matched.id : null,
+                    items: lines.map(l => ({ productId: l.productId, qty: l.qty })),
+                });
+                if (body.status === 'error') {
+                    // Kemungkinan besar stok keburu berubah -- segerin angka sisa
+                    // & rapihin keranjang, tapi nama/WA yang udah diketik tetep.
+                    try { EV = Object.assign(EV, await fetchEventShop()); clampCart(); updateEventCart(); } catch (e) { }
+                    msg.className = 'msg err'; msg.textContent = body.message || 'Gagal menyimpan pesanan.';
+                    btn.disabled = false;
+                    return;
+                }
+                const bill = body.bill;
+                orderId = bill.orderId;
+                CART = {};
+                try { localStorage.removeItem(CART_KEY); } catch (e) { }
+                // URL jadi link invoice -- kalau di-refresh/dibuka lagi, yang
+                // muncul invoice-nya, bukan katalog kosong.
+                history.replaceState(null, '', location.pathname + '?o=' + encodeURIComponent(orderId));
+                window.open('https://wa.me/' + ARNOLD_WA + '?text=' + encodeURIComponent(buildWaText(bill, bill.event)), '_blank');
+                const bar = document.getElementById('evCartBar');
+                if (bar) bar.remove();
+                document.querySelector('.wrap').classList.remove('has-cartbar');
+                document.querySelectorAll('.card').forEach((el, i) => { if (i > 0) el.remove(); });
+                render(bill);
+            } catch (e) {
+                msg.className = 'msg err'; msg.textContent = 'Koneksi gagal. Coba lagi.';
+                btn.disabled = false;
+            }
+        }
+
+        if (eventId && !PARAMS.get('o')) {
+            loadEventShop();
+        } else {
+            load();
+            loadCheckoutContext();
+        }
     </script>
 </body>
 

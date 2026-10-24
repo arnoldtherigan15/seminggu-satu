@@ -12,6 +12,7 @@ import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from ".
 import { activeBirthdayVoucher } from "../_shared/birthday.ts";
 import { callGemini } from "../_shared/gemini.ts";
 import { mergeBatchConfig, currentPrice, isBatchOpen } from "../_shared/batch-merge.ts";
+import { getEventShopLines } from "../_shared/event-shop.ts";
 
 const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side", "private-uc"];
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
@@ -1597,6 +1598,38 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           };
         });
         return jsonResponse({ status: "success", orders: result });
+      }
+
+      // "Produk yang Dibawa" ke satu event -- lihat migration
+      // add_shop_batch_products & _shared/event-shop.ts.
+      case "getBatchShopProducts": {
+        const batchId = String(data.batchId || "");
+        if (!batchId) return errorResponse("Batch tidak valid.");
+        const lines = await getEventShopLines(admin, batchId);
+        return jsonResponse({ status: "success", lines });
+      }
+
+      // Ganti SELURUH daftar produk yang dibawa ke batch ini (pola checklist:
+      // yang nggak dicentang = dihapus dari daftar). Order yang udah kejadian
+      // nggak kesentuh sama sekali -- ini cuma daftar katalog event.
+      case "saveBatchShopProducts": {
+        const batchId = String(data.batchId || "");
+        if (!batchId) return errorResponse("Batch tidak valid.");
+        const byProduct = new Map<string, number>();
+        for (const it of (Array.isArray(data.items) ? data.items : [])) {
+          const productId = String(it?.productId || "");
+          const qty = Math.floor(Number(it?.qty) || 0);
+          if (productId && qty > 0) byProduct.set(productId, qty);
+        }
+        const { error: delErr } = await admin.from("shop_batch_products").delete().eq("batch_id", batchId);
+        if (delErr) return errorResponse("Gagal menyimpan: " + delErr.message);
+        if (byProduct.size) {
+          const rows = Array.from(byProduct, ([product_id, qty]) => ({ batch_id: batchId, product_id, qty }));
+          const { error: insErr } = await admin.from("shop_batch_products").insert(rows);
+          if (insErr) return errorResponse("Gagal menyimpan: " + insErr.message);
+        }
+        const lines = await getEventShopLines(admin, batchId);
+        return jsonResponse({ status: "success", message: "Produk event disimpan.", lines });
       }
 
       case "setShopOrderPaid": {

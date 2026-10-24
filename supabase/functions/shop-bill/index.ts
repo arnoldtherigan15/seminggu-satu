@@ -23,6 +23,7 @@ import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { getConfigValue } from "../_shared/config.ts";
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import { getEventShopLines } from "../_shared/event-shop.ts";
 
 // deno-lint-ignore no-explicit-any
 async function computeUnitHpp(admin: SupabaseClient, product: any): Promise<number> {
@@ -72,9 +73,9 @@ async function buildBillResponse(admin: SupabaseClient, orderId: string) {
 
   // Dipake halaman invoice (checkedOutAt != null) buat nunjukin ini order
   // dari event mana -- nama manusiawinya, bukan workshop_type mentah.
-  let event: { workshopName: string; label: string } | null = null;
+  let event: { batchId: string; workshopName: string; label: string; qrisImage: string } | null = null;
   if (order.batch_id) {
-    const { data: batch } = await admin.from("batches").select("label, workshop_type").eq("id", order.batch_id).maybeSingle();
+    const { data: batch } = await admin.from("batches").select("label, workshop_type, qris_image").eq("id", order.batch_id).maybeSingle();
     if (batch) {
       let workshopName = batch.workshop_type;
       try {
@@ -84,7 +85,7 @@ async function buildBillResponse(admin: SupabaseClient, orderId: string) {
         const found = (list as any[]).find((w: any) => w.id === batch.workshop_type);
         if (found?.name) workshopName = found.name;
       } catch (_e) { /* abaikan -- fallback ke workshop_type mentah */ }
-      event = { workshopName, label: batch.label || "" };
+      event = { batchId: order.batch_id, workshopName, label: batch.label || "", qrisImage: batch.qris_image || "" };
     }
   }
 
@@ -168,6 +169,109 @@ Deno.serve(async (req) => {
       }
 
       return jsonResponse({ status: "success", batches, participants });
+    }
+
+    // ===== Belanja per EVENT (/shop-bill/?e=<batch_id>) =====
+    // Satu QR per event: pembeli langsung liat produk yang Arnold bawa ke
+    // event ini (shop_batch_products), pilih sendiri jumlahnya, checkout
+    // sekali jalan. Event-nya udah pasti dari QR -- nggak ada dropdown event.
+    if (action === "getEventShop") {
+      const batchId = String(body.batchId || "");
+      if (!batchId) return errorResponse("Event tidak ditemukan.");
+      const { data: batch } = await admin.from("batches")
+        .select("id, label, workshop_type, event_date, qris_image").eq("id", batchId).maybeSingle();
+      if (!batch) return errorResponse("Event tidak ditemukan.", 404);
+      let workshopName = batch.workshop_type;
+      try {
+        const list = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]");
+        // deno-lint-ignore no-explicit-any
+        const found = (list as any[]).find((w: any) => w.id === batch.workshop_type);
+        if (found?.name) workshopName = found.name;
+      } catch (_e) { /* fallback ke workshop_type mentah */ }
+      const lines = await getEventShopLines(admin, batchId);
+      // Nama peserta batch INI aja buat saran nama -- WA SENGAJA nggak ikut
+      // (endpoint publik), sama kayak getCheckoutContext.
+      const { data: regs } = await admin.from("registrations").select("id, full_name, nickname")
+        .eq("batch_id", batchId).eq("archived", false);
+      const participants = (regs || [])
+        // deno-lint-ignore no-explicit-any
+        .map((r: any) => ({ id: r.id, fullName: String(r.full_name || "").trim(), nickname: String(r.nickname || "").trim() }))
+        // deno-lint-ignore no-explicit-any
+        .filter((r: any) => r.fullName || r.nickname);
+      return jsonResponse({
+        status: "success",
+        event: {
+          batchId: batch.id, workshopType: batch.workshop_type, workshopName,
+          label: batch.label || "", eventDate: batch.event_date || "", qrisImage: batch.qris_image || "",
+        },
+        products: lines.map(l => ({
+          productId: l.productId, name: l.name, image: l.image, sellPrice: l.sellPrice, available: l.available,
+        })),
+        participants,
+      });
+    }
+
+    // Checkout sekali jalan: bikin order (udah ketempel batch & langsung
+    // checked_out) + semua item-nya. Stok divalidasi DI SINI (bukan pas
+    // pembeli mencet +), biar keranjang yang lagi dipilih nggak "ngunci"
+    // barang -- kalau ternyata udah keburu dibeli orang lain, balikin pesan
+    // yang jelas & frontend refresh angka sisanya.
+    if (action === "checkoutEvent") {
+      const batchId = String(body.batchId || "");
+      const buyerName = String(body.buyerName || "").trim();
+      const buyerWa = body.buyerWa ? String(body.buyerWa).trim() : null;
+      const registrationId = body.registrationId ? String(body.registrationId) : null;
+      if (!batchId) return errorResponse("Event tidak ditemukan.");
+      if (!buyerName) return errorResponse("Nama wajib diisi.");
+      const wanted = new Map<string, number>();
+      for (const it of (Array.isArray(body.items) ? body.items : [])) {
+        const productId = String(it?.productId || "");
+        const qty = Math.floor(Number(it?.qty) || 0);
+        if (productId && qty > 0) wanted.set(productId, (wanted.get(productId) || 0) + qty);
+      }
+      if (!wanted.size) return errorResponse("Keranjang masih kosong.");
+
+      const { data: batch } = await admin.from("batches").select("id, workshop_type").eq("id", batchId).maybeSingle();
+      if (!batch) return errorResponse("Event tidak ditemukan.", 404);
+      const lineById = new Map((await getEventShopLines(admin, batchId)).map(l => [l.productId, l]));
+      for (const [productId, qty] of wanted) {
+        const line = lineById.get(productId);
+        if (!line) return errorResponse("Ada produk yang udah nggak dijual di event ini. Muat ulang halaman ya.", 409);
+        if (qty > line.available) {
+          return errorResponse(line.available > 0
+            ? `"${line.name}" sisa ${line.available} -- kurangin jumlahnya dulu ya.`
+            : `"${line.name}" udah habis -- hapus dari keranjang dulu ya.`, 409);
+        }
+      }
+
+      // Cuma nempelin registration_id kalau beneran peserta batch ini.
+      let regId: string | null = null;
+      if (registrationId) {
+        const { data: reg } = await admin.from("registrations").select("id").eq("id", registrationId).eq("batch_id", batchId).maybeSingle();
+        if (reg) regId = reg.id;
+      }
+
+      const { data: order, error: ordErr } = await admin.from("shop_orders").insert({
+        buyer_name: buyerName, buyer_wa: buyerWa, batch_id: batchId, workshop_type: batch.workshop_type,
+        registration_id: regId, checked_out_at: new Date().toISOString(),
+      }).select("id").single();
+      if (ordErr || !order) return errorResponse("Gagal membuat pesanan: " + (ordErr?.message || ""));
+
+      const { data: products } = await admin.from("shop_products").select("*").in("id", Array.from(wanted.keys()));
+      // deno-lint-ignore no-explicit-any
+      for (const product of (products || []) as any[]) {
+        const qty = wanted.get(product.id) || 0;
+        const unitHpp = await computeUnitHpp(admin, product);
+        const unitSellPrice = product.sell_price != null ? Number(product.sell_price) : 0;
+        const { error: saleErr } = await admin.from("shop_sales").insert({
+          product_id: product.id, qty, unit_sell_price: unitSellPrice, unit_hpp: unitHpp, order_id: order.id,
+        });
+        if (saleErr) return errorResponse("Gagal menyimpan item: " + saleErr.message);
+        await admin.from("shop_products").update({ stock_qty: (Number(product.stock_qty) || 0) - qty }).eq("id", product.id);
+      }
+
+      const bill = await buildBillResponse(admin, order.id);
+      return jsonResponse({ status: "success", bill });
     }
 
     if (action === "start") {

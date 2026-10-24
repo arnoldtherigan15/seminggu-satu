@@ -5187,6 +5187,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <p class="hint" style="margin-top:6px;">Upload gambar QRIS yang kamu generate sendiri dari app bank/e-wallet -- biar bisa ditunjukin ke pembeli pas mau bayar di tempat. Beda per batch.</p>
                 </div>
               </details>
+              <details class="det-acc" id="shopOrdEvProdCard" style="margin-bottom:14px;">
+                <summary><span class="det-acc-title">Produk yang Dibawa + QR Belanja (Batch Ini)</span><span class="det-acc-chevron">▸</span></summary>
+                <div class="det-acc-body">
+                  <p class="hint" style="margin-bottom:10px;">Centang produk yang kamu bawa ke event ini + jumlahnya. Pembeli cukup scan <b>1 QR</b> di bawah, pilih sendiri barangnya, terus checkout -- nggak perlu scan per produk / pilih event lagi.</p>
+                  <div id="shopOrdEvProdList"></div>
+                  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;">
+                    <button class="btn btn-sm" id="shopOrdEvProdSaveBtn" type="button">Simpan Produk Event</button>
+                    <span class="hint" id="shopOrdEvProdMsg"></span>
+                  </div>
+                  <div id="shopOrdEvQr" style="margin-top:16px;"></div>
+                </div>
+              </details>
               <div id="shopOrdList"></div>
             </div>
 
@@ -12475,6 +12487,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("shopOrdReloadBtn").addEventListener("click", loadShopOrdList);
         document.getElementById("shopOrdEventSearch").addEventListener("input", renderShopOrdList);
         document.getElementById("shopOrdQrisPick").addEventListener("change", onShopOrdQrisPick);
+        document.getElementById("shopOrdEvProdSaveBtn").addEventListener("click", saveShopOrdEvProducts);
         document.getElementById("shopOrdWalkinNewBtn").addEventListener("click", () => startNewShopOrder(null, true));
         document.getElementById("shopOrdWalkinYearSelect").addEventListener("change", renderShopOrdWalkinList);
         document.getElementById("shopOrdWalkinMonthSelect").addEventListener("change", renderShopOrdWalkinList);
@@ -12548,6 +12561,109 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       }
     }
 
+    // "Produk yang Dibawa" ke batch ini (shop_batch_products) -- pola
+    // checklist: semua produk ditampilin, centang yang dibawa + isi jumlahnya.
+    // Begitu ada yang tersimpan, muncul SATU QR belanja buat event ini
+    // (/shop-bill/?e=<batch_id>) -- gantiin QR per produk yang bikin bingung.
+    let SHOPORD_EVENT_LINES = [];
+    function renderShopOrdEvProducts() {
+      const listEl = document.getElementById("shopOrdEvProdList");
+      const qrEl = document.getElementById("shopOrdEvQr");
+      const batchId = document.getElementById("shopOrdBatchSelect").value;
+      document.getElementById("shopOrdEvProdMsg").textContent = "";
+      if (!batchId) { listEl.innerHTML = `<p class="hint">Pilih batch dulu.</p>`; qrEl.innerHTML = ""; return; }
+      if (!SHOPORD_PRODUCTS_CACHE.length) { listEl.innerHTML = `<p class="hint">Belum ada produk. Bikin dulu di menu Produk.</p>`; qrEl.innerHTML = ""; return; }
+      const lineById = new Map(SHOPORD_EVENT_LINES.map(l => [l.productId, l]));
+      const products = SHOPORD_PRODUCTS_CACHE.slice().sort((a, b) => {
+        const ai = lineById.has(a.id) ? 0 : 1, bi = lineById.has(b.id) ? 0 : 1;
+        return ai !== bi ? ai - bi : a.name.localeCompare(b.name);
+      });
+      listEl.innerHTML = products.map(p => {
+        const line = lineById.get(p.id);
+        const info = line
+          ? `Terjual <b>${line.sold}</b> &middot; Sisa di event <b>${Math.max(0, line.brought - line.sold)}</b> &middot; Stok gudang ${p.stockQty}`
+          : `Stok gudang ${p.stockQty}`;
+        return `<div data-evprod="${escapeHtml(p.id)}" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">
+          <input type="checkbox" data-evcheck ${line ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;">${escapeHtml(p.name)} <span class="hint" style="font-weight:600;">${p.sellPrice != null ? rupiah(p.sellPrice) : "(belum ada harga)"}</span></div>
+            <div class="hint" style="margin-top:2px;">${info}</div>
+          </div>
+          <div style="width:96px;flex-shrink:0;">
+            <input class="form-control" type="number" min="1" step="1" inputmode="numeric" placeholder="Jumlah" data-evqty value="${line ? line.brought : ""}" ${line ? "" : "disabled"}>
+          </div>
+        </div>`;
+      }).join("");
+      listEl.querySelectorAll("[data-evprod]").forEach(row => {
+        const cb = row.querySelector("[data-evcheck]");
+        const qty = row.querySelector("[data-evqty]");
+        cb.addEventListener("change", () => {
+          qty.disabled = !cb.checked;
+          if (cb.checked) qty.focus();
+        });
+      });
+
+      if (!SHOPORD_EVENT_LINES.length) {
+        qrEl.innerHTML = `<p class="hint">QR belanja muncul di sini setelah produk event disimpan.</p>`;
+        return;
+      }
+      const shareUrl = REC_SHARE_ORIGIN + "/shop-bill/?e=" + encodeURIComponent(batchId);
+      const batch = SHOPORD_BATCHES.find(b => b.id === batchId);
+      qrEl.innerHTML =
+        `<label style="font-weight:700;display:block;margin-bottom:8px;">QR Belanja Event Ini</label>
+         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+           <input class="form-control" type="text" readonly value="${escapeHtml(shareUrl)}" style="flex:1;min-width:200px;">
+           <button class="btn btn-sm" id="shopOrdEvCopyBtn" type="button">Copy Link</button>
+           <a class="btn btn-sm btn-ghost" href="${escapeHtml(shareUrl)}" target="_blank" rel="noopener">Buka</a>
+         </div>
+         <div style="display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap;">
+           <canvas id="shopOrdEvQrCanvas" style="border:1px solid var(--line);border-radius:8px;"></canvas>
+           <button class="btn btn-sm btn-ghost" id="shopOrdEvQrDownloadBtn" type="button">Download QR (PNG)</button>
+         </div>
+         <p class="hint" style="margin-top:8px;">Cetak 1 QR ini aja buat ditaruh di meja. Pesanan dari sini otomatis masuk ke batch ini.</p>`;
+      qrEl.querySelector("#shopOrdEvCopyBtn").addEventListener("click", () => copyRecBatchLink(shareUrl));
+      const canvas = qrEl.querySelector("#shopOrdEvQrCanvas");
+      drawQrWithQuietZone(canvas, shareUrl, 240, 24);
+      qrEl.querySelector("#shopOrdEvQrDownloadBtn").addEventListener("click", () => {
+        if (!canvas.width) { alert("QR belum siap, coba lagi sebentar."); return; }
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = "qr-belanja-" + ((batch && batch.label) || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".png";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      });
+    }
+
+    async function saveShopOrdEvProducts() {
+      const batchId = document.getElementById("shopOrdBatchSelect").value;
+      const msg = document.getElementById("shopOrdEvProdMsg");
+      if (!batchId) return;
+      const items = [];
+      const overStock = [];
+      for (const row of document.querySelectorAll("#shopOrdEvProdList [data-evprod]")) {
+        if (!row.querySelector("[data-evcheck]").checked) continue;
+        const qty = Math.floor(Number(row.querySelector("[data-evqty]").value) || 0);
+        const p = SHOPORD_PRODUCTS_CACHE.find(x => x.id === row.dataset.evprod);
+        if (qty <= 0) { msg.style.color = "var(--err)"; msg.textContent = `Isi jumlah buat "${p ? p.name : "produk"}" dulu.`; return; }
+        if (p && qty > p.stockQty) overStock.push(`${p.name} (bawa ${qty}, stok gudang ${p.stockQty})`);
+        items.push({ productId: row.dataset.evprod, qty });
+      }
+      if (overStock.length && !confirm("Jumlah ini lebih banyak dari stok gudang:\n- " + overStock.join("\n- ") + "\n\nPembeli tetep cuma bisa beli sebanyak stok gudang. Lanjut simpan?")) return;
+      const btn = document.getElementById("shopOrdEvProdSaveBtn");
+      btn.disabled = true;
+      msg.style.color = ""; msg.textContent = "Menyimpan…";
+      try {
+        const r = await api("saveBatchShopProducts", { token: getToken(), batchId, items });
+        if (r.status !== "success") { handleAuthError(r); msg.style.color = "var(--err)"; msg.textContent = r.message || "Gagal menyimpan."; return; }
+        SHOPORD_EVENT_LINES = r.lines || [];
+        renderShopOrdEvProducts();
+        msg.style.color = "#166534"; msg.textContent = "✓ Tersimpan";
+      } catch (e) {
+        msg.style.color = "var(--err)"; msg.textContent = "Gagal terhubung ke server.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
     async function saveShopOrdQris(batchId, qrisImage) {
       const r = await api("renameBatch", { token: getToken(), batchId, qrisImage });
       if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to save."); return; }
@@ -12586,15 +12702,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       renderShopOrdQrisSection();
       if (!batchId) { listEl.innerHTML = `<p class="hint">Belum ada batch buat event ini.</p>`; return; }
       try {
-        const [rReg, rOrd, rProd] = await Promise.all([
+        const [rReg, rOrd, rProd, rEv] = await Promise.all([
           api("getRegistrations", { token: getToken(), workshop, batchId }),
           api("listShopOrders", { token: getToken(), batchId }),
           api("listShopProducts", { token: getToken() }),
+          api("getBatchShopProducts", { token: getToken(), batchId }),
         ]);
         if (rReg.status !== "success") { handleAuthError(rReg); listEl.innerHTML = ""; return; }
         SHOPORD_REGISTRANTS = (rReg.items || []).filter(r => !r.archived);
         SHOPORD_ORDERS = (rOrd.status === "success") ? (rOrd.orders || []) : [];
         SHOPORD_PRODUCTS_CACHE = (rProd.status === "success") ? (rProd.products || []) : [];
+        SHOPORD_EVENT_LINES = (rEv.status === "success") ? (rEv.lines || []) : [];
+        renderShopOrdEvProducts();
         renderShopOrdList();
       } catch (e) {
         listEl.innerHTML = `<p class="hint" style="color:var(--err)">Failed to load.</p>`;
