@@ -7540,9 +7540,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       URL.revokeObjectURL(url);
     }
 
+    // Beberapa request jalan barengan (summary, batch, peserta, dst) -- pas sesi
+    // habis SEMUANYA gagal, dan dulu masing-masing munculin alert sendiri
+    // (harus klik OK 3x). Cukup yang pertama aja yang alert + reload.
+    let authErrorShown = false;
     function handleAuthError(r) {
       // Kalau sesi tidak valid/kedaluwarsa -> balik ke login
       if (r.message && /sesi/i.test(r.message)) {
+        if (authErrorShown) return;
+        authErrorShown = true;
         clearToken();
         alert(r.message);
         location.reload();
