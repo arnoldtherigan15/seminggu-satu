@@ -198,11 +198,11 @@
 </head>
 
 <body>
-    <audio id="bgm" src="bg-music.m4a" loop preload="none"></audio>
+    <audio id="bgm" src="bg-music.m4a" loop preload="auto"></audio>
 
     <div class="topbar">
         <a class="brand" href="https://seminggusatu.com" aria-label="Seminggu Satu"><img src="../images/black.png" alt="">Upcycle Club</a>
-        <button class="sound-btn" id="soundBtn" type="button" aria-pressed="false"><span class="eq"><i></i><i></i><i></i></span><span id="soundLbl">Sound off</span></button>
+        <button class="sound-btn playing" id="soundBtn" type="button" aria-pressed="true"><span class="eq"><i></i><i></i><i></i></span><span id="soundLbl">Sound on</span></button>
     </div>
 
     <!-- 1. HERO -->
@@ -462,8 +462,10 @@
         })();
 
         // ---------- background music ----------
-        // Autoplay diblok browser HP -- musik baru mulai pas pengunjung TAP
-        // (tombol "Begin the story" atau tombol Sound). Pilihan mute diinget.
+        // Default ON. Browser (terutama HP) nge-blok audio sebelum ada
+        // interaksi -- jadi coba play langsung, kalau ditolak, mulai di
+        // sentuhan/klik/tombol PERTAMA di mana aja. Cuma diem kalau pengunjung
+        // sendiri yang pernah matiin (diinget di localStorage).
         const bgm = document.getElementById('bgm');
         const soundBtn = document.getElementById('soundBtn');
         const soundLbl = document.getElementById('soundLbl');
@@ -485,7 +487,7 @@
         }
         function playMusic() {
             const p = bgm.play();
-            if (p && p.catch) p.catch(() => setSoundUi(false));
+            if (p && p.catch) p.catch(() => { });
             setSoundUi(true);
             fadeTo(0.4);
             try { localStorage.setItem('uc_sound', 'on'); } catch (e) { }
@@ -495,16 +497,37 @@
             fadeTo(0, () => bgm.pause());
             try { localStorage.setItem('uc_sound', 'off'); } catch (e) { }
         }
-        soundBtn.addEventListener('click', () => { bgm.paused ? playMusic() : stopMusic(); });
+        let userMuted = false;
+        try { userMuted = localStorage.getItem('uc_sound') === 'off'; } catch (e) { }
+        // Mau bunyi (soundOn) beda sama lagi bunyi (bgm.paused) -- sebelum
+        // interaksi pertama, soundOn = true tapi audionya masih ketahan browser.
+        let soundOn = !userMuted;
+        setSoundUi(soundOn);
+        function tryAutoplay() {
+            if (!soundOn || !bgm.paused) return;
+            const p = bgm.play();
+            if (p && p.then) p.then(() => fadeTo(0.4)).catch(() => { });
+        }
+        tryAutoplay();
+        const unlockEvents = ['pointerdown', 'touchend', 'click', 'keydown'];
+        function unlock(e) {
+            if (e.target.closest && e.target.closest('#soundBtn')) return; // tombol Sound ngurus dirinya sendiri
+            unlockEvents.forEach(ev => document.removeEventListener(ev, unlock, true));
+            tryAutoplay();
+        }
+        unlockEvents.forEach(ev => document.addEventListener(ev, unlock, true));
+
+        soundBtn.addEventListener('click', () => {
+            soundOn = !soundOn;
+            if (soundOn) playMusic(); else stopMusic();
+        });
         document.getElementById('beginBtn').addEventListener('click', () => {
-            let muted = false;
-            try { muted = localStorage.getItem('uc_sound') === 'off'; } catch (e) { }
-            if (!muted && bgm.paused) playMusic();
+            tryAutoplay();
             document.getElementById('story').scrollIntoView({ behavior: 'smooth' });
         });
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && !bgm.paused) bgm.pause();
-            else if (!document.hidden && soundBtn.classList.contains('playing')) bgm.play().catch(() => { });
+            else if (!document.hidden && soundOn && bgm.volume > 0) bgm.play().catch(() => { });
         });
 
         // ---------- Mochi letter ----------
