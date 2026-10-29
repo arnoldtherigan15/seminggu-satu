@@ -159,9 +159,9 @@
         .env-body::after { right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
         .env-flap { position: absolute; top: 0; left: 0; right: 0; height: 58%; background: #ffdc4d; clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: top; transition: transform .6s ease; z-index: 3; border-radius: 14px 14px 0 0; }
         .env-seal { position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%); width: 54px; height: 54px; border-radius: 50%; background: #ff5f7e; z-index: 4; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,.18); transition: opacity .3s; font-size: 1.4rem; }
-        .env-stamp { position: absolute; top: 10px; right: 10px; width: 46px; height: 56px; background: #fff; border: 2px dashed #ffb3c1; border-radius: 6px; z-index: 2; display: flex; align-items: center; justify-content: center; }
+        .env-stamp { position: absolute; bottom: 12px; right: 14px; width: 46px; height: 56px; background: #fff; border: 2px dashed #ffb3c1; border-radius: 6px; z-index: 5; display: flex; align-items: center; justify-content: center; transform: rotate(6deg); box-shadow: 0 3px 8px rgba(16,36,94,.12); }
         .env-stamp img { width: 32px; }
-        .env-to { position: absolute; left: 16px; bottom: 14px; z-index: 2; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; color: #8a6d00; }
+        .env-to { position: absolute; left: 16px; bottom: 14px; z-index: 5; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; color: #8a6d00; }
         .envelope:not(.open) { animation: wiggle 3.2s ease-in-out infinite; }
         @keyframes wiggle { 0%, 82%, 100% { transform: rotate(0); } 86% { transform: rotate(-3deg); } 90% { transform: rotate(3deg); } 94% { transform: rotate(-2deg); } }
         .envelope.open .env-flap { transform: rotateX(180deg); }
@@ -199,6 +199,8 @@
 
 <body>
     <audio id="bgm" src="bg-music.m4a" loop preload="auto"></audio>
+    <audio id="sfxOpen" src="../sound-effect/open-mail.mp3" preload="auto"></audio>
+    <audio id="sfxFlip" src="../sound-effect/flip.mp3" preload="auto"></audio>
 
     <div class="topbar">
         <a class="brand" href="https://seminggusatu.com" aria-label="Seminggu Satu"><img src="../images/black.png" alt="">Upcycle Club</a>
@@ -555,6 +557,12 @@
         });
 
         // ---------- Mochi letter ----------
+        // Efek suara ikut tombol Sound -- kalau pengunjung matiin suara, ikut diem.
+        function sfx(id) {
+            if (!soundOn) return;
+            const a = document.getElementById(id);
+            try { a.currentTime = 0; a.volume = 0.8; const p = a.play(); if (p && p.catch) p.catch(() => { }); } catch (e) { }
+        }
         const envelope = document.getElementById('envelope');
         const envWrap = document.getElementById('envWrap');
         const note = document.getElementById('note');
@@ -569,12 +577,14 @@
         function openLetter() {
             if (envelope.classList.contains('open')) return;
             envelope.classList.add('open');
+            sfx('sfxOpen');
             pickPrompt();
             setTimeout(() => { envWrap.style.display = 'none'; note.classList.add('show'); }, 650);
         }
         envelope.addEventListener('click', openLetter);
         envelope.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLetter(); } });
         document.getElementById('anotherBtn').addEventListener('click', () => {
+            sfx('sfxFlip');
             note.classList.remove('show'); void note.offsetWidth;
             pickPrompt(); note.classList.add('show');
         });
