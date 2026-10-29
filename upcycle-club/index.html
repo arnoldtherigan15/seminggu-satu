@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Upcycle Club — Seminggu Satu</title>
+    <meta name="description" content="Your journal used to be a milk carton. Here's its story — and a little letter from Mochi to help you start writing.">
+    <meta property="og:title" content="This journal used to be a milk carton">
+    <meta property="og:description" content="The story of your upcycled journal, and a gentle nudge to start writing — from Seminggu Satu.">
+    <meta property="og:image" content="https://seminggusatu.com/images/black.png">
+    <meta name="theme-color" content="#0046ff">
+    <link rel="icon" href="../images/black.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        :root {
+            --blue: #0046ff;
+            --blue-2: #0092ff;
+            --yellow: #ffe600;
+            --ink: #10245e;
+            --bg: #f4f7ff;
+            --card: #ffffff;
+            --line: #e4e9f5;
+            --muted: #6b7794;
+            --green: #12a150;
+            --grad: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%);
+        }
+
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; overflow-x: hidden; }
+
+        .wrap { max-width: 560px; margin: 0 auto; padding: 0 1.2rem; }
+        section { padding: 4.5rem 0; position: relative; }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; font-weight: 800; line-height: 1.15; }
+        h2 { font-size: clamp(1.7rem, 6.5vw, 2.3rem); margin-bottom: 0.9rem; }
+        h3 { font-size: 1.15rem; margin-bottom: 0.35rem; }
+        p { font-size: 1.02rem; }
+        .muted { color: var(--muted); }
+        .eyebrow { display: inline-block; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); background: #e6edff; padding: 5px 12px; border-radius: 999px; margin-bottom: 1rem; }
+        .hl { background: linear-gradient(transparent 60%, var(--yellow) 60%); padding: 0 2px; }
+        .src { font-size: 0.72rem; color: var(--muted); margin-top: 1rem; }
+        .src a { color: inherit; }
+
+        /* ---------- reveal on scroll ---------- */
+        .rv { opacity: 0; transform: translateY(26px); transition: opacity .8s cubic-bezier(.16, 1, .3, 1), transform .8s cubic-bezier(.16, 1, .3, 1); }
+        .rv.in { opacity: 1; transform: none; }
+        .rv.d1 { transition-delay: .12s; } .rv.d2 { transition-delay: .24s; } .rv.d3 { transition-delay: .36s; }
+
+        /* ---------- top bar ---------- */
+        .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: calc(0.7rem + env(safe-area-inset-top)) 1rem 0.7rem; pointer-events: none; }
+        .topbar > * { pointer-events: auto; }
+        .brand { display: flex; align-items: center; gap: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; color: var(--ink); text-decoration: none; background: rgba(255,255,255,.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 6px 12px 6px 6px; border-radius: 999px; border: 1px solid var(--line); }
+        .brand img { width: 28px; height: 28px; }
+        .sound-btn { display: flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: rgba(255,255,255,.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--ink); font-family: inherit; font-weight: 700; font-size: 0.82rem; padding: 8px 14px; border-radius: 999px; cursor: pointer; transition: transform .15s; }
+        .sound-btn:active { transform: scale(.95); }
+        .eq { display: inline-flex; gap: 2px; align-items: flex-end; height: 12px; }
+        .eq i { width: 3px; background: var(--blue); border-radius: 2px; height: 3px; }
+        .playing .eq i { animation: eq 0.9s ease-in-out infinite; }
+        .playing .eq i:nth-child(2) { animation-delay: .2s; } .playing .eq i:nth-child(3) { animation-delay: .4s; }
+        @keyframes eq { 0%, 100% { height: 3px; } 50% { height: 12px; } }
+
+        /* ---------- hero ---------- */
+        .hero { min-height: 100svh; display: flex; align-items: center; background: var(--grad); color: #fff; overflow: hidden; padding-top: 5rem; }
+        .hero h1 { font-size: clamp(2.2rem, 10vw, 3.3rem); margin: 1rem 0 1rem; }
+        .hero h1 .y { color: var(--yellow); }
+        .hero p { opacity: .92; max-width: 26rem; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .45; }
+        .orb.a { width: 260px; height: 260px; background: #00e1ff; top: -60px; right: -80px; }
+        .orb.b { width: 220px; height: 220px; background: var(--yellow); bottom: -90px; left: -70px; opacity: .3; }
+        .morph { width: 170px; height: 190px; margin: 0 auto 0.5rem; position: relative; }
+        .morph svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .m-carton { animation: mCarton 5s ease-in-out infinite; }
+        .m-journal { animation: mJournal 5s ease-in-out infinite; }
+        @keyframes mCarton { 0%, 38% { opacity: 1; transform: none; } 50%, 88% { opacity: 0; transform: rotate(-8deg) scale(.85); } 100% { opacity: 1; transform: none; } }
+        @keyframes mJournal { 0%, 38% { opacity: 0; transform: rotate(8deg) scale(.85); } 50%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; transform: rotate(8deg) scale(.85); } }
+        .sparkle { position: absolute; font-size: 1.2rem; animation: tw 2.4s ease-in-out infinite; }
+        @keyframes tw { 0%, 100% { opacity: 0; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
+        .btn { display: inline-flex; align-items: center; gap: 9px; border: none; cursor: pointer; font-family: inherit; font-weight: 800; font-size: 1rem; padding: 0.95rem 1.5rem; border-radius: 14px; text-decoration: none; transition: transform .15s, box-shadow .2s; }
+        .btn:active { transform: scale(.97); }
+        .btn-yellow { background: var(--yellow); color: var(--ink); box-shadow: 0 10px 26px rgba(0,0,0,.18); }
+        .btn-blue { background: var(--blue); color: #fff; box-shadow: 0 10px 24px rgba(0,70,255,.28); }
+        .btn-ghost { background: var(--card); color: var(--ink); border: 1.5px solid var(--line); }
+        .scroll-hint { margin-top: 2.2rem; font-size: 0.8rem; opacity: .8; display: flex; align-items: center; gap: 8px; }
+        .scroll-hint span { display: inline-block; animation: bob 1.6s ease-in-out infinite; }
+        @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+        /* ---------- cards ---------- */
+        .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 1.5rem; box-shadow: 0 8px 20px rgba(0,30,120,.06); }
+
+        /* ---------- live counter ---------- */
+        .counter { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(2.6rem, 13vw, 4rem); color: var(--blue); line-height: 1; margin: 0.6rem 0 0.4rem; font-variant-numeric: tabular-nums; }
+        .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 1.2rem; }
+        .stat { background: var(--bg); border-radius: 16px; padding: 1rem; }
+        .stat b { display: block; font-family: 'Outfit', sans-serif; font-size: 1.45rem; color: var(--ink); line-height: 1.1; }
+        .stat span { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+
+        /* ---------- anatomy ---------- */
+        .layers { margin-top: 1.4rem; display: flex; flex-direction: column; gap: 10px; }
+        .layer { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 12px; }
+        .layer-name { font-weight: 800; font-size: 0.9rem; margin-bottom: 5px; }
+        .layer-track { height: 16px; border-radius: 999px; background: var(--bg); overflow: hidden; }
+        .layer-bar { height: 100%; border-radius: 999px; width: 0; transition: width 1.4s cubic-bezier(.16, 1, .3, 1); }
+        .in .layer-bar { width: var(--w); }
+        .layer:nth-child(2) .layer-bar { transition-delay: .25s; }
+        .layer:nth-child(3) .layer-bar { transition-delay: .5s; }
+        .layer-pct { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.15rem; min-width: 3.2rem; text-align: right; }
+        .lb-paper { background: #b07b46; }
+        .lb-plastic { background: #4aa3ff; }
+        .lb-alu { background: #9aa4b8; }
+        .callout { margin-top: 1.3rem; padding: 1rem 1.1rem; border-radius: 16px; background: #fff8cc; font-size: 0.95rem; }
+
+        /* ---------- 3 out of 4 ---------- */
+        .four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 1.4rem 0 0.6rem; }
+        .four .c { aspect-ratio: 3/4; border-radius: 14px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-size: 0.68rem; font-weight: 800; transition: transform .6s cubic-bezier(.16, 1, .3, 1), background .6s, color .6s; background: #eef2fb; color: var(--muted); position: relative; }
+        .four .c svg { position: absolute; top: 14%; left: 50%; transform: translateX(-50%); width: 46%; }
+        .in .four .c.gone { background: #e9ebf0; color: #8a93a6; transform: translateY(8px) rotate(-4deg); filter: grayscale(1); }
+        .in .four .c.saved { background: #dff7e8; color: var(--green); transform: translateY(-6px); }
+        .four .c:nth-child(2) { transition-delay: .15s; } .four .c:nth-child(3) { transition-delay: .3s; } .four .c:nth-child(4) { transition-delay: .45s; }
+        .big-frac { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(3rem, 15vw, 4.5rem); line-height: 1; color: var(--ink); }
+
+        /* ---------- the chain ---------- */
+        .paths { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.4rem; }
+        .path { border-radius: 20px; padding: 1.1rem 1rem; }
+        .path.old { background: #eef1f6; }
+        .path.new { background: var(--grad); color: #fff; }
+        .path-title { font-size: 0.75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 0.7rem; opacity: .8; }
+        .steps { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+        .step { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0; opacity: .25; transform: scale(.85); transition: opacity .5s, transform .5s; }
+        .in .step { opacity: 1; transform: none; }
+        .step .e { width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,.9); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; }
+        .path.old .step .e { background: #fff; }
+        .step small { font-size: 0.66rem; font-weight: 700; text-align: center; line-height: 1.2; }
+        .arrow { font-weight: 800; opacity: .5; flex: 0 0 auto; font-size: 0.8rem; }
+        .path.old .step:last-child .e { background: #dfe3ea; filter: grayscale(1); }
+        .path.new .step:last-child .e { background: var(--yellow); box-shadow: 0 0 0 4px rgba(255,230,0,.35); }
+
+        /* ---------- you broke it ---------- */
+        .you { background: var(--grad); color: #fff; border-radius: 28px; padding: 2.2rem 1.6rem; text-align: center; overflow: hidden; position: relative; box-shadow: 0 18px 45px rgba(0,60,200,.28); }
+        .you .num { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 6rem; line-height: 1; color: var(--yellow); }
+        .you p { opacity: .95; }
+
+        /* ---------- tips ---------- */
+        .tips { display: grid; gap: 0.8rem; margin-top: 1.3rem; }
+        .tip { display: flex; gap: 14px; align-items: flex-start; }
+        .tip .ic { width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px; background: #e6edff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+
+        /* ---------- Mochi letter ---------- */
+        .letter-stage { position: relative; min-height: 340px; margin-top: 1.5rem; }
+        .envelope { position: relative; width: 100%; max-width: 340px; aspect-ratio: 1.55; margin: 0 auto; cursor: pointer; perspective: 900px; -webkit-tap-highlight-color: transparent; }
+        .env-body { position: absolute; inset: 0; background: #fff3c4; border-radius: 14px; box-shadow: 0 14px 34px rgba(16,36,94,.18); overflow: hidden; }
+        .env-body::before, .env-body::after { content: ""; position: absolute; bottom: 0; width: 60%; height: 70%; background: #ffe98a; }
+        .env-body::before { left: 0; clip-path: polygon(0 0, 100% 100%, 0 100%); }
+        .env-body::after { right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+        .env-flap { position: absolute; top: 0; left: 0; right: 0; height: 58%; background: #ffdc4d; clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: top; transition: transform .6s ease; z-index: 3; border-radius: 14px 14px 0 0; }
+        .env-seal { position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%); width: 54px; height: 54px; border-radius: 50%; background: #ff5f7e; z-index: 4; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,.18); transition: opacity .3s; font-size: 1.4rem; }
+        .env-stamp { position: absolute; top: 10px; right: 10px; width: 46px; height: 56px; background: #fff; border: 2px dashed #ffb3c1; border-radius: 6px; z-index: 2; display: flex; align-items: center; justify-content: center; }
+        .env-stamp img { width: 32px; }
+        .env-to { position: absolute; left: 16px; bottom: 14px; z-index: 2; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; color: #8a6d00; }
+        .envelope:not(.open) { animation: wiggle 3.2s ease-in-out infinite; }
+        @keyframes wiggle { 0%, 82%, 100% { transform: rotate(0); } 86% { transform: rotate(-3deg); } 90% { transform: rotate(3deg); } 94% { transform: rotate(-2deg); } }
+        .envelope.open .env-flap { transform: rotateX(180deg); }
+        .envelope.open .env-seal { opacity: 0; }
+        .tap-hint { text-align: center; font-size: 0.85rem; color: var(--muted); margin-top: 0.9rem; font-weight: 700; }
+        .note { display: none; position: relative; background: #fffdf6; border: 1px solid #f1e7c4; border-radius: 18px; padding: 1.6rem 1.4rem 1.3rem; box-shadow: 0 16px 36px rgba(16,36,94,.14); background-image: repeating-linear-gradient(transparent 0 31px, #efe6c8 31px 32px); animation: rise .6s cubic-bezier(.16, 1, .3, 1); }
+        .note.show { display: block; }
+        @keyframes rise { from { opacity: 0; transform: translateY(30px) scale(.96); } to { opacity: 1; transform: none; } }
+        .note .from { display: flex; align-items: center; gap: 10px; margin-bottom: 0.9rem; }
+        .note .from img { width: 40px; }
+        .note .from b { font-family: 'Outfit', sans-serif; }
+        .note .cat { font-size: 0.7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #c2410c; }
+        .note .prompt { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.3rem; line-height: 1.4; margin: 0.4rem 0 1rem; }
+        .note .ps { font-size: 0.88rem; color: var(--muted); font-style: italic; }
+        .note-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.1rem; }
+        .note-actions .btn { padding: 0.75rem 1.1rem; font-size: 0.9rem; }
+
+        /* ---------- closing ---------- */
+        .closing { text-align: center; }
+        .closing img.logo { width: 72px; margin-bottom: 0.8rem; }
+        .ig-btn { background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); color: #fff; box-shadow: 0 12px 28px rgba(238,42,123,.3); }
+        footer { padding: 2rem 0 3rem; font-size: 0.72rem; color: var(--muted); }
+        footer ol { padding-left: 1.1rem; margin-top: 0.4rem; }
+        footer a { color: inherit; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            .rv { opacity: 1; transform: none; }
+            .layer-bar { width: var(--w); }
+            .step { opacity: 1; transform: none; }
+            .m-journal { opacity: 0; }
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="bgm" src="bg-music.m4a" loop preload="none"></audio>
+
+    <div class="topbar">
+        <a class="brand" href="https://seminggusatu.com" aria-label="Seminggu Satu"><img src="../images/black.png" alt="">Upcycle Club</a>
+        <button class="sound-btn" id="soundBtn" type="button" aria-pressed="false"><span class="eq"><i></i><i></i><i></i></span><span id="soundLbl">Sound off</span></button>
+    </div>
+
+    <!-- 1. HERO -->
+    <section class="hero">
+        <div class="orb a"></div><div class="orb b"></div>
+        <div class="wrap" style="position:relative;">
+            <div class="morph" aria-hidden="true">
+                <!-- milk carton -->
+                <svg class="m-carton" viewBox="0 0 170 190">
+                    <polygon points="45,48 85,18 125,48" fill="#e8f1ff" />
+                    <rect x="78" y="6" width="14" height="16" rx="3" fill="#ffe600" />
+                    <rect x="45" y="48" width="80" height="128" rx="6" fill="#ffffff" />
+                    <rect x="45" y="96" width="80" height="44" fill="#0092ff" />
+                    <text x="85" y="124" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="17" fill="#fff">MILK</text>
+                    <circle cx="66" cy="74" r="7" fill="#ffe600" />
+                </svg>
+                <!-- journal -->
+                <svg class="m-journal" viewBox="0 0 170 190">
+                    <rect x="38" y="22" width="102" height="150" rx="10" fill="#ffffff" />
+                    <rect x="38" y="22" width="20" height="150" rx="6" fill="#0092ff" />
+                    <rect x="38" y="22" width="102" height="150" rx="10" fill="none" stroke="#e4e9f5" stroke-width="2" />
+                    <g fill="#ffe600"><circle cx="48" cy="45" r="4" /><circle cx="48" cy="70" r="4" /><circle cx="48" cy="95" r="4" /><circle cx="48" cy="120" r="4" /><circle cx="48" cy="145" r="4" /></g>
+                    <g stroke="#cfd8ee" stroke-width="3" stroke-linecap="round"><line x1="72" y1="62" x2="124" y2="62" /><line x1="72" y1="80" x2="124" y2="80" /><line x1="72" y1="98" x2="110" y2="98" /></g>
+                    <path d="M98 128 q8 -14 16 0 q8 14 16 0" fill="none" stroke="#ff5f7e" stroke-width="4" stroke-linecap="round" />
+                </svg>
+                <span class="sparkle" style="top:8px;left:6px;">✨</span>
+                <span class="sparkle" style="bottom:20px;right:0;animation-delay:1.2s;">✨</span>
+            </div>
+            <span class="eyebrow" style="background:rgba(255,255,255,.18);color:#fff;">Upcycle Club</span>
+            <h1>This journal used to be a <span class="y">milk carton.</span></h1>
+            <p>Before it held your thoughts, it held someone's breakfast. This is its story — and maybe the start of yours.</p>
+            <div style="margin-top:1.8rem;">
+                <button class="btn btn-yellow" id="beginBtn" type="button">🎧 Begin the story</button>
+            </div>
+            <div class="scroll-hint"><span>↓</span> Scroll slowly, it's a short one</div>
+        </div>
+    </section>
+
+    <!-- 2. LIVE COUNTER -->
+    <section id="story">
+        <div class="wrap">
+            <span class="eyebrow rv">While you were reading</span>
+            <h2 class="rv d1">Cartons are made faster than you can blink.</h2>
+            <div class="card rv d2">
+                <p class="muted" style="font-size:0.92rem;">Since you opened this page, around</p>
+                <div class="counter" id="counter">0</div>
+                <p class="muted" style="font-size:0.92rem;">drink cartons were produced by just one company.</p>
+                <div class="stat-row">
+                    <div class="stat"><b>174 billion</b><span>packages sold in a year</span></div>
+                    <div class="stat"><b>~477 million</b><span>every single day</span></div>
+                </div>
+                <p class="src">Estimate based on Tetra Pak's 174 billion packages sold in 2025 <sup>[1]</sup>, spread evenly across the year.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. ANATOMY -->
+    <section style="padding-top:1rem;">
+        <div class="wrap">
+            <span class="eyebrow rv">Anatomy of a carton</span>
+            <h2 class="rv d1">It looks like paper. <span class="hl">It's not just paper.</span></h2>
+            <p class="rv d2 muted">A typical 1-litre carton is a sandwich of thin layers, pressed together so your milk stays fresh for months.</p>
+            <div class="card rv d3" style="margin-top:1.3rem;">
+                <div class="layers" id="layers">
+                    <div class="layer"><div><div class="layer-name">📦 Paperboard</div><div class="layer-track"><div class="layer-bar lb-paper" style="--w:70%;"></div></div></div><div class="layer-pct">~70%</div></div>
+                    <div class="layer"><div><div class="layer-name">🧴 Plastic</div><div class="layer-track"><div class="layer-bar lb-plastic" style="--w:26%;"></div></div></div><div class="layer-pct">~26%</div></div>
+                    <div class="layer"><div><div class="layer-name">✨ Aluminium foil</div><div class="layer-track"><div class="layer-bar lb-alu" style="--w:4%;min-width:8px;"></div></div></div><div class="layer-pct">~4%</div></div>
+                </div>
+                <div class="callout">🧩 Brilliant at protecting milk. <b>Tricky to pull apart again</b> — the layers need special facilities to be separated and recycled.</div>
+                <p class="src">Layer split: estimate for a typical 1-litre beverage carton by Deutsche Umwelthilfe <sup>[2]</sup>. Tetra Pak reports cartons are on average more than 70% paperboard <sup>[3]</sup>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. 3 OUT OF 4 -->
+    <section style="padding-top:1rem;">
+        <div class="wrap">
+            <span class="eyebrow rv">Where they go</span>
+            <h2 class="rv d1">Most cartons never get a second life.</h2>
+            <div class="card rv d2" id="fourCard">
+                <div class="big-frac">3 <span class="muted" style="font-size:0.45em;">out of</span> 4</div>
+                <p class="muted" style="margin-top:0.4rem;">cartons around the world are <b>not</b> recycled.</p>
+                <div class="four">
+                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg>landfill</div>
+                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg>landfill</div>
+                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg>landfill</div>
+                    <div class="c saved"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg>recycled</div>
+                </div>
+                <p class="src">The global carton recycling rate was about 27% in 2023, according to Tetra Pak <sup>[4]</sup>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. THE CHAIN -->
+    <section style="padding-top:1rem;">
+        <div class="wrap">
+            <span class="eyebrow rv">Breaking the chain</span>
+            <h2 class="rv d1">Same carton. Two very different endings.</h2>
+            <div class="paths">
+                <div class="path old rv d2">
+                    <div class="path-title">The usual way</div>
+                    <div class="steps">
+                        <div class="step"><div class="e">🥛</div><small>Drink</small></div><span class="arrow">→</span>
+                        <div class="step"><div class="e">🗑️</div><small>Bin</small></div><span class="arrow">→</span>
+                        <div class="step"><div class="e">🚛</div><small>Truck</small></div><span class="arrow">→</span>
+                        <div class="step"><div class="e">⛰️</div><small>Landfill</small></div>
+                    </div>
+                </div>
+                <div class="path new rv d3">
+                    <div class="path-title">Your journal's way</div>
+                    <div class="steps">
+                        <div class="step"><div class="e">🥛</div><small>Drink</small></div><span class="arrow">→</span>
+                        <div class="step"><div class="e">🫧</div><small>Washed</small></div><span class="arrow">→</span>
+                        <div class="step"><div class="e">✂️</div><small>Cut</small></div><span class="arrow">→</span>
+                        <div class="step"><div class="e">🧵</div><small>Bound</small></div><span class="arrow">→</span>
+                        <div class="step"><div class="e">📓</div><small>You</small></div>
+                    </div>
+                </div>
+            </div>
+            <p class="rv muted" style="margin-top:1.2rem;">Every journal is washed, cut and bound by hand in Jakarta. Since every carton is different, no two covers are the same.</p>
+        </div>
+    </section>
+
+    <!-- 6. YOU -->
+    <section style="padding-top:1rem;">
+        <div class="wrap">
+            <div class="you rv">
+                <div class="orb a" style="opacity:.3;"></div>
+                <p style="font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:0.75rem;">The one in your hands</p>
+                <div class="num" id="oneNum">1</div>
+                <h2 style="font-size:1.6rem;margin:0.4rem 0 0.7rem;">carton that skipped the landfill.</h2>
+                <p>Small? Absolutely. But chains break one link at a time — and you just became one of those links. Thank you. 💛</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. NEW TO JOURNALING -->
+    <section style="padding-top:1rem;">
+        <div class="wrap">
+            <span class="eyebrow rv">Now, the fun part</span>
+            <h2 class="rv d1">Never journaled before? Perfect.</h2>
+            <p class="rv d2 muted">There's no right way to fill these pages. A few gentle ground rules:</p>
+            <div class="tips">
+                <div class="card tip rv d1"><div class="ic">⏱️</div><div><h3>Five minutes is enough</h3><p class="muted" style="font-size:0.93rem;">One sentence counts. So does a doodle. Start tiny.</p></div></div>
+                <div class="card tip rv d2"><div class="ic">🌀</div><div><h3>Messy is welcome</h3><p class="muted" style="font-size:0.93rem;">Crossed-out words, wobbly lines, bad spelling — it's all part of it.</p></div></div>
+                <div class="card tip rv d3"><div class="ic">🔒</div><div><h3>It's just for you</h3><p class="muted" style="font-size:0.93rem;">Nobody grades it. Write like no one's reading, because no one is.</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. LETTER FROM MOCHI -->
+    <section style="padding-top:1rem;" id="letter">
+        <div class="wrap">
+            <span class="eyebrow rv">A letter for you</span>
+            <h2 class="rv d1">Stuck on the first page? Mochi wrote you a letter.</h2>
+            <p class="rv d2 muted">Mochi is our little community mascot. Inside every letter is one question to get your pen moving.</p>
+            <div class="letter-stage rv d3">
+                <div id="envWrap">
+                    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Open Mochi's letter">
+                        <div class="env-body"></div>
+                        <div class="env-flap"></div>
+                        <div class="env-seal">💌</div>
+                        <div class="env-stamp"><img src="../images/mochi_maskot_sm.png" alt=""></div>
+                        <div class="env-to">To: you ✿</div>
+                    </div>
+                    <p class="tap-hint">Tap the envelope to open it</p>
+                </div>
+                <div class="note" id="note" aria-live="polite">
+                    <div class="from"><img src="../images/mochi_maskot_sm.png" alt="Mochi"><div><b>From Mochi</b><div class="cat" id="noteCat"></div></div></div>
+                    <div class="prompt" id="notePrompt"></div>
+                    <p class="ps">P.S. No need to answer perfectly. Just start with the first thing that comes to mind. 🌱</p>
+                    <div class="note-actions">
+                        <button class="btn btn-blue" id="anotherBtn" type="button">🎲 Another letter</button>
+                        <button class="btn btn-ghost" id="copyBtn" type="button">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. CLOSING -->
+    <section class="closing" style="padding-top:2rem;">
+        <div class="wrap">
+            <img class="logo rv" src="../images/black.png" alt="Seminggu Satu">
+            <h2 class="rv d1">Welcome to the Upcycle Club.</h2>
+            <p class="rv d2 muted" style="max-width:26rem;margin:0 auto;">Seminggu Satu is a journaling community from Jakarta. Our name means <i>“one a week”</i> — one page, one moment, one small habit at a time.</p>
+            <p class="rv d2 muted" style="max-width:26rem;margin:1rem auto 0;">Show us your first page — we'd love to see it.</p>
+            <div class="rv d3" style="margin-top:1.6rem;">
+                <a class="btn ig-btn" href="https://instagram.com/seminggu_satu" target="_blank" rel="noopener">📸 Follow @seminggu_satu</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="wrap">
+            <b>Sources</b>
+            <ol>
+                <li><a href="https://www.tetrapak.com/about-tetra-pak/the-company/facts-figures" target="_blank" rel="noopener">Tetra Pak — Facts &amp; figures</a> (174 billion packages sold, 2025)</li>
+                <li>Deutsche Umwelthilfe (2014) estimate for a typical 1-litre beverage carton: ~70% paperboard, ~26% polyethylene, ~4% aluminium</li>
+                <li><a href="https://www.tetrapak.com/solutions/packaging/packaging-material" target="_blank" rel="noopener">Tetra Pak — Packaging material</a></li>
+                <li><a href="https://www.packagingdive.com/news/tetra-pak-sustainability-report-fy23-packaging-recycling/718034/" target="_blank" rel="noopener">Packaging Dive — Tetra Pak sustainability report FY23</a> (global carton recycling rate ~27%)</li>
+            </ol>
+            <p style="margin-top:1rem;">© Seminggu Satu · Made with love (and old milk cartons) in Jakarta</p>
+        </div>
+    </footer>
+
+    <script>
+        // Prompt journaling khusus pembeli Upcycle Journal (bahasa Inggris,
+        // ramah pemula) -- SENGAJA bukan terjemahan list_prompt.js, ditulis
+        // ulang biar lembut buat orang yang baru pertama kali journaling.
+        const PROMPTS = [
+            { c: "Noticing", p: "What's one small thing you saw today that most people walked right past?" },
+            { c: "Noticing", p: "Describe where you're sitting right now using all five senses." },
+            { c: "Noticing", p: "What sound do you find unexpectedly comforting?" },
+            { c: "Noticing", p: "What was the best thing you ate this week, and who were you with?" },
+            { c: "Gratitude", p: "Who made your day a little easier recently, without even knowing it?" },
+            { c: "Gratitude", p: "Name three ordinary things you'd miss if they disappeared tomorrow." },
+            { c: "Gratitude", p: "What's something you own that has been with you for years? Why have you kept it?" },
+            { c: "Gratitude", p: "Write a thank-you note to a place that matters to you." },
+            { c: "Second chances", p: "This journal got a second life. What's something you'd like to give a second chance?" },
+            { c: "Second chances", p: "What's a habit you dropped that you'd quietly love to pick up again?" },
+            { c: "Second chances", p: "Think of an old version of you. What would you tell them today?" },
+            { c: "Second chances", p: "What's something that looked like rubbish at first but turned into something good?" },
+            { c: "About you", p: "What made you smile the last time you laughed out loud?" },
+            { c: "About you", p: "Describe your perfect slow Sunday, from waking up to falling asleep." },
+            { c: "About you", p: "What's a compliment you received that you still think about?" },
+            { c: "About you", p: "What are you curious about lately?" },
+            { c: "About you", p: "If this week had a colour, which one would it be — and why?" },
+            { c: "About you", p: "What's a tiny win from this week that deserves a little celebration?" },
+            { c: "Feelings", p: "How are you, really? Not the polite answer — the honest one." },
+            { c: "Feelings", p: "What's been taking up the most space in your head lately?" },
+            { c: "Feelings", p: "When did you last feel completely at ease? What made it feel that way?" },
+            { c: "Feelings", p: "What would you like to let go of before the month ends?" },
+            { c: "Feelings", p: "Write about a worry, then write what you'd say to a friend who had the same one." },
+            { c: "Dreams", p: "What's one thing you want to learn just for the joy of it?" },
+            { c: "Dreams", p: "Where in the world would you go tomorrow if you could, and what would you do first?" },
+            { c: "Dreams", p: "Imagine yourself one year from now, happy. What does an ordinary day look like?" },
+            { c: "Dreams", p: "What's a small promise you'd like to make to yourself this week?" },
+            { c: "Planet", p: "What's one thing in your home you could reuse instead of throwing away?" },
+            { c: "Planet", p: "Describe a place in nature you'd like to protect, and why it's special to you." },
+            { c: "Planet", p: "What's one small, kind thing you could do for the planet this week — no guilt, just curiosity?" },
+        ];
+
+        // ---------- reveal on scroll ----------
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+        }, { threshold: 0.2 });
+        document.querySelectorAll('.rv, .path').forEach(el => io.observe(el));
+
+        // ---------- live counter (Tetra Pak 2025: 174 miliar / tahun) ----------
+        const PER_SEC = 174e9 / (365 * 24 * 3600);
+        const counterEl = document.getElementById('counter');
+        const t0 = performance.now();
+        (function tick() {
+            counterEl.textContent = Math.floor((performance.now() - t0) / 1000 * PER_SEC).toLocaleString('en-US');
+            requestAnimationFrame(tick);
+        })();
+
+        // ---------- background music ----------
+        // Autoplay diblok browser HP -- musik baru mulai pas pengunjung TAP
+        // (tombol "Begin the story" atau tombol Sound). Pilihan mute diinget.
+        const bgm = document.getElementById('bgm');
+        const soundBtn = document.getElementById('soundBtn');
+        const soundLbl = document.getElementById('soundLbl');
+        bgm.volume = 0;
+        let fadeTimer = null;
+        function fadeTo(target, done) {
+            clearInterval(fadeTimer);
+            fadeTimer = setInterval(() => {
+                const v = bgm.volume + (target > bgm.volume ? 0.03 : -0.03);
+                if ((target > bgm.volume && v >= target) || (target <= bgm.volume && v <= target)) {
+                    bgm.volume = Math.max(0, Math.min(1, target)); clearInterval(fadeTimer); if (done) done();
+                } else bgm.volume = Math.max(0, Math.min(1, v));
+            }, 60);
+        }
+        function setSoundUi(on) {
+            soundBtn.classList.toggle('playing', on);
+            soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            soundLbl.textContent = on ? 'Sound on' : 'Sound off';
+        }
+        function playMusic() {
+            const p = bgm.play();
+            if (p && p.catch) p.catch(() => setSoundUi(false));
+            setSoundUi(true);
+            fadeTo(0.4);
+            try { localStorage.setItem('uc_sound', 'on'); } catch (e) { }
+        }
+        function stopMusic() {
+            setSoundUi(false);
+            fadeTo(0, () => bgm.pause());
+            try { localStorage.setItem('uc_sound', 'off'); } catch (e) { }
+        }
+        soundBtn.addEventListener('click', () => { bgm.paused ? playMusic() : stopMusic(); });
+        document.getElementById('beginBtn').addEventListener('click', () => {
+            let muted = false;
+            try { muted = localStorage.getItem('uc_sound') === 'off'; } catch (e) { }
+            if (!muted && bgm.paused) playMusic();
+            document.getElementById('story').scrollIntoView({ behavior: 'smooth' });
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && !bgm.paused) bgm.pause();
+            else if (!document.hidden && soundBtn.classList.contains('playing')) bgm.play().catch(() => { });
+        });
+
+        // ---------- Mochi letter ----------
+        const envelope = document.getElementById('envelope');
+        const envWrap = document.getElementById('envWrap');
+        const note = document.getElementById('note');
+        let lastIdx = -1;
+        function pickPrompt() {
+            let i;
+            do { i = Math.floor(Math.random() * PROMPTS.length); } while (i === lastIdx && PROMPTS.length > 1);
+            lastIdx = i;
+            document.getElementById('noteCat').textContent = PROMPTS[i].c;
+            document.getElementById('notePrompt').textContent = PROMPTS[i].p;
+        }
+        function openLetter() {
+            if (envelope.classList.contains('open')) return;
+            envelope.classList.add('open');
+            pickPrompt();
+            setTimeout(() => { envWrap.style.display = 'none'; note.classList.add('show'); }, 650);
+        }
+        envelope.addEventListener('click', openLetter);
+        envelope.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLetter(); } });
+        document.getElementById('anotherBtn').addEventListener('click', () => {
+            note.classList.remove('show'); void note.offsetWidth;
+            pickPrompt(); note.classList.add('show');
+        });
+        document.getElementById('copyBtn').addEventListener('click', e => {
+            const btn = e.currentTarget;
+            navigator.clipboard.writeText(document.getElementById('notePrompt').textContent).then(() => {
+                btn.textContent = '✓ Copied';
+                setTimeout(() => { btn.textContent = '📋 Copy'; }, 1500);
+            }).catch(() => { });
+        });
+    </script>
+</body>
+
+</html>
