@@ -284,10 +284,10 @@
                 <div class="big-frac">3 <span class="muted" style="font-size:0.45em;">out of</span> 4</div>
                 <p class="muted" style="margin-top:0.4rem;">cartons around the world are <b>not</b> recycled.</p>
                 <div class="four">
-                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg>landfill</div>
-                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg>landfill</div>
-                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg>landfill</div>
-                    <div class="c saved"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg>recycled</div>
+                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg><span>landfill</span></div>
+                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg><span>landfill</span></div>
+                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg><span>landfill</span></div>
+                    <div class="c saved"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg><span>recycled</span></div>
                 </div>
                 <p class="src">The global carton recycling rate was about 27% in 2023, according to Tetra Pak <sup>[4]</sup>.</p>
             </div>
@@ -320,7 +320,7 @@
                     </div>
                 </div>
             </div>
-            <p class="rv muted" style="margin-top:1.2rem;">Every journal is washed, cut and bound by hand in Jakarta. Since every carton is different, no two covers are the same.</p>
+            <p class="rv muted" style="margin-top:1.2rem;">Every journal is washed, cut and bound by hand — by us, or by you. Since every carton is different, no two covers are the same.</p>
         </div>
     </section>
 
@@ -398,12 +398,12 @@
         <div class="wrap">
             <b>Sources</b>
             <ol>
-                <li><a href="https://www.tetrapak.com/about-tetra-pak/the-company/facts-figures" target="_blank" rel="noopener">Tetra Pak — Facts &amp; figures</a> (174 billion packages sold, 2025)</li>
-                <li>Deutsche Umwelthilfe (2014) estimate for a typical 1-litre beverage carton: ~70% paperboard, ~26% polyethylene, ~4% aluminium</li>
+                <li><a href="https://www.tetrapak.com/about-tetra-pak/the-company/facts-figures" target="_blank" rel="noopener">Tetra Pak — Facts &amp; figures</a> <span>(174 billion packages sold, 2025)</span></li>
+                <li><span>Deutsche Umwelthilfe (2014) estimate for a typical 1-litre beverage carton: ~70% paperboard, ~26% polyethylene, ~4% aluminium</span></li>
                 <li><a href="https://www.tetrapak.com/solutions/packaging/packaging-material" target="_blank" rel="noopener">Tetra Pak — Packaging material</a></li>
-                <li><a href="https://www.packagingdive.com/news/tetra-pak-sustainability-report-fy23-packaging-recycling/718034/" target="_blank" rel="noopener">Packaging Dive — Tetra Pak sustainability report FY23</a> (global carton recycling rate ~27%)</li>
+                <li><a href="https://www.packagingdive.com/news/tetra-pak-sustainability-report-fy23-packaging-recycling/718034/" target="_blank" rel="noopener">Packaging Dive — Tetra Pak sustainability report FY23</a> <span>(global carton recycling rate ~27%)</span></li>
             </ol>
-            <p style="margin-top:1rem;">© Seminggu Satu · Made with love (and old milk cartons) in Jakarta</p>
+            <p style="margin-top:1rem;"><span>© Seminggu Satu · Made with love (and old milk cartons) in Jakarta</span></p>
         </div>
     </footer>
 
@@ -444,6 +444,32 @@
             { c: "Planet", p: "What's one small, kind thing you could do for the planet this week — no guilt, just curiosity?" },
         ];
 
+        // ---------- bahasa: ?lang=en (default) / ?lang=id ----------
+        // HTML-nya ditulis dalam bahasa Inggris (default buat QR di amplop).
+        // Versi Indonesia nyocokin isi tiap elemen (innerHTML yang
+        // dinormalisasi) ke kamus di bawah -- tambah teks baru di HTML =
+        // tambah entri juga di sini.
+        const LANG = (new URLSearchParams(location.search).get('lang') || '').toLowerCase() === 'id' ? 'id' : 'en';
+        const ID_TEXT = {"This journal used to be a <span class=\"y\">milk carton.</span>": "Jurnal ini dulunya <span class=\"y\">kotak susu.</span>", "Before it held your thoughts, it held someone's breakfast. This is its story — and maybe the start of yours.": "Sebelum menampung isi pikiranmu, ia pernah menampung sarapan seseorang. Ini ceritanya — dan mungkin awal ceritamu juga.", "🎧 Begin the story": "🎧 Mulai ceritanya", "<span>↓</span> Scroll slowly, it's a short one": "<span>↓</span> Scroll pelan-pelan, ceritanya singkat kok", "While you were reading": "Selagi kamu membaca", "Cartons are made faster than you can blink.": "Kotak minuman dibuat lebih cepat dari kedipan mata.", "Since you opened this page, around": "Sejak kamu membuka halaman ini, sekitar", "drink cartons were produced by just one company.": "kotak minuman sudah diproduksi oleh satu perusahaan saja.", "<b>174 billion</b><span>packages sold in a year</span>": "<b>174 miliar</b><span>kemasan terjual dalam setahun</span>", "<b>~477 million</b><span>every single day</span>": "<b>~477 juta</b><span>setiap harinya</span>", "Estimate based on Tetra Pak's 174 billion packages sold in 2025 <sup>[1]</sup>, spread evenly across the year.": "Perkiraan dari 174 miliar kemasan Tetra Pak yang terjual di 2025 <sup>[1]</sup>, dibagi rata sepanjang tahun.", "Anatomy of a carton": "Anatomi sebuah kotak", "It looks like paper. <span class=\"hl\">It's not just paper.</span>": "Kelihatannya kertas. <span class=\"hl\">Tapi bukan cuma kertas.</span>", "A typical 1-litre carton is a sandwich of thin layers, pressed together so your milk stays fresh for months.": "Kotak 1 liter pada umumnya adalah tumpukan lapisan tipis yang dipres jadi satu, supaya susumu tetap segar berbulan-bulan.", "📦 Paperboard": "📦 Karton", "🧴 Plastic": "🧴 Plastik", "✨ Aluminium foil": "✨ Lapisan aluminium", "🧩 Brilliant at protecting milk. <b>Tricky to pull apart again</b> — the layers need special facilities to be separated and recycled.": "🧩 Jago banget melindungi susu. <b>Tapi susah dipisahkan lagi</b> — lapisannya butuh fasilitas khusus untuk dipisah dan didaur ulang.", "Layer split: estimate for a typical 1-litre beverage carton by Deutsche Umwelthilfe <sup>[2]</sup>. Tetra Pak reports cartons are on average more than 70% paperboard <sup>[3]</sup>.": "Pembagian lapisan: perkiraan Deutsche Umwelthilfe untuk kotak minuman 1 liter pada umumnya <sup>[2]</sup>. Menurut Tetra Pak, rata-rata lebih dari 70% kotaknya adalah karton <sup>[3]</sup>.", "Where they go": "Ke mana perginya", "Most cartons never get a second life.": "Kebanyakan kotak nggak pernah dapat kesempatan kedua.", "3 <span class=\"muted\" style=\"font-size:0.45em;\">out of</span> 4": "3 <span class=\"muted\" style=\"font-size:0.45em;\">dari</span> 4", "cartons around the world are <b>not</b> recycled.": "kotak di seluruh dunia <b>tidak</b> didaur ulang.", "The global carton recycling rate was about 27% in 2023, according to Tetra Pak <sup>[4]</sup>.": "Menurut Tetra Pak, tingkat daur ulang karton global sekitar 27% di 2023 <sup>[4]</sup>.", "Breaking the chain": "Memutus rantai", "Same carton. Two very different endings.": "Kotak yang sama. Dua akhir cerita yang beda banget.", "The usual way": "Jalur biasanya", "Drink": "Diminum", "Bin": "Tong sampah", "Truck": "Truk", "Landfill": "TPA", "Your journal's way": "Jalur jurnalmu", "Washed": "Dicuci", "Cut": "Dipotong", "Bound": "Dijilid", "You": "Kamu", "Every journal is washed, cut and bound by hand — by us, or by you. Since every carton is different, no two covers are the same.": "Setiap jurnal dicuci, dipotong, dan dijilid dengan tangan — oleh kami, atau oleh kamu sendiri. Karena tiap kotak beda, nggak ada dua sampul yang sama.", "The one in your hands": "Yang ada di tanganmu", "carton that skipped the landfill.": "kotak yang batal berakhir di TPA.", "Small? Absolutely. But chains break one link at a time — and you just became one of those links. Thank you. 💛": "Kecil? Banget. Tapi rantai putus satu mata rantai demi satu — dan kamu baru saja jadi salah satunya. Terima kasih. 💛", "Now, the fun part": "Sekarang, bagian serunya", "Never journaled before? Perfect.": "Belum pernah journaling? Pas banget.", "There's no right way to fill these pages. A few gentle ground rules:": "Nggak ada cara benar atau salah buat ngisi halaman ini. Cuma beberapa aturan santai:", "Five minutes is enough": "Lima menit itu cukup", "One sentence counts. So does a doodle. Start tiny.": "Satu kalimat juga dihitung. Coretan juga. Mulai dari yang kecil.", "Messy is welcome": "Berantakan itu boleh", "Crossed-out words, wobbly lines, bad spelling — it's all part of it.": "Kata yang dicoret, garis yang miring, salah ketik — semuanya bagian dari proses.", "It's just for you": "Ini cuma buat kamu", "Nobody grades it. Write like no one's reading, because no one is.": "Nggak ada yang menilai. Tulis seolah nggak ada yang baca, karena memang nggak ada.", "A letter for you": "Ada surat buatmu", "Stuck on the first page? Mochi wrote you a letter.": "Bingung mau nulis apa di halaman pertama? Mochi nulisin kamu surat.", "Mochi is our little community mascot. Inside every letter is one question to get your pen moving.": "Mochi itu maskot kecil komunitas kami. Di setiap surat ada satu pertanyaan buat bikin penamu mulai bergerak.", "To: you ✿": "Untuk: kamu ✿", "Tap the envelope to open it": "Tap amplopnya buat membuka", "From Mochi": "Dari Mochi", "P.S. No need to answer perfectly. Just start with the first thing that comes to mind. 🌱": "P.S. Nggak perlu dijawab sempurna. Mulai aja dari hal pertama yang muncul di kepala. 🌱", "🎲 Another letter": "🎲 Surat lainnya", "📋 Copy": "📋 Salin", "Welcome to the Upcycle Club.": "Selamat datang di Upcycle Club.", "Seminggu Satu is a journaling community from Jakarta. Our name means <i>“one a week”</i> — one page, one moment, one small habit at a time.": "Seminggu Satu adalah komunitas journaling dari Jakarta. Satu halaman, satu momen, satu kebiasaan kecil — seminggu sekali.", "Show us your first page — we'd love to see it.": "Tunjukin halaman pertamamu ke kami — kami pengen lihat!", "Sources": "Sumber", "(174 billion packages sold, 2025)": "(174 miliar kemasan terjual, 2025)", "Deutsche Umwelthilfe (2014) estimate for a typical 1-litre beverage carton: ~70% paperboard, ~26% polyethylene, ~4% aluminium": "Perkiraan Deutsche Umwelthilfe (2014) untuk kotak minuman 1 liter pada umumnya: ~70% karton, ~26% polietilena, ~4% aluminium", "(global carton recycling rate ~27%)": "(tingkat daur ulang karton global ~27%)", "© Seminggu Satu · Made with love (and old milk cartons) in Jakarta": "© Seminggu Satu · Dibuat dengan cinta (dan kotak susu bekas) di Jakarta", "landfill": "TPA", "recycled": "didaur ulang"};
+        const PROMPTS_ID = [{"c": "Memperhatikan", "p": "Hal kecil apa yang kamu lihat hari ini, yang dilewatin begitu aja sama kebanyakan orang?"}, {"c": "Memperhatikan", "p": "Gambarkan tempatmu duduk sekarang pakai kelima indramu."}, {"c": "Memperhatikan", "p": "Suara apa yang ternyata bikin kamu tenang?"}, {"c": "Memperhatikan", "p": "Makanan paling enak minggu ini apa, dan kamu makan bareng siapa?"}, {"c": "Bersyukur", "p": "Siapa yang belakangan bikin harimu lebih ringan, tanpa dia sadari?"}, {"c": "Bersyukur", "p": "Sebutkan tiga hal biasa yang bakal kamu kangenin kalau besok tiba-tiba hilang."}, {"c": "Bersyukur", "p": "Barang apa yang udah bertahun-tahun nemenin kamu? Kenapa masih kamu simpan?"}, {"c": "Bersyukur", "p": "Tulis surat terima kasih untuk satu tempat yang berarti buatmu."}, {"c": "Kesempatan kedua", "p": "Jurnal ini dapat kesempatan kedua. Hal apa yang pengen kamu kasih kesempatan kedua?"}, {"c": "Kesempatan kedua", "p": "Kebiasaan apa yang dulu kamu tinggalin, tapi diam-diam pengen kamu mulai lagi?"}, {"c": "Kesempatan kedua", "p": "Bayangin dirimu yang dulu. Apa yang pengen kamu bilang ke dia hari ini?"}, {"c": "Kesempatan kedua", "p": "Apa hal yang awalnya kelihatan kayak sampah, tapi ternyata jadi sesuatu yang baik?"}, {"c": "Tentang kamu", "p": "Terakhir kali kamu ketawa lepas, apa yang bikin kamu ketawa?"}, {"c": "Tentang kamu", "p": "Ceritain hari Minggu santai idamanmu, dari bangun sampai tidur lagi."}, {"c": "Tentang kamu", "p": "Pujian apa yang pernah kamu terima dan masih kamu ingat sampai sekarang?"}, {"c": "Tentang kamu", "p": "Lagi penasaran sama apa belakangan ini?"}, {"c": "Tentang kamu", "p": "Kalau minggu ini punya warna, warnanya apa — dan kenapa?"}, {"c": "Tentang kamu", "p": "Kemenangan kecil apa minggu ini yang pantas dirayain?"}, {"c": "Perasaan", "p": "Kamu apa kabar, beneran? Bukan jawaban sopan — jawaban yang jujur."}, {"c": "Perasaan", "p": "Apa yang paling banyak menyita pikiranmu belakangan ini?"}, {"c": "Perasaan", "p": "Kapan terakhir kali kamu merasa benar-benar tenang? Apa yang bikin begitu?"}, {"c": "Perasaan", "p": "Apa yang pengen kamu lepasin sebelum bulan ini berakhir?"}, {"c": "Perasaan", "p": "Tulis satu kekhawatiranmu, lalu tulis apa yang bakal kamu bilang ke teman yang punya kekhawatiran yang sama."}, {"c": "Impian", "p": "Satu hal apa yang pengen kamu pelajari cuma karena seneng aja?"}, {"c": "Impian", "p": "Kalau besok bisa pergi ke mana aja di dunia, kamu ke mana, dan apa yang pertama kamu lakuin?"}, {"c": "Impian", "p": "Bayangin dirimu setahun lagi, lagi bahagia. Kayak apa satu hari biasa buatmu?"}, {"c": "Impian", "p": "Janji kecil apa yang pengen kamu buat untuk dirimu sendiri minggu ini?"}, {"c": "Bumi", "p": "Barang apa di rumahmu yang bisa dipakai ulang daripada dibuang?"}, {"c": "Bumi", "p": "Ceritain satu tempat di alam yang pengen kamu jaga, dan kenapa tempat itu spesial buatmu."}, {"c": "Bumi", "p": "Satu hal kecil dan baik apa yang bisa kamu lakuin buat bumi minggu ini — tanpa rasa bersalah, cuma penasaran aja?"}];
+        const UI = {
+            en: { soundOn: 'Sound on', soundOff: 'Sound off', copied: '✓ Copied', copy: '📋 Copy' },
+            id: { soundOn: 'Suara nyala', soundOff: 'Suara mati', copied: '✓ Tersalin', copy: '📋 Salin' },
+        }[LANG];
+        const ACTIVE_PROMPTS = LANG === 'id' ? PROMPTS_ID : PROMPTS;
+        if (LANG === 'id') {
+            document.documentElement.lang = 'id';
+            document.title = 'Upcycle Club — Seminggu Satu';
+            const md = document.querySelector('meta[name="description"]');
+            if (md) md.content = 'Jurnalmu dulunya kotak susu. Ini ceritanya — plus surat kecil dari Mochi buat bantu kamu mulai menulis.';
+            const norm = h => h.replace(/\s+/g, ' ').trim();
+            document.querySelectorAll('body *').forEach(el => {
+                if (el.closest('script, svg')) return;
+                const t = ID_TEXT[norm(el.innerHTML)];
+                if (t !== undefined) el.innerHTML = t;
+            });
+        }
+
         // ---------- reveal on scroll ----------
         const io = new IntersectionObserver(entries => {
             entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
@@ -455,7 +481,7 @@
         const counterEl = document.getElementById('counter');
         const t0 = performance.now();
         (function tick() {
-            counterEl.textContent = Math.floor((performance.now() - t0) / 1000 * PER_SEC).toLocaleString('en-US');
+            counterEl.textContent = Math.floor((performance.now() - t0) / 1000 * PER_SEC).toLocaleString(LANG === 'id' ? 'id-ID' : 'en-US');
             requestAnimationFrame(tick);
         })();
 
@@ -481,7 +507,7 @@
         function setSoundUi(on) {
             soundBtn.classList.toggle('playing', on);
             soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-            soundLbl.textContent = on ? 'Sound on' : 'Sound off';
+            soundLbl.textContent = on ? UI.soundOn : UI.soundOff;
         }
         function playMusic() {
             const p = bgm.play();
@@ -535,10 +561,10 @@
         let lastIdx = -1;
         function pickPrompt() {
             let i;
-            do { i = Math.floor(Math.random() * PROMPTS.length); } while (i === lastIdx && PROMPTS.length > 1);
+            do { i = Math.floor(Math.random() * ACTIVE_PROMPTS.length); } while (i === lastIdx && ACTIVE_PROMPTS.length > 1);
             lastIdx = i;
-            document.getElementById('noteCat').textContent = PROMPTS[i].c;
-            document.getElementById('notePrompt').textContent = PROMPTS[i].p;
+            document.getElementById('noteCat').textContent = ACTIVE_PROMPTS[i].c;
+            document.getElementById('notePrompt').textContent = ACTIVE_PROMPTS[i].p;
         }
         function openLetter() {
             if (envelope.classList.contains('open')) return;
@@ -555,8 +581,8 @@
         document.getElementById('copyBtn').addEventListener('click', e => {
             const btn = e.currentTarget;
             navigator.clipboard.writeText(document.getElementById('notePrompt').textContent).then(() => {
-                btn.textContent = '✓ Copied';
-                setTimeout(() => { btn.textContent = '📋 Copy'; }, 1500);
+                btn.textContent = UI.copied;
+                setTimeout(() => { btn.textContent = UI.copy; }, 1500);
             }).catch(() => { });
         });
     </script>
