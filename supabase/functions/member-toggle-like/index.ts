@@ -26,10 +26,14 @@ Deno.serve(async (req) => {
 
     let liked: boolean;
     if (existing) {
-      await admin.from("quest_likes").delete().eq("target_id", targetId).eq("wa", prof.wa);
+      const { error } = await admin.from("quest_likes").delete().eq("target_id", targetId).eq("wa", prof.wa);
+      if (error) return errorResponse("Gagal menyimpan like: " + error.message);
       liked = false;
     } else {
-      await admin.from("quest_likes").insert({ target_id: targetId, wa: prof.wa });
+      // Error dulu nggak dicek -- gagal simpan tetep dibales "success" &
+      // counter di HP naik, padahal nggak kesimpen.
+      const { error } = await admin.from("quest_likes").insert({ target_id: targetId, wa: prof.wa });
+      if (error) return errorResponse("Gagal menyimpan like: " + error.message);
       liked = true;
     }
 

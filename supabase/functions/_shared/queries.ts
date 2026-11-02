@@ -252,7 +252,18 @@ export async function questGalleryBase(admin: SupabaseClient): Promise<GalleryIt
 }
 
 export async function questLikeMaps(admin: SupabaseClient, myWa?: string) {
-  const { data } = await admin.from("quest_likes").select("target_id, wa");
+  // DIBACA PER HALAMAN -- PostgREST cuma balikin maksimal 1000 baris per
+  // request. Begitu total like > 1000, select polos diam-diam kepotong &
+  // like yang baru "hilang" pas galeri di-refresh (BUG nyata, Nov 2026).
+  const PAGE = 1000;
+  const data: { target_id: string; wa: string }[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data: rows, error } = await admin.from("quest_likes").select("target_id, wa")
+      .order("target_id").order("wa").range(from, from + PAGE - 1);
+    if (error) throw error;
+    data.push(...(rows || []));
+    if (!rows || rows.length < PAGE) break;
+  }
   const myKey = waKey(myWa);
   const count: Record<string, number> = {};
   const mine: Record<string, boolean> = {};
