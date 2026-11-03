@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Reason to Go Out — Guided Journal</title>
+  <meta name="description" content="A Reason to Go Out: 20 misi kecil buat keluar rumah, lengkap dengan panduan journaling di tiap spread.">
+  <meta name="robots" content="noindex">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { neonYellow: '#E2FF00', neonBlue: '#0055FF', paperBg: '#FBF9F5', paperGrid: '#EADFC9', inkDark: '#1E1E24' },
+          fontFamily: { sans: ['Inter', 'sans-serif'], handwritten: ['Caveat', 'cursive'], display: ['Space Grotesk', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    .journal-paper { background-color: #FBF9F5; background-image: radial-gradient(#EADFC9 1px, transparent 1px); background-size: 16px 16px; }
+    .journal-paper.lines { background-image: linear-gradient(#E5DEC9 1px, transparent 1px); background-size: 100% 24px; }
+    .journal-paper.blank { background-image: none; }
+    .notebook-shadow { box-shadow: 0 20px 40px -15px rgba(0,0,0,0.4), 0 0 20px rgba(0,0,0,0.15); }
+    .spine-gutter { background: linear-gradient(to right, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.03) 30%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.03) 70%, rgba(0,0,0,0.12) 100%); }
+    .washi-tape { background: rgba(245, 230, 185, 0.85); box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 2px dashed rgba(0,0,0,0.1); border-right: 2px dashed rgba(0,0,0,0.1); }
+
+    /* placeholder abu-abu = contoh isian (cuma panduan, bukan teks cetak final) */
+    [data-ph]:empty::before { content: attr(data-ph); color: #C4BBA6; font-style: italic; }
+    .write-line { border-bottom: 1px dashed #CBD5E1; min-height: 1.5em; }
+    .write-area { background-image: linear-gradient(transparent 27px, #DDD3BC 27px, #DDD3BC 28px); background-size: 100% 28px; line-height: 28px; }
+
+    /* bank kata -- dilingkari pakai pulpen */
+    .chip { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; padding: 2px 8px 2px 6px; border-radius: 999px; border: 1.2px solid #D9CFB8; background: rgba(255,255,255,.75); color: #475569; display: inline-flex; align-items: center; gap: 4px; }
+    .chip::before { content: ""; width: 9px; height: 9px; border: 1.3px solid #94A3B8; border-radius: 50%; display: inline-block; }
+
+    /* skala 0-10 -- diwarnai salah satu bulatannya */
+    .dots { display: flex; justify-content: space-between; gap: 2px; }
+    .dots i { width: 11px; height: 11px; border: 1.3px solid #94A3B8; border-radius: 50%; background: #fff; display: inline-block; }
+
+    .star { color: #CFC6B2; font-size: 17px; }
+    .cbox { width: 13px; height: 13px; border: 1.5px solid #64748B; border-radius: 3px; display: inline-block; flex-shrink: 0; background: #fff; }
+
+    /* kotak tempel foto & doodle */
+    .photo-slot { border: 2px dashed #CBD5E1; border-radius: 12px; background: rgba(255,255,255,.45); display: flex; align-items: center; justify-content: center; text-align: center; }
+    .polaroid { background: #fff; padding: 8px 8px 26px; box-shadow: 0 6px 14px rgba(0,0,0,.12); }
+    .doodle { position: relative; border: 1.5px dashed #CBD5E1; border-radius: 12px; background: rgba(255,255,255,.55); }
+    .doodle .hint { position: absolute; top: 6px; left: 10px; color: #A8A29E; font-family: 'Caveat', cursive; font-size: 16px; }
+    .doodle .hint i { font-size: 12px; margin-right: 4px; }
+
+    .swatch { width: 30px; height: 30px; border-radius: 50%; border: 1.5px dashed #94A3B8; background: #fff; display: inline-block; }
+
+    .page-num { position: absolute; bottom: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 10px; color: #A8A29E; }
+    .page { position: relative; }
+
+    /* page turn */
+    .page-turn-next { animation: turnNext 0.4s ease-in-out; }
+    .page-turn-prev { animation: turnPrev 0.4s ease-in-out; }
+    @keyframes turnNext { 50% { transform: rotateY(-12deg) scale(0.98); opacity: 0.7; } }
+    @keyframes turnPrev { 50% { transform: rotateY(12deg) scale(0.98); opacity: 0.7; } }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+
+    /* HP: spread ditumpuk (kiri di atas, kanan di bawah) biar kebaca */
+    @media (max-width: 767px) {
+      .spread { flex-direction: column; aspect-ratio: auto !important; max-height: none !important; }
+      .spread > .page { width: 100% !important; min-height: 70vh; }
+      .spread > .spine-gutter { display: none !important; }
+      .spread > .page + .spine-gutter + .page { border-top: 2px dashed #E5DEC9; }
+    }
+
+    @media print {
+      @page { size: A5 landscape; margin: 0; }
+      .no-print { display: none !important; }
+      html, body { background: white !important; padding: 0 !important; margin: 0 !important; }
+      main { display: block !important; perspective: none !important; }
+      .spread { display: flex !important; width: 210mm !important; height: 148mm !important; max-height: none !important; aspect-ratio: auto !important; border-radius: 0 !important; box-shadow: none !important; border: none !important; break-after: page; page-break-after: always; animation: none !important; }
+      .spread > .page { width: 50% !important; height: 100% !important; overflow: hidden !important; padding: 7mm 8mm !important; }
+      [data-ph]:empty::before { content: none; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-800 min-h-screen font-sans flex flex-col items-center p-2 sm:p-4 overflow-x-hidden">
+
+  <header class="no-print w-full max-w-6xl mb-3 flex flex-wrap gap-2 sm:gap-3 justify-between items-center bg-slate-800/90 border border-slate-700 p-2.5 sm:p-3 rounded-2xl shadow-xl backdrop-blur-md">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="bg-neonYellow text-black font-display font-bold px-2.5 py-1 text-xs sm:text-sm rounded-lg flex items-center gap-1.5 shadow-sm">
+        <i class="fa-solid fa-book-open"></i> <span class="hidden sm:inline">GUIDED JOURNAL</span>
+      </div>
+      <h1 class="text-white font-display font-semibold text-sm sm:text-base hidden md:inline">
+        A Reason to Go Out <span class="text-xs text-slate-400 font-normal ml-1">(20 Spreads / 40 Pages · A5 dilipat A6)</span>
+      </h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="prevSpread()" class="px-2.5 sm:px-3 py-1.5 bg-slate-700 hover:bg-slate-600 active:scale-95 text-white rounded-lg flex items-center gap-1 text-xs font-medium transition"><i class="fa-solid fa-chevron-left"></i> <span class="hidden sm:inline">Prev</span></button>
+      <select id="spreadSelector" onchange="jumpToSpread(this.value)" class="bg-slate-900 border border-slate-600 text-neonYellow font-mono text-xs sm:text-sm py-1.5 px-2 rounded-lg outline-none cursor-pointer max-w-[180px] sm:max-w-none"></select>
+      <button onclick="nextSpread()" class="px-2.5 sm:px-3 py-1.5 bg-slate-700 hover:bg-slate-600 active:scale-95 text-white rounded-lg flex items-center gap-1 text-xs font-medium transition"><span class="hidden sm:inline">Next</span> <i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="toggleGridStyle()" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs flex items-center gap-1 transition"><i class="fa-solid fa-border-all text-neonYellow"></i> <span id="bgToggleText" class="hidden lg:inline">GRID</span></button>
+      <button onclick="toggleThumbnails()" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs flex items-center gap-1 transition"><i class="fa-solid fa-table-cells-large text-neonBlue"></i> <span class="hidden lg:inline">Thumbnails</span></button>
+      <button onclick="window.print()" class="px-3 py-1.5 bg-neonBlue text-white font-semibold hover:bg-blue-600 rounded-lg text-xs flex items-center gap-1 shadow-md transition"><i class="fa-solid fa-print"></i> <span class="hidden sm:inline">Print semua (A5)</span></button>
+    </div>
+  </header>
+
+  <div id="thumbnailDrawer" class="no-print hidden w-full max-w-6xl mb-3 bg-slate-800/90 border border-slate-700 p-3 rounded-2xl overflow-x-auto flex gap-2"></div>
+
+  <main class="w-full max-w-6xl flex justify-center items-center relative" style="perspective:1600px;">
+    <button onclick="prevSpread()" class="no-print absolute -left-4 sm:-left-6 lg:-left-12 z-30 bg-slate-800/80 hover:bg-neonBlue text-white p-3 rounded-full shadow-2xl border border-slate-600 transition hidden sm:flex items-center justify-center"><i class="fa-solid fa-chevron-left text-lg"></i></button>
+    <button onclick="nextSpread()" class="no-print absolute -right-4 sm:-right-6 lg:-right-12 z-30 bg-slate-800/80 hover:bg-neonBlue text-white p-3 rounded-full shadow-2xl border border-slate-600 transition hidden sm:flex items-center justify-center"><i class="fa-solid fa-chevron-right text-lg"></i></button>
+    <div id="book" class="w-full"></div>
+  </main>
+
+  <footer class="no-print w-full max-w-6xl mt-3 bg-slate-800/80 border border-slate-700 text-slate-300 p-2.5 rounded-xl flex flex-wrap justify-between items-center text-xs gap-2">
+    <div class="flex items-center gap-2">
+      <span class="bg-neonYellow text-black px-1.5 py-0.5 rounded font-bold text-[10px]">MOCKUP CETAK</span>
+      <span>Referensi layout buat Canva. Tulisan abu-abu miring = contoh isian (nggak ikut tercetak). Print = 20 lembar A5 landscape, lipat jadi A6.</span>
+    </div>
+    <div class="text-slate-400 font-mono">Spread <span id="currentSpreadNum" class="text-neonYellow font-bold">1</span> / 20 · hal <span id="pageNums">1–2</span></div>
+  </footer>
+
+  <script>
+    // =========================================================
+    //  Komponen (HTML string) -- MOCKUP CETAK buat referensi desain di
+    //  Canva, bukan jurnal digital: semua elemen statis (bank kata buat
+    //  dilingkari, skala bulatan, kotak tempel foto/doodle). Argumen k
+    //  sisa versi interaktif, nggak dipakai lagi.
+    // =========================================================
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const badge = (txt, cls = 'bg-neonBlue text-white', icon = '') =>
+      `<span class="${cls} text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full">${icon ? `<i class="fa-solid ${icon} mr-1"></i>` : ''}${txt}</span>`;
+    const title = t => `<h2 class="font-display text-lg sm:text-xl font-bold text-slate-900 mt-1 mb-1.5 leading-tight">${t}</h2>`;
+    const hint = t => `<p class="text-[11px] text-slate-500 mb-2 leading-snug">${t}</p>`;
+    const label = t => `<label class="font-handwritten text-base font-bold text-slate-800 leading-tight block">${t}</label>`;
+    const line = (k, ph) => `<div data-ph="${esc(ph)}" class="write-line font-handwritten text-lg text-slate-700"></div>`;
+    const field = (k, lbl, ph) => `<div class="mb-2">${label(lbl)}${line(k, ph)}</div>`;
+    const area = (k, lbl, ph, rows = 3) => `<div class="mb-2">${lbl ? label(lbl) : ''}<div data-ph="${esc(ph)}" class="write-area font-handwritten text-lg text-slate-700" style="min-height:${rows * 28}px"></div></div>`;
+    const mini = (k, lbl, ph) => `<div><span class="text-slate-400 text-[9px] font-bold uppercase tracking-wide">${lbl}</span><div data-ph="${esc(ph)}" class="write-line font-bold text-xs text-slate-800"></div></div>`;
+    const infoGrid = (cells, cols = 2) => `<div class="grid grid-cols-${cols} gap-x-2 gap-y-1 mb-2 bg-white/70 p-2 rounded-xl border border-amber-900/10">${cells.join('')}</div>`;
+    const chips = (k, lbl, opts, opt = {}) => `<div class="mb-2">${lbl ? `<div class="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">${lbl} <span class="normal-case font-normal text-slate-400">(${opt.single ? 'lingkari satu' : 'lingkari yang pas'})</span></div>` : ''}<div class="flex flex-wrap gap-1">${opts.map(o => `<span class="chip">${o}</span>`).join('')}</div></div>`;
+    const scale = (k, lbl, lo, hi) => `<div class="flex items-center gap-2 mb-1"><div class="w-[40%] leading-tight shrink-0"><div class="text-[11px] font-semibold text-slate-600">${lbl}</div><div class="text-[8.5px] text-slate-400">${lo} → ${hi}</div></div><div class="dots flex-1">${'<i></i>'.repeat(11)}</div></div>`;
+    const scales = rows => `<div class="bg-amber-50/80 p-2 rounded-xl border border-amber-200 mb-2"><div class="text-[9px] text-slate-400 mb-1">warnai satu bulatan di tiap baris (0 → 10)</div>${rows.join('')}</div>`;
+    const stars = (k, lbl) => `<div class="mb-2 flex items-center gap-2"><span class="text-[10px] font-bold uppercase tracking-wide text-slate-500">${lbl}</span><span>${'<i class="fa-regular fa-star star"></i>'.repeat(5)}</span></div>`;
+    const photo = (k, lbl, icon = 'fa-camera', h = 110, cls = '') => `<div class="photo-slot ${cls}" style="height:${h}px"><div class="px-2"><i class="fa-solid ${icon} text-slate-400 mb-1"></i><span class="text-xs block text-slate-500">${lbl}</span></div></div>`;
+    const polaroid = (k, lbl, h = 120, rot = -2) => `<div class="polaroid" style="transform:rotate(${rot}deg)">${photo(k, lbl, 'fa-camera', h, '!border-solid !border-slate-200 !rounded-none')}<div data-ph="caption…" class="write-line font-handwritten text-base text-center text-slate-600 mt-1"></div></div>`;
+    const doodle = (k, lbl, h = 140) => `<div class="doodle mb-2" style="height:${h}px"><span class="hint"><i class="fa-solid fa-pencil"></i>${lbl}</span></div>`;
+    const palette = (k, lbl, n = 4, defs = ['#F59E0B', '#FB7185', '#818CF8', '#0EA5E9', '#10B981']) => `<div class="mb-2"><div class="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">${lbl}</div><div class="flex gap-2">${'<span class="swatch"></span>'.repeat(n)}</div></div>`;
+    const quote = t => `<div class="bg-neonYellow/20 border-l-4 border-neonYellow p-2 rounded-r-xl font-handwritten text-base font-bold text-slate-700">${t}</div>`;
+    const tip = t => `<div class="bg-white/70 border border-slate-200 p-2 rounded-xl text-[11px] text-slate-500 leading-snug"><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>${t}</div>`;
+    const checks = (k, items) => `<div class="space-y-1 mb-2">${items.map((t, i) => `<div class="flex items-center gap-2 text-xs text-slate-700"><span class="cbox"></span> ${t}</div>`).join('')}</div>`;
+    const numbered = (k, lbl, n, ph) => `<div class="mb-2">${label(lbl)}${Array.from({ length: n }, (_, i) => `<div class="flex gap-2 items-baseline"><span class="font-display text-xs text-neonBlue font-bold">${i + 1}.</span><div class="flex-1">${line(k + '_' + i, ph)}</div></div>`).join('')}</div>`;
+    const pTop = inner => `<div>${inner}</div>`;
+    const pBottom = inner => `<div class="mt-3">${inner}</div>`;
+
+    const TASTE = [scale('', '', '', '')].length && ((p) => scales([
+      scale(p + '_sweet', 'Manis 🍯', 'nggak ada', 'manis banget'),
+      scale(p + '_salty', 'Asin 🧂', 'hambar', 'asin banget'),
+      scale(p + '_sour', 'Asam 🍋', 'nggak asam', 'asam nyegrak'),
+      scale(p + '_bitter', 'Pahit ☕', 'nggak pahit', 'pahit'),
+      scale(p + '_umami', 'Gurih / umami 🍄', 'datar', 'gurih nendang'),
+      scale(p + '_spicy', 'Pedas 🌶️', 'aman', 'kepedesan'),
+    ]));
+
+    // =========================================================
+    //  20 SPREAD = 40 HALAMAN. Tiap misi: KIRI = catat & observasi
+    //  terpandu, KANAN = refleksi & kreatif. Dua-duanya harus penuh.
+    // =========================================================
+    const spreadsData = [
+      {
+        mission: 'Cover & Cara Pakai', badge: 'WELCOME',
+        left: `<div class="h-full flex flex-col justify-between text-center items-center py-4">
+            <div class="washi-tape w-28 h-6 -rotate-3"></div>
+            <div class="my-auto space-y-4">
+              <span class="bg-slate-900 text-neonYellow text-xs font-mono font-bold px-3 py-1 rounded-full uppercase tracking-wider">GUIDED JOURNAL</span>
+              <h1 class="font-display text-3xl sm:text-5xl font-extrabold text-slate-900 leading-none tracking-tight">A REASON TO<br><span class="text-neonBlue underline decoration-wavy decoration-neonYellow">GO OUT</span></h1>
+              <p class="font-handwritten text-xl sm:text-2xl text-slate-600">18 misi kecil buat keluar rumah</p>
+            </div>
+            <div class="bg-amber-100/70 border border-amber-300 p-3 rounded-xl w-full max-w-xs text-xs text-left">
+              <span class="text-slate-400 block text-[10px] uppercase font-bold">This book belongs to:</span>
+              <div data-ph="Namamu di sini ✨" class="font-handwritten text-xl font-bold text-slate-800"></div>
+              <span class="text-slate-400 block text-[10px] uppercase font-bold mt-2">Kalau nemu buku ini, hubungi:</span>
+              <div data-ph="@instagram / no. HP" class="font-handwritten text-lg text-slate-700"></div>
+            </div>
+          </div>`,
+        right: `${pTop(`
+            <div class="washi-tape absolute -top-1 right-8 w-20 h-6 rotate-2"></div>
+            <span class="text-xs font-bold font-mono text-neonBlue">JOURNAL MANIFESTO</span>
+            ${title('Kenapa Harus Keluar?')}
+            <p class="font-handwritten text-lg text-slate-700 leading-snug mb-3">Dunia terlalu luas buat terus-terusan di kamar. Buku ini alasanmu buat keluar, hirup udara segar, dan merekam momen-momen kecil.</p>
+            <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Cara pakai buku ini</div>
+            <div class="grid grid-cols-2 gap-1.5 text-[11px] text-slate-600 mb-3">
+              <div class="bg-white/70 rounded-lg p-1.5 border"><i class="fa-solid fa-pen text-neonBlue mr-1"></i> Tulis di garis putus-putus</div>
+              <div class="bg-white/70 rounded-lg p-1.5 border"><i class="fa-solid fa-circle-dot text-neonBlue mr-1"></i> Lingkari kata yang pas</div>
+              <div class="bg-white/70 rounded-lg p-1.5 border"><i class="fa-solid fa-camera text-neonBlue mr-1"></i> Tempel foto / struk / tiket</div>
+              <div class="bg-white/70 rounded-lg p-1.5 border"><i class="fa-solid fa-paintbrush text-neonBlue mr-1"></i> Gambar bebas di kotak doodle</div>
+            </div>
+            ${field('start_promise', 'Janji kecilku buat buku ini:', 'mis. 1 misi tiap weekend, nggak harus urut')}`)}
+          ${pBottom(`<div class="border-t border-dashed border-slate-300 pt-2 text-xs text-slate-500 font-mono flex justify-between gap-2">
+              <span>Mulai: <span data-ph="dd/mm/yyyy" class="write-line inline-block min-w-[80px]"></span></span>
+              <span>Target: 18 misi</span>
+            </div>`)}`
+      },
+      {
+        mission: 'Food Hunt', badge: 'MISSION 01',
+        left: `${pTop(`
+            ${badge('Food Journal', undefined, 'fa-utensils')}
+            ${title('THE FOOD LOG')}
+            ${infoGrid([mini('f_place', 'Tempat', 'Warung / resto'), mini('f_date', 'Tanggal', 'dd/mm'), mini('f_menu', 'Menu', 'Nasi goreng…'), mini('f_price', 'Harga', 'Rp …')])}
+            ${TASTE('f')}
+            ${chips('f_texture', 'Teksturnya', ['Renyah', 'Lembut', 'Kenyal', 'Lumer', 'Juicy', 'Creamy', 'Empuk', 'Berminyak'])}`)}`,
+        right: `${pTop(`
+            ${badge('Food Vibe', 'bg-neonYellow text-black')}
+            ${title('ONE WORD REVIEW')}
+            <div class="mb-3 bg-amber-100/60 p-3 rounded-2xl border border-amber-300 text-center">
+              <span class="text-[10px] text-slate-500 uppercase font-mono">Satu kata buat makanan ini (selain "enak"):</span>
+              <div data-ph="NENDANG!" class="font-display text-3xl font-extrabold text-neonBlue mt-1"></div>
+            </div>
+            ${chips('f_aroma', 'Aromanya kayak…', ['Asap arang', 'Bawang goreng', 'Rempah', 'Buttery', 'Segar', 'Manis karamel', 'Gosong dikit', 'Jahe / sereh'])}
+            ${field('f_first', 'Gigitan pertama rasanya kayak…', 'mis. gurih dulu, terus pedesnya nyusul pelan')}
+            ${stars('f_star', 'Rating')}
+            ${chips('f_return', 'Bakal balik lagi?', ['Pasti!', 'Mungkin', 'Sekali aja cukup'], { single: true, yellow: true })}`)}
+          ${pBottom(photo('f_photo', 'Tempel struk / foto makanan', 'fa-camera', 70))}`
+      },
+      {
+        mission: 'Coffee Shop', badge: 'MISSION 02',
+        left: `${pTop(`
+            ${badge('Cafe Hopping', undefined, 'fa-mug-hot')}
+            ${title('COFFEE & CAFE LOG')}
+            ${infoGrid([mini('c_cafe', 'Cafe', 'Nama cafe'), mini('c_order', 'Pesanan', 'Iced latte…'), mini('c_price', 'Harga', 'Rp …')], 3)}
+            ${chips('c_method', 'Cara seduh', ['Espresso', 'Latte / milk based', 'V60 / pour over', 'Cold brew', 'Tubruk', 'Non-coffee'], { single: true })}
+            ${chips('c_notes', 'Flavor notes yang kerasa', ['Cokelat', 'Karamel', 'Nutty', 'Fruity', 'Floral', 'Citrus', 'Earthy', 'Gula aren'])}
+            ${scales([scale('c_body', 'Body', 'ringan kayak teh', 'tebal & berat'), scale('c_acid', 'Keasaman', 'kalem', 'asem segar'), scale('c_after', 'Aftertaste', 'cepat hilang', 'nempel lama')])}`)}
+          ${pBottom(photo('c_photo', 'Tempel coffee sleeve / struk / foto cup', 'fa-paperclip', 55))}`,
+        right: `${pTop(`
+            ${badge('Cafe Vibes', 'bg-slate-900 text-neonYellow')}
+            ${title('THE ATMOSPHERE')}
+            ${scales([scale('c_noise', 'Suasana', 'sunyi banget', 'rame & berisik'), scale('c_cozy', 'Nyaman buat lama-lama', 'pengen cepet cabut', 'betah seharian')])}
+            ${chips('c_seat', 'Aku duduk di…', ['Dekat jendela', 'Pojokan', 'Bar', 'Outdoor', 'Sofa'], { single: true })}
+            ${doodle('c_doodle', 'gambar cangkir / latte art-mu', 95)}
+            ${field('c_thought', 'Pikiran random saat ngopi:', 'tulis bebas…')}`)}
+          ${pBottom(stars('c_star', 'Worth it?'))}`
+      },
+      {
+        mission: 'Nonton Bioskop', badge: 'MISSION 03',
+        left: `${pTop(`
+            ${badge('Movie Time', 'bg-slate-900 text-neonYellow', 'fa-film')}
+            ${title('CINEMA LOG')}
+            <div class="bg-slate-900 text-white p-3 rounded-xl mb-3 text-xs">
+              <div data-ph="Judul film" class="font-bold text-neonYellow text-sm"></div>
+              <div data-ph="Bioskop · kursi · jam" class="text-slate-300"></div>
+            </div>
+            ${chips('m_genre', 'Genre', ['Action', 'Komedi', 'Drama', 'Horor', 'Romance', 'Animasi', 'Sci-fi', 'Dokumenter'])}
+            ${chips('m_with', 'Nonton bareng', ['Sendiri', 'Teman', 'Pacar', 'Keluarga'], { single: true })}
+            ${field('m_snack', 'Camilan wajib:', 'popcorn caramel + soda')}
+            ${field('m_expect', 'Sebelum nonton, aku ngarep filmnya…', 'seru / bikin nangis / biasa aja')}`)}
+          ${pBottom(photo('m_ticket', 'TEMPEL STUB TIKET DI SINI', 'fa-ticket', 100))}`,
+        right: `${pTop(`
+            ${badge('Movie Review', 'bg-rose-500 text-white')}
+            ${title('AFTER THE CREDITS')}
+            ${chips('m_feel', 'Keluar studio rasanya…', ['Terharu', 'Merinding', 'Ketawa terus', 'Tegang', 'Bengong', 'Kecewa', 'Pengen nonton lagi'])}
+            ${field('m_scene', 'Adegan yang paling nempel:', 'pas …')}
+            ${field('m_quote', 'Dialog yang pengen kuinget:', '"…"')}
+            ${field('m_director', 'Kalau aku sutradaranya, aku ubah…', 'ending / satu karakter / …')}
+            ${doodle('m_poster', 'gambar poster versi kamu 🎬', 110)}`)}
+          ${pBottom(stars('m_star', 'Rating film'))}`
+      },
+      {
+        mission: 'Taman Kota & Alam', badge: 'MISSION 04',
+        left: `${pTop(`
+            ${badge('Nature Hunt', 'bg-emerald-600 text-white', 'fa-tree')}
+            ${title('5 · 4 · 3 · 2 · 1 SENSES')}
+            ${field('n_name', '🌳 Nama taman:', 'Hutan Kota …')}
+            ${field('n_see', '👀 5 hal yang aku LIHAT:', 'daun, anak main bola, …')}
+            ${field('n_hear', '👂 4 hal yang aku DENGAR:', 'burung, angin, …')}
+            ${field('n_touch', '✋ 3 hal yang aku SENTUH:', 'rumput, kulit pohon, …')}
+            ${field('n_smell', '👃 2 hal yang aku CIUM:', 'tanah basah, …')}
+            ${field('n_taste', '👅 1 hal yang aku RASA:', 'air putih dingin')}`)}
+          ${pBottom(chips('n_weather', 'Cuaca', ['☀️ Cerah', '⛅ Berawan', '🌧️ Gerimis', '💨 Berangin', '🥵 Panas'], { single: true }))}`,
+        right: `${pTop(`
+            ${badge('Mindfulness', 'bg-neonYellow text-black')}
+            ${title('10 MINS NO PHONE')}
+            ${checks('n_nophone', ['HP masuk tas / mode pesawat', 'Duduk 10 menit tanpa ngapa-ngapain', 'Tarik napas panjang 3x'])}
+            ${field('n_feel', 'Rasanya 10 menit tanpa HP:', 'awalnya gatel pengen buka, terus…')}
+            ${palette('n_colors', 'Warna langit & daun hari ini (warnai)', 4, ['#22C55E', '#84CC16', '#38BDF8', '#FDE68A'])}
+            ${photo('n_leaf', 'Tempel daun / bunga kering yang kamu temuin 🍃', 'fa-leaf', 100)}`)}
+          ${pBottom(quote('"Breathe in green, breathe out stress." 🌱'))}`
+      },
+      {
+        mission: 'Toko Buku & Stationery', badge: 'MISSION 05',
+        left: `${pTop(`
+            ${badge('Bookshop Hunt', 'bg-indigo-600 text-white', 'fa-book')}
+            ${title('BOOKSTORE HAUL')}
+            ${infoGrid([mini('b_store', 'Toko', 'Nama toko buku'), mini('b_date', 'Tanggal', 'dd/mm')])}
+            ${numbered('b_haul', '📚 Yang dibeli / hampir dibeli:', 3, 'judul · harga')}
+            ${field('b_cover', '🎨 Cover paling cantik yang kulihat:', 'judul + kenapa cantik')}
+            ${chips('b_section', 'Rak yang paling lama kusinggahi', ['Fiksi', 'Self-help', 'Komik', 'Puisi', 'Stationery', 'Anak', 'Masak', 'Travel'])}`)}
+          ${pBottom(photo('b_photo', 'Foto cover buku / haul belanjaan', 'fa-bookmark', 110))}`,
+        right: `${pTop(`
+            ${badge('Quote Hunting', undefined)}
+            ${title('THE BEST LINE')}
+            ${hint('Buka satu buku secara acak, baca satu halaman, salin kalimat yang paling ngena.')}
+            <div class="mb-3 bg-amber-100/70 p-3 rounded-2xl border border-amber-300 text-center">
+              <div data-ph="&quot;You don't have to figure it all out today.&quot;" class="font-handwritten text-2xl font-bold text-slate-900"></div>
+              <div data-ph="— dari buku apa, halaman berapa" class="text-[11px] text-slate-500 mt-1"></div>
+            </div>
+            ${field('b_why', 'Kenapa kalimat ini ngena:', 'karena…')}
+            ${numbered('b_wish', '📝 Wishlist bacaan berikutnya:', 3, 'judul')}
+            ${doodle('b_doodle', 'gambar mini cover favoritmu', 90)}`)}`
+      },
+      {
+        mission: 'Museum & Pameran', badge: 'MISSION 06',
+        left: `${pTop(`
+            ${badge('Gallery Walk', 'bg-purple-600 text-white', 'fa-palette')}
+            ${title('ART & MUSEUM')}
+            ${infoGrid([mini('a_place', 'Museum / pameran', 'Nama tempat'), mini('a_date', 'Tanggal', 'dd/mm')])}
+            ${field('a_work', '🖼️ Karya yang bikin aku berhenti:', 'judul · seniman')}
+            ${field('a_color', '🎨 Warna yang paling dominan:', 'biru tua, emas…')}
+            ${field('a_shape', '🔺 Bentuk / garis yang muncul:', 'lengkung, kotak berulang…')}
+            ${field('a_detail', '🔍 Detail kecil yang orang lain lewatin:', '…')}
+            ${chips('a_medium', 'Medium', ['Lukisan', 'Patung', 'Instalasi', 'Foto', 'Digital', 'Tekstil'])}`)}
+          ${pBottom(photo('a_ticket', 'Tempel tiket / foto karya', 'fa-image', 55))}`,
+        right: `${pTop(`
+            ${badge('Refleksi Visual', 'bg-neonYellow text-black')}
+            ${title('WHAT I FELT')}
+            ${chips('a_feel', 'Waktu lihat karya itu aku ngerasa…', ['Tenang', 'Merinding', 'Bingung', 'Sedih', 'Terinspirasi', 'Kecil', 'Penasaran'])}
+            ${doodle('a_sketch', 'sketsa cepat karyanya — jelek nggak apa-apa ✏️', 160)}
+            ${field('a_title', 'Kalau aku yang kasih judul, judulnya:', '"…"')}
+            ${field('a_ask', 'Satu pertanyaan buat senimannya:', 'kenapa…?')}`)}`
+      },
+      {
+        mission: 'Pasar & Supermarket', badge: 'MISSION 07',
+        left: `${pTop(`
+            ${badge('Market Run', 'bg-orange-600 text-white', 'fa-basket-shopping')}
+            ${title('MARKET SENSES')}
+            ${infoGrid([mini('p_place', 'Pasar / toko', 'Pasar …'), mini('p_time', 'Jam', 'pagi / sore')])}
+            ${field('p_sound', '🔊 Suara paling khas di sana:', 'tawar-menawar, timbangan…')}
+            ${field('p_smell', '👃 Bau paling kuat:', 'ikan, bunga, rempah…')}
+            ${field('p_color', '🌈 Warna paling mencolok:', 'tumpukan cabai merah')}
+            ${numbered('p_odd', '🔍 Barang unik / aneh yang kutemuin:', 3, 'nama barang · harga')}`)}
+          ${pBottom(photo('p_photo', 'Foto haul belanjaan / stiker harga', 'fa-basket-shopping', 70))}`,
+        right: `${pTop(`
+            ${badge('Resep Spontan', undefined)}
+            ${title('RANDOM RECIPE')}
+            ${hint('Beli 2–3 bahan yang jarang kamu beli, terus bikin satu resep dadakan.')}
+            ${field('p_ing', '🧺 Bahan acak:', 'jamur enoki, telur, chili oil')}
+            ${numbered('p_step', '🍳 Langkahnya:', 3, '…')}
+            ${doodle('p_plate', 'gambar plating-mu 🍽️', 110)}
+            ${stars('p_star', 'Hasilnya')}
+            ${chips('p_again', 'Bakal dimasak lagi?', ['Iya!', 'Perlu revisi', 'Cukup sekali 😅'], { single: true, yellow: true })}`)}`
+      },
+      {
+        mission: 'Bakery', badge: 'MISSION 08',
+        left: `${pTop(`
+            ${badge('Bakery Log', 'bg-amber-700 text-white', 'fa-bread-slice')}
+            ${title('SWEET TOOTH')}
+            ${infoGrid([mini('k_place', 'Bakery', 'Nama toko'), mini('k_item', 'Yang dibeli', 'Butter croissant…')])}
+            ${chips('k_crust', 'Kulit luarnya', ['Crispy', 'Flaky / berlapis', 'Lembut', 'Keras', 'Mengkilap'])}
+            ${chips('k_crumb', 'Bagian dalamnya', ['Empuk', 'Chewy', 'Moist', 'Padat', 'Berongga', 'Kering'])}
+            ${scales([scale('k_butter', 'Butter score 🧈', 'nggak kerasa', 'buttery banget'), scale('k_sweet', 'Manis 🍯', 'tawar', 'manis banget'), scale('k_fresh', 'Fresh', 'udah dingin', 'hangat baru keluar oven')])}`)}
+          ${pBottom(photo('k_photo', 'Tempel stiker kemasan / foto roti', 'fa-cookie-bite', 70))}`,
+        right: `${pTop(`
+            ${badge('Memory Lane', 'bg-neonYellow text-black')}
+            ${title('AROMA & MEMORY')}
+            ${field('k_memory', '👃 Aroma roti ini ngingetin aku ke…', 'sarapan bareng keluarga pas liburan')}
+            ${area('k_describe', 'Jelasin rasanya ke orang yang belum pernah nyoba:', 'renyah di luar, terus…', 3)}
+            ${doodle('k_doodle', 'gambar penampang rotinya 🥐', 110)}
+            ${stars('k_star', 'Rating')}`)}
+          ${pBottom(quote('"Life is short, eat the croissant." 🥐'))}`
+      },
+      {
+        mission: 'Jalan Tanpa Tujuan', badge: 'MISSION 09',
+        left: `${pTop(`
+            ${badge('Getting Lost', 'bg-slate-900 text-neonYellow', 'fa-compass')}
+            ${title('RANDOM ROUTE')}
+            ${hint('Aturan main: tiap ketemu perempatan, lempar koin. Angka = kanan, gambar = kiri.')}
+            ${infoGrid([mini('w_start', 'Mulai dari', 'Halte / jalan'), mini('w_end', 'Berakhir di', 'Tempat'), mini('w_steps', 'Langkah', '± 8.500'), mini('w_time', 'Durasi', '1 jam')], 2)}
+            ${doodle('w_map', 'gambar peta rute-mu 🗺️ (garis, tanda, landmark)', 200)}`)}
+          ${pBottom(chips('w_mood', 'Mood selama jalan', ['Santai', 'Penasaran', 'Capek tapi seneng', 'Sedikit nyasar', 'Bebas'], { single: true }))}`,
+        right: `${pTop(`
+            ${badge('Hidden Gems', undefined)}
+            ${title('DISCOVERY')}
+            ${numbered('w_gem', '✨ 3 hal tak terduga yang kutemuin:', 3, 'gang mural kucing, …')}
+            ${polaroid('w_photo', 'Foto terbaik rute ini', 130, -2)}
+            <div class="mt-3"></div>
+            ${field('w_again', 'Kalau balik lagi, aku mau mampir ke…', '…')}`)}`
+      },
+      {
+        mission: 'Angkringan & Kaki Lima', badge: 'MISSION 10',
+        left: `${pTop(`
+            ${badge('Local Vibe', 'bg-amber-900 text-white', 'fa-fire')}
+            ${title('STREET FOOD NIGHT')}
+            ${infoGrid([mini('s_place', 'Tempat', 'Angkringan / warung'), mini('s_total', 'Total jajan', 'Rp …')])}
+            ${numbered('s_menu', '🍡 Yang kuambil:', 3, 'sate usus · Rp 3.000')}
+            ${scales([scale('s_sweet', 'Manis 🍯', 'nggak ada', 'manis banget'), scale('s_salty', 'Asin 🧂', 'hambar', 'asin banget'), scale('s_umami', 'Gurih 🍄', 'datar', 'gurih nendang'), scale('s_spicy', 'Pedas 🌶️', 'aman', 'kepedesan')])}
+            ${chips('s_vibe', 'Suasananya', ['Asap arang', 'Lampu temaram', 'Rame ngobrol', 'Musik dangdut', 'Gerimis', 'Duduk lesehan'])}`)}`,
+        right: `${pTop(`
+            ${badge('People Watching', 'bg-neonYellow text-black')}
+            ${title('STORY AT THE TABLE')}
+            ${field('s_people', '👀 Orang paling menarik di sekitarku:', 'bapak-bapak yang cerita…')}
+            ${area('s_story', 'Bikin cerita imajiner tentang dia:', 'dia sebenarnya…', 3)}
+            ${field('s_overheard', '💬 Obrolan yang nggak sengaja kedengeran:', '"…"')}
+            ${photo('s_photo', 'Foto gerobak / suasana malamnya', 'fa-camera', 100)}`)}
+          ${pBottom(stars('s_star', 'Rating malam ini'))}`
+      },
+      {
+        mission: 'Olahraga / Lari Pagi', badge: 'MISSION 11',
+        left: `${pTop(`
+            ${badge('Move Your Body', 'bg-rose-600 text-white', 'fa-person-running')}
+            ${title('SWEAT & ENERGY')}
+            ${chips('o_type', 'Olahraga apa?', ['Lari', 'Jalan pagi', 'Sepeda', 'Renang', 'Yoga', 'Badminton', 'Gym'], { single: true })}
+            ${infoGrid([mini('o_place', 'Tempat', 'GBK / komplek'), mini('o_dist', 'Jarak / durasi', '3,5 km · 30 mnt')])}
+            ${scales([scale('o_before', 'Energi SEBELUM', 'lemes', 'semangat'), scale('o_after', 'Energi SESUDAH', 'lemes', 'semangat'), scale('o_hard', 'Seberapa berat', 'santai', 'ngos-ngosan')])}
+            ${chips('o_body', 'Badan rasanya', ['Enteng', 'Pegel', 'Segar', 'Keringetan parah', 'Ngantuk', 'Bangga'])}`)}`,
+        right: `${pTop(`
+            ${badge('Post-Workout', undefined)}
+            ${title('MY REWARD')}
+            ${field('o_reward', '🥥 Reward makanan / minuman:', 'es kelapa muda')}
+            ${field('o_proud', '💪 Hal kecil yang bikin aku bangga hari ini:', 'nggak berhenti di km 2')}
+            ${polaroid('o_photo', 'Selfie keringetan / foto rute', 130, 2)}
+            <div class="mt-3"></div>
+            ${field('o_next', '🎯 Target kecil berikutnya:', '…')}`)}`
+      },
+      {
+        mission: 'Transportasi Umum', badge: 'MISSION 12',
+        left: `${pTop(`
+            ${badge('Transit Diary', 'bg-sky-600 text-white', 'fa-train')}
+            ${title('COMMUTER RIDE')}
+            ${chips('t_mode', 'Naik apa?', ['MRT', 'KRL', 'TransJakarta', 'LRT', 'Angkot', 'Bus kota'], { single: true })}
+            ${infoGrid([mini('t_from', 'Dari', 'Stasiun / halte'), mini('t_to', 'Ke', 'Tujuan'), mini('t_time', 'Jam berangkat', '07:30'), mini('t_dur', 'Lama perjalanan', '25 mnt')])}
+            ${field('t_song', '🎶 Playlist di earphone:', 'judul / artis')}
+            ${chips('t_crowd', 'Keretanya…', ['Lega', 'Lumayan penuh', 'Desak-desakan'], { single: true })}
+            ${field('t_view', '🌆 Pemandangan terbaik dari jendela:', 'gedung kena matahari sore')}`)}`,
+        right: `${pTop(`
+            ${badge('Window View', 'bg-neonYellow text-black')}
+            ${title('CITY THROUGH GLASS')}
+            ${doodle('t_window', 'gambar pemandangan dari jendela 🪟', 150)}
+            ${field('t_passenger', '🧍 Penumpang yang menarik perhatianku:', 'mbak yang baca buku…')}
+            ${area('t_imagine', 'Tebak dia mau ke mana & kenapa:', 'kayaknya dia…', 2)}
+            ${photo('t_ticket', 'Tempel struk / foto kartu', 'fa-ticket', 70)}`)}`
+      },
+      {
+        mission: 'Main ke Rumah Teman', badge: 'MISSION 13',
+        left: `${pTop(`
+            ${badge('Quality Time', 'bg-pink-600 text-white', 'fa-heart')}
+            ${title('FRIENDSHIP LOG')}
+            ${infoGrid([mini('r_who', 'Main ke rumah', 'Nama teman'), mini('r_date', 'Tanggal', 'dd/mm')])}
+            ${chips('r_did', 'Yang kami lakuin', ['Masak bareng', 'Nonton', 'Main game', 'Ngobrol', 'Karaoke', 'Craft', 'Tidur siang 😴'])}
+            ${field('r_food', '🍕 Suguhan / makanan hari itu:', 'pizza homemade')}
+            ${field('r_joke', '😂 Inside joke baru:', '…')}
+            ${polaroid('r_photo', 'Foto bareng', 115, -2)}`)}`,
+        right: `${pTop(`
+            ${badge('Deep Talk', undefined)}
+            ${title('THE CONVERSATION')}
+            ${field('r_topic', '💬 Obrolan paling seru / dalam:', 'nostalgia SMA, rencana liburan…')}
+            ${field('r_learn', '💡 Hal baru yang kutahu tentang dia:', '…')}
+            ${area('r_thanks', 'Hal yang aku syukuri dari pertemanan ini:', 'aku seneng karena…', 3)}
+            ${doodle('r_doodle', 'gambar kami berdua (stick figure juga boleh!)', 110)}`)}`
+      },
+      {
+        mission: 'Sunset / Sunrise', badge: 'MISSION 14',
+        left: `${pTop(`
+            ${badge('Golden Hour', 'bg-amber-500 text-white', 'fa-sun')}
+            ${title('SKY PALETTE')}
+            ${infoGrid([mini('u_place', 'Tempat', 'Rooftop / pantai'), mini('u_time', 'Jam', '17:42')])}
+            ${palette('u_sky', 'Warna langit dari atas ke bawah (warnai)', 5, ['#1E3A8A', '#7C3AED', '#F472B6', '#FB923C', '#FDE047'])}
+            ${chips('u_cloud', 'Awannya', ['Bersih tanpa awan', 'Awan tipis', 'Gumpalan kapas', 'Mendung', 'Kayak lukisan'], { single: true })}
+            ${field('u_sound', '🔊 Suara di sekitar saat itu:', 'adzan, angin, ombak…')}
+            ${field('u_with', '👥 Nikmatin bareng:', 'sendiri / siapa')}`)}
+          ${pBottom(photo('u_photo', 'Foto langitnya', 'fa-camera', 100))}`,
+        right: `${pTop(`
+            ${badge('Gratitude Check', 'bg-neonYellow text-black')}
+            ${title('THANKFUL FOR')}
+            ${numbered('u_grat', '✨ 3 hal yang bikin aku bersyukur hari ini:', 3, '…')}
+            ${area('u_letter', 'Surat pendek buat hari ini:', 'Dear hari ini, …', 4)}`)}
+          ${pBottom(quote('"Every sunset is an opportunity to reset." 🌅'))}`
+      },
+      {
+        mission: 'Thrift & Pasar Loak', badge: 'MISSION 15',
+        left: `${pTop(`
+            ${badge('Thrift Hunt', 'bg-teal-700 text-white', 'fa-shirt')}
+            ${title('VINTAGE FIND')}
+            ${infoGrid([mini('h_place', 'Tempat', 'Pasar loak / thrift'), mini('h_price', 'Harga', 'Rp …')])}
+            ${field('h_item', '🧥 Barang pre-loved yang kudapat:', 'jaket corduroy vintage')}
+            ${chips('h_cond', 'Kondisinya', ['Kayak baru', 'Ada bekas pakai', 'Perlu dijahit', 'Unik banget'], { single: true })}
+            ${chips('h_why', 'Kenapa aku pilih ini?', ['Warnanya', 'Bahannya', 'Modelnya', 'Murah!', 'Nostalgia', 'Feeling aja'])}
+            ${photo('h_photo', 'Foto barangnya / label harga', 'fa-tag', 110)}`)}`,
+        right: `${pTop(`
+            ${badge('Story Behind', undefined)}
+            ${title('ITEM STORY')}
+            ${area('h_owner', '💭 Bayangin pemilik sebelumnya:', 'mungkin dia pemusik indie era 90-an…', 3)}
+            ${doodle('h_style', 'gambar outfit / cara kamu bakal pakai ini 👕', 150)}
+            ${field('h_plan', '♻️ Rencana buat barang ini:', 'dipakai ke…')}`)}`
+      },
+      {
+        mission: 'Night Walk', badge: 'MISSION 16',
+        left: `${pTop(`
+            ${badge('City Night', 'bg-slate-900 text-neonYellow', 'fa-moon')}
+            ${title('NIGHT WALK')}
+            ${infoGrid([mini('j_place', 'Jalan di', 'Kawasan …'), mini('j_time', 'Jam', '21:30')])}
+            ${field('j_light', '💡 Cahaya yang paling menarik:', 'neon toko, lampu jalan kuning…')}
+            ${field('j_sound', '🔊 Suara malam yang kedengeran:', 'motor lewat, jangkrik…')}
+            ${scales([scale('j_temp', 'Udaranya', 'gerah', 'adem'), scale('j_quiet', 'Suasana', 'masih rame', 'sepi banget')])}
+            ${chips('j_feel', 'Rasanya jalan malam', ['Tenang', 'Bebas', 'Sedikit deg-degan', 'Melankolis', 'Segar'])}`)}`,
+        right: `${pTop(`
+            ${badge('Midnight Thought', 'bg-neonYellow text-black')}
+            ${title('LATE THOUGHTS')}
+            ${area('j_thought', '💭 Pikiran yang muncul pas malam:', 'tiba-tiba kepikiran…', 4)}
+            ${field('j_idea', '💡 Ide random yang pengen kucoba:', 'belajar melukis lagi')}
+            ${doodle('j_sky', 'gambar langit malam: bulan, bintang, lampu kota 🌙', 140)}`)}`
+      },
+      {
+        mission: 'Tempat Baru', badge: 'MISSION 17',
+        left: `${pTop(`
+            ${badge('New Territory', 'bg-emerald-700 text-white', 'fa-map-location-dot')}
+            ${title('FIRST IMPRESSION')}
+            ${infoGrid([mini('x_place', 'Tempat baru', 'Perpustakaan …'), mini('x_date', 'Tanggal', 'dd/mm')])}
+            ${chips('x_found', 'Tahu tempat ini dari', ['Teman', 'Instagram / TikTok', 'Lewat aja', 'Google Maps', 'Nggak sengaja'], { single: true })}
+            <div class="mb-2">${label('3 kata pertama yang muncul pas masuk:')}<div class="grid grid-cols-3 gap-2">${[0, 1, 2].map(i => `<div data-ph="kata ${i + 1}" class="bg-white/70 border rounded-lg p-1.5 text-center font-handwritten text-lg"></div>`).join('')}</div></div>
+            ${field('x_expect', 'Ekspektasi vs kenyataan:', 'kirain kecil, ternyata…')}
+            ${photo('x_photo', 'Foto sudut favorit di sana', 'fa-camera', 100)}`)}`,
+        right: `${pTop(`
+            ${badge('The Verdict', undefined)}
+            ${title('WILL I RETURN?')}
+            ${chips('x_return', 'Bakal balik lagi?', ['PASTI!', 'Mungkin', 'Sekali cukup'], { single: true, yellow: true })}
+            ${field('x_why', 'Kenapa?', 'nyaman buat nulis & kerja')}
+            ${chips('x_for', 'Cocok buat', ['Sendiri', 'Bareng teman', 'Date', 'Kerja', 'Keluarga'])}
+            ${doodle('x_map', 'gambar denah kecil tempatnya 📍', 130)}
+            ${stars('x_star', 'Rating')}`)}`
+      },
+      {
+        mission: 'Solo Date', badge: 'MISSION 18',
+        left: `${pTop(`
+            ${badge('Solo Date', 'bg-rose-500 text-white', 'fa-user')}
+            ${title('ME TIME')}
+            ${field('d_plan', '🗓️ Rencana kencan sama diri sendiri:', 'nonton, makan, jalan…')}
+            ${checks('d_do', ['Makan sendiri tanpa scroll HP', 'Pilih tempat yang aku banget', 'Pakai baju favorit', 'Pulang kapan pun aku mau'])}
+            ${chips('d_feel', 'Awalnya rasanya…', ['Canggung', 'Bebas', 'Tenang', 'Diliatin orang', 'Seru'])}
+            ${chips('d_feel2', '…terus lama-lama jadi', ['Nyaman', 'Bangga', 'Kangen orang', 'Lega', 'Pengen lagi'])}
+            ${polaroid('d_photo', 'Foto solo date-mu', 90, 2)}`)}`,
+        right: `${pTop(`
+            ${badge('Self Reward', 'bg-neonYellow text-black')}
+            ${title('LETTER TO ME')}
+            ${area('d_letter', '💌 Surat buat diri sendiri:', 'Hai aku, makasih ya udah…', 5)}
+            ${field('d_gift', '🎁 Hadiah kecil buat diriku:', 'es krim + bunga potong')}
+            ${field('d_like', '✨ Satu hal yang aku suka dari diriku hari ini:', '…')}`)}
+          ${pBottom(quote('"You are worth your own time." 💛'))}`
+      },
+      {
+        mission: 'Epilog', badge: 'EPILOGUE',
+        left: `${pTop(`
+            ${badge('The Summary', 'bg-slate-900 text-neonYellow')}
+            ${title('MISI SELESAI! 🎉')}
+            <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Centang misi yang udah kamu jalanin</div>
+            <div class="grid grid-cols-2 gap-x-3 gap-y-1 mb-3">${['Food Hunt', 'Coffee Shop', 'Bioskop', 'Taman', 'Toko Buku', 'Museum', 'Pasar', 'Bakery', 'Jalan Acak', 'Kaki Lima', 'Olahraga', 'Transit', 'Rumah Teman', 'Sunset', 'Thrift', 'Night Walk', 'Tempat Baru', 'Solo Date'].map((t, i) => `<div class="flex items-center gap-1.5 text-[11px] text-slate-700"><span class="cbox"></span> ${t}</div>`).join('')}</div>
+            ${field('e_best', '🏆 Misi paling berkesan:', '…')}
+            ${field('e_surprise', '😮 Hal yang paling bikin kaget tentang diriku:', 'ternyata aku suka…')}`)}`,
+        right: `<div class="h-full flex flex-col justify-between text-center items-center py-4">
+            <div class="washi-tape w-24 h-6 rotate-3"></div>
+            <div class="my-auto space-y-3 w-full">
+              <h2 class="font-display text-3xl font-bold text-slate-900">THE WORLD IS WAITING</h2>
+              <p class="font-handwritten text-xl text-slate-700">Sampai jumpa di petualangan berikutnya!</p>
+              <div class="text-left">${numbered('e_next', '🌍 3 misi yang mau kubikin sendiri:', 3, '…')}</div>
+            </div>
+            <div class="border border-dashed border-slate-400 p-2 rounded-xl text-xs font-mono">
+              Selesai pada: <span data-ph="dd/mm/yyyy" class="write-line inline-block min-w-[80px]"></span>
+            </div>
+          </div>`
+      }
+    ];
+
+    // Render semua spread sekali -- Print butuh semua spread ada di DOM.
+    const book = document.getElementById('book');
+    book.innerHTML = spreadsData.map((s, i) => `
+      <div class="spread relative w-full aspect-[1.414/1] max-h-[82vh] bg-paperBg rounded-2xl notebook-shadow flex overflow-hidden border border-amber-900/10 ${i ? 'hidden' : ''}" data-i="${i}">
+        <section class="page journal-paper w-1/2 h-full p-4 sm:p-6 md:p-8 flex flex-col justify-between overflow-y-auto">${s.left}<span class="page-num left-4">${i * 2 + 1}</span></section>
+        <div class="spine-gutter w-6 sm:w-8 h-full absolute left-1/2 -translate-x-1/2 z-20 pointer-events-none flex flex-col justify-between items-center py-4">${'<div class="w-1.5 h-3 border-y border-amber-900/30"></div>'.repeat(5)}</div>
+        <section class="page journal-paper w-1/2 h-full p-4 sm:p-6 md:p-8 flex flex-col justify-between overflow-y-auto">${s.right}<span class="page-num right-4">${i * 2 + 2}</span></section>
+      </div>`).join('');
+
+    // ---------- navigasi ----------
+    let current = 0;
+    const spreads = [...book.querySelectorAll('.spread')];
+    function show(i, dir) {
+      spreads.forEach((s, j) => s.classList.toggle('hidden', j !== i));
+      const el = spreads[i];
+      el.classList.remove('page-turn-next', 'page-turn-prev'); void el.offsetWidth;
+      if (dir) el.classList.add(dir === 'next' ? 'page-turn-next' : 'page-turn-prev');
+      current = i;
+      document.getElementById('currentSpreadNum').innerText = i + 1;
+      document.getElementById('spreadSelector').value = i;
+      document.getElementById('pageNums').innerText = (i * 2 + 1) + '–' + (i * 2 + 2);
+      renderThumbs();
+    }
+    function nextSpread() { if (current < spreads.length - 1) { show(current + 1, 'next'); window.scrollTo({ top: 0, behavior: 'smooth' }); } }
+    function prevSpread() { if (current > 0) { show(current - 1, 'prev'); window.scrollTo({ top: 0, behavior: 'smooth' }); } }
+    function jumpToSpread(v) { const i = parseInt(v, 10); show(i, i > current ? 'next' : 'prev'); }
+    function toggleThumbnails() { document.getElementById('thumbnailDrawer').classList.toggle('hidden'); }
+    function renderThumbs() {
+      const d = document.getElementById('thumbnailDrawer');
+      d.innerHTML = spreadsData.map((s, i) => `<div onclick="jumpToSpread(${i})" class="min-w-[110px] h-16 bg-paperBg border-2 rounded-lg p-1.5 text-[9px] cursor-pointer flex flex-col justify-between shadow-sm transition hover:scale-105 ${i === current ? 'border-neonYellow text-black bg-amber-100' : 'border-slate-600 text-slate-500'}"><div class="font-mono font-bold">#${i + 1} · hal ${i * 2 + 1}–${i * 2 + 2}</div><div class="truncate font-medium">${s.mission}</div></div>`).join('');
+    }
+    const sel = document.getElementById('spreadSelector');
+    sel.innerHTML = spreadsData.map((s, i) => `<option value="${i}">Spread ${i + 1}: ${s.mission}</option>`).join('');
+
+    const styles = ['grid', 'lines', 'blank']; let styleIdx = 0;
+    function toggleGridStyle() {
+      styleIdx = (styleIdx + 1) % styles.length;
+      document.querySelectorAll('.journal-paper').forEach(el => { el.classList.remove('lines', 'blank'); if (styles[styleIdx] !== 'grid') el.classList.add(styles[styleIdx]); });
+      document.getElementById('bgToggleText').innerText = styles[styleIdx].toUpperCase();
+    }
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') nextSpread();
+      if (e.key === 'ArrowLeft') prevSpread();
+    });
+    let sx = 0, sy = 0;
+    book.addEventListener('touchstart', e => { sx = e.changedTouches[0].screenX; sy = e.changedTouches[0].screenY; }, { passive: true });
+    book.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].screenX - sx, dy = e.changedTouches[0].screenY - sy;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { dx < 0 ? nextSpread() : prevSpread(); }
+    }, { passive: true });
+
+    show(current);
+  </script>
+</body>
+</html>
