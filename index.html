@@ -52,6 +52,7 @@
             --accent-light: #e6edff;
             --yellow: #ffe600;
             --pink: #ff8fb8;
+            --peel: #dfe7fb;              /* balik stiker yang kelupas */
             --success: #0a7a3d;
             --radius: 18px;
             --tint: 16, 36, 94;          /* warna bayangan: ink tipis (terang), hitam (gelap) */
@@ -75,6 +76,7 @@
             --border: #2a3550;
             --accent-text: #7aa2ff;
             --accent-light: #1d2a4f;
+            --peel: #33467a;
             --success: #34d399;
             --depth-paper: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 18px rgba(0, 0, 0, 0.35);
             --depth-photo: 0 10px 22px rgba(0, 0, 0, 0.5);
@@ -245,18 +247,19 @@
 
         /* ===================== LEMBAR LOOSE-LEAF ===================== */
         .workshop-list { display: flex; flex-direction: column; gap: 1.1rem; }
-        .sheet, .workshop-card, .ws-skeleton, .ws-error, .tools-card {
+        .sheet, .workshop-card, .ws-skeleton, .ws-error, .tools-card, .ws-empty {
             position: relative;
             background-color: var(--paper);
             background-image:
                 linear-gradient(to right, transparent 46px, var(--margin-line) 46px, var(--margin-line) 48px, transparent 48px),
                 repeating-linear-gradient(180deg, transparent 0 27px, var(--rule) 27px 28px);
             border-radius: 6px 16px 16px 6px;
-            padding: 1.3rem 1.15rem 1.35rem 62px;
+            /* 32px = 1 garis (28) + 4: baseline teks jatuh ~5px di atas garis */
+            padding: 32px 1.15rem 1.35rem 62px;
             box-shadow: var(--depth-paper);
         }
         /* lubang binder */
-        .sheet::before, .workshop-card::before, .ws-skeleton::before, .ws-error::before, .tools-card::before {
+        .sheet::before, .workshop-card::before, .ws-skeleton::before, .ws-error::before, .tools-card::before, .ws-empty::before {
             content: ""; position: absolute; left: 12px; top: 16px; bottom: 16px; width: 18px;
             background:
                 radial-gradient(circle, var(--desk) 6.5px, rgba(var(--tint), 0.22) 7px, transparent 8.5px) top / 18px 18px no-repeat,
@@ -283,7 +286,7 @@
                 repeating-linear-gradient(90deg, transparent 0 21px, var(--rule) 21px 22px);
         }
 
-        .card-header { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.6rem; padding-right: 92px; }
+        .card-header { display: flex; align-items: flex-start; gap: 0.75rem; min-height: 56px; }
         .card-icon {
             width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%;
             background: var(--yellow); box-shadow: var(--depth-sticker);
@@ -291,12 +294,12 @@
             transform: rotate(-6deg);
         }
         .card-icon i, .card-icon svg { width: 21px; height: 21px; color: #10245e; }
-        .card-title { font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; line-height: 1.25; color: var(--text-1); }
+        .card-title { font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; line-height: 28px; color: var(--text-1); }
         .card-desc {
-            font-size: 0.9rem; color: var(--text-2); line-height: 1.55; margin-bottom: 0.6rem;
+            font-size: 0.9rem; color: var(--text-2); line-height: 28px; margin: 0;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-        .card-assure { display: flex; align-items: center; gap: 6px; font-size: 0.84rem; font-weight: 700; color: var(--text-1); margin-bottom: 0.8rem; }
+        .card-assure { display: flex; align-items: center; gap: 6px; font-size: 0.84rem; font-weight: 700; line-height: 28px; color: var(--text-1); margin: 0 0 0.8rem; }
         .card-assure i, .card-assure svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--success); }
         .card-meta { display: flex; align-items: center; gap: 0.5rem 0.9rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
         .card-meta-item { display: inline-flex; align-items: center; gap: 5px; font-size: 0.82rem; font-weight: 600; color: var(--text-2); }
@@ -326,7 +329,7 @@
 
         /* status = stiker bulat yang ditempel miring */
         .status-badge {
-            position: absolute; top: 1.05rem; right: 1rem;
+            position: absolute; top: -11px; right: 14px; z-index: 1;
             display: inline-flex; align-items: center; gap: 4px;
             font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
             padding: 0.45rem 0.75rem; border-radius: 999px;
@@ -357,7 +360,7 @@
             content: ""; position: absolute; right: 0; bottom: 0;
             width: 14px; height: 14px;
             border-radius: 0 0 14px 0;
-            background: linear-gradient(315deg, var(--desk) 0 48%, #dfe7fb 50% 100%);
+            background: linear-gradient(315deg, var(--desk) 0 48%, var(--peel) 50% 100%);
             box-shadow: -2px -2px 4px rgba(var(--tint), 0.18);
             transition: width .2s ease, height .2s ease;
         }
@@ -396,6 +399,9 @@
         .ws-skeleton .sk-price { height: 24px; width: 40%; margin-bottom: 1.3rem; }
         .ws-skeleton .sk-btn { height: 52px; width: 100%; border-radius: 14px; }
 
+        .ws-empty h3 { font-family: 'Outfit', sans-serif; font-size: 1.12rem; font-weight: 800; line-height: 28px; color: var(--text-1); display: flex; align-items: center; gap: 0.5rem; }
+        .ws-empty h3 svg { width: 20px; height: 20px; color: var(--accent-text); flex-shrink: 0; }
+        .ws-empty p { font-size: 0.92rem; line-height: 28px; color: var(--text-2); }
         .ws-error { text-align: center; }
         .ws-error svg { width: 40px; height: 40px; color: var(--text-3); margin: 0 auto 1rem; display: block; }
         .ws-error h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; }
@@ -436,14 +442,21 @@
         .balai-cta::before { content: ""; position: absolute; top: -10px; left: 22px; width: 76px; height: 20px; background: var(--washi-yellow); transform: rotate(-4deg); }
         .balai-cta:hover { transform: rotate(-1deg) translateY(-2px); }
         .balai-cta:active { transform: rotate(-0.5deg) scale(.98); }
-        .balai-cta-ic { flex: none; font-size: 1.6rem; }
+        .balai-cta-ic {
+            flex: none; width: 44px; height: 44px; border-radius: 50%;
+            background: #ffe600; color: #10245e; box-shadow: var(--depth-sticker);
+            display: flex; align-items: center; justify-content: center; transform: rotate(-6deg);
+        }
+        .balai-cta-ic svg { width: 22px; height: 22px; }
         .balai-cta-body { flex: 1; min-width: 0; }
         .balai-cta-body b { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.02rem; }
         .balai-cta-body span { display: block; font-size: .84rem; margin-top: 2px; line-height: 1.5; }
-        .balai-cta-go { flex: none; font-weight: 800; font-size: 1.2rem; color: #ffe600; }
+        .balai-cta-go { flex: none; display: flex; color: #ffe600; }
+        .balai-cta-go svg { width: 22px; height: 22px; }
         :root[data-theme="dark"] .balai-cta { box-shadow: var(--depth-paper); }
+        .warga-login a svg { width: 16px; height: 16px; }
         .warga-login { text-align: center; font-size: 0.9rem; color: var(--text-2); margin-top: 0.75rem; }
-        .warga-login a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent-text); font-weight: 800; text-decoration: none; }
+        .warga-login a { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; color: var(--accent-text); font-weight: 800; text-decoration: none; }
 
         /* ===================== CERITA WARGA: polaroid ===================== */
         .story-strip {
@@ -495,9 +508,9 @@
         .story-hint { font-size: 0.85rem; color: var(--text-2); margin-top: -0.6rem; padding-left: 0.2rem; }
 
         /* ===================== ALAT & BAHAN ===================== */
-        .tools-card h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.12rem; font-weight: 800; margin-bottom: 0.4rem; color: var(--text-1); }
+        .tools-card h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.12rem; font-weight: 800; line-height: 28px; margin: 0; color: var(--text-1); }
         .tools-card h3 svg { width: 22px; height: 22px; color: var(--accent-text); flex-shrink: 0; }
-        .tools-card p { font-size: 0.92rem; color: var(--text-2); line-height: 1.55; margin-bottom: 1.1rem; }
+        .tools-card p { font-size: 0.92rem; color: var(--text-2); line-height: 28px; margin: 0 0 28px; }
 
         /* ===================== FOOTER ===================== */
         .footer { text-align: center; padding: 1rem 0 0.5rem; color: var(--text-3); font-size: 0.84rem; }
@@ -531,6 +544,17 @@
 
         @media (min-width: 900px) {
             .page { max-width: 560px; padding-top: 2.5rem; }
+        }
+        /* Desktop: binder kebuka -- sampul diam di kiri, lembar-lembar di kanan */
+        @media (min-width: 1024px) {
+            .page {
+                max-width: 1120px; padding: 3rem 2rem 3rem;
+                display: grid; grid-template-columns: minmax(360px, 430px) minmax(0, 580px);
+                column-gap: 3.5rem; justify-content: center; align-items: start;
+            }
+            .cover { grid-column: 1; grid-row: 1 / span 4; position: sticky; top: 3rem; }
+            .page > .section, .page > .footer { grid-column: 2; }
+            .page > .section:first-of-type { margin-top: 0.4rem; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -591,14 +615,14 @@
                 <!-- Rendered by JS -->
             </div>
             <a class="balai-cta" href="balai/">
-                <span class="balai-cta-ic">🏘️</span>
+                <span class="balai-cta-ic" aria-hidden="true"><i data-lucide="house"></i></span>
                 <span class="balai-cta-body">
                     <b>Intip Balai Warga 🐾</b>
                     <span>Kenalan sama warga komunitasnya, lihat karya & keseruannya di dalam</span>
                 </span>
-                <span class="balai-cta-go">→</span>
+                <span class="balai-cta-go" aria-hidden="true"><i data-lucide="arrow-right"></i></span>
             </a>
-            <p class="warga-login">Udah jadi warga? <a href="warga/">Masuk ke Balai Warga →</a></p>
+            <p class="warga-login">Udah jadi warga? <a href="warga/">Masuk ke Balai Warga <i data-lucide="arrow-right"></i></a></p>
         </section>
 
         <!-- Cerita Warga: polaroid, sekali tap buka reel di Instagram -->
@@ -721,12 +745,7 @@
                         </div>`;
                 } else if (cfgState === 'live') {
                     // Sudah dapat jawaban server tapi memang kosong
-                    listEl.innerHTML = `
-                        <div class="empty-state" style="display: block; padding: 2.5rem 1.5rem; background: var(--bg-card); border: 1.5px dashed var(--border); border-radius: var(--radius); text-align: center; margin-top: 0.5rem;">
-                            <i data-lucide="calendar-x" style="width: 36px; height: 36px; color: var(--text-3); margin: 0 auto 1rem; display: block;"></i>
-                            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Belum ada jadwal baru</h3>
-                            <p style="color: var(--text-2); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">Pantau terus Instagram atau TikTok Seminggu Satu untuk info workshop selanjutnya ya!</p>
-                        </div>`;
+                    listEl.innerHTML = emptySheetHTML();
                 } else {
                     // Masih nunggu config -> shimmer skeleton
                     listEl.innerHTML = shimmerCardsHTML(2);
@@ -764,7 +783,10 @@
                 // Batch yang di-hide dari picker (invite-only lewat link
                 // langsung) SENGAJA nggak dianggap "ada" di listing pasif kayak
                 // Home -- sama alasan kayak di warga/main.js.
-                const openBatchesForType = openBatchesMap[ws.id] || [];
+                // Kalau batch gagal diambil, pakai salinan terakhir yang sukses
+                // (sudah dibuang yang tanggalnya lewat & sisa kuotanya) biar
+                // event yang beneran buka nggak ilang dari Home.
+                const openBatchesForType = (batchesFailed ? (_cachedBatches[ws.id] || []) : openBatchesMap[ws.id]) || [];
                 const visibleBatches = openBatchesForType.filter(function (b) {
                     return !b.hideFromPicker && (b.remaining == null || b.remaining > 0);
                 });
@@ -772,7 +794,9 @@
 
                 let status = getWorkshopStatus(ws);
                 if (batchesFailed) {
-                    // status Config apa adanya -- jangan diturunin jadi 'full'
+                    // status Config apa adanya -- jangan diturunin jadi 'full';
+                    // tapi kalau salinan terakhir bilang ada batch buka, tampilkan.
+                    if (hasAvailableBatch) status = 'open';
                 } else if (hasAvailableBatch) {
                     status = 'open'; // ada batch valid & available -> menang di atas Config
                 } else if (status === 'open') {
@@ -791,7 +815,7 @@
                 // pilih sesi (sebelumnya cuma 1 kartu gabungan yang kepake data
                 // batch "pertama" doang & nggak nunjukin ada pilihan lain sama
                 // sekali). Belum buka/segera hadir tetap 1 kartu placeholder.
-                const batchesToRender = (status === 'open' && !batchesFailed) ? visibleBatches : [null];
+                const batchesToRender = (status === 'open' && hasAvailableBatch) ? visibleBatches : [null];
 
                 batchesToRender.forEach(function (batch) {
                     // Tema/deskripsi/harga bisa beda tiap batch (mis. Reka Rekat
@@ -925,16 +949,19 @@
                     <button type="button" class="ws-notice-retry" onclick="refreshAvailability()">Coba lagi</button>`;
                 listEl.prepend(notice);
             } else if (displayedCount === 0) {
-                listEl.innerHTML = `
-                    <div class="empty-state" style="display: block; padding: 2.5rem 1.5rem; background: var(--bg-card); border: 1.5px dashed var(--border); border-radius: var(--radius); text-align: center; margin-top: 0.5rem; animation: slideUp 0.5s ease both;">
-                        <i data-lucide="calendar-x" style="width: 36px; height: 36px; color: var(--text-3); margin: 0 auto 1rem; display: block;"></i>
-                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Belum ada jadwal baru</h3>
-                        <p style="color: var(--text-2); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">Pantau terus Instagram atau TikTok Seminggu Satu untuk info workshop selanjutnya ya!</p>
-                    </div>
-                `;
+                listEl.innerHTML = emptySheetHTML();
             }
 
             lucide.createIcons();
+        }
+
+        // Belum ada jadwal = selembar loose-leaf kosong di binder, bukan kotak putus-putus
+        function emptySheetHTML() {
+            return `
+                <div class="ws-empty">
+                    <h3><i data-lucide="calendar-x"></i> Belum ada jadwal baru</h3>
+                    <p>Pantau terus Instagram atau TikTok Seminggu Satu buat info workshop selanjutnya ya!</p>
+                </div>`;
         }
 
         // Skeleton shimmer buat state loading (config belum masuk)
@@ -961,6 +988,29 @@
         let _countsReady = false;
         let _batchesFailed = false;
 
+        // Salinan batch terakhir yang sukses -- cuma buat fallback tampilan
+        // (tanggal & tempat). Sisa kuota SENGAJA dibuang: bisa basi.
+        const BATCH_CACHE_KEY = 'ss_home_batches_v1';
+        function saveBatchCache(map) {
+            try { localStorage.setItem(BATCH_CACHE_KEY, JSON.stringify({ at: Date.now(), map })); } catch (e) { }
+        }
+        function loadBatchCache() {
+            try {
+                const c = JSON.parse(localStorage.getItem(BATCH_CACHE_KEY) || 'null');
+                if (!c || !c.map || Date.now() - c.at > 3 * 86400000) return {};
+                const today = new Date().toISOString().slice(0, 10);
+                const out = {};
+                Object.keys(c.map).forEach(k => {
+                    const list = (Array.isArray(c.map[k]) ? c.map[k] : [])
+                        .filter(b => !b.eventDateIso || String(b.eventDateIso).slice(0, 10) >= today)
+                        .map(b => Object.assign({}, b, { remaining: null }));
+                    if (list.length) out[k] = list;
+                });
+                return out;
+            } catch (e) { return {}; }
+        }
+        let _cachedBatches = {};
+
         // Kuota & batch diambil TERPISAH -- kuota cuma kepake buat fallback
         // early bird, jadi kalau cuma kuota yang gagal, daftar event tetep jalan
         // normal. Yang nentuin buka/penuh itu batch.
@@ -974,7 +1024,8 @@
             if (countsRes.status === 'rejected') console.error("Gagal mengambil kuota:", countsRes.reason);
             _batchesFailed = batchesRes.status === 'rejected';
             _lastOpenBatches = _batchesFailed ? {} : batchesRes.value;
-            if (_batchesFailed) console.error("Gagal mengambil batch:", batchesRes.reason);
+            if (_batchesFailed) { console.error("Gagal mengambil batch:", batchesRes.reason); _cachedBatches = loadBatchCache(); }
+            else saveBatchCache(_lastOpenBatches);
             _countsReady = true;
             renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches, _batchesFailed);
         }
@@ -1004,6 +1055,11 @@
         // (images/stories/<shortcode>.webp) + stiker play. Sekali tap langsung
         // buka reel di Instagram -- dulu embed di halaman butuh 2x tap, tanpa
         // preview, dan bawa like count.
+        // "17 May 2026" -> "17 Mei 2026" (event pakai format Indonesia)
+        const ID_MONTHS = { jan: 'Januari', feb: 'Februari', mar: 'Maret', apr: 'April', may: 'Mei', jun: 'Juni', jul: 'Juli', aug: 'Agustus', sep: 'September', oct: 'Oktober', nov: 'November', dec: 'Desember' };
+        function idDate(str) {
+            return String(str).replace(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\b/g, m => ID_MONTHS[m.slice(0, 3).toLowerCase()] || m);
+        }
         function initStories() {
             const listEl = document.getElementById('storyList');
             const stories = []
@@ -1014,10 +1070,11 @@
                 if (!m) return '';
                 const [, kind, code] = m;
                 // "Upcycle Journaling - 17 May 2026" -> judul + tanggal
+                // (juga "Reka Rekat Vol 1- 20 June 2026" yang spasinya nggak rapi)
                 const raw = String(item.title || '');
-                const cut = raw.lastIndexOf(' - ');
-                const name = cut > 0 ? raw.slice(0, cut) : raw;
-                const date = cut > 0 ? raw.slice(cut + 3) : '';
+                const dm = raw.match(/^(.*?)\s*-\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})\s*$/);
+                const name = dm ? dm[1] : raw;
+                const date = dm ? idDate(dm[2]) : '';
                 return `
                     <a class="story-card" href="https://www.instagram.com/${kind}/${code}/" target="_blank" rel="noopener"
                         aria-label="Tonton ${escHtml(name)}${date ? ', ' + escHtml(date) : ''} di Instagram">
