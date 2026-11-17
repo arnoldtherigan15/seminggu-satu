@@ -27,11 +27,22 @@
 
 
     <style>
-        /* Token brand Seminggu Satu (lihat .claude/skills/seminggu-ui).
-           Semua pasangan teks/latar di bawah lolos WCAG AA (>= 4.5:1). */
+        /* =========================================================
+           Dunia visual: "Binder Diary 2000-an" (lihat
+           .impeccable/surfaces/index-html.md). Sampul binder biru
+           brand, lembar loose-leaf, tab kuning, stiker & washi.
+           Warna brand dari .claude/skills/seminggu-ui; semua pasangan
+           teks/latar dicek >= 4.5:1 (terang & gelap).
+           Kedalaman 3 tingkat: kertas < foto < stiker.
+           ========================================================= */
         :root {
-            --bg: #f4f7ff;
-            --bg-card: #ffffff;
+            --desk: #f4f7ff;
+            --bg: var(--desk);
+            --bg-card: #ffffff;           /* kertas */
+            --paper: #ffffff;
+            --rule: #d6e3ff;              /* garis biru muda kertas */
+            --margin-line: #ff8fb8;       /* garis margin pink (dekoratif) */
+            --board: #0046ff;             /* sampul binder */
             --text-1: #10245e;
             --text-2: #4a5674;
             --text-3: #5f6b8a;
@@ -40,59 +51,486 @@
             --accent-text: #0046ff;
             --accent-light: #e6edff;
             --yellow: #ffe600;
+            --pink: #ff8fb8;
             --success: #0a7a3d;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --radius: 20px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
-            --shadow-md: 0 8px 30px rgba(0,0,0,0.06);
-            --shadow-lg: 0 20px 50px rgba(0,0,0,0.08);
+            --radius: 18px;
+            --tint: 16, 36, 94;          /* warna bayangan: ink tipis (terang), hitam (gelap) */
+            --depth-paper: 0 1px 2px rgba(16, 36, 94, 0.10), 0 6px 16px rgba(16, 36, 94, 0.06);
+            --depth-photo: 0 10px 22px rgba(16, 36, 94, 0.18);
+            --depth-sticker: 0 0 0 3px #ffffff, 0 4px 8px rgba(16, 36, 94, 0.22);
+            --washi-yellow: repeating-linear-gradient(135deg, rgba(255, 230, 0, 0.78) 0 8px, rgba(255, 243, 140, 0.78) 8px 16px);
+            --washi-pink: repeating-linear-gradient(90deg, rgba(255, 143, 184, 0.72) 0 6px, rgba(255, 196, 218, 0.72) 6px 12px);
+            --washi-blue: repeating-linear-gradient(45deg, rgba(0, 146, 255, 0.45) 0 7px, rgba(120, 190, 255, 0.45) 7px 14px);
         }
-
-        /* ---- Dark mode ---- */
         :root[data-theme="dark"] {
-            --bg: #0d1526;
-            --bg-card: #172035;
+            --desk: #0d1526;
+            --bg-card: #18213b;
+            --paper: #18213b;
+            --rule: #27355e;
+            --margin-line: #b85a82;
+            --tint: 0, 0, 0;
             --text-1: #eaeffc;
             --text-2: #9fabc9;
-            --border: #2a3550;
             --text-3: #8b97b6;
-            --accent: #0046ff;        /* tombol tetap biru brand: teks putih 6.3:1 */
-            --accent-text: #7aa2ff;   /* biru buat teks di atas latar gelap */
+            --border: #2a3550;
+            --accent-text: #7aa2ff;
             --accent-light: #1d2a4f;
             --success: #34d399;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-            --shadow-md: 0 8px 30px rgba(0,0,0,0.5);
-            --shadow-lg: 0 20px 50px rgba(0,0,0,0.6);
+            --depth-paper: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 18px rgba(0, 0, 0, 0.35);
+            --depth-photo: 0 10px 22px rgba(0, 0, 0, 0.5);
+            --depth-sticker: 0 0 0 3px #ffffff, 0 4px 10px rgba(0, 0, 0, 0.5);
         }
-        :root[data-theme="dark"] .profile-logo { filter: invert(1); }
-        /* bayangan biru kelihatan "nyala" di latar gelap -- pakai bayangan netral */
-        :root[data-theme="dark"] .profile-photo img.photo,
-        :root[data-theme="dark"] .cta-btn,
-        :root[data-theme="dark"] .cta-btn:hover,
-        :root[data-theme="dark"] .story-face,
-        :root[data-theme="dark"] .balai-cta { box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45); }
-
-        /* Tombol toggle tema (pojok kanan atas) */
-        .theme-toggle {
-            position: fixed; top: 14px; right: 14px; z-index: 999;
-            width: 44px; height: 44px; border-radius: 50%;
-            border: 1px solid var(--border); background: var(--bg-card); color: var(--text-1);
-            font-size: 1.1rem; cursor: pointer; box-shadow: var(--shadow-md);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform .15s ease, background .2s ease;
-        }
-        .theme-toggle:hover { transform: scale(1.08); }
-        .theme-toggle:active { transform: scale(.94); }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         ::selection { background: var(--yellow); color: #10245e; }
+
+        body {
+            font-family: 'Open Sans', -apple-system, sans-serif;
+            color: var(--text-1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            /* meja tempat binder ditaruh: dot grid tipis */
+            background-color: var(--desk);
+            background-image: radial-gradient(rgba(var(--tint), 0.09) 1px, transparent 1.2px);
+            background-size: 22px 22px;
+        }
+        :root[data-theme="dark"] body { background-image: radial-gradient(rgba(234, 239, 252, 0.06) 1px, transparent 1.2px); }
+        h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; }
 
         a:focus-visible, button:focus-visible {
             outline: 3px solid var(--accent-text);
             outline-offset: 3px;
             border-radius: 10px;
+        }
+
+        /* Tombol tema: stiker bulat */
+        .theme-toggle {
+            position: fixed; top: 14px; right: 14px; z-index: 999;
+            width: 44px; height: 44px; border-radius: 50%;
+            border: none; background: #ffffff; color: #10245e;
+            box-shadow: var(--depth-sticker);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.1rem;
+            transition: transform .15s ease;
+        }
+        .theme-toggle:hover { transform: rotate(-8deg) scale(1.06); }
+        .theme-toggle:active { transform: scale(.94); }
+
+        .page { max-width: 520px; margin: 0 auto; padding: 1.25rem 1rem 2.5rem; }
+
+        /* Stiker "nempel" sekali pas halaman dibuka -- nggak ada yang muter terus */
+        .stick { animation: stick .55s cubic-bezier(.16, 1, .3, 1) both; }
+        @keyframes stick {
+            from { opacity: 0; transform: rotate(var(--r, 0deg)) scale(1.18); }
+            to   { opacity: 1; transform: rotate(var(--r, 0deg)) scale(1); }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+        @keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: calc(200px + 100%) 0; } }
+
+        /* ===================== SAMPUL BINDER ===================== */
+        .cover {
+            position: relative;
+            background-color: var(--board);
+            /* tekstur kain sampul binder */
+            background-image:
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.045) 0 2px, transparent 2px 6px),
+                repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 6px);
+            border-radius: 14px 24px 24px 14px;
+            padding: 1.5rem 1.15rem 1.6rem 3.3rem;
+            color: #ffffff;
+            box-shadow: var(--depth-photo), inset 6px 0 10px rgba(0, 0, 0, 0.18);
+        }
+        /* ring logam binder di kiri */
+        .rings {
+            position: absolute; left: 8px; top: 34px; bottom: 34px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            pointer-events: none;
+        }
+        .rings span {
+            width: 34px; height: 16px; border-radius: 10px;
+            background: linear-gradient(180deg, #f6f8fc 0%, #b6c0d4 45%, #8995ad 55%, #e6ebf5 100%);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+        }
+        .cover-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+        .name-label {
+            --r: -2deg;
+            display: inline-block;
+            background: #ffffff; color: #10245e;
+            padding: 0.6rem 0.95rem 0.55rem;
+            border-radius: 12px;
+            box-shadow: var(--depth-sticker);
+            transform: rotate(var(--r));
+        }
+        .name-label h1 { font-size: 1.85rem; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
+        .name-label p { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.95rem; color: #0046ff; margin-top: 0.2rem; }
+        .paw-sticker {
+            --r: 9deg;
+            flex-shrink: 0;
+            width: 74px; height: 74px; border-radius: 50%;
+            background: #ffe600;
+            box-shadow: var(--depth-sticker);
+            display: flex; align-items: center; justify-content: center;
+            transform: rotate(var(--r));
+        }
+        .paw-sticker img { width: 58px; height: 58px; object-fit: contain; }
+        .cover-bio { font-size: 1rem; line-height: 1.55; margin: 1.1rem 0 1rem; max-width: 30ch; }
+        .social-links { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+        .social-btn {
+            display: inline-flex; align-items: center; gap: 0.45rem;
+            min-height: 44px; padding: 0 1rem;
+            background: #ffffff; color: #10245e;
+            border-radius: 999px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            text-decoration: none; font-weight: 700; font-size: 0.88rem;
+            transition: transform .15s ease;
+        }
+        .social-btn:nth-child(1) { transform: rotate(-1.5deg); }
+        .social-btn:nth-child(2) { transform: rotate(1.5deg); }
+        .social-btn:hover { transform: rotate(0) translateY(-2px); }
+        .social-btn img { width: 16px; height: 16px; object-fit: contain; }
+
+        /* polaroid foto warga, ditempel washi */
+        .cover-photo {
+            position: relative;
+            margin: 1.5rem 0.35rem 0.4rem 0;
+            background: #ffffff;
+            padding: 9px 9px 12px;
+            border-radius: 4px;
+            box-shadow: var(--depth-photo);
+            transform: rotate(1.6deg);
+        }
+        .cover-photo img.photo {
+            display: block; width: 100%; height: auto;
+            aspect-ratio: 16 / 10; object-fit: cover; object-position: center 72%;
+        }
+        .cover-photo figcaption {
+            font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.9rem;
+            color: #10245e; margin-top: 0.55rem; padding-right: 64px;
+        }
+        .washi {
+            position: absolute; height: 22px; width: 92px;
+            background: var(--washi-yellow);
+            opacity: 0.95;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+        }
+        .washi.pink { background: var(--washi-pink); }
+        .washi.blue { background: var(--washi-blue); }
+        .cover-photo .washi.tl { top: -11px; left: -16px; transform: rotate(-32deg); }
+        .cover-photo .washi.tr { top: -11px; right: -16px; transform: rotate(28deg); }
+        .mochi-sticker {
+            --r: 7deg;
+            position: absolute; right: -12px; bottom: -20px;
+            width: 74px; height: auto;
+            transform: rotate(var(--r));
+            /* pinggiran putih kiss-cut */
+            filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 4px 5px rgba(var(--tint), 0.3));
+        }
+
+        /* ===================== TAB INDEKS ===================== */
+        .section { margin-top: 2.6rem; }
+        .tab {
+            position: relative; z-index: 2;
+            display: inline-flex; align-items: center; gap: 0.45rem;
+            background: var(--yellow); color: #10245e;
+            font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em;
+            padding: 0.6rem 1.15rem 0.85rem;
+            border-radius: 14px 14px 0 0;
+            margin: 0 0 -0.35rem 1.1rem;
+            box-shadow: 0 -1px 3px rgba(var(--tint), 0.1);
+        }
+        .tab.pink { background: var(--pink); }
+        .tab.blue { background: #0046ff; color: #ffffff; }
+        .tab svg { width: 18px; height: 18px; }
+
+        /* ===================== LEMBAR LOOSE-LEAF ===================== */
+        .workshop-list { display: flex; flex-direction: column; gap: 1.1rem; }
+        .sheet, .workshop-card, .ws-skeleton, .ws-error, .tools-card {
+            position: relative;
+            background-color: var(--paper);
+            background-image:
+                linear-gradient(to right, transparent 46px, var(--margin-line) 46px, var(--margin-line) 48px, transparent 48px),
+                repeating-linear-gradient(180deg, transparent 0 27px, var(--rule) 27px 28px);
+            border-radius: 6px 16px 16px 6px;
+            padding: 1.3rem 1.15rem 1.35rem 62px;
+            box-shadow: var(--depth-paper);
+        }
+        /* lubang binder */
+        .sheet::before, .workshop-card::before, .ws-skeleton::before, .ws-error::before, .tools-card::before {
+            content: ""; position: absolute; left: 12px; top: 16px; bottom: 16px; width: 18px;
+            background:
+                radial-gradient(circle, var(--desk) 6.5px, rgba(var(--tint), 0.22) 7px, transparent 8.5px) top / 18px 18px no-repeat,
+                radial-gradient(circle, var(--desk) 6.5px, rgba(var(--tint), 0.22) 7px, transparent 8.5px) center / 18px 18px no-repeat,
+                radial-gradient(circle, var(--desk) 6.5px, rgba(var(--tint), 0.22) 7px, transparent 8.5px) bottom / 18px 18px no-repeat;
+            pointer-events: none;
+        }
+        .workshop-card { animation: slideUp .5s ease both; }
+        .workshop-card:nth-child(odd) { transform: rotate(-0.4deg); }
+        .workshop-card:nth-child(even) { transform: rotate(0.5deg); }
+        /* washi di sudut atas tiap lembar */
+        .workshop-card::after {
+            content: ""; position: absolute; top: -9px; left: 38%; width: 84px; height: 20px;
+            background: var(--washi-pink); transform: rotate(-3deg);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .workshop-card:nth-child(3n+2)::after { background: var(--washi-blue); transform: rotate(4deg); left: 30%; }
+        .workshop-card:nth-child(3n)::after { background: var(--washi-yellow); transform: rotate(-5deg); left: 46%; }
+        /* status lewat POLA kertas: belum buka = kertas kotak-kotak */
+        .workshop-card.disabled {
+            background-image:
+                linear-gradient(to right, transparent 46px, var(--margin-line) 46px, var(--margin-line) 48px, transparent 48px),
+                repeating-linear-gradient(180deg, transparent 0 21px, var(--rule) 21px 22px),
+                repeating-linear-gradient(90deg, transparent 0 21px, var(--rule) 21px 22px);
+        }
+
+        .card-header { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.6rem; padding-right: 92px; }
+        .card-icon {
+            width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%;
+            background: var(--yellow); box-shadow: var(--depth-sticker);
+            display: flex; align-items: center; justify-content: center;
+            transform: rotate(-6deg);
+        }
+        .card-icon i, .card-icon svg { width: 21px; height: 21px; color: #10245e; }
+        .card-title { font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; line-height: 1.25; color: var(--text-1); }
+        .card-desc {
+            font-size: 0.9rem; color: var(--text-2); line-height: 1.55; margin-bottom: 0.6rem;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .card-assure { display: flex; align-items: center; gap: 6px; font-size: 0.84rem; font-weight: 700; color: var(--text-1); margin-bottom: 0.8rem; }
+        .card-assure i, .card-assure svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--success); }
+        .card-meta { display: flex; align-items: center; gap: 0.5rem 0.9rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+        .card-meta-item { display: inline-flex; align-items: center; gap: 5px; font-size: 0.82rem; font-weight: 600; color: var(--text-2); }
+        .card-meta-item i, .card-meta-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+        .card-meta-item.card-place {
+            max-width: 100%; color: var(--text-1);
+            text-decoration: underline; text-decoration-color: var(--pink); text-decoration-thickness: 2px; text-underline-offset: 3px;
+            min-height: 24px;
+        }
+        .card-meta-item.card-place span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card-meta-item.seat-pill { background: var(--accent-light); color: var(--accent-text); padding: 0.25rem 0.65rem; border-radius: 999px; }
+        .card-meta-item.seat-pill.seat-low { background: var(--accent-light); color: var(--text-1); }
+
+        .price-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+        .price-left { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+        .price-normal-only, .price-current { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--text-1); }
+        .price-current { color: var(--success); }
+        .price-original { font-size: 0.9rem; color: var(--text-3); text-decoration: line-through; font-weight: 600; }
+        .early-bird-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+            background: var(--yellow); color: #10245e;
+            padding: 0.25rem 0.6rem; border-radius: 6px;
+            box-shadow: var(--depth-sticker); transform: rotate(-3deg);
+        }
+        .early-bird-tag i, .early-bird-tag svg { width: 12px; height: 12px; }
+
+        /* status = stiker bulat yang ditempel miring */
+        .status-badge {
+            position: absolute; top: 1.05rem; right: 1rem;
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+            padding: 0.45rem 0.75rem; border-radius: 999px;
+            box-shadow: var(--depth-sticker); transform: rotate(7deg);
+        }
+        .status-badge i, .status-badge svg { width: 13px; height: 13px; }
+        .badge-open { background: #d1fae5; color: #065f46; }
+        .badge-coming-soon { background: #e0e7ff; color: #3730a3; }
+        .badge-not-open { background: #fef3c7; color: #92400e; }
+        .badge-closed { background: #fee2e2; color: #991b1b; }
+
+        /* ===== Tombol = stiker. Ujungnya terkelupas pas hover/tekan ===== */
+        .cta-btn {
+            position: relative;
+            display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+            width: 100%; min-height: 52px; padding: 0.85rem 1rem;
+            background: var(--accent); color: #ffffff;
+            border: none; border-radius: 14px;
+            font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 800;
+            text-decoration: none; cursor: pointer;
+            box-shadow: var(--depth-sticker);
+            transform: rotate(-0.6deg);
+            transition: transform .18s ease, box-shadow .18s ease;
+            overflow: visible;
+        }
+        .cta-btn i, .cta-btn svg { width: 19px; height: 19px; }
+        .cta-btn::after {
+            content: ""; position: absolute; right: 0; bottom: 0;
+            width: 14px; height: 14px;
+            border-radius: 0 0 14px 0;
+            background: linear-gradient(315deg, var(--desk) 0 48%, #dfe7fb 50% 100%);
+            box-shadow: -2px -2px 4px rgba(var(--tint), 0.18);
+            transition: width .2s ease, height .2s ease;
+        }
+        .cta-btn:hover { transform: rotate(-1.4deg) translateY(-2px); }
+        .cta-btn:hover::after, .cta-btn:active::after { width: 30px; height: 30px; }
+        .cta-btn:active { transform: rotate(-0.6deg) scale(0.98); }
+        .cta-btn.cta-secondary { background: #ffffff; color: #10245e; }
+        :root[data-theme="dark"] .cta-btn.cta-secondary { background: #eaeffc; }
+        .cta-btn.disabled-btn {
+            background: var(--accent-light); color: var(--text-2);
+            box-shadow: none; cursor: not-allowed; pointer-events: none; transform: none;
+        }
+        .cta-btn.disabled-btn::after { display: none; }
+
+        /* ===== state: skeleton / error / notice ===== */
+        .ws-skeleton .sk-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+        .ws-skeleton .sk-box, .ws-skeleton .sk-line, .ws-skeleton .sk-pill, .ws-skeleton .sk-btn {
+            display: block; border-radius: 8px;
+            background: #e6edff;
+            background-image: linear-gradient(90deg, #e6edff 0px, #f4f7ff 100px, #e6edff 200px);
+            background-size: 200px 100%; background-repeat: no-repeat;
+            animation: shimmer 1.4s infinite linear;
+        }
+        :root[data-theme="dark"] .ws-skeleton .sk-box,
+        :root[data-theme="dark"] .ws-skeleton .sk-line,
+        :root[data-theme="dark"] .ws-skeleton .sk-pill,
+        :root[data-theme="dark"] .ws-skeleton .sk-btn {
+            background: #1d2a4f;
+            background-image: linear-gradient(90deg, #1d2a4f 0px, #26365f 100px, #1d2a4f 200px);
+            background-size: 200px 100%; background-repeat: no-repeat;
+        }
+        .ws-skeleton .sk-icon { width: 42px; height: 42px; border-radius: 50%; }
+        .ws-skeleton .sk-title { height: 18px; flex: 1; }
+        .ws-skeleton .sk-pill { width: 64px; height: 26px; border-radius: 999px; }
+        .ws-skeleton .sk-desc { height: 13px; width: 70%; margin-bottom: 1.1rem; }
+        .ws-skeleton .sk-price { height: 24px; width: 40%; margin-bottom: 1.3rem; }
+        .ws-skeleton .sk-btn { height: 52px; width: 100%; border-radius: 14px; }
+
+        .ws-error { text-align: center; }
+        .ws-error svg { width: 40px; height: 40px; color: var(--text-3); margin: 0 auto 1rem; display: block; }
+        .ws-error h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .ws-error p { color: var(--text-2); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.25rem; }
+        .ws-error .cta-btn { display: inline-flex; width: auto; padding: 0.7rem 1.75rem; }
+
+        /* catatan tempel kuning (data kuota gagal dimuat) */
+        .ws-notice {
+            position: relative;
+            display: flex; align-items: center; gap: 0.75rem;
+            background: #fff6a8; color: #10245e;
+            padding: 1rem 1rem 0.9rem;
+            margin: 0.5rem 0.3rem 0.4rem;
+            box-shadow: var(--depth-paper);
+            transform: rotate(-0.8deg);
+        }
+        .ws-notice::before { content: ""; position: absolute; top: -10px; left: 40%; width: 70px; height: 18px; background: var(--washi-blue); transform: rotate(3deg); }
+        .ws-notice svg { width: 20px; height: 20px; flex-shrink: 0; color: #10245e; }
+        .ws-notice p { flex: 1; font-size: 0.88rem; line-height: 1.45; color: #10245e; margin: 0; }
+        .ws-notice-retry {
+            flex-shrink: 0; min-height: 44px; padding: 0 0.95rem;
+            background: #ffffff; color: #10245e; border: none; border-radius: 12px;
+            box-shadow: var(--depth-sticker);
+            font: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer;
+        }
+
+        /* ===================== BALAI WARGA ===================== */
+        .balai-cta {
+            position: relative;
+            display: flex; align-items: center; gap: 12px;
+            margin-top: 1.5rem; text-decoration: none;
+            background: linear-gradient(120deg, #0046ff, #0f50f0); color: #ffffff;
+            border-radius: 16px; padding: 16px 16px 16px 18px;
+            box-shadow: var(--depth-photo);
+            transform: rotate(-0.5deg);
+            transition: transform .15s ease;
+        }
+        .balai-cta::before { content: ""; position: absolute; top: -10px; left: 22px; width: 76px; height: 20px; background: var(--washi-yellow); transform: rotate(-4deg); }
+        .balai-cta:hover { transform: rotate(-1deg) translateY(-2px); }
+        .balai-cta:active { transform: rotate(-0.5deg) scale(.98); }
+        .balai-cta-ic { flex: none; font-size: 1.6rem; }
+        .balai-cta-body { flex: 1; min-width: 0; }
+        .balai-cta-body b { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.02rem; }
+        .balai-cta-body span { display: block; font-size: .84rem; margin-top: 2px; line-height: 1.5; }
+        .balai-cta-go { flex: none; font-weight: 800; font-size: 1.2rem; color: #ffe600; }
+        :root[data-theme="dark"] .balai-cta { box-shadow: var(--depth-paper); }
+        .warga-login { text-align: center; font-size: 0.9rem; color: var(--text-2); margin-top: 0.75rem; }
+        .warga-login a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent-text); font-weight: 800; text-decoration: none; }
+
+        /* ===================== CERITA WARGA: polaroid ===================== */
+        .story-strip {
+            display: flex; gap: 1.1rem;
+            overflow-x: auto;
+            margin: 0 -1rem; padding: 1.25rem 1rem 1.6rem;
+            scroll-snap-type: x mandatory;
+            scroll-padding-inline: 1rem;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .story-strip::-webkit-scrollbar { display: none; }
+        .story-card {
+            position: relative; flex: 0 0 58%; max-width: 210px;
+            scroll-snap-align: start;
+            background: #ffffff; padding: 8px 8px 12px; border-radius: 3px;
+            box-shadow: var(--depth-photo);
+            text-decoration: none; color: #10245e;
+            transition: transform .18s ease;
+        }
+        .story-card:nth-child(odd) { transform: rotate(-1.6deg); }
+        .story-card:nth-child(even) { transform: rotate(1.4deg); }
+        .story-card:hover { transform: rotate(0) translateY(-3px); }
+        .story-card .washi { top: -11px; left: 50%; margin-left: -40px; width: 80px; transform: rotate(-4deg); }
+        .story-card:nth-child(3n+2) .washi { background: var(--washi-pink); transform: rotate(5deg); }
+        .story-card:nth-child(3n) .washi { background: var(--washi-blue); transform: rotate(-2deg); }
+        .story-shot {
+            position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden;
+            background: linear-gradient(155deg, #0043f5 0%, #0092ff 60%, #00b4ff 100%);
+        }
+        .story-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .story-play {
+            position: absolute; left: 50%; top: 50%; margin: -27px 0 0 -27px;
+            width: 54px; height: 54px; border-radius: 50%;
+            background: #ffe600; box-shadow: var(--depth-sticker);
+            display: flex; align-items: center; justify-content: center;
+            transform: rotate(-8deg);
+        }
+        .story-play::before { content: ""; margin-left: 5px; border-style: solid; border-width: 11px 0 11px 18px; border-color: transparent transparent transparent #10245e; }
+        .story-tag {
+            position: absolute; left: 8px; top: 8px;
+            font-size: 0.75rem; font-weight: 800;
+            background: #ffffff; color: #10245e;
+            padding: 0.25rem 0.55rem; border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(var(--tint), 0.25);
+        }
+        .story-title { display: block; font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 800; line-height: 1.2; margin-top: 0.6rem; }
+        .story-date { display: block; font-size: 0.8rem; color: #4a5674; margin-top: 0.15rem; }
+        .story-hint { font-size: 0.85rem; color: var(--text-2); margin-top: -0.6rem; padding-left: 0.2rem; }
+
+        /* ===================== ALAT & BAHAN ===================== */
+        .tools-card h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.12rem; font-weight: 800; margin-bottom: 0.4rem; color: var(--text-1); }
+        .tools-card h3 svg { width: 22px; height: 22px; color: var(--accent-text); flex-shrink: 0; }
+        .tools-card p { font-size: 0.92rem; color: var(--text-2); line-height: 1.55; margin-bottom: 1.1rem; }
+
+        /* ===================== FOOTER ===================== */
+        .footer { text-align: center; padding: 1rem 0 0.5rem; color: var(--text-3); font-size: 0.84rem; }
+        .footer-ask {
+            position: relative;
+            display: flex; align-items: center; gap: 0.9rem; text-align: left;
+            background: #fff6a8; color: #10245e;
+            padding: 1.15rem 1rem 1.15rem 0.85rem;
+            margin: 0 0.3rem 1.2rem;
+            box-shadow: var(--depth-paper);
+            transform: rotate(0.8deg);
+        }
+        .footer-ask::before { content: ""; position: absolute; top: -10px; right: 26px; width: 76px; height: 20px; background: var(--washi-pink); transform: rotate(6deg); }
+        .footer-ask img {
+            width: 56px; height: auto; flex-shrink: 0; transform: rotate(-6deg);
+            filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 3px 4px rgba(var(--tint), 0.3));
+        }
+        .footer-ask p { font-size: 0.94rem; line-height: 1.5; color: #4a5674; }
+        .footer-ask b { display: block; font-family: 'Outfit', sans-serif; font-size: 1.08rem; color: #10245e; }
+        .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1.1rem; margin: 1.5rem 0 0.6rem; }
+        .footer-links a {
+            display: inline-flex; align-items: center; min-height: 44px;
+            color: var(--text-1); font-weight: 700; font-size: 0.9rem;
+            text-decoration: underline; text-decoration-color: var(--pink); text-decoration-thickness: 2px; text-underline-offset: 4px;
+        }
+
+        /* tombol tema (fixed, pojok kanan atas) jangan sampai nimpa stiker paw */
+        @media (max-width: 640px) {
+            .cover-top { padding-right: 46px; }
+        }
+
+        @media (min-width: 900px) {
+            .page { max-width: 560px; padding-top: 2.5rem; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -103,687 +541,6 @@
                 scroll-behavior: auto !important;
             }
         }
-
-        body {
-            font-family: 'Open Sans', -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text-1);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        h1, h2, h3, h4 {
-            font-family: 'Outfit', sans-serif;
-        }
-
-        /* --- Layout --- */
-        .page {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 2.5rem 1.25rem 2rem;
-        }
-
-        /* --- Profile Header --- */
-        .profile {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-
-        .profile-logo {
-            width: auto;
-            height: 92px;
-            max-width: 280px;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto 0.5rem;
-            animation: fadeIn 0.6s ease both;
-        }
-
-        .profile-name {
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1.05;
-            letter-spacing: -0.02em;
-            color: var(--text-1);
-            animation: fadeIn 0.6s ease 0.05s both;
-        }
-
-        .profile-subtitle {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            color: var(--accent-text);
-            font-weight: 700;
-            margin: 0.15rem 0 0.9rem;
-            animation: fadeIn 0.6s ease 0.1s both;
-        }
-
-        /* Foto event asli + Mochi -- nunjukin "komunitas", bukan cuma bilang */
-        .profile-photo {
-            position: relative;
-            margin: 1.75rem 0 0.4rem;
-            animation: fadeIn 0.6s ease 0.35s both;
-        }
-        .profile-photo img.photo {
-            display: block;
-            width: 100%;
-            height: auto;
-            aspect-ratio: 16 / 10;
-            object-fit: cover;
-            object-position: center 72%;
-            border-radius: 20px;
-            box-shadow: 0 10px 24px rgba(0, 30, 120, 0.14);
-        }
-        .profile-photo .mochi {
-            position: absolute;
-            right: -8px;
-            bottom: -18px;
-            width: 66px;
-            height: auto;
-            transform: rotate(6deg);
-            filter: drop-shadow(0 4px 6px rgba(16, 36, 94, 0.25));
-        }
-        .profile-photo figcaption {
-            font-size: 0.8rem;
-            color: var(--text-2);
-            margin-top: 0.7rem;
-            padding-right: 64px;
-            text-align: left;
-        }
-
-        .profile-bio {
-            font-size: 1rem;
-            color: var(--text-2);
-            line-height: 1.6;
-            max-width: 320px;
-            margin: 0 auto 1.5rem;
-            animation: fadeIn 0.6s ease 0.2s both;
-        }
-
-        /* --- Social Links --- */
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 0.75rem;
-            animation: fadeIn 0.6s ease 0.3s both;
-        }
-
-        .social-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-height: 44px;
-            padding: 0.6rem 1.2rem;
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: 99px;
-            text-decoration: none;
-            color: var(--text-1);
-            font-weight: 600;
-            font-size: 0.82rem;
-            transition: all 0.25s ease;
-        }
-
-        .social-btn:hover, .social-btn:active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .social-btn i { width: 16px; height: 16px; }
-
-        /* --- Section --- */
-        .section-title {
-            font-size: 1.35rem;
-            font-weight: 800;
-            letter-spacing: -0.01em;
-            color: var(--text-1);
-            margin-bottom: 0.9rem;
-            padding-left: 2px;
-        }
-
-        /* --- Workshop Cards --- */
-        .workshop-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        /* pintu ke halaman publik komunitas (/balai) */
-        .balai-cta { display: flex; align-items: center; gap: 12px; margin-top: 1rem; text-decoration: none; background: linear-gradient(120deg, #0046ff, #0f50f0); color: #fff; border-radius: 16px; padding: 14px 16px; box-shadow: 0 6px 16px rgba(0, 70, 255, .28); transform: rotate(-.3deg); transition: transform .15s ease; }
-        .balai-cta:active { transform: rotate(-.3deg) scale(.98); }
-        .balai-cta-ic { flex: none; font-size: 1.6rem; }
-        .balai-cta-body { flex: 1; min-width: 0; }
-        .balai-cta-body b { display: block; font-family: 'Outfit', sans-serif, sans-serif; font-weight: 800; font-size: .95rem; }
-        .balai-cta-body span { display: block; font-size: .8rem; margin-top: 2px; line-height: 1.5; }
-        .balai-cta-go { flex: none; font-weight: 800; font-size: 1.1rem; color: #ffe600; }
-
-        .workshop-card {
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-            animation: slideUp 0.5s ease both;
-            position: relative;
-            overflow: hidden;
-        }
-
-
-        /* Kartu nggak di-angkat pas hover -- yang bisa diklik cuma tombolnya,
-           efek "bisa diklik" di seluruh kartu itu bohong. */
-
-        .workshop-card.disabled {
-            opacity: 0.65;
-            pointer-events: none;
-        }
-
-
-        .card-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.85rem;
-            margin-bottom: 0.75rem;
-            padding-right: 100px; /* Make space for floating badge */
-        }
-
-        .card-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--accent-light);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .card-icon i { width: 22px; height: 22px; color: var(--accent-text); }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            line-height: 1.3;
-        }
-
-        .card-desc {
-            font-size: 0.88rem;
-            color: var(--text-2);
-            line-height: 1.55;
-            margin-bottom: 0.6rem;
-            /* deskripsi lengkap ada di halaman pendaftaran -- kartu cukup 2 baris
-               biar tinggi kartu antar event nggak timpang */
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* Penenang buat pemula -- dua janji utama Seminggu Satu */
-        .card-assure {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 0.8rem; font-weight: 600;
-            color: var(--text-1);
-            margin-bottom: 0.85rem;
-        }
-        .card-assure i { width: 15px; height: 15px; flex-shrink: 0; color: var(--success); }
-
-        /* --- Tanggal/jam/sisa tiket per batch --- */
-        .card-meta {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            flex-wrap: wrap;
-            margin-bottom: 0.85rem;
-        }
-
-        .card-meta-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--text-2);
-        }
-
-        .card-meta-item i { width: 14px; height: 14px; flex-shrink: 0; }
-
-        .card-meta-item.card-place {
-            max-width: 100%;
-            color: var(--text-1);
-            text-decoration: underline;
-            text-decoration-color: var(--border);
-            text-underline-offset: 3px;
-        }
-        .card-meta-item.card-place span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        .card-meta-item.seat-pill {
-            background: var(--accent-light);
-            color: var(--accent-text);
-            padding: 0.2rem 0.6rem;
-            border-radius: 99px;
-        }
-
-        /* Sisa tiket sedikit: info jujur, bukan alarm -- tanpa merah
-           (seminggu-psych: no fake urgency) */
-        .card-meta-item.seat-pill.seat-low {
-            background: var(--accent-light);
-            color: var(--text-1);
-        }
-
-        /* --- Price --- */
-        .price-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            margin-bottom: 1.15rem;
-            flex-wrap: wrap;
-        }
-
-        .price-left {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .early-bird-tag {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            color: #92400e;
-            padding: 0.25rem 0.65rem;
-            border-radius: 99px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .early-bird-tag i { width: 12px; height: 12px; }
-
-        .price-original {
-            font-size: 0.9rem;
-            color: var(--text-3);
-            text-decoration: line-through;
-            font-weight: 500;
-        }
-
-        .price-current {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--success);
-        }
-
-        .price-normal-only {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--text-1);
-        }
-
-        /* --- Status Badges --- */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.4rem 0.8rem;
-            border-radius: 99px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: absolute;
-            top: 1.25rem;
-            right: 1.25rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-        }
-
-        .status-badge i { width: 12px; height: 12px; }
-
-        .badge-open {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-coming-soon {
-            background: #e0e7ff;
-            color: #3730a3;
-        }
-
-        .badge-closed {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .badge-not-open {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        /* --- CTA Button --- */
-        .cta-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.6rem;
-            width: 100%;
-            padding: 0.9rem;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.25s ease;
-            box-shadow: 0 6px 16px rgba(0, 70, 255, 0.25);
-        }
-
-        .cta-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(0, 70, 255, 0.3);
-        }
-
-        /* Aksi sekunder (mis. Lihat Rekomendasi) -- beda dari Daftar */
-        .cta-btn.cta-secondary {
-            background: var(--bg-card);
-            color: var(--text-1);
-            border: 1.5px solid var(--border);
-            box-shadow: none;
-        }
-        .cta-btn.cta-secondary:hover { border-color: var(--accent); box-shadow: none; }
-
-        .cta-btn:active { transform: scale(0.98); }
-
-        .cta-btn i { width: 18px; height: 18px; }
-
-        .cta-btn.disabled-btn {
-            background: var(--accent-light);
-            color: var(--text-3);
-            cursor: not-allowed;
-            box-shadow: none;
-            pointer-events: none;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loader-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem 1rem;
-            color: var(--text-3);
-            gap: 1rem;
-        }
-
-        .spinner {
-            width: 32px;
-            height: 32px;
-            border: 3.5px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        .loader-text {
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        /* --- Footer --- */
-        .footer {
-            text-align: center;
-            padding: 1rem 0 0.5rem;
-            color: var(--text-3);
-            font-size: 0.8rem;
-        }
-        .footer-ask {
-            display: flex; align-items: center; gap: 0.9rem;
-            text-align: left;
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.1rem 1.1rem 1.1rem 0.9rem;
-            margin-bottom: 0.9rem;
-        }
-        .footer-ask img { width: 54px; height: auto; flex-shrink: 0; }
-        .footer-ask p { font-size: 0.92rem; line-height: 1.5; color: var(--text-2); }
-        .footer-ask b { display: block; font-family: 'Outfit', sans-serif; font-size: 1.05rem; color: var(--text-1); }
-        .footer-links {
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1.1rem;
-            margin: 1.4rem 0 0.6rem;
-        }
-        .footer-links a {
-            display: inline-flex; align-items: center; min-height: 44px;
-            color: var(--text-1); font-weight: 600; font-size: 0.88rem;
-            text-decoration: underline; text-decoration-color: var(--border);
-            text-underline-offset: 4px;
-        }
-        .footer-links a:hover { text-decoration-color: var(--accent); }
-
-        .tools-card {
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.35rem 1.35rem 1.5rem;
-        }
-        .tools-card h3 {
-            display: flex; align-items: center; gap: 0.5rem;
-            font-size: 1.1rem; font-weight: 800; margin-bottom: 0.4rem;
-        }
-        .tools-card h3 svg { width: 22px; height: 22px; color: var(--accent-text); flex-shrink: 0; }
-        .tools-card p { font-size: 0.9rem; color: var(--text-2); line-height: 1.55; margin-bottom: 1.1rem; }
-
-        /* jalan pulang buat warga yang udah punya akun */
-        .warga-login {
-            text-align: center; font-size: 0.88rem; color: var(--text-2);
-            margin-top: 0.75rem;
-        }
-        .warga-login a {
-            display: inline-flex; align-items: center; min-height: 44px;
-            color: var(--accent-text); font-weight: 700; text-decoration: none;
-        }
-
-        /* --- Animations --- */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulseBadge {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- Skeleton shimmer (loading config) --- */
-        @keyframes shimmer {
-            0% { background-position: -400px 0; }
-            100% { background-position: 400px 0; }
-        }
-        .ws-skeleton {
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .ws-skeleton .sk-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.1rem;
-        }
-        .ws-skeleton .sk-box,
-        .ws-skeleton .sk-line,
-        .ws-skeleton .sk-pill,
-        .ws-skeleton .sk-btn {
-            display: block;
-            border-radius: 8px;
-            background: #e6edff;
-            background-image: linear-gradient(90deg, #e6edff 0px, #f4f7ff 100px, #e6edff 200px);
-            background-size: 400px 100%;
-            background-repeat: no-repeat;
-            animation: shimmer 1.2s ease-in-out infinite;
-        }
-        .ws-skeleton .sk-icon { width: 44px; height: 44px; border-radius: 12px; flex: 0 0 auto; }
-        .ws-skeleton .sk-title { height: 18px; width: 45%; }
-        .ws-skeleton .sk-pill { height: 26px; width: 90px; border-radius: 999px; margin-left: auto; flex: 0 0 auto; }
-        .ws-skeleton .sk-desc { height: 13px; width: 70%; margin-bottom: 1.1rem; }
-        .ws-skeleton .sk-price { height: 24px; width: 40%; margin-bottom: 1.3rem; }
-        .ws-skeleton .sk-btn { height: 52px; width: 100%; border-radius: 14px; }
-
-        /* --- Error state (config gagal dimuat) --- */
-        .ws-error {
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            padding: 2.5rem 1.5rem;
-            text-align: center;
-            animation: slideUp 0.4s ease both;
-        }
-        .ws-error svg {
-            width: 40px; height: 40px;
-            color: var(--text-3);
-            margin: 0 auto 1rem;
-            display: block;
-        }
-        .ws-error h3 {
-            font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;
-            font-family: 'Outfit', sans-serif;
-        }
-        .ws-error p {
-            color: var(--text-2); font-size: 0.9rem; line-height: 1.6;
-            margin-bottom: 1.25rem;
-        }
-        .ws-error .cta-btn { display: inline-flex; width: auto; padding: 0.7rem 1.75rem; cursor: pointer; }
-
-        /* --- Notice: data kuota/batch gagal dimuat (kartu tetap tampil) --- */
-        .ws-notice {
-            display: flex; align-items: center; gap: 0.75rem;
-            background: var(--accent-light);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 0.85rem 1rem;
-            margin-bottom: 1rem;
-        }
-        .ws-notice svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--text-2); }
-        .ws-notice p { flex: 1; font-size: 0.85rem; line-height: 1.45; color: var(--text-1); margin: 0; }
-        .ws-notice-retry {
-            flex-shrink: 0; min-height: 44px; padding: 0 0.9rem;
-            background: var(--bg-card); color: var(--text-1);
-            border: 1px solid var(--border); border-radius: 10px;
-            font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer;
-        }
-
-        :root[data-theme="dark"] .ws-skeleton .sk-box,
-        :root[data-theme="dark"] .ws-skeleton .sk-line,
-        :root[data-theme="dark"] .ws-skeleton .sk-pill,
-        :root[data-theme="dark"] .ws-skeleton .sk-btn {
-            background: #1d2a4f;
-            background-image: linear-gradient(90deg, #1d2a4f 0px, #26365f 100px, #1d2a4f 200px);
-        }
-
-        /* --- Testimoni Slider --- */
-        .testimony-slider {
-            display: flex;
-            gap: 1rem;
-            overflow-x: auto;
-            padding-bottom: 1.5rem;
-            margin: 0 -1.25rem; /* Negate page padding */
-            padding-left: 1.25rem;
-            padding-right: 1.25rem;
-            scroll-snap-type: x mandatory;
-            /* tanpa ini, snap narik kartu pertama nempel ke tepi layar */
-            scroll-padding-inline: 1.25rem;
-            scrollbar-width: none; /* Firefox */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .testimony-slider::-webkit-scrollbar {
-            display: none; /* Safari and Chrome */
-        }
-
-        .testimony-slide {
-            flex: 0 0 88%;
-            max-width: 340px;
-            scroll-snap-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .testimony-slide iframe {
-            touch-action: pan-y !important; /* Allow vertical scroll in iframe, but horizontal swipe passes to parent slider */
-        }
-
-        /* --- Cerita Warga: kartu ringan, video IG baru dimuat pas di-tap --- */
-        .story-card {
-            flex: 0 0 64%;
-            max-width: 250px;
-            scroll-snap-align: start;
-        }
-        .story-card.loaded { flex-basis: 88%; max-width: 340px; }
-        .story-face {
-            position: relative;
-            min-height: 176px;
-            border-radius: 20px;
-            padding: 1.1rem;
-            display: flex; flex-direction: column; justify-content: flex-end;
-            color: #fff;
-            background: linear-gradient(155deg, #0043f5 0%, #0092ff 60%, #00b4ff 100%);
-            box-shadow: 0 10px 22px rgba(0, 60, 200, 0.22);
-            overflow: hidden;
-        }
-        .story-card[data-kind="galeri"] .story-face {
-            background: linear-gradient(155deg, #10245e 0%, #1b3a8f 60%, #0046ff 100%);
-        }
-        .story-tag {
-            position: absolute; top: 1rem; left: 1rem;
-            font-size: 0.75rem; font-weight: 700;
-            background: var(--yellow); color: #10245e;
-            padding: 0.25rem 0.6rem; border-radius: 99px;
-        }
-        .story-ico {
-            position: absolute; top: 0.9rem; right: 0.9rem;
-            width: 46px !important; height: 46px !important;
-            opacity: 0.28; stroke-width: 1.5;
-        }
-        .story-face h3 { font-size: 1.15rem; font-weight: 800; line-height: 1.2; margin-top: 2.4rem; }
-        .story-date { font-size: 0.8rem; opacity: 0.92; margin: 0.2rem 0 0.9rem; }
-        .story-btn {
-            display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
-            min-height: 44px; padding: 0 1rem;
-            background: #fff; color: #10245e;
-            border: none; border-radius: 12px;
-            font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer;
-            transition: transform .15s ease;
-        }
-        .story-btn:active { transform: scale(0.97); }
-        .story-btn i { width: 16px; height: 16px; }
-        .story-embed { display: flex; justify-content: center; }
-
-        /* --- Divider --- */
-        .divider {
-            width: 100%;
-            height: 1px;
-            background: var(--border);
-            margin: 2rem 0 1.75rem;
-        }
     </style>
 </head>
 
@@ -791,38 +548,45 @@
     <button class="theme-toggle" id="themeToggle" title="Ganti tema" aria-label="Ganti tema gelap/terang">🌙</button>
     <div class="page">
 
-        <!-- Profile Header -->
-        <header class="profile">
-            <img src="images/logo-paw-280.png" width="280" height="280" alt="" class="profile-logo">
-            <h1 class="profile-name">Seminggu Satu</h1>
-            <p class="profile-subtitle">by Arnold</p>
-            <p class="profile-bio">Komunitas journaling & workshop kreatif di Jakarta. Bikin karya unikmu bareng kita! ✨🐾</p>
+        <!-- Sampul binder -->
+        <header class="cover">
+            <div class="rings" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="cover-top">
+                <div class="name-label stick">
+                    <h1>Seminggu Satu</h1>
+                    <p>by Arnold</p>
+                </div>
+                <span class="paw-sticker stick" style="animation-delay:.15s" aria-hidden="true">
+                    <img src="images/logo-paw-280.png" width="280" height="280" alt="">
+                </span>
+            </div>
+            <p class="cover-bio">Komunitas journaling &amp; workshop kreatif di Jakarta. Bikin karya unikmu bareng kita! ✨🐾</p>
             <div class="social-links">
                 <a href="https://www.instagram.com/seminggu_satu?igsh=MTJoaHdvdmszYzMxcQ%3D%3D&utm_source=qr"
                     target="_blank" rel="noopener" class="social-btn" id="btnInstagram">
-                    <img src="images/instagram-64.png" alt="" width="16" height="16" style="width:16px;height:16px;object-fit:contain;"> Instagram
+                    <img src="images/instagram-64.png" alt="" width="16" height="16"> Instagram
                 </a>
                 <a href="https://www.tiktok.com/@seminggusatu?_r=1&_t=ZS-94BnQYTS4wx" target="_blank" rel="noopener"
                     class="social-btn" id="btnTikTok">
-                    <img src="images/tiktok-64.png" alt="" width="16" height="16" style="width:16px;height:16px;object-fit:contain;"> TikTok
+                    <img src="images/tiktok-64.png" alt="" width="16" height="16"> TikTok
                 </a>
             </div>
-            <figure class="profile-photo">
+            <figure class="cover-photo">
+                <span class="washi tl" aria-hidden="true"></span>
+                <span class="washi pink tr" aria-hidden="true"></span>
                 <picture>
                     <source srcset="images/home-community.webp" type="image/webp">
                     <img class="photo" src="kolaborasi/photos/IMG_6345.jpg" width="1000" height="750"
                         alt="Warga Seminggu Satu berkumpul di satu meja sambil nunjukin jurnal masing-masing" decoding="async">
                 </picture>
-                <img class="mochi" src="images/mochi_maskot_sm.png" width="170" height="240" alt="">
                 <figcaption>Begini suasananya kalau kita journaling bareng 💛</figcaption>
+                <img class="mochi-sticker stick" style="animation-delay:.3s" src="images/mochi_maskot_sm.png" width="170" height="240" alt="">
             </figure>
         </header>
 
-        <div class="divider"></div>
-
-        <!-- Workshop List -->
-        <section>
-            <h2 class="section-title">Jadwal Workshop</h2>
+        <!-- Jadwal: tab indeks + lembar loose-leaf -->
+        <section class="section">
+            <h2 class="tab"><i data-lucide="calendar-heart"></i> Jadwal Workshop</h2>
             <div id="workshopList" class="workshop-list">
                 <!-- Rendered by JS -->
             </div>
@@ -837,19 +601,18 @@
             <p class="warga-login">Udah jadi warga? <a href="warga/">Masuk ke Balai Warga →</a></p>
         </section>
 
-        <!-- Cerita Warga (testimoni + galeri jadi satu) -->
-        <section style="margin-top: 2.25rem; margin-bottom: 2rem;">
-            <h2 class="section-title">Cerita Warga</h2>
-            <div id="storyList" class="testimony-slider">
+        <!-- Cerita Warga: polaroid, sekali tap buka reel di Instagram -->
+        <section class="section">
+            <h2 class="tab pink"><i data-lucide="camera"></i> Cerita Warga</h2>
+            <div id="storyList" class="story-strip">
                 <!-- Rendered by JS -->
             </div>
+            <p class="story-hint">Tap fotonya buat nonton di Instagram 📸</p>
         </section>
 
-        <div class="divider"></div>
-
-        <!-- Recommendation Banner CTA -->
-        <section style="margin-bottom: 2rem;">
-            <h2 class="section-title">Alat & Bahan</h2>
+        <!-- Alat & Bahan -->
+        <section class="section">
+            <h2 class="tab blue"><i data-lucide="scissors"></i> Alat &amp; Bahan</h2>
             <div class="tools-card">
                 <h3><i data-lucide="package"></i> Peralatan Journaling</h3>
                 <p>Buat kamu yang mau mulai journaling dan cari rekomendasi alat & bahan yang sering aku pakai.</p>
@@ -857,7 +620,7 @@
             </div>
         </section>
 
-        <footer class="footer">
+        <footer class="footer section">
             <div class="footer-ask">
                 <img src="images/mochi_maskot_sm.png" width="170" height="240" alt="" loading="lazy">
                 <p><b>Masih ragu atau mau tanya dulu?</b>Chat aja ke Arnold, nggak usah sungkan 🙌</p>
@@ -1236,71 +999,46 @@
             renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches, _batchesFailed);
         });
 
-        // Cerita Warga: testimoni + galeri dari Instagram. Dulu 12 embed IG
-        // dimuat sekaligus (berat di HP lama, plus like count = perbandingan
-        // sosial). Sekarang kartu ringan dulu; video IG baru dimuat pas di-tap.
-        let _igScriptPromise = null;
-        function loadInstagramEmbed() {
-            if (window.instgrm && window.instgrm.Embeds) return Promise.resolve();
-            if (!_igScriptPromise) {
-                _igScriptPromise = new Promise((resolve, reject) => {
-                    const sc = document.createElement('script');
-                    sc.src = 'https://www.instagram.com/embed.js';
-                    sc.async = true;
-                    sc.onload = () => resolve();
-                    sc.onerror = () => { _igScriptPromise = null; reject(new Error('embed.js')); };
-                    document.head.appendChild(sc);
-                });
-            }
-            return _igScriptPromise;
-        }
-
+        // Cerita Warga: testimoni + galeri dari reel Instagram Seminggu Satu.
+        // Tiap cerita = polaroid berisi thumbnail ASLI reel-nya
+        // (images/stories/<shortcode>.webp) + stiker play. Sekali tap langsung
+        // buka reel di Instagram -- dulu embed di halaman butuh 2x tap, tanpa
+        // preview, dan bawa like count.
         function initStories() {
             const listEl = document.getElementById('storyList');
             const stories = []
-                .concat((typeof TESTIMONIES !== 'undefined' ? TESTIMONIES : []).map(t => ({ kind: 'testimoni', tag: 'Kata peserta', item: t })))
-                .concat((typeof GALLERIES !== 'undefined' ? GALLERIES : []).map(g => ({ kind: 'galeri', tag: 'Suasana event', item: g })));
-            if (!stories.length) {
-                listEl.innerHTML = '<p style="color:var(--text-2); font-size:0.9rem;">Cerita warga segera hadir ✨</p>';
-                return;
-            }
-            stories.forEach(({ kind, tag, item }) => {
+                .concat((typeof TESTIMONIES !== 'undefined' ? TESTIMONIES : []).map(t => ({ tag: 'Kata peserta', item: t })))
+                .concat((typeof GALLERIES !== 'undefined' ? GALLERIES : []).map(g => ({ tag: 'Suasana event', item: g })));
+            const cards = stories.map(({ tag, item }) => {
+                const m = String(item.embedCode || '').match(/instagram\.com\/(reel|p)\/([A-Za-z0-9_-]+)/);
+                if (!m) return '';
+                const [, kind, code] = m;
                 // "Upcycle Journaling - 17 May 2026" -> judul + tanggal
                 const raw = String(item.title || '');
                 const cut = raw.lastIndexOf(' - ');
                 const name = cut > 0 ? raw.slice(0, cut) : raw;
                 const date = cut > 0 ? raw.slice(cut + 3) : '';
-                const card = document.createElement('article');
-                card.className = 'story-card';
-                card.dataset.kind = kind;
-                card.innerHTML = `
-                    <div class="story-face">
-                        <span class="story-tag">${escHtml(tag)}</span>
-                        <i class="story-ico" data-lucide="${kind === 'testimoni' ? 'quote' : 'camera'}"></i>
-                        <h3>${escHtml(name)}</h3>
-                        ${date ? `<p class="story-date">${escHtml(date)}</p>` : ''}
-                        <button type="button" class="story-btn"><i data-lucide="play"></i> Putar video</button>
-                    </div>`;
-                card.querySelector('.story-btn').addEventListener('click', async (e) => {
-                    const btn = e.currentTarget;
-                    btn.disabled = true;
-                    btn.lastChild.textContent = ' Memuat…';
-                    try {
-                        await loadInstagramEmbed();
-                        const holder = document.createElement('div');
-                        holder.className = 'story-embed';
-                        holder.innerHTML = item.embedCode;
-                        card.classList.add('loaded');
-                        card.replaceChildren(holder);
-                        window.instgrm.Embeds.process();
-                    } catch (err) {
-                        btn.disabled = false;
-                        btn.lastChild.textContent = ' Gagal, coba lagi';
-                    }
-                });
-                listEl.appendChild(card);
-            });
-            if (window.lucide) lucide.createIcons();
+                return `
+                    <a class="story-card" href="https://www.instagram.com/${kind}/${code}/" target="_blank" rel="noopener"
+                        aria-label="Tonton ${escHtml(name)}${date ? ', ' + escHtml(date) : ''} di Instagram">
+                        <span class="washi" aria-hidden="true"></span>
+                        <span class="story-shot">
+                            <img src="images/stories/${code}.webp" width="480" height="852" alt="" loading="lazy" decoding="async"
+                                onerror="this.remove()">
+                            <span class="story-tag">${escHtml(tag)}</span>
+                            <span class="story-play" aria-hidden="true"></span>
+                        </span>
+                        <span class="story-title">${escHtml(name)}</span>
+                        ${date ? `<span class="story-date">${escHtml(date)}</span>` : ''}
+                    </a>`;
+            }).filter(Boolean);
+            if (!cards.length) {
+                listEl.innerHTML = '<p style="color:var(--text-2); font-size:0.9rem;">Cerita warga segera hadir ✨</p>';
+                const hint = document.querySelector('.story-hint');
+                if (hint) hint.remove();
+                return;
+            }
+            listEl.innerHTML = cards.join('');
         }
         initStories();
     </script>
