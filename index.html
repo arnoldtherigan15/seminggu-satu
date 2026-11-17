@@ -541,6 +541,24 @@
         }
         .ws-error .cta-btn { display: inline-flex; width: auto; padding: 0.7rem 1.75rem; cursor: pointer; }
 
+        /* --- Notice: data kuota/batch gagal dimuat (kartu tetap tampil) --- */
+        .ws-notice {
+            display: flex; align-items: center; gap: 0.75rem;
+            background: var(--accent-light);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .ws-notice svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--text-2); }
+        .ws-notice p { flex: 1; font-size: 0.85rem; line-height: 1.45; color: var(--text-1); margin: 0; }
+        .ws-notice-retry {
+            flex-shrink: 0; min-height: 44px; padding: 0 0.9rem;
+            background: var(--bg-card); color: var(--text-1);
+            border: 1px solid var(--border); border-radius: 10px;
+            font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+        }
+
         @media (prefers-color-scheme: dark) {
             .ws-skeleton .sk-box,
             .ws-skeleton .sk-line,
@@ -689,11 +707,27 @@
         const listEl = document.getElementById('workshopList');
         // SUPABASE_URL/SUPABASE_ANON_KEY dari env.js
 
+        // Fetch edge function yang beneran bisa GAGAL: HTTP non-OK, body
+        // {status:"error"}, atau kelamaan (12 dtk) dianggap gagal -- dulu
+        // semuanya lolos sebagai "data kosong" & bikin semua event ilang.
+        function fetchFn(name) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 12000);
+            return fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+                headers: { apikey: SUPABASE_ANON_KEY },
+                signal: ctrl.signal
+            }).then(res => {
+                if (!res.ok) throw new Error(name + ' HTTP ' + res.status);
+                return res.json();
+            }).then(body => {
+                if (!body || typeof body !== 'object' || body.status === 'error') throw new Error(name + ' error body');
+                return body;
+            }).finally(() => clearTimeout(timer));
+        }
+
         // --- Helper: cek kuota tiap workshop (Edge Function workshop-counts) ---
         function fetchWorkshopCounts() {
-            return fetch(`${SUPABASE_URL}/functions/v1/workshop-counts`, {
-                headers: { apikey: SUPABASE_ANON_KEY }
-            }).then(res => res.json());
+            return fetchFn('workshop-counts');
         }
 
         // --- Helper: batch yang BENERAN lagi buka per tipe (udah nyaring
@@ -704,14 +738,16 @@
         // padahal batch itu udah nggak nerima pendaftar lagi). Endpoint yang
         // sama yang dipakai tiap halaman workshop buat render batch picker.
         function fetchOpenBatches() {
-            return fetch(`${SUPABASE_URL}/functions/v1/workshop-batches`, {
-                headers: { apikey: SUPABASE_ANON_KEY }
-            }).then(res => res.json());
+            return fetchFn('workshop-batches');
         }
 
         // Render kartu workshop dari config. counts = jumlah pendaftar (buat status "penuh").
         // animate = true cuma pas render pertama (biar nggak animasi ulang pas update kuota).
-        function renderWorkshops(counts, animate, countsReady, openBatchesMap) {
+        // batchesFailed = data batch (sumber kebenaran buka/penuh) gagal diambil.
+        // Jangan disimpulin "semua penuh" -- tampilin kartu pakai status Config
+        // + catatan jujur & tombol coba lagi. Form pendaftaran tetep ngecek
+        // kuota sendiri ke server, jadi tombol Daftar aman tetep aktif.
+        function renderWorkshops(counts, animate, countsReady, openBatchesMap, batchesFailed) {
             counts = counts || {};
             openBatchesMap = openBatchesMap || {};
             listEl.innerHTML = '';
@@ -783,7 +819,9 @@
                 const hasAvailableBatch = visibleBatches.length > 0;
 
                 let status = getWorkshopStatus(ws);
-                if (hasAvailableBatch) {
+                if (batchesFailed) {
+                    // status Config apa adanya -- jangan diturunin jadi 'full'
+                } else if (hasAvailableBatch) {
                     status = 'open'; // ada batch valid & available -> menang di atas Config
                 } else if (status === 'open') {
                     status = 'full'; // Config bilang buka tapi ga ada batch yang available -> penuh
@@ -801,7 +839,7 @@
                 // pilih sesi (sebelumnya cuma 1 kartu gabungan yang kepake data
                 // batch "pertama" doang & nggak nunjukin ada pilihan lain sama
                 // sekali). Belum buka/segera hadir tetap 1 kartu placeholder.
-                const batchesToRender = status === 'open' ? visibleBatches : [null];
+                const batchesToRender = (status === 'open' && !batchesFailed) ? visibleBatches : [null];
 
                 batchesToRender.forEach(function (batch) {
                     // Tema/deskripsi/harga bisa beda tiap batch (mis. Reka Rekat
@@ -911,7 +949,16 @@
                 });
             });
 
-            if (displayedCount === 0) {
+            if (batchesFailed) {
+                const notice = document.createElement('div');
+                notice.className = 'ws-notice';
+                notice.setAttribute('role', 'status');
+                notice.innerHTML = `
+                    <i data-lucide="wifi-off"></i>
+                    <p>${displayedCount ? 'Sisa kuota lagi nggak bisa dicek. Kamu tetap bisa daftar, info lengkapnya ada di halaman pendaftaran.' : 'Jadwal workshop lagi nggak bisa dimuat. Cek internetmu, terus coba lagi ya.'}</p>
+                    <button type="button" class="ws-notice-retry" onclick="refreshAvailability()">Coba lagi</button>`;
+                listEl.prepend(notice);
+            } else if (displayedCount === 0) {
                 listEl.innerHTML = `
                     <div class="empty-state" style="display: block; padding: 2.5rem 1.5rem; background: var(--bg-card); border: 1.5px dashed var(--border); border-radius: var(--radius); text-align: center; margin-top: 0.5rem; animation: slideUp 0.5s ease both;">
                         <i data-lucide="calendar-x" style="width: 36px; height: 36px; color: var(--text-3); margin: 0 auto 1rem; display: block;"></i>
@@ -946,23 +993,31 @@
         let _lastCounts = {};
         let _lastOpenBatches = {};
         let _countsReady = false;
+        let _batchesFailed = false;
+
+        // Kuota & batch diambil TERPISAH -- kuota cuma kepake buat fallback
+        // early bird, jadi kalau cuma kuota yang gagal, daftar event tetep jalan
+        // normal. Yang nentuin buka/penuh itu batch.
+        async function refreshAvailability() {
+            if (_countsReady) {
+                _countsReady = false;
+                renderWorkshops({}, false, false, {});
+            }
+            const [countsRes, batchesRes] = await Promise.allSettled([fetchWorkshopCounts(), fetchOpenBatches()]);
+            _lastCounts = countsRes.status === 'fulfilled' ? countsRes.value : {};
+            if (countsRes.status === 'rejected') console.error("Gagal mengambil kuota:", countsRes.reason);
+            _batchesFailed = batchesRes.status === 'rejected';
+            _lastOpenBatches = _batchesFailed ? {} : batchesRes.value;
+            if (_batchesFailed) console.error("Gagal mengambil batch:", batchesRes.reason);
+            _countsReady = true;
+            renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches, _batchesFailed);
+        }
+
         async function initWorkshops() {
             // 1) Paint awal: kalau ada cache -> kartu; kalau belum -> shimmer (di renderWorkshops)
             renderWorkshops({}, true, false, {});
-
-            // 2) Ambil kuota + batch yang beneran lagi buka di background, lalu
-            // render ulang dgn status final (tombol aktif)
-            try {
-                const [countsRes, batchesRes] = await Promise.all([fetchWorkshopCounts(), fetchOpenBatches()]);
-                _lastCounts = (countsRes && typeof countsRes === 'object') ? countsRes : {};
-                _lastOpenBatches = (batchesRes && typeof batchesRes === 'object') ? batchesRes : {};
-            } catch (err) {
-                console.error("Gagal mengambil kuota:", err);
-                _lastCounts = {};
-                _lastOpenBatches = {};
-            }
-            _countsReady = true;
-            renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches);
+            // 2) Ambil kuota + batch yang beneran lagi buka, lalu render ulang dgn status final
+            await refreshAvailability();
         }
 
         // Initialize on load
@@ -970,12 +1025,12 @@
 
         // Config server (harga/tanggal/status terbaru) datang -> render ulang kartu.
         window.addEventListener('workshops:updated', function () {
-            renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches);
+            renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches, _batchesFailed);
         });
 
         // Config gagal diambil & nggak ada cache -> render ulang (bakal tampil error).
         window.addEventListener('workshops:failed', function () {
-            renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches);
+            renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches, _batchesFailed);
         });
 
         // Render testimonies
