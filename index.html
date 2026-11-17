@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seminggu Satu by Arnold — Creative Workshop & Journaling</title>
     <meta name="description" content="Komunitas workshop kreatif journaling oleh Arnold. Ikuti workshop paper journal, 3D frame, dan lainnya.">
-    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <meta name="theme-color" content="#f4f7ff" data-light="#f4f7ff" data-dark="#0d1526">
 
     <script src="theme.js"></script>
 
@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
         rel="stylesheet">
 
     <!-- Icons (Lucide) -->
@@ -29,16 +29,20 @@
     <script async src="https://www.instagram.com/embed.js"></script>
 
     <style>
+        /* Token brand Seminggu Satu (lihat .claude/skills/seminggu-ui).
+           Semua pasangan teks/latar di bawah lolos WCAG AA (>= 4.5:1). */
         :root {
-            --bg: #ffffff;
+            --bg: #f4f7ff;
             --bg-card: #ffffff;
-            --text-1: #111827;
-            --text-2: #6b7280;
-            --text-3: #9ca3af;
-            --border: #e5e7eb;
-            --accent: #111827;
-            --accent-light: #f3f4f6;
-            --success: #10b981;
+            --text-1: #10245e;
+            --text-2: #4a5674;
+            --text-3: #5f6b8a;
+            --border: #e4e9f5;
+            --accent: #0046ff;
+            --accent-text: #0046ff;
+            --accent-light: #e6edff;
+            --yellow: #ffe600;
+            --success: #0a7a3d;
             --warning: #f59e0b;
             --error: #ef4444;
             --radius: 20px;
@@ -53,10 +57,12 @@
             --bg-card: #172035;
             --text-1: #eaeffc;
             --text-2: #9fabc9;
-            --text-3: #7c88a6;
             --border: #2a3550;
-            --accent: #5b8cff;        /* aksen jadi biru: teks putih di tombol tetap kebaca */
-            --accent-light: #202c47;
+            --text-3: #8b97b6;
+            --accent: #0046ff;        /* tombol tetap biru brand: teks putih 6.3:1 */
+            --accent-text: #7aa2ff;   /* biru buat teks di atas latar gelap */
+            --accent-light: #1d2a4f;
+            --success: #34d399;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
             --shadow-md: 0 8px 30px rgba(0,0,0,0.5);
             --shadow-lg: 0 20px 50px rgba(0,0,0,0.6);
@@ -78,7 +84,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Open Sans', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text-1);
             min-height: 100vh;
@@ -104,7 +110,7 @@
 
         .profile-logo {
             width: auto;
-            height: 124px;
+            height: 92px;
             max-width: 280px;
             object-fit: contain;
             display: block;
@@ -112,18 +118,59 @@
             animation: fadeIn 0.6s ease both;
         }
 
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            color: var(--text-1);
+            animation: fadeIn 0.6s ease 0.05s both;
+        }
+
         .profile-subtitle {
-            font-size: 0.8rem;
-            color: var(--text-2);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 2.5px;
-            margin-bottom: 1.25rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            color: var(--accent-text);
+            font-weight: 700;
+            margin: 0.15rem 0 0.9rem;
             animation: fadeIn 0.6s ease 0.1s both;
         }
 
+        /* Foto event asli + Mochi -- nunjukin "komunitas", bukan cuma bilang */
+        .profile-photo {
+            position: relative;
+            margin: 1.75rem 0 0.4rem;
+            animation: fadeIn 0.6s ease 0.35s both;
+        }
+        .profile-photo img.photo {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 10;
+            object-fit: cover;
+            object-position: center 72%;
+            border-radius: 20px;
+            box-shadow: 0 10px 24px rgba(0, 30, 120, 0.14);
+        }
+        .profile-photo .mochi {
+            position: absolute;
+            right: -8px;
+            bottom: -18px;
+            width: 66px;
+            height: auto;
+            transform: rotate(6deg);
+            filter: drop-shadow(0 4px 6px rgba(16, 36, 94, 0.25));
+        }
+        .profile-photo figcaption {
+            font-size: 0.8rem;
+            color: var(--text-2);
+            margin-top: 0.7rem;
+            padding-right: 64px;
+            text-align: left;
+        }
+
         .profile-bio {
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: var(--text-2);
             line-height: 1.6;
             max-width: 320px;
@@ -166,13 +213,12 @@
 
         /* --- Section --- */
         .section-title {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-3);
-            margin-bottom: 1rem;
-            padding-left: 4px;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: var(--text-1);
+            margin-bottom: 0.9rem;
+            padding-left: 2px;
         }
 
         /* --- Workshop Cards --- */
@@ -209,7 +255,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--accent), #6366f1);
+            background: var(--accent);
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -248,7 +294,7 @@
             flex-shrink: 0;
         }
 
-        .card-icon i { width: 22px; height: 22px; color: var(--text-1); }
+        .card-icon i { width: 22px; height: 22px; color: var(--accent-text); }
 
         .card-title {
             font-size: 1.1rem;
@@ -309,7 +355,7 @@
 
         .card-meta-item.seat-pill {
             background: var(--accent-light);
-            color: var(--accent);
+            color: var(--accent-text);
             padding: 0.2rem 0.6rem;
             border-radius: 99px;
         }
@@ -429,13 +475,22 @@
             cursor: pointer;
             text-decoration: none;
             transition: all 0.25s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 16px rgba(0, 70, 255, 0.25);
         }
 
         .cta-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 24px rgba(0, 70, 255, 0.3);
         }
+
+        /* Aksi sekunder (mis. Lihat Rekomendasi) -- beda dari Daftar */
+        .cta-btn.cta-secondary {
+            background: var(--bg-card);
+            color: var(--text-1);
+            border: 1.5px solid var(--border);
+            box-shadow: none;
+        }
+        .cta-btn.cta-secondary:hover { border-color: var(--accent); box-shadow: none; }
 
         .cta-btn:active { transform: scale(0.98); }
 
@@ -640,7 +695,8 @@
 
         <!-- Profile Header -->
         <header class="profile">
-            <img src="images/black.png" alt="Seminggu Satu" class="profile-logo">
+            <img src="images/black.png" alt="" class="profile-logo">
+            <h1 class="profile-name">Seminggu Satu</h1>
             <p class="profile-subtitle">by Arnold</p>
             <p class="profile-bio">Komunitas journaling & workshop kreatif di Jakarta. Bikin karya unikmu bareng kita! ✨🐾</p>
             <div class="social-links">
@@ -653,6 +709,12 @@
                     <img src="images/tiktok.png" alt="TikTok" style="width:16px;height:16px;object-fit:contain;"> TikTok
                 </a>
             </div>
+            <figure class="profile-photo">
+                <img class="photo" src="kolaborasi/photos/IMG_6345.jpg" width="1000" height="750"
+                    alt="Warga Seminggu Satu berkumpul di satu meja sambil nunjukin jurnal masing-masing" decoding="async">
+                <img class="mochi" src="images/mochi_maskot_sm.png" width="170" height="240" alt="">
+                <figcaption>Begini suasananya kalau kita journaling bareng 💛</figcaption>
+            </figure>
         </header>
 
         <div class="divider"></div>
@@ -700,7 +762,7 @@
                 </div>
                 <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Peralatan Journaling</h3>
                 <p style="font-size: 0.88rem; color: var(--text-2); line-height: 1.55; margin-bottom: 1.25rem;">Buat kamu yang mau mulai journaling dan cari rekomendasi alat & bahan yang sering aku pakai.</p>
-                <a href="recommendation.html" class="cta-btn" id="cta-recommendation">Lihat Rekomendasi <i data-lucide="arrow-right"></i></a>
+                <a href="recommendation.html" class="cta-btn cta-secondary" id="cta-recommendation">Lihat Rekomendasi <i data-lucide="arrow-right"></i></a>
             </div>
         </section>
 
