@@ -66,11 +66,17 @@
             --shadow-lg: 0 20px 50px rgba(0,0,0,0.6);
         }
         :root[data-theme="dark"] .profile-logo { filter: invert(1); }
+        /* bayangan biru kelihatan "nyala" di latar gelap -- pakai bayangan netral */
+        :root[data-theme="dark"] .profile-photo img.photo,
+        :root[data-theme="dark"] .cta-btn,
+        :root[data-theme="dark"] .cta-btn:hover,
+        :root[data-theme="dark"] .story-face,
+        :root[data-theme="dark"] .balai-cta { box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45); }
 
         /* Tombol toggle tema (pojok kanan atas) */
         .theme-toggle {
             position: fixed; top: 14px; right: 14px; z-index: 999;
-            width: 42px; height: 42px; border-radius: 50%;
+            width: 44px; height: 44px; border-radius: 50%;
             border: 1px solid var(--border); background: var(--bg-card); color: var(--text-1);
             font-size: 1.1rem; cursor: pointer; box-shadow: var(--shadow-md);
             display: flex; align-items: center; justify-content: center;
@@ -80,6 +86,23 @@
         .theme-toggle:active { transform: scale(.94); }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        ::selection { background: var(--yellow); color: #10245e; }
+
+        a:focus-visible, button:focus-visible {
+            outline: 3px solid var(--accent-text);
+            outline-offset: 3px;
+            border-radius: 10px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
 
         body {
             font-family: 'Open Sans', -apple-system, sans-serif;
@@ -188,6 +211,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            min-height: 44px;
             padding: 0.6rem 1.2rem;
             background: var(--bg-card);
             border: 1.5px solid var(--border);
@@ -227,12 +251,12 @@
         }
 
         /* pintu ke halaman publik komunitas (/balai) */
-        .balai-cta { display: flex; align-items: center; gap: 12px; margin-top: 1rem; text-decoration: none; background: linear-gradient(120deg, #0046ff, #2f6bff); color: #fff; border-radius: 16px; padding: 14px 16px; box-shadow: 0 6px 16px rgba(0, 70, 255, .28); transform: rotate(-.3deg); transition: transform .15s ease; }
+        .balai-cta { display: flex; align-items: center; gap: 12px; margin-top: 1rem; text-decoration: none; background: linear-gradient(120deg, #0046ff, #0f50f0); color: #fff; border-radius: 16px; padding: 14px 16px; box-shadow: 0 6px 16px rgba(0, 70, 255, .28); transform: rotate(-.3deg); transition: transform .15s ease; }
         .balai-cta:active { transform: rotate(-.3deg) scale(.98); }
         .balai-cta-ic { flex: none; font-size: 1.6rem; }
         .balai-cta-body { flex: 1; min-width: 0; }
         .balai-cta-body b { display: block; font-family: 'Outfit', sans-serif, sans-serif; font-weight: 800; font-size: .95rem; }
-        .balai-cta-body span { display: block; font-size: .76rem; opacity: .9; margin-top: 2px; line-height: 1.5; }
+        .balai-cta-body span { display: block; font-size: .8rem; margin-top: 2px; line-height: 1.5; }
         .balai-cta-go { flex: none; font-weight: 800; font-size: 1.1rem; color: #ffe600; }
 
         .workshop-card {
@@ -246,32 +270,15 @@
             overflow: hidden;
         }
 
-        .workshop-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
 
-        .workshop-card:hover {
-            border-color: var(--accent);
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-3px);
-        }
-
-        .workshop-card:hover::before { opacity: 1; }
+        /* Kartu nggak di-angkat pas hover -- yang bisa diklik cuma tombolnya,
+           efek "bisa diklik" di seluruh kartu itu bohong. */
 
         .workshop-card.disabled {
             opacity: 0.65;
             pointer-events: none;
         }
 
-        .workshop-card.disabled::before { display: none; }
 
         .card-header {
             display: flex;
@@ -383,7 +390,7 @@
         }
 
         .early-bird-tag {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -422,7 +429,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             font-weight: 700;
             padding: 0.4rem 0.8rem;
             border-radius: 99px;
@@ -563,6 +570,19 @@
         }
         .footer-links a:hover { text-decoration-color: var(--accent); }
 
+        .tools-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.35rem 1.35rem 1.5rem;
+        }
+        .tools-card h3 {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 1.1rem; font-weight: 800; margin-bottom: 0.4rem;
+        }
+        .tools-card h3 svg { width: 22px; height: 22px; color: var(--accent-text); flex-shrink: 0; }
+        .tools-card p { font-size: 0.9rem; color: var(--text-2); line-height: 1.55; margin-bottom: 1.1rem; }
+
         /* jalan pulang buat warga yang udah punya akun */
         .warga-login {
             text-align: center; font-size: 0.88rem; color: var(--text-2);
@@ -614,8 +634,8 @@
         .ws-skeleton .sk-btn {
             display: block;
             border-radius: 8px;
-            background: #eceef1;
-            background-image: linear-gradient(90deg, #eceef1 0px, #f6f7f8 100px, #eceef1 200px);
+            background: #e6edff;
+            background-image: linear-gradient(90deg, #e6edff 0px, #f4f7ff 100px, #e6edff 200px);
             background-size: 400px 100%;
             background-repeat: no-repeat;
             animation: shimmer 1.2s ease-in-out infinite;
@@ -670,14 +690,12 @@
             font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer;
         }
 
-        @media (prefers-color-scheme: dark) {
-            .ws-skeleton .sk-box,
-            .ws-skeleton .sk-line,
-            .ws-skeleton .sk-pill,
-            .ws-skeleton .sk-btn {
-                background: #2a2d31;
-                background-image: linear-gradient(90deg, #2a2d31 0px, #3a3d42 100px, #2a2d31 200px);
-            }
+        :root[data-theme="dark"] .ws-skeleton .sk-box,
+        :root[data-theme="dark"] .ws-skeleton .sk-line,
+        :root[data-theme="dark"] .ws-skeleton .sk-pill,
+        :root[data-theme="dark"] .ws-skeleton .sk-btn {
+            background: #1d2a4f;
+            background-image: linear-gradient(90deg, #1d2a4f 0px, #26365f 100px, #1d2a4f 200px);
         }
 
         /* --- Testimoni Slider --- */
@@ -830,12 +848,9 @@
         <!-- Recommendation Banner CTA -->
         <section style="margin-bottom: 2rem;">
             <h2 class="section-title">Alat & Bahan</h2>
-            <div style="background: var(--bg-card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; animation: slideUp 0.5s ease both;">
-                <div style="width: 48px; height: 48px; background: var(--accent-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                    <i data-lucide="package" style="color: var(--text-1); width: 24px; height: 24px;"></i>
-                </div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Peralatan Journaling</h3>
-                <p style="font-size: 0.88rem; color: var(--text-2); line-height: 1.55; margin-bottom: 1.25rem;">Buat kamu yang mau mulai journaling dan cari rekomendasi alat & bahan yang sering aku pakai.</p>
+            <div class="tools-card">
+                <h3><i data-lucide="package"></i> Peralatan Journaling</h3>
+                <p>Buat kamu yang mau mulai journaling dan cari rekomendasi alat & bahan yang sering aku pakai.</p>
                 <a href="recommendation.html" class="cta-btn cta-secondary" id="cta-recommendation">Lihat Rekomendasi <i data-lucide="arrow-right"></i></a>
             </div>
         </section>
