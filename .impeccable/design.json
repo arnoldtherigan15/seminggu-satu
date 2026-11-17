@@ -1,0 +1,224 @@
+{
+ "schemaVersion": 2,
+ "generatedAt": "2026-11-17T17:19:44.364342+00:00",
+ "title": "Design System: Seminggu Satu — Binder Diary",
+ "extensions": {
+  "colorMeta": {
+   "binder-blue": {
+    "role": "primary",
+    "displayName": "Binder Blue",
+    "tonalRamp": [
+     "#001a66",
+     "#00268f",
+     "#0033bf",
+     "#0046ff",
+     "#3d6dff",
+     "#7a9aff",
+     "#b8c9ff",
+     "#e6edff"
+    ]
+   },
+   "sticker-yellow": {
+    "role": "secondary",
+    "displayName": "Sticker Yellow",
+    "tonalRamp": [
+     "#5c5200",
+     "#8a7c00",
+     "#b8a500",
+     "#ffe600",
+     "#fff04d",
+     "#fff580",
+     "#fff9b3",
+     "#fffde6"
+    ]
+   },
+   "margin-pink": {
+    "role": "tertiary",
+    "displayName": "Margin Pink",
+    "tonalRamp": [
+     "#5c1a33",
+     "#8a2a4f",
+     "#b85a82",
+     "#ff8fb8",
+     "#ffa8c8",
+     "#ffc4da",
+     "#ffdde9",
+     "#fff0f5"
+    ]
+   },
+   "ink-navy": {
+    "role": "neutral",
+    "displayName": "Ink Navy"
+   },
+   "desk": {
+    "role": "neutral",
+    "displayName": "Desk"
+   },
+   "paper": {
+    "role": "neutral",
+    "displayName": "Paper"
+   },
+   "rule-blue": {
+    "role": "neutral",
+    "displayName": "Rule Blue"
+   },
+   "sticky-note": {
+    "role": "neutral",
+    "displayName": "Sticky Note"
+   }
+  },
+  "typographyMeta": {
+   "display": {
+    "displayName": "Name label",
+    "purpose": "The 'Seminggu Satu' sticker label only."
+   },
+   "headline": {
+    "displayName": "Tab / sheet title",
+    "purpose": "Index tabs and sheet titles on the 28px rule."
+   },
+   "body": {
+    "displayName": "Written on the lines",
+    "purpose": "Sheet copy at 28px line-height."
+   },
+   "label": {
+    "displayName": "Sticker label",
+    "purpose": "Status stickers, early-bird tag."
+   }
+  },
+  "shadows": [
+   {
+    "name": "depth-paper",
+    "value": "0 1px 2px rgba(16,36,94,.10), 0 6px 16px rgba(16,36,94,.06)",
+    "purpose": "Sheets and sticky notes."
+   },
+   {
+    "name": "depth-photo",
+    "value": "0 10px 22px rgba(16,36,94,.18)",
+    "purpose": "Cover, polaroids, Balai Warga strip."
+   },
+   {
+    "name": "depth-sticker",
+    "value": "0 0 0 3px #fff, 0 4px 8px rgba(16,36,94,.22)",
+    "purpose": "Kiss-cut stickers; the white ring is the die-cut."
+   }
+  ],
+  "motion": [
+   {
+    "name": "stick",
+    "value": "0.55s cubic-bezier(.16,1,.3,1)",
+    "purpose": "Stickers settle once on load (scale 1.18 → 1). Nothing loops."
+   },
+   {
+    "name": "peel",
+    "value": "width/height .2s ease",
+    "purpose": "Daftar sticker corner peels 14→30px on hover/press."
+   }
+  ],
+  "breakpoints": [
+   {
+    "name": "phone-toggle-guard",
+    "value": "640px"
+   },
+   {
+    "name": "binder-open",
+    "value": "1024px"
+   }
+  ]
+ },
+ "components": [
+  {
+   "name": "Daftar Sticker Button",
+   "kind": "button",
+   "refersTo": "button-sticker",
+   "description": "Primary action; peels at the corner on hover/press.",
+   "html": "<a class=\"ds-btn\" href=\"#\">Daftar Sekarang <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></a>",
+   "css": ".ds-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.55rem;min-height:52px;padding:.85rem 1.6rem;background:#0046ff;color:#fff;border-radius:14px;font-family:Outfit,sans-serif;font-weight:800;font-size:1.05rem;text-decoration:none;box-shadow:0 0 0 3px #fff,0 4px 8px rgba(16,36,94,.22);transform:rotate(-.6deg);transition:transform .18s ease}.ds-btn::after{content:'';position:absolute;right:0;bottom:0;width:14px;height:14px;border-radius:0 0 14px 0;background:linear-gradient(315deg,#f4f7ff 0 48%,#dfe7fb 50% 100%);box-shadow:-2px -2px 4px rgba(16,36,94,.18);transition:width .2s ease,height .2s ease}.ds-btn:hover{transform:rotate(-1.4deg) translateY(-2px)}.ds-btn:hover::after,.ds-btn:active::after{width:30px;height:30px}.ds-btn:active{transform:rotate(-.6deg) scale(.98)}.ds-btn:focus-visible{outline:3px solid #0046ff;outline-offset:3px}"
+  },
+  {
+   "name": "Secondary Sticker Button",
+   "kind": "button",
+   "refersTo": "button-sticker-secondary",
+   "description": "White sticker for secondary actions.",
+   "html": "<a class=\"ds-btn2\" href=\"#\">Lihat Rekomendasi <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></a>",
+   "css": ".ds-btn2{display:inline-flex;align-items:center;gap:.55rem;min-height:52px;padding:.85rem 1.6rem;background:#fff;color:#10245e;border-radius:14px;font-family:Outfit,sans-serif;font-weight:800;text-decoration:none;box-shadow:0 0 0 3px #fff,0 4px 8px rgba(16,36,94,.22);transform:rotate(-.6deg);transition:transform .18s ease}.ds-btn2:hover{transform:rotate(-1.4deg) translateY(-2px)}.ds-btn2:focus-visible{outline:3px solid #0046ff;outline-offset:3px}"
+  },
+  {
+   "name": "Index Tab",
+   "kind": "nav",
+   "refersTo": "index-tab",
+   "description": "Section opener that overlaps the sheet below.",
+   "html": "<h2 class=\"ds-tab\">Jadwal Workshop</h2>",
+   "css": ".ds-tab{display:inline-block;background:#ffe600;color:#10245e;font-family:Outfit,sans-serif;font-weight:800;font-size:1.15rem;padding:.6rem 1.15rem .85rem;border-radius:14px 14px 0 0;margin:0 0 0 1.1rem}"
+  },
+  {
+   "name": "Loose-leaf Sheet",
+   "kind": "card",
+   "refersTo": "loose-leaf-sheet",
+   "description": "Signature container: ruled paper, pink margin, punched holes, text on the lines.",
+   "html": "<div class=\"ds-sheet\"><span class=\"ds-status\">Buka</span><b>Reka Rekat - Journaling Date</b><p>Journaling bersama sambil belajar pop up</p></div>",
+   "css": ".ds-sheet{position:relative;max-width:420px;background-color:#fff;background-image:linear-gradient(to right,transparent 46px,#ff8fb8 46px,#ff8fb8 48px,transparent 48px),repeating-linear-gradient(180deg,transparent 0 27px,#d6e3ff 27px 28px);border-radius:6px 16px 16px 6px;padding:32px 18px 22px 62px;box-shadow:0 1px 2px rgba(16,36,94,.10),0 6px 16px rgba(16,36,94,.06);color:#10245e}.ds-sheet::before{content:'';position:absolute;left:12px;top:16px;bottom:16px;width:18px;background:radial-gradient(circle,#f4f7ff 6.5px,rgba(16,36,94,.22) 7px,transparent 8.5px) top/18px 18px no-repeat,radial-gradient(circle,#f4f7ff 6.5px,rgba(16,36,94,.22) 7px,transparent 8.5px) bottom/18px 18px no-repeat}.ds-sheet b{display:block;font-family:Outfit,sans-serif;font-weight:800;font-size:1.15rem;line-height:28px}.ds-sheet p{margin:0;font-family:'Open Sans',sans-serif;font-size:.9rem;line-height:28px;color:#4a5674}.ds-status{position:absolute;top:-11px;right:14px;background:#d1fae5;color:#065f46;font:800 .75rem 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;padding:.45rem .75rem;border-radius:999px;box-shadow:0 0 0 3px #fff,0 4px 8px rgba(16,36,94,.22);transform:rotate(7deg)}"
+  },
+  {
+   "name": "Sticky Note",
+   "kind": "custom",
+   "refersTo": "sticky-note",
+   "description": "Notices and the WhatsApp ask, taped with washi.",
+   "html": "<div class=\"ds-note\">Sisa kuota lagi nggak bisa dicek. Kamu tetap bisa daftar.</div>",
+   "css": ".ds-note{position:relative;max-width:380px;background:#fff6a8;color:#10245e;padding:1rem;font-family:'Open Sans',sans-serif;font-size:.88rem;line-height:1.45;box-shadow:0 1px 2px rgba(16,36,94,.10),0 6px 16px rgba(16,36,94,.06);transform:rotate(-.8deg)}.ds-note::before{content:'';position:absolute;top:-10px;left:40%;width:70px;height:18px;background:repeating-linear-gradient(45deg,rgba(0,146,255,.45) 0 7px,rgba(120,190,255,.45) 7px 14px);transform:rotate(3deg)}"
+  },
+  {
+   "name": "Status Sticker",
+   "kind": "chip",
+   "refersTo": "status-sticker",
+   "description": "Kiss-cut round sticker naming the event status in words.",
+   "html": "<span class=\"ds-chip\">Segera Dibuka</span>",
+   "css": ".ds-chip{display:inline-block;background:#fef3c7;color:#92400e;font:800 .75rem 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;padding:.45rem .75rem;border-radius:999px;box-shadow:0 0 0 3px #fff,0 4px 8px rgba(16,36,94,.22);transform:rotate(7deg)}"
+  }
+ ],
+ "narrative": {
+  "northStar": "The Community Binder",
+  "overview": "The page is a 2000s school binder that the warga have decorated together. The brand-blue cover has metal rings, a name label stuck on as a sticker, a taped polaroid of real people, and Mochi stuck in the corner. Behind it, every workshop is a loose-leaf sheet with pale-blue rules, a pink margin line and punched holes. Sections start at coloured index tabs. The register is playful and hand-made, but never messy: everything still lines up on the ruled pitch and reads in one pass on a phone.\n\nCraft materials are rendered honestly and flat. Paper, photo, sticker and washi each have their own depth and edge, with no fake bevels or gloss. The page refuses the link-in-bio column of identical rounded cards that it replaced.",
+  "keyCharacteristics": [
+   "Blue binder cover → yellow index tab → loose-leaf sheets, read top to bottom.",
+   "Three depth layers: paper < photo < sticker.",
+   "Kiss-cut stickers with a 3px white die-cut ring; translucent striped washi.",
+   "Real photography only (event photos, real reel posters); no illustration stand-ins.",
+   "Motion: stickers \"stick\" once on load; nothing loops."
+  ],
+  "rules": [
+   {
+    "name": "The Yellow Carries Navy Rule",
+    "body": "Anything yellow takes Ink Navy text or icons (#10245e on #ffe600), never white.",
+    "section": "colors"
+   },
+   {
+    "name": "The Honest Colour Rule",
+    "body": "Status is shown by the sticker colour plus a word (Buka / Segera Dibuka / Segera Hadir) and by paper pattern: ruled for open, grid paper for not yet open. It is never shown by colour alone.",
+    "section": "colors"
+   },
+   {
+    "name": "The Write-On-The-Lines Rule",
+    "body": "Text inside a loose-leaf sheet uses a 28px line-height, and the sheet's top padding is 32px, so each baseline sits about 5px above a rule. Rules never strike through text.",
+    "section": "typography"
+   },
+   {
+    "name": "The Paper < Photo < Sticker Rule",
+    "body": "A sticker may sit on a photo or a sheet. A sheet never sits on a sticker. Nested \"cards\" are allowed only when they are distinct world objects in this order.",
+    "section": "elevation"
+   }
+  ],
+  "dos": [
+   "Do place text on sheets at the 28px pitch with 32px top padding.",
+   "Do use Lucide icons at the page stroke weight; put an icon inside a yellow round sticker when it needs presence.",
+   "Do keep real data honest: when availability fails, show the last good dates and venue but hide seat counts.",
+   "Do keep motion to a single settle on load using cubic-bezier(.16,1,.3,1), and respect prefers-reduced-motion.",
+   "Do give every reel a real poster in images/stories/<shortcode>.webp (480px wide)."
+  ],
+  "donts": [
+   "Don't use emoji or Unicode glyphs (→, 🏘️) as interface icons.",
+   "Don't rebuild the uniform rounded-card link-in-bio column this world replaced.",
+   "Don't put white text on Sticker Yellow, or use Margin Pink for text.",
+   "Don't add looping or bouncy animation, fake urgency, or invented social proof (see seminggu-psych and PRODUCT.md)."
+  ]
+ }
+}
