@@ -17,16 +17,14 @@
         href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
         rel="stylesheet">
 
-    <!-- Icons (Lucide) -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Icons (Lucide) -- versi dikunci; @latest bisa berubah diam-diam & ngerusak halaman -->
+    <script src="https://unpkg.com/lucide@1.74.0/dist/umd/lucide.min.js"></script>
 
     <!-- Workshop Config -->
     <script src="workshop-config.js?v=3"></script>
     <script src="testimony-config.js?v=1"></script>
     <script src="gallery-config.js?v=1"></script>
 
-    <!-- Instagram Embed -->
-    <script async src="https://www.instagram.com/embed.js"></script>
 
     <style>
         /* Token brand Seminggu Satu (lihat .claude/skills/seminggu-ui).
@@ -360,9 +358,11 @@
             border-radius: 99px;
         }
 
+        /* Sisa tiket sedikit: info jujur, bukan alarm -- tanpa merah
+           (seminggu-psych: no fake urgency) */
         .card-meta-item.seat-pill.seat-low {
-            background: #fee2e2;
-            color: #b91c1c;
+            background: var(--accent-light);
+            color: var(--text-1);
         }
 
         /* --- Price --- */
@@ -394,7 +394,6 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            animation: pulseBadge 2.5s infinite;
         }
 
         .early-bird-tag i { width: 12px; height: 12px; }
@@ -679,6 +678,52 @@
             touch-action: pan-y !important; /* Allow vertical scroll in iframe, but horizontal swipe passes to parent slider */
         }
 
+        /* --- Cerita Warga: kartu ringan, video IG baru dimuat pas di-tap --- */
+        .story-card {
+            flex: 0 0 64%;
+            max-width: 250px;
+            scroll-snap-align: start;
+        }
+        .story-card.loaded { flex-basis: 88%; max-width: 340px; }
+        .story-face {
+            position: relative;
+            min-height: 176px;
+            border-radius: 20px;
+            padding: 1.1rem;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            color: #fff;
+            background: linear-gradient(155deg, #0043f5 0%, #0092ff 60%, #00b4ff 100%);
+            box-shadow: 0 10px 22px rgba(0, 60, 200, 0.22);
+            overflow: hidden;
+        }
+        .story-card[data-kind="galeri"] .story-face {
+            background: linear-gradient(155deg, #10245e 0%, #1b3a8f 60%, #0046ff 100%);
+        }
+        .story-tag {
+            position: absolute; top: 1rem; left: 1rem;
+            font-size: 0.75rem; font-weight: 700;
+            background: var(--yellow); color: #10245e;
+            padding: 0.25rem 0.6rem; border-radius: 99px;
+        }
+        .story-ico {
+            position: absolute; top: 0.9rem; right: 0.9rem;
+            width: 46px !important; height: 46px !important;
+            opacity: 0.28; stroke-width: 1.5;
+        }
+        .story-face h3 { font-size: 1.15rem; font-weight: 800; line-height: 1.2; margin-top: 2.4rem; }
+        .story-date { font-size: 0.8rem; opacity: 0.92; margin: 0.2rem 0 0.9rem; }
+        .story-btn {
+            display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+            min-height: 44px; padding: 0 1rem;
+            background: #fff; color: #10245e;
+            border: none; border-radius: 12px;
+            font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+            transition: transform .15s ease;
+        }
+        .story-btn:active { transform: scale(0.97); }
+        .story-btn i { width: 16px; height: 16px; }
+        .story-embed { display: flex; justify-content: center; }
+
         /* --- Divider --- */
         .divider {
             width: 100%;
@@ -695,23 +740,26 @@
 
         <!-- Profile Header -->
         <header class="profile">
-            <img src="images/black.png" alt="" class="profile-logo">
+            <img src="images/logo-paw-280.png" width="280" height="280" alt="" class="profile-logo">
             <h1 class="profile-name">Seminggu Satu</h1>
             <p class="profile-subtitle">by Arnold</p>
             <p class="profile-bio">Komunitas journaling & workshop kreatif di Jakarta. Bikin karya unikmu bareng kita! ✨🐾</p>
             <div class="social-links">
                 <a href="https://www.instagram.com/seminggu_satu?igsh=MTJoaHdvdmszYzMxcQ%3D%3D&utm_source=qr"
-                    target="_blank" class="social-btn" id="btnInstagram">
-                    <img src="images/Instagram.png" alt="Instagram" style="width:16px;height:16px;object-fit:contain;"> Instagram
+                    target="_blank" rel="noopener" class="social-btn" id="btnInstagram">
+                    <img src="images/instagram-64.png" alt="" width="16" height="16" style="width:16px;height:16px;object-fit:contain;"> Instagram
                 </a>
-                <a href="https://www.tiktok.com/@seminggusatu?_r=1&_t=ZS-94BnQYTS4wx" target="_blank"
+                <a href="https://www.tiktok.com/@seminggusatu?_r=1&_t=ZS-94BnQYTS4wx" target="_blank" rel="noopener"
                     class="social-btn" id="btnTikTok">
-                    <img src="images/tiktok.png" alt="TikTok" style="width:16px;height:16px;object-fit:contain;"> TikTok
+                    <img src="images/tiktok-64.png" alt="" width="16" height="16" style="width:16px;height:16px;object-fit:contain;"> TikTok
                 </a>
             </div>
             <figure class="profile-photo">
-                <img class="photo" src="kolaborasi/photos/IMG_6345.jpg" width="1000" height="750"
-                    alt="Warga Seminggu Satu berkumpul di satu meja sambil nunjukin jurnal masing-masing" decoding="async">
+                <picture>
+                    <source srcset="images/home-community.webp" type="image/webp">
+                    <img class="photo" src="kolaborasi/photos/IMG_6345.jpg" width="1000" height="750"
+                        alt="Warga Seminggu Satu berkumpul di satu meja sambil nunjukin jurnal masing-masing" decoding="async">
+                </picture>
                 <img class="mochi" src="images/mochi_maskot_sm.png" width="170" height="240" alt="">
                 <figcaption>Begini suasananya kalau kita journaling bareng 💛</figcaption>
             </figure>
@@ -735,18 +783,10 @@
             </a>
         </section>
 
-        <!-- Testimonies List -->
-        <section style="margin-top: 2rem; margin-bottom: 2rem;">
-            <h2 class="section-title">Testimoni</h2>
-            <div id="testimonyList" class="testimony-slider">
-                <!-- Rendered by JS -->
-            </div>
-        </section>
-
-        <!-- Gallery List -->
-        <section style="margin-top: 2rem; margin-bottom: 2rem;">
-            <h2 class="section-title">Galeri</h2>
-            <div id="galleryList" class="testimony-slider">
+        <!-- Cerita Warga (testimoni + galeri jadi satu) -->
+        <section style="margin-top: 2.25rem; margin-bottom: 2rem;">
+            <h2 class="section-title">Cerita Warga</h2>
+            <div id="storyList" class="testimony-slider">
                 <!-- Rendered by JS -->
             </div>
         </section>
@@ -1134,93 +1174,73 @@
             renderWorkshops(_lastCounts, false, _countsReady, _lastOpenBatches, _batchesFailed);
         });
 
-        // Render testimonies
-        function initTestimonies() {
-            const testimonyEl = document.getElementById('testimonyList');
-            if (typeof TESTIMONIES !== 'undefined' && TESTIMONIES.length > 0) {
-                TESTIMONIES.forEach((t) => {
-                    const card = document.createElement('div');
-                    card.className = 'testimony-slide';
-                    
-                    const title = document.createElement('div');
-                    title.style.fontSize = '0.85rem';
-                    title.style.fontWeight = '600';
-                    title.style.color = 'var(--text-2)';
-                    title.style.marginBottom = '0.5rem';
-                    title.style.textAlign = 'center';
-                    title.textContent = t.title;
-
-                    const embedWrapper = document.createElement('div');
-                    embedWrapper.style.width = '100%';
-                    embedWrapper.style.display = 'flex';
-                    embedWrapper.style.justifyContent = 'center';
-                    embedWrapper.innerHTML = t.embedCode;
-
-                    card.appendChild(title);
-                    card.appendChild(embedWrapper);
-                    testimonyEl.appendChild(card);
+        // Cerita Warga: testimoni + galeri dari Instagram. Dulu 12 embed IG
+        // dimuat sekaligus (berat di HP lama, plus like count = perbandingan
+        // sosial). Sekarang kartu ringan dulu; video IG baru dimuat pas di-tap.
+        let _igScriptPromise = null;
+        function loadInstagramEmbed() {
+            if (window.instgrm && window.instgrm.Embeds) return Promise.resolve();
+            if (!_igScriptPromise) {
+                _igScriptPromise = new Promise((resolve, reject) => {
+                    const sc = document.createElement('script');
+                    sc.src = 'https://www.instagram.com/embed.js';
+                    sc.async = true;
+                    sc.onload = () => resolve();
+                    sc.onerror = () => { _igScriptPromise = null; reject(new Error('embed.js')); };
+                    document.head.appendChild(sc);
                 });
-
-                // Trigger Instagram embed processing since we added dynamically
-                let retries = 0;
-                const processIg = setInterval(() => {
-                    if (window.instgrm && window.instgrm.Embeds) {
-                        window.instgrm.Embeds.process();
-                        clearInterval(processIg);
-                    } else {
-                        retries++;
-                        if (retries > 10) clearInterval(processIg); // stop after 5s
-                    }
-                }, 500);
-            } else {
-                testimonyEl.innerHTML = '<p style="color:var(--text-3); font-size:0.85rem; text-align:center;">Belum ada testimoni.</p>';
             }
+            return _igScriptPromise;
         }
-        initTestimonies();
 
-        // Render galleries
-        function initGalleries() {
-            const galleryEl = document.getElementById('galleryList');
-            if (typeof GALLERIES !== 'undefined' && GALLERIES.length > 0) {
-                GALLERIES.forEach((g) => {
-                    const card = document.createElement('div');
-                    card.className = 'testimony-slide'; // Reuse the same slider CSS
-                    
-                    const title = document.createElement('div');
-                    title.style.fontSize = '0.85rem';
-                    title.style.fontWeight = '600';
-                    title.style.color = 'var(--text-2)';
-                    title.style.marginBottom = '0.5rem';
-                    title.style.textAlign = 'center';
-                    title.textContent = g.title;
-
-                    const embedWrapper = document.createElement('div');
-                    embedWrapper.style.width = '100%';
-                    embedWrapper.style.display = 'flex';
-                    embedWrapper.style.justifyContent = 'center';
-                    embedWrapper.innerHTML = g.embedCode;
-
-                    card.appendChild(title);
-                    card.appendChild(embedWrapper);
-                    galleryEl.appendChild(card);
+        function initStories() {
+            const listEl = document.getElementById('storyList');
+            const stories = []
+                .concat((typeof TESTIMONIES !== 'undefined' ? TESTIMONIES : []).map(t => ({ kind: 'testimoni', tag: 'Kata peserta', item: t })))
+                .concat((typeof GALLERIES !== 'undefined' ? GALLERIES : []).map(g => ({ kind: 'galeri', tag: 'Suasana event', item: g })));
+            if (!stories.length) {
+                listEl.innerHTML = '<p style="color:var(--text-2); font-size:0.9rem;">Cerita warga segera hadir ✨</p>';
+                return;
+            }
+            stories.forEach(({ kind, tag, item }) => {
+                // "Upcycle Journaling - 17 May 2026" -> judul + tanggal
+                const raw = String(item.title || '');
+                const cut = raw.lastIndexOf(' - ');
+                const name = cut > 0 ? raw.slice(0, cut) : raw;
+                const date = cut > 0 ? raw.slice(cut + 3) : '';
+                const card = document.createElement('article');
+                card.className = 'story-card';
+                card.dataset.kind = kind;
+                card.innerHTML = `
+                    <div class="story-face">
+                        <span class="story-tag">${escHtml(tag)}</span>
+                        <i class="story-ico" data-lucide="${kind === 'testimoni' ? 'quote' : 'camera'}"></i>
+                        <h3>${escHtml(name)}</h3>
+                        ${date ? `<p class="story-date">${escHtml(date)}</p>` : ''}
+                        <button type="button" class="story-btn"><i data-lucide="play"></i> Putar video</button>
+                    </div>`;
+                card.querySelector('.story-btn').addEventListener('click', async (e) => {
+                    const btn = e.currentTarget;
+                    btn.disabled = true;
+                    btn.lastChild.textContent = ' Memuat…';
+                    try {
+                        await loadInstagramEmbed();
+                        const holder = document.createElement('div');
+                        holder.className = 'story-embed';
+                        holder.innerHTML = item.embedCode;
+                        card.classList.add('loaded');
+                        card.replaceChildren(holder);
+                        window.instgrm.Embeds.process();
+                    } catch (err) {
+                        btn.disabled = false;
+                        btn.lastChild.textContent = ' Gagal, coba lagi';
+                    }
                 });
-
-                // Trigger Instagram embed processing since we added dynamically
-                let retries = 0;
-                const processIg = setInterval(() => {
-                    if (window.instgrm && window.instgrm.Embeds) {
-                        window.instgrm.Embeds.process();
-                        clearInterval(processIg);
-                    } else {
-                        retries++;
-                        if (retries > 10) clearInterval(processIg); // stop after 5s
-                    }
-                }, 500);
-            } else {
-                galleryEl.innerHTML = '<p style="color:var(--text-3); font-size:0.85rem; text-align:center;">Belum ada foto galeri.</p>';
-            }
+                listEl.appendChild(card);
+            });
+            if (window.lucide) lucide.createIcons();
         }
-        initGalleries();
+        initStories();
     </script>
 
 </body>
