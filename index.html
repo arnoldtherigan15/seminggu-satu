@@ -260,8 +260,23 @@
             font-size: 0.88rem;
             color: var(--text-2);
             line-height: 1.55;
-            margin-bottom: 1rem;
+            margin-bottom: 0.6rem;
+            /* deskripsi lengkap ada di halaman pendaftaran -- kartu cukup 2 baris
+               biar tinggi kartu antar event nggak timpang */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
+
+        /* Penenang buat pemula -- dua janji utama Seminggu Satu */
+        .card-assure {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.8rem; font-weight: 600;
+            color: var(--text-1);
+            margin-bottom: 0.85rem;
+        }
+        .card-assure i { width: 15px; height: 15px; flex-shrink: 0; color: var(--success); }
 
         /* --- Tanggal/jam/sisa tiket per batch --- */
         .card-meta {
@@ -282,6 +297,15 @@
         }
 
         .card-meta-item i { width: 14px; height: 14px; flex-shrink: 0; }
+
+        .card-meta-item.card-place {
+            max-width: 100%;
+            color: var(--text-1);
+            text-decoration: underline;
+            text-decoration-color: var(--border);
+            text-underline-offset: 3px;
+        }
+        .card-meta-item.card-place span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .card-meta-item.seat-pill {
             background: var(--accent-light);
@@ -618,7 +642,7 @@
         <header class="profile">
             <img src="images/black.png" alt="Seminggu Satu" class="profile-logo">
             <p class="profile-subtitle">by Arnold</p>
-            <p class="profile-bio">Creative workshop & journaling community. Bikin karya unikmu bareng kita! ✨🐾</p>
+            <p class="profile-bio">Komunitas journaling & workshop kreatif di Jakarta. Bikin karya unikmu bareng kita! ✨🐾</p>
             <div class="social-links">
                 <a href="https://www.instagram.com/seminggu_satu?igsh=MTJoaHdvdmszYzMxcQ%3D%3D&utm_source=qr"
                     target="_blank" class="social-btn" id="btnInstagram">
@@ -635,7 +659,7 @@
 
         <!-- Workshop List -->
         <section>
-            <h2 class="section-title">Events</h2>
+            <h2 class="section-title">Jadwal Workshop</h2>
             <div id="workshopList" class="workshop-list">
                 <!-- Rendered by JS -->
             </div>
@@ -705,6 +729,7 @@
         })();
 
         const listEl = document.getElementById('workshopList');
+        const escHtml = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         // SUPABASE_URL/SUPABASE_ANON_KEY dari env.js
 
         // Fetch edge function yang beneran bisa GAGAL: HTTP non-OK, body
@@ -908,6 +933,19 @@
                         if (batch.workshopTime) metaParts.push(`<span class="card-meta-item"><i data-lucide="clock"></i> ${batch.workshopTime}</span>`);
                         if (metaParts.length) metaHTML = `<div class="card-meta">${metaParts.join('')}</div>`;
                     }
+                    // Lokasi -- calon peserta pertama-tama nanya "di mana?". Cuma
+                    // nama tempat (sebelum koma pertama); alamat lengkap lewat maps.
+                    const place = (batch && batch.locationName) || ws.locationName || '';
+                    const mapsLink = (batch && batch.mapsLink) || ws.mapsLink || '';
+                    if (place) {
+                        const placeShort = escHtml(String(place).split(',')[0].trim());
+                        const placeHTML = mapsLink
+                            ? `<a class="card-meta-item card-place" href="${escHtml(mapsLink)}" target="_blank" rel="noopener"><i data-lucide="map-pin"></i><span>${placeShort}</span></a>`
+                            : `<span class="card-meta-item"><i data-lucide="map-pin"></i><span>${placeShort}</span></span>`;
+                        metaHTML = metaHTML
+                            ? metaHTML.replace('</div>', placeHTML + '</div>')
+                            : `<div class="card-meta">${placeHTML}</div>`;
+                    }
 
                     // Build status badge (closed/full udah di-skip di atas, jadi cuma
                     // open/not-open-yet/coming-soon yang bisa nyampe sini)
@@ -934,12 +972,13 @@
                     card.innerHTML = `
                         ${badgeHTML}
                         <div class="card-header">
-                            <div class="card-icon"><i data-lucide="${ws.icon}"></i></div>
+                            <div class="card-icon"><i data-lucide="${ws.icon === 'lock' ? 'users' : ws.icon}"></i></div>
                             <div>
                                 <div class="card-title">${ws.name}${(batch && visibleBatches.length > 1) ? ' · ' + (batch.label || '') : ''}</div>
                             </div>
                         </div>
                         <p class="card-desc">${effectiveDescription}</p>
+                        <p class="card-assure"><i data-lucide="package-check"></i> Semua alat disediain · Pemula welcome</p>
                         ${metaHTML}
                         ${priceHTML}
                         ${ctaHTML}
