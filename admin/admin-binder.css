@@ -303,3 +303,10 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .ab-ep-del { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--err); font-weight: 700; cursor: pointer; }
 .ab-ep-del:hover { background: #fdecec; }
 .ab-ep-del.armed { background: var(--err); color: #ffffff; }
+
+/* ---------- Pill/badge tidak boleh pecah jadi 2 baris ---------- */
+.ov-badge, .nav-badge, .subtab-count, .ab-ep-tag, .ab-chip { white-space: nowrap; flex-shrink: 0; }
+.ov-badge { display: inline-flex; align-items: center; min-height: 26px; }
+.ov-card-head { min-width: 0; flex: 1; }
+.ov-card-name { overflow-wrap: anywhere; }
+.ov-card-batch { margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--muted); }
