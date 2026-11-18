@@ -933,3 +933,125 @@
     font-size: 1.02rem; line-height: 1.45;
     color: #10245e;
 }
+
+/* ===================== SAHABAT STORIES: MINI POLAROID ===================== */
+/* Belum dilihat = ditempel washi + warna penuh. Udah dilihat = tanpa washi,
+   foto agak pudar, nama tipis. (Status nggak cuma dari warna.) */
+.story-track { gap: 14px; padding: 16px 4px 12px; }
+.story-item { width: 74px; gap: 7px; }
+.story-ring, :root[data-theme="dark"] .story-ring {
+    position: relative;
+    width: 66px; height: 70px;
+    padding: 4px 4px 9px;
+    border-radius: 3px;
+    background: #ffffff;
+    box-shadow: var(--bw-depth-photo);
+}
+.story-item:not(.seen) .story-ring::before {
+    content: ""; position: absolute; z-index: 2;
+    top: -7px; left: 50%; width: 34px; height: 12px; margin-left: -17px;
+    background: var(--bw-washi-pink);
+    transform: rotate(-5deg);
+}
+.story-item:nth-child(3n+2):not(.seen) .story-ring::before { background: var(--bw-washi-blue); transform: rotate(4deg); }
+.story-item:nth-child(3n):not(.seen) .story-ring::before { background: var(--bw-washi-yellow); }
+.story-ring.ring-bday { background: #ffffff; }
+.story-ava, :root[data-theme="dark"] .story-ava {
+    border: none; border-radius: 1px;
+    background: #eef2fb;
+}
+.story-ava.official { background: var(--bw-yellow); color: #10245e; }
+.story-ava.bday-face { background: #ffe3ec; color: #d6336c; }
+.story-sticker {
+    top: 46px; left: -6px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--bw-yellow); color: #10245e;
+    box-shadow: var(--bw-depth-sticker);
+    display: flex; align-items: center; justify-content: center;
+    filter: none;
+}
+.story-sticker .ss-ic { width: 13px; height: 13px; }
+.story-count {
+    top: -6px; right: -4px;
+    background: var(--bw-yellow); color: #10245e;
+    border: none; box-shadow: var(--bw-depth-sticker);
+}
+.story-name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .72rem; color: var(--bw-ink); }
+.story-item.seen .story-ring, :root[data-theme="dark"] .story-item.seen .story-ring { background: #ffffff; box-shadow: var(--bw-depth-paper); }
+.story-item.seen .story-ava img { filter: saturate(.35); opacity: .75; }
+.story-item.seen .story-count, :root[data-theme="dark"] .story-item.seen .story-count { background: #e6ebf5; color: #5f6b8a; }
+.story-item.seen .story-name { font-weight: 600; color: var(--muted); }
+
+/* ===================== GALLERY MODE FEED: POLAROID BESAR ===================== */
+#igFeed { gap: 2rem; padding-top: 14px; }
+#igFeed .feed-card,
+#igFeed .feed-card.ev-ws, #igFeed .feed-card.ev-rr, #igFeed .feed-card.ev-tw, #igFeed .feed-card.ev-wj,
+:root[data-theme="dark"] #igFeed .feed-card {
+    position: relative;
+    background: #ffffff;
+    background-image: none;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 12px 14px;
+    box-shadow: var(--bw-depth-photo);
+    overflow: visible;
+}
+#igFeed .feed-card:nth-child(odd) { transform: rotate(-0.5deg); }
+#igFeed .feed-card:nth-child(even) { transform: rotate(0.5deg); }
+#igFeed .feed-card::before {
+    content: ""; position: absolute; z-index: 3;
+    top: -11px; left: 50%; width: 84px; height: 22px; margin-left: -42px;
+    background: var(--bw-washi-pink);
+    transform: rotate(-3deg);
+}
+#igFeed .feed-card:nth-child(3n+2)::before { background: var(--bw-washi-blue); transform: rotate(2deg); }
+#igFeed .feed-card:nth-child(3n)::before { background: var(--bw-washi-yellow); }
+#igFeed .feed-card::after { display: none; }
+
+#igFeed .feed-header { margin: 4px 0 10px; align-items: center; }
+#igFeed .feed-card .username { color: #10245e; font-family: 'Outfit', sans-serif; font-size: .95rem; }
+#igFeed .feed-card .post-time { color: #5f6b8a; }
+#igFeed .feed-card .ig-ava { background: var(--bw-yellow); color: #10245e; box-shadow: 0 0 0 2px #ffffff, 0 1px 3px rgba(16, 36, 94, .25); }
+#igFeed .feed-card .quest-badge-sticker {
+    background: var(--bw-yellow); color: #10245e;
+    border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Open Sans', sans-serif; font-size: .6rem; font-weight: 800;
+    letter-spacing: .04em; text-transform: uppercase;
+    padding: 4px 10px;
+    transform: rotate(3deg);
+}
+#igFeed .feed-card.ev-rr .quest-badge-sticker { background: var(--bw-pink); }
+#igFeed .feed-card.ev-tw .quest-badge-sticker { background: #0046ff; color: #ffffff; }
+#igFeed .feed-card.ev-wj .quest-badge-sticker { background: #e6edff; }
+#igFeed .feed-photo-frame,
+#igFeed .feed-card .feed-photo-frame {
+    background: transparent; border: none; padding: 0; border-radius: 0; box-shadow: none;
+}
+#igFeed .washi-tape-top, #igFeed .ev-stamp, #igFeed .rr-heart, #igFeed .wj-check, #igFeed .tw-stk { display: none; }
+#igFeed .feed-photo-wrap, #igFeed .feed-card .feed-photo-wrap { border-radius: 2px; background: #eef2fb; border: none; }
+#igFeed .gal-new {
+    top: 8px; left: auto; right: 8px;
+    background: var(--bw-pink); color: #10245e; border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker); transform: rotate(6deg);
+}
+#igFeed .feed-actions { padding: 12px 0 4px; }
+#igFeed .feed-card .action-btn,
+:root[data-theme="dark"] #igFeed .feed-card .action-btn {
+    min-height: 40px;
+    background: #f4f7ff; color: #10245e;
+    border: none; border-radius: 999px;
+    font-family: 'Outfit', sans-serif; font-weight: 800;
+}
+#igFeed .feed-card .action-btn.active,
+:root[data-theme="dark"] #igFeed .feed-card .action-btn.active { background: #ffe3ec; color: #d6336c; }
+#igFeed .feed-caption-box,
+#igFeed .feed-card .feed-caption-box {
+    background: transparent; border: none; border-radius: 0;
+    padding: 2px 2px 0; margin-top: 2px;
+}
+#igFeed .feed-card .caption-text {
+    color: #10245e;
+    font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 1rem; line-height: 1.45;
+}
+#igFeed .feed-card .caption-text b { font-weight: 800; }
