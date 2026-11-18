@@ -4439,17 +4439,38 @@ function startMochiBubbles() {
     const mb = $("mochiBubble");
     if (!mb || mb._teased) return;
     mb._teased = true;
+    // Tap gelembung = tutup & Mochi diem sampai sesi berikutnya (nggak maksa
+    // dibaca -- warga yang pegang kendali, bukan notifikasinya)
+    let quiet = false;
+    try { quiet = sessionStorage.getItem("ss_mochi_quiet") === "1"; } catch (e) { }
+    if (quiet) return;
+    mb.setAttribute("role", "button");
+    mb.setAttribute("tabindex", "0");
+    mb.setAttribute("aria-label", "Tutup pesan Mochi");
+    const dismiss = () => {
+        quiet = true;
+        mb.classList.remove("show");
+        try { sessionStorage.setItem("ss_mochi_quiet", "1"); } catch (e) { }
+    };
+    mb.addEventListener("click", dismiss);
+    mb.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " " || e.key === "Escape") { e.preventDefault(); dismiss(); } });
     const shown = [];
     function next() {
+        if (quiet) return;
         const msg = mochiSmartMessages().find(m => shown.indexOf(m) < 0);
         if (!msg || shown.length >= 3) { mb.classList.remove("show"); return; }
         shown.push(msg);
         mb.textContent = msg;
+        const x = document.createElement("span");
+        x.className = "mb-x";
+        x.setAttribute("aria-hidden", "true");
+        x.textContent = "✕";
+        mb.appendChild(x);
         mb.classList.add("show");
         setTimeout(() => {
             mb.classList.remove("show");
             // jeda antar pesan biar kerasa "ganti", bukan teks loncat
-            setTimeout(next, 2000);
+            if (!quiet) setTimeout(next, 2000);
         }, 6200);
     }
     next();

@@ -1399,9 +1399,8 @@
     box-shadow: var(--bw-depth-paper);
     padding: 32px 1.1rem 1.3rem 62px;
     margin-bottom: 1.6rem;
-    transform: rotate(-0.3deg);
+    transform: none; /* lurus: garis margin & garis buku harus tegak di bawah tab */
 }
-#pane-events .ev:nth-child(even) { transform: rotate(0.3deg); }
 #pane-events .ev:hover { transform: none; box-shadow: var(--bw-depth-paper); }
 /* lubang binder (pengganti washi kecil) */
 #pane-events .ev::before,
@@ -1463,3 +1462,49 @@
 #pane-quest .q-tabs { margin-bottom: 0.2rem; }
 #pane-quest .q-empty { padding: 2rem 1rem; }
 #pane-quest .q-empty .em img { width: 72px; }
+
+/* ===================== BUKU (Quest, Profil, Paspor, buku warga) ===================== */
+/* Fix "scroll naik pas swipe": leaf 3D yang lagi muter sempat nonjol keluar
+   kotak buku -> tinggi halaman nambah sebentar lalu balik -> posisi scroll
+   ke-clamp naik. Kotak buku sekarang nge-clip arah vertikal (dengan ruang
+   buat bayangan), dan swipe horizontal nggak ikut nggulung halaman. */
+.qbook-wrap { overflow-y: clip; padding: 22px 0 6px; margin-top: -16px; }
+.mypf-stage, .psp-stage { overflow-y: clip; padding-top: 14px; padding-bottom: 34px; }
+.qbook, .psp-book { touch-action: pan-y; }
+
+/* Halaman buku = kertas putih bertitik (bukan krem) */
+.psp-page, .psp-face,
+:root[data-theme="dark"] .psp-page, :root[data-theme="dark"] .psp-face {
+    background-color: #ffffff;
+    background-image: radial-gradient(rgba(16, 36, 94, .09) 1px, transparent 1.2px);
+    background-size: 12px 12px;
+    border-color: #e4e9f5;
+}
+.mpk-photo { border: none; padding: 5px 5px 12px; background: #ffffff; box-shadow: var(--bw-depth-photo); }
+
+/* Halaman Profil: tombol & tutup = stiker */
+.mypf-pageclose { width: 44px; height: 44px; background: #ffffff; color: #10245e; box-shadow: var(--bw-depth-sticker); }
+.mypf-pageclose .ss-ic { width: 20px; height: 20px; }
+.mypf-action-btn { min-height: 52px; border: none !important; box-shadow: var(--bw-depth-sticker) !important; font-family: 'Outfit', sans-serif; }
+.mypf-action-btn.ghost { background: #ffffff !important; color: #10245e !important; transform: rotate(-0.8deg); }
+.mypf-action-btn.primary { background: var(--bw-yellow) !important; color: #10245e !important; transform: rotate(0.8deg); }
+
+/* ---- Gelembung Mochi: bisa di-tap buat ditutup, nggak goyang terus ---- */
+.mochi-bubble {
+    position: relative;
+    pointer-events: auto;
+    cursor: pointer;
+    padding-right: 34px;
+    border-radius: 14px;
+    box-shadow: var(--bw-depth-paper);
+}
+.mochi-bubble.show { animation: mochiPop .25s cubic-bezier(.175, .885, .32, 1.275); }
+.mochi-bubble .mb-x {
+    position: absolute; top: 6px; right: 6px;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: #eef2fb; color: #10245e;
+}
+.mochi-bubble .mb-x .ss-ic { width: 12px; height: 12px; }
+.mochi-bubble:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .mochi-bubble.show { animation: none; } }
