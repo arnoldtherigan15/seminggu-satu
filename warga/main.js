@@ -818,7 +818,7 @@ function renderRecCards() {
             '<div class="rec-title">' + esc(it.title) + '</div>' +
             // deskripsi = HTML (boleh <strong> dll) dari config statis terpercaya
             (it.description ? '<div class="rec-desc">' + it.description + '</div>' : '') +
-            (it.link ? '<a class="rec-link" href="' + esc(it.link) + '" target="_blank" rel="noopener">View Product →</a>' : '') +
+            (it.link ? '<a class="rec-link" href="' + esc(it.link) + '" target="_blank" rel="noopener">Lihat di Shopee →</a>' : '') +
             '</div></div>';
     });
     wrap.innerHTML = html;
@@ -1458,7 +1458,9 @@ function loadLeaderboard() {
                 }
             });
             const meBox = (me && me.rank > 5)
-                ? '<div class="lb-me">Your rank: #' + me.rank + ' of ' + me.total + ' · ' + me.poin + ' pts ⚡</div>'
+                // seminggu-psych: nggak nyebut "#37 dari 80" (perbandingan yang bikin
+                // ciut) -- cukup akui usaha kamu sendiri
+                ? '<div class="lb-me">Kamu udah ngumpulin <b>' + me.poin + ' poin</b> dari challenge. Tiap karya dihitung.</div>'
                 : '';
             chHtml =
                 '<div class="lb-card" id="lbCard">' +
