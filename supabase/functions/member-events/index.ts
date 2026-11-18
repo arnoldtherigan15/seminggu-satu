@@ -58,8 +58,25 @@ Deno.serve(async (req) => {
         const event = new Date(merged.eventDateIso + "T00:00:00");
         if (today > event) continue;
       }
+      // FAQ peserta per batch = jawaban Quick Response yang udah di-approve
+      // Arnold di admin (prepFaqListKey di admin-api). Cuma {question, answer}
+      // -- konteks/catatan internal admin (faqcontext, richnote, bring) NGGAK
+      // pernah dikirim ke warga.
+      let faq: { question: string; answer: string }[] = [];
+      try {
+        const raw = (await getConfigValue(admin, `prep__${r.workshop_type}__faqlist__${r.batch_id}`))
+          || (await getConfigValue(admin, `prep__${r.workshop_type}__faqlist__general`)) || "[]";
+        const arr: { question?: unknown; answer?: unknown }[] = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          faq = arr.filter((x) => x && x.question && x.answer)
+            .slice(0, 20)
+            .map((x) => ({ question: String(x.question).slice(0, 500), answer: String(x.answer).slice(0, 2000) }));
+        }
+      } catch (_e) { /* abaikan */ }
       registered[r.workshop_type] = {
         batchId: r.batch_id,
+        label: batch.label || "",
+        faq,
         eventDateIso: merged.eventDateIso,
         displayDate: merged.displayDate,
         workshopTime: merged.workshopTime,

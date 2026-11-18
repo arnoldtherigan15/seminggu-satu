@@ -2001,3 +2001,90 @@ button.bw-brand:focus-visible { outline: 3px solid var(--bw-yellow); outline-off
 :root[data-theme="dark"] .st-row.st-rest .st-hint { color: var(--muted); }
 /* pas istirahat: Mochi pelari & gelembung disembunyiin total */
 .bw-rest .mochi-bubble, .bw-rest .mochi-run { display: none !important; }
+
+/* ===================== TIKET KAMU (persiapan event) ===================== */
+.tix-body { padding-top: 22px; }
+.tix-head {
+    display: inline-flex; padding: .35rem .85rem; margin-bottom: 16px;
+    background: var(--bw-yellow); color: #10245e;
+    border-radius: 10px; box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.05rem;
+    transform: rotate(-2deg);
+}
+/* tiket kertas: bagian atas biru, sobekan perforasi, bagian bawah kertas */
+.tix { border-radius: 14px; box-shadow: var(--bw-depth-photo); overflow: hidden; transform: rotate(-0.5deg); }
+.tix-top {
+    position: relative;
+    background-color: #0046ff;
+    background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, .05) 0 2px, transparent 2px 6px);
+    color: #ffffff;
+    padding: 18px 18px 20px;
+}
+.tix-when {
+    position: absolute; top: 14px; right: 14px;
+    background: var(--bw-yellow); color: #10245e;
+    border-radius: 999px; padding: 4px 10px;
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .8rem;
+    box-shadow: 0 0 0 3px #ffffff;
+    transform: rotate(5deg);
+}
+.tix-name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.3rem; line-height: 1.25; padding-right: 92px; }
+.tix-batch { margin-top: 4px; font-weight: 700; font-size: .88rem; color: rgba(255, 255, 255, .85); }
+.tix-perf {
+    height: 18px; position: relative;
+    background: #ffffff;
+    background-image: radial-gradient(circle at 0 50%, var(--bw-paper) 9px, transparent 9.5px), radial-gradient(circle at 100% 50%, var(--bw-paper) 9px, transparent 9.5px);
+}
+.tix-perf::after { content: ""; position: absolute; left: 16px; right: 16px; top: 50%; border-top: 2px dashed #c9d6f5; }
+.tix-bottom { background: #ffffff; padding: 6px 18px 16px; color: #10245e; }
+.tix-row { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; }
+.tix-row + .tix-row { border-top: 1px solid #e4e9f5; }
+.tix-ic {
+    flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--bw-yellow); color: #10245e;
+    display: flex; align-items: center; justify-content: center;
+}
+.tix-ic .ss-ic { width: 16px; height: 16px; }
+.tix-k { display: block; font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #5f6b8a; }
+.tix-row b { font-family: 'Outfit', sans-serif; font-size: 1rem; line-height: 1.35; }
+.tix-holder { margin-top: 8px; font-size: .82rem; color: #5f6b8a; }
+.tix-holder b { color: #10245e; }
+
+.tix-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+.tix-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 48px; padding: 0 12px;
+    border: none; border-radius: 14px;
+    background: #ffffff; color: #10245e;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem;
+    text-decoration: none; cursor: pointer;
+}
+.tix-btn .ss-ic { width: 17px; height: 17px; }
+.tix-btn.primary { grid-column: 1 / -1; background: #0046ff; color: #ffffff; min-height: 52px; font-size: 1rem; }
+
+.tix-know, .tix-faq {
+    margin-top: 20px;
+    background: var(--bw-note); color: #10245e;
+    border-radius: 3px; box-shadow: var(--bw-depth-paper);
+    padding: 14px 16px;
+    transform: rotate(-0.4deg);
+}
+.tix-faq { background: var(--bw-paper); color: var(--bw-ink); transform: rotate(0.3deg); }
+.tix-know-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1rem; margin-bottom: 6px; }
+.tix-know ul { margin: 0; padding-left: 1.1rem; }
+.tix-know li { font-size: .9rem; line-height: 1.55; margin: 4px 0; }
+.tix-faq details { border-top: 1px solid var(--bw-rule); padding: 10px 0; }
+.tix-faq details:first-of-type { border-top: none; }
+.tix-faq summary { cursor: pointer; font-weight: 700; font-size: .92rem; min-height: 28px; }
+.tix-faq p { margin-top: 6px; font-size: .9rem; line-height: 1.55; color: var(--muted); }
+
+/* tombol "Lihat tiket" di kartu Event yang udah didaftar */
+.ev-tix {
+    margin-top: 12px; width: 100%; min-height: 46px;
+    border: none; border-radius: 14px;
+    background: #ffffff; color: #10245e;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem;
+    cursor: pointer;
+}

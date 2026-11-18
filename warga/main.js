@@ -797,7 +797,8 @@ async function loadEvents() {
         }
 
         let action;
-        if (isReg) action = '<div class="ev-done">✓ Kamu udah terdaftar. Sampai ketemu di sana!</div>';
+        if (isReg) action = '<div class="ev-done">✓ Kamu udah terdaftar. Sampai ketemu di sana!</div>' +
+            '<button type="button" class="ev-tix" data-tix="' + esc(w.id) + '">Lihat tiket &amp; persiapan →</button>';
         else if (x.status === "not-open-yet") action = '<div class="ev-meta">Pendaftaran segera dibuka</div>';
         else {
             let href = "../" + (w.path || "");
@@ -823,6 +824,7 @@ async function loadEvents() {
             '</div>';
     });
     pane.innerHTML = html;
+    pane.querySelectorAll("[data-tix]").forEach(b => b.addEventListener("click", () => openEventTicket(b.dataset.tix)));
     const ebn = $("evBdayNote");
     if (ebn) ebn.addEventListener("click", () => activateTab("loyalty"));
 }
@@ -3028,6 +3030,109 @@ function nearestRegisteredEvent() {
     return best;
 }
 
+// ---------- Tiket kamu: persiapan event yang udah didaftar ----------
+// Isinya cuma data yang beneran ada (batch: tanggal/jam/lokasi/maps/grup WA,
+// + FAQ yang udah di-approve admin). Nggak ngarang aturan baru buat peserta.
+function evTimeRange(timeTxt) {
+    const m = String(timeTxt || "").match(/(\d{1,2})[:.](\d{2})\s*(?:-|–|—|s\/d|sampai)\s*(\d{1,2})[:.](\d{2})/i);
+    if (!m) return null;
+    return { sh: +m[1], sm: +m[2], eh: +m[3], em: +m[4] };
+}
+function evIcs(name, reg) {
+    const iso = reg.eventDateIso;
+    if (!iso) return "";
+    const [y, mo, d] = iso.split("-").map(Number);
+    const pad = n => String(n).padStart(2, "0");
+    const t = evTimeRange(reg.workshopTime);
+    // WIB = UTC+7 -> tulis UTC biar semua kalender sepakat
+    const utc = (h, mi) => { const dt = new Date(Date.UTC(y, mo - 1, d, h - 7, mi)); return dt.getUTCFullYear() + pad(dt.getUTCMonth() + 1) + pad(dt.getUTCDate()) + "T" + pad(dt.getUTCHours()) + pad(dt.getUTCMinutes()) + "00Z"; };
+    const dateOnly = (dt) => dt.getUTCFullYear() + pad(dt.getUTCMonth() + 1) + pad(dt.getUTCDate());
+    const icsEsc = v => String(v || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+    const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Seminggu Satu//Balai Warga//ID", "CALSCALE:GREGORIAN", "BEGIN:VEVENT",
+        "UID:" + (reg.batchId || iso) + "@seminggusatu.com",
+        "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "")];
+    if (t) { lines.push("DTSTART:" + utc(t.sh, t.sm), "DTEND:" + utc(t.eh, t.em)); }
+    else {
+        const start = new Date(Date.UTC(y, mo - 1, d)), end = new Date(Date.UTC(y, mo - 1, d + 1));
+        lines.push("DTSTART;VALUE=DATE:" + dateOnly(start), "DTEND;VALUE=DATE:" + dateOnly(end));
+    }
+    lines.push("SUMMARY:" + icsEsc(name + " (Seminggu Satu)"));
+    if (reg.locationName) lines.push("LOCATION:" + icsEsc(reg.locationName));
+    lines.push("DESCRIPTION:" + icsEsc("Sampai ketemu! Info terbaru ada di grup WA peserta." + (reg.mapsLink ? "\n" + reg.mapsLink : "")));
+    lines.push("BEGIN:VALARM", "TRIGGER:-P1D", "ACTION:DISPLAY", "DESCRIPTION:" + icsEsc("Besok: " + name), "END:VALARM");
+    lines.push("END:VEVENT", "END:VCALENDAR");
+    return lines.join("\r\n");
+}
+function openEventTicket(typeId) {
+    const reg = _evRegistered && _evRegistered[typeId];
+    const ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
+    const w = ws.find(x => x.id === typeId) || {};
+    if (!reg) { activateTab("events"); return; }
+    const name = w.name || "Event";
+    const dateTxt = reg.displayDate || w.workshopDate || "";
+    const timeTxt = reg.workshopTime || w.workshopTime || "";
+    const place = reg.locationName || w.locationName || "";
+    const maps = reg.mapsLink || w.mapsLink || "";
+    const waLink = reg.whatsappGroupLink || w.whatsappGroupLink || "";
+    let days = null;
+    if (reg.eventDateIso) {
+        const now = new Date(); const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        days = Math.round((new Date(reg.eventDateIso + "T00:00:00") - today) / 86400000);
+    }
+    const when = days === null ? "" : (days <= 0 ? "Hari ini" : (days === 1 ? "Besok" : days + " hari lagi"));
+    const ics = evIcs(name, Object.assign({}, reg, { workshopTime: timeTxt, locationName: place, mapsLink: maps }));
+    const faq = Array.isArray(reg.faq) ? reg.faq : [];
+    const row = (icon, label, val) => val ? '<div class="tix-row"><span class="tix-ic" aria-hidden="true">' + icon + '</span><div><span class="tix-k">' + label + '</span><b>' + esc(val) + '</b></div></div>' : '';
+    $("questModalBox").innerHTML =
+        '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
+        '<div class="qm-body tix-body">' +
+        '<div class="tix-head">Tiket kamu</div>' +
+        '<div class="tix">' +
+        '<div class="tix-top">' +
+        (when ? '<span class="tix-when">' + esc(when) + '</span>' : '') +
+        '<div class="tix-name">' + esc(name) + '</div>' +
+        (reg.label ? '<div class="tix-batch">' + esc(reg.label) + '</div>' : '') +
+        '</div>' +
+        '<div class="tix-perf" aria-hidden="true"></div>' +
+        '<div class="tix-bottom">' +
+        row("🗓", "Tanggal", dateTxt) + row("⏱️", "Jam", timeTxt) + row("📍", "Lokasi", place) +
+        '<div class="tix-holder">a.n. <b>' + esc((_profile && _profile.nickname) || "Kamu") + '</b> · terdaftar ✓</div>' +
+        '</div>' +
+        '</div>' +
+        '<div class="tix-actions">' +
+        (maps ? '<a class="tix-btn" href="' + esc(maps) + '" target="_blank" rel="noopener">📍 Buka Maps</a>' : '') +
+        (ics ? '<button type="button" class="tix-btn" id="tixCal">🗓 Tambah ke kalender</button>' : '') +
+        (waLink ? '<a class="tix-btn primary" href="' + esc(waLink) + '" target="_blank" rel="noopener">💬 Grup WA peserta</a>' : '') +
+        '</div>' +
+        '<div class="tix-know">' +
+        '<div class="tix-know-t">Yang perlu kamu tahu</div>' +
+        '<ul>' +
+        '<li>Semua alat &amp; bahan disediain · Beginner friendly.</li>' +
+        (waLink ? '<li>Info terbaru (rundown, perubahan, foto) dikabarin di grup WA peserta.</li>' : '') +
+        '<li>Ada pertanyaan? Tanya aja di grup atau langsung ke Arnold.</li>' +
+        '</ul></div>' +
+        (faq.length
+            ? '<div class="tix-faq"><div class="tix-know-t">Sering ditanyain</div>' +
+            faq.map(f => '<details><summary>' + esc(f.question) + '</summary><p>' + esc(f.answer) + '</p></details>').join("") +
+            '</div>'
+            : '') +
+        '</div>';
+    $("questModal").classList.add("show");
+    lockScroll();
+    $("qmClose").addEventListener("click", closeQuestModal);
+    const cal = $("tixCal");
+    if (cal) cal.addEventListener("click", () => {
+        try {
+            const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = "seminggu-satu-" + typeId + ".ics";
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 4000);
+        } catch (e) { alert("Gagal bikin file kalender, coba lagi ya."); }
+    });
+}
+
 function renderEventTicket() {
     const slot = $("evTicketSlot");
     if (!slot) return; // Home belum kerender
@@ -3043,13 +3148,9 @@ function renderEventTicket() {
         '</span>' +
         '<span class="evt-count">' + esc(when) + '</span>' +
         '</button>';
-    // Tiket event terdekat -> langsung ke grup WA-nya (biar beneran kepake,
-    // bukan cuma nampang), fallback ke tab Event kalau link-nya belum keisi admin
-    $("evTicketBtn").addEventListener("click", () => {
-        const waLink = ev.reg.whatsappGroupLink || ev.w.whatsappGroupLink;
-        if (waLink) { window.open(waLink, "_blank"); return; }
-        activateTab("events");
-    });
+    // Tiket event terdekat -> halaman "Tiket kamu" (lokasi, kalender, grup WA,
+    // FAQ) -- satu tempat buat siap-siap, bukan cuma lompat ke grup WA
+    $("evTicketBtn").addEventListener("click", () => openEventTicket(ev.w.id));
 }
 
 // ---------- Recap bulanan: Wrapped mini bulan lalu (nongol tanggal 1-7) ----------
