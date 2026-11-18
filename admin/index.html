@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=22">
+  <link rel="stylesheet" href="admin-binder.css?v=23">
 </head>
 
 <body>
@@ -4301,13 +4301,16 @@
   <!-- ============ LOGIN ============ -->
   <div id="loginScreen">
     <div class="login-card">
-      <h1>Admin Dashboard</h1>
-      <p>Seminggu Satu — khusus admin</p>
+      <div class="login-brand"><img src="../images/logo-paw-tight.png" alt="" width="44" height="44"><span>Seminggu Satu</span></div>
+      <h1>Masuk ke admin</h1>
+      <p>Khusus admin. Masukin password buat lanjut.</p>
       <label for="pwd">Password</label>
-      <input class="form-control" type="password" id="pwd" placeholder="Masukkan password" autocomplete="current-password" />
-      <div style="height:14px"></div>
-      <button class="btn" id="loginBtn">Masuk</button>
-      <div class="msg" id="loginMsg"></div>
+      <div class="login-pw">
+        <input class="form-control" type="password" id="pwd" placeholder="Password admin" autocomplete="current-password" />
+        <button type="button" class="login-eye" id="pwdEye" aria-label="Tampilkan password" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg></button>
+      </div>
+      <button class="btn login-btn" id="loginBtn">Masuk</button>
+      <div class="msg" id="loginMsg" role="alert"></div>
     </div>
   </div>
 
@@ -7120,6 +7123,25 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
     function clearToken() { localStorage.removeItem(TOKEN_KEY); }
 
+    // ---- Micro-interaction kecil yang dipakai di mana-mana ----
+    // abBusy: tombol nunjukin spinner + teks proses, nggak bisa diklik dobel.
+    function abBusy(btn, on, label) {
+      if (!btn) return;
+      if (on) {
+        if (btn.dataset.abBusy) return;
+        btn.dataset.abBusy = btn.innerHTML;
+        btn.disabled = true; btn.classList.add("is-busy"); btn.setAttribute("aria-busy", "true");
+        btn.innerHTML = `<span class="ab-spin" aria-hidden="true"></span>${label ? escapeHtml(label) + "…" : btn.innerHTML}`;
+      } else if (btn.dataset.abBusy != null) {
+        btn.innerHTML = btn.dataset.abBusy; delete btn.dataset.abBusy;
+        btn.disabled = false; btn.classList.remove("is-busy"); btn.removeAttribute("aria-busy");
+      }
+    }
+    function abShake(el) {
+      if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      el.classList.remove("ab-shake"); void el.offsetWidth; el.classList.add("ab-shake");
+    }
+
     // ---------- LOGIN ----------
     const loginBtn = document.getElementById("loginBtn");
     const pwdInput = document.getElementById("pwd");
@@ -7128,9 +7150,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     async function doLogin() {
       const password = pwdInput.value.trim();
       if (!password) return;
-      loginBtn.disabled = true;
+      abBusy(loginBtn, true, "Memeriksa");
       loginMsg.className = "msg";
-      loginMsg.textContent = "Memeriksa...";
+      loginMsg.textContent = "";
       try {
         const r = await api("login", { password });
         if (r.status === "success" && r.token) {
@@ -7138,15 +7160,24 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           showDashboard();
         } else {
           loginMsg.className = "msg err";
-          loginMsg.textContent = r.message || "Login gagal.";
+          loginMsg.textContent = r.message || "Password salah. Coba lagi.";
+          abShake(document.querySelector(".login-card"));
+          pwdInput.select();
         }
       } catch (e) {
         loginMsg.className = "msg err";
-        loginMsg.textContent = "Gagal terhubung ke server.";
+        loginMsg.textContent = "Gagal terhubung ke server. Cek koneksi lalu coba lagi.";
       } finally {
-        loginBtn.disabled = false;
+        abBusy(loginBtn, false);
       }
     }
+    document.getElementById("pwdEye").addEventListener("click", (e) => {
+      const b = e.currentTarget, show = pwdInput.type === "password";
+      pwdInput.type = show ? "text" : "password";
+      b.setAttribute("aria-pressed", show ? "true" : "false");
+      b.setAttribute("aria-label", show ? "Sembunyikan password" : "Tampilkan password");
+      pwdInput.focus();
+    });
     loginBtn.addEventListener("click", doLogin);
     pwdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
 
