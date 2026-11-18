@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <script src="../icons.js?v=1"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <meta name="theme-color" content="#f4f7ff" data-light="#f4f7ff" data-dark="#0d1526">
     <script src="../theme.js"></script>
     <title>Seminggu Satu — Links</title>
     <meta name="description" content="Semua tautan Seminggu Satu: workshop yang lagi buka, rekomendasi alat journaling, dan sosial media.">
@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
         rel="stylesheet">
 
     <!-- Icons (Lucide) -->
@@ -25,276 +25,282 @@
     <script src="../workshop-config.js?v=3"></script>
 
     <style>
+        /* =========================================================
+           Links (link di bio IG) -- dunia "Binder Diary", lihat DESIGN.md.
+           Sampul biru berjahit -> index tab -> lembar kertas bergaris
+           berisi baris tautan. Kedalaman: kertas < foto < stiker.
+           ========================================================= */
         :root {
-            --bg: #ffffff;
-            --bg-card: #ffffff;
-            --text-1: #111827;
-            --text-2: #6b7280;
-            --text-3: #9ca3af;
-            --border: #e5e7eb;
-            --accent: #111827;
-            --accent-light: #f3f4f6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --radius: 18px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
-            --shadow-md: 0 8px 30px rgba(0,0,0,0.06);
-            --shadow-lg: 0 20px 50px rgba(0,0,0,0.08);
+            --desk: #f4f7ff;
+            --paper: #ffffff;
+            --board: #0046ff;
+            --ink: #10245e;
+            --text-2: #4a5674;
+            --text-3: #5f6b8a;
+            --rule: #d6e3ff;
+            --margin-line: #ff8fb8;
+            --accent-text: #0046ff;
+            --yellow: #ffe600;
+            --pink: #ff8fb8;
+            --peel: #dfe7fb;
+            --tint: 16, 36, 94;
+            --depth-paper: 0 1px 2px rgba(16, 36, 94, 0.10), 0 6px 16px rgba(16, 36, 94, 0.06);
+            --depth-photo: 0 10px 22px rgba(16, 36, 94, 0.18);
+            --depth-sticker: 0 0 0 3px #ffffff, 0 4px 8px rgba(16, 36, 94, 0.22);
+            --washi-pink: repeating-linear-gradient(90deg, rgba(255, 143, 184, 0.72) 0 6px, rgba(255, 196, 218, 0.72) 6px 12px);
         }
-
-        /* ---- Dark mode ---- */
         :root[data-theme="dark"] {
-            --bg: #0d1526;
-            --bg-card: #172035;
-            --text-1: #eaeffc;
+            --desk: #0d1526;
+            --paper: #18213b;
+            --ink: #eaeffc;
             --text-2: #9fabc9;
-            --text-3: #7c88a6;
-            --border: #2a3550;
-            --accent: #5b8cff;
-            --accent-light: #202c47;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-            --shadow-md: 0 8px 30px rgba(0,0,0,0.5);
-            --shadow-lg: 0 20px 50px rgba(0,0,0,0.6);
+            --text-3: #8b97b6;
+            --rule: #27355e;
+            --margin-line: #b85a82;
+            --accent-text: #7aa2ff;
+            --peel: #33467a;
+            --tint: 0, 0, 0;
+            --depth-paper: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 18px rgba(0, 0, 0, 0.35);
+            --depth-photo: 0 10px 22px rgba(0, 0, 0, 0.5);
+            --depth-sticker: 0 0 0 3px #ffffff, 0 4px 10px rgba(0, 0, 0, 0.5);
         }
-        :root[data-theme="dark"] .profile-logo { filter: invert(1); }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html, body { overflow-x: clip; }
-
+        ::selection { background: var(--yellow); color: #10245e; }
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text-1);
+            font-family: 'Open Sans', -apple-system, sans-serif;
+            color: var(--ink);
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            background-color: var(--desk);
+            background-image: radial-gradient(rgba(var(--tint), 0.09) 1px, transparent 1.2px);
+            background-size: 22px 22px;
         }
+        :root[data-theme="dark"] body { background-image: radial-gradient(rgba(234, 239, 252, 0.06) 1px, transparent 1.2px); }
+        h1, h2 { font-family: 'Outfit', sans-serif; }
+        a { color: inherit; }
+        a:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 3px; border-radius: 10px; }
 
-        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        .page { max-width: 480px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
 
-        .page {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 2.5rem 1.25rem 3rem;
-        }
-
-        /* --- Profile --- */
-        .profile { text-align: center; margin-bottom: 2rem; }
-
-        .profile-logo {
-            width: auto;
-            height: 112px;
-            max-width: 260px;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto 0.5rem;
-            animation: fadeIn 0.6s ease both;
-        }
-
-        .profile-subtitle {
-            font-size: 0.72rem;
-            color: var(--text-2);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2.5px;
-            margin-bottom: 0.9rem;
-            animation: fadeIn 0.6s ease 0.1s both;
-        }
-
-        .profile-bio {
-            font-size: 0.9rem;
-            color: var(--text-2);
-            line-height: 1.6;
-            max-width: 300px;
-            margin: 0 auto;
-            animation: fadeIn 0.6s ease 0.2s both;
-        }
-
-        /* --- Section --- */
-        .section { margin-top: 1.75rem; }
-        .section-title {
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-3);
-            margin-bottom: 0.85rem;
-            padding-left: 4px;
-        }
-
-        .link-list { display: flex; flex-direction: column; gap: 0.75rem; }
-
-        /* --- Link Card (linktree style) --- */
-        .link-card {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            padding: 0.95rem 1.1rem;
-            text-decoration: none;
-            color: var(--text-1);
-            box-shadow: var(--shadow-sm);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            animation: slideUp 0.45s ease both;
+        /* ---- Sampul binder berjahit ---- */
+        .profile {
             position: relative;
-            overflow: hidden;
+            padding: 1.4rem 1.3rem 1.5rem 2.75rem;
+            color: #ffffff;
+            border-radius: 14px 24px 24px 14px;
+            background-color: var(--board);
+            background-image:
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.045) 0 2px, transparent 2px 6px),
+                repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 6px);
+            box-shadow: var(--depth-photo), inset 6px 0 10px rgba(0, 0, 0, 0.18);
         }
-        .link-card:hover, .link-card:active {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent);
+        .profile::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 22px;
+            border-radius: 14px 0 0 14px;
+            background: rgba(0, 0, 0, 0.18);
+            box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.10);
         }
-        .link-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; bottom: 0;
-            width: 3px;
-            background: linear-gradient(180deg, var(--accent), #6366f1);
-            opacity: 0;
-            transition: opacity 0.25s ease;
+        .profile::after {
+            content: ""; position: absolute; inset: 8px 8px 8px 30px;
+            border: 2px dashed rgba(255, 255, 255, 0.45);
+            border-radius: 8px 17px 17px 8px;
+            pointer-events: none;
         }
-        .link-card:hover::before { opacity: 1; }
+        .profile-top { position: relative; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+        .name-label {
+            display: inline-block;
+            background: #ffffff; color: #10245e;
+            padding: 0.55rem 0.95rem 0.5rem;
+            border-radius: 12px;
+            box-shadow: var(--depth-sticker);
+            transform: rotate(-2deg);
+        }
+        .name-label h1 { font-size: 1.7rem; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
+        .name-label p { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.92rem; color: #0046ff; margin-top: 0.2rem; }
+        .paw-sticker {
+            flex-shrink: 0;
+            width: 74px; height: 74px; border-radius: 50%;
+            background: var(--yellow);
+            box-shadow: var(--depth-sticker);
+            display: flex; align-items: center; justify-content: center;
+            transform: rotate(9deg);
+        }
+        .paw-sticker img { width: 56px; height: 56px; object-fit: contain; }
+        .profile-bio {
+            position: relative; z-index: 1;
+            margin-top: 1.1rem;
+            font-size: 0.95rem; line-height: 1.55;
+            color: rgba(255, 255, 255, 0.94);
+            max-width: 32ch;
+        }
 
+        /* ---- Index tab + lembar kertas bergaris ---- */
+        .section { margin-top: 2.4rem; }
+        .section-title {
+            position: relative; z-index: 0;
+            display: inline-block;
+            margin: 0 0 -0.4rem 1rem;
+            padding: 0.5rem 1.05rem 0.85rem;
+            border-radius: 14px 14px 0 0;
+            background: var(--yellow); color: #10245e;
+            font-size: 1.08rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em;
+        }
+        .section:nth-of-type(2) .section-title { background: var(--pink); }
+        .link-list {
+            position: relative; z-index: 1;
+            background: var(--paper);
+            border-radius: 6px 16px 16px 6px;
+            box-shadow: var(--depth-paper);
+            padding: 0.4rem 0.9rem 0.4rem 2.6rem;
+        }
+        /* margin pink + lubang binder */
+        .link-list::before {
+            content: ""; position: absolute; left: 1.9rem; top: 0; bottom: 0; width: 2px;
+            background: var(--margin-line); opacity: .85;
+        }
+        .link-list::after {
+            content: ""; position: absolute; left: 0.55rem; top: 1.4rem; width: 13px; height: 13px; border-radius: 50%;
+            background: var(--desk);
+            box-shadow: inset 0 1px 2px rgba(var(--tint), 0.25);
+        }
+
+        /* ---- Satu baris tautan = satu baris di kertas ---- */
+        .link-card {
+            display: flex; align-items: center; gap: 0.8rem;
+            min-height: 64px;
+            padding: 0.7rem 0.2rem 0.7rem 0.4rem;
+            text-decoration: none;
+            border-bottom: 1px solid var(--rule);
+            animation: fadeIn .4s cubic-bezier(.16, 1, .3, 1) both;
+            transition: background-color .15s ease;
+            border-radius: 6px;
+        }
+        .link-card:last-child { border-bottom: none; }
+        a.link-card:hover { background: rgba(255, 230, 0, 0.18); }
+        a.link-card:active { background: rgba(255, 230, 0, 0.3); }
         .lc-icon {
             flex-shrink: 0;
-            width: 44px; height: 44px;
-            border-radius: 12px;
-            background: var(--accent-light);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.35rem;
-            line-height: 1;
-        }
-        .lc-icon i { width: 22px; height: 22px; color: var(--text-1); }
-        .lc-img { width: 26px; height: 26px; object-fit: contain; border-radius: 6px; }
-
-        .lc-body { flex: 1; min-width: 0; }
-        .lc-title {
-            display: block;
-            font-weight: 600;
-            font-size: 0.95rem;
-            line-height: 1.3;
-        }
-        .lc-sub {
-            display: block;
-            font-size: 0.78rem;
-            color: var(--text-2);
-            margin-top: 2px;
-            white-space: nowrap;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--yellow); color: #10245e;
+            box-shadow: var(--depth-sticker);
+            display: flex; align-items: center; justify-content: center;
+            transform: rotate(-6deg);
             overflow: hidden;
-            text-overflow: ellipsis;
         }
+        .lc-icon svg { width: 20px; height: 20px; }
+        .lc-img { width: 100%; height: 100%; object-fit: cover; }
+        .lc-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .lc-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1rem; line-height: 1.25; color: var(--ink); }
+        .lc-sub { font-size: 0.82rem; color: var(--text-3); line-height: 1.4; }
+        .lc-chevron { flex-shrink: 0; width: 20px; height: 20px; color: var(--accent-text); }
 
-        .lc-chevron { width: 18px; height: 18px; color: var(--text-3); flex-shrink: 0; }
-
+        /* tag status = stiker */
         .lc-tag {
             flex-shrink: 0;
-            font-size: 0.68rem;
-            font-weight: 700;
-            padding: 0.3rem 0.65rem;
-            border-radius: 99px;
-            letter-spacing: 0.3px;
-        }
-        .tag-open { background: rgba(16,185,129,0.12); color: #059669; }
-        .tag-soon { background: rgba(245,158,11,0.12); color: #b45309; }
-        .tag-full { background: var(--accent-light); color: var(--text-3); }
-        .tag-checking {
-            background: var(--accent-light); color: var(--text-2);
             display: inline-flex; align-items: center; gap: 4px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.82rem;
+            box-shadow: var(--depth-sticker);
+            transform: rotate(-3deg);
+            white-space: nowrap;
         }
-        .tag-checking i { width: 12px; height: 12px; animation: spin 1s linear infinite; }
+        .tag-open { background: #0046ff; color: #ffffff; }
+        .tag-soon { background: #ffffff; color: #10245e; }
+        .tag-checking { background: #e6edff; color: #4a5674; box-shadow: none; transform: none; }
+        .tag-checking svg { width: 14px; height: 14px; animation: spin 1s linear infinite; }
+        .ws-card.soon .lc-icon { background: #ffffff; }
+        .ws-card.checking { opacity: .85; }
 
-        .ws-card.soon { opacity: 0.85; }
-        .ws-card.full, .ws-card.checking { cursor: default; }
-        .ws-card.full { opacity: 0.6; }
-        .ws-card.checking { opacity: 0.75; }
-        .ws-card.full:hover, .ws-card.checking:hover { transform: none; box-shadow: var(--shadow-sm); border-color: var(--border); }
-        .ws-card.full:hover::before, .ws-card.checking:hover::before { opacity: 0; }
-
-        /* --- Skeleton --- */
         .skel {
-            height: 74px;
-            border-radius: var(--radius);
-            background: linear-gradient(90deg, #f3f4f6 25%, #eaecef 37%, #f3f4f6 63%);
-            background-size: 400% 100%;
-            animation: shimmer 1.3s ease infinite;
+            height: 52px; margin: 0.7rem 0; border-radius: 10px;
+            background: linear-gradient(90deg, var(--rule) 0%, rgba(214, 227, 255, .35) 50%, var(--rule) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.3s linear infinite;
         }
+        .empty-note { padding: 1rem 0.4rem; color: var(--text-3); font-size: 0.9rem; }
 
-        .empty-note {
-            font-size: 0.85rem;
-            color: var(--text-3);
-            text-align: center;
-            padding: 0.75rem;
-        }
-
-        /* --- Home CTA --- */
-        .home-cta {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-            background: var(--accent);
-            color: #fff;
-            border-radius: var(--radius);
-            padding: 1.05rem 1.2rem;
+        /* ---- Balai Warga: strip biru ditempel washi ---- */
+        .balai-cta {
+            position: relative;
+            display: flex; align-items: center; gap: 0.9rem;
+            padding: 1.1rem 1rem;
+            background: var(--board); color: #ffffff;
+            border-radius: 14px;
+            box-shadow: var(--depth-photo);
             text-decoration: none;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            animation: slideUp 0.45s ease both;
+            transform: rotate(-0.6deg);
         }
-        .home-cta:hover, .home-cta:active {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+        .balai-cta::before {
+            content: ""; position: absolute; top: -10px; right: 22%;
+            width: 76px; height: 20px;
+            background: var(--washi-pink);
+            transform: rotate(4deg);
         }
-        .home-cta-body { flex: 1; min-width: 0; }
-        .home-cta-title {
-            display: block;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
+        .balai-cta-ic {
+            flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--yellow); color: #10245e;
+            box-shadow: var(--depth-sticker);
+            display: flex; align-items: center; justify-content: center;
         }
-        .home-cta-sub {
-            display: block;
-            font-size: 0.78rem;
-            color: rgba(255,255,255,0.7);
-            margin-top: 2px;
-        }
-        .home-cta i { width: 20px; height: 20px; color: #fff; flex-shrink: 0; }
+        .balai-cta-ic svg { width: 22px; height: 22px; }
+        .balai-cta-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        .balai-cta-body b { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 800; }
+        .balai-cta-body span { font-size: 0.85rem; line-height: 1.45; color: rgba(255, 255, 255, .9); }
+        .balai-cta-go { flex-shrink: 0; display: flex; }
+        .balai-cta-go svg { width: 22px; height: 22px; }
 
-        /* --- Balai Warga CTA --- */
-        .balai-cta { display: flex; align-items: center; gap: 12px; text-decoration: none; background: linear-gradient(120deg, #0046ff, #2f6bff); color: #fff; border-radius: var(--radius); padding: 1.05rem 1.2rem; box-shadow: var(--shadow-md); transition: transform 0.2s ease, box-shadow 0.2s ease; animation: slideUp 0.45s ease both; }
-        .balai-cta:hover, .balai-cta:active { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-        .balai-cta-ic { flex: none; font-size: 1.6rem; }
-        .balai-cta-body { flex: 1; min-width: 0; }
-        .balai-cta-body b { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; }
-        .balai-cta-body span { display: block; font-size: 0.76rem; opacity: 0.9; margin-top: 2px; line-height: 1.5; }
-        .balai-cta-go { flex: none; font-weight: 800; font-size: 1.1rem; color: #ffe600; }
-
-        /* --- Footer --- */
-        .foot {
-            text-align: center;
-            margin-top: 2.5rem;
-            font-size: 0.75rem;
-            color: var(--text-3);
+        /* ---- Ke Home: stiker putih, ujungnya kelupas ---- */
+        .home-cta {
+            position: relative;
+            display: flex; align-items: center; gap: 0.8rem;
+            min-height: 56px;
+            padding: 0.9rem 1.1rem;
+            background: #ffffff; color: #10245e;
+            border-radius: 14px;
+            box-shadow: var(--depth-sticker);
+            text-decoration: none;
+            transform: rotate(0.6deg);
+            transition: transform .18s ease;
         }
-        .foot a { color: var(--text-2); text-decoration: none; font-weight: 600; }
+        .home-cta::after {
+            content: ""; position: absolute; right: 0; bottom: 0;
+            width: 14px; height: 14px;
+            border-radius: 0 0 14px 0;
+            background: linear-gradient(315deg, var(--desk) 0 48%, var(--peel) 50% 100%);
+            box-shadow: -2px -2px 4px rgba(var(--tint), 0.18);
+            transition: width .2s ease, height .2s ease;
+        }
+        .home-cta:hover { transform: rotate(1.2deg) translateY(-2px); }
+        .home-cta:hover::after { width: 28px; height: 28px; }
+        .home-cta-body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+        .home-cta-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.02rem; }
+        .home-cta-sub { font-size: 0.82rem; color: #4a5674; }
+        .home-cta svg { width: 20px; height: 20px; color: #0046ff; flex-shrink: 0; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-        @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+        .foot { text-align: center; margin-top: 2.6rem; color: var(--text-3); font-size: 0.82rem; }
+        .foot a { color: var(--accent-text); font-weight: 700; text-decoration: none; }
+        .foot a:hover { text-decoration: underline; text-decoration-color: var(--pink); text-decoration-thickness: 2px; }
+
+        @keyframes fadeIn { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+        @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
     </style>
 </head>
 
 <body>
     <main class="page">
         <header class="profile">
-            <img src="../images/black.png" alt="Seminggu Satu" class="profile-logo">
-            <p class="profile-subtitle">by Arnold</p>
-            <p class="profile-bio">Creative workshop & journaling community. Semua yang kamu butuhin ada di sini ✨🐾</p>
+            <div class="profile-top">
+                <div class="name-label"><h1>Seminggu Satu</h1><p>by Arnold</p></div>
+                <span class="paw-sticker" aria-hidden="true"><img src="../images/logo-paw-tight.png" alt="" width="240" height="240"></span>
+            </div>
+            <p class="profile-bio">Creative workshop &amp; journaling community. Semua yang kamu butuhin ada di sini.</p>
         </header>
 
         <!-- Daftar event (auto dari config) -->
@@ -315,12 +321,12 @@
         <!-- Balai Warga -->
         <section class="section">
             <a class="balai-cta" href="../balai/">
-                <span class="balai-cta-ic">🏘️</span>
+                <span class="balai-cta-ic" aria-hidden="true"><i data-lucide="house"></i></span>
                 <span class="balai-cta-body">
-                    <b>Intip Balai Warga 🐾</b>
+                    <b>Intip Balai Warga</b>
                     <span>Kenalan sama warga komunitasnya, lihat karya & keseruannya di dalam</span>
                 </span>
-                <span class="balai-cta-go">→</span>
+                <span class="balai-cta-go" aria-hidden="true"><i data-lucide="arrow-right"></i></span>
             </a>
         </section>
 
@@ -336,7 +342,7 @@
         </section>
 
         <footer class="foot">
-            <a href="../index.html">seminggusatu.com</a> · dibuat dengan 🤍
+            <a href="../index.html">seminggusatu.com</a> · dibuat bareng warga
         </footer>
     </main>
 
