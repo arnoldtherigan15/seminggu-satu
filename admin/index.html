@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=31">
+  <link rel="stylesheet" href="admin-binder.css?v=32">
 </head>
 
 <body>
@@ -9697,7 +9697,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const box = document.getElementById("ideaGroups");
       if (!box) return;
       const active = EVENT_IDEAS.filter(i => !i.archived);
-      if (!active.length) { box.innerHTML = '<p class="hint">Belum ada ide.</p>'; return; }
+      if (!active.length) { box.innerHTML = '<div class="empty">Belum ada ide event. Tap "Ide baru" buat nyatet yang pertama.</div>'; return; }
       const groups = {};
       active.forEach(idea => {
         const key = idea.target_month || "__someday__";
@@ -9708,20 +9708,19 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (groups.__someday__) monthKeys.push("__someday__");
 
       box.innerHTML = monthKeys.map(mk => {
-        const label = mk === "__someday__" ? "Someday / Belum Ditentukan" : fmtMonthLabel(mk);
+        const label = mk === "__someday__" ? "Belum ada bulan" : fmtMonthLabel(mk);
         const rows = groups[mk].map(idea => {
           const wsName = idea.workshop_type ? workshopName(idea.workshop_type) : "Konsep baru";
           const venueName = (idea.venues && idea.venues.name) ? idea.venues.name : "TBD";
           const pCount = (idea.partners || []).length;
-          return `<div class="fin-card" style="margin-bottom:8px;padding:14px;cursor:pointer;" data-editidea="${idea.id}">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
-              <b>${escapeHtml(idea.title)}</b>
-              <span class="per-badge" style="background:${IDEA_STATUS_COLORS[idea.status] || "#e9ecf5"};color:var(--ink);white-space:nowrap;flex-shrink:0;">${IDEA_STATUS_LABELS[idea.status] || idea.status}</span>
-            </div>
-            <div class="hint" style="margin-top:4px;">${escapeHtml(wsName)} · ${icon("geo")} ${escapeHtml(venueName)}${pCount ? ` · ${pCount} partner${pCount > 1 ? "s" : ""}` : ""}</div>
+          return `<div class="kt-row">
+            <span class="kt-thumb"><span class="kt-ico">${icon("lightbulb")}</span></span>
+            <button type="button" class="kt-main" data-editidea="${idea.id}"><b>${escapeHtml(idea.title)}</b>
+              <small>${escapeHtml(wsName)} · ${escapeHtml(venueName)}${pCount ? ` · ${pCount} partner` : ""}</small></button>
+            <span class="idea-st" style="background:${IDEA_STATUS_COLORS[idea.status] || "#e9ecf5"};">${escapeHtml(IDEA_STATUS_LABELS[idea.status] || idea.status || "")}</span>
           </div>`;
         }).join("");
-        return `<div style="margin-bottom:18px;"><div style="font-weight:800;margin-bottom:8px;">${label}</div>${rows}</div>`;
+        return `<section class="idea-month"><h3>${label} <span>${groups[mk].length}</span></h3><div class="kt-list">${rows}</div></section>`;
       }).join("");
       box.querySelectorAll("[data-editidea]").forEach(el => el.addEventListener("click", () => editIdea(el.dataset.editidea)));
     }
@@ -15677,16 +15676,16 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const list = document.getElementById("pesOrderList");
       const cnt = document.getElementById("pesOrderCount");
       if (cnt) cnt.textContent = "(" + PES_ORDERS.length + ")";
-      if (!PES_ORDERS.length) { list.innerHTML = '<p class="hint">Belum ada pesanan masuk di event ini.</p>'; return; }
+      if (!PES_ORDERS.length) { list.innerHTML = '<div class="empty">Belum ada pesanan masuk di event ini. Bagikan link pesan ke grup WA peserta.</div>'; return; }
       const filtered = pesOrderFilterMenuId ? PES_ORDERS.filter(o => o.menuItemId === pesOrderFilterMenuId) : PES_ORDERS;
       if (!filtered.length) { list.innerHTML = '<p class="hint">Nggak ada pesanan buat menu ini.</p>'; return; }
-      list.innerHTML = filtered.map(o =>
-        `<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer;" data-editorder="${o.id}">
-           <div style="flex:1;min-width:0;"><b>${escapeHtml(o.participantName)}</b>
-             <div style="font-size:.8rem;color:#6b7280;">${escapeHtml(menuNameById(o.menuItemId))}</div></div>
-           <button class="btn btn-sm" data-delorder="${o.id}" style="background:#fee2e2;color:var(--err);flex-shrink:0;">${icon("trash")}</button>
+      list.innerHTML = `<div class="kt-list">` + filtered.slice().sort((a, b) => String(a.participantName).localeCompare(String(b.participantName), "id")).map(o =>
+        `<div class="kt-row">
+           <span class="kt-thumb"><span class="kt-ava">${escapeHtml(String(o.participantName || "?").trim().charAt(0).toUpperCase())}</span></span>
+           <button type="button" class="kt-main" data-editorder="${o.id}"><b>${escapeHtml(o.participantName)}</b><small>${icon("cup")} ${escapeHtml(menuNameById(o.menuItemId))}</small></button>
+           <span class="kt-acts"><button type="button" class="kt-btn danger" data-delorder="${o.id}" title="Hapus pesanan" aria-label="Hapus pesanan">${icon("trash")}</button></span>
          </div>`
-      ).join("");
+      ).join("") + `</div>`;
       list.querySelectorAll("[data-editorder]").forEach(b => b.addEventListener("click", () => editOrder(b.dataset.editorder)));
       list.querySelectorAll("[data-delorder]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); deleteOrder(b.dataset.delorder); }));
     }
