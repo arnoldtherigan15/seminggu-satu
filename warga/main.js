@@ -1207,6 +1207,12 @@ function renderQuestBook(host, ids) {
     }
 
     setPages(_qbCur);
+    // tap foto inspirasi / foto karya teman -> lihat penuh (delegasi di buku,
+    // soalnya isi halaman dipindah-pindah antar halaman & leaf pas flip)
+    book.addEventListener("click", (e) => {
+        const img = e.target.closest(".qb-pola-img img, .qb-friends img");
+        if (img && img.src) { e.stopPropagation(); openPhotoLightbox(img.src); }
+    });
     $("qbPrev").addEventListener("click", () => flip(-1));
     $("qbNext").addEventListener("click", () => flip(1));
     // swipe kiri/kanan di atas buku = flip
@@ -1302,6 +1308,8 @@ function openQuestDetail(i) {
         '<div class="quest-action" id="qmAction" style="margin-top:14px;"></div>' +
         '</div>';
     renderQuestAction(q, i);
+    const qImg = $("questModalBox").querySelector(".qm-img");
+    if (qImg) qImg.addEventListener("click", () => openPhotoLightbox(qImg.src));
     modal.classList.add("show");
     lockScroll();
     $("qmClose").addEventListener("click", closeQuestModal);
@@ -2662,10 +2670,10 @@ function openCheckinModal(wa) {
     $("questModalBox").innerHTML =
         '<div class="qm-topbar"><button class="qm-close" id="qmClose" aria-label="Tutup">✕</button></div>' +
         '<div class="qm-body">' +
-        '<div class="quest-game-title">✍️ Weekly Check-In</div>' +
-        '<div class="quest-game-desc">Udah journaling minggu ini? Simpan memorinya — foto spreadnya + refleksi singkat. Fotonya bakal ada di Gallery 💙</div>' +
-        photoPickerHtml("Add this week's journal photo (optional)", "Refleksi singkat minggu ini… ✨ (opsional)") +
-        '<button class="btn-primary" id="ciSave" style="margin-top:12px;">✓ Check In (+1 Streak)</button>' +
+        '<div class="quest-game-title">Check-in minggu ini</div>' +
+        '<div class="quest-game-desc">Udah journaling minggu ini? Simpan memorinya: foto spread-nya dan refleksi singkat. Fotonya bakal muncul di Gallery.</div>' +
+        photoPickerHtml("Tambah foto jurnal minggu ini (opsional)", "Refleksi singkat minggu ini… (opsional)") +
+        '<button class="btn-primary" id="ciSave" style="margin-top:14px;">Simpan check-in</button>' +
         '</div>';
     modal.classList.add("show");
     lockScroll();

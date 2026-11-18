@@ -1557,32 +1557,34 @@
 #questModalBox .q-obj-header { color: #4a5674; font-family: 'Outfit', sans-serif; font-weight: 800; letter-spacing: 0; text-transform: none; font-size: .9rem; }
 #questModalBox .q-obj-text { color: #10245e; font-weight: 600; }
 
-/* slot foto + caption */
-#questModalBox .qm-file,
-:root[data-theme="dark"] #questModalBox .qm-file {
+/* slot foto + caption: GLOBAL (challenge, check-in mingguan, Selipan Jurnal,
+   Barter, ganti foto profil) -- semua form upload foto pakai bentuk yang sama */
+.qm-file,
+:root[data-theme="dark"] .qm-file {
     border: 2px dashed var(--blue);
     border-radius: 12px;
     background: rgba(0, 70, 255, .04);
     padding: 1.2rem 1rem;
 }
-#questModalBox .qm-file-ic {
+.qm-file-ic {
     width: 46px; height: 46px; border-radius: 50%;
     background: var(--bw-yellow); color: #10245e;
     box-shadow: var(--bw-depth-sticker);
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 6px;
 }
-#questModalBox .qm-file-ic .ss-ic { width: 22px; height: 22px; }
-#questModalBox .qm-file-lbl { color: var(--blue); font-family: 'Outfit', sans-serif; }
-#questModalBox .qm-cap-input,
-:root[data-theme="dark"] #questModalBox .qm-cap-input {
+
+.qm-file-ic .ss-ic { width: 22px; height: 22px; }
+.qm-file-lbl { color: var(--blue); font-family: 'Outfit', sans-serif; }
+.qm-cap-input,
+:root[data-theme="dark"] .qm-cap-input {
     border: 2px solid var(--bw-field);
     border-radius: 14px;
     background: var(--bw-paper);
     color: var(--bw-ink);
     font-size: 1rem;
 }
-#questModalBox .qm-cap-input:focus { outline: none; border-color: #0046ff; box-shadow: 0 0 0 4px rgba(255, 230, 0, .55); }
+.qm-cap-input:focus { outline: none; border-color: #0046ff; box-shadow: 0 0 0 4px rgba(255, 230, 0, .55); }
 
 /* tombol */
 #questModalBox .btn-quest-start {
@@ -1608,3 +1610,33 @@
 #questModalBox .ev-done { background: var(--bw-note); color: #10245e; border: none; border-radius: 3px; box-shadow: var(--bw-depth-paper); }
 #questModalBox .qm-polaroid { background: #ffffff; border: none; border-radius: 3px; box-shadow: var(--bw-depth-photo); }
 #questModalBox .qm-edit-fab { background: #ffffff; color: #10245e; border: none; box-shadow: var(--bw-depth-sticker); }
+
+.qm-file.ok, :root[data-theme="dark"] .qm-file.ok { border-style: solid; }
+.qm-preview img { border: 6px solid #ffffff; border-bottom-width: 14px; border-radius: 2px; box-shadow: var(--bw-depth-photo); }
+
+/* tombol utama di mana pun = stiker biru */
+.btn-primary {
+    min-height: 50px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    border-radius: 14px;
+    background: #0046ff;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 800;
+}
+.btn-primary:disabled { background: #e6edff; color: #4a5674; box-shadow: none; }
+
+/* pembungkus form Selipan Jurnal / Barter: bukan kotak hijau putus-putus lagi */
+.jn-compose, .bt-compose,
+:root[data-theme="dark"] .jn-compose, :root[data-theme="dark"] .bt-compose {
+    background: transparent;
+    border: none;
+    border-top: 2px dashed var(--bw-rule);
+    border-radius: 0;
+    padding: 16px 0 4px;
+}
+
+/* foto yang bisa di-tap buat dilihat penuh */
+.qb-pola-img img, .qb-friends img, #questModalBox .qm-img, .mpk-photo img { cursor: zoom-in; }
+.photo-lightbox img { border: 8px solid #ffffff; border-bottom-width: 18px; border-radius: 3px; }
+.photo-lightbox-close { width: 44px; height: 44px; background: #ffffff; color: #10245e; box-shadow: var(--bw-depth-sticker); }
+.photo-lightbox-close .ss-ic { width: 20px; height: 20px; }
