@@ -2,6 +2,23 @@
 //  Member Hub (/member) — login/daftar akun + portal
 // ============================================================
 const TOKEN_KEY = "ss_member_token";
+
+// ---------- Preload foto (story & lightbox galeri) ----------
+// Biar pindah slide mulus: foto tetangga udah diunduh + di-decode duluan
+// SEBELUM di-tap, jadi pas slide ganti gambarnya langsung ada (nggak shimmer).
+// _imgReady = URL yang udah siap tampil -> shimmer di-skip buat URL ini.
+const _imgPre = new Map();
+const _imgReady = new Set();
+function preloadImg(url) {
+    if (!url || _imgPre.has(url)) return;
+    const im = new Image();
+    im.decoding = "async";
+    im.src = url;
+    _imgPre.set(url, im); // simpan referensi biar nggak di-GC sebelum kelar
+    const done = () => { _imgReady.add(url); };
+    if (im.decode) im.decode().then(done, () => { im.onload = done; });
+    else im.onload = done;
+}
 const QUEST_WA_GROUP = "https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?s=cl&p=i&ilr=0&amv=0"; // grup WA buat kirim spread challenge
 const ADMIN_WA = "6281214574782"; // WA Arnold buat claim voucher ulang tahun
 let _wa = "";        // wa (normalized) yang lagi diproses
@@ -3248,6 +3265,7 @@ function pushTagCheckin(weekKey) {
         if (img._shim) return;
         img._shim = true;
         if (SKIP_SRC.test(img.src || "") || img.classList.contains("wr-imgstk") || img.classList.contains("mp-imgstk")) return;
+        if (_imgReady.has(img.getAttribute("src")) || _imgReady.has(img.src)) return; // udah di-preload -> langsung tampil
         if (img.complete) return; // udah ke-load (atau udah error) -> nggak perlu
         img.classList.add("img-shimmer");
         const done = () => img.classList.remove("img-shimmer");
@@ -5783,6 +5801,11 @@ function openGalleryLightbox(it) {
         '</div>';
     modal.classList.add("show");
     lockScroll();
+    // foto sebelah kiri/kanan diunduh duluan biar swipe berikutnya langsung tampil
+    [box._lbIdx + 1, box._lbIdx + 2, box._lbIdx - 1].forEach(k => {
+        const x = box._lbList[k];
+        if (x && x.photo) preloadImg(driveThumb(x.photo));
+    });
     $("qmClose").addEventListener("click", closeQuestModal);
     const likeBtn = box.querySelector(".ig-btn-like");
     if (likeBtn) likeBtn.addEventListener("click", () => toggleLike(it.id));
@@ -9012,6 +9035,25 @@ function renderStoryViewer() {
     const cube = $("storyCube");
     const curFace = cube.querySelector(".story-face.cur");
     const curBox = curFace.querySelector(".story-box");
+
+    // Foto belum siap? progress bar ditahan dulu (kayak IG) -- jangan sampai
+    // waktu 3,5 dtk habis kepake buat loading terus loncat ke foto berikutnya
+    const curImg = curBox.querySelector(".story-photo img");
+    if (curImg && !(curImg.complete && curImg.naturalWidth)) {
+        curBox.classList.add("loading");
+        const ready = () => curBox.classList.remove("loading");
+        curImg.addEventListener("load", ready, { once: true });
+        curImg.addEventListener("error", ready, { once: true });
+    }
+    // Unduh duluan: 2 foto berikutnya, 1 sebelumnya, dan foto pertama orang sebelah
+    (function preloadStoryNeighbors() {
+        const urlOf = (gi, si) => {
+            const gg = _storyGroups[gi], x = gg && gg.items[si];
+            return (x && !x.bday && x.photo) ? driveThumb(x.photo) : "";
+        };
+        [[_storyGIdx, _storySIdx + 1], [_storyGIdx, _storySIdx + 2], [_storyGIdx, _storySIdx - 1],
+         [_storyGIdx + 1, 0], [_storyGIdx + 1, 1], [_storyGIdx - 1, 0]].forEach(([gi, si]) => preloadImg(urlOf(gi, si)));
+    })();
     let sx = 0, sy = 0, st = 0, axis = "", animating = false;
     let W = 0, half = 0, faceL = null, faceR = null;
 

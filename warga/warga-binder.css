@@ -846,3 +846,87 @@
 }
 .gfilters::-webkit-scrollbar, .rfilters::-webkit-scrollbar { display: none; }
 .rfilters { margin-bottom: 0.6rem; }
+
+/* ===================== STORY VIEWER: POLAROID ===================== */
+/* Satu bahasa dengan dinding Gallery: tiap story = polaroid putih yang
+   ditempel washi di atas meja gelap. Polaroid tetep putih di mode gelap. */
+.story-modal { background: rgba(13, 21, 38, .9); }
+.story-box,
+:root[data-theme="dark"] .story-box {
+    background: #ffffff;
+    background-image: none;
+    border-radius: 4px;
+    padding: 12px 12px 16px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+    overflow: visible;
+    overflow-y: auto;
+}
+/* washi: satu strip di tengah atas, bukan dua di pojok */
+.story-tape-tl {
+    top: -11px; left: 50%; width: 92px; height: 22px; margin-left: -46px;
+    background: var(--bw-washi-pink);
+    border: none; box-shadow: none;
+    transform: rotate(-3deg);
+}
+.story-tape-br { display: none; }
+
+/* progress tipis di atas foto */
+.story-bars { gap: 4px; padding: 8px 2px 0; }
+.sbar, :root[data-theme="dark"] .sbar { height: 3px; background: #e6ebf5; }
+.sbar i { background: #0046ff; }
+/* foto masih diunduh -> progress nunggu */
+.story-box.loading .sbar.run i { animation-play-state: paused; }
+
+.story-head { padding: 10px 2px 10px; }
+.story-who-name { color: #10245e; }
+.story-who-sub { color: #5f6b8a; }
+.story-close, :root[data-theme="dark"] .story-close {
+    width: 40px; height: 40px;
+    background: #eef2fb; color: #10245e;
+}
+.story-close .ss-ic { width: 18px; height: 18px; }
+
+/* foto = isi polaroid, tanpa bingkai kedua */
+.story-photo, :root[data-theme="dark"] .story-photo {
+    border: none; border-radius: 2px;
+    background: #eef2fb;
+    box-shadow: inset 0 0 0 1px rgba(16, 36, 94, .06);
+    overflow: visible;
+}
+.story-photo img { border-radius: 2px; }
+
+/* ikon jenis = stiker bulat kuning di pojok foto */
+.story-stamp {
+    width: 46px; height: 46px;
+    background: var(--bw-yellow); color: #10245e;
+    border: none;
+    box-shadow: var(--bw-depth-sticker);
+    bottom: -14px; right: 12px;
+    transform: rotate(10deg);
+}
+.story-stamp .ss-ic { width: 22px; height: 22px; }
+
+/* nama challenge = label stiker nempel di kaki foto, caption = tulisan di polaroid */
+.story-badge {
+    position: relative; z-index: 2;
+    margin: -13px 0 0 10px;
+    padding: 5px 11px;
+    background: var(--bw-yellow); color: #10245e;
+    border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Open Sans', sans-serif; font-size: .66rem; font-weight: 800;
+    letter-spacing: .04em; text-transform: uppercase;
+    transform: rotate(-3deg);
+    display: inline-flex; align-items: center; gap: 5px;
+}
+.story-badge .ss-ic { width: 13px; height: 13px; }
+.story-note,
+:root[data-theme="dark"] .story-note {
+    margin-top: 10px;
+    background: transparent;
+    border: none; box-shadow: none; transform: none;
+    padding: 2px 4px 0;
+    font-family: 'Outfit', sans-serif; font-weight: 600;
+    font-size: 1.02rem; line-height: 1.45;
+    color: #10245e;
+}
