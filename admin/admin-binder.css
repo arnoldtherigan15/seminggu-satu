@@ -363,3 +363,24 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .pc-actions .wa-btn:hover { background: #d2f0dd; color: #0b5d38; }
 #pcNoMatch { margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) { .pc-card { transition: none; } }
+
+/* ---------- Kirim list peserta ke PIC partner ---------- */
+.plist-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.plist-opt { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 10px 12px; border: 1.5px solid #c9d6f5; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink); }
+.plist-opt input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--brand); flex-shrink: 0; }
+.plist-opt small { display: block; font-weight: 500; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.plist-opt:has(input:checked) { border-color: var(--brand); background: #f0f4ff; }
+.plist-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.5; }
+.plist-sends { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.plist-send { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; width: 100%; min-height: 48px; padding: 8px 14px; border-radius: 12px; border: 1.5px solid #8fd3aa; background: #e3f6ea; color: #0b5d38; font-weight: 800; font-size: 14.5px; text-align: left; cursor: pointer; }
+.plist-send:hover { background: #d2f0dd; }
+.plist-send small { flex-basis: 100%; padding-left: 24px; font-weight: 600; font-size: 12.5px; color: #2f7a55; }
+.plist-nophone { font-size: 13.5px; color: var(--muted); padding: 8px 0; }
+.plist-nophone .link-btn { border: 0; background: none; padding: 0; color: var(--brand); font-weight: 700; text-decoration: underline; cursor: pointer; }
+@media (max-width: 480px) { .plist-opts { grid-template-columns: minmax(0, 1fr); } }
+
+.preq-pic { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 12px; margin-bottom: 10px; border-radius: 12px; background: #f4f7ff; }
+.preq-pic-who { font-size: 14px; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.preq-pic-who .muted { color: var(--muted); }
+.preq-pic-label { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--brand); color: #ffffff; font-size: 11px; font-weight: 800; letter-spacing: .04em; }
+.preq-pic-acts { display: flex; gap: 8px; flex-wrap: wrap; }

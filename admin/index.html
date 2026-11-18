@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=4">
+  <link rel="stylesheet" href="admin-binder.css?v=5">
 </head>
 
 <body>
@@ -7307,14 +7307,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // Kolom `registrations.extra` beda-beda per jenis workshop -- label ramah biar tabel
     // tetap enak dibaca (dulu ini nama kolom sheet Google, sekarang key JSON).
     const REG_FIELD_LABELS = {
-      created_at: "Registered At", full_name: "Full Name", nickname: "Nickname", wa: "WhatsApp",
-      ig_username: "Instagram", consent: "Consent", payment_proof_url: "Payment Proof", attendance: "Attendance",
-      frame: "Frame", initial: "Initials", frontCoverWord: "Cover Word",
-      colorCover: "Cover Color", colorFlap: "Flap Color", colorStrap: "Strap Color",
-      charmUrl: "Charm Photo", coverType: "Cover Type (Bag)", flapType: "Flap Type (Bag)",
-      rantai: "Chain Color", pita: "Ribbon Color", childName: "Child's Name",
-      colorBody: "Body Color", colorPita: "Ribbon Color", colorRantai: "Chain Color",
-      bookColor: "Book Color", bookType: "Book Type"
+      created_at: "Waktu daftar", full_name: "Nama lengkap", nickname: "Nama panggilan", wa: "WhatsApp",
+      ig_username: "Instagram", consent: "Izin foto", payment_proof_url: "Bukti bayar", attendance: "Attendance",
+      frame: "Frame", initial: "Inisial", frontCoverWord: "Tulisan cover",
+      colorCover: "Warna cover", colorFlap: "Warna flap", colorStrap: "Warna tali",
+      charmUrl: "Foto charm", coverType: "Tipe cover (tas)", flapType: "Tipe flap (tas)",
+      rantai: "Warna rantai", pita: "Warna pita", childName: "Nama anak",
+      colorBody: "Warna badan", colorPita: "Warna pita", colorRantai: "Warna rantai",
+      bookColor: "Warna buku", bookType: "Tipe buku", hasOwnCarton: "Bawa karton sendiri"
     };
     // Ubah `items` (array objek registrations) jadi shape lama {headers, rows, ids} biar
     // semua render/cari/export tabel yang udah ada nggak perlu ditulis ulang.
@@ -7335,7 +7335,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         : (REG_FIELD_LABELS[k] || k));
       const rows = items.map(it => allKeys.map(k => {
         if (k === "attendance") return it.attendance ? "Yes" : "";
-        if (k === "consent") return it.consent ? "Yes" : "No";
+        if (k === "consent") return it.consent ? "Ya" : "Tidak";
         if (k === "payment_proof_url") return it.payment_proof_url || "";
         if (baseKeys.includes(k)) return it[k] ?? "";
         if (k.indexOf("photos.") === 0) {
@@ -7343,7 +7343,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           const p = (it.extra || {}).photos;
           return (Array.isArray(p) && p[idx]) || "";
         }
-        return (it.extra || {})[k] ?? "";
+        const v = (it.extra || {})[k];
+        if (v === true || v === "true") return "Ya";
+        if (v === false || v === "false") return "Tidak";
+        return v ?? "";
       }));
       return { headers, rows, keys: allKeys, ids: items.map(it => it.id) };
     }
@@ -17601,6 +17604,15 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
             </span>
           </summary>
           <div class="det-acc-body">
+            <div class="preq-pic">
+              <div class="preq-pic-who">${p && (p.picName || p.phone)
+                ? `<span class="preq-pic-label">PIC</span> <b>${escapeHtml(p.picName || "-")}</b>${p.picRole ? ` <span class="muted">· ${escapeHtml(p.picRole)}</span>` : ""}${p.phone ? ` <span class="muted">· ${escapeHtml(p.phone)}</span>` : ""}`
+                : `<span class="muted">Kontak PIC belum diisi.</span>`}</div>
+              <div class="preq-pic-acts">
+                ${p && p.phone ? `<a class="btn btn-sm btn-ghost" href="https://wa.me/${waNormalize(p.phone)}" target="_blank" rel="noopener">${icon("chat")} Chat PIC</a>` : (p ? `<button type="button" class="btn btn-sm btn-ghost preq-pic-edit">${icon("pencil")} Isi kontak PIC</button>` : "")}
+                <button type="button" class="btn btn-sm preq-send-list">${icon("share")} Kirim list peserta</button>
+              </div>
+            </div>
             <div class="prep-list preq-group-list"></div>
             <button type="button" class="btn btn-sm btn-ghost preq-group-add" style="margin-top:8px;">＋ Add item</button>
           </div>`;
@@ -17609,6 +17621,9 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           e.preventDefault(); e.stopPropagation();
           if (p) openPreqTemplateForm(p.id);
         });
+        det.querySelector(".preq-send-list").addEventListener("click", () => openPesertaListDialog(group.partnerId));
+        const picEdit = det.querySelector(".preq-pic-edit");
+        if (picEdit) picEdit.addEventListener("click", () => editPartner(p.id));
         det.querySelector(".preq-group-unlink").addEventListener("click", (e) => {
           e.preventDefault(); e.stopPropagation();
           if (!confirm(`Unlink "${name}" dari batch ini? Checklist-nya di batch ini ke-hapus (template partner & batch lain nggak kesentuh).`)) return;
@@ -18984,6 +18999,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
              <button type="button" class="pc-view-btn" data-pcview="cards">Kartu</button>
              <button type="button" class="pc-view-btn" data-pcview="table">Tabel</button>
            </div>
+           <button type="button" class="btn btn-sm btn-ghost" id="pcSendListBtn">${icon("share")} Kirim list ke partner</button>
          </div>
          <div class="ab-chips" id="pcFilter" role="tablist" aria-label="Filter peserta"></div>
          <div id="hadirSummary" class="hadir-summary"></div>
@@ -19030,6 +19046,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         // Peserta yang diarsipkan (daftar tapi nggak jadi ikut) nggak
         // ditampilin di checklist prep -- prep itu buat yang BENERAN dateng.
         const activeItems = (r.items || []).filter(it => !it.archived);
+        PREP_PESERTA_ITEMS = activeItems;
         if (cnt) cnt.textContent = activeItems.length;
 
         const shaped = itemsToSheetShape(activeItems);
@@ -19078,7 +19095,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           if (photoCfg) btns += `<button type="button" class="pc-photolink" data-rid="${escapeHtml(id)}" data-name="${escapeHtml(wname)}" data-wa="${escapeHtml(num)}" title="Kirim link buat upload ulang foto">${icon("refresh")} Link isi ulang foto</button>`;
           const isPrinted = printedSet.has(id);
           const hay = row.map(c => String(c || "")).join(" ").toLowerCase();
-          const dataAttrs = `data-pcid="${escapeHtml(id)}" data-hadir="${isHadir ? 1 : 0}" data-printed="${isPrinted ? 1 : 0}" data-q="${escapeHtml(hay)}"`;
+          const dataAttrs = `data-pcid="${escapeHtml(id)}" data-idx="${i}" data-hadir="${isHadir ? 1 : 0}" data-printed="${isPrinted ? 1 : 0}" data-q="${escapeHtml(hay)}"`;
 
           const cells = row.map((c, idx) => hideIdx(idx) ? null : `<td>${regValueHtml(keys[idx], c, event)}</td>`).filter(x => x !== null).join("");
           const attCell = `<td><input type="checkbox" class="att-check" data-id="${escapeHtml(id)}" ${isHadir ? "checked" : ""} aria-label="Hadir"/></td>`;
@@ -19115,6 +19132,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         body.innerHTML = tableRows.join("");
         if (cardsEl) cardsEl.innerHTML = cardRows.join("");
         renderHadirSummary(hadirCount, shaped.rows.length);
+        pcSortPrinted();
         pcWireBar();
         pcApplyFilter();
 
@@ -19166,6 +19184,8 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
               el.classList.toggle("row-printed", pr.checked);
               el.dataset.printed = pr.checked ? "1" : "0";
             });
+            pcSortPrinted();
+            if (pr.checked) abToast("Ditandai dicetak, dipindah ke paling belakang", "ok");
             // filter "Belum dicetak" aktif -> kartu yang baru ditandai keluar dari antrian, kasih jeda biar kelihatan
             setTimeout(pcApplyFilter, PC_FILTER === "unprinted" && pr.checked ? 450 : 0);
           }
@@ -19183,6 +19203,81 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
     let pesertaRegIds = [];
 
+    // ---- Kirim list peserta ke PIC partner (partner suka minta data peserta) ----
+    // Default cuma nama + IG: nomor WA peserta itu data pribadi, jadi harus
+    // dicentang sendiri dengan sadar sebelum ikut kekirim ke pihak luar.
+    let PREP_PESERTA_ITEMS = [];
+    const PLIST_KEY = "ss_admin_plist_fields";
+    function plistPartners() {
+      return (PREP_PARTNER_REQ_GROUPS || []).map(g => {
+        const p = (PARTNERS || []).find(x => x.id === g.partnerId) || {};
+        return { id: g.partnerId, name: p.name || g.partnerName || "Partner", pic: p.picName || "", role: p.picRole || "", phone: waNormalize(p.phone || "") };
+      });
+    }
+    function plistText(opts) {
+      const info = getPrepEventInfo(document.getElementById("prepSelect").value);
+      const items = PREP_PESERTA_ITEMS.filter(it => !opts.hadirOnly || it.attendance);
+      const head = [
+        `List peserta ${info.name}${info.b && info.b.label ? " (" + info.b.label + ")" : ""}`,
+        [info.displayDate, info.workshopTime].filter(Boolean).join(", "),
+        info.locationName || "",
+      ].filter(Boolean).join("\n");
+      const lines = items.map((it, i) => {
+        const nm = String(it.full_name || it.nickname || "-").trim();
+        const bits = [];
+        if (opts.nick && it.nickname && it.nickname !== nm) bits.push(it.nickname);
+        if (opts.ig && it.ig_username) bits.push("@" + String(it.ig_username).replace(/^@/, ""));
+        if (opts.wa && it.wa) bits.push(it.wa);
+        return `${i + 1}. ${nm}${bits.length ? " - " + bits.join(" - ") : ""}`;
+      });
+      return `${head}\n\nTotal ${items.length} peserta:\n${lines.join("\n")}`;
+    }
+    function openPesertaListDialog(partnerId) {
+      if (!PREP_PESERTA_ITEMS.length) { abToast("Belum ada peserta di batch ini."); return; }
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem(PLIST_KEY) || "{}"); } catch (e) { }
+      const opts = Object.assign({ nick: false, ig: true, wa: false, hadirOnly: false }, saved);
+      const partners = plistPartners();
+      const ordered = partnerId ? partners.filter(p => p.id === partnerId).concat(partners.filter(p => p.id !== partnerId)) : partners;
+      const chk = (k, label, hint) => `<label class="plist-opt"><input type="checkbox" data-opt="${k}" ${opts[k] ? "checked" : ""}> <span>${label}${hint ? `<small>${hint}</small>` : ""}</span></label>`;
+      const sendBtns = ordered.map(p => p.phone
+        ? `<button type="button" class="plist-send" data-phone="${p.phone}">${icon("chat")} Kirim ke ${escapeHtml(p.pic || p.name)}<small>${escapeHtml(p.name)}${p.role ? " · " + escapeHtml(p.role) : ""}</small></button>`
+        : `<div class="plist-nophone">${escapeHtml(p.name)}: nomor PIC belum diisi. <button type="button" class="link-btn" data-editpartner="${escapeHtml(p.id)}">Isi sekarang</button></div>`).join("");
+      return abDialog({
+        title: "Kirim list peserta",
+        okText: "Salin teks", cancelText: "Tutup",
+        html: `
+          <div class="plist-opts">
+            ${chk("ig", "Instagram")}
+            ${chk("nick", "Nama panggilan")}
+            ${chk("wa", "Nomor WA peserta", "Data pribadi, centang kalau partner memang perlu")}
+            ${chk("hadirOnly", "Cuma yang hadir")}
+          </div>
+          <textarea class="form-control plist-text" rows="9" aria-label="Isi pesan"></textarea>
+          <div class="plist-sends">${sendBtns || `<p class="hint" style="margin:0;">Belum ada partner yang di-link ke batch ini. Link di tab "Partner & Requests", atau salin teksnya lalu kirim manual.</p>`}</div>`,
+        onOpen: (box) => {
+          const ta = box.querySelector(".plist-text");
+          const fill = () => { ta.value = plistText(opts); };
+          fill();
+          box.querySelectorAll("[data-opt]").forEach(c => c.addEventListener("change", () => {
+            opts[c.dataset.opt] = c.checked;
+            try { localStorage.setItem(PLIST_KEY, JSON.stringify(opts)); } catch (e) { }
+            fill();
+          }));
+          box.querySelectorAll(".plist-send").forEach(b => b.addEventListener("click", () => {
+            window.open("https://wa.me/" + b.dataset.phone + "?text=" + encodeURIComponent(ta.value), "_blank");
+          }));
+          box.querySelectorAll("[data-editpartner]").forEach(b => b.addEventListener("click", () => {
+            box.parentElement.querySelector(".ab-dlg-cancel").click();
+            editPartner(b.dataset.editpartner);
+          }));
+        },
+        getValue: (box) => box.querySelector(".plist-text").value
+      }).then(v => {
+        if (v) navigator.clipboard.writeText(v).then(() => abToast("List peserta disalin", "ok"));
+      });
+    }
+
     // ---- Prep > Peserta: filter, cari, & pilihan tampilan (kartu/tabel) ----
     let PC_FILTER = "all";
     const PC_VIEW_KEY = "ss_admin_pc_view";
@@ -19197,6 +19292,8 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         });
         const q = document.getElementById("pcSearch");
         if (q) q.addEventListener("input", pcApplyFilter);
+        const sl = document.getElementById("pcSendListBtn");
+        if (sl) sl.addEventListener("click", () => openPesertaListDialog(""));
         document.querySelectorAll(".pc-view-btn").forEach(b => b.addEventListener("click", () => {
           try { localStorage.setItem(PC_VIEW_KEY, b.dataset.pcview); } catch (e) { }
           pcSyncView();
@@ -19213,6 +19310,16 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       document.querySelectorAll(".pc-view-btn").forEach(b => {
         const on = b.dataset.pcview === v;
         b.classList.toggle("active", on); b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+    // Yang udah dicetak turun ke paling belakang (urutan daftar tetap dijaga),
+    // jadi peserta berikutnya yang belum dicetak selalu ada di paling depan.
+    function pcSortPrinted() {
+      ["#pesertaCards", "#pesertaBody"].forEach(sel => {
+        const box = document.querySelector(sel); if (!box) return;
+        const els = Array.from(box.querySelectorAll(":scope > [data-pcid]"));
+        els.sort((a, b) => (a.dataset.printed === "1") - (b.dataset.printed === "1") || (+a.dataset.idx) - (+b.dataset.idx));
+        els.forEach(el => box.appendChild(el));
       });
     }
     function pcApplyFilter() {
