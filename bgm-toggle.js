@@ -24,12 +24,15 @@
     var internal = false;     // pause/play dari tombol ini sendiri (bukan dari halaman)
     var origPlay = HTMLMediaElement.prototype.play;
     var origPause = HTMLMediaElement.prototype.pause;
-    function isBgm(el) { return el && el.loop; }
+    var pins = 0;             // halaman yang minta tombolnya selalu kelihatan (mis. Mading)
+    function isBgm(el) { return el && (el.loop || el._ssTrack); }
 
     HTMLMediaElement.prototype.play = function () {
         if (isBgm(this) && !internal) {
             wanted.add(this);
-            if (muted()) { sync(); return Promise.resolve(); }  // dimute: catat aja, jangan bunyi
+            var force = this._ssForce; this._ssForce = false;
+            // dimute: catat aja, jangan bunyi -- KECUALI warga sendiri yang minta (tap)
+            if (muted() && !force) { sync(); return Promise.resolve(); }
             var p = origPlay.apply(this, arguments);
             sync();
             return p;
@@ -79,7 +82,7 @@
         if (!b) { document.addEventListener("DOMContentLoaded", sync, { once: true }); return; }
         // buang elemen yang udah dicopot dari halaman / udah selesai
         wanted.forEach(function (el) { if (el.ended) wanted.delete(el); });
-        if (!wanted.size) { b.classList.remove("show"); return; }
+        if (!wanted.size && !pins) { b.classList.remove("show"); return; }
         var m = muted();
         b.classList.add("show");
         b.classList.toggle("is-muted", m);
@@ -114,5 +117,12 @@
     }).observe(document.documentElement, { childList: true, subtree: true });
 
     // dipanggil halaman lain (mis. setelan Musik di Balai Warga) biar tombolnya ikut sinkron
-    window.ssBgm = { sync: sync, muted: muted, setMuted: function (v) { setMuted(v); if (v) { internal = true; wanted.forEach(function (el) { try { origPause.call(el); } catch (e) { } }); internal = false; } sync(); } };
+    window.ssBgm = {
+        // track(el): suara non-loop (mis. voice note Mochi) ikut diatur tombol ini
+        track: function (el) { if (el) el._ssTrack = true; },
+        // force(el): play() berikutnya tetap bunyi walau lagi mute (dipicu tap warga)
+        force: function (el) { if (el) el._ssForce = true; },
+        // pin(true/false): tombol tetap nongol selama halaman itu kebuka
+        pin: function (on) { pins = Math.max(0, pins + (on ? 1 : -1)); sync(); },
+        sync: sync, muted: muted, setMuted: function (v) { setMuted(v); if (v) { internal = true; wanted.forEach(function (el) { try { origPause.call(el); } catch (e) { } }); internal = false; } sync(); } };
 })();

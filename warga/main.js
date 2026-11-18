@@ -8317,13 +8317,16 @@ function renderBoard() {
 // 12 voice note di /mochi_notes, dipilih seeded dari tanggal -> tiap hari beda.
 // Selesai ngomong baru bg music nyala, biar suaranya nggak tabrakan.
 const MOCHI_NOTE_COUNT = 12;
+let _mdBgmPinned = false;
 let _noteAudio = null;
-function mochiNotePlay() {
-    if (musicMuted()) return;
+function mochiNotePlay(byTap) {
+    // voice note BUKAN musik: diatur tombol mute di pojok (bgm-toggle). Pas lagi
+    // mute, nggak diputer otomatis -- tapi kalau warga sendiri yang nge-tap, bunyi.
     try {
         const now = new Date();
         const n = ((now.getFullYear() * 372 + now.getMonth() * 31 + now.getDate()) % MOCHI_NOTE_COUNT) + 1;
-        if (!_noteAudio) _noteAudio = new Audio();
+        if (!_noteAudio) { _noteAudio = new Audio(); if (window.ssBgm) window.ssBgm.track(_noteAudio); }
+        if (byTap && window.ssBgm) window.ssBgm.force(_noteAudio);
         _noteAudio.src = "../mochi_notes/note-" + n + ".mp3";
         _noteAudio.loop = false;
         _noteAudio.volume = 1;
@@ -8333,9 +8336,10 @@ function mochiNotePlay() {
             wrappedMusicPlay();
         };
         _noteAudio.currentTime = 0;
-        _noteAudio.play().catch(() => { });
+        const pr = _noteAudio.play();
+        if (pr && pr.catch) pr.catch(() => { });
         const b = $("mdNote");
-        if (b) b.classList.add("play");
+        if (b && !_noteAudio.paused) b.classList.add("play");
     } catch (e) { }
 }
 function mochiNoteStop() {
@@ -8359,6 +8363,7 @@ function openMadingModal() {
     renderMadingModal();
     modal.classList.add("show");
     lockScroll();
+    if (window.ssBgm && !_mdBgmPinned) { window.ssBgm.pin(true); _mdBgmPinned = true; } // tombol mute selalu ada di Mading
     mochiNotePlay(); // pesan kecil dari Mochi dulu, musik nyusul setelah selesai
 }
 
@@ -8368,6 +8373,7 @@ function closeMading() {
     if (modal) modal.classList.remove("show");
     mochiNoteStop();
     wrappedMusicStop();
+    if (window.ssBgm && _mdBgmPinned) { window.ssBgm.pin(false); _mdBgmPinned = false; }
     unlockScroll();
 }
 
@@ -8463,7 +8469,7 @@ function renderMadingModal() {
         '<span class="pbf-lbl">POS</span><span class="pbf-slot"></span><span class="pbf-hint">📮 kirim surat</span>' +
         '</button>';
     $("mdClose").addEventListener("click", closeMading);
-    $("mdNote").addEventListener("click", () => { wrappedMusicStop(); mochiNotePlay(); }); // tap = puter ulang
+    $("mdNote").addEventListener("click", () => { wrappedMusicStop(); mochiNotePlay(true); }); // tap = puter ulang (bunyi walau lagi mute)
     wirePostbox(modal);
     fillBalaiWeather(); // strip cuaca komunitas (async, nggak ngeblok papan)
     modal.querySelectorAll("[data-goev]").forEach(b => b.addEventListener("click", () => {
