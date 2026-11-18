@@ -1,0 +1,389 @@
+/* =========================================================
+   Binder Diary 2000-an untuk HALAMAN PENDAFTARAN
+   (dunia visual yang sama dengan homepage, lihat DESIGN.md).
+   Dipasang SETELAH ../style.css & style inline halaman, jadi
+   cuma ngeganti tampilan -- markup, id, dan JS form nggak berubah.
+   Halaman form = tempat ngisi data (mode Operate): dekorasinya
+   lebih kalem dari Home, yang penting kebaca & gampang diisi.
+   ========================================================= */
+:root {
+    --desk: #f4f7ff;
+    --paper: #ffffff;
+    --rule: #d6e3ff;
+    --margin-line: #ff8fb8;
+    --board: #0046ff;
+    --yellow: #ffe600;
+    --pink: #ff8fb8;
+    --ink: #10245e;
+    --ink-2: #4a5674;
+    --field-border: #c9d6f5;
+    --sticky: #fff6a8;
+    --peel: #dfe7fb;
+    --tint: 16, 36, 94;
+    --depth-paper: 0 1px 2px rgba(16, 36, 94, 0.10), 0 6px 16px rgba(16, 36, 94, 0.06);
+    --depth-photo: 0 10px 22px rgba(16, 36, 94, 0.18);
+    --depth-sticker: 0 0 0 3px #ffffff, 0 4px 8px rgba(16, 36, 94, 0.22);
+    --washi-yellow: repeating-linear-gradient(135deg, rgba(255, 230, 0, 0.78) 0 8px, rgba(255, 243, 140, 0.78) 8px 16px);
+    --washi-pink: repeating-linear-gradient(90deg, rgba(255, 143, 184, 0.72) 0 6px, rgba(255, 196, 218, 0.72) 6px 12px);
+    --washi-blue: repeating-linear-gradient(45deg, rgba(0, 146, 255, 0.45) 0 7px, rgba(120, 190, 255, 0.45) 7px 14px);
+
+    /* token lama style.css diarahkan ke palet brand */
+    --bg-color: #f4f7ff;
+    --text-primary: #10245e;
+    --text-secondary: #4a5674;
+    --primary-color: #0046ff;
+    --accent-color: #0046ff;
+    --border-color: #d6e3ff;
+    --secondary-color: #e6edff;
+    --success-color: #0a7a3d;
+}
+:root[data-theme="dark"] {
+    --desk: #0d1526;
+    --paper: #18213b;
+    --rule: #27355e;
+    --margin-line: #b85a82;
+    --ink: #eaeffc;
+    --ink-2: #9fabc9;
+    --field-border: #33467a;
+    --peel: #33467a;
+    --tint: 0, 0, 0;
+    --depth-paper: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 18px rgba(0, 0, 0, 0.35);
+    --depth-photo: 0 10px 22px rgba(0, 0, 0, 0.5);
+    --depth-sticker: 0 0 0 3px #ffffff, 0 4px 10px rgba(0, 0, 0, 0.5);
+    --bg-color: #0d1526;
+    --text-primary: #eaeffc;
+    --text-secondary: #9fabc9;
+    --primary-color: #0046ff;
+    --accent-color: #7aa2ff;
+    --border-color: #27355e;
+    --secondary-color: #1d2a4f;
+    --success-color: #34d399;
+}
+
+::selection { background: var(--yellow); color: #10245e; }
+
+body {
+    font-family: 'Open Sans', -apple-system, sans-serif;
+    color: var(--ink);
+    background-color: var(--desk);
+    background-image: radial-gradient(rgba(var(--tint), 0.09) 1px, transparent 1.2px);
+    background-size: 22px 22px;
+}
+:root[data-theme="dark"] body { background-image: radial-gradient(rgba(234, 239, 252, 0.06) 1px, transparent 1.2px); }
+h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; color: var(--ink); }
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid #0046ff; outline-offset: 3px;
+}
+
+/* ===================== SAMPUL BINDER (hero) ===================== */
+.hero, :root[data-theme="dark"] .hero {
+    position: relative;
+    max-width: 480px;
+    margin: 1.25rem auto 0;
+    width: calc(100% - 2rem);
+    padding: 1.6rem 1.15rem 1.6rem 3.1rem;
+    text-align: left;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px 24px 24px 14px;
+    background-color: var(--board);
+    background-image:
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.045) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 6px);
+    box-shadow: var(--depth-photo), inset 6px 0 10px rgba(0, 0, 0, 0.18);
+}
+/* ring logam binder */
+.hero::before {
+    content: ""; position: absolute; left: 8px; top: 30px; bottom: 30px; width: 30px;
+    background:
+        linear-gradient(180deg, #f6f8fc 0%, #b6c0d4 45%, #8995ad 55%, #e6ebf5 100%) top / 30px 15px no-repeat,
+        linear-gradient(180deg, #f6f8fc 0%, #b6c0d4 45%, #8995ad 55%, #e6ebf5 100%) center / 30px 15px no-repeat,
+        linear-gradient(180deg, #f6f8fc 0%, #b6c0d4 45%, #8995ad 55%, #e6ebf5 100%) bottom / 30px 15px no-repeat;
+    border-radius: 8px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+    pointer-events: none;
+}
+/* logo = label stiker putih: paw + "Seminggu Satu / by Arnold" (sama kayak Home) */
+.brand { margin-bottom: 1.1rem; padding-right: 44px; }
+.brand a {
+    display: inline-grid;
+    grid-template-columns: auto auto; grid-template-rows: auto auto;
+    column-gap: 0.6rem; align-items: center;
+    background: #ffffff;
+    padding: 0.5rem 0.95rem 0.5rem 0.55rem;
+    border-radius: 12px;
+    box-shadow: var(--depth-sticker);
+    transform: rotate(-2deg);
+}
+.brand-logo, :root[data-theme="dark"] .brand-logo {
+    grid-row: 1 / span 2;
+    width: 54px; height: 54px; max-width: none; margin: 0; filter: none; object-fit: contain;
+}
+/* nama sebagai teks dekoratif (alt gambar udah "Seminggu Satu", jadi disembunyiin dari pembaca layar) */
+.brand a::before {
+    content: "Seminggu Satu";
+    content: "Seminggu Satu" / "";
+    grid-column: 2; align-self: end;
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.3rem; line-height: 1;
+    letter-spacing: -0.02em; color: #10245e;
+}
+.brand p {
+    grid-column: 2; align-self: start;
+    color: #0046ff; font-family: 'Outfit', sans-serif; font-weight: 800;
+    text-transform: none; letter-spacing: 0; font-size: 0.85rem; margin: 0.15rem 0 0;
+}
+.hero-content h2 {
+    color: #ffffff; font-size: 1.6rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em;
+    text-wrap: balance;
+}
+.subtitle {
+    color: #e3ebff; margin: 0 0 0.25rem; max-width: 38ch; font-size: 0.95rem; line-height: 1.55;
+}
+.hero-content > p:not(.subtitle) { color: #e3ebff; }
+
+/* detail event = kartu indeks putih yang ditempel washi */
+.workshop-details, :root[data-theme="dark"] .workshop-details {
+    max-width: none;
+    margin: 1.6rem 0.2rem 1.25rem 0;
+    padding: 1.35rem 1.1rem 1.15rem;
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 6px;
+    box-shadow: var(--depth-photo);
+    transform: rotate(0.8deg);
+}
+.workshop-details::before {
+    content: ""; position: absolute; top: -11px; left: 50%; margin-left: -44px; width: 88px; height: 22px;
+    background: var(--washi-yellow); transform: rotate(-3deg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+.detail-item { color: var(--ink); font-size: 0.92rem; font-weight: 600; }
+.detail-item i, .detail-item svg { color: #0046ff; }
+:root[data-theme="dark"] .detail-item i, :root[data-theme="dark"] .detail-item svg { color: #7aa2ff; }
+.detail-item.price { border-top: 1.5px dashed var(--rule); }
+.detail-item.price i, .detail-item.price svg { color: var(--success-color); }
+.location-link { color: var(--ink); text-decoration-color: var(--pink); text-decoration-thickness: 2px; }
+.location-link:hover { color: #0046ff; text-decoration-color: #0046ff; }
+/* harga: jelas & tenang -- nggak ada animasi detak terus-terusan */
+.new-price {
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.3rem;
+    color: var(--success-color); animation: none;
+}
+.discount-price { color: var(--ink-2); }
+/* sisa tiket = stiker kuning, sekali muncul, nggak berdenyut */
+.urgency-badge {
+    top: -15px; right: 12px;
+    background: var(--yellow); color: #10245e;
+    font-weight: 800; padding: 5px 12px;
+    box-shadow: var(--depth-sticker);
+    transform: rotate(6deg);
+}
+.urgency-badge.show { animation: none; }
+.urgency-badge i, .urgency-badge svg { color: #10245e; }
+.early-bird-info, :root[data-theme="dark"] .early-bird-info {
+    background: var(--yellow); color: #10245e; border: none;
+    box-shadow: var(--depth-sticker); transform: rotate(-1.5deg); width: fit-content;
+}
+.early-bird-info i, .early-bird-info svg { color: #10245e; }
+
+.social-links { justify-content: flex-start; gap: 0.6rem; }
+.social-btn, :root[data-theme="dark"] .social-btn {
+    min-height: 44px; padding: 0 1rem;
+    background: #ffffff; color: #10245e; border: none;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    font-size: 0.85rem; font-weight: 700;
+}
+.social-btn:nth-child(1) { transform: rotate(-1.5deg); }
+.social-btn:nth-child(2) { transform: rotate(1.5deg); }
+.social-btn:hover, :root[data-theme="dark"] .social-btn:hover { background: #ffffff; transform: rotate(0) translateY(-2px); }
+
+/* ===================== LEMBAR LOOSE-LEAF (section) ===================== */
+.container { max-width: 480px; padding: 1rem 1rem 2rem; }
+main.container > section,
+.visualizer-section,
+.registration-form-section {
+    position: relative;
+    margin: 3.4rem 0 0;
+    padding: 1.4rem 1.05rem 1.6rem 50px;
+    background-color: var(--paper);
+    background-image: linear-gradient(to right, transparent 36px, var(--margin-line) 36px, var(--margin-line) 38px, transparent 38px);
+    border-radius: 6px 16px 16px 6px;
+    box-shadow: var(--depth-paper);
+}
+/* lubang binder */
+main.container > section::before,
+.visualizer-section::before,
+.registration-form-section::before {
+    content: ""; position: absolute; left: 9px; top: 18px; bottom: 18px; width: 16px;
+    background:
+        radial-gradient(circle, var(--desk) 5.5px, rgba(var(--tint), 0.22) 6px, transparent 7.5px) top / 16px 16px no-repeat,
+        radial-gradient(circle, var(--desk) 5.5px, rgba(var(--tint), 0.22) 6px, transparent 7.5px) center / 16px 16px no-repeat,
+        radial-gradient(circle, var(--desk) 5.5px, rgba(var(--tint), 0.22) 6px, transparent 7.5px) bottom / 16px 16px no-repeat;
+    pointer-events: none;
+}
+/* judul section = tab indeks yang nongol di atas lembar */
+.section-header { margin-bottom: 1.25rem; }
+.section-header h3 {
+    position: absolute; left: 1.1rem; top: 0; transform: translateY(calc(-100% + 0.35rem));
+    max-width: calc(100% - 2.2rem);
+    display: inline-flex; align-items: center;
+    background: var(--yellow); color: #10245e;
+    font-size: 1.05rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.01em;
+    padding: 0.55rem 1rem 0.75rem;
+    border-radius: 14px 14px 0 0;
+    margin: 0;
+    box-shadow: 0 -1px 3px rgba(var(--tint), 0.1);
+    z-index: 1;
+}
+main.container > section:nth-of-type(2) .section-header h3,
+.visualizer-section ~ .registration-form-section .section-header h3 { background: var(--pink); }
+.section-header p { color: var(--ink-2); font-size: 0.9rem; line-height: 1.55; }
+
+/* ===================== FIELD ===================== */
+.form-group label, .picker-group label {
+    font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--ink);
+}
+.input-wrapper i, .input-wrapper > svg { color: #0046ff; width: 22px; height: 22px; }
+:root[data-theme="dark"] .input-wrapper i, :root[data-theme="dark"] .input-wrapper > svg { color: #7aa2ff; }
+.input-wrapper input, .input-wrapper select, .input-wrapper textarea, textarea,
+:root[data-theme="dark"] .input-wrapper input, :root[data-theme="dark"] .input-wrapper select {
+    min-height: 48px;
+    padding: 0.8rem 0.9rem;
+    background-color: var(--paper);
+    color: var(--ink);
+    border: 2px solid var(--field-border);
+    border-radius: 12px;
+    caret-color: #0046ff;
+}
+.input-wrapper select { padding-right: 2.5rem; }
+.input-wrapper input::placeholder, textarea::placeholder { color: #6b7799; }
+:root[data-theme="dark"] .input-wrapper input::placeholder { color: #8b97b6; }
+.input-wrapper input:focus, .input-wrapper select:focus, textarea:focus {
+    outline: none;
+    border-color: #0046ff;
+    box-shadow: 0 0 0 4px rgba(255, 230, 0, 0.55);
+}
+.help-text { color: var(--ink-2); }
+/* grup upload yang dibungkus div (mis. #photoUploadSection) nggak dapet gap form -- kasih jarak sendiri */
+form > div:not(.form-group) > .form-group + .form-group,
+form > div:not(.form-group) > .alert-banner + .form-group { margin-top: 1.25rem; }
+
+/* upload = slot foto "tempel di sini" */
+.upload-area, :root[data-theme="dark"] .upload-area {
+    background: repeating-linear-gradient(-45deg, transparent 0 10px, rgba(0, 70, 255, 0.035) 10px 20px), var(--paper);
+    border: 2px dashed #8fabff;
+    border-radius: 12px;
+}
+.upload-area:hover, :root[data-theme="dark"] .upload-area:hover {
+    border-color: #0046ff; background-color: var(--paper);
+}
+.upload-area i, .upload-area svg { color: #0046ff; }
+.upload-area span { color: var(--ink); font-weight: 700; }
+:root[data-theme="dark"] .upload-area i, :root[data-theme="dark"] .upload-area svg { color: #7aa2ff; }
+
+/* checkbox */
+.checkmark { background: var(--paper); border: 2px solid var(--field-border); border-radius: 6px; }
+.checkbox-container:hover input ~ .checkmark { border-color: #0046ff; }
+.checkbox-container input:checked ~ .checkmark { background-color: #0046ff; border-color: #0046ff; }
+.checkbox-container input:focus-visible ~ .checkmark { outline: 3px solid #0046ff; outline-offset: 2px; }
+.checkbox-label { color: var(--ink-2); }
+.form-group label.checkbox-container { font-family: 'Open Sans', -apple-system, sans-serif; font-weight: 400; font-size: 0.9rem; }
+
+/* warna & pilihan produk */
+.color-btn.active { border-color: var(--ink); box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px #0046ff; }
+.journal-preview-container, .bookmark-preview-container, .frame-preview-container {
+    background-color: var(--desk);
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 2px var(--rule);
+}
+.badge { color: #10245e; }
+
+/* ===================== CATATAN TEMPEL ===================== */
+/* info pembayaran = sticky note kuning, kartu bank = kartu indeks */
+.payment-info, :root[data-theme="dark"] .payment-info {
+    position: relative;
+    background: var(--sticky); color: #10245e;
+    border: none; border-radius: 2px;
+    padding: 1.35rem 1.1rem 1.15rem;
+    box-shadow: var(--depth-paper);
+    transform: rotate(-0.6deg);
+}
+.payment-info::before {
+    content: ""; position: absolute; top: -10px; right: 24px; width: 76px; height: 20px;
+    background: var(--washi-blue); transform: rotate(5deg);
+}
+.payment-info h4 { color: #10245e; font-size: 1.05rem; font-weight: 800; }
+.payment-info p { color: #4a5674; }
+.payment-info strong { color: #10245e; }
+.bank-card, :root[data-theme="dark"] .bank-card {
+    background: #ffffff; color: #10245e;
+    border: none; border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(16, 36, 94, 0.14);
+    transform: rotate(0.8deg);
+}
+.bank-account span { color: #10245e; font-variant-numeric: tabular-nums; }
+.bank-owner { color: #4a5674; }
+.copy-btn {
+    min-width: 44px; min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--yellow); color: #10245e;
+    border-radius: 50%; box-shadow: var(--depth-sticker);
+}
+.copy-btn:active { background: var(--yellow); transform: scale(0.94); }
+
+/* non-refund: catatan pink -- tetap jelas & jujur, bukan nakutin */
+.non-refund-notice, :root[data-theme="dark"] .non-refund-notice {
+    background: #ffe3ee; color: #6b1336; border: none; border-radius: 2px;
+    box-shadow: var(--depth-paper); transform: rotate(0.5deg);
+}
+.non-refund-notice strong { color: #8a1240; }
+.non-refund-notice svg { color: #c2185b; }
+
+/* banner info halaman (alert-banner / color-disclaimer / fnb) = catatan biru */
+.alert-banner, .color-disclaimer, .fnb-notice,
+:root[data-theme="dark"] .alert-banner, :root[data-theme="dark"] .color-disclaimer {
+    background: #e6edff; color: #10245e; border: none; border-radius: 2px;
+    box-shadow: var(--depth-paper);
+}
+.alert-banner svg, .color-disclaimer svg, .color-disclaimer i { color: #0046ff; }
+
+/* ===================== TOMBOL DAFTAR = STIKER ===================== */
+.submit-btn {
+    position: relative;
+    min-height: 56px;
+    background: #0046ff; color: #ffffff;
+    border-radius: 14px;
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.1rem;
+    box-shadow: var(--depth-sticker);
+    transform: rotate(-0.6deg);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.submit-btn::after {
+    content: ""; position: absolute; right: 0; bottom: 0; width: 14px; height: 14px;
+    border-radius: 0 0 14px 0;
+    background: linear-gradient(315deg, var(--paper) 0 48%, var(--peel) 50% 100%);
+    box-shadow: -2px -2px 4px rgba(var(--tint), 0.18);
+    transition: width .2s ease, height .2s ease;
+}
+.submit-btn:hover { transform: rotate(-1.4deg) translateY(-2px); }
+.submit-btn:hover::after, .submit-btn:active::after { width: 30px; height: 30px; }
+.submit-btn:active { transform: rotate(-0.6deg) scale(0.98); }
+.submit-btn:disabled { background: #b8c3de; color: #ffffff; box-shadow: none; transform: none; }
+.submit-btn:disabled::after { display: none; }
+:root[data-theme="dark"] .submit-btn:disabled { background: #33467a; color: #c9d3ec; }
+
+.status-message { border-radius: 2px; box-shadow: var(--depth-paper); }
+
+footer { color: var(--ink-2); background: transparent; border: none; }
+footer p { color: var(--ink-2); }
+
+/* toast & loader ikut palet */
+.blocker-spinner { border-top-color: #0046ff; }
+
+@media (min-width: 1024px) {
+    .hero { margin-top: 2.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

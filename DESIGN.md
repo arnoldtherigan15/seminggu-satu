@@ -94,7 +94,7 @@ components:
 
 # Design System: Seminggu Satu — Binder Diary
 
-> **Scope.** This world currently lives on the public homepage (`index.html`). Other pages still follow `.claude/skills/seminggu-ui`, which stays binding for them; brand fonts (Outfit + Open Sans) and the blue/yellow palette are shared by both. The surface contract is `.impeccable/surfaces/index-html.md`.
+> **Scope.** This world lives on the public homepage (`index.html`), every registration page (`reka-rekat/`, `paper-journal/`, `upcycle-journal/`, `side-by-side/`, `private-uc/`, `3d-frame-journaling/`, `bookmark-journal/`, `journaling-date/`, plus the `update-photo` pages) via the shared `binder-form.css`, and `closed.html`. Registration pages are Operate surfaces: same materials, calmer decoration (no washi on sheets under tabs, no ruled lines behind fields, no looping price/ticket animation). Other pages (Balai Warga, admin) still follow `.claude/skills/seminggu-ui`. The homepage surface contract is `.impeccable/surfaces/index-html.md`.
 
 ## Overview
 
@@ -209,6 +209,7 @@ Loose-leaf sheets have a slightly asymmetric radius (6px on the binding edge, 16
 - **Do** use Lucide icons at the page stroke weight; put an icon inside a yellow round sticker when it needs presence.
 - **Do** keep real data honest: when availability fails, show the last good dates and venue but hide seat counts.
 - **Do** keep motion to a single settle on load using `cubic-bezier(.16,1,.3,1)`, and respect `prefers-reduced-motion`.
+- **Do** keep washi off any sheet whose top edge sits under an index tab (the tab hides it).
 - **Do** give every reel a real poster in `images/stories/<shortcode>.webp` (480px wide).
 
 ### Don't:

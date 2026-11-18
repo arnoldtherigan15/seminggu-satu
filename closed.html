@@ -272,13 +272,64 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Dunia visual Binder Diary (sama dengan Home & form pendaftaran) -->
+    <style>
+        :root { --bg-color: #f4f7ff; --text-primary: #10245e; --text-secondary: #4a5674; --border-color: #d6e3ff;
+            --paper: #ffffff; --margin-line: #ff8fb8; --tint: 16, 36, 94; --peel: #dfe7fb;
+            --depth-paper: 0 1px 2px rgba(16,36,94,.10), 0 6px 16px rgba(16,36,94,.06);
+            --depth-sticker: 0 0 0 3px #ffffff, 0 4px 8px rgba(16,36,94,.22); }
+        :root[data-theme="dark"] { --bg-color: #0d1526; --text-primary: #eaeffc; --text-secondary: #9fabc9; --border-color: #27355e;
+            --paper: #18213b; --margin-line: #b85a82; --tint: 0, 0, 0; --peel: #33467a;
+            --depth-paper: 0 1px 2px rgba(0,0,0,.5), 0 8px 18px rgba(0,0,0,.35);
+            --depth-sticker: 0 0 0 3px #ffffff, 0 4px 10px rgba(0,0,0,.5); }
+        ::selection { background: #ffe600; color: #10245e; }
+        body { font-family: 'Open Sans', -apple-system, sans-serif;
+            background-image: radial-gradient(rgba(var(--tint), .09) 1px, transparent 1.2px); background-size: 22px 22px; }
+        :root[data-theme="dark"] body { background-image: radial-gradient(rgba(234,239,252,.06) 1px, transparent 1.2px); }
+        h2 { font-weight: 800; color: var(--text-primary); }
+        .brand a { display: inline-grid; grid-template-columns: auto auto; column-gap: .6rem; align-items: center; text-align: left;
+            background: #fff; padding: .5rem .95rem .5rem .55rem; border-radius: 12px; box-shadow: var(--depth-sticker); transform: rotate(-2deg); }
+        .brand-logo, :root[data-theme="dark"] .brand-logo { grid-row: 1 / span 2; width: 54px; height: 54px; max-width: none; margin: 0; filter: none; }
+        .brand a::before { content: "Seminggu Satu"; content: "Seminggu Satu" / ""; grid-column: 2; align-self: end;
+            font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.3rem; line-height: 1; letter-spacing: -.02em; color: #10245e; }
+        .brand p { grid-column: 2; align-self: start; margin: .15rem 0 0; color: #0046ff; font-family: 'Outfit', sans-serif;
+            font-weight: 800; text-transform: none; letter-spacing: 0; font-size: .85rem; }
+        /* kartu = lembar loose-leaf */
+        .card, :root[data-theme="dark"] .card { position: relative; background-color: var(--paper); color: var(--text-primary);
+            background-image: linear-gradient(to right, transparent 36px, var(--margin-line) 36px, var(--margin-line) 38px, transparent 38px);
+            border: none; border-radius: 6px 16px 16px 6px; box-shadow: var(--depth-paper); padding: 2.25rem 1.5rem 2rem 3.4rem; }
+        .card::before { content: ""; position: absolute; left: 9px; top: 18px; bottom: 18px; width: 16px; pointer-events: none;
+            background: radial-gradient(circle, var(--bg-color) 5.5px, rgba(var(--tint), .22) 6px, transparent 7.5px) top / 16px 16px no-repeat,
+                radial-gradient(circle, var(--bg-color) 5.5px, rgba(var(--tint), .22) 6px, transparent 7.5px) center / 16px 16px no-repeat,
+                radial-gradient(circle, var(--bg-color) 5.5px, rgba(var(--tint), .22) 6px, transparent 7.5px) bottom / 16px 16px no-repeat; }
+        .closed-mochi { transform: rotate(-6deg);
+            filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 4px 5px rgba(var(--tint), .3)); }
+        .icon-wrap { box-shadow: var(--depth-sticker); transform: rotate(-6deg); }
+        .divider { height: 4px; opacity: 1; background: #ff8fb8 !important; transform: rotate(-2deg); }
+        .date-info, :root[data-theme="dark"] .date-info { background: #fff6a8; color: #10245e; border: none; border-radius: 2px;
+            box-shadow: var(--depth-paper); transform: rotate(-1deg); }
+        .date-info i, .date-info svg { color: #10245e; }
+        .back-btn { position: relative; min-height: 48px; background: #0046ff; color: #fff; border-radius: 14px; padding: .8rem 1.5rem;
+            font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1rem; box-shadow: var(--depth-sticker); transform: rotate(-.8deg); }
+        .back-btn::after { content: ""; position: absolute; right: 0; bottom: 0; width: 12px; height: 12px; border-radius: 0 0 14px 0;
+            background: linear-gradient(315deg, var(--paper) 0 48%, var(--peel) 50% 100%); transition: width .2s ease, height .2s ease; }
+        .back-btn:hover { transform: rotate(-1.4deg) translateY(-2px); box-shadow: var(--depth-sticker); }
+        .back-btn:hover::after, .back-btn:active::after { width: 26px; height: 26px; }
+        .back-btn:focus-visible, .social-btn:focus-visible { outline: 3px solid #0046ff; outline-offset: 3px; }
+        .social-btn, :root[data-theme="dark"] .social-btn { min-height: 44px; background: #fff; color: #10245e; border: none;
+            box-shadow: 0 3px 8px rgba(var(--tint), .18); font-weight: 700; }
+        .social-btn:nth-child(1) { transform: rotate(-1.5deg); }
+        .social-btn:nth-child(2) { transform: rotate(1.5deg); }
+        .social-btn:hover { background: #fff; transform: rotate(0) translateY(-2px); }
+    </style>
 </head>
 
 <body>
 
     <div class="brand">
         <a href="index.html" style="text-decoration:none;">
-            <img src="images/black.png" alt="Seminggu Satu" class="brand-logo">
+            <img src="images/logo-paw-tight.png" alt="Seminggu Satu" class="brand-logo" width="240" height="240">
             <p>by Arnold</p>
         </a>
     </div>
@@ -361,11 +412,11 @@
             <p class="see-you">Sampai ketemu di kesempatan berikutnya! ✨</p>
             <a href="index.html" class="back-btn"><i data-lucide="arrow-left"></i> Kembali ke Home</a>
             <div class="social-links">
-                <a href="https://www.instagram.com/seminggu_satu" target="_blank" class="social-btn">
-                    <i data-lucide="instagram"></i> Follow Instagram
+                <a href="https://www.instagram.com/seminggu_satu" target="_blank" rel="noopener" class="social-btn">
+                    <img src="images/instagram-64.png" alt="" width="16" height="16"> Follow Instagram
                 </a>
-                <a href="https://www.tiktok.com/@seminggusatu" target="_blank" class="social-btn">
-                    <i data-lucide="video"></i> TikTok
+                <a href="https://www.tiktok.com/@seminggusatu" target="_blank" rel="noopener" class="social-btn">
+                    <img src="images/tiktok-64.png" alt="" width="16" height="16"> TikTok
                 </a>
             </div>
         `;
