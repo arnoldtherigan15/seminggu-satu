@@ -232,3 +232,33 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .ab-note-grid .note-card-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; color: var(--ink); }
 .ab-note-grid .note-card-snippet { flex: 1; margin-top: 6px; color: var(--muted); font-size: 14px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .ab-note-grid .note-card-date { margin-top: 10px; font-size: 12px; color: var(--muted); }
+
+/* ---------- Dialog & toast admin ---------- */
+.ab-dlg-ov { position: fixed; inset: 0; z-index: 10000; background: rgba(13, 21, 38, .45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.ab-dlg { width: 100%; max-width: 420px; background: #ffffff; color: var(--ink); border-radius: 18px; box-shadow: var(--shadow-lg); padding: 20px 20px 16px; }
+.ab-dlg-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 19px; margin-bottom: 14px; overflow-wrap: anywhere; }
+.ab-dlg-lbl { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px; color: var(--muted); }
+.ab-dlg-lbl .form-control { min-height: 46px; font-size: 16px; }
+.ab-dlg-msg { min-height: 20px; margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--err); }
+.ab-dlg-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+.ab-dlg-foot .btn { width: auto; min-width: 104px; height: 46px; }
+.ab-danger { background-color: var(--err) !important; }
+.ab-stock-cur { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
+.ab-stock-cur b { color: var(--ink); font-family: 'Outfit', sans-serif; font-size: 18px; }
+.ab-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: #eef2fb; border-radius: 12px; margin-bottom: 12px; }
+.ab-seg-btn { min-height: 40px; border: none; border-radius: 9px; background: transparent; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px; color: var(--muted); cursor: pointer; }
+.ab-seg-btn.active { background: #ffffff; color: var(--ink); box-shadow: 0 1px 3px rgba(16, 36, 94, .15); }
+.ab-stepper { display: grid; grid-template-columns: 52px 1fr 52px; gap: 8px; }
+.ab-stepper .form-control { text-align: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 22px; min-height: 52px; }
+.ab-step { border: 1.5px solid #c9d6f5; border-radius: 12px; background: #ffffff; font-size: 24px; font-weight: 700; color: var(--ink); cursor: pointer; }
+.ab-step:hover { border-color: var(--brand); color: var(--brand); }
+.ab-quick { display: flex; gap: 8px; margin-top: 10px; }
+.ab-quick button { flex: 1; min-height: 36px; border: 1.5px solid var(--line); border-radius: 10px; background: #f4f7ff; font-weight: 800; color: var(--ink); cursor: pointer; }
+.ab-quick button:hover { border-color: var(--brand); }
+.ab-stock-prev { margin-top: 14px; padding: 10px 12px; border-radius: 12px; background: var(--ab-note); font-size: 14px; }
+.ab-stock-prev b { font-family: 'Outfit', sans-serif; font-size: 18px; }
+.ab-stock-prev.neg { background: var(--err-light); color: var(--err); }
+.ab-toast { position: fixed; left: 50%; bottom: 24px; z-index: 10001; transform: translateX(-50%) translateY(20px); opacity: 0; pointer-events: none; max-width: calc(100% - 32px); background: #10245e; color: #ffffff; padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 14px; box-shadow: var(--shadow-lg); transition: opacity .2s ease, transform .2s ease; }
+.ab-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.ab-toast.err { background: var(--err); }
+@media (prefers-reduced-motion: reduce) { .ab-toast { transition: none; } }

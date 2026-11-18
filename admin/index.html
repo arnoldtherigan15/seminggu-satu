@@ -7650,10 +7650,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const batchId = document.getElementById("batchSelect").value;
       const b = BATCHES.find(x => x.id === batchId);
       if (!b) { alert("Please select a batch first."); return; }
-      const label = prompt("Batch name/label (e.g. 'Vol 2'):", b.label || "");
-      if (label === null) return;
-      const eventDate = prompt("Event date (e.g. 'July 11, 2026') — this is what shows in the participant's loyalty:", b.eventDate || "");
-      if (eventDate === null) return;
+      const vals = await abDialog({
+        title: "Ubah nama & tanggal batch",
+        html: `<label class="ab-dlg-lbl">Nama batch (mis. "Vol 2")<input class="form-control" data-f="label" value="${escapeHtml(b.label || "")}"></label>
+          <label class="ab-dlg-lbl" style="margin-top:12px;">Tanggal event (tampil di loyalty peserta)<input class="form-control" data-f="date" value="${escapeHtml(b.eventDate || "")}" placeholder="mis. 11 Juli 2026"></label>`,
+        getValue: (box) => ({ label: box.querySelector('[data-f="label"]').value, date: box.querySelector('[data-f="date"]').value })
+      });
+      if (!vals) return;
+      const label = vals.label, eventDate = vals.date;
       const r = await api("renameBatch", { token: getToken(), batchId, label: (label || "").trim(), eventDate: (eventDate || "").trim() });
       alert(r.message || r.status);
       if (r.status === "success") { await loadBatches(); loadSummary(); }
@@ -7812,6 +7816,66 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       el.dataset.noimgDone = "1";
       el.src = NOIMG;
     }, true);
+
+    // ---------- Dialog & toast admin (ganti prompt()/alert() bawaan browser) ----------
+    // abDialog({title, html, okText, cancelText, danger, onOpen(box), getValue(box)})
+    //   -> Promise: nilai dari getValue() (atau true) kalau OK, null kalau batal.
+    function abDialog(opt) {
+      return new Promise((resolve) => {
+        const ov = document.createElement("div");
+        ov.className = "ab-dlg-ov";
+        ov.innerHTML = `<div class="ab-dlg" role="dialog" aria-modal="true" aria-labelledby="abDlgT">
+            <div class="ab-dlg-t" id="abDlgT">${opt.title || ""}</div>
+            <div class="ab-dlg-body">${opt.html || ""}</div>
+            <div class="ab-dlg-msg" aria-live="polite"></div>
+            <div class="ab-dlg-foot">
+              <button type="button" class="btn btn-ghost ab-dlg-cancel">${opt.cancelText || "Batal"}</button>
+              <button type="button" class="btn ab-dlg-ok${opt.danger ? " ab-danger" : ""}">${opt.okText || "Simpan"}</button>
+            </div></div>`;
+        document.body.appendChild(ov);
+        const box = ov.querySelector(".ab-dlg");
+        const done = (v) => { document.removeEventListener("keydown", onKey); ov.remove(); resolve(v); };
+        const ok = () => {
+          let v = true;
+          if (opt.getValue) {
+            try { v = opt.getValue(box); } catch (err) { ov.querySelector(".ab-dlg-msg").textContent = err.message || String(err); return; }
+          }
+          done(v);
+        };
+        const onKey = (e) => {
+          if (e.key === "Escape") done(null);
+          if (e.key === "Enter" && e.target.tagName !== "TEXTAREA") { e.preventDefault(); ok(); }
+        };
+        document.addEventListener("keydown", onKey);
+        ov.addEventListener("click", (e) => { if (e.target === ov) done(null); });
+        ov.querySelector(".ab-dlg-cancel").addEventListener("click", () => done(null));
+        ov.querySelector(".ab-dlg-ok").addEventListener("click", ok);
+        if (opt.onOpen) opt.onOpen(box);
+        const first = box.querySelector("input, select, textarea");
+        (first || ov.querySelector(".ab-dlg-ok")).focus();
+        if (first && first.select) first.select();
+      });
+    }
+    // abAsk(title, label, value, opts) -> teks (atau null) -- pengganti prompt()
+    function abAsk(title, label, value, opts) {
+      opts = opts || {};
+      return abDialog({
+        title: escapeHtml(title), okText: opts.okText,
+        html: `<label class="ab-dlg-lbl">${escapeHtml(label || "")}<input class="form-control" type="${opts.type || "text"}" value="${escapeHtml(value == null ? "" : String(value))}" placeholder="${escapeHtml(opts.placeholder || "")}"${opts.inputmode ? ` inputmode="${opts.inputmode}"` : ""}></label>`,
+        getValue: (box) => {
+          const v = box.querySelector("input").value.trim();
+          if (opts.required !== false && !v) throw new Error("Isi dulu ya.");
+          return v;
+        }
+      });
+    }
+    function abToast(msg, tone) {
+      let t = document.getElementById("abToast");
+      if (!t) { t = document.createElement("div"); t.id = "abToast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+      t.className = "ab-toast show" + (tone ? " " + tone : "");
+      t.textContent = msg;
+      clearTimeout(t._h); t._h = setTimeout(() => { t.className = "ab-toast"; }, 2600);
+    }
 
     function rupiah(n) { return "Rp " + Math.round(Number(n) || 0).toLocaleString("id-ID"); }
 
@@ -9878,16 +9942,31 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     // Tambah event baru ke config (mis. journaling-date)
-    function createNewWorkshopConfig() {
-      const idRaw = prompt("ID event (huruf kecil & strip, mis. 'journaling-date'):");
-      if (!idRaw) return;
+    async function createNewWorkshopConfig() {
+      const vals = await abDialog({
+        title: "Event baru",
+        okText: "Buat event",
+        html: `<label class="ab-dlg-lbl">Nama event<input class="form-control" data-f="name" placeholder="mis. Journaling Date"></label>
+          <label class="ab-dlg-lbl" style="margin-top:12px;">ID (huruf kecil &amp; strip, jadi alamat halamannya)<input class="form-control" data-f="id" placeholder="mis. journaling-date"></label>`,
+        onOpen: (box) => {
+          const nm = box.querySelector('[data-f="name"]'), idf = box.querySelector('[data-f="id"]');
+          nm.addEventListener("input", () => { if (!idf.dataset.touched) idf.value = nm.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""); });
+          idf.addEventListener("input", () => { idf.dataset.touched = "1"; });
+        },
+        getValue: (box) => {
+          const v = { name: box.querySelector('[data-f="name"]').value.trim(), id: box.querySelector('[data-f="id"]').value.trim() };
+          if (!v.id) throw new Error("ID event wajib diisi.");
+          return v;
+        }
+      });
+      if (!vals) return;
+      const idRaw = vals.id;
       const id = idRaw.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/(^-|-$)/g, "");
       if (!id) { alert("Invalid ID."); return; }
       const sel = document.getElementById("cfgSelect");
       const existIdx = CONFIG.findIndex(w => w.id === id);
       if (existIdx >= 0) { alert("ID '" + id + "' udah ada — dipilih ya."); sel.value = existIdx; renderConfigForm(); return; }
-      const name = prompt("Event name:", "");
-      if (name === null) return;
+      const name = vals.name;
       CONFIG.push({
         id: id,
         name: (name.trim() || id),
@@ -12319,17 +12398,63 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       });
     }
 
+    // Ubah stok: pilih Tambah/Kurangi + jumlah (stepper & tombol cepat), lihat
+    // pratinjau "stok jadi X" sebelum disimpan -- bukan prompt() angka +/- polos.
     async function quickAdjustShopStock(p) {
-      const raw = prompt(`Tambah/kurang stok "${p.name}" (stok sekarang: ${p.stockQty}).\nIsi angka positif buat nambah, negatif buat ngurang:`, "");
-      if (raw == null || raw.trim() === "") return;
-      const delta = Number(raw);
-      if (!delta) { alert("Masukin angka yang valid."); return; }
+      const cur = Number(p.stockQty) || 0;
+      const delta = await abDialog({
+        title: "Ubah stok · " + escapeHtml(p.name),
+        okText: "Simpan stok",
+        html: `<div class="ab-stock">
+            <div class="ab-stock-cur">Stok sekarang <b>${cur}</b></div>
+            <div class="ab-seg" role="radiogroup" aria-label="Jenis perubahan">
+              <button type="button" class="ab-seg-btn active" data-mode="add" role="radio" aria-checked="true">Tambah</button>
+              <button type="button" class="ab-seg-btn" data-mode="sub" role="radio" aria-checked="false">Kurangi</button>
+            </div>
+            <div class="ab-stepper">
+              <button type="button" class="ab-step" data-step="-1" aria-label="Kurangi 1">−</button>
+              <input class="form-control" type="number" inputmode="numeric" min="1" value="1" aria-label="Jumlah">
+              <button type="button" class="ab-step" data-step="1" aria-label="Tambah 1">+</button>
+            </div>
+            <div class="ab-quick"><button type="button" data-q="5">5</button><button type="button" data-q="10">10</button><button type="button" data-q="20">20</button><button type="button" data-q="50">50</button></div>
+            <div class="ab-stock-prev">Stok jadi <b data-prev>${cur + 1}</b></div>
+          </div>`,
+        onOpen: (box) => {
+          let mode = "add";
+          const inp = box.querySelector("input");
+          const prev = box.querySelector("[data-prev]");
+          const upd = () => {
+            const n = Math.max(0, Math.floor(Number(inp.value) || 0));
+            const next = mode === "add" ? cur + n : cur - n;
+            prev.textContent = next;
+            prev.parentElement.classList.toggle("neg", next < 0);
+          };
+          box.querySelectorAll(".ab-seg-btn").forEach(b => b.addEventListener("click", () => {
+            mode = b.dataset.mode;
+            box.querySelectorAll(".ab-seg-btn").forEach(x => { x.classList.toggle("active", x === b); x.setAttribute("aria-checked", String(x === b)); });
+            upd();
+          }));
+          box.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => { inp.value = Math.max(1, (Number(inp.value) || 0) + Number(b.dataset.step)); upd(); }));
+          box.querySelectorAll("[data-q]").forEach(b => b.addEventListener("click", () => { inp.value = b.dataset.q; upd(); }));
+          inp.addEventListener("input", upd);
+          box._mode = () => mode;
+        },
+        getValue: (box) => {
+          const n = Math.floor(Number(box.querySelector("input").value) || 0);
+          if (n <= 0) throw new Error("Jumlahnya minimal 1.");
+          const d = box._mode() === "add" ? n : -n;
+          if (cur + d < 0) throw new Error("Stok nggak bisa minus (sekarang cuma " + cur + ").");
+          return d;
+        }
+      });
+      if (delta == null) return;
       try {
         const r = await api("adjustShopProductStock", { token: getToken(), id: p.id, delta });
-        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to update stock."); return; }
+        if (r.status !== "success") { handleAuthError(r); abToast(r.message || "Gagal ngubah stok.", "err"); return; }
+        abToast("Stok " + p.name + " jadi " + (cur + delta) + ".");
         loadShopProdList();
       } catch (e) {
-        alert("Failed to connect to the server.");
+        abToast("Gagal terhubung ke server.", "err");
       }
     }
 
@@ -13055,7 +13180,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         workshop = document.getElementById("shopOrdWorkshopSelect").value;
         batchId = document.getElementById("shopOrdBatchSelect").value;
       }
-      const buyerName = reg ? (reg.full_name || reg.nickname || "") : (prompt("Nama pembeli:") || "").trim();
+      const buyerName = reg ? (reg.full_name || reg.nickname || "") : ((await abAsk("Order baru", "Nama pembeli", "")) || "").trim();
       if (!buyerName) return;
       const buyerWa = reg ? (reg.wa || "") : "";
       try {
@@ -16323,7 +16448,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const a = perAccountById(accountId);
       if (!a) return;
       const current = perAccountBalance(a);
-      const raw = prompt(`"${a.name}" balance is currently recorded as: ${rupiah(current)}\n\nEnter the ACTUAL balance (check the bank/e-wallet app):`, formatRibuan(current));
+      const raw = await abAsk("Sesuaikan saldo · " + a.name, "Tercatat " + rupiah(current) + ". Isi saldo yang sebenarnya (cek di app bank / e-wallet):", formatRibuan(current), { inputmode: "numeric", okText: "Sesuaikan" });
       if (raw === null) return;
       const target = parseRibuan(raw);
       const delta = target - current;
@@ -17861,7 +17986,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     // behavior on the editor itself. onDirty fires on any edit/format change.
     function wireRnToolbar(container, editor, onDirty) {
       container.querySelectorAll(".rn-btn").forEach(b => {
-        b.addEventListener("click", () => {
+        b.addEventListener("click", async () => {
           editor.focus();
           const cmd = b.dataset.cmd;
           if (cmd === "bold" || cmd === "italic" || cmd === "underline") document.execCommand(cmd, false, null);
@@ -17870,8 +17995,13 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           else if (cmd === "h3") document.execCommand("formatBlock", false, "H3");
           else if (cmd === "clear") { document.execCommand("removeFormat", false, null); document.execCommand("formatBlock", false, "P"); }
           else if (cmd === "link") {
-            const url = prompt("Paste URL:", "https://");
-            if (url) document.execCommand("createLink", false, url);
+            // simpan seleksi dulu -- dialog bakal ngambil fokus dari editor
+            const sel0 = window.getSelection();
+            const range = sel0 && sel0.rangeCount ? sel0.getRangeAt(0).cloneRange() : null;
+            const url = await abAsk("Sisipkan link", "Tempel URL", "https://", { okText: "Sisipkan" });
+            editor.focus();
+            if (range) { const sel1 = window.getSelection(); sel1.removeAllRanges(); sel1.addRange(range); }
+            if (url && url !== "https://") document.execCommand("createLink", false, url);
           } else if (cmd === "checklist") { insertChecklistItem(editor); }
           else if (cmd === "image") { pickAndInsertEditorImage(editor); return; }
           if (onDirty) onDirty();
@@ -18183,7 +18313,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     async function createFolder() {
-      const name = prompt("Folder name:");
+      const name = await abAsk("Folder baru", "Nama folder", "");
       if (!name || !name.trim()) return;
       const r = await personalApi("savePersonalNoteFolder", { token: getToken(), name: name.trim() });
       if (r.status === "success") await loadNotes();
@@ -18191,7 +18321,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     async function renameFolder(id, currentName) {
-      const name = prompt("Rename folder:", currentName);
+      const name = await abAsk("Ganti nama folder", "Nama folder", currentName);
       if (!name || !name.trim() || name.trim() === currentName) return;
       const r = await personalApi("savePersonalNoteFolder", { token: getToken(), id, name: name.trim() });
       if (r.status === "success") await loadNotes();
@@ -18641,7 +18771,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     async function createVideoFolder() {
-      const name = prompt("Folder name:");
+      const name = await abAsk("Folder baru", "Nama folder", "");
       if (!name || !name.trim()) return;
       const r = await personalApi("saveVideoFolder", { token: getToken(), name: name.trim() });
       if (r.status === "success") await loadVideos();
@@ -18649,7 +18779,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     async function renameVideoFolder(id, currentName) {
-      const name = prompt("Rename folder:", currentName);
+      const name = await abAsk("Ganti nama folder", "Nama folder", currentName);
       if (!name || !name.trim() || name.trim() === currentName) return;
       const r = await personalApi("saveVideoFolder", { token: getToken(), id, name: name.trim() });
       if (r.status === "success") await loadVideos();
