@@ -2088,3 +2088,32 @@ button.bw-brand:focus-visible { outline: 3px solid var(--bw-yellow); outline-off
     font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem;
     cursor: pointer;
 }
+
+/* ---- Tiket: isian pendaftaranmu (dibuka pas diketuk) ---- */
+.reg-toggle {
+    width: 100%; min-height: 46px; margin-top: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    border: 2px dashed #c9d6f5; border-radius: 12px;
+    background: #f4f7ff; color: #10245e;
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem;
+    cursor: pointer;
+}
+.reg-toggle[aria-expanded="true"] { border-style: solid; background: #ffffff; }
+.reg-chev { transition: transform .2s ease; }
+.reg-toggle[aria-expanded="true"] .reg-chev { transform: rotate(180deg); }
+.reg-box { margin-top: 12px; color: #10245e; }
+.reg-loading, .reg-empty { font-size: .88rem; color: #5f6b8a; padding: 6px 2px; }
+.reg-when { font-size: .8rem; color: #5f6b8a; margin-bottom: 6px; }
+.reg-list { margin: 0; }
+.reg-list > div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid #e4e9f5; }
+.reg-list > div:first-child { border-top: none; }
+.reg-list dt { font-size: .82rem; color: #5f6b8a; font-weight: 700; flex: 0 0 auto; max-width: 45%; }
+.reg-list dd { margin: 0; text-align: right; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem; display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
+.reg-sw { width: 26px; height: 26px; border-radius: 50%; box-shadow: 0 0 0 2px #ffffff, 0 0 0 3px #c9d6f5; flex: 0 0 auto; }
+.reg-photos-t { margin: 12px 0 8px; font-size: .82rem; font-weight: 800; color: #5f6b8a; }
+.reg-photos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.reg-photo { padding: 4px 4px 9px; border: none; background: #ffffff; box-shadow: var(--bw-depth-photo); border-radius: 2px; cursor: zoom-in; }
+.reg-photo:nth-child(odd) { transform: rotate(-2deg); }
+.reg-photo:nth-child(even) { transform: rotate(1.5deg); }
+.reg-photo img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+@media (prefers-reduced-motion: reduce) { .reg-chev { transition: none; } }

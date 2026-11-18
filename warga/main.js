@@ -297,6 +297,7 @@ function restGet(path, timeoutMs) {
 }
 
 const MEMBER_ACTION_FN = {
+    memberRegistration: "member-registration",
     memberBookAdd: "member-book-add",
     memberBookCustomize: "member-book-customize",
     memberCheckin: "member-checkin",
@@ -3063,6 +3064,79 @@ function evIcs(name, reg) {
     lines.push("END:VEVENT", "END:VCALENDAR");
     return lines.join("\r\n");
 }
+// ---- Isian pendaftaranmu (di tiket): diambil pas diketuk aja, pakai token ----
+const REG_FIELD_LABEL = {
+    colorCover: "Warna cover", colorFlap: "Warna flap", colorStrap: "Warna tali",
+    frontCoverWord: "Kata di cover depan", initial: "Inisial",
+    coverType: "Motif cover", flapType: "Motif flap",
+    bookColor: "Warna buku", bookType: "Tipe notebook", hasOwnCarton: "Bawa karton sendiri",
+    frame: "Bingkai", pita: "Warna pita", rantai: "Warna rantai", childName: "Nama anak"
+};
+let _myRegCache = null;
+function regFieldLabel(k) {
+    return REG_FIELD_LABEL[k] || String(k).replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, c => c.toUpperCase());
+}
+function regValueHtml(v, typeId, key) {
+    if (typeof v === "boolean") return v ? "Ya" : "Tidak";
+    const t = String(v == null ? "" : v).trim();
+    if (!t) return "-";
+    // form cuma nyimpen NAMA warna -> cari swatch-nya di palet form pendaftaran
+    // (reg-palettes.js, sama yang dipakai admin). Pita bermotif = [base, pola, ukuran].
+    let sw = "";
+    try {
+        const pal = (typeof REG_COLOR_PALETTES !== "undefined" && (REG_COLOR_PALETTES[typeId] || {})[key]) || null;
+        const c = pal ? (pal[t] || pal[Object.keys(pal).find(n => n.toLowerCase() === t.toLowerCase())]) : null;
+        if (c) sw = Array.isArray(c)
+            ? 'background-color:' + c[0] + ';background-image:' + c[1] + ';background-size:' + c[2] + ';'
+            : 'background:' + c + ';';
+        else { const hex = t.match(/#[0-9a-f]{3,8}\b/i); if (hex) sw = 'background:' + hex[0] + ';'; }
+    } catch (e) { }
+    return (sw ? '<span class="reg-sw" style="' + esc(sw) + '" aria-hidden="true"></span>' : "") + esc(t);
+}
+function myRegHtml(r, typeId) {
+    if (!r) return '<p class="reg-empty">Isian pendaftaranmu nggak ketemu. Kalau butuh dicek, tanya Arnold ya.</p>';
+    const rows = [];
+    if (r.fullName) rows.push(["Nama lengkap", esc(r.fullName)]);
+    if (r.nickname) rows.push(["Nama panggilan", esc(r.nickname)]);
+    if (r.ig) rows.push(["Instagram", "@" + esc(String(r.ig).replace(/^@/, ""))]);
+    const ex = r.extra || {};
+    let photos = [];
+    Object.keys(ex).forEach(k => {
+        if (k === "photos") { photos = (Array.isArray(ex[k]) ? ex[k] : []).filter(Boolean); return; }
+        const v = ex[k];
+        if (v === null || v === undefined || (typeof v === "string" && !v.trim())) return; // isian kosong nggak usah ditampilin
+        rows.push([esc(regFieldLabel(k)), regValueHtml(v, typeId, k)]);
+    });
+    let when = "";
+    try { when = new Date(r.submittedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }); } catch (e) { }
+    return (when ? '<p class="reg-when">Dikirim ' + esc(when) + '</p>' : "") +
+        '<dl class="reg-list">' + rows.map(([k, v]) => '<div><dt>' + k + '</dt><dd>' + v + '</dd></div>').join("") + '</dl>' +
+        (photos.length
+            ? '<div class="reg-photos-t">Foto yang kamu kirim (' + photos.length + ')</div><div class="reg-photos">' +
+            photos.map(u => '<button type="button" class="reg-photo" data-src="' + esc(driveThumb(u)) + '"><img src="' + esc(driveThumb(u)) + '" alt="Foto pendaftaran" loading="lazy"></button>').join("") + '</div>'
+            : "");
+}
+async function toggleMyReg(typeId, btn, box) {
+    const open = box.hidden;
+    box.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+    btn.querySelector(".reg-toggle-t").textContent = open ? "Tutup isian pendaftaran" : "Lihat isian pendaftaranmu";
+    if (!open || box.dataset.loaded) return;
+    box.innerHTML = '<div class="reg-loading">Lagi ngambil isianmu…</div>';
+    try {
+        if (!_myRegCache) {
+            const r = await apiPost({ action: "memberRegistration", token: _profile.token });
+            if (r.status !== "success") throw new Error(r.message || "gagal");
+            _myRegCache = r.registrations || {};
+        }
+        box.innerHTML = myRegHtml(_myRegCache[typeId], typeId);
+        box.dataset.loaded = "1";
+        box.querySelectorAll(".reg-photo").forEach(p => p.addEventListener("click", () => openPhotoLightbox(p.dataset.src)));
+    } catch (e) {
+        box.innerHTML = '<p class="reg-empty">Gagal ngambil isianmu. Coba lagi sebentar ya.</p>';
+    }
+}
+
 function openEventTicket(typeId) {
     const reg = _evRegistered && _evRegistered[typeId];
     const ws = (typeof WORKSHOPS !== "undefined" && Array.isArray(WORKSHOPS)) ? WORKSHOPS : [];
@@ -3097,6 +3171,9 @@ function openEventTicket(typeId) {
         '<div class="tix-bottom">' +
         row("🗓", "Tanggal", dateTxt) + row("⏱️", "Jam", timeTxt) + row("📍", "Lokasi", place) +
         '<div class="tix-holder">a.n. <b>' + esc((_profile && _profile.nickname) || "Kamu") + '</b> · terdaftar ✓</div>' +
+        '<button type="button" class="reg-toggle" id="regToggle" aria-expanded="false" aria-controls="regBox">' +
+        '<span class="reg-toggle-t">Lihat isian pendaftaranmu</span><span class="reg-chev" aria-hidden="true">▾</span></button>' +
+        '<div class="reg-box" id="regBox" hidden></div>' +
         '</div>' +
         '</div>' +
         '<div class="tix-actions">' +
@@ -3120,6 +3197,7 @@ function openEventTicket(typeId) {
     $("questModal").classList.add("show");
     lockScroll();
     $("qmClose").addEventListener("click", closeQuestModal);
+    $("regToggle").addEventListener("click", () => toggleMyReg(typeId, $("regToggle"), $("regBox")));
     const cal = $("tixCal");
     if (cal) cal.addEventListener("click", () => {
         try {
