@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=11">
+  <link rel="stylesheet" href="admin-binder.css?v=12">
 </head>
 
 <body>
@@ -4512,7 +4512,7 @@
             </div>
             <button class="btn btn-sm" id="refreshBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
-          <p class="hint" style="margin:0 0 10px;">Mau bikin batch baru? Buka <b>Config</b> → pilih event ini → "+ New Batch".</p>
+          <p class="hint" style="margin:0 0 10px;">Mau bikin batch baru? Buka <b>Config event</b>, pilih event ini, lalu tap "Batch baru".</p>
           <div id="batchInfo" class="batch-info"></div>
 
           <div class="reg-tools">
@@ -4564,7 +4564,7 @@
                     <label for="finPrice">Harga per peserta (Rp)</label>
                     <input class="form-control" type="text" inputmode="numeric" id="finPrice" readonly style="background:#f8f9fa;" />
                     <p class="hint">Follows this batch's price (or General Config if the batch doesn't have its own price yet). Want to change it? Edit it in <b>Config &gt; select the Event + Batch</b>.</p>
-                    <p class="hint">Registrants: <b id="finCount">0</b> people (automatic)</p>
+                    <p class="hint">Pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
                   </div>
 
                   <div class="fin-card">
@@ -4593,7 +4593,7 @@
                   </div>
                   <div class="per-stat-row" style="margin-top:14px;">
                     <div class="per-stat-card">
-                      <div class="per-hero-label">Fixed Costs</div>
+                      <div class="per-hero-label">Biaya tetap</div>
                       <div class="per-hero-amount" id="resCostFixed" style="font-size:18px;">Rp 0</div>
                     </div>
                     <div class="per-stat-card">
@@ -4629,7 +4629,7 @@
                       <option value="adjust">Manual correction</option>
                     </select>
                   </div>
-                  <div class="konten-field" style="flex:1;min-width:100px;"><label>Quantity</label><input class="form-control" type="number" id="invQty" placeholder="e.g. 10"></div>
+                  <div class="konten-field" style="flex:1;min-width:100px;"><label>Quantity</label><input class="form-control" type="number" id="invQty" placeholder="mis. 10"></div>
                   <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="invDate"></div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -4786,7 +4786,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
             <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px;">
               <div style="font-weight:800;margin-bottom:4px;">Daftar caption</div>
-              <p class="hint" style="margin:0 0 8px;">Saved captions for this event/batch -- edit the draft above then "+ Add to Caption List" to keep multiple versions (e.g. for different platforms).</p>
+              <p class="hint" style="margin:0 0 8px;">Caption yang udah disimpan buat event/batch ini. Edit draft di atas lalu tap "Simpan ke daftar caption" kalau mau nyimpen beberapa versi (mis. beda platform).</p>
               <div id="cfgCaptionList"></div>
             </div>
           </div>
@@ -4815,7 +4815,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <div class="fin-card" id="cfgBatchCard" style="display:none;margin-top:14px;">
                 <div style="font-weight:800;margin-bottom:4px;">Batch Detail: <span id="cfgBatchLabel"></span></div>
                 <p class="hint" style="margin:0 0 8px;">Defaults follow General Config above. Fill in one/several fields HERE only if this batch differs (e.g. venue/price/quota different from other batches of the same type) -- leave blank to follow General Config. New batches automatically copy this from the last batch created -- just edit what's different.</p>
-                <div class="konten-field"><label>Nama batch</label><input class="form-control" type="text" id="batchLabelInput" placeholder="e.g. Vol 1"></div>
+                <div class="konten-field"><label>Nama batch</label><input class="form-control" type="text" id="batchLabelInput" placeholder="mis. Vol 1"></div>
                 <div class="konten-field"><label>Description / Theme (optional -- kalau tema batch ini beda dari biasanya)</label><textarea class="form-control" id="batchDescription" rows="2" placeholder="follows Config"></textarea></div>
                 <div class="konten-field">
                   <label>Isi lokasi dari venue (opsional)</label>
@@ -4883,7 +4883,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <div style="font-weight:800;margin-bottom:4px;">Data peserta manual (void)</div>
                   <p class="hint" style="margin:0 0 8px;">For batches from BEFORE this system existed (used to be tracked manually/via WA) -- if you roughly know the participant count but don't have individual data, add it here so quota/revenue/profit are counted correctly. The row shows up in the Registrations table (marked "Void"), and can be deleted/archived like a regular registrant.</p>
                   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-                    <div class="konten-field" style="flex:1;min-width:100px;max-width:140px;"><label>Count</label><input class="form-control" type="text" inputmode="numeric" id="batchVoidCount" placeholder="e.g. 20"></div>
+                    <div class="konten-field" style="flex:1;min-width:100px;max-width:140px;"><label>Count</label><input class="form-control" type="text" inputmode="numeric" id="batchVoidCount" placeholder="mis. 20"></div>
                     <div class="konten-field" style="flex:2;min-width:180px;"><label>Catatan (opsional)</label><input class="form-control" type="text" id="batchVoidNote" placeholder="mis. data lama dari WA"></div>
                     <button class="btn btn-sm btn-ghost" id="batchVoidAddBtn">+ Tambah</button>
                   </div>
@@ -4914,7 +4914,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
             <div class="filter-overlay-body">
               <p class="hint" id="cfgNewBatchEventHint" style="margin:0 0 10px;"></p>
-              <div class="konten-field"><label>Nama batch</label><input class="form-control" type="text" id="cfgNewBatchLabel" placeholder="e.g. Vol 5"></div>
+              <div class="konten-field"><label>Nama batch</label><input class="form-control" type="text" id="cfgNewBatchLabel" placeholder="mis. Vol 5"></div>
               <div class="konten-field"><label>Tanggal event (opsional, tampil di loyalty peserta)</label><input class="form-control" type="date" id="cfgNewBatchDate"></div>
               <p class="hint">Field lain (harga, kuota, venue, dst) otomatis nyontek dari batch terakhir tipe ini -- tinggal disesuaikan di Batch Detail abis dibuat kalau ada yang beda.</p>
               <div class="msg" id="cfgNewBatchMsg"></div>
@@ -4985,7 +4985,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
           </div>
           <div class="table-box mobile-table-box" style="margin-top:10px;"><div class="table-scroll">
-            <table><thead><tr><th>To</th><th>Deskripsi</th><th>Total</th><th>Tanggal</th><th>Status</th><th></th></tr></thead><tbody id="invoiceBody"></tbody></table>
+            <table><thead><tr><th>Kepada</th><th>Deskripsi</th><th>Total</th><th>Tanggal</th><th>Status</th><th></th></tr></thead><tbody id="invoiceBody"></tbody></table>
           </div></div>
           <div id="invoiceCards" class="mobile-cards"></div>
           <div class="empty" id="invoiceEmpty" style="display:none;">Belum ada invoice.</div>
@@ -5405,7 +5405,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <button class="subtab-btn" type="button" data-tab="leaderboard"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5q0 .807-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33 33 0 0 1 2.5.5m.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935m10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935M3.504 1q.01.775.056 1.469c.13 2.028.457 3.546.87 4.667C5.294 9.48 6.484 10 7 10a.5.5 0 0 1 .5.5v2.61a1 1 0 0 1-.757.97l-1.426.356a.5.5 0 0 0-.179.085L4.5 15h7l-.638-.479a.5.5 0 0 0-.18-.085l-1.425-.356a1 1 0 0 1-.757-.97V10.5A.5.5 0 0 1 9 10c.516 0 1.706-.52 2.57-2.864.413-1.12.74-2.64.87-4.667q.045-.694.056-1.469z"/></svg> <span>Peringkat</span> <span class="subtab-count" id="adminLbCount"></span></button>
             </div>
             <div class="subtab-panel" data-tab="challenge">
-              <div id="questList" style="margin-top:10px;"></div>
+              <div class="mh-bar"><input class="form-control" type="search" id="qSearch" placeholder="Cari judul, tema, atau deskripsi…" aria-label="Cari challenge" autocomplete="off"></div>
+              <div class="ab-chips" id="qChips" role="tablist" aria-label="Filter challenge"></div>
+              <div id="questList" class="ab-ep-grid"></div>
             </div>
             <div class="subtab-panel" data-tab="leaderboard">
               <div id="adminLbList"></div>
@@ -5475,7 +5477,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
               <div class="subtab-panel" data-tab="vendor">
                 <div class="fin-card">
-                  <div class="konten-field"><label>Nomor WA vendor</label><input class="form-control" type="tel" id="pesVendorWa" placeholder="e.g. 0812xxxxxxx"></div>
+                  <div class="konten-field"><label>Nomor WA vendor</label><input class="form-control" type="tel" id="pesVendorWa" placeholder="mis. 0812xxxxxxx"></div>
                   <button class="btn btn-sm" id="pesVendorSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan nomor</button>
                   <div class="msg" id="pesVendorMsg"></div>
                 </div>
@@ -5637,7 +5639,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:1;min-width:150px;"><label>Target</label><select class="form-control" id="contribGoal"></select></div>
                   <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="contribDate"></div>
-                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Jumlah (Rp, minus kalau ambil)</label><input class="form-control" type="text" inputmode="numeric" id="contribAmount" placeholder="e.g. 500,000"></div>
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Jumlah (Rp, minus kalau ambil)</label><input class="form-control" type="text" inputmode="numeric" id="contribAmount" placeholder="mis. 500,000"></div>
                 </div>
                 <div class="konten-field"><label>Catatan (opsional)</label><input class="form-control" type="text" id="contribNote" maxlength="300" placeholder="mis. sisa THR"></div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
@@ -5659,9 +5661,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:1;min-width:150px;"><label>Utang</label><select class="form-control" id="liabPayLiability"></select></div>
                   <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="liabPayDate"></div>
-                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Jumlah (Rp, minus kalau utang nambah)</label><input class="form-control" type="text" inputmode="numeric" id="liabPayAmount" placeholder="e.g. 500,000"></div>
+                  <div class="konten-field" style="flex:1;min-width:150px;"><label>Jumlah (Rp, minus kalau utang nambah)</label><input class="form-control" type="text" inputmode="numeric" id="liabPayAmount" placeholder="mis. 500,000"></div>
                 </div>
-                <div class="konten-field"><label>Catatan (opsional)</label><input class="form-control" type="text" id="liabPayNote" maxlength="300" placeholder="e.g. Cicilan bulan ini"></div>
+                <div class="konten-field"><label>Catatan (opsional)</label><input class="form-control" type="text" id="liabPayNote" maxlength="300" placeholder="mis. Cicilan bulan ini"></div>
                 <div class="konten-field">
                   <label>Bukti bayar (opsional)</label>
                   <input type="hidden" id="liabPayProofBase64">
@@ -5924,14 +5926,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               </div>
               <div>
                 <label>Username</label>
-                <input class="form-control" type="text" id="leadUsername" placeholder="e.g. journaling_art" />
+                <input class="form-control" type="text" id="leadUsername" placeholder="mis. journaling_art" />
               </div>
               <div>
                 <label>Status</label>
                 <select class="form-control" id="leadStatus">
                   <option value="new">Baru (belum dichat)</option>
                   <option value="chatted" selected>Chatted</option>
-                  <option value="interested">Interested / Promising</option>
+                  <option value="interested">Tertarik / prospektif</option>
                   <option value="registered">Registered</option>
                   <option value="noreply">Belum balas</option>
                   <option value="rejected">Declined</option>
@@ -5963,7 +5965,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <option value="all">Semua status</option>
                 <option value="new">Baru</option>
                 <option value="chatted">Chatted</option>
-                <option value="interested">Interested / Promising</option>
+                <option value="interested">Tertarik / prospektif</option>
                 <option value="registered">Registered</option>
                 <option value="noreply">Belum balas</option>
                 <option value="rejected">Declined</option>
@@ -5988,7 +5990,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                     <th>Status</th>
                     <th>Follow?</th>
                     <th>Catatan</th>
-                    <th>Last Update</th>
+                    <th>Update terakhir</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -6084,7 +6086,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <option value="transfer">Transfer Between Accounts</option>
             </select>
           </div>
-          <div class="konten-field" style="flex:1;min-width:130px;"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="txAmount" placeholder="e.g. 50,000"></div>
+          <div class="konten-field" style="flex:1;min-width:130px;"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="txAmount" placeholder="mis. 50,000"></div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:130px;"><label id="txAccountLabel">Akun</label><select class="form-control" id="txAccount"></select></div>
@@ -6110,7 +6112,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="accId">
-        <div class="konten-field"><label>Nama akun</label><input class="form-control" type="text" id="accName" placeholder="e.g. BCA, Cash Wallet, GoPay"></div>
+        <div class="konten-field"><label>Nama akun</label><input class="form-control" type="text" id="accName" placeholder="mis. BCA, Cash Wallet, GoPay"></div>
         <div class="konten-field">
           <label>Photo</label>
           <input type="hidden" id="accPhotoUrl">
@@ -6144,7 +6146,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="catId">
-        <div class="konten-field"><label>Nama kategori</label><input class="form-control" type="text" id="catName" placeholder="e.g. Transport"></div>
+        <div class="konten-field"><label>Nama kategori</label><input class="form-control" type="text" id="catName" placeholder="mis. Transport"></div>
         <div class="konten-field"><label>Jenis</label>
           <select class="form-control" id="catType">
             <option value="expense">Expense</option>
@@ -6191,7 +6193,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="liabId">
-        <div class="konten-field"><label>Nama utang</label><input class="form-control" type="text" id="liabName" placeholder="e.g. Kartu Kredit BCA"></div>
+        <div class="konten-field"><label>Nama utang</label><input class="form-control" type="text" id="liabName" placeholder="mis. Kartu Kredit BCA"></div>
         <div class="konten-field"><label>Pokok utang (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="liabPrincipal" placeholder="5,000,000"></div>
         <div class="konten-field"><label>Tenggat (opsional)</label><input class="form-control" type="date" id="liabDueDate"></div>
         <div class="konten-field"><label>Icon</label><select class="form-control" id="liabIcon"></select></div>
@@ -6213,8 +6215,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="billId">
-        <div class="konten-field"><label>Nama tagihan</label><input class="form-control" type="text" id="billName" placeholder="e.g. KPR, Internet, Member Parkir"></div>
-        <div class="konten-field"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="billAmount" placeholder="e.g. 500,000"></div>
+        <div class="konten-field"><label>Nama tagihan</label><input class="form-control" type="text" id="billName" placeholder="mis. KPR, Internet, Member Parkir"></div>
+        <div class="konten-field"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="billAmount" placeholder="mis. 500,000"></div>
         <div class="konten-field"><label>Resets every month on day</label><input class="form-control" type="number" min="1" max="28" id="billResetDay" placeholder="25"></div>
         <p class="hint" style="margin:-4px 0 0;">Checklist "udah bayar" balik kosong otomatis begitu lewat tanggal ini tiap bulannya.</p>
         <div class="konten-field"><label>Icon</label><select class="form-control" id="billIcon"></select></div>
@@ -6238,7 +6240,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       <div class="filter-overlay-body">
         <input type="hidden" id="taskId">
         <input type="hidden" id="taskSource">
-        <div class="konten-field"><label>Judul</label><input class="form-control" type="text" id="taskTitle" placeholder="e.g. Follow up vendor katering"></div>
+        <div class="konten-field"><label>Judul</label><input class="form-control" type="text" id="taskTitle" placeholder="mis. Follow up vendor katering"></div>
         <div class="konten-field"><label>Deskripsi</label><textarea class="form-control" id="taskDescription" rows="3" placeholder="Detail (opsional)"></textarea></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:140px;">
@@ -6272,10 +6274,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="venueId">
-        <div class="konten-field"><label>Nama venue</label><input class="form-control" type="text" id="venueName" placeholder="e.g. Kopitagram Centang Biru"></div>
-        <div class="konten-field"><label>Alamat</label><textarea class="form-control" id="venueAddress" rows="2" placeholder="e.g. Jl. Kenangan No. 17, Surabaya"></textarea></div>
+        <div class="konten-field"><label>Nama venue</label><input class="form-control" type="text" id="venueName" placeholder="mis. Kopitagram Centang Biru"></div>
+        <div class="konten-field"><label>Alamat</label><textarea class="form-control" id="venueAddress" rows="2" placeholder="mis. Jl. Kenangan No. 17, Surabaya"></textarea></div>
         <div class="konten-field"><label>Link Google Maps</label><input class="form-control" type="url" id="venueMapsLink" placeholder="https://maps.app.goo.gl/..."></div>
-        <div class="konten-field"><label>Catatan (opsional)</label><textarea class="form-control" id="venueNotes" rows="2" placeholder="e.g. Kontak venue, kapasitas, parkir, dst."></textarea></div>
+        <div class="konten-field"><label>Catatan (opsional)</label><textarea class="form-control" id="venueNotes" rows="2" placeholder="mis. Kontak venue, kapasitas, parkir, dst."></textarea></div>
         <div class="msg" id="venueMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6294,7 +6296,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="ideaId">
-        <div class="konten-field"><label>Judul / tema</label><input class="form-control" type="text" id="ideaTitle" placeholder="e.g. Under Construction"></div>
+        <div class="konten-field"><label>Judul / tema</label><input class="form-control" type="text" id="ideaTitle" placeholder="mis. Under Construction"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:160px;"><label>Jenis event</label><select class="form-control" id="ideaWorkshopType"></select></div>
           <div class="konten-field" style="flex:1;min-width:140px;"><label>Target Month</label><input class="form-control" type="month" id="ideaTargetMonth"></div>
@@ -6322,7 +6324,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div style="font-weight:800;margin-bottom:4px;">Bikin tema pakai AI</div>
           <p class="hint" style="margin:0 0 8px;">Kasih arahan singkat (opsional) -- AI bikinin judul tema + prolog + pertanyaan refleksi, siap diedit sebelum disimpen.</p>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <input type="text" class="form-control" id="ideaAiHint" placeholder="e.g. tema tentang berkebun/kesabaran" style="flex:1;min-width:180px;">
+            <input type="text" class="form-control" id="ideaAiHint" placeholder="mis. tema tentang berkebun/kesabaran" style="flex:1;min-width:180px;">
             <button type="button" class="btn btn-sm" id="ideaAiGenBtn" style="flex-shrink:0;">Buat</button>
           </div>
           <div class="msg" id="ideaAiMsg"></div>
@@ -6345,7 +6347,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <div class="konten-field" style="flex:1;min-width:150px;margin:0;"><label>Partner yang udah ada</label><select class="form-control" id="ideaPartnerSelect"><option value="">— atau ketik prospek baru di bawah —</option></select></div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:flex-end;">
-            <div class="konten-field" style="flex:1;min-width:150px;margin:0;"><label>Nama prospek baru</label><input class="form-control" type="text" id="ideaPartnerNameInput" placeholder="e.g. Brand X (belum di List Partner)"></div>
+            <div class="konten-field" style="flex:1;min-width:150px;margin:0;"><label>Nama prospek baru</label><input class="form-control" type="text" id="ideaPartnerNameInput" placeholder="mis. Brand X (belum di List Partner)"></div>
             <div class="konten-field" style="flex:1;min-width:130px;margin:0;"><label>Status</label>
               <select class="form-control" id="ideaPartnerStatus">
                 <option value="possible">Possible</option>
@@ -6382,7 +6384,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       <div class="filter-overlay-body">
         <input type="hidden" id="preqTemplatePartnerId">
         <p class="hint" style="margin:0 0 8px;">Template standar request partner ini -- dipakai tiap kali "Pull In Requests" ditekan, di batch atau event manapun. Satu baris = satu request.</p>
-        <div class="konten-field"><label>Requests</label><textarea class="form-control" id="preqTemplateText" rows="8" placeholder="e.g.&#10;Wajib bikin reels sebelum acara&#10;List pertanyaan interview yang wajib ditanyakan"></textarea></div>
+        <div class="konten-field"><label>Requests</label><textarea class="form-control" id="preqTemplateText" rows="8" placeholder="Contoh:&#10;Wajib bikin reels sebelum acara&#10;List pertanyaan interview yang wajib ditanyakan"></textarea></div>
         <div class="msg" id="preqTemplateMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6402,7 +6404,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       <div class="filter-overlay-body">
         <input type="hidden" id="ciId">
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div class="konten-field" style="flex:2;min-width:160px;"><label>Nama item</label><input class="form-control" type="text" id="ciName" placeholder="e.g. Glue"></div>
+          <div class="konten-field" style="flex:2;min-width:160px;"><label>Nama item</label><input class="form-control" type="text" id="ciName" placeholder="mis. Glue"></div>
           <div class="konten-field" style="flex:1;min-width:140px;"><label>Harga default (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="ciPrice" placeholder="0"></div>
         </div>
         <div class="konten-field"><label>Link toko (opsional)</label>
@@ -6441,7 +6443,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <button class="filter-reset-link" id="costAddDeleteBtn" style="display:none;color:var(--err);">Hapus</button>
       </div>
       <div class="filter-overlay-body">
-        <div class="konten-field"><label>Nama biaya</label><input class="form-control" type="text" id="costAddNama" list="costItemsList" placeholder="e.g. 4R Print"></div>
+        <div class="konten-field"><label>Nama biaya</label><input class="form-control" type="text" id="costAddNama" list="costItemsList" placeholder="mis. 4R Print"></div>
         <div id="costAddPreview" style="display:none;margin:-8px 0 14px;"></div>
         <div class="konten-field"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="costAddBiaya" placeholder="0"></div>
         <div class="konten-field">
@@ -6506,7 +6508,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="mnId">
-        <div class="konten-field"><label>Nama menu</label><input class="form-control" type="text" id="mnName" placeholder="e.g. Karak Chai Latte"></div>
+        <div class="konten-field"><label>Nama menu</label><input class="form-control" type="text" id="mnName" placeholder="mis. Karak Chai Latte"></div>
         <div class="konten-field"><label>Deskripsi</label><textarea class="form-control" id="mnDesc" rows="2" placeholder="mis. teh rempah premium, diseduh pelan dengan susu spesial."></textarea></div>
         <div class="konten-field">
           <label>Gambar (opsional)</label>
@@ -6608,21 +6610,21 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="partnerId">
-        <div class="konten-field"><label>Nama partner / perusahaan</label><input class="form-control" type="text" id="partnerName" placeholder="e.g. PT Bumi Wiyasa Nusantara"></div>
+        <div class="konten-field"><label>Nama partner / perusahaan</label><input class="form-control" type="text" id="partnerName" placeholder="mis. PT Bumi Wiyasa Nusantara"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div class="konten-field" style="flex:1;min-width:180px;"><label>Nama PIC</label><input class="form-control" type="text" id="partnerPicName" placeholder="e.g. Ayu Aprilianti"></div>
-          <div class="konten-field" style="flex:1;min-width:180px;"><label>Jabatan PIC</label><input class="form-control" type="text" id="partnerPicRole" placeholder="e.g. Strategic & Growth Marketing Manager"></div>
+          <div class="konten-field" style="flex:1;min-width:180px;"><label>Nama PIC</label><input class="form-control" type="text" id="partnerPicName" placeholder="mis. Ayu Aprilianti"></div>
+          <div class="konten-field" style="flex:1;min-width:180px;"><label>Jabatan PIC</label><input class="form-control" type="text" id="partnerPicRole" placeholder="mis. Strategic & Growth Marketing Manager"></div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:180px;"><label>Email</label><input class="form-control" type="email" id="partnerEmail"></div>
-          <div class="konten-field" style="flex:1;min-width:180px;"><label>Telepon / WhatsApp</label><input class="form-control" type="tel" id="partnerPhone" placeholder="e.g. 08123456789"></div>
+          <div class="konten-field" style="flex:1;min-width:180px;"><label>Telepon / WhatsApp</label><input class="form-control" type="tel" id="partnerPhone" placeholder="mis. 08123456789"></div>
         </div>
-        <div class="konten-field"><label>Instagram (username atau link)</label><input class="form-control" type="text" id="partnerInstagram" placeholder="e.g. @cookiesys"></div>
+        <div class="konten-field"><label>Instagram (username atau link)</label><input class="form-control" type="text" id="partnerInstagram" placeholder="mis. @cookiesys"></div>
         <div class="konten-field"><label>Catatan</label><textarea class="form-control" id="partnerNotes" rows="3"></textarea></div>
         <div class="konten-field">
           <label>Standing Requests (one per line)</label>
-          <textarea class="form-control" id="partnerRequests" rows="4" placeholder="e.g.&#10;Wajib bikin reels sebelum acara&#10;List pertanyaan interview yang wajib ditanyakan"></textarea>
-          <p class="hint" style="margin:4px 0 0;">Bisa ditarik ke checklist Prep tiap batch yang kerjasama sama partner ini (tab "Partner & Requests"). Edit di sini nggak ngubah checklist yang udah ditarik ke batch manapun.</p>
+          <textarea class="form-control" id="partnerRequests" rows="4" placeholder="Contoh:&#10;Wajib bikin reels sebelum acara&#10;List pertanyaan interview yang wajib ditanyakan"></textarea>
+          <p class="hint" style="margin:4px 0 0;">Bisa ditarik ke checklist Prep tiap batch yang kerjasama sama partner ini (tab "Partner" di Prep). Edit di sini nggak ngubah checklist yang udah ditarik ke batch manapun.</p>
         </div>
         <div class="msg" id="partnerMsg"></div>
       </div>
@@ -6655,12 +6657,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           </div>
         </div>
         <p class="hint" style="margin:0 0 4px;">Pasal 1: Ruang Lingkup dan Jadwal Acara</p>
-        <div class="konten-field"><label>Nama event</label><input class="form-control" type="text" id="mouEventName" placeholder="e.g. Side by Side, Parent & Kid Journal Playdate by seminggu satu"></div>
+        <div class="konten-field"><label>Nama event</label><input class="form-control" type="text" id="mouEventName" placeholder="mis. Side by Side, Parent & Kid Journal Playdate by seminggu satu"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:150px;"><label>Hari & tanggal</label><input class="form-control" type="date" id="mouEventDate"></div>
           <div class="konten-field" style="flex:1;min-width:110px;"><label>From</label><input class="form-control" type="time" id="mouEventTimeStart"></div>
-          <div class="konten-field" style="flex:1;min-width:110px;"><label>To</label><input class="form-control" type="time" id="mouEventTimeEnd"></div>
-          <div class="konten-field" style="flex:1;min-width:170px;"><label>Target peserta</label><input class="form-control" type="text" id="mouTargetPeserta" placeholder="e.g. 15 (Couple : 1 Orang Tua dan 1 Anak) Peserta"></div>
+          <div class="konten-field" style="flex:1;min-width:110px;"><label>Sampai</label><input class="form-control" type="time" id="mouEventTimeEnd"></div>
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Target peserta</label><input class="form-control" type="text" id="mouTargetPeserta" placeholder="mis. 15 (Couple : 1 Orang Tua dan 1 Anak) Peserta"></div>
         </div>
         <p class="hint" style="margin:8px 0 4px;">Pasal 2: Bentuk Dukungan Pihak Kedua</p>
         <div class="konten-field"><textarea class="form-control" id="mouSupportText" rows="3" placeholder="1. Produk Full Size: Penyediaan produk ... yang akan dibagikan kepada seluruh peserta yang hadir."></textarea></div>
@@ -6677,8 +6679,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="konten-field" style="flex:1;min-width:170px;"><label>Jabatan pihak pertama</label><input class="form-control" type="text" id="mouP1Role" value="Founder dan Perwakilan"></div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div class="konten-field" style="flex:1;min-width:170px;"><label>Nama pihak kedua</label><input class="form-control" type="text" id="mouP2Name" placeholder="e.g. Ayu Aprilianti"></div>
-          <div class="konten-field" style="flex:1;min-width:170px;"><label>Jabatan pihak kedua</label><input class="form-control" type="text" id="mouP2Role" placeholder="e.g. CHRO"></div>
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Nama pihak kedua</label><input class="form-control" type="text" id="mouP2Name" placeholder="mis. Ayu Aprilianti"></div>
+          <div class="konten-field" style="flex:1;min-width:170px;"><label>Jabatan pihak kedua</label><input class="form-control" type="text" id="mouP2Role" placeholder="mis. CHRO"></div>
         </div>
         <div class="msg" id="mouMsg"></div>
       </div>
@@ -6745,14 +6747,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <p class="hint" style="margin:18px 0 2px;font-weight:700;color:var(--ink);">Change Active Number</p>
         <p class="hint" style="margin:0 0 8px;">Kalau warga ini ganti nomor HP, pindahin akunnya ke sini. Semua histori (loyalty stamp, quest, post) ikut pindah.</p>
         <div style="display:flex;gap:8px;">
-          <input class="form-control" type="text" id="waManageNewActive" placeholder="e.g. 081234567890" autocomplete="off">
+          <input class="form-control" type="text" id="waManageNewActive" placeholder="mis. 081234567890" autocomplete="off">
           <button class="btn btn-sm" id="waManageChangeBtn" style="flex-shrink:0;">Switch</button>
         </div>
 
         <p class="hint" style="margin:20px 0 2px;font-weight:700;color:var(--ink);">Merge Another Number</p>
         <p class="hint" style="margin:0 0 8px;">Kalau dia kedaftar lagi pakai nomor lain, gabungin histori-nya ke akun ini (nomor aktifnya tetap yang di atas).</p>
         <div style="display:flex;gap:8px;">
-          <input class="form-control" type="text" id="waManageMergeFrom" placeholder="e.g. 081234567890" autocomplete="off">
+          <input class="form-control" type="text" id="waManageMergeFrom" placeholder="mis. 081234567890" autocomplete="off">
           <button class="btn btn-sm btn-ghost" id="waManageMergeBtn" style="flex-shrink:0;">Merge</button>
         </div>
 
@@ -6792,8 +6794,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="pwId">
-        <div class="konten-field"><label>Nama layanan</label><input class="form-control" type="text" id="pwTitle" placeholder="e.g. Gmail Seminggu Satu"></div>
-        <div class="konten-field"><label>Username / email (opsional)</label><input class="form-control" type="text" id="pwUsername" placeholder="e.g. hello@seminggusatu.com"></div>
+        <div class="konten-field"><label>Nama layanan</label><input class="form-control" type="text" id="pwTitle" placeholder="mis. Gmail Seminggu Satu"></div>
+        <div class="konten-field"><label>Username / email (opsional)</label><input class="form-control" type="text" id="pwUsername" placeholder="mis. hello@seminggusatu.com"></div>
         <div class="konten-field">
           <label>Password</label>
           <div style="display:flex;gap:6px;">
@@ -6803,7 +6805,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           </div>
         </div>
         <div class="konten-field"><label>URL (opsional)</label><input class="form-control" type="url" id="pwUrl" placeholder="https://..."></div>
-        <div class="konten-field"><label>Catatan (opsional)</label><textarea class="form-control" id="pwNotes" rows="2" placeholder="e.g. recovery email, PIN, dst."></textarea></div>
+        <div class="konten-field"><label>Catatan (opsional)</label><textarea class="form-control" id="pwNotes" rows="2" placeholder="mis. recovery email, PIN, dst."></textarea></div>
         <div class="msg" id="pwMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6823,7 +6825,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       <div class="filter-overlay-body">
         <input type="hidden" id="vidId">
         <div class="konten-field"><label>Video URL</label><input class="form-control" type="url" id="vidUrl" placeholder="https://youtube.com/watch?v=..."></div>
-        <div class="konten-field"><label>Judul (opsional)</label><input class="form-control" type="text" id="vidTitle" placeholder="e.g. Tutorial bikin macrame"></div>
+        <div class="konten-field"><label>Judul (opsional)</label><input class="form-control" type="text" id="vidTitle" placeholder="mis. Tutorial bikin macrame"></div>
         <div class="konten-field"><label>Folder</label><select class="form-control" id="vidFolderSelect"><option value="">Tanpa folder</option></select></div>
         <div class="konten-field"><label>Catatan (opsional)</label><textarea class="form-control" id="vidNotes" rows="2"></textarea></div>
         <div class="msg" id="vidMsg"></div>
@@ -6844,7 +6846,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="invoiceId">
-        <div class="konten-field"><label>Judul (buat daftarmu)</label><input class="form-control" type="text" id="invoiceTitle" placeholder="e.g. Invoice - K MALL - Aug 2026"></div>
+        <div class="konten-field"><label>Judul (buat daftarmu)</label><input class="form-control" type="text" id="invoiceTitle" placeholder="mis. Invoice - K MALL - Aug 2026"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:2;min-width:180px;"><label>Partner (opsional)</label><select class="form-control" id="invoicePartnerSelect"><option value="">-</option></select></div>
           <div class="konten-field" style="flex:1;min-width:150px;"><label>Tanggal dokumen</label><input class="form-control" type="date" id="invoiceDocDate"></div>
@@ -6857,8 +6859,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div class="konten-field" style="flex:1;min-width:150px;"><label>Nomor pesanan (opsional)</label><input class="form-control" type="text" id="invoiceOrderNumber" placeholder="e.g. 150305"></div>
-          <div class="konten-field" style="flex:2;min-width:200px;"><label>To</label><input class="form-control" type="text" id="invoiceToName" placeholder="e.g. PT Mandiri Andal Sejahtera (K MALL)"></div>
+          <div class="konten-field" style="flex:1;min-width:150px;"><label>Nomor pesanan (opsional)</label><input class="form-control" type="text" id="invoiceOrderNumber" placeholder="mis. 150305"></div>
+          <div class="konten-field" style="flex:2;min-width:200px;"><label>Kepada</label><input class="form-control" type="text" id="invoiceToName" placeholder="mis. PT Mandiri Andal Sejahtera (K MALL)"></div>
         </div>
         <p class="hint" style="margin:8px 0 4px;">Rincian item</p>
         <div id="invoiceItemRows"></div>
@@ -7239,7 +7241,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       btn.title = "Muat ulang"; btn.setAttribute("aria-label", "Muat ulang");
     }
     function abBuildHeads() {
-      document.querySelectorAll('button[id$="ReloadBtn"]').forEach(abRefreshify);
+      document.querySelectorAll('button[id$="ReloadBtn"], #refreshBtn').forEach(abRefreshify);
       Object.keys(AB_PAGES).forEach(v => {
         const view = Array.from(document.querySelectorAll(".wrap.view")).find(el => el.id.toLowerCase() === "view" + v);
         if (!view || view.querySelector(":scope > .ab-head")) return;
@@ -7248,7 +7250,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         head.className = "ab-head";
         head.innerHTML = `<div class="ab-head-txt"><h1>${escapeHtml(title)}<span class="ab-head-count"></span></h1><p>${escapeHtml(desc)}</p></div><div class="ab-head-acts"></div>`;
         const acts = head.querySelector(".ab-head-acts");
-        const kids = Array.from(view.children).slice(0, 4);
+        // halaman "daftar <-> editor" (Stok bahan, Produk, Koleksi): toolbar-nya ada di dalam *ListWrap
+        const listWrap = Array.from(view.children).slice(0, 2).find(k => /ListWrap$/.test(k.id));
+        const scope = listWrap || view;
+        const kids = Array.from(scope.children).slice(0, 4);
         const tb = kids.find(k => k.classList.contains("toolbar"));
         const take = [];
         if (tb) {
@@ -7271,15 +7276,22 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         ghost.concat(primary, refresh).forEach(b => { b.style.marginLeft = ""; b.style.flex = ""; acts.appendChild(b); });
         if (tb && !tb.querySelector("*")) tb.remove();
         // penjelasan panjang di awal halaman -> dilipat ke "Cara kerjanya"
-        const hint = Array.from(view.children).slice(0, 4).find(k => k.matches("p.hint"));
+        const hint = Array.from(scope.children).slice(0, 4).find(k => k.matches("p.hint"));
         view.insertBefore(head, view.firstChild);
+        let how = null;
         if (hint) {
-          const d = document.createElement("details");
-          d.className = "ab-howto";
-          d.innerHTML = `<summary>${icon("lightbulb")} Cara kerjanya</summary>`;
+          how = document.createElement("details");
+          how.className = "ab-howto";
+          how.innerHTML = `<summary>${icon("lightbulb")} Cara kerjanya</summary>`;
           hint.style.margin = "";
-          d.appendChild(hint);
-          head.insertAdjacentElement("afterend", d);
+          how.appendChild(hint);
+          head.insertAdjacentElement("afterend", how);
+        }
+        if (listWrap) {
+          // pas editor kebuka (daftar disembunyiin), aksi daftar di header ikut ngumpet
+          const sync = () => { const hid = listWrap.style.display === "none"; acts.style.display = hid ? "none" : ""; if (how) how.style.display = hid ? "none" : ""; };
+          new MutationObserver(sync).observe(listWrap, { attributes: true, attributeFilter: ["style"] });
+          sync();
         }
       });
     }
@@ -8784,7 +8796,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <summary><span class="det-acc-title">${icon("sliders")} Detail Perhitungan</span><span class="det-acc-chevron">▸</span></summary>
           <div class="det-acc-body">
             <div style="margin-bottom:14px;">
-              <div style="font-weight:800;margin-bottom:4px;">Income (Gross)</div>
+              <div style="font-weight:800;margin-bottom:4px;">Pendapatan kotor</div>
               <div style="display:flex;justify-content:space-between;font-size:.9rem;"><span>${rupiah(d.price)}/peserta × ${d.count} peserta</span><b>${rupiah(d.revenueGross)}</b></div>
               ${d.collabItems.length ? `
               <div style="margin-top:8px;">
@@ -8803,7 +8815,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
 
             <div style="margin-bottom:14px;">
-              <div style="font-weight:800;margin-bottom:4px;">Fixed Costs (${d.fixedItems.length} item)</div>
+              <div style="font-weight:800;margin-bottom:4px;">Biaya tetap (${d.fixedItems.length} item)</div>
               ${lineRows(d.fixedItems, false)}
               ${subtotalRow("Subtotal", d.costFixed)}
             </div>
@@ -9597,7 +9609,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const cols = [
         { status: "backlog", listId: "taskListBacklog", tabId: "taskTabBacklog", label: "Backlog", empty: "Nggak ada yang nunggu dikerjain." },
         { status: "in_progress", listId: "taskListInProgress", tabId: "taskTabInProgress", label: "Lagi dikerjain", empty: "Belum ada yang lagi dikerjain." },
-        { status: "done", listId: "taskListDone", tabId: "taskTabDone", label: "Done", empty: "Belum ada yang kelar." },
+        { status: "done", listId: "taskListDone", tabId: "taskTabDone", label: "Selesai", empty: "Belum ada yang kelar." },
       ];
       cols.forEach(c => {
         const items = TASKS.filter(t => t.status === c.status);
@@ -11656,7 +11668,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           : "";
         div.innerHTML =
           `<div class="konten-item-head">
-             <span class="k-head-left">${dragHandle}<span class="k-num">Item #${idx + 1}</span></span>
+             <span class="k-head-left">${dragHandle}<span class="k-num">Item ${idx + 1}</span></span>
              <span class="k-head-right">${moveBtns}<button class="k-del" data-idx="${idx}">Hapus</button></span>
            </div>` +
           fields.map(f => {
@@ -11963,7 +11975,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         div.className = "konten-item";
         div.innerHTML =
           `<div class="konten-item-head">
-             <span class="k-head-left"><span class="k-num">Item #${idx + 1}</span></span>
+             <span class="k-head-left"><span class="k-num">Item ${idx + 1}</span></span>
              <span class="k-head-right"><button class="k-del" data-idx="${idx}">Hapus</button></span>
            </div>
            <div class="konten-field"><label>Nama Produk</label>
@@ -14251,7 +14263,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                  </div>
                </div></div>`
             ).join("")
-            : '<p class="hint">' + icon("checkCircle") + ' All caught up, nice!</p>';
+            : '<p class="hint">' + icon("checkCircle") + ' Aman, nggak ada yang nunggu.</p>';
           pendEl.querySelectorAll("[data-actok]").forEach(b => b.addEventListener("click", async () => {
             b.disabled = true;
             const r2 = await api("setSuggestionApproved", { token: getToken(), id: b.dataset.actok });
@@ -14408,6 +14420,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           history.replaceState(null, "", "#quest:" + tabId);
         });
         questInit = true;
+        wireQuestListOnce();
         await loadChallenges();
         loadAdminLeaderboard();
       }
@@ -14682,24 +14695,37 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       } catch (e) { list.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat. Coba muat ulang.</p>'; }
     }
 
+    let Q_FILTER = "all";
     function renderQuestList() {
       const list = document.getElementById("questList");
       const cnt = document.getElementById("questCount");
-      if (cnt) cnt.textContent = "(" + CHALLENGES.length + ")";
-      if (!CHALLENGES.length) { list.innerHTML = '<p class="hint">Belum ada challenge.</p>'; return; }
-      list.innerHTML = CHALLENGES.map((c, i) =>
-        `<div class="konten-item" style="cursor:pointer;" data-idx="${i}">
-           <div class="konten-item-head">
-             <span class="k-num">${escapeHtml(c.title || "(tanpa judul)")} ${c.active ? '<span class="loy-badge">AKTIF</span>' : '<span class="loy-note-badge">draft</span>'}</span>
-           </div>
-           <div style="display:flex;gap:12px;align-items:center;">
-             ${c.image ? `<img src="${escapeHtml(driveThumb(c.image))}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;flex-shrink:0;">` : noImg(56)}
-             <div style="min-width:0;"><div style="font-weight:600;font-size:13px;">${escapeHtml(c.theme || "")}</div>
-             <div class="hint" style="margin:0;">${escapeHtml((c.description || "").slice(0, 90))}</div></div>
-           </div>
-         </div>`
-      ).join("");
-      list.querySelectorAll(".konten-item").forEach(el => el.addEventListener("click", () => editChallenge(Number(el.dataset.idx))));
+      if (cnt) cnt.textContent = CHALLENGES.length;
+      const chips = document.getElementById("qChips");
+      const q = ((document.getElementById("qSearch") || {}).value || "").toLowerCase().trim();
+      const n = { all: CHALLENGES.length, active: CHALLENGES.filter(c => c.active).length };
+      n.inactive = n.all - n.active;
+      if (chips) chips.innerHTML = [["all", "Semua"], ["active", "Aktif"], ["inactive", "Nonaktif"]]
+        .map(([k, l]) => `<button type="button" class="ab-chip${Q_FILTER === k ? " active" : ""}" role="tab" aria-selected="${Q_FILTER === k}" data-qf="${k}">${l} <span>${n[k]}</span></button>`).join("");
+      if (!CHALLENGES.length) { list.innerHTML = '<div class="empty">Belum ada challenge. Tap "Challenge baru" buat bikin yang pertama.</div>'; return; }
+      const rows = CHALLENGES.map((c, i) => ({ c, i }))
+        .filter(({ c }) => Q_FILTER === "all" || (Q_FILTER === "active" ? c.active : !c.active))
+        .filter(({ c }) => !q || ((c.title || "") + " " + (c.theme || "") + " " + (c.description || "")).toLowerCase().includes(q));
+      if (!rows.length) { list.innerHTML = '<p class="hint">Nggak ada challenge yang cocok.</p>'; return; }
+      list.innerHTML = rows.map(({ c, i }) => `<button type="button" class="ab-ep-card ab-q-card${c.active ? "" : " is-off"}" data-idx="${i}" aria-label="Edit challenge ${escapeHtml(c.title || "")}">
+          <span class="ab-ep-img">${c.image ? `<img src="${escapeHtml(driveThumb(c.image))}" alt="" loading="lazy">` : noImg(400)}</span>
+          <span class="ab-ep-meta"><b class="ab-ep-tag${c.active ? "" : " off"}">${c.active ? "Aktif" : "Nonaktif"}</b><span class="ab-ep-date">${Number(c.points) || 0} poin</span></span>
+          <span class="ab-q-title">${escapeHtml(c.title || "(tanpa judul)")}</span>
+          <span class="ab-ep-cap${c.description ? "" : " none"}">${escapeHtml(c.description || "Belum ada deskripsi")}</span>
+          <span class="ab-q-subs">${icon("people")} ${c.submissions || 0} karya masuk${c.theme ? ` · ${escapeHtml(c.theme)}` : ""}</span>
+        </button>`).join("");
+    }
+    function wireQuestListOnce() {
+      const list = document.getElementById("questList");
+      if (!list || list.dataset.wired) return;
+      list.dataset.wired = "1";
+      list.addEventListener("click", (e) => { const c = e.target.closest("[data-idx]"); if (c) editChallenge(Number(c.dataset.idx)); });
+      document.getElementById("qChips").addEventListener("click", (e) => { const c = e.target.closest("[data-qf]"); if (c) { Q_FILTER = c.dataset.qf; renderQuestList(); } });
+      document.getElementById("qSearch").addEventListener("input", renderQuestList);
     }
 
     function fillQuestForm(c) {
@@ -15676,7 +15702,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       return escapeHtml(t.category_id ? ((perCategoryById(t.category_id) || {}).name || "Tanpa kategori") : "Tanpa kategori");
     }
 
-    const PER_TYPE_LABELS = { income: "Income", expense: "Expense", transfer: "Transfer" };
+    const PER_TYPE_LABELS = { income: "Pemasukan", expense: "Pengeluaran", transfer: "Transfer" };
 
     // Row transaksi versi ringkas -- basisnya sama kayak perActivityRowHtml()
     // (icon bulat + judul/subjudul + nominal), ditambah note (1 baris, dipotong
@@ -15751,7 +15777,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         if (t.type === "income") periodIncome += Number(t.amount) || 0;
         else if (t.type === "expense") periodExpense += Number(t.amount) || 0;
       });
-      document.getElementById("perMonthIncomeLabel").textContent = "Income";
+      document.getElementById("perMonthIncomeLabel").textContent = "Pemasukan";
       document.getElementById("perMonthExpenseLabel").textContent = "Expense";
       document.getElementById("perMonthIncome").textContent = rupiah(periodIncome);
       document.getElementById("perMonthExpense").textContent = rupiah(periodExpense);
@@ -16438,7 +16464,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (perTxFilterCategories === null) perTxFilterCategories = new Set(PER_CATEGORIES.map(c => c.id));
 
       renderFilterCheckGroup("txFilterTypeChecks",
-        [{ id: "income", label: "Income" }, { id: "expense", label: "Expense" }, { id: "transfer", label: "Transfer" }],
+        [{ id: "income", label: "Pemasukan" }, { id: "expense", label: "Pengeluaran" }, { id: "transfer", label: "Transfer" }],
         perTxFilterTypes);
       renderFilterCheckGroup("txFilterAccountChecks",
         PER_ACCOUNTS.map(a => ({ id: a.id, label: a.name + (a.archived ? " (archived)" : "") })),
@@ -16601,7 +16627,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function renderPersonalCategories() {
       const list = document.getElementById("perCatList");
       if (!PER_CATEGORIES.length) { list.innerHTML = '<p class="hint">Belum ada kategori.</p>'; return; }
-      const groups = [{ label: "Income", type: "income" }, { label: "Expense", type: "expense" }];
+      const groups = [{ label: "Pemasukan", type: "income" }, { label: "Pengeluaran", type: "expense" }];
       list.innerHTML = groups.map(g => {
         const items = PER_CATEGORIES.filter(c => c.type === g.type);
         if (!items.length) return "";
@@ -16968,7 +16994,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       { key: "new", label: "New", badge: "lb-gray" },
       { key: "chatted", label: "Chatted", badge: "lb-amber" },
       { key: "interested", label: "Interested", badge: "lb-green" },
-      { key: "registered", label: "Registered", badge: "lb-green" },
+      { key: "registered", label: "Udah daftar", badge: "lb-green" },
       { key: "noreply", label: "Belum balas", badge: "lb-red" },
       { key: "rejected", label: "Declined", badge: "lb-gray" }
     ];
@@ -17022,10 +17048,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const count = (fn) => LEADS.filter(fn).length;
       const cards = [
         { key: "all", num: LEADS.length, lbl: "Total", warn: false },
-        { key: "chatted", num: count(l => l.status === "chatted"), lbl: "Awaiting Reply", warn: false },
-        { key: "interested", num: count(l => l.status === "interested"), lbl: "Promising", warn: false },
-        { key: "registered", num: count(l => l.status === "registered"), lbl: "Registered", warn: false },
-        { key: "unfollow", num: count(isUnfollowCandidate), lbl: icon("warning") + " Ready to Unfollow", warn: true }
+        { key: "chatted", num: count(l => l.status === "chatted"), lbl: "Nunggu balasan", warn: false },
+        { key: "interested", num: count(l => l.status === "interested"), lbl: "Prospektif", warn: false },
+        { key: "registered", num: count(l => l.status === "registered"), lbl: "Udah daftar", warn: false },
+        { key: "unfollow", num: count(isUnfollowCandidate), lbl: icon("warning") + " Siap di-unfollow", warn: true }
       ];
       const active = document.getElementById("leadFilterStatus").value;
       el.innerHTML = cards.map(c =>
@@ -17300,10 +17326,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     // ---------- PREP HUB (per-event) ----------
     const PREP_SECTIONS = [
-      { type: "todos", title: icon("checkCircle") + " Prep Todos", check: true, fields: [{ key: "text", ph: "mis. beli bahan, konfirmasi lokasi" }] },
-      { type: "bring", title: icon("backpack") + " Things to Bring", check: true, fields: [{ key: "name" }, { key: "qty" }] },
-      { type: "notes", title: icon("sticky") + " Notes & Links", check: false, fields: [{ key: "title", ph: "Title" }, { key: "url", ph: "https://youtube/article..." }, { key: "note", ph: "Catatan (opsional)" }] },
-      { type: "supplies", title: icon("cart") + " Tools & Materials", check: true, fields: [{ key: "name", ph: "Tool/material name", datalist: "costItemsList" }, { key: "link", ph: "Link beli (Shopee, dll.)" }, { key: "note", ph: "Catatan (opsional)" }] }
+      { type: "todos", title: icon("checkCircle") + " Checklist prep", check: true, fields: [{ key: "text", ph: "mis. beli bahan, konfirmasi lokasi" }] },
+      { type: "bring", title: icon("backpack") + " Barang dibawa", check: true, fields: [{ key: "name" }, { key: "qty" }] },
+      { type: "notes", title: icon("sticky") + " Catatan & link", check: false, fields: [{ key: "title", ph: "Judul" }, { key: "url", ph: "https://youtube/article..." }, { key: "note", ph: "Catatan (opsional)" }] },
+      { type: "supplies", title: icon("cart") + " Alat & bahan", check: true, fields: [{ key: "name", ph: "Nama alat/bahan", datalist: "costItemsList" }, { key: "link", ph: "Link beli (Shopee, dll.)" }, { key: "note", ph: "Catatan (opsional)" }] }
     ];
 
     let PREP = {};
@@ -17569,7 +17595,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       body.innerHTML =
         `<div id="prepPesananSummary"><p class="hint">Memuat…</p></div>
          <button class="btn btn-sm btn-ghost" id="prepPesananGoBtn" style="margin-top:14px;display:none;">Kelola semua pesanan →</button>`;
-      return { id: "pesanan-ringkas", labelHtml: icon("cup") + " Drink/Food Orders", countId: "prepPesananCount", countDefault: "…", bodyEl: body };
+      return { id: "pesanan-ringkas", labelHtml: icon("cup") + " Pesanan minum", countId: "prepPesananCount", countDefault: "…", bodyEl: body };
     }
 
     // ---- FAQ & Respon Cepat -- konteks acara (venue/rute/bawaan dst) per
@@ -17622,7 +17648,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (copyAnswerBtn) copyAnswerBtn.addEventListener("click", () => copyToClipboardEl(document.getElementById("faqAnswerOut").value, copyAnswerBtn));
       const addToListBtn = body.querySelector("#faqAddToListBtn");
       if (addToListBtn) addToListBtn.addEventListener("click", addFaqAnswerToList);
-      return { id: "faq", labelHtml: icon("chat") + " FAQ & Quick Response", countId: null, bodyEl: body };
+      return { id: "faq", labelHtml: icon("chat") + " FAQ & jawab cepat", countId: null, bodyEl: body };
     }
 
     // FAQ List: nggak lagi di-generate sekaligus pake AI (kurang kepake --
@@ -17763,13 +17789,13 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       body.querySelector("#preqResetBtn").addEventListener("click", async () => {
         const anyDone = PREP_PARTNER_REQ_GROUPS.some(g => g.items.some(it => it.done));
         if (!anyDone) return;
-        if (!await abConfirm('Uncentang semua item di "Partner & Requests"?', { danger: false })) return;
+        if (!await abConfirm('Uncentang semua item di tab Partner?', { danger: false })) return;
         PREP_PARTNER_REQ_GROUPS.forEach(g => g.items.forEach(it => { it.done = false; }));
         renderPartnerReqGroups();
         markPartnerReqDirty();
       });
 
-      return { id: "partnerreq", labelHtml: icon("clipboard") + " Partner & Requests", countId: "prep-count-partnerreq", bodyEl: body };
+      return { id: "partnerreq", labelHtml: icon("clipboard") + " Partner", countId: "prep-count-partnerreq", bodyEl: body };
     }
 
     async function loadPrepPartnerRequests() {
@@ -17873,7 +17899,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
             row.className = "prep-row prep-row-check";
             row.innerHTML = `
               <input type="checkbox" class="prep-check" ${item.done ? "checked" : ""}/>
-              <div class="prep-fields"><input type="text" class="prep-input form-control" placeholder="e.g. Wajib bikin reels sebelum acara" value="${item.text != null ? escapeHtml(item.text) : ""}"/></div>
+              <div class="prep-fields"><input type="text" class="prep-input form-control" placeholder="mis. Wajib bikin reels sebelum acara" value="${item.text != null ? escapeHtml(item.text) : ""}"/></div>
               <button class="del" title="Hapus">&times;</button>`;
             row.querySelector(".prep-check").addEventListener("change", e => {
               item.done = e.target.checked;
@@ -18032,7 +18058,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           <div id="asistenLinkArea"></div>
         </div>`;
       renderAsistenLink(body);
-      return { id: "asisten", labelHtml: icon("link") + " Task Asisten", bodyEl: body };
+      return { id: "asisten", labelHtml: icon("link") + " Link asisten", bodyEl: body };
     }
 
     function renderAsistenLink(scopeEl) {
@@ -19487,7 +19513,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           </div>
           <textarea class="form-control plist-text" rows="9" aria-label="Isi pesan"></textarea>
           <div class="plist-src">${partners.length ? `Partner yang di-link ke batch ini (${partners.length}).` : ""} <button type="button" class="link-btn plist-manage">Atur partner event</button></div>
-          <div class="plist-sends">${sendBtns || `<p class="hint" style="margin:0;">Belum ada partner yang di-link ke batch ini. Link di tab "Partner & Requests", atau salin teksnya lalu kirim manual.</p>`}</div>`,
+          <div class="plist-sends">${sendBtns || `<p class="hint" style="margin:0;">Belum ada partner yang di-link ke batch ini. Link di tab "Partner" di Prep, atau salin teksnya lalu kirim manual.</p>`}</div>`,
         onOpen: (box) => {
           const ta = box.querySelector(".plist-text");
           const fill = () => { ta.value = plistText(opts); };
@@ -19676,7 +19702,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     // dari Item Database, wajar beda-beda tiap kali dipakai).
     const ITEM_PICKER_TYPES = {
       supplies: { title: "Tools & Materials", icon: "cart", checkTitle: "Udah dibeli", extraKey: "note", extraPh: "Catatan (opsional)" },
-      bring: { title: "Things to Bring", icon: "backpack", checkTitle: "Udah dipacking", extraKey: "qty", extraPh: "Quantity (e.g. 2)" },
+      bring: { title: "Barang dibawa", icon: "backpack", checkTitle: "Udah dipacking", extraKey: "qty", extraPh: "Jumlah (mis. 2)" },
     };
 
     function buildItemPickerTab(type) {
@@ -20084,7 +20110,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         <div class="fin-card" style="margin-bottom:8px;padding:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
             <b>${escapeHtml(e.workshopName)}</b>
-            <span class="hint" style="margin:0;">${e.batchCount} batches · ${e.totalParticipants} participants${e.soldOutCount ? ` · ${e.soldOutCount} sold out` : ""}</span>
+            <span class="hint" style="margin:0;">${e.batchCount} batch · ${e.totalParticipants} peserta${e.soldOutCount ? ` · ${e.soldOutCount} kali penuh` : ""}</span>
           </div>
           <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;align-items:flex-end;">
             <div><span class="hint" style="margin:0;">Revenue</span><div style="font-weight:700;">${rupiah(e.totalRevenue)}</div></div>

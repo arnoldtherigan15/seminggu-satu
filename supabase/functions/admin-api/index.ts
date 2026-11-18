@@ -633,7 +633,11 @@ Deno.serve(async (req) => {
 
       case "getChallenges": {
         const { data: rows } = await admin.from("challenges").select("*").order("created_at", { ascending: false });
-        return jsonResponse({ status: "success", challenges: rows || [] });
+        // jumlah karya yang masuk per challenge -- biar admin langsung liat mana yang rame/sepi
+        const { data: subs } = await admin.from("quest_submissions").select("challenge_id");
+        const subCount: Record<string, number> = {};
+        for (const s of subs || []) subCount[s.challenge_id] = (subCount[s.challenge_id] || 0) + 1;
+        return jsonResponse({ status: "success", challenges: (rows || []).map((c) => ({ ...c, submissions: subCount[c.id] || 0 })) });
       }
 
       case "generateChallengeIdea": {
