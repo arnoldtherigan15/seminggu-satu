@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=17">
+  <link rel="stylesheet" href="admin-binder.css?v=18">
 </head>
 
 <body>
@@ -4932,14 +4932,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="toolbar">
             <button class="btn btn-sm" id="partnerAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Partner baru</button>
           </div>
-          <div id="partnerList" style="margin-top:10px;"></div>
+          <div id="partnerList"></div>
         </div>
 
         <!-- ===== VIEW: VENUES ===== -->
         <div class="wrap view" id="viewVenues" style="display:none;">
           <p class="hint" style="margin:0 0 10px;">Simpen nama+alamat+link Google Maps venue yang sering dipake, sekali doang -- abis itu tinggal pilih pas bikin ide event (Event Roadmap &gt; Ideas) atau isi Batch Detail di Config.</p>
           <button class="btn btn-sm" id="venueAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Venue baru</button>
-          <div id="venueList" style="margin-top:10px;"></div>
+          <div id="venueList"></div>
         </div>
 
         <!-- ===== VIEW: MOU ===== -->
@@ -4957,8 +4957,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <option value="">Semua status</option>
                 <option value="draft">Draft</option>
                 <option value="sent">Terkirim</option>
-                <option value="signed">Signed</option>
+                <option value="signed">Ditandatangani</option>
               </select>
+            </div>
+            <div class="field" style="flex:2 1 240px;">
+              <label for="mouSearch">Cari</label>
+              <input class="form-control" type="search" id="mouSearch" placeholder="Judul, partner, atau event…" autocomplete="off">
             </div>
           </div>
           <div class="table-box mobile-table-box" style="margin-top:10px;"><div class="table-scroll">
@@ -4984,6 +4988,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <option value="sent">Terkirim</option>
                 <option value="paid">Lunas</option>
               </select>
+            </div>
+            <div class="field" style="flex:2 1 240px;">
+              <label for="invoiceSearch">Cari</label>
+              <input class="form-control" type="search" id="invoiceSearch" placeholder="Kepada, deskripsi, atau nomor…" autocomplete="off">
             </div>
           </div>
           <div class="table-box mobile-table-box" style="margin-top:10px;"><div class="table-scroll">
@@ -6656,7 +6664,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <select class="form-control" id="mouStatus">
               <option value="draft">Draft</option>
               <option value="sent">Terkirim</option>
-              <option value="signed">Signed</option>
+              <option value="signed">Ditandatangani</option>
             </select>
           </div>
         </div>
@@ -6716,7 +6724,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <select class="form-control" id="mouUploadStatus">
               <option value="draft">Draft</option>
               <option value="sent">Terkirim</option>
-              <option value="signed">Signed</option>
+              <option value="signed">Ditandatangani</option>
             </select>
           </div>
         </div>
@@ -9209,6 +9217,29 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     // ---- Venues ----
+    // Bar cari (+ chip filter opsional) di atas sebuah daftar -- dibikin sekali,
+    // dipakai ulang tiap render. chips: [[key, label, fn(item)]], items buat hitung jumlah.
+    function abListBar(listEl, key, placeholder, rerender, chips, items, getChip, setChip) {
+      let bar = document.getElementById("ablb-" + key);
+      if (!bar) {
+        bar = document.createElement("div");
+        bar.id = "ablb-" + key; bar.className = "ab-listbar";
+        bar.innerHTML = `<input class="form-control" type="search" placeholder="${escapeHtml(placeholder)}" aria-label="${escapeHtml(placeholder)}" autocomplete="off"><div class="ab-chips" role="tablist"></div>`;
+        listEl.parentNode.insertBefore(bar, listEl);
+        bar.querySelector("input").addEventListener("input", rerender);
+        bar.querySelector(".ab-chips").addEventListener("click", (e) => { const c = e.target.closest("[data-lbk]"); if (c && setChip) { setChip(c.dataset.lbk); rerender(); } });
+      }
+      const chipBox = bar.querySelector(".ab-chips");
+      if (chips && items) {
+        const cur = getChip();
+        chipBox.innerHTML = chips.map(([k, l, fn]) => `<button type="button" class="ab-chip${k === cur ? " active" : ""}" role="tab" aria-selected="${k === cur}" data-lbk="${k}">${l} <span>${items.filter(fn).length}</span></button>`).join("");
+      } else chipBox.innerHTML = "";
+      return {
+        q: () => bar.querySelector("input").value.toLowerCase().trim(),
+        chipFn: () => { const c = (chips || []).find(x => x[0] === (getChip ? getChip() : "")); return c ? c[2] : () => true; }
+      };
+    }
+
     async function loadVenues() {
       const r = await api("getVenues", { token: getToken() });
       if (r && r.status === "success") VENUES = r.venues || [];
@@ -9220,13 +9251,20 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const box = document.getElementById("venueList");
       if (!box) return;
       const active = VENUES.filter(v => !v.archived);
-      if (!active.length) { box.innerHTML = '<p class="hint">Belum ada venue.</p>'; return; }
-      box.innerHTML = active.map(v => `
-        <div class="fin-card" style="margin-bottom:8px;padding:14px;cursor:pointer;" data-editvenue="${v.id}">
-          <b>${escapeHtml(v.name)}</b>
-          ${v.address ? `<div class="hint" style="margin:2px 0 0;">${escapeHtml(v.address)}</div>` : ""}
-          ${v.maps_link ? `<a href="${escapeHtml(v.maps_link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="hint" style="color:var(--brand);display:inline-flex;align-items:center;gap:4px;margin-top:4px;">${icon("link")} Lihat di Maps</a>` : ""}
-        </div>`).join("");
+      const sb = abListBar(box, "venue", "Cari nama atau alamat venue…", renderVenueList);
+      if (!active.length) { box.innerHTML = '<div class="empty">Belum ada venue. Tap "Venue baru" buat nyimpen yang pertama.</div>'; return; }
+      const q = sb.q();
+      const rows = active.filter(v => !q || (v.name + " " + (v.address || "")).toLowerCase().includes(q));
+      if (!rows.length) { box.innerHTML = '<p class="hint">Nggak ada venue yang cocok.</p>'; return; }
+      box.innerHTML = '<div class="kt-list">' + rows.map(v => `
+        <div class="kt-row">
+          <span class="kt-thumb"><span class="kt-ico">${icon("geo")}</span></span>
+          <button type="button" class="kt-main" data-editvenue="${v.id}"><b>${escapeHtml(v.name)}</b><small>${escapeHtml(v.address || "Alamat belum diisi")}</small></button>
+          <span class="kt-acts">
+            ${v.maps_link ? `<a class="kt-btn" href="${escapeHtml(v.maps_link)}" target="_blank" rel="noopener" title="Buka di Maps" aria-label="Buka di Maps">${icon("openLink")}</a>` : ""}
+            <button type="button" class="kt-btn" data-editvenue="${v.id}" title="Edit" aria-label="Edit">${icon("pencil")}</button>
+          </span>
+        </div>`).join("") + '</div>';
       box.querySelectorAll("[data-editvenue]").forEach(el => el.addEventListener("click", () => editVenue(el.dataset.editvenue)));
     }
 
@@ -10586,6 +10624,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("mouDownloadBtn").addEventListener("click", downloadCurrentMouPdf);
         document.getElementById("mouFilterPartner").addEventListener("change", renderMouList);
         document.getElementById("mouFilterStatus").addEventListener("change", renderMouList);
+        document.getElementById("mouSearch").addEventListener("input", renderMouList);
 
         document.getElementById("mouUploadEventSelect").innerHTML =
           '<option value="">— Nggak terkait event —</option>' + WORKSHOP_IDS.map(id => `<option value="${id}">${workshopName(id)}</option>`).join("");
@@ -10613,6 +10652,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("invoiceDownloadBtn").addEventListener("click", downloadCurrentInvoicePdf);
         document.getElementById("invoiceFilterPartner").addEventListener("change", renderInvoiceList);
         document.getElementById("invoiceFilterStatus").addEventListener("change", renderInvoiceList);
+        document.getElementById("invoiceSearch").addEventListener("input", renderInvoiceList);
     }
 
     // List Partner, MOU, and Invoice are separate sidebar entries now (not
@@ -10682,38 +10722,46 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function getFilteredMouDocs() {
       const partnerId = document.getElementById("mouFilterPartner").value;
       const status = document.getElementById("mouFilterStatus").value;
+      const q = ((document.getElementById("mouSearch") || {}).value || "").toLowerCase().trim();
       return PARTNER_DOCS_MOU.filter(doc =>
         (!partnerId || doc.partner_id === partnerId) &&
-        (!status || doc.status === status));
+        (!status || doc.status === status) &&
+        (!q || [doc.title, doc.partnerName, (doc.data || {}).eventName].join(" ").toLowerCase().includes(q)));
     }
 
     function getFilteredInvoiceDocs() {
       const partnerId = document.getElementById("invoiceFilterPartner").value;
       const status = document.getElementById("invoiceFilterStatus").value;
+      const q = ((document.getElementById("invoiceSearch") || {}).value || "").toLowerCase().trim();
       return PARTNER_DOCS_INVOICE.filter(doc =>
         (!partnerId || doc.partner_id === partnerId) &&
-        (!status || doc.status === status));
+        (!status || doc.status === status) &&
+        (!q || [doc.title, (doc.data || {}).toName, (doc.data || {}).orderNumber, ((doc.data || {}).items || []).map(it => it.description).join(" ")].join(" ").toLowerCase().includes(q)));
     }
 
+    let PARTNER_FILTER = "active";
     function renderPartnerList() {
       const list = document.getElementById("partnerList");
       const cnt = document.getElementById("partnerCount");
       if (cnt) cnt.textContent = PARTNERS.length;
-      if (!PARTNERS.length) { list.innerHTML = '<p class="hint">Belum ada partner.</p>'; return; }
-      list.innerHTML = PARTNERS.map(p => `
-        <div class="per-activity-row" style="align-items:flex-start;cursor:pointer;${p.archived ? "opacity:.55;" : ""}" data-editpartner="${p.id}">
-          <div class="per-activity-icon transfer">${icon("people")}</div>
-          <div style="flex:1;min-width:0;">
-            <b style="font-size:13.5px;">${escapeHtml(p.name)}</b>${p.archived ? ' <span class="subtab-count">archived</span>' : ""}
-            <div class="per-tx-sub">${escapeHtml(p.pic_name || "-")}${p.pic_role ? " · " + escapeHtml(p.pic_role) : ""}</div>
-          </div>
-          <div style="text-align:right;flex-shrink:0;">
-            <div class="hint" style="margin:0;">${p.mouCount || 0} MOU · ${p.invoiceCount || 0} Invoice</div>
-            <div style="display:flex;gap:4px;margin-top:4px;justify-content:flex-end;">
-              <button class="btn btn-sm btn-ghost" data-archivepartner="${p.id}" data-archived="${p.archived ? "0" : "1"}" style="padding:3px 6px;">${icon("archive")}</button>
-            </div>
-          </div>
-        </div>`).join("");
+      const sb = abListBar(list, "partner", "Cari nama partner atau PIC…", renderPartnerList, [
+        ["active", "Aktif", p => !p.archived], ["archived", "Diarsipkan", p => p.archived], ["all", "Semua", () => true]], PARTNERS, () => PARTNER_FILTER, (k) => { PARTNER_FILTER = k; });
+      if (!PARTNERS.length) { list.innerHTML = '<div class="empty">Belum ada partner. Tap "Partner baru" buat nambahin.</div>'; return; }
+      const q = sb.q();
+      const rows = PARTNERS.filter(sb.chipFn()).filter(p => !q || [p.name, p.pic_name, p.pic_role, p.instagram].join(" ").toLowerCase().includes(q));
+      if (!rows.length) { list.innerHTML = '<p class="hint">Nggak ada partner yang cocok.</p>'; return; }
+      list.innerHTML = '<div class="kt-list">' + rows.map(p => {
+        const wa = waNormalize(p.phone || "");
+        return `<div class="kt-row${p.archived ? " is-off" : ""}">
+          <span class="kt-thumb"><span class="kt-ava">${escapeHtml((p.name || "?").trim().charAt(0).toUpperCase())}</span></span>
+          <button type="button" class="kt-main" data-editpartner="${p.id}"><b>${escapeHtml(p.name)}</b><small>${escapeHtml([p.pic_name ? "PIC " + p.pic_name : "PIC belum diisi", p.pic_role].filter(Boolean).join(" · "))}</small></button>
+          <span class="kt-meta">${p.mouCount || 0} MOU · ${p.invoiceCount || 0} invoice</span>
+          <span class="kt-acts">
+            ${wa ? `<a class="kt-btn" href="https://wa.me/${wa}" target="_blank" rel="noopener" title="Chat PIC" aria-label="Chat PIC">${icon("chat")}</a>` : ""}
+            <button type="button" class="kt-btn" data-archivepartner="${p.id}" data-archived="${p.archived ? "0" : "1"}" title="${p.archived ? "Buka arsip" : "Arsipkan"}" aria-label="${p.archived ? "Buka arsip" : "Arsipkan"}">${icon("archive")}</button>
+          </span>
+        </div>`;
+      }).join("") + '</div>';
       list.querySelectorAll("[data-editpartner]").forEach(el => el.addEventListener("click", () => openPartnerDetail(el.dataset.editpartner)));
       list.querySelectorAll("[data-archivepartner]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archivePartner(b.dataset.archivepartner, b.dataset.archived === "1"); }));
     }
