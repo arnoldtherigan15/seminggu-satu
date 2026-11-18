@@ -4,6 +4,7 @@ import { supabaseAdmin } from "../_shared/supabase-admin.ts";
 import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { waKey } from "../_shared/auth.ts";
 import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
+import { teamWaSet } from "../_shared/members.ts";
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -14,7 +15,9 @@ Deno.serve(async (req) => {
     const myKey = waKey(myWa);
 
     const admin = supabaseAdmin();
-    const members = await loyaltyMembers(admin);
+    // Tim nggak ikut peringkat (biar nggak "bersaing" sama warga)
+    const team = await teamWaSet(admin);
+    const members = (await loyaltyMembers(admin)).filter((m) => !team.has(m.key));
     const qp = await questPointsMap(admin);
     const ep = await extraPointsMap(admin);
     const nickMap = await memberNickMap(admin);

@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=25">
+  <link rel="stylesheet" href="admin-binder.css?v=26">
 </head>
 
 <body>
@@ -7154,6 +7154,171 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       el.classList.remove("ab-shake"); void el.offsetWidth; el.classList.add("ab-shake");
     }
 
+    // ---- Role admin (super / asisten) ----
+    // Server yang jadi penjaga sebenarnya (admin-api nolak aksi di luar jatah
+    // asisten). Di sini cuma nyembunyiin menu yang bukan jatahnya biar rapi.
+    const ROLE_KEY = "ss_admin_role", NAME_KEY = "ss_admin_name";
+    const ASSISTANT_VIEWS = ["pendaftar", "prep", "pesanan"];
+    function adminRole() { try { return localStorage.getItem(ROLE_KEY) || "super"; } catch (e) { return "super"; } }
+    function viewAllowed(view) { return adminRole() === "super" || ASSISTANT_VIEWS.includes(view); }
+    function applyAdminRole() {
+      const role = adminRole();
+      document.documentElement.classList.toggle("ab-role-assistant", role !== "super");
+      document.querySelectorAll(".nav-btn[data-view]").forEach(b => { b.hidden = !viewAllowed(b.dataset.view); });
+      document.querySelectorAll(".nav-acc").forEach(acc => { acc.hidden = !acc.querySelector(".nav-btn[data-view]:not([hidden])"); });
+      let who = document.getElementById("abWho");
+      if (!who) {
+        who = document.createElement("div"); who.id = "abWho"; who.className = "ab-who";
+        const foot = document.querySelector(".sidebar-footer"); if (foot) foot.insertBefore(who, foot.firstChild);
+      }
+      let name = ""; try { name = localStorage.getItem(NAME_KEY) || ""; } catch (e) { }
+      who.innerHTML = `<span class="ab-who-ava">${escapeHtml((name || "A").charAt(0).toUpperCase())}</span><span class="ab-who-txt"><b>${escapeHtml(name || "Admin")}</b><small>${role === "super" ? "Super admin" : "Asisten"}</small></span>`;
+    }
+    async function refreshAdminRole() {
+      try {
+        const r = await api("whoami", { token: getToken() });
+        if (r && r.status === "success") {
+          localStorage.setItem(ROLE_KEY, r.role); localStorage.setItem(NAME_KEY, r.name || "");
+          applyAdminRole();
+          const cur = (location.hash || "").replace(/^#/, "").split(":")[0] || "overview";
+          if (!viewAllowed(cur)) location.hash = "prep";
+        }
+      } catch (e) { }
+    }
+
+    // ---- Halaman Tim & akses (super admin) ----
+    function buildAccessView() {
+      if (document.getElementById("viewAccess")) return;
+      const anchor = document.getElementById("viewQrGen");
+      const v = document.createElement("div");
+      v.className = "wrap view"; v.id = "viewAccess"; v.style.display = "none";
+      v.innerHTML = `
+        <header class="ab-head"><div class="ab-head-txt"><h1>Tim &amp; akses</h1><p>Siapa aja yang bisa masuk admin, dan siapa aja Tim di Balai Warga.</p></div></header>
+        <section class="acc-sec">
+          <div class="acc-sec-head"><div><h2>Akun admin</h2><p class="hint">Super admin buka semua menu. Asisten cuma Pendaftar, Prep, dan Pesanan minum. Tiap orang punya password &amp; sesi sendiri.</p></div>
+            <button type="button" class="btn" id="accAddAdmin">${icon("plus")} Tambah admin</button></div>
+          <div id="accAdminList"></div>
+        </section>
+        <section class="acc-sec">
+          <div class="acc-sec-head"><div><h2>Tim Balai Warga</h2><p class="hint">Nomor WA tim bisa bikin akun Balai Warga tanpa pernah ikut event, dapat label "Tim", dan nggak ikut peringkat. Abis ditambah, buka <b>/warga</b> lalu pilih "Bikin akun" pakai nomor itu.</p></div>
+            <div class="acc-head-acts"><a class="btn btn-ghost" href="../warga/" target="_blank" rel="noopener">${icon("openLink")} Buka Balai Warga</a><button type="button" class="btn" id="accAddTeam">${icon("plus")} Tambah anggota tim</button></div></div>
+          <div id="accTeamList"></div>
+        </section>`;
+      anchor.parentNode.insertBefore(v, anchor.nextSibling);
+      // nav: grup Pengaturan
+      const nav = document.querySelector(".sidebar-nav");
+      const grp = document.createElement("details");
+      grp.className = "nav-acc";
+      grp.innerHTML = `<summary class="nav-section-label">Pengaturan <span class="nav-acc-chevron">&#9656;</span></summary><div class="nav-acc-body"><button class="nav-btn" data-view="access"><span class="nav-icon">${icon("people")}</span> Tim &amp; akses</button></div>`;
+      nav.appendChild(grp);
+      grp.querySelector(".nav-btn").addEventListener("click", () => { location.hash = "access"; });
+      v.querySelector("#accAddAdmin").addEventListener("click", () => openAdminUserDialog(null));
+      v.querySelector("#accAddTeam").addEventListener("click", openTeamDialog);
+      v.addEventListener("click", accClick);
+    }
+    let ACC_ADMINS = [], ACC_TEAM = [];
+    async function loadAccess() {
+      const al = document.getElementById("accAdminList"), tl = document.getElementById("accTeamList");
+      if (!ACC_ADMINS.length) al.innerHTML = skelRows(2);
+      if (!ACC_TEAM.length) tl.innerHTML = skelRows(2);
+      const [a, t] = await Promise.all([api("listAdminUsers", { token: getToken() }), api("listTeam", { token: getToken() })]);
+      if (a && a.status === "success") ACC_ADMINS = a.users || []; else { handleAuthError(a || {}); }
+      if (t && t.status === "success") ACC_TEAM = t.team || [];
+      const fmtLast = (iso) => iso ? "terakhir masuk " + new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "belum pernah masuk";
+      al.innerHTML = `<div class="kt-list">
+          <div class="kt-row"><span class="kt-thumb"><span class="kt-ava">${escapeHtml((localStorage.getItem(NAME_KEY) || "S").charAt(0))}</span></span><span class="kt-main" style="cursor:default"><b>Super admin utama <span class="cfg-pill on">Super admin</span></b><small>Password lama (di server). Ganti lewat secret ADMIN_PASSWORD_HASH.</small></span></div>
+          ${ACC_ADMINS.map(u => `<div class="kt-row${u.active ? "" : " is-off"}">
+            <span class="kt-thumb"><span class="kt-ava">${escapeHtml(u.name.charAt(0).toUpperCase())}</span></span>
+            <span class="kt-main" style="cursor:default"><b>${escapeHtml(u.name)} <span class="cfg-pill ${u.role === "super" ? "on" : "off"}">${u.role === "super" ? "Super admin" : "Asisten"}</span>${u.active ? "" : ' <span class="cfg-pill off">Nonaktif</span>'}</b><small>${fmtLast(u.last_login)}</small></span>
+            <span class="kt-acts">
+              <button type="button" class="kt-btn" data-acc="edit" data-id="${u.id}" title="Edit / ganti password" aria-label="Edit">${icon("pencil")}</button>
+              <button type="button" class="kt-btn" data-acc="toggle" data-id="${u.id}" title="${u.active ? "Nonaktifkan" : "Aktifkan"}" aria-label="${u.active ? "Nonaktifkan" : "Aktifkan"}">${icon(u.active ? "lock" : "checkCircle")}</button>
+              <button type="button" class="kt-btn danger" data-acc="del" data-id="${u.id}" title="Hapus" aria-label="Hapus">${icon("trash")}</button>
+            </span></div>`).join("")}</div>`;
+      tl.innerHTML = ACC_TEAM.length ? `<div class="kt-list">` + ACC_TEAM.map(m => `<div class="kt-row">
+            <span class="kt-thumb"><span class="kt-ava">${escapeHtml((m.name || "T").charAt(0).toUpperCase())}</span></span>
+            <span class="kt-main" style="cursor:default"><b>${escapeHtml(m.name || "(tanpa nama)")} <span class="cfg-pill ${m.activated ? "on" : "off"}">${m.activated ? "Akun aktif" : "Belum bikin akun"}</span></b><small>${escapeHtml(m.wa)}</small></span>
+            <span class="kt-acts"><button type="button" class="kt-btn danger" data-acc="deltim" data-wa="${escapeHtml(m.wa)}" title="Keluarkan dari Tim" aria-label="Keluarkan dari Tim">${icon("trash")}</button></span>
+          </div>`).join("") + `</div>` : `<div class="empty">Belum ada anggota tim. Tambah nomor WA kamu dulu biar bisa buka Balai Warga.</div>`;
+    }
+    async function accClick(e) {
+      const b = e.target.closest("[data-acc]"); if (!b) return;
+      const u = ACC_ADMINS.find(x => x.id === b.dataset.id);
+      if (b.dataset.acc === "edit" && u) openAdminUserDialog(u);
+      if (b.dataset.acc === "toggle" && u) {
+        if (u.active && !await abConfirm(`Nonaktifkan ${u.name}? Dia langsung ke-logout dan nggak bisa masuk.`)) return;
+        const r = await api("setAdminUserActive", { token: getToken(), id: u.id, active: !u.active });
+        if (r && r.status === "success") { abToast(u.active ? "Akun dinonaktifkan" : "Akun aktif lagi", "ok"); loadAccess(); } else alert((r && r.message) || "Gagal.");
+      }
+      if (b.dataset.acc === "del" && u) {
+        if (!await abConfirm(`Hapus akun admin ${u.name}?`)) return;
+        const r = await api("deleteAdminUser", { token: getToken(), id: u.id });
+        if (r && r.status === "success") { abToast("Akun dihapus", "ok"); loadAccess(); } else alert((r && r.message) || "Gagal.");
+      }
+      if (b.dataset.acc === "deltim") {
+        if (!await abConfirm(`Keluarkan ${b.dataset.wa} dari Tim? Akun warganya tetap ada, tapi nggak bisa aktivasi baru kalau belum pernah ikut event.`)) return;
+        const r = await api("deleteTeamMember", { token: getToken(), wa: b.dataset.wa });
+        if (r && r.status === "success") { abToast("Dikeluarkan dari Tim", "ok"); loadAccess(); } else alert((r && r.message) || "Gagal.");
+      }
+    }
+    function genAdminPassword() {
+      const c = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      const a = new Uint32Array(14); crypto.getRandomValues(a);
+      return Array.from(a, n => c[n % c.length]).join("");
+    }
+    function openAdminUserDialog(u) {
+      const isEdit = !!u;
+      return abDialog({
+        title: isEdit ? "Edit akun admin" : "Tambah admin", okText: "Simpan",
+        html: `<div class="kt-form">
+          <label class="ab-dlg-lbl">Nama<input class="form-control" data-f="name" value="${escapeHtml(u ? u.name : "")}" placeholder="mis. Rani (asisten)"></label>
+          <div class="ab-dlg-lbl">Role<div class="ab-chips" data-f="rolebox" style="margin:6px 0 0">
+            <button type="button" class="ab-chip${!u || u.role !== "super" ? " active" : ""}" data-role="assistant">Asisten</button>
+            <button type="button" class="ab-chip${u && u.role === "super" ? " active" : ""}" data-role="super">Super admin</button></div>
+            <small class="kt-hint">Asisten cuma bisa buka Pendaftar, Prep, dan Pesanan minum.</small></div>
+          <label class="ab-dlg-lbl">${isEdit ? "Password baru (kosongin kalau nggak diganti)" : "Password"}
+            <span class="acc-pw"><input class="form-control" data-f="pw" type="text" autocomplete="new-password" placeholder="minimal 8 karakter"><button type="button" class="btn btn-ghost" data-f="gen">Acak</button></span>
+            <small class="kt-hint">Kasih password ini ke orangnya lewat chat pribadi. Abis disimpan nggak bisa dilihat lagi.</small></label>
+        </div>`,
+        onOpen: (box) => {
+          box.querySelector('[data-f="rolebox"]').addEventListener("click", (e) => {
+            const c = e.target.closest("[data-role]"); if (!c) return;
+            box.querySelectorAll("[data-role]").forEach(x => x.classList.toggle("active", x === c));
+          });
+          box.querySelector('[data-f="gen"]').addEventListener("click", () => { box.querySelector('[data-f="pw"]').value = genAdminPassword(); });
+        },
+        getValue: (box) => {
+          const name = box.querySelector('[data-f="name"]').value.trim();
+          const pw = box.querySelector('[data-f="pw"]').value;
+          if (!name) throw new Error("Nama wajib diisi.");
+          if ((!isEdit || pw) && pw.length < 8) throw new Error("Password minimal 8 karakter.");
+          return { name, password: pw, role: box.querySelector("[data-role].active").dataset.role };
+        }
+      }).then(async v => {
+        if (!v) return;
+        const r = await api("saveAdminUser", Object.assign({ token: getToken(), id: u ? u.id : "" }, v));
+        if (r && r.status === "success") { abToast("Akun admin tersimpan", "ok"); loadAccess(); } else alert((r && r.message) || "Gagal menyimpan.");
+      });
+    }
+    function openTeamDialog() {
+      return abDialog({
+        title: "Tambah anggota tim", okText: "Tambah",
+        html: `<div class="kt-form">
+          <label class="ab-dlg-lbl">Nama<input class="form-control" data-f="name" placeholder="mis. Arnold"></label>
+          <label class="ab-dlg-lbl">Nomor WhatsApp<input class="form-control" data-f="wa" inputmode="tel" placeholder="mis. 0812xxxx"></label>
+        </div>`,
+        getValue: (box) => {
+          const wa = box.querySelector('[data-f="wa"]').value.trim();
+          if (!waNormalize(wa)) throw new Error("Nomor WA nggak valid.");
+          return { name: box.querySelector('[data-f="name"]').value.trim(), wa };
+        }
+      }).then(async v => {
+        if (!v) return;
+        const r = await api("saveTeamMember", Object.assign({ token: getToken() }, v));
+        if (r && r.status === "success") { abToast("Masuk Tim. Sekarang bisa bikin akun di Balai Warga.", "ok"); loadAccess(); } else alert((r && r.message) || "Gagal.");
+      });
+    }
+
     // ---------- LOGIN ----------
     const loginBtn = document.getElementById("loginBtn");
     const pwdInput = document.getElementById("pwd");
@@ -7169,6 +7334,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const r = await api("login", { password });
         if (r.status === "success" && r.token) {
           setToken(r.token);
+          try { localStorage.setItem(ROLE_KEY, r.role || "super"); localStorage.setItem(NAME_KEY, r.name || ""); } catch (e) { }
           showDashboard();
         } else {
           loginMsg.className = "msg err";
@@ -7196,8 +7362,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // ---------- LOGOUT & SIDEBAR ----------
     document.querySelectorAll("#logoutBtn, #logoutBtnMobile").forEach(btn => {
       if (btn) {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
+          try { await api("logout", { token: getToken() }); } catch (e) { }
           clearToken();
+          try { localStorage.removeItem(ROLE_KEY); localStorage.removeItem(NAME_KEY); } catch (e) { }
           location.reload();
         });
       }
@@ -7482,6 +7650,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
       applyMobileHeaderHeightVar();
+      try { buildAccessView(); applyAdminRole(); refreshAdminRole(); } catch (e) { console.error("roles", e); }
       try { abBuildHeads(); abInitialSkeletons(); } catch (e) { console.error("abBuildHeads", e); }
       try { abEnhanceForms(); } catch (e) { console.error("abEnhanceForms", e); }
       const fdb = document.getElementById("finDetailBack");
@@ -7495,8 +7664,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       populateWorkshopSelect();
       applyHash(); // buka view sesuai URL hash (default overview)
       window.scrollTo(0, 0);
-      loadActivity(); // isi badge notifikasi di sidebar, biar keliatan walau belum buka tabnya
-      loadTasks(); // isi badge task di sidebar, biar keliatan walau belum buka tabnya
+      if (adminRole() === "super") {
+        loadActivity(); // isi badge notifikasi di sidebar, biar keliatan walau belum buka tabnya
+        loadTasks(); // isi badge task di sidebar, biar keliatan walau belum buka tabnya
+      }
     }
 
     let pendaftarInit = false;
@@ -7979,7 +8150,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "venues", "mou", "invoice", "konten", "recbatch", "shopstock", "shopproduct", "shoporders", "shopfinance", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos", "eventgallery", "suggest", "barter", "qrgen"];
+      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "venues", "mou", "invoice", "konten", "recbatch", "shopstock", "shopproduct", "shoporders", "shopfinance", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos", "eventgallery", "suggest", "barter", "qrgen", "access"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2], parts[3]);
     }
@@ -8032,6 +8203,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function switchView(view, event, subtab, batchId) {
       // link lama #members:suggest / #members:barter -> sekarang menu sendiri
       if (view === "members" && (event === "suggest" || event === "barter")) { view = event; event = undefined; }
+      // asisten cuma boleh buka menu event -- sisanya diarahkan ke Prep
+      if (!viewAllowed(view)) { view = "prep"; event = undefined; subtab = undefined; batchId = undefined; }
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
       const activeBtn = document.querySelector(".nav-btn.active");
       if (activeBtn) {
@@ -8070,6 +8243,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("viewVideos").style.display = (view === "videos") ? "block" : "none";
       document.getElementById("viewEventGallery").style.display = (view === "eventgallery") ? "block" : "none";
       document.getElementById("viewSuggest").style.display = (view === "suggest") ? "block" : "none";
+      { const va = document.getElementById("viewAccess"); if (va) va.style.display = (view === "access") ? "block" : "none"; }
       document.getElementById("viewBarter").style.display = (view === "barter") ? "block" : "none";
       document.getElementById("viewQrGen").style.display = (view === "qrgen") ? "block" : "none";
       applySubtabBarHeightVar();
@@ -8101,6 +8275,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "passwords") ensurePasswordsView();
       if (view === "videos") ensureVideosView();
       if (view === "eventgallery") ensureEventGallery();
+      if (view === "access") loadAccess();
       if (view === "suggest") { wireOnce("sgReloadBtn", loadSuggestions); loadSuggestions(); }
       if (view === "barter") { wireOnce("btReloadBtn", loadBarterAdmin); loadBarterAdmin(); }
       if (view === "qrgen") ensureQrGenView();

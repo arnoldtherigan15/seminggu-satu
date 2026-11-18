@@ -15,8 +15,17 @@ import { loyaltyMembers } from "./queries.ts";
 export async function isMemberWa(admin: SupabaseClient, wa: string): Promise<boolean> {
   const key = waKey(wa);
   if (!key) return false;
+  // Tim Seminggu Satu boleh aktivasi akun tanpa pernah ikut event
+  if ((await teamWaSet(admin)).has(key)) return true;
   const members = await loyaltyMembers(admin);
   return members.some((m) => m.key === key);
+}
+
+// Nomor WA tim (tabel team_members) -- dipakai buat izin aktivasi & buat
+// ngeluarin tim dari peringkat (tim nggak ikut "bersaing" sama warga).
+export async function teamWaSet(admin: SupabaseClient): Promise<Set<string>> {
+  const { data } = await admin.from("team_members").select("wa");
+  return new Set((data || []).map((r: { wa: string }) => waKey(r.wa)).filter(Boolean) as string[]);
 }
 
 function jakartaMonthDay(): string {
@@ -82,6 +91,7 @@ export async function profileResponse(admin: SupabaseClient, row: any) {
     profileBgCustom: row.profile_bg_custom || "",
     publicOptIn: row.public_opt_in ? "1" : "",
     publicId: row.public_id || "",
+    isTeam: (await teamWaSet(admin)).has(waKey(row.wa) || ""),
     birthdays: await todaysBirthdays(admin),
   };
 }

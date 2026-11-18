@@ -721,3 +721,19 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 #perSubtabs > .subtab-bar { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; }
 #perSubtabs > .subtab-bar::-webkit-scrollbar { display: none; }
 #perSubtabs > .subtab-bar .subtab-btn { flex-shrink: 0; }
+
+/* ---------- Tim & akses ---------- */
+.acc-sec { margin-bottom: 22px; }
+.acc-sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.acc-sec-head h2 { margin: 0 0 4px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 19px; color: var(--ink); }
+.acc-sec-head .hint { margin: 0; max-width: 620px; }
+.acc-head-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.acc-sec-head .btn { height: 44px; }
+.acc-pw { display: flex; gap: 8px; }
+.acc-pw .form-control { flex: 1; font-family: ui-monospace, Menlo, monospace; }
+.acc-pw .btn { height: 46px; width: auto; }
+.ab-who { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 8px 10px; border-radius: 12px; background: #f4f7ff; }
+.ab-who-ava { width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px; background: var(--ab-yellow); color: #10245e; display: inline-flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 800; }
+.ab-who-txt { display: flex; flex-direction: column; min-width: 0; }
+.ab-who-txt b { font-size: 14px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-who-txt small { font-size: 12px; color: var(--muted); font-weight: 600; }

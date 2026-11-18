@@ -1,35 +1,87 @@
 import { SupabaseClient } from "npm:@supabase/supabase-js@2";
-import { getConfigValue, setConfigValue } from "./config.ts";
+import { getConfigValue } from "./config.ts";
 
 const SESSION_HOURS = 12;
 
-async function sha256Hex(input: string): Promise<string> {
+export type AdminRole = "super" | "assistant";
+export type AdminSession = { role: AdminRole; name: string; userId: string | null };
+
+export async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-// Port dari adminLogin() -- ADMIN_PASSWORD_HASH/ADMIN_SALT sekarang Edge
-// Function secret (bukan hardcode -- folder ini KE-COMMIT ke git), sesi
-// (1 admin, 1 sesi aktif) disimpen di app_config -- sama polanya kayak
-// PropertiesService dulu.
-export async function adminLogin(admin: SupabaseClient, password: string): Promise<{ token: string } | { error: string }> {
+export async function hashAdminPassword(salt: string, password: string): Promise<string> {
+  return sha256Hex(`${salt}:${password}`);
+}
+
+// Login admin. Super admin = password di secret ADMIN_PASSWORD_HASH/ADMIN_SALT
+// (folder ini ke-commit ke git, jadi hash-nya nggak boleh di kode). Admin lain
+// (asisten) disimpan di tabel admin_users dengan hash + salt masing-masing.
+// Tiap login bikin 1 baris admin_sessions -> login di HP nggak nendang laptop.
+export async function adminLogin(admin: SupabaseClient, password: string): Promise<{ token: string; role: AdminRole; name: string } | { error: string }> {
+  if (!password) return { error: "Isi password-nya dulu." };
+  let session: AdminSession | null = null;
+
   const hash = Deno.env.get("ADMIN_PASSWORD_HASH");
   const salt = Deno.env.get("ADMIN_SALT");
-  if (!hash || !salt) return { error: "Password admin belum di-set (ADMIN_PASSWORD_HASH/ADMIN_SALT secret)." };
-  if ((await sha256Hex(`${salt}:${password}`)) !== hash) return { error: "Password salah." };
+  if (hash && salt && (await hashAdminPassword(salt, password)) === hash) {
+    session = { role: "super", name: "Super admin", userId: null };
+  } else {
+    const { data: users } = await admin.from("admin_users").select("id, name, role, pass_hash, salt").eq("active", true);
+    for (const u of users || []) {
+      if ((await hashAdminPassword(u.salt, password)) === u.pass_hash) {
+        session = { role: u.role as AdminRole, name: u.name, userId: u.id };
+        await admin.from("admin_users").update({ last_login: new Date().toISOString() }).eq("id", u.id);
+        break;
+      }
+    }
+  }
+  if (!session) return { error: "Password salah." };
 
   const token = crypto.randomUUID();
-  const expiry = Date.now() + SESSION_HOURS * 60 * 60 * 1000;
-  await setConfigValue(admin, "ADMIN_SESSION_TOKEN", token);
-  await setConfigValue(admin, "ADMIN_SESSION_EXPIRY", String(expiry));
-  return { token };
+  const expires = new Date(Date.now() + SESSION_HOURS * 60 * 60 * 1000).toISOString();
+  await admin.from("admin_sessions").insert({ token, user_id: session.userId, role: session.role, name: session.name, expires_at: expires });
+  // bersih-bersih sesi kedaluwarsa (best-effort)
+  await admin.from("admin_sessions").delete().lt("expires_at", new Date().toISOString());
+  return { token, role: session.role, name: session.name };
 }
 
-// Port dari requireAuth() -- lempar Error kalau sesi invalid/kadaluarsa.
-export async function requireAdminAuth(admin: SupabaseClient, token: string) {
+export async function adminLogout(admin: SupabaseClient, token: string) {
+  if (token) await admin.from("admin_sessions").delete().eq("token", token);
+}
+
+// Lempar Error kalau sesi invalid/kadaluarsa; balikin role + nama kalau valid.
+export async function requireAdminAuth(admin: SupabaseClient, token: string): Promise<AdminSession> {
+  if (!token) throw new Error("Sesi tidak valid. Silakan login ulang.");
+  const { data: s } = await admin.from("admin_sessions").select("role, name, user_id, expires_at").eq("token", token).maybeSingle();
+  if (s) {
+    if (Date.now() > new Date(s.expires_at).getTime()) throw new Error("Sesi kedaluwarsa. Silakan login ulang.");
+    if (s.user_id) {
+      // akun dinonaktifkan/dihapus -> sesinya ikut mati
+      const { data: u } = await admin.from("admin_users").select("active, role, name").eq("id", s.user_id).maybeSingle();
+      if (!u || !u.active) throw new Error("Sesi tidak valid. Silakan login ulang.");
+      return { role: u.role as AdminRole, name: u.name, userId: s.user_id };
+    }
+    return { role: s.role as AdminRole, name: s.name, userId: null };
+  }
+  // Sesi model lama (1 token di app_config) tetap diterima sampai kedaluwarsa,
+  // biar deploy ini nggak nge-logout admin yang lagi login.
   const saved = await getConfigValue(admin, "ADMIN_SESSION_TOKEN");
   const expiry = parseInt((await getConfigValue(admin, "ADMIN_SESSION_EXPIRY")) || "0", 10);
-  if (!token || token !== saved) throw new Error("Sesi tidak valid. Silakan login ulang.");
-  if (Date.now() > expiry) throw new Error("Sesi kedaluwarsa. Silakan login ulang.");
+  if (saved && token === saved && Date.now() <= expiry) return { role: "super", name: "Super admin", userId: null };
+  throw new Error("Sesi tidak valid. Silakan login ulang.");
 }
+
+// Aksi admin-api yang boleh dipakai asisten: cuma kebutuhan hari-H event
+// (Pendaftar, Prep, Pesanan minum). Sisanya (pendapatan, keuangan, config,
+// konten, member, partner, data pribadi) khusus super admin -- dicek di server.
+export const ASSISTANT_ACTIONS = new Set([
+  "whoami", "logout",
+  "getRegistrations", "archiveRegistration", "listBatches", "listAllBatches", "setAttendance", "getSignedUrl",
+  "getPrep", "savePrep", "getPrepFaqContext", "savePrepFaqContext", "getPrepFaqList", "savePrepFaqList",
+  "getPrepPartnerRequests", "savePrepPartnerRequests", "pullPrepPartnerRequests", "generateFaqAnswer", "generateReminderMessage",
+  "listPartners", "getConfig",
+  "listMenuItems", "listOrders", "saveOrder", "deleteOrder", "getVendorWa",
+]);

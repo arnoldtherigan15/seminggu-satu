@@ -19,7 +19,9 @@ Deno.serve(async (req) => {
     const admin = supabaseAdmin();
 
     try {
-      await requireAdminAuth(admin, String(data.token || ""));
+      const sess = await requireAdminAuth(admin, String(data.token || ""));
+      // Keuangan pribadi, catatan, password: khusus super admin
+      if (sess.role !== "super") return errorResponse("Akses khusus super admin.", 403);
     } catch (e) {
       return errorResponse((e as Error).message, 401);
     }

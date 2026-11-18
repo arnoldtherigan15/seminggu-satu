@@ -7,7 +7,7 @@ import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { waKey } from "../_shared/auth.ts";
 import { uploadBase64, uploadFileBase64 } from "../_shared/storage.ts";
 import { getConfigValue, setConfigValue } from "../_shared/config.ts";
-import { adminLogin, requireAdminAuth } from "../_shared/admin-auth.ts";
+import { adminLogin, adminLogout, requireAdminAuth, hashAdminPassword, ASSISTANT_ACTIONS } from "../_shared/admin-auth.ts";
 import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
 import { activeBirthdayVoucher } from "../_shared/birthday.ts";
 import { callGemini } from "../_shared/gemini.ts";
@@ -113,13 +113,81 @@ Deno.serve(async (req) => {
     if (action === "login") {
       const result = await adminLogin(admin, String(data.password || ""));
       if ("error" in result) return errorResponse(result.error);
-      return jsonResponse({ status: "success", token: result.token });
+      return jsonResponse({ status: "success", token: result.token, role: result.role, name: result.name });
     }
 
     // Semua action lain butuh sesi admin valid
-    await requireAdminAuth(admin, String(data.token || ""));
+    const sess = await requireAdminAuth(admin, String(data.token || ""));
+    if (sess.role !== "super" && !ASSISTANT_ACTIONS.has(action)) {
+      return errorResponse("Akses khusus super admin.");
+    }
 
     switch (action) {
+      case "whoami":
+        return jsonResponse({ status: "success", role: sess.role, name: sess.name });
+
+      case "logout":
+        await adminLogout(admin, String(data.token || ""));
+        return jsonResponse({ status: "success" });
+
+      // ---- Kelola akun admin (super only) ----
+      case "listAdminUsers": {
+        const { data: rows } = await admin.from("admin_users").select("id, name, role, active, created_at, last_login").order("created_at", { ascending: true });
+        return jsonResponse({ status: "success", users: rows || [] });
+      }
+      case "saveAdminUser": {
+        const name = String(data.name || "").trim().slice(0, 60);
+        const role = data.role === "super" ? "super" : "assistant";
+        const password = String(data.password || "");
+        const id = String(data.id || "");
+        if (!name) return errorResponse("Nama wajib diisi.");
+        if (!id && password.length < 8) return errorResponse("Password minimal 8 karakter.");
+        if (password && password.length < 8) return errorResponse("Password minimal 8 karakter.");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const row: any = { name, role };
+        if (password) { const salt = crypto.randomUUID(); row.salt = salt; row.pass_hash = await hashAdminPassword(salt, password); }
+        if (id) {
+          const { error } = await admin.from("admin_users").update(row).eq("id", id);
+          if (error) return errorResponse("Gagal menyimpan.");
+          if (password) await admin.from("admin_sessions").delete().eq("user_id", id); // ganti password = sesi lama keluar
+        } else {
+          const { error } = await admin.from("admin_users").insert(row);
+          if (error) return errorResponse("Gagal menyimpan.");
+        }
+        return jsonResponse({ status: "success", message: "Akun admin tersimpan." });
+      }
+      case "setAdminUserActive": {
+        const id = String(data.id || "");
+        const active = !!data.active;
+        await admin.from("admin_users").update({ active }).eq("id", id);
+        if (!active) await admin.from("admin_sessions").delete().eq("user_id", id);
+        return jsonResponse({ status: "success" });
+      }
+      case "deleteAdminUser": {
+        await admin.from("admin_users").delete().eq("id", String(data.id || ""));
+        return jsonResponse({ status: "success" });
+      }
+
+      // ---- Tim Balai Warga (super only) ----
+      case "listTeam": {
+        const { data: rows } = await admin.from("team_members").select("wa, name, created_at").order("created_at", { ascending: true });
+        const was = (rows || []).map((r) => r.wa);
+        const { data: acc } = was.length ? await admin.from("members").select("wa, pass_hash, last_login").in("wa", was) : { data: [] };
+        const accMap = new Map((acc || []).map((a) => [a.wa, a]));
+        return jsonResponse({ status: "success", team: (rows || []).map((r) => ({ ...r, activated: !!accMap.get(r.wa)?.pass_hash, lastLogin: accMap.get(r.wa)?.last_login || "" })) });
+      }
+      case "saveTeamMember": {
+        const wa = waKey(String(data.wa || ""));
+        if (!wa) return errorResponse("Nomor WA nggak valid.");
+        const name = String(data.name || "").trim().slice(0, 60);
+        await admin.from("team_members").upsert({ wa, name });
+        return jsonResponse({ status: "success", message: "Ditambahkan ke Tim." });
+      }
+      case "deleteTeamMember": {
+        await admin.from("team_members").delete().eq("wa", waKey(String(data.wa || "")) || "");
+        return jsonResponse({ status: "success" });
+      }
+
       case "getRegistrations": {
         const workshop = String(data.workshop || "");
         if (!WORKSHOP_TYPES.includes(workshop)) return errorResponse("Workshop tidak dikenal: " + workshop);

@@ -582,6 +582,13 @@ function showDashboard() {
     $("dashView").style.display = "block";
     $("dashHi").textContent = "Hai, " + (_profile.nickname || "Sahabat") + "! 👋";
     const mw = $("mochiWidget"); if (mw) mw.classList.add("show");
+    // Akun Tim Seminggu Satu: dikasih label biar jelas ini akun tim (dan nggak ikut peringkat)
+    let tb = $("teamBadge");
+    if (_profile.isTeam && !tb) {
+        tb = document.createElement("span"); tb.id = "teamBadge"; tb.className = "team-badge";
+        tb.textContent = "Tim Seminggu Satu"; tb.title = "Akun tim: bisa buka semua fitur, nggak ikut peringkat";
+        $("dashHi").insertAdjacentElement("afterend", tb);
+    } else if (!_profile.isTeam && tb) tb.remove();
     renderProfileAva();
     // Yang lagi ultah dapet perlakuan spesial: sapaan, topi ultah di Mochi, confetti
     if (isMyBirthdayToday()) {
