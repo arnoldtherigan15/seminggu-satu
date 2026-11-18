@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
         rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -706,6 +706,113 @@
             font-size: 0.75rem;
         }
     </style>
+    <style>
+        /* ===== Binder Diary (lihat DESIGN.md): halaman sukses = sampul berjahit +
+           tiket kertas + tombol stiker. Satu aksi utama: grup WA peserta. ===== */
+        :root {
+            --bx-desk: #f4f7ff; --bx-paper: #ffffff; --bx-ink: #10245e; --bx-muted: #4a5674;
+            --bx-rule: #d6e3ff; --bx-field: #c9d6f5; --bx-yellow: #ffe600; --bx-note: #fff6a8;
+            --bx-tint: 16, 36, 94;
+            --bx-paper-d: 0 1px 2px rgba(16, 36, 94, .10), 0 6px 16px rgba(16, 36, 94, .06);
+            --bx-photo-d: 0 10px 22px rgba(16, 36, 94, .18);
+            --bx-sticker: 0 0 0 3px #ffffff, 0 4px 8px rgba(16, 36, 94, .22);
+            --bx-washi: repeating-linear-gradient(45deg, rgba(0, 146, 255, .45) 0 7px, rgba(120, 190, 255, .45) 7px 14px);
+        }
+        :root[data-theme="dark"] {
+            --bx-desk: #0d1526; --bx-paper: #18213b; --bx-ink: #eaeffc; --bx-muted: #9fabc9;
+            --bx-rule: #27355e; --bx-field: #33467a; --bx-tint: 0, 0, 0;
+            --bx-paper-d: 0 1px 2px rgba(0, 0, 0, .5), 0 8px 18px rgba(0, 0, 0, .35);
+            --bx-photo-d: 0 10px 22px rgba(0, 0, 0, .5);
+            --bx-sticker: 0 0 0 3px #ffffff, 0 4px 10px rgba(0, 0, 0, .5);
+        }
+        body, :root[data-theme="dark"] body {
+            font-family: 'Open Sans', -apple-system, sans-serif;
+            color: var(--bx-ink);
+            background-color: var(--bx-desk);
+            background-image: radial-gradient(rgba(var(--bx-tint), .09) 1px, transparent 1.2px);
+            background-size: 22px 22px;
+        }
+        :root[data-theme="dark"] body { background-image: radial-gradient(rgba(234, 239, 252, .06) 1px, transparent 1.2px); }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+        /* sampul biru berjahit */
+        .hero {
+            position: relative; text-align: center;
+            padding: 1.3rem 1.2rem 1.5rem 2.6rem;
+            border: none; border-radius: 14px 24px 24px 14px;
+            background-color: #0046ff;
+            background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, .045) 0 2px, transparent 2px 6px), repeating-linear-gradient(-45deg, rgba(0, 0, 0, .05) 0 2px, transparent 2px 6px);
+            box-shadow: var(--bx-photo-d), inset 6px 0 10px rgba(0, 0, 0, .18);
+            color: #ffffff; margin-bottom: 1.8rem;
+        }
+        .hero::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 20px; border-radius: 14px 0 0 14px; background: rgba(0, 0, 0, .18); }
+        .hero::after { content: ""; position: absolute; inset: 7px 7px 7px 27px; border: 2px dashed rgba(255, 255, 255, .45); border-radius: 8px 17px 17px 8px; pointer-events: none; }
+        .sx-top { position: relative; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; text-align: left; }
+        .sx-label {
+            display: inline-flex; flex-direction: column;
+            background: #ffffff; color: #10245e; text-decoration: none;
+            padding: .5rem .9rem .45rem; border-radius: 12px;
+            box-shadow: var(--bx-sticker); transform: rotate(-2deg);
+        }
+        .sx-label b { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.35rem; line-height: 1; letter-spacing: -0.02em; }
+        .sx-label span { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: .85rem; color: #0046ff; margin-top: .2rem; }
+        .sx-paw { flex: 0 0 auto; width: 62px; height: 62px; border-radius: 50%; background: var(--bx-yellow); box-shadow: var(--bx-sticker); display: flex; align-items: center; justify-content: center; transform: rotate(9deg); }
+        .sx-paw img { width: 46px; height: 46px; object-fit: contain; }
+        .success-mochi { position: relative; z-index: 1; width: 112px; margin: .6rem auto .2rem; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .25)); animation: none; }
+        .hero-text { position: relative; z-index: 1; }
+        .hero-text h2 { color: #ffffff; font-size: 1.55rem; font-weight: 800; }
+        .hero-text p { color: rgba(255, 255, 255, .92); font-size: .95rem; }
+        .success-badge { display: none; } /* judul di sampul udah bilang berhasil */
+
+        /* tiket kertas */
+        #ticketCard, :root[data-theme="dark"] #ticketCard {
+            background: #ffffff; color: #10245e;
+            border: none; border-radius: 14px;
+            box-shadow: var(--bx-photo-d);
+            overflow: hidden; transform: rotate(-0.4deg);
+        }
+        .ticket-header { background: #0046ff; background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, .05) 0 2px, transparent 2px 6px); }
+        .ticket-event { opacity: .85; letter-spacing: .06em; }
+        .ticket-qr { background: var(--bx-yellow); color: #10245e; border-radius: 50%; box-shadow: 0 0 0 3px #ffffff; }
+        .ticket-name { font-weight: 800; }
+        .ticket-subtitle { opacity: .9; font-weight: 700; font-size: .9rem; }
+        .ticket-tear, :root[data-theme="dark"] .ticket-tear { background: #ffffff; }
+        .tear-circle { background: var(--bx-desk); }
+        .tear-line { border-top-color: #c9d6f5; }
+        .detail-row i, .detail-row svg { color: #10245e; background: var(--bx-yellow); border-radius: 50%; padding: 6px; width: 30px !important; height: 30px !important; margin-top: 0; }
+        .detail-row .label { color: #5f6b8a; font-weight: 800; }
+        .detail-row .value { color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1rem; }
+        .journal-preview-container { border-radius: 4px; }
+        .color-section-title { color: #5f6b8a; }
+
+        /* tombol: satu aksi utama (grup WA peserta), sisanya stiker putih */
+        .share-section { margin-top: 1.6rem; }
+        .share-btn { min-height: 52px; border: none !important; border-radius: 14px; font-family: 'Outfit', sans-serif; font-weight: 800; box-shadow: var(--bx-sticker); }
+        .btn-wa-group { background: #0046ff; color: #ffffff; animation: none !important; transform: rotate(-0.6deg); }
+        .btn-calendar, .btn-download, :root[data-theme="dark"] .btn-calendar, :root[data-theme="dark"] .btn-download { background: #ffffff; color: #10245e; }
+        .btn-calendar:hover { background: #f4f7ff; }
+
+        /* ajakan komunitas = sticky note, tombolnya sekunder */
+        .community-banner, :root[data-theme="dark"] .community-banner {
+            position: relative;
+            margin-top: 2rem;
+            background: var(--bx-note); color: #10245e;
+            border-radius: 3px; box-shadow: var(--bx-paper-d);
+            transform: rotate(-0.6deg);
+        }
+        .community-banner::before { content: ""; position: absolute; top: -10px; left: 50%; width: 80px; height: 20px; margin-left: -40px; background: var(--bx-washi); transform: rotate(3deg); }
+        .community-banner h3 { color: #10245e; }
+        .community-banner p { color: #4a5674; opacity: 1; }
+        .community-banner-icon { color: #10245e; }
+        .community-banner-icon svg { width: 30px; height: 30px; }
+        .community-banner-btn { background: #ffffff; color: #10245e; box-shadow: var(--bx-sticker); border: none; }
+        footer { color: var(--bx-muted); }
+        /* tiket = kertas putih di dua mode -> barcode & garis tetap navy */
+        #ticketCard .barcode-lines span { background: #10245e !important; }
+        #ticketCard .ticket-barcode { border-top-color: #c9d6f5 !important; }
+        #ticketCard .ticket-id { color: #5f6b8a; }
+        @media (prefers-reduced-motion: reduce) { .share-btn:active { transform: none; } }
+    </style>
 </head>
 
 <body>
@@ -714,15 +821,13 @@
 
         <!-- Header -->
         <header class="hero">
-            <div class="brand">
-                <a href="index.html" id="brandLink" style="text-decoration:none;">
-                    <img src="images/black.png" alt="Seminggu Satu" class="brand-logo">
-                    <p>by Arnold</p>
-                </a>
+            <div class="sx-top">
+                <a href="index.html" id="brandLink" class="sx-label"><b>Seminggu Satu</b><span>by Arnold</span></a>
+                <span class="sx-paw" aria-hidden="true"><img src="images/logo-paw-tight.png" alt="" width="240" height="240"></span>
             </div>
             <img class="success-mochi" src="images/sticker/mochi_ok.png" alt="">
             <div class="hero-text">
-                <h2 id="successTitle">Pendaftaran Berhasil</h2>
+                <h2 id="successTitle">Pendaftaran berhasil!</h2>
                 <p id="successDescription">Terima kasih telah mendaftar! Detail pendaftaran Anda telah kami terima.</p>
             </div>
         </header>
@@ -813,28 +918,16 @@
             </div>
         </div>
 
-        <!-- Komunitas Journaling Banner -- selalu tampil, semua workshop -->
-        <div class="community-banner">
-            <div class="community-banner-icon">🐾</div>
-            <h3>Kita Punya Komunitas Journaling!</h3>
-            <p>Yuk gabung Balai Warga Seminggu Satu -- tempat sharing karya, ikutan challenge seru, dan kenalan
-                sama warga lainnya.</p>
-            <a href="https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?mode=gi_t" target="_blank"
-                class="community-banner-btn">
-                <i data-lucide="message-circle"></i> Join Grup WA Komunitas
-            </a>
-        </div>
-
         <!-- Share Section -->
         <div class="share-section">
             <div class="share-buttons">
                 <a href="#" target="_blank" class="share-btn btn-wa-group" id="btnWaGroup" style="display: none;">
                     <i data-lucide="message-circle"></i>
-                    Join WhatsApp Grup
+                    Gabung grup WA peserta
                 </a>
                 <button class="share-btn btn-calendar" onclick="addToCalendar()">
                     <i data-lucide="calendar-plus"></i>
-                    Tambah ke Kalender
+                    Tambah ke kalender
                 </button>
                 <a href="index.html" id="homeBtn" class="share-btn btn-download">
                     <i data-lucide="home"></i>
@@ -843,8 +936,20 @@
             </div>
         </div>
 
+        <!-- Komunitas Journaling Banner -- selalu tampil, semua workshop -->
+        <div class="community-banner">
+            <div class="community-banner-icon" aria-hidden="true"><i data-lucide="paw-print"></i></div>
+            <h3>Kita Punya Komunitas Journaling!</h3>
+            <p>Yuk gabung Balai Warga Seminggu Satu: tempat sharing karya, ikutan challenge, dan kenalan
+                sama warga lainnya.</p>
+            <a href="https://chat.whatsapp.com/Lpnbndl1UFv9ZaLsrbtpgw?mode=gi_t" target="_blank"
+                class="community-banner-btn">
+                <i data-lucide="message-circle"></i> Gabung grup WA komunitas
+            </a>
+        </div>
+
         <footer>
-            <p>© 2026 Seminggu Satu by Arnold. All rights reserved.</p>
+            <p>© 2026 Seminggu Satu by Arnold</p>
         </footer>
 
     </div>
@@ -864,7 +969,7 @@
         if (p.get('from') === 'member') {
             const bl = document.getElementById('brandLink'); if (bl) bl.href = 'warga/';
             const hb = document.getElementById('homeBtn'); if (hb) hb.href = 'warga/';
-            const ht = document.getElementById('homeBtnText'); if (ht) ht.textContent = 'Kembali ke Member Hub';
+            const ht = document.getElementById('homeBtnText'); if (ht) ht.textContent = 'Kembali ke Balai Warga';
         }
 
         // Upcycle Specific
