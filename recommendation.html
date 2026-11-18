@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <meta name="theme-color" content="#f4f7ff" data-light="#f4f7ff" data-dark="#0d1526">
     <script src="theme.js"></script>
     <title>Alat & Bahan Journaling — Seminggu Satu by Arnold</title>
     <meta name="description"
@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
         rel="stylesheet">
 
     <!-- Icons (Lucide) -->
@@ -25,492 +25,333 @@
     <script src="recommendation-config.js?v=1"></script>
 
     <style>
+        /* =========================================================
+           Alat & Bahan: dunia "Binder Diary" (lihat DESIGN.md).
+           Sampul biru berjahit, catatan tempel, tiap produk = foto
+           yang ditempel washi di selembar kertas, tombol = stiker.
+           ========================================================= */
         :root {
-            --bg: #fafafa;
-            --bg-card: #ffffff;
-            --text-1: #111827;
-            --text-2: #6b7280;
-            --text-3: #9ca3af;
-            --border: #e5e7eb;
-            --accent: #111827;
-            --accent-light: #f3f4f6;
-            --success: #10b981;
-            --radius: 20px;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.07);
-            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.09);
+            --desk: #f4f7ff;
+            --paper: #ffffff;
+            --board: #0046ff;
+            --text-1: #10245e;
+            --text-2: #4a5674;
+            --text-3: #5f6b8a;
+            --border: #e4e9f5;
+            --field-border: #c9d6f5;
+            --accent: #0046ff;
+            --accent-text: #0046ff;
+            --accent-light: #e6edff;
+            --yellow: #ffe600;
+            --note: #fff6a8;
+            --peel: #dfe7fb;
+            --tint: 16, 36, 94;
+            --depth-paper: 0 1px 2px rgba(16, 36, 94, 0.10), 0 6px 16px rgba(16, 36, 94, 0.06);
+            --depth-photo: 0 10px 22px rgba(16, 36, 94, 0.18);
+            --depth-sticker: 0 0 0 3px #ffffff, 0 4px 8px rgba(16, 36, 94, 0.22);
+            --washi-yellow: repeating-linear-gradient(135deg, rgba(255, 230, 0, 0.78) 0 8px, rgba(255, 243, 140, 0.78) 8px 16px);
+            --washi-pink: repeating-linear-gradient(90deg, rgba(255, 143, 184, 0.72) 0 6px, rgba(255, 196, 218, 0.72) 6px 12px);
+            --washi-blue: repeating-linear-gradient(45deg, rgba(0, 146, 255, 0.45) 0 7px, rgba(120, 190, 255, 0.45) 7px 14px);
         }
-
-        /* ---- Dark mode ---- */
         :root[data-theme="dark"] {
-            --bg: #0d1526;
-            --bg-card: #172035;
+            --desk: #0d1526;
+            --paper: #18213b;
             --text-1: #eaeffc;
             --text-2: #9fabc9;
-            --text-3: #7c88a6;
+            --text-3: #8b97b6;
             --border: #2a3550;
-            --accent: #5b8cff;
-            --accent-light: #202c47;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.5);
-            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
+            --field-border: #33467a;
+            --accent-text: #7aa2ff;
+            --accent-light: #1d2a4f;
+            --peel: #33467a;
+            --tint: 0, 0, 0;
+            --depth-paper: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 18px rgba(0, 0, 0, 0.35);
+            --depth-photo: 0 10px 22px rgba(0, 0, 0, 0.5);
+            --depth-sticker: 0 0 0 3px #ffffff, 0 4px 10px rgba(0, 0, 0, 0.5);
         }
-        :root[data-theme="dark"] .rec-card-img-wrap { background: #202c47; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::selection { background: var(--yellow); color: #10245e; }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg);
+            font-family: 'Open Sans', -apple-system, sans-serif;
             color: var(--text-1);
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            background-color: var(--desk);
+            background-image: radial-gradient(rgba(var(--tint), 0.09) 1px, transparent 1.2px);
+            background-size: 22px 22px;
+        }
+        :root[data-theme="dark"] body { background-image: radial-gradient(rgba(234, 239, 252, 0.06) 1px, transparent 1.2px); }
+        h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; }
+
+        a:focus-visible, button:focus-visible, .search-clear:focus-visible {
+            outline: 3px solid var(--accent-text);
+            outline-offset: 3px;
+            border-radius: 10px;
         }
 
-        h1,
-        h2,
-        h3,
-        h4 {
-            font-family: 'Outfit', sans-serif;
-        }
+        .page { max-width: 520px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
 
-        /* ---- Top Navigation ---- */
-        .top-nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(250, 250, 250, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            padding: 0.9rem 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
+        /* ---- Tombol kembali: stiker bulat putih ---- */
         .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            min-height: 44px; padding: 0 1rem 0 0.8rem;
+            background: #ffffff; color: #10245e;
+            border-radius: 999px;
+            box-shadow: var(--depth-sticker);
+            font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem;
             text-decoration: none;
-            color: var(--text-2);
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: color 0.2s ease;
+            transform: rotate(-2deg);
+            transition: transform .15s ease;
         }
+        .back-btn:hover { transform: rotate(-4deg) translateY(-1px); }
+        .back-btn i, .back-btn svg { width: 18px; height: 18px; }
 
-        .back-btn:hover {
-            color: var(--text-1);
-        }
-
-        .back-btn i {
-            width: 16px;
-            height: 16px;
-        }
-
-        .nav-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-1);
-            flex: 1;
-            text-align: center;
-        }
-
-        .nav-spacer {
-            width: 60px;
-        }
-
-        /* balance the back button */
-
-        /* ---- Page Layout ---- */
-        .page {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 0 1.25rem 3rem;
-        }
-
-        /* ---- Hero Header ---- */
-        .page-header {
-            padding: 2rem 0 1.5rem;
-            text-align: center;
-            animation: fadeIn 0.5s ease both;
-        }
-
-        .header-icon {
-            width: 56px;
-            height: 56px;
-            background: var(--accent);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-        }
-
-        .header-icon i {
-            width: 28px;
-            height: 28px;
-            color: #fff;
-        }
-
-        .page-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .page-header p {
-            font-size: 0.9rem;
-            color: var(--text-2);
-            line-height: 1.6;
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        /* ---- Search Bar ---- */
-        .search-container {
+        /* ---- Sampul: kain biru berjahit ---- */
+        .cover {
             position: relative;
-            margin-bottom: 1.5rem;
-            animation: fadeIn 0.5s ease 0.1s both;
+            margin-top: 1.4rem;
+            padding: 1.6rem 1.35rem 1.7rem 2.85rem;
+            color: #ffffff;
+            border-radius: 14px 24px 24px 14px;
+            background-color: var(--board);
+            background-image:
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.045) 0 2px, transparent 2px 6px),
+                repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 6px);
+            box-shadow: var(--depth-photo), inset 6px 0 10px rgba(0, 0, 0, 0.18);
         }
-
-        .search-input {
-            width: 100%;
-            padding: 0.8rem 1rem 0.8rem 2.8rem;
-            border: 1.5px solid var(--border);
+        .cover::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 22px;
+            border-radius: 14px 0 0 14px;
+            background: rgba(0, 0, 0, 0.18);
+            box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.10);
+            pointer-events: none;
+        }
+        .cover::after {
+            content: ""; position: absolute; inset: 8px 8px 8px 30px;
+            border: 2px dashed rgba(255, 255, 255, 0.45);
+            border-radius: 8px 17px 17px 8px;
+            pointer-events: none;
+        }
+        .cover-label {
+            position: relative; z-index: 1;
+            display: inline-block;
+            background: #ffffff; color: #10245e;
+            padding: 0.55rem 0.95rem 0.5rem;
             border-radius: 12px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            color: var(--text-1);
-            background: var(--bg-card);
-            transition: all 0.2s ease;
+            box-shadow: var(--depth-sticker);
+            transform: rotate(-2deg);
+        }
+        .cover-label h1 { font-size: 1.6rem; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; }
+        .cover-sticker {
+            position: absolute; top: -14px; right: 14px; z-index: 2;
+            width: 58px; height: 58px; border-radius: 50%;
+            background: var(--yellow); color: #10245e;
+            box-shadow: var(--depth-sticker);
+            display: flex; align-items: center; justify-content: center;
+            transform: rotate(10deg);
+        }
+        .cover-sticker i, .cover-sticker svg { width: 28px; height: 28px; stroke-width: 2.2; }
+        .cover p {
+            position: relative; z-index: 1;
+            margin-top: 1rem;
+            font-size: 0.92rem; line-height: 1.55;
+            color: rgba(255, 255, 255, 0.92);
+            max-width: 34ch;
         }
 
+        /* ---- Catatan tempel ---- */
+        .info-banner {
+            position: relative;
+            display: flex; align-items: flex-start; gap: 0.65rem;
+            margin: 2rem 0.35rem 1.75rem;
+            padding: 1.15rem 1rem 1rem;
+            background: var(--note); color: #10245e;
+            font-size: 0.85rem; line-height: 1.55;
+            box-shadow: var(--depth-paper);
+            border-radius: 3px;
+            transform: rotate(-0.8deg);
+        }
+        .info-banner::before {
+            content: ""; position: absolute; top: -10px; left: 50%;
+            width: 84px; height: 20px; margin-left: -42px;
+            background: var(--washi-blue);
+            transform: rotate(-3deg);
+        }
+        .info-banner i, .info-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+        /* ---- Cari ---- */
+        .search-container { position: relative; margin-bottom: 1.1rem; }
+        .search-input {
+            width: 100%; min-height: 50px;
+            padding: 0.8rem 2.9rem 0.8rem 2.9rem;
+            border: 2px solid var(--field-border);
+            border-radius: 14px;
+            font-size: 1rem; font-family: inherit;
+            color: var(--text-1);
+            background: var(--paper);
+            box-shadow: var(--depth-paper);
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
         .search-input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05);
+            box-shadow: 0 0 0 4px rgba(255, 230, 0, 0.55);
         }
-
-        .search-input::placeholder {
-            color: var(--text-3);
-        }
-
+        .search-input::placeholder { color: var(--text-3); }
         .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-3);
-            width: 20px;
-            height: 20px;
-            pointer-events: none;
+            position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+            color: var(--text-3); width: 20px; height: 20px; pointer-events: none;
         }
-
         .search-clear {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-3);
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            display: none;
-            transition: color 0.2s;
+            position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%);
+            width: 40px; height: 40px; padding: 10px;
+            color: var(--text-3); cursor: pointer; display: none;
         }
+        .search-clear:hover { color: var(--text-1); }
 
-        .search-clear:hover {
-            color: var(--text-2);
-        }
-
-        /* ---- Category Filter Tabs ---- */
+        /* ---- Filter = label stiker ---- */
         .filter-tabs {
-            display: flex;
-            gap: 0.5rem;
+            display: flex; gap: 0.7rem;
             overflow-x: auto;
-            padding-bottom: 0.25rem;
-            margin-bottom: 1.5rem;
+            padding: 0.5rem 0.25rem 0.75rem;
+            margin: 0 -0.25rem 1.5rem;
             scrollbar-width: none;
-            animation: fadeIn 0.5s ease 0.15s both;
         }
-
-        .filter-tabs::-webkit-scrollbar {
-            display: none;
-        }
-
+        .filter-tabs::-webkit-scrollbar { display: none; }
         .filter-tab {
             flex-shrink: 0;
-            padding: 0.45rem 1rem;
-            border: 1.5px solid var(--border);
-            border-radius: 99px;
-            background: var(--bg-card);
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-2);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            font-family: 'Inter', sans-serif;
+            min-height: 40px; padding: 0.45rem 1rem;
+            border: none; border-radius: 10px;
+            background: #ffffff; color: #10245e;
+            box-shadow: var(--depth-sticker);
+            font-family: 'Outfit', sans-serif; font-size: 0.92rem; font-weight: 800;
+            cursor: pointer; white-space: nowrap;
+            transition: transform .15s ease, background-color .15s ease;
         }
+        .filter-tab:nth-child(odd) { transform: rotate(-1.5deg); }
+        .filter-tab:nth-child(even) { transform: rotate(1.5deg); }
+        .filter-tab:hover { transform: rotate(0deg) translateY(-1px); }
+        .filter-tab.active { background: var(--yellow); color: #10245e; }
 
-        .filter-tab:hover {
-            border-color: var(--accent);
-            color: var(--text-1);
-        }
-
-        .filter-tab.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        /* ---- Recommendation Grid ---- */
-        .rec-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
+        /* ---- Produk: foto ditempel washi di kertas ---- */
+        .rec-list { display: flex; flex-direction: column; gap: 2.2rem; padding-top: 0.5rem; }
         .rec-card {
-            background: var(--bg-card);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-            animation: slideUp 0.5s ease both;
             position: relative;
+            background: var(--paper);
+            border-radius: 6px 16px 16px 6px;
+            box-shadow: var(--depth-paper);
+            padding: 0.85rem 0.85rem 1.2rem;
+            animation: fadeIn .45s cubic-bezier(.16, 1, .3, 1) both;
         }
-
-        .rec-card:hover {
-            border-color: #d1d5db;
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-3px);
-        }
-
+        .rec-card:nth-child(odd) { transform: rotate(-0.4deg); }
+        .rec-card:nth-child(even) { transform: rotate(0.4deg); }
         .rec-card-img-wrap {
             position: relative;
-            background: #f9fafb;
-            overflow: hidden;
-            height: 200px;
+            height: 210px;
+            background: #eef2fb;
+            border-radius: 4px;
         }
-
+        :root[data-theme="dark"] .rec-card-img-wrap { background: #222d4d; }
         .rec-card-img-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s ease;
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            border-radius: 4px;
         }
-
-        .rec-card:hover .rec-card-img-wrap img {
-            transform: scale(1.04);
+        /* washi di atas foto, warnanya gantian */
+        .rec-card-img-wrap::before {
+            content: ""; position: absolute; top: -18px; left: 50%; z-index: 1;
+            width: 92px; height: 22px; margin-left: -46px;
+            background: var(--washi-pink);
+            transform: rotate(-4deg);
         }
-
+        .rec-card:nth-child(3n+2) .rec-card-img-wrap::before { background: var(--washi-yellow); transform: rotate(3deg); }
+        .rec-card:nth-child(3n) .rec-card-img-wrap::before { background: var(--washi-blue); transform: rotate(-2deg); }
         .rec-category-tag {
-            position: absolute;
-            top: 0.75rem;
-            left: 0.75rem;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-1);
-            padding: 0.28rem 0.7rem;
-            border-radius: 99px;
-            border: 1px solid var(--border);
+            position: absolute; bottom: -12px; left: 0.9rem; z-index: 1;
+            background: var(--yellow); color: #10245e;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+            padding: 0.32rem 0.7rem;
+            border-radius: 999px;
+            box-shadow: var(--depth-sticker);
+            transform: rotate(-4deg);
         }
-
         .rec-card-body {
-            padding: 1.25rem 1.25rem 1.25rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            flex: 1;
+            display: flex; flex-direction: column; gap: 0.45rem;
+            padding: 1.4rem 0.4rem 0;
         }
+        .rec-card-title { font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; line-height: 1.3; letter-spacing: -0.01em; }
+        .rec-card-desc { font-size: 0.9rem; color: var(--text-2); line-height: 1.6; }
+        .rec-card-desc strong { color: var(--text-1); font-weight: 700; }
 
-        .rec-card-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            line-height: 1.35;
-        }
-
-        .rec-card-desc {
-            font-size: 0.875rem;
-            color: var(--text-2);
-            line-height: 1.6;
-            flex: 1;
-        }
-
-        .rec-card-desc strong {
-            color: var(--text-1);
-            font-weight: 600;
-        }
-
-        /* ---- Shop Button ---- */
+        /* ---- Tombol toko = stiker biru, ujungnya kelupas ---- */
         .shop-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 700;
-            font-family: inherit;
-            text-decoration: none;
-            transition: all 0.25s ease;
-            margin-top: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-        }
-
-        .shop-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .shop-btn:active {
-            transform: scale(0.98);
-        }
-
-        .shop-btn i {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* ---- Empty State ---- */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-3);
-            font-size: 0.875rem;
-            display: none;
-        }
-
-        .empty-state i {
-            width: 40px;
-            height: 40px;
-            margin-bottom: 0.75rem;
-        }
-
-        /* ---- Info Banner ---- */
-        .info-banner {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.65rem;
-            background: #eff6ff;
-            border: 1.5px solid #bfdbfe;
+            position: relative;
+            display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+            width: 100%; min-height: 52px; padding: 0.85rem 1rem;
+            margin-top: 0.75rem;
+            background: var(--accent); color: #ffffff;
             border-radius: 14px;
-            padding: 0.85rem 1rem;
-            font-size: 0.8rem;
-            color: #1e40af;
-            line-height: 1.5;
-            margin-bottom: 1.5rem;
-            animation: fadeIn 0.5s ease 0.15s both;
+            font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 800;
+            text-decoration: none; cursor: pointer;
+            box-shadow: var(--depth-sticker);
+            transform: rotate(-0.6deg);
+            transition: transform .18s ease;
         }
+        .shop-btn i, .shop-btn svg { width: 19px; height: 19px; }
+        .shop-btn::after {
+            content: ""; position: absolute; right: 0; bottom: 0;
+            width: 14px; height: 14px;
+            border-radius: 0 0 14px 0;
+            background: linear-gradient(315deg, var(--paper) 0 48%, var(--peel) 50% 100%);
+            box-shadow: -2px -2px 4px rgba(var(--tint), 0.18);
+            transition: width .2s ease, height .2s ease;
+        }
+        .shop-btn:hover { transform: rotate(-1.4deg) translateY(-2px); }
+        .shop-btn:hover::after, .shop-btn:active::after { width: 30px; height: 30px; }
+        .shop-btn:active { transform: rotate(-0.6deg) scale(0.98); }
 
-        .info-banner i {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
-            margin-top: 1px;
+        /* ---- Kosong: lembar kertas polos ---- */
+        .empty-state {
+            display: none;
+            text-align: center;
+            padding: 2rem 1.25rem;
+            background: var(--paper);
+            border-radius: 6px 16px 16px 6px;
+            box-shadow: var(--depth-paper);
+            color: var(--text-2); font-size: 0.92rem; line-height: 1.55;
         }
+        .empty-state i, .empty-state svg { width: 36px; height: 36px; margin-bottom: 0.6rem; color: var(--text-3); }
 
         /* ---- Footer ---- */
-        .footer {
-            text-align: center;
-            padding: 2.5rem 0 0.5rem;
-            color: var(--text-3);
-            font-size: 0.75rem;
-        }
+        .divider { height: 2px; margin: 2.5rem 0 0; background: repeating-linear-gradient(90deg, var(--field-border) 0 8px, transparent 8px 14px); }
+        .footer { text-align: center; padding: 1.5rem 0 0.5rem; color: var(--text-3); font-size: 0.78rem; }
+        .footer a { color: var(--accent-text); text-decoration: none; font-weight: 700; }
+        .footer a:hover { text-decoration: underline; text-decoration-color: #ff8fb8; text-decoration-thickness: 2px; }
 
-        .footer a {
-            color: var(--text-2);
-            text-decoration: none;
-            font-weight: 600;
-        }
+        @keyframes fadeIn { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
 
-        .footer a:hover {
-            color: var(--text-1);
-        }
-
-        /* ---- Animations ---- */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ---- Divider ---- */
-        .divider {
-            width: 100%;
-            height: 1px;
-            background: var(--border);
-            margin: 1.5rem 0;
-        }
-
-        /* ---- Responsive tap feedback ---- */
-        @media (hover: none) {
-            .rec-card:active {
-                transform: scale(0.98);
-            }
-
-            .shop-btn:active {
-                transform: scale(0.96);
-            }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Sticky Navigation -->
-    <nav class="top-nav">
-        <a href="index.html" class="back-btn" id="btnBackHome">
-            <i data-lucide="arrow-left"></i>
-        </a>
-        <span class="nav-title">Alat & Bahan</span>
-        <div class="nav-spacer"></div>
-    </nav>
-
     <div class="page">
 
-        <!-- Page Header -->
-        <div class="page-header">
-            <h1>Alat & Bahan Kurasi</h1>
+        <a href="index.html" class="back-btn" id="btnBackHome">
+            <i data-lucide="arrow-left"></i> Beranda
+        </a>
+
+        <!-- Sampul -->
+        <header class="cover">
+            <span class="cover-sticker" aria-hidden="true"><i data-lucide="scissors"></i></span>
+            <div class="cover-label"><h1>Alat & Bahan Kurasi</h1></div>
             <p>Koleksi alat dan bahan journaling pilihan Arnold yang sudah terbukti dipakai di setiap workshop.</p>
-        </div>
+        </header>
 
         <!-- Info Banner -->
         <div class="info-banner">
@@ -522,8 +363,8 @@
         <!-- Search Bar -->
         <div class="search-container">
             <i data-lucide="search" class="search-icon"></i>
-            <input type="text" class="search-input" id="searchInput" placeholder="Cari alat atau bahan...">
-            <i data-lucide="x" class="search-clear" id="searchClear"></i>
+            <input type="text" class="search-input" id="searchInput" placeholder="Cari alat atau bahan..." aria-label="Cari alat atau bahan">
+            <i data-lucide="x" class="search-clear" id="searchClear" role="button" tabindex="0" aria-label="Hapus pencarian"></i>
         </div>
 
         <!-- Category Filter Tabs -->
@@ -550,6 +391,9 @@
     </div>
 
     <script>
+        // Label kategori tanpa emoji di depan (config-nya dipakai bareng Balai Warga)
+        const catName = c => String(RECOMMENDATION_CATEGORIES[c] || c).replace(/^[^\p{L}\p{N}]+/u, '');
+
         // ---- Render Category Tabs ----
         function renderTabs() {
             const tabsEl = document.getElementById('filterTabs');
@@ -558,7 +402,7 @@
             const usedCats = [...new Set(RECOMMENDATIONS.map(r => r.category))];
 
             usedCats.forEach(cat => {
-                const label = RECOMMENDATION_CATEGORIES[cat] || cat;
+                const label = catName(cat);
                 const btn = document.createElement('button');
                 btn.className = 'filter-tab';
                 btn.dataset.cat = cat;
@@ -589,6 +433,10 @@
             searchQuery = e.target.value.toLowerCase().trim();
             searchClear.style.display = searchQuery ? 'block' : 'none';
             renderCards();
+        });
+
+        searchClear.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); searchClear.click(); }
         });
 
         searchClear.addEventListener('click', () => {
@@ -632,11 +480,11 @@
             emptyEl.style.display = 'none';
 
             filtered.forEach((item, index) => {
-                const catLabel = RECOMMENDATION_CATEGORIES[item.category] || item.category;
+                const catLabel = catName(item.category);
 
                 const card = document.createElement('div');
                 card.className = 'rec-card';
-                card.style.animationDelay = `${index * 0.07}s`;
+                card.style.animationDelay = `${Math.min(index, 6) * 0.05}s`;
                 card.id = `rec-${item.id}`;
 
                 card.innerHTML = `

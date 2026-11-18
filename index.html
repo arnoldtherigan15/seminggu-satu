@@ -139,20 +139,23 @@
                 repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.045) 0 2px, transparent 2px 6px),
                 repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 6px);
             border-radius: 14px 24px 24px 14px;
-            padding: 1.5rem 1.15rem 1.6rem 3.3rem;
+            padding: 1.6rem 1.35rem 1.7rem 2.85rem;
             color: #ffffff;
             box-shadow: var(--depth-photo), inset 6px 0 10px rgba(0, 0, 0, 0.18);
         }
-        /* ring logam binder di kiri */
-        .rings {
-            position: absolute; left: 8px; top: 34px; bottom: 34px;
-            display: flex; flex-direction: column; justify-content: space-between;
+        /* punggung binder (lebih gelap) + jahitan kain di pinggir sampul */
+        .cover::before {
+            content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 22px;
+            border-radius: 14px 0 0 14px;
+            background: rgba(0, 0, 0, 0.18);
+            box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.10);
             pointer-events: none;
         }
-        .rings span {
-            width: 34px; height: 16px; border-radius: 10px;
-            background: linear-gradient(180deg, #f6f8fc 0%, #b6c0d4 45%, #8995ad 55%, #e6ebf5 100%);
-            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+        .stitch {
+            position: absolute; inset: 8px 8px 8px 30px;
+            border: 2px dashed rgba(255, 255, 255, 0.45);
+            border-radius: 8px 17px 17px 8px;
+            pointer-events: none;
         }
         .cover-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
         .name-label {
@@ -576,7 +579,7 @@
 
         <!-- Sampul binder -->
         <header class="cover">
-            <div class="rings" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="stitch" aria-hidden="true"></div>
             <div class="cover-top">
                 <div class="name-label stick">
                     <h1>Seminggu Satu</h1>
@@ -654,7 +657,6 @@
             <a class="cta-btn" href="https://wa.me/6281214574782?text=Halo%20Arnold!%20Aku%20mau%20tanya%20soal%20workshop%20Seminggu%20Satu%20%F0%9F%99%8C"
                 target="_blank" rel="noopener"><i data-lucide="message-circle"></i> Tanya Arnold via WhatsApp</a>
             <nav class="footer-links" aria-label="Link lainnya">
-                <a href="warga/">Masuk Balai Warga</a>
                 <a href="kolaborasi/">Kolaborasi</a>
                 <a href="recommendation.html">Alat &amp; bahan</a>
             </nav>

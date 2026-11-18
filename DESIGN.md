@@ -94,18 +94,18 @@ components:
 
 # Design System: Seminggu Satu — Binder Diary
 
-> **Scope.** This world lives on the public homepage (`index.html`), every registration page (`reka-rekat/`, `paper-journal/`, `upcycle-journal/`, `side-by-side/`, `private-uc/`, `3d-frame-journaling/`, `bookmark-journal/`, `journaling-date/`, plus the `update-photo` pages) via the shared `binder-form.css`, and `closed.html`. Registration pages are Operate surfaces: same materials, calmer decoration (no washi on sheets under tabs, no ruled lines behind fields, no looping price/ticket animation). Other pages (Balai Warga, admin) still follow `.claude/skills/seminggu-ui`. The homepage surface contract is `.impeccable/surfaces/index-html.md`.
+> **Scope.** This world lives on the public homepage (`index.html`), every registration page (`reka-rekat/`, `paper-journal/`, `upcycle-journal/`, `side-by-side/`, `private-uc/`, `3d-frame-journaling/`, `bookmark-journal/`, `journaling-date/`, plus the `update-photo` pages) via the shared `binder-form.css`, `closed.html`, and `recommendation.html` (Alat & Bahan). Registration pages are Operate surfaces: same materials, calmer decoration (no washi on sheets under tabs, no ruled lines behind fields, no looping price/ticket animation). Other pages (Balai Warga, admin) still follow `.claude/skills/seminggu-ui`. The homepage surface contract is `.impeccable/surfaces/index-html.md`.
 
 ## Overview
 
 **Creative North Star: "The Community Binder"**
 
-The page is a 2000s school binder that the warga have decorated together. The brand-blue cover has metal rings, a name label stuck on as a sticker, a taped polaroid of real people, and Mochi stuck in the corner. Behind it, every workshop is a loose-leaf sheet with pale-blue rules, a pink margin line and punched holes. Sections start at coloured index tabs. The register is playful and hand-made, but never messy: everything still lines up on the ruled pitch and reads in one pass on a phone.
+The page is a 2000s school binder that the warga have decorated together. The brand-blue fabric cover has a darker spine on the left and a dashed white stitch around its edge, a name label stuck on as a sticker, a taped polaroid of real people, and Mochi stuck in the corner. Behind it, every workshop is a loose-leaf sheet with pale-blue rules, a pink margin line and punched holes. Sections start at coloured index tabs. The register is playful and hand-made, but never messy: everything still lines up on the ruled pitch and reads in one pass on a phone.
 
 Craft materials are rendered honestly and flat. Paper, photo, sticker and washi each have their own depth and edge, with no fake bevels or gloss. The page refuses the link-in-bio column of identical rounded cards that it replaced.
 
 **Key Characteristics:**
-- Blue binder cover → yellow index tab → loose-leaf sheets, read top to bottom.
+- Blue stitched binder cover → yellow index tab → loose-leaf sheets, read top to bottom.
 - Three depth layers: paper < photo < sticker.
 - Kiss-cut stickers with a 3px white die-cut ring; translucent striped washi.
 - Real photography only (event photos, real reel posters); no illustration stand-ins.
@@ -213,6 +213,7 @@ Loose-leaf sheets have a slightly asymmetric radius (6px on the binding edge, 16
 - **Do** give every reel a real poster in `images/stories/<shortcode>.webp` (480px wide).
 
 ### Don't:
+- **Don't** draw chrome/metal hardware (gradient binder rings); the cover is flat stitched fabric.
 - **Don't** use emoji or Unicode glyphs (→, 🏘️) as interface icons.
 - **Don't** rebuild the uniform rounded-card link-in-bio column this world replaced.
 - **Don't** put white text on Sticker Yellow, or use Margin Pink for text.
