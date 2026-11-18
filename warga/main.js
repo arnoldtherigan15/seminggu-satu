@@ -5988,7 +5988,7 @@ function galFeedCard(it) {
         : (it.avatar ? '<div class="ig-ava"><img src="' + esc(it.avatar) + '" alt="" loading="lazy"></div>' : '<div class="ig-ava">' + initial + '</div>');
     // dekorasi bingkai foto per jenis
     let frameDeco = '<div class="washi-tape-top"></div>';
-    if (it.kind === "workshop") frameDeco = '<span class="ev-stamp">WORKSHOP</span>';
+    if (it.kind === "workshop") frameDeco = '<span class="ev-stamp">' + (it.tagLabel ? esc(String(it.tagLabel).toUpperCase()) : "WORKSHOP") + '</span>';
     else if (it.kind === "reka-rekat") frameDeco = '<span class="rr-heart">♥</span>';
     else if (it.kind === "temu-warga") frameDeco = '<span class="ev-stamp tw">TEMU-WARGA</span><img class="tw-stk" src="../images/sticker/str-6.png" alt="">';
     else if (it.kind === "weekly") frameDeco = '<span class="wj-check">✓</span>';

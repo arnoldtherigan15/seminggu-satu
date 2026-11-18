@@ -15,6 +15,17 @@ import { mergeBatchConfig, currentPrice, isBatchOpen } from "../_shared/batch-me
 import { getEventShopLines } from "../_shared/event-shop.ts";
 
 const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side", "private-uc"];
+// Tag foto event: 3 tag bawaan (workshop / reka-rekat / temu-warga) atau teks bebas (<=30 char).
+const EVENT_TAG_KNOWN: Record<string, string> = { "workshop": "workshop", "reka-rekat": "reka-rekat", "reka rekat": "reka-rekat", "temu-warga": "temu-warga", "temu warga": "temu-warga" };
+function cleanEventTag(v: unknown): string {
+  // deno-lint-ignore no-control-regex
+  const t = String(v || "").replace(/[<>\u0000-\u001f]/g, "").replace(/\s+/g, " ").trim().slice(0, 30);
+  if (!t) return "workshop";
+  return EVENT_TAG_KNOWN[t.toLowerCase()] || t;
+}
+function tagSlug(t: string): string {
+  return t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30) || "event";
+}
 const PREP_TYPES = ["todos", "bring", "notes", "supplies", "richnote"];
 const prepKey = (event: string, type: string) => `prep__${event}__${type}`;
 // Full Notes per BATCH (bukan per workshop kayak prepKey lainnya, tipe
@@ -701,10 +712,9 @@ Kasih:
       }
 
       case "addEventPhoto": {
-        const rawTag = String(data.tag || "");
-        const tag = rawTag === "reka-rekat" || rawTag === "temu-warga" ? rawTag : "workshop";
+        const tag = cleanEventTag(data.tag);
         if (!data.photoBase64) return errorResponse("Fotonya belum dipilih.");
-        const photoUrl = await uploadBase64(admin, "event-photos", data.photoBase64, `event-${tag}`);
+        const photoUrl = await uploadBase64(admin, "event-photos", data.photoBase64, `event-${tagSlug(tag)}`);
         if (!photoUrl) return errorResponse("Gagal upload foto.");
         const id = "ev" + Date.now().toString(36);
         await admin.from("event_photos").insert({
@@ -717,8 +727,7 @@ Kasih:
       case "updateEventPhoto": {
         const id = String(data.id || "");
         if (!id) return errorResponse("ID kosong.");
-        const rawTag = String(data.tag || "");
-        const tag = rawTag === "reka-rekat" || rawTag === "temu-warga" ? rawTag : "workshop";
+        const tag = cleanEventTag(data.tag);
         // deno-lint-ignore no-explicit-any
         const payload: any = {
           tag,
@@ -726,7 +735,7 @@ Kasih:
           event_date: String(data.eventDate || "").slice(0, 10) || null,
         };
         if (data.photoBase64) {
-          const photoUrl = await uploadBase64(admin, "event-photos", data.photoBase64, `event-${tag}`);
+          const photoUrl = await uploadBase64(admin, "event-photos", data.photoBase64, `event-${tagSlug(tag)}`);
           if (!photoUrl) return errorResponse("Gagal upload foto.");
           payload.photo_url = photoUrl;
         }

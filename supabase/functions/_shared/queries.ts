@@ -170,7 +170,7 @@ export async function memberNickMap(admin: SupabaseClient): Promise<Record<strin
 export type GalleryItem = {
   id: string; kind: string; challengeId: string; title: string; nickname: string;
   photo: string; caption: string; ts: number; ownerKey: string; avatar: string; bio: string; eventDate?: string;
-  publicId: string;
+  publicId: string; tagLabel?: string;
 };
 
 // Batas ambil data per sumber, diurut TERBARU duluan di level query (bukan di
@@ -236,12 +236,16 @@ export async function questGalleryBase(admin: SupabaseClient): Promise<GalleryIt
     .order("created_at", { ascending: false }).limit(GALLERY_EVENT_CAP);
   for (const r of eventPhotos || []) {
     if (!r.photo_url) continue;
-    const tag = r.tag || "workshop";
+    const rawTag = String(r.tag || "workshop");
+    // tag custom (mis. "Kopdar Bandung") tampil sebagai event resmi dengan frame workshop + label tag itu sendiri
+    const known = rawTag === "workshop" || rawTag === "reka-rekat" || rawTag === "temu-warga";
+    const tag = known ? rawTag : "workshop";
     const uploadTs = r.created_at ? new Date(r.created_at).getTime() : 0;
     const eventTs = r.event_date ? new Date(`${r.event_date}T12:00:00`).getTime() : uploadTs;
     out.push({
       id: r.id, kind: tag, challengeId: "event",
-      title: tag === "reka-rekat" ? "Reka-Rekat" : tag === "temu-warga" ? "Temu-Warga" : "Workshop",
+      title: !known ? rawTag : tag === "reka-rekat" ? "Reka-Rekat" : tag === "temu-warga" ? "Temu-Warga" : "Workshop",
+      tagLabel: known ? "" : rawTag,
       nickname: "Seminggu Satu", photo: r.photo_url, caption: r.caption || "",
       ts: eventTs, eventDate: r.event_date || "", ownerKey: "", avatar: "", bio: "", publicId: "",
     });
