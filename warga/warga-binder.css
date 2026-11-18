@@ -1876,3 +1876,49 @@
 .sn-bundle[open] .sn-bundle-chev { transform: rotate(180deg); }
 .sn-bundle > .snp-grid { padding: 6px 14px 18px; }
 @media (prefers-reduced-motion: reduce) { .sn-bundle-chev { transition: none; } }
+
+/* ---- Mading: nulis pesan = langsung di sticky note ---- */
+.mading-modal .md-compose {
+    background: #ffe3ec; /* pink = catatan KAMU yang lagi ditulis, beda dari Info Balai kuning */
+    background-image: repeating-linear-gradient(180deg, transparent 0 27px, rgba(16, 36, 94, .12) 27px 28px);
+    background-position: 0 18px;
+    padding: 22px 16px 14px;
+    border-radius: 3px;
+    transform: rotate(-0.6deg);
+    box-shadow: 0 2px 4px rgba(60, 40, 10, .2), 0 10px 20px rgba(60, 40, 10, .2);
+}
+/* textarea nyatu sama kertasnya (nulis di garis), bukan kotak di dalam kotak */
+.mading-modal .md-compose textarea,
+.mading-modal .md-compose textarea:focus {
+    border: none; box-shadow: none; outline: none;
+    background: transparent;
+    padding: 0 2px;
+    font-family: 'Outfit', sans-serif; font-weight: 600;
+    font-size: 1.08rem; line-height: 28px;
+    color: #10245e;
+    resize: none;
+    min-height: 84px;
+}
+.mading-modal .md-compose textarea::placeholder { color: rgba(16, 36, 94, .45); }
+.md-compose-foot { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.md-cancel {
+    min-height: 40px; padding: 0 6px;
+    border: none; background: none;
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem;
+    color: #4a5674; cursor: pointer;
+    text-decoration: underline; text-decoration-color: rgba(255, 143, 184, .9); text-decoration-thickness: 2px; text-underline-offset: 4px;
+}
+.md-counter { margin-left: auto; font-size: .78rem; font-weight: 700; color: rgba(16, 36, 94, .55); font-variant-numeric: tabular-nums; }
+.md-send {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 44px; padding: 0 1.1rem;
+    border: none; border-radius: 12px;
+    background: #0046ff; color: #ffffff;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .98rem;
+    cursor: pointer;
+    transform: rotate(-2deg);
+}
+.md-send .ss-ic { width: 16px; height: 16px; }
+.md-send:active { transform: rotate(-2deg) scale(.96); }
+.mading-modal .md-compose .wb-pin { top: -8px; }

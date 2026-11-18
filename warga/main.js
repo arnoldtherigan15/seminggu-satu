@@ -8485,8 +8485,12 @@ function renderMadingModal() {
         '<button class="wb-add" id="mdAdd" style="width:100%;padding:11px;font-size:.85rem;"' + (left <= 0 ? ' disabled' : '') + '>' + addLabel + '</button>' +
         '<div class="md-compose" id="mdCompose" style="display:none;">' +
         '<span class="wb-pin">📌</span>' +
-        '<textarea id="mdInput" maxlength="140" rows="3" placeholder="Tulis pesan semangatmu… ✨ (max 140)"></textarea>' +
-        '<button class="btn-primary" id="mdSend" style="margin-top:8px;">📌 Tempel</button>' +
+        '<textarea id="mdInput" maxlength="140" rows="3" placeholder="Tulis pesan semangatmu buat warga…" aria-label="Pesan semangat"></textarea>' +
+        '<div class="md-compose-foot">' +
+        '<button type="button" class="md-cancel" id="mdCancel">Batal</button>' +
+        '<span class="md-counter" id="mdCounter">0/140</span>' +
+        '<button type="button" class="md-send" id="mdSend">📌 Tempel</button>' +
+        '</div>' +
         '</div>' +
         // kertas pengumuman: sorotan komunitas acak (reuse mesin bisik-bisik)
         '<div class="md-info md-in" style="--d:0s">' +
@@ -8512,12 +8516,19 @@ function renderMadingModal() {
         try { location.hash = "events"; } catch (e) { }
         activateTab("events");
     }));
+    // Satu tombol biru dalam satu waktu: pas nulis, tombol "Tempel Pesan" diumpetin
+    // (tugasnya udah kelar), yang kelihatan cuma sticky note + "Batal" / "Tempel"
+    const mdSetComposing = (on) => {
+        $("mdCompose").style.display = on ? "block" : "none";
+        $("mdAdd").style.display = on ? "none" : "";
+        if (on) $("mdInput").focus();
+    };
     $("mdAdd").addEventListener("click", () => {
         if ((_boardData ? _boardData.left : 0) <= 0) { alert("Kuota nempel pesanmu hari ini habis (2/hari). Besok lagi ya! 🌙"); return; }
-        const c = $("mdCompose");
-        c.style.display = c.style.display === "none" ? "block" : "none";
-        if (c.style.display === "block") $("mdInput").focus();
+        mdSetComposing(true);
     });
+    $("mdCancel").addEventListener("click", () => { $("mdInput").value = ""; $("mdCounter").textContent = "0/140"; mdSetComposing(false); });
+    $("mdInput").addEventListener("input", (e) => { $("mdCounter").textContent = e.target.value.length + "/140"; });
     $("mdSend").addEventListener("click", () => {
         const text = $("mdInput").value.trim();
         if (text.length < 3) { alert("Pesannya kependekan 😅"); return; }
