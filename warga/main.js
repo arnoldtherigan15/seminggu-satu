@@ -1940,7 +1940,6 @@ function openWrapped() {
 // Lazy: file mp3 baru di-download pas pertama kali wrapped dibuka.
 let _wrAudio = null;
 function wrappedMusicPlay() {
-    if (musicMuted()) return;
     try {
         if (!_wrAudio) {
             _wrAudio = new Audio("../bg-music-2.mp3");
@@ -3743,7 +3742,8 @@ function openSettings() {
     pick("stMusic", v => {
         clearLegacyMute();
         try { localStorage.setItem("ss_mute_music", v === "off" ? "1" : "0"); } catch (e) { }
-        if (v === "off") { gameMusicStop(); wrappedMusicStop(); mochiNoteStop(); }
+        if (v === "off") { mochiNoteStop(); }
+        if (window.ssBgm) window.ssBgm.setMuted(v === "off"); // tombol mute di pojok ikut sinkron
         playSfx("love", 0.5);
     });
     pick("stSfx", v => {
@@ -7794,7 +7794,7 @@ function snActScramble(l, box, k) {
 // musik latar game (satu pemutar, src gonta-ganti per game; loop, stop pas keluar)
 let _gameAudio = null, _gameSrc = "";
 function gameMusicPlay(file) {
-    if (musicMuted()) return;
+    // mute dihandle bgm-toggle.js (dia yang nahan bunyi & nampilin tombol mute)
     try {
         if (!_gameAudio) { _gameAudio = new Audio(); _gameAudio.loop = true; }
         if (_gameSrc !== file) {
