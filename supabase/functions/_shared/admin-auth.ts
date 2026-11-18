@@ -42,7 +42,8 @@ export async function adminLogin(admin: SupabaseClient, password: string): Promi
 
   const token = crypto.randomUUID();
   const expires = new Date(Date.now() + SESSION_HOURS * 60 * 60 * 1000).toISOString();
-  await admin.from("admin_sessions").insert({ token, user_id: session.userId, role: session.role, name: session.name, expires_at: expires });
+  const { error: insErr } = await admin.from("admin_sessions").insert({ token, user_id: session.userId, role: session.role, name: session.name, expires_at: expires });
+  if (insErr) return { error: "Gagal bikin sesi login: " + insErr.message };
   // bersih-bersih sesi kedaluwarsa (best-effort)
   await admin.from("admin_sessions").delete().lt("expires_at", new Date().toISOString());
   return { token, role: session.role, name: session.name };

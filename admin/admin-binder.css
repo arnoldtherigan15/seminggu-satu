@@ -737,3 +737,4 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .ab-who-txt { display: flex; flex-direction: column; min-width: 0; }
 .ab-who-txt b { font-size: 14px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ab-who-txt small { font-size: 12px; color: var(--muted); font-weight: 600; }
+.acc-sec-head .btn { width: auto !important; flex: 0 0 auto; }
