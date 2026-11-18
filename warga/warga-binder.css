@@ -1686,7 +1686,7 @@
 .jp-outline .jp-cloth { fill: url(#jpGing); stroke: #10245e; stroke-width: 3; stroke-linejoin: round; }
 .jp-outline .jp-string { fill: none; stroke: #10245e; stroke-width: 3; stroke-linecap: round; }
 /* pita diikat di tali tutup */
-.jp-ribbon { top: calc(13% - 22px); width: 70px; height: 44px; filter: drop-shadow(0 3px 4px rgba(16, 36, 94, .25)); }
+.jp-ribbon { top: calc(13.7% - 22px); width: 70px; height: 44px; filter: drop-shadow(0 3px 4px rgba(16, 36, 94, .25)); }
 .jp-ribbon .bow-shape { stroke: #10245e; stroke-width: 1.6; }
 /* label = kertas putih ditempel di kaca */
 .jp-label,

@@ -6060,14 +6060,18 @@ const JAR_MASK_PATH = "M 0.26 0.1053 L 0.74 0.1053 L 0.74 0.1526 C 0.74 0.1842 0
 const JAR_BODY_D = "M 78 40 L 222 40 L 222 58 C 222 70 260 78 260 108 L 260 336 C 260 358 244 372 222 372 L 78 372 C 56 372 40 358 40 336 L 40 108 C 40 78 78 70 78 58 Z";
 // Tutup kain kotak-kotak (warna = pita pilihan) dengan tepi digunting zig-zag + tali
 function jarLidSvg() {
+    // Kain nutup PAS di mulut toples (mulut x 78..222, y 40) -- kubah di atas
+    // mulut, menjuntai sedikit ke sisi leher, tepi bawah digunting zig-zag,
+    // terus diikat tali tepat di leher (y 50). Kain digambar SETELAH kaca jadi
+    // garis atas kaca ketutup, kelihatan nyatu, bukan tutup melayang.
     let zig = "";
-    for (let x = 250, up = false; x >= 50; x -= 10, up = !up) zig += " L " + x + " " + (up ? 50 : 57);
+    for (let k = 0; k <= 20; k++) zig += " L " + (236 - k * 8.6).toFixed(1) + " " + (k % 2 ? 58 : 65);
     return '<defs><pattern id="jpGing" width="14" height="14" patternUnits="userSpaceOnUse">' +
         '<rect width="14" height="14" fill="#ffffff"/>' +
         '<rect width="7" height="14" style="fill:var(--jar-ribbon, #ffe600)" opacity=".5"/>' +
         '<rect width="14" height="7" style="fill:var(--jar-ribbon, #ffe600)" opacity=".5"/></pattern></defs>' +
-        '<path class="jp-cloth" d="M 50 44 Q 150 -6 250 44 L 250 50' + zig + ' Z"/>' +
-        '<path class="jp-string" d="M 62 49 Q 150 60 238 49"/>';
+        '<path class="jp-cloth" d="M 70 34 C 70 14 230 14 230 34 C 234 40 236 50 236 58' + zig + ' C 64 50 66 40 70 34 Z"/>' +
+        '<path class="jp-string" d="M 72 50 Q 150 57 228 50"/>';
 }
 let _jarViewMonth = null; // bulan yang lagi ditampilin (default: bulan berjalan)
 
