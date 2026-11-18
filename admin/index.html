@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=18">
+  <link rel="stylesheet" href="admin-binder.css?v=19">
 </head>
 
 <body>
@@ -8854,8 +8854,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("resCostVarTotal").textContent = count
         ? `= ${rupiah(costVar)} total (× ${count} peserta)` : "";
       const profitEl = document.getElementById("resProfit");
-      profitEl.textContent = rupiah(profit);
-      profitEl.style.color = profit < 0 ? "#fb7185" : "#4ade80";
+      profitEl.innerHTML = profit < 0 ? `${rupiah(profit)} <span class="per-loss">Rugi</span>` : escapeHtml(rupiah(profit));
+      profitEl.style.color = "#ffffff";
       document.getElementById("resMargin").textContent = revenue > 0 ? margin + "% margin" : "Belum ada pendaftar";
 
       renderCostBreakdown({

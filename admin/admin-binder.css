@@ -608,3 +608,18 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .kt-meta { flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
 .kt-row.is-off { opacity: .6; }
 @media (max-width: 560px) { .kt-meta { order: 3; } }
+
+/* ---------- Kartu angka besar (Keuangan event & pribadi): ikut dunia binder ---------- */
+/* Dulu navy hampir hitam, satu-satunya kartu gelap di admin. Sekarang biru brand
+   (sama kayak kartu Pemasukan di Overview), angka pakai Outfit. */
+.per-hero { background: var(--brand); border-radius: 18px; box-shadow: 0 10px 24px -14px rgba(0, 70, 255, .6); }
+.per-hero-label { text-transform: none; letter-spacing: 0; font-size: 13px; opacity: .85; }
+.per-hero-amount { font-family: 'Outfit', sans-serif; }
+.per-hero-sub { opacity: .85; }
+.per-hero-mini-item { background: rgba(255, 255, 255, .14); }
+.per-hero-mini-item span { opacity: .9; }
+.per-hero #resRevenue { color: #ffffff !important; }
+.per-hero #resCost { color: #ffe1e6 !important; }
+.per-stat-card .per-hero-label { opacity: 1; color: var(--muted); }
+.per-stat-card .per-hero-amount { color: var(--ink); }
+.per-loss { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 3px 10px; border-radius: 999px; background: var(--ab-yellow); color: #10245e; font-size: 13px; font-weight: 800; }
