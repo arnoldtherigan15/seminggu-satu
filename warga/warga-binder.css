@@ -1940,11 +1940,11 @@
     overflow: visible;
 }
 :root[data-theme="dark"] .wb-board { background-color: #8a6a44; }
-.wb-board::before, .wb-board::after {
+.wb-board::after {
     content: ""; position: absolute; z-index: 3; pointer-events: none;
     width: 70px; height: 20px;
 }
-.wb-board::before { top: -9px; left: -14px; background: var(--bw-washi-pink); transform: rotate(-32deg); }
+/* washi kiri-atas dicopot: nabrak label "Mading Warga" */
 .wb-board::after { bottom: -9px; right: -14px; background: var(--bw-washi-blue); transform: rotate(-32deg); }
 .wb-track { padding: 10px 4px 8px; }
 /* pin bulat flat (sama kayak halaman Mading penuh) */
