@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=14">
+  <link rel="stylesheet" href="admin-binder.css?v=15">
 </head>
 
 <body>
@@ -4994,7 +4994,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <!-- ===== VIEW: KONTEN (galeri/testimoni/rekomendasi) ===== -->
         <div class="wrap view" id="viewKonten" style="display:none;">
           <div class="toolbar">
-            <div class="field">
+            <div class="field" hidden>
               <label for="kontenSelect">Jenis konten</label>
               <select class="form-control" id="kontenSelect">
                 <option value="galeri">Galeri</option>
@@ -5006,8 +5006,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <button class="btn btn-sm" id="kontenAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah item</button>
             <button class="btn btn-sm btn-ghost" id="kontenReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
+          <div class="ab-chips" id="kontenChips" role="tablist" aria-label="Jenis konten"></div>
+          <p class="hint" style="margin:0 0 12px;">Urutan di sini = urutan tampil di website. Tiap perubahan langsung tersimpan dan tayang.</p>
           <div id="kontenList"></div>
-          <div class="fin-card" style="margin-top:14px;">
+          <div class="fin-card" style="display:none;">
             <button class="btn" id="kontenSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan konten</button>
             <div class="msg" id="kontenMsg"></div>
             <p class="hint">For gallery/testimonials: paste the Instagram <b>embed code</b>. For <b>Halaman link</b>:
@@ -7275,6 +7277,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const primary = take.filter(b => !refresh.includes(b) && !ghost.includes(b));
         ghost.concat(primary, refresh).forEach(b => { b.style.marginLeft = ""; b.style.flex = ""; acts.appendChild(b); });
         if (tb && !tb.querySelector("*")) tb.remove();
+        else if (tb && Array.from(tb.children).every(c => c.hidden)) tb.style.display = "none";
         // penjelasan panjang di awal halaman -> dilipat ke "Cara kerjanya"
         const hint = Array.from(scope.children).slice(0, 4).find(k => k.matches("p.hint"));
         view.insertBefore(head, view.firstChild);
@@ -11670,20 +11673,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     async function ensureKontenLoaded() {
       if (!kontenInit) {
         document.getElementById("kontenSelect").addEventListener("change", loadKonten);
-        document.getElementById("kontenAddBtn").addEventListener("click", () => {
-          KONTEN.push({});
-          renderKonten();
-          // Item baru ditaruh di akhir (biar urutan tampil di web nggak
-          // kebalik) -- scroll+fokus otomatis ke situ biar nggak perlu
-          // scroll manual ke bawah buat nemuinnya.
-          const items = document.querySelectorAll("#kontenList .konten-item");
-          const last = items[items.length - 1];
-          if (last) {
-            last.scrollIntoView({ behavior: "smooth", block: "center" });
-            const firstInput = last.querySelector("[data-key]");
-            if (firstInput) firstInput.focus();
-          }
-        });
+        document.getElementById("kontenAddBtn").addEventListener("click", () => openKontenDialog(null));
+        wireKontenOnce();
         document.getElementById("kontenReloadBtn").addEventListener("click", loadKonten);
         document.getElementById("kontenSaveBtn").addEventListener("click", saveKonten);
         await loadKonten();
@@ -11719,118 +11710,126 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       renderKonten();
     }
 
+    // ---- Konten website: daftar ringkas + dialog edit, simpan otomatis ----
+    // Dulu tiap item = form panjang berisi kode embed Instagram mentah, plus
+    // tombol "Simpan konten" di bawah yang gampang kelupaan. Sekarang 1 baris
+    // per item; edit lewat dialog; tiap perubahan (edit/hapus/urutan) langsung
+    // disimpan & tayang di website.
+    const KONTEN_TYPES = [["galeri", "Galeri"], ["testimoni", "Testimoni"], ["recommendation", "Rekomendasi"], ["links", "Halaman /links"]];
+    let _kontenSaveT = null;
+    function kontenAutosave() { clearTimeout(_kontenSaveT); _kontenSaveT = setTimeout(saveKonten, 500); }
+    function kontenIgLink(embed) {
+      const m = String(embed || "").match(/data-instgrm-permalink="([^"?]+)/) || String(embed || "").match(/https:\/\/www\.instagram\.com\/(?:reel|p)\/[^"?\s/]+/);
+      return m ? (m[1] || m[0]) : "";
+    }
+    function kontenRowInfo(type, it) {
+      if (type === "galeri" || type === "testimoni") {
+        const link = kontenIgLink(it.embedCode);
+        return { thumb: `<span class="kt-ico">${icon("camera")}</span>`, sub: link ? link.replace(/^https:\/\/www\./, "") : (it.embedCode ? "Kode embed terpasang" : "Belum ada kode embed"), warn: !it.embedCode, link };
+      }
+      if (type === "recommendation") {
+        return { thumb: it.image ? `<img class="kt-img" src="${escapeHtml(driveThumb(it.image))}" alt="" loading="lazy">` : `<span class="kt-ico">${icon("cart")}</span>`, sub: [it.category, it.link ? "ada link toko" : ""].filter(Boolean).join(" · ") || "Belum ada link toko", warn: !it.link };
+      }
+      const ic = String(it.icon || "");
+      return { thumb: /^https?:/.test(ic) ? `<img class="kt-img" src="${escapeHtml(ic)}" alt="">` : `<span class="kt-ico">${icon("link")}</span>`, sub: [it.subtitle, it.url].filter(Boolean).join(" · "), warn: !it.url };
+    }
     function renderKonten() {
       const type = currentKontenType();
       const schema = KONTEN_SCHEMA[type];
-      const canReorder = !!schema.reorder;
-      // Galeri/testimoni: ID di-generate otomatis → sembunyiin dari form
-      const fields = schema.autoId ? schema.fields.filter(f => f.key !== "id") : schema.fields;
+      const chips = document.getElementById("kontenChips");
+      if (chips) chips.innerHTML = KONTEN_TYPES.map(([k, l]) => `<button type="button" class="ab-chip${k === type ? " active" : ""}" role="tab" aria-selected="${k === type}" data-kt="${k}">${l}${k === type ? ` <span>${KONTEN.length}</span>` : ""}</button>`).join("");
       const listEl = document.getElementById("kontenList");
-      if (!KONTEN.length) { listEl.innerHTML = `<p class="hint">Belum ada item.</p>`; return; }
-      listEl.innerHTML = "";
-      if (canReorder) {
-        const hint = document.createElement("p");
-        hint.className = "hint";
-        hint.style.marginBottom = "12px";
-        hint.innerHTML = icon("lightbulb") + " Seret ikon <b>⠿</b> untuk atur urutan, atau pakai tombol ▲▼. Urutan di sini = urutan tampil di halaman utama.";
-        listEl.appendChild(hint);
-      }
-      KONTEN.forEach((item, idx) => {
-        const div = document.createElement("div");
-        div.className = "konten-item" + (canReorder ? " draggable-item" : "");
-        const dragHandle = canReorder ? `<span class="k-drag" title="Seret untuk atur urutan">⠿</span>` : "";
-        const moveBtns = canReorder
-          ? `<button class="k-move k-up" title="Move up" ${idx === 0 ? "disabled" : ""}>▲</button>
-             <button class="k-move k-down" title="Move down" ${idx === KONTEN.length - 1 ? "disabled" : ""}>▼</button>`
-          : "";
-        div.innerHTML =
-          `<div class="konten-item-head">
-             <span class="k-head-left">${dragHandle}<span class="k-num">Item ${idx + 1}</span></span>
-             <span class="k-head-right">${moveBtns}<button class="k-del" data-idx="${idx}">Hapus</button></span>
-           </div>` +
-          fields.map(f => {
-            const val = item[f.key] != null ? item[f.key] : "";
-            if (f.type === "textarea") {
-              return `<div class="konten-field"><label>${f.label}</label>
-                <textarea class="form-control" data-key="${f.key}" rows="3">${escapeHtml(val)}</textarea></div>`;
-            }
-            if (f.type === "image") {
-              return `<div class="konten-field"><label>${f.label}</label>
-                <input class="form-control" type="text" data-key="${f.key}" value="${escapeHtml(val)}" placeholder="Unggah di bawah, atau tempel URL manual"/>
-                <input class="form-control" type="file" accept="image/*" data-imgpick="${f.key}" style="margin-top:6px;">
-                <div data-imgprev="${f.key}" style="margin-top:8px;">${val ? `<img src="${escapeHtml(driveThumb(val))}" style="width:100%;max-width:220px;border-radius:12px;display:block;">` : ""}</div>
-                </div>`;
-            }
-            return `<div class="konten-field"><label>${f.label}</label>
-              <input class="form-control" type="text" data-key="${f.key}" value="${escapeHtml(val)}"/></div>`;
-          }).join("");
-        // sync input -> KONTEN
-        div.querySelectorAll("[data-key]").forEach(el => {
-          el.addEventListener("input", () => { KONTEN[idx][el.dataset.key] = el.value; });
-        });
-        // upload gambar per-item (khusus field type "image") -- kompres,
-        // upload langsung pas dipilih (bukan nunggu "Simpan Semua"), biar
-        // hasil URL-nya kepasang instan & nggak ilang kalau lupa save.
-        div.querySelectorAll("[data-imgpick]").forEach(input => {
-          input.addEventListener("change", async () => {
-            const key = input.dataset.imgpick;
-            const f = input.files && input.files[0];
-            if (!f) return;
-            if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maksimal 8MB."); input.value = ""; return; }
-            const prev = div.querySelector(`[data-imgprev="${key}"]`);
-            if (prev) prev.innerHTML = `<p class="hint">Mengupload…</p>`;
+      if (!KONTEN.length) { listEl.innerHTML = `<div class="empty">Belum ada item. Tap "Tambah item" buat nambahin.</div>`; return; }
+      const n = KONTEN.length;
+      listEl.innerHTML = `<div class="kt-list">` + KONTEN.map((it, i) => {
+        const inf = kontenRowInfo(type, it);
+        return `<div class="kt-row" data-i="${i}" ${schema.reorder ? 'draggable="true"' : ""}>
+          ${schema.reorder ? `<span class="kt-pos" title="Urutan tampil">${i + 1}</span>` : ""}
+          <span class="kt-thumb">${inf.thumb}</span>
+          <button type="button" class="kt-main" data-edit="${i}"><b>${escapeHtml(it.title || "(tanpa judul)")}</b><small class="${inf.warn ? "warn" : ""}">${escapeHtml(inf.sub || "")}</small></button>
+          <span class="kt-acts">
+            ${inf.link ? `<a class="kt-btn" href="${escapeHtml(inf.link)}" target="_blank" rel="noopener" title="Buka di Instagram" aria-label="Buka di Instagram">${icon("openLink")}</a>` : ""}
+            ${schema.reorder ? `<button type="button" class="kt-btn" data-mv="${i},-1" ${i === 0 ? "disabled" : ""} title="Naikkan" aria-label="Naikkan">▲</button><button type="button" class="kt-btn" data-mv="${i},1" ${i === n - 1 ? "disabled" : ""} title="Turunkan" aria-label="Turunkan">▼</button>` : ""}
+            <button type="button" class="kt-btn" data-edit="${i}" title="Edit" aria-label="Edit">${icon("pencil")}</button>
+            <button type="button" class="kt-btn danger" data-del="${i}" title="Hapus" aria-label="Hapus">${icon("trash")}</button>
+          </span>
+        </div>`;
+      }).join("") + `</div>`;
+    }
+    function openKontenDialog(idx) {
+      const type = currentKontenType();
+      const schema = KONTEN_SCHEMA[type];
+      const isNew = idx == null;
+      const it = isNew ? {} : Object.assign({}, KONTEN[idx]);
+      const fields = schema.fields.filter(f => f.key !== "id");
+      const LBL = { embedCode: "Kode embed Instagram", category: "Kategori (tools / material / paper)", icon: "Ikon (emoji atau URL gambar)" };
+      const HINT = { embedCode: "Di Instagram: buka postingan, tap ··· lalu Sematkan (Embed), salin kodenya ke sini." };
+      const html = `<div class="kt-form">` + fields.map(f => {
+        const v = it[f.key] != null ? String(it[f.key]) : "";
+        const lbl = escapeHtml(LBL[f.key] || f.label);
+        if (f.type === "textarea") return `<label class="ab-dlg-lbl">${lbl}<textarea class="form-control" data-k="${f.key}" rows="${f.key === "embedCode" ? 5 : 3}">${escapeHtml(v)}</textarea>${HINT[f.key] ? `<small class="kt-hint">${HINT[f.key]}</small>` : ""}</label>`;
+        if (f.type === "image") return `<div class="ab-dlg-lbl">${lbl}<div class="kt-imgprev" data-prev>${v ? `<img src="${escapeHtml(driveThumb(v))}" alt="">` : ""}</div><input class="form-control" type="file" accept="image/*" data-pick="${f.key}"><input class="form-control" type="text" data-k="${f.key}" value="${escapeHtml(v)}" placeholder="atau tempel URL gambar"></div>`;
+        return `<label class="ab-dlg-lbl">${lbl}<input class="form-control" type="text" data-k="${f.key}" value="${escapeHtml(v)}"></label>`;
+      }).join("") + `</div>`;
+      let busy = false;
+      return abDialog({
+        title: isNew ? "Item baru" : "Edit item", okText: "Simpan", html,
+        onOpen: (box) => {
+          box.closest(".ab-dlg").classList.add("ab-dlg-wide");
+          const pick = box.querySelector("[data-pick]");
+          if (pick) pick.addEventListener("change", async () => {
+            const f = pick.files && pick.files[0]; if (!f) return;
+            const msg = box.parentElement.querySelector(".ab-dlg-msg");
+            if (f.size > 8 * 1024 * 1024) { msg.textContent = "Ukuran gambar maksimal 8MB."; return; }
+            busy = true; msg.textContent = "Mengunggah gambar…";
             try {
               const dataUrl = await qCompress(f, 1400, 0.82);
-              const r = await api("uploadImage", { token: getToken(), bucket: "recommendation-photos", imageBase64: dataUrl.split(",")[1], prefix: item.title || "rec" });
-              if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal mengunggah."); if (prev) prev.innerHTML = ""; return; }
-              KONTEN[idx][key] = r.url;
-              const textInput = div.querySelector(`[data-key="${key}"]`);
-              if (textInput) textInput.value = r.url;
-              if (prev) prev.innerHTML = `<img src="${escapeHtml(r.url)}" style="width:100%;max-width:220px;border-radius:12px;display:block;">`;
-            } catch (err) {
-              alert("Failed to upload image: " + (err.message || ""));
-              if (prev) prev.innerHTML = "";
-            } finally {
-              input.value = "";
-            }
+              const r = await api("uploadImage", { token: getToken(), bucket: "recommendation-photos", imageBase64: dataUrl.split(",")[1], prefix: (box.querySelector('[data-k="title"]') || {}).value || "rec" });
+              if (r.status !== "success") { msg.textContent = r.message || "Gagal mengunggah."; }
+              else { box.querySelector(`[data-k="${pick.dataset.pick}"]`).value = r.url; box.querySelector("[data-prev]").innerHTML = `<img src="${escapeHtml(r.url)}" alt="">`; msg.textContent = ""; }
+            } catch (e) { msg.textContent = "Gagal mengunggah gambar."; }
+            busy = false;
           });
-        });
-        div.querySelector(".k-del").addEventListener("click", () => { KONTEN.splice(idx, 1); renderKonten(); });
-
-        if (canReorder) {
-          // Tombol naik/turun (jalan di HP juga)
-          div.querySelector(".k-up").addEventListener("click", () => moveKontenItem(idx, idx - 1));
-          div.querySelector(".k-down").addEventListener("click", () => moveKontenItem(idx, idx + 1));
-
-          // Drag-and-drop (desktop). Item cuma bisa di-drag lewat handle ⠿ biar
-          // ngetik di input nggak keganggu.
-          const handle = div.querySelector(".k-drag");
-          handle.addEventListener("mousedown", () => div.setAttribute("draggable", "true"));
-          div.addEventListener("dragstart", (e) => {
-            _dragFrom = idx;
-            e.dataTransfer.effectAllowed = "move";
-            try { e.dataTransfer.setData("text/plain", String(idx)); } catch (err) { }
-            div.classList.add("dragging");
-          });
-          div.addEventListener("dragend", () => {
-            div.classList.remove("dragging");
-            div.setAttribute("draggable", "false");
-            listEl.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
-          });
-          div.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = "move";
-            if (_dragFrom !== idx) div.classList.add("drag-over");
-          });
-          div.addEventListener("dragleave", () => div.classList.remove("drag-over"));
-          div.addEventListener("drop", (e) => {
-            e.preventDefault();
-            div.classList.remove("drag-over");
-            moveKontenItem(_dragFrom, idx);
-            _dragFrom = null;
-          });
+        },
+        getValue: (box) => {
+          if (busy) throw new Error("Tunggu, gambar lagi diunggah.");
+          const out = {};
+          box.querySelectorAll("[data-k]").forEach(el => { out[el.dataset.k] = el.value.trim(); });
+          if (!out.title) throw new Error("Judul wajib diisi.");
+          return out;
         }
-        listEl.appendChild(div);
+      }).then(v => {
+        if (!v) return;
+        if (isNew) KONTEN.push(Object.assign({}, v)); else Object.assign(KONTEN[idx], v);
+        renderKonten(); kontenAutosave();
+      });
+    }
+    function wireKontenOnce() {
+      const listEl = document.getElementById("kontenList");
+      if (listEl.dataset.wired) return;
+      listEl.dataset.wired = "1";
+      listEl.addEventListener("click", async (e) => {
+        const ed = e.target.closest("[data-edit]"); if (ed) { openKontenDialog(Number(ed.dataset.edit)); return; }
+        const mv = e.target.closest("[data-mv]");
+        if (mv) { const [i, d] = mv.dataset.mv.split(",").map(Number); moveKontenItem(i, i + d); kontenAutosave(); return; }
+        const del = e.target.closest("[data-del]");
+        if (del) {
+          const i = Number(del.dataset.del);
+          if (!await abConfirm(`Hapus "${KONTEN[i].title || "item ini"}" dari website?`)) return;
+          KONTEN.splice(i, 1); renderKonten(); kontenAutosave();
+        }
+      });
+      // drag & drop urutan (desktop)
+      listEl.addEventListener("dragstart", (e) => { const r = e.target.closest(".kt-row"); if (!r) return; _dragFrom = Number(r.dataset.i); r.classList.add("dragging"); try { e.dataTransfer.setData("text/plain", r.dataset.i); } catch (err) { } });
+      listEl.addEventListener("dragend", (e) => { const r = e.target.closest(".kt-row"); if (r) r.classList.remove("dragging"); listEl.querySelectorAll(".drag-over").forEach(x => x.classList.remove("drag-over")); });
+      listEl.addEventListener("dragover", (e) => { const r = e.target.closest(".kt-row"); if (!r) return; e.preventDefault(); r.classList.add("drag-over"); });
+      listEl.addEventListener("dragleave", (e) => { const r = e.target.closest(".kt-row"); if (r) r.classList.remove("drag-over"); });
+      listEl.addEventListener("drop", (e) => { const r = e.target.closest(".kt-row"); if (!r) return; e.preventDefault(); moveKontenItem(_dragFrom, Number(r.dataset.i)); _dragFrom = null; kontenAutosave(); });
+      document.getElementById("kontenChips").addEventListener("click", (e) => {
+        const c = e.target.closest("[data-kt]"); if (!c) return;
+        const sel = document.getElementById("kontenSelect");
+        if (sel.value === c.dataset.kt) return;
+        sel.value = c.dataset.kt; loadKonten();
       });
     }
 
