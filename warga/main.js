@@ -1296,7 +1296,7 @@ function openQuestDetail(i) {
         '<div class="quest-game-title" style="margin-top:8px;">' + esc(q.title) + '</div>' +
         (q.description ? '<div class="quest-game-desc">' + esc(q.description) + '</div>' : '') +
         '<div class="quest-objective-box" style="margin-top:12px;">' +
-        '<div class="q-obj-header"><span>📖</span> Mission Objective</div>' +
+        '<div class="q-obj-header"><span>📖</span> Misinya</div>' +
         '<div class="q-obj-text">Bikin spread sesuai tema, kirim buktinya ke Grup WA + upload foto buat galeri.</div>' +
         '</div>' +
         '<div class="quest-action" id="qmAction" style="margin-top:14px;"></div>' +

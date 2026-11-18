@@ -1508,3 +1508,103 @@
 .mochi-bubble .mb-x .ss-ic { width: 12px; height: 12px; }
 .mochi-bubble:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .mochi-bubble.show { animation: none; } }
+
+/* ===================== DETAIL CHALLENGE (modal) ===================== */
+/* Foto contoh = foto yang ditempel washi di atas kertas, tag = stiker,
+   misi = sticky note, slot foto = kotak putus-putus kayak di form daftar,
+   "Ambil Quest" = stiker biru kelupas. */
+#questModalBox .qm-img {
+    width: calc(100% - 28px);
+    margin: 18px 14px 0;
+    border: 6px solid #ffffff;
+    border-bottom-width: 14px;
+    border-radius: 2px;
+    box-shadow: var(--bw-depth-photo);
+    transform: rotate(-1deg);
+    aspect-ratio: 16 / 10;
+}
+#questModalBox .qm-body { padding: 18px 18px 22px; }
+#questModalBox .q-tag {
+    border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .78rem;
+    padding: 4px 11px;
+}
+#questModalBox .q-tag.theme { background: #ffffff; color: #10245e; transform: rotate(-2deg); }
+#questModalBox .q-tag.exp { background: var(--bw-yellow); color: #10245e; transform: rotate(2deg); }
+#questModalBox .q-tag.done { background: #d1fae5; color: #065f46; }
+#questModalBox .quest-meta-tags { gap: 10px; padding: 4px 2px; }
+#questModalBox .quest-game-title { font-size: 1.4rem; letter-spacing: -0.01em; color: var(--bw-ink); margin-top: 12px !important; }
+#questModalBox .quest-game-desc { font-size: .95rem; line-height: 1.6; color: var(--muted); }
+
+/* misi = sticky note kuning + washi */
+#questModalBox .quest-objective-box,
+:root[data-theme="dark"] #questModalBox .quest-objective-box {
+    position: relative;
+    background: var(--bw-note);
+    border: none; border-radius: 3px;
+    box-shadow: var(--bw-depth-paper);
+    padding: 18px 14px 14px;
+    margin-top: 20px !important;
+    transform: rotate(-0.6deg);
+}
+#questModalBox .quest-objective-box::before {
+    content: ""; position: absolute; top: -10px; left: 50%;
+    width: 76px; height: 20px; margin-left: -38px;
+    background: var(--bw-washi-blue);
+    transform: rotate(3deg);
+}
+#questModalBox .q-obj-header { color: #4a5674; font-family: 'Outfit', sans-serif; font-weight: 800; letter-spacing: 0; text-transform: none; font-size: .9rem; }
+#questModalBox .q-obj-text { color: #10245e; font-weight: 600; }
+
+/* slot foto + caption */
+#questModalBox .qm-file,
+:root[data-theme="dark"] #questModalBox .qm-file {
+    border: 2px dashed var(--blue);
+    border-radius: 12px;
+    background: rgba(0, 70, 255, .04);
+    padding: 1.2rem 1rem;
+}
+#questModalBox .qm-file-ic {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--bw-yellow); color: #10245e;
+    box-shadow: var(--bw-depth-sticker);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 6px;
+}
+#questModalBox .qm-file-ic .ss-ic { width: 22px; height: 22px; }
+#questModalBox .qm-file-lbl { color: var(--blue); font-family: 'Outfit', sans-serif; }
+#questModalBox .qm-cap-input,
+:root[data-theme="dark"] #questModalBox .qm-cap-input {
+    border: 2px solid var(--bw-field);
+    border-radius: 14px;
+    background: var(--bw-paper);
+    color: var(--bw-ink);
+    font-size: 1rem;
+}
+#questModalBox .qm-cap-input:focus { outline: none; border-color: #0046ff; box-shadow: 0 0 0 4px rgba(255, 230, 0, .55); }
+
+/* tombol */
+#questModalBox .btn-quest-start {
+    position: relative;
+    min-height: 54px;
+    background: #0046ff;
+    border-radius: 14px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-size: 1.08rem;
+    transform: rotate(-0.6deg);
+    margin-top: 16px !important;
+}
+#questModalBox .btn-quest-start::after {
+    content: ""; position: absolute; right: 0; bottom: 0;
+    width: 14px; height: 14px; border-radius: 0 0 14px 0;
+    background: linear-gradient(315deg, var(--bw-paper) 0 48%, var(--bw-peel) 50% 100%);
+    box-shadow: -2px -2px 4px rgba(var(--bw-tint), .18);
+    transition: width .2s ease, height .2s ease;
+}
+#questModalBox .btn-quest-start:hover::after, #questModalBox .btn-quest-start:active::after { width: 28px; height: 28px; }
+#questModalBox .btn-ghost2 { background: #ffffff; color: #10245e; border: none; box-shadow: var(--bw-depth-sticker); border-radius: 14px; min-height: 48px; }
+#questModalBox .btn-primary { min-height: 48px; border-radius: 14px; box-shadow: var(--bw-depth-sticker); background: #0046ff; }
+#questModalBox .ev-done { background: var(--bw-note); color: #10245e; border: none; border-radius: 3px; box-shadow: var(--bw-depth-paper); }
+#questModalBox .qm-polaroid { background: #ffffff; border: none; border-radius: 3px; box-shadow: var(--bw-depth-photo); }
+#questModalBox .qm-edit-fab { background: #ffffff; color: #10245e; border: none; box-shadow: var(--bw-depth-sticker); }
