@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=3">
+  <link rel="stylesheet" href="admin-binder.css?v=4">
 </head>
 
 <body>
@@ -7383,6 +7383,19 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       return cellValueHtml(val);
     }
 
+    // Reka Rekat & Journaling Date punya form isian foto -- peserta suka
+    // buru-buru daftar pake foto asal dulu, nanti nyusul upload yang
+    // beneran. Link personal ini biar dia bisa GANTI foto tanpa daftar ulang.
+    // Dipakai di Registrations DAN Prep > Peserta.
+    const UPDATE_PHOTO_CFG = {
+      "reka-rekat": { path: "/reka-rekat/update-photo.html", msg: (nm, link) => `Halo ${nm} 👋\nBoleh upload ulang foto buat Reka Rekat kamu di sini ya (kalau kemarin masih asal-asalan pas daftar):\n${link}` },
+      "journaling-date": { path: "/journaling-date/update-photo.html", msg: (nm, link) => `Halo ${nm} 👋\nMau nambah/ganti foto kenang-kenangan buat Journaling Date? Tinggal upload di sini ya (opsional kok):\n${link}` },
+    };
+    function updatePhotoLink(workshop, regId, name) {
+      const cfg = UPDATE_PHOTO_CFG[workshop]; if (!cfg) return "";
+      return siteOrigin() + cfg.path + "?rid=" + encodeURIComponent(regId) + "&nama=" + encodeURIComponent(name || "");
+    }
+
     async function loadRegistrations() {
       const workshop = document.getElementById("wsSelect").value;
       const batchId = document.getElementById("batchSelect").value; // batch terpilih (kosong = batch aktif)
@@ -7421,10 +7434,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         // Reka Rekat & Journaling Date punya form isian foto -- peserta suka
         // buru-buru daftar pake foto asal dulu, nanti nyusul upload yang
         // beneran. Link personal ini biar dia bisa GANTI foto tanpa daftar ulang.
-        const UPDATE_PHOTO_CFG = {
-          "reka-rekat": { path: "/reka-rekat/update-photo.html", msg: (nm, link) => `Halo ${nm} 👋\nBoleh upload ulang foto buat Reka Rekat kamu di sini ya (kalau kemarin masih asal-asalan pas daftar):\n${link}` },
-          "journaling-date": { path: "/journaling-date/update-photo.html", msg: (nm, link) => `Halo ${nm} 👋\nMau nambah/ganti foto kenang-kenangan buat Journaling Date? Tinggal upload di sini ya (opsional kok):\n${link}` },
-        };
         const photoCfg = UPDATE_PHOTO_CFG[workshop];
         const tableRows = [];
         const cardRows = [];
@@ -18960,22 +18969,31 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const body = document.createElement("div");
       body.innerHTML =
         `<div class="wa-reminder">
-           <label for="waMessage">${icon("chat")} Reminder message <span style="font-weight:400;color:var(--muted)">— write {nama} for the participant's name</span></label>
+           <label for="waMessage">${icon("chat")} Pesan WA ke peserta <span style="font-weight:400;color:var(--muted)">— tulis {nama} buat nama peserta</span></label>
            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
              <span class="ov-badge gray" id="waPhaseBadge"></span>
              <button type="button" class="btn btn-sm btn-ghost" id="waGenerateBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Generate with AI</button>
            </div>
            <textarea class="form-control" id="waMessage" rows="3"></textarea>
-           <p class="hint">Click <b>Chat WA</b> on each row → WhatsApp opens with this message (name auto-filled). Just hit Send.</p>
+           <p class="hint">Tap <b>Chat WA</b> di kartu peserta, WhatsApp kebuka dengan pesan ini (nama udah keisi). Tinggal kirim.</p>
            <div class="msg" id="waGenMsg"></div>
          </div>
+         <div class="pc-bar">
+           <input class="form-control" type="search" id="pcSearch" placeholder="Cari nama, IG, atau isian…" aria-label="Cari peserta" autocomplete="off">
+           <div class="pc-view" role="group" aria-label="Tampilan">
+             <button type="button" class="pc-view-btn" data-pcview="cards">Kartu</button>
+             <button type="button" class="pc-view-btn" data-pcview="table">Tabel</button>
+           </div>
+         </div>
+         <div class="ab-chips" id="pcFilter" role="tablist" aria-label="Filter peserta"></div>
          <div id="hadirSummary" class="hadir-summary"></div>
-         <div class="table-box mobile-table-box"><div class="table-scroll">
+         <div class="table-box mobile-table-box pc-table"><div class="table-scroll">
            <table><thead><tr id="pesertaHead"></tr></thead><tbody id="pesertaBody"></tbody></table>
          </div></div>
-         <div id="pesertaCards" class="mobile-cards"></div>
-         <div class="empty" id="pesertaEmpty" style="display:none;">No participants yet.</div>`;
-      return { id: "peserta", labelHtml: icon("people") + " Participants", countId: "prep-peserta-count", bodyEl: body };
+         <div id="pesertaCards" class="pc-grid"></div>
+         <div class="empty" id="pcNoMatch" style="display:none;">Nggak ada peserta yang cocok sama filter ini.</div>
+         <div class="empty" id="pesertaEmpty" style="display:none;">Belum ada peserta.</div>`;
+      return { id: "peserta", labelHtml: icon("people") + " Peserta", countId: "prep-peserta-count", bodyEl: body };
     }
 
     async function loadPrepParticipants() {
@@ -19031,58 +19049,74 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         const hasAction = waIdx >= 0 || igIdx >= 0;
         const hideIdx = (idx) => idx === hadirIdx || idx === tsIdx; // Hadir & Timestamp disembunyikan dari tampilan
         const dataHeaders = headers.map((h, idx) => hideIdx(idx) ? null : `<th>${h}</th>`).filter(Boolean).join("");
-        head.innerHTML = "<th>#</th><th>Absen</th>" + (hasAction ? "<th>Aksi</th>" : "") + dataHeaders + "<th>Cetak</th>";
-        if (!shaped.rows.length) { body.innerHTML = ""; if (cardsEl) cardsEl.innerHTML = ""; empty.style.display = "block"; renderHadirSummary(0, 0); return; }
+        head.innerHTML = "<th>#</th><th>Hadir</th>" + (hasAction ? "<th>Aksi</th>" : "") + dataHeaders + "<th>Dicetak</th>";
+        if (!shaped.rows.length) { body.innerHTML = ""; if (cardsEl) cardsEl.innerHTML = ""; empty.style.display = "block"; document.getElementById("pcFilter").innerHTML = ""; renderHadirSummary(0, 0); return; }
         empty.style.display = "none";
 
         const printedSet = getPrintedSet();
+        const photoCfg = UPDATE_PHOTO_CFG[event];
+        const keys = shaped.keys;
+        // kolom yang udah tampil di kepala kartu / aksi -- nggak diulang di daftar isian
+        const headKeys = new Set(["full_name", "nickname", "wa", "ig_username", "attendance", "created_at"]);
         let hadirCount = 0;
         const tableRows = [];
         const cardRows = [];
         shaped.rows.forEach((row, i) => {
           const id = pesertaRegIds[i];
+          const it = activeItems[i] || {};
           const isHadir = hadirIdx >= 0 && String(row[hadirIdx]) === "Yes";
           if (isHadir) hadirCount++;
           const name = (nicknameIdx >= 0 && row[nicknameIdx]) || (namaIdx >= 0 && row[namaIdx]) || `Peserta #${i + 1}`;
+          const fullName = it.full_name && it.full_name !== name ? it.full_name : "";
+          const igRaw = String(it.ig_username || (igIdx >= 0 ? row[igIdx] : "") || "").trim().replace(/^@/, "");
+          const num = waIdx >= 0 ? waNormalize(row[waIdx]) : "";
+          const wname = (nicknameIdx >= 0 && row[nicknameIdx]) || (namaIdx >= 0 && row[namaIdx]) || "";
 
           let btns = "";
-          if (waIdx >= 0) {
-            const num = waNormalize(row[waIdx]);
-            const wname = (nicknameIdx >= 0 && row[nicknameIdx]) || (namaIdx >= 0 && row[namaIdx]) || "";
-            if (num) btns += `<button class="wa-btn" data-num="${num}" data-name="${escapeHtml(wname)}">${icon("chat")} Chat WA</button>`;
-          }
-          if (igIdx >= 0) {
-            const ig = String(row[igIdx] || "").trim().replace(/^@/, "");
-            if (ig) btns += `<button class="ig-copy" data-ig="${escapeHtml(ig)}" title="Copy username IG">IG</button>`;
-          }
+          if (num) btns += `<button type="button" class="wa-btn" data-num="${num}" data-name="${escapeHtml(wname)}">${icon("chat")} Chat WA</button>`;
+          if (igRaw) btns += `<button type="button" class="ig-copy" data-ig="${escapeHtml(igRaw)}" title="Salin username IG">${icon("camera")} Salin IG</button>`;
+          if (photoCfg) btns += `<button type="button" class="pc-photolink" data-rid="${escapeHtml(id)}" data-name="${escapeHtml(wname)}" data-wa="${escapeHtml(num)}" title="Kirim link buat upload ulang foto">${icon("refresh")} Link isi ulang foto</button>`;
           const isPrinted = printedSet.has(id);
+          const hay = row.map(c => String(c || "")).join(" ").toLowerCase();
+          const dataAttrs = `data-pcid="${escapeHtml(id)}" data-hadir="${isHadir ? 1 : 0}" data-printed="${isPrinted ? 1 : 0}" data-q="${escapeHtml(hay)}"`;
 
-          const cells = row.map((c, idx) => hideIdx(idx) ? null : `<td>${regValueHtml(shaped.keys[idx], c, event)}</td>`).filter(x => x !== null).join("");
-          const attCell = `<td><input type="checkbox" class="att-check" data-id="${escapeHtml(id)}" ${isHadir ? "checked" : ""}/></td>`;
-          const action = hasAction ? `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>` : "";
-          const printCell = `<td><input type="checkbox" class="print-check" data-id="${escapeHtml(id)}" ${isPrinted ? "checked" : ""} title="Tandai udah dicetak fotonya"/></td>`;
-          tableRows.push(`<tr class="${isPrinted ? "row-printed" : ""}"><td>${i + 1}</td>${attCell}${action}${cells}${printCell}</tr>`);
+          const cells = row.map((c, idx) => hideIdx(idx) ? null : `<td>${regValueHtml(keys[idx], c, event)}</td>`).filter(x => x !== null).join("");
+          const attCell = `<td><input type="checkbox" class="att-check" data-id="${escapeHtml(id)}" ${isHadir ? "checked" : ""} aria-label="Hadir"/></td>`;
+          const action = hasAction || photoCfg ? `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>` : "";
+          const printCell = `<td><input type="checkbox" class="print-check" data-id="${escapeHtml(id)}" ${isPrinted ? "checked" : ""} aria-label="Sudah dicetak"/></td>`;
+          tableRows.push(`<tr class="${isPrinted ? "row-printed" : ""}" ${dataAttrs}><td>${i + 1}</td>${attCell}${action}${cells}${printCell}</tr>`);
 
-          const fieldsHtml = row.map((c, idx) => {
-            if (hideIdx(idx) || idx === nameIdx) return null;
-            const val = regValueHtml(shaped.keys[idx], c, event);
-            if (val === "" || val == null) return null;
-            return `<div class="mobile-card-field"><b>${escapeHtml(headers[idx])}:</b> ${val}</div>`;
+          // Kartu: foto gede di atas (yang dicetak), isian lain label-di-atas-nilai
+          const photos = keys.map((k, idx) => k.indexOf("photos.") === 0 && row[idx] ? `<div class="pc-photo"><span class="pc-photo-n">Foto ${parseInt(k.split(".")[1], 10) + 1}</span>${regValueHtml(k, row[idx], event)}</div>` : null).filter(Boolean).join("");
+          const fields = keys.map((k, idx) => {
+            if (hideIdx(idx) || headKeys.has(k) || k.indexOf("photos.") === 0) return null;
+            const raw = row[idx];
+            if (raw === "" || raw == null) return null;
+            const wide = k === "payment_proof_url" ? "" : (String(raw).length > 40 ? " wide" : "");
+            return `<div class="pc-field${wide}"><dt>${escapeHtml(headers[idx])}</dt><dd>${regValueHtml(k, raw, event)}</dd></div>`;
           }).filter(Boolean).join("");
-          cardRows.push(`<div class="mobile-card ${isPrinted ? "row-printed" : ""}">
-            <div class="mobile-card-top">
-              <span class="mobile-card-num">#${i + 1}</span>
-              <span class="mobile-card-name">${escapeHtml(name)}</span>
-              <label class="mobile-card-hadir"><input type="checkbox" class="att-check" data-id="${escapeHtml(id)}" ${isHadir ? "checked" : ""}/> Hadir</label>
-            </div>
-            ${hasAction ? `<div class="mobile-card-actions">${btns || "-"}</div>` : ""}
-            <div class="mobile-card-fields">${fieldsHtml}</div>
-            <label class="mobile-card-print"><input type="checkbox" class="print-check" data-id="${escapeHtml(id)}" ${isPrinted ? "checked" : ""}/> Udah dicetak fotonya</label>
-          </div>`);
+          cardRows.push(`<article class="pc-card${isPrinted ? " row-printed" : ""}${isHadir ? " is-hadir" : ""}" ${dataAttrs}>
+            <header class="pc-head">
+              <span class="pc-num">${i + 1}</span>
+              <div class="pc-who">
+                <b>${escapeHtml(name)}</b>
+                <small>${[fullName ? escapeHtml(fullName) : "", igRaw ? "@" + escapeHtml(igRaw) : "", it.wa ? escapeHtml(it.wa) : ""].filter(Boolean).join(" · ")}</small>
+              </div>
+              <label class="pc-toggle"><input type="checkbox" class="att-check" data-id="${escapeHtml(id)}" ${isHadir ? "checked" : ""}/> <span>Hadir</span></label>
+            </header>
+            ${photos ? `<div class="pc-photos">${photos}</div>` : ""}
+            ${fields ? `<dl class="pc-fields">${fields}</dl>` : ""}
+            <footer class="pc-foot">
+              <div class="pc-actions">${btns}</div>
+              <label class="pc-toggle pc-print"><input type="checkbox" class="print-check" data-id="${escapeHtml(id)}" ${isPrinted ? "checked" : ""}/> <span>Sudah dicetak</span></label>
+            </footer>
+          </article>`);
         });
         body.innerHTML = tableRows.join("");
         if (cardsEl) cardsEl.innerHTML = cardRows.join("");
         renderHadirSummary(hadirCount, shaped.rows.length);
+        pcWireBar();
+        pcApplyFilter();
 
         // Wiring tombol aksi (delegasi) -- dipasang di table DAN cards
         // sekaligus karena dua-duanya ada di DOM bersamaan (cuma satu yg
@@ -19097,14 +19131,30 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           }
           const ig = e.target.closest(".ig-copy");
           if (ig) {
-            navigator.clipboard.writeText(ig.dataset.ig).then(() => {
-              const t = ig.textContent; ig.textContent = "✓ IG"; setTimeout(() => { ig.textContent = t; }, 1200);
-            });
+            navigator.clipboard.writeText(ig.dataset.ig).then(() => abToast("Username @" + ig.dataset.ig + " disalin", "ok"));
+            return;
+          }
+          const pl = e.target.closest(".pc-photolink");
+          if (pl) {
+            const cfg = UPDATE_PHOTO_CFG[event];
+            const link = updatePhotoLink(event, pl.dataset.rid, pl.dataset.name);
+            if (!cfg || !link) return;
+            if (pl.dataset.wa) {
+              const nm = (pl.dataset.name || "").trim().split(/\s+/)[0] || "kak";
+              window.open("https://wa.me/" + pl.dataset.wa + "?text=" + encodeURIComponent(cfg.msg(nm, link)), "_blank");
+            } else {
+              navigator.clipboard.writeText(link).then(() => abToast("Link isi ulang foto disalin", "ok"));
+            }
             return;
           }
           const att = e.target.closest(".att-check");
           if (att) {
             syncPesertaCheckbox("att-check", att.dataset.id, att.checked);
+            document.querySelectorAll(`[data-pcid="${CSS.escape(att.dataset.id)}"]`).forEach(el => {
+              el.dataset.hadir = att.checked ? "1" : "0";
+              if (el.classList.contains("pc-card")) el.classList.toggle("is-hadir", att.checked);
+            });
+            setTimeout(pcApplyFilter, 0);
             setAttendance(att.dataset.id, att.checked, att);
             return;
           }
@@ -19112,10 +19162,12 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           if (pr) {
             setPrinted(pr.dataset.id, pr.checked);
             syncPesertaCheckbox("print-check", pr.dataset.id, pr.checked);
-            document.querySelectorAll(`.print-check[data-id="${CSS.escape(pr.dataset.id)}"]`).forEach(chk => {
-              const container = chk.closest("tr, .mobile-card");
-              if (container) container.classList.toggle("row-printed", pr.checked);
+            document.querySelectorAll(`[data-pcid="${CSS.escape(pr.dataset.id)}"]`).forEach(el => {
+              el.classList.toggle("row-printed", pr.checked);
+              el.dataset.printed = pr.checked ? "1" : "0";
             });
+            // filter "Belum dicetak" aktif -> kartu yang baru ditandai keluar dari antrian, kasih jeda biar kelihatan
+            setTimeout(pcApplyFilter, PC_FILTER === "unprinted" && pr.checked ? 450 : 0);
           }
         };
         body.onclick = handlePesertaClick;
@@ -19130,6 +19182,68 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     let pesertaRegIds = [];
+
+    // ---- Prep > Peserta: filter, cari, & pilihan tampilan (kartu/tabel) ----
+    let PC_FILTER = "all";
+    const PC_VIEW_KEY = "ss_admin_pc_view";
+    function pcView() { try { return localStorage.getItem(PC_VIEW_KEY) || "cards"; } catch (e) { return "cards"; } }
+    function pcWireBar() {
+      const tab = document.getElementById("pcFilter"); if (!tab) return;
+      if (!tab.dataset.wired) {
+        tab.dataset.wired = "1";
+        tab.addEventListener("click", (e) => {
+          const c = e.target.closest("[data-pcf]"); if (!c) return;
+          PC_FILTER = c.dataset.pcf; pcApplyFilter();
+        });
+        const q = document.getElementById("pcSearch");
+        if (q) q.addEventListener("input", pcApplyFilter);
+        document.querySelectorAll(".pc-view-btn").forEach(b => b.addEventListener("click", () => {
+          try { localStorage.setItem(PC_VIEW_KEY, b.dataset.pcview); } catch (e) { }
+          pcSyncView();
+        }));
+      }
+      pcSyncView();
+    }
+    function pcSyncView() {
+      const v = pcView();
+      const wrap = document.getElementById("pesertaCards");
+      if (!wrap) return;
+      const host = wrap.parentElement;
+      host.classList.toggle("pc-mode-table", v === "table");
+      document.querySelectorAll(".pc-view-btn").forEach(b => {
+        const on = b.dataset.pcview === v;
+        b.classList.toggle("active", on); b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+    function pcApplyFilter() {
+      const cards = Array.from(document.querySelectorAll("#pesertaCards .pc-card"));
+      const rows = Array.from(document.querySelectorAll("#pesertaBody tr[data-pcid]"));
+      if (!cards.length) return;
+      const n = { all: cards.length, unprinted: 0, printed: 0, absent: 0 };
+      cards.forEach(c => {
+        if (c.dataset.printed === "1") n.printed++; else n.unprinted++;
+        if (c.dataset.hadir !== "1") n.absent++;
+      });
+      const chips = [["all", "Semua"], ["unprinted", "Belum dicetak"], ["printed", "Sudah dicetak"], ["absent", "Belum hadir"]];
+      document.getElementById("pcFilter").innerHTML = chips.map(([k, l]) =>
+        `<button type="button" class="ab-chip${PC_FILTER === k ? " active" : ""}" role="tab" aria-selected="${PC_FILTER === k}" data-pcf="${k}">${l} <span>${n[k]}</span></button>`).join("");
+      const q = ((document.getElementById("pcSearch") || {}).value || "").trim().toLowerCase();
+      const ok = (el) => {
+        if (q && (el.dataset.q || "").indexOf(q) < 0) return false;
+        if (PC_FILTER === "unprinted") return el.dataset.printed !== "1";
+        if (PC_FILTER === "printed") return el.dataset.printed === "1";
+        if (PC_FILTER === "absent") return el.dataset.hadir !== "1";
+        return true;
+      };
+      let shown = 0;
+      cards.forEach(c => { const v = ok(c); c.hidden = !v; if (v) shown++; });
+      rows.forEach(r => { r.hidden = !ok(r); });
+      const nm = document.getElementById("pcNoMatch");
+      if (nm) {
+        nm.textContent = PC_FILTER === "unprinted" && !q ? "Semua foto peserta udah dicetak." : "Nggak ada peserta yang cocok sama filter ini.";
+        nm.style.display = shown ? "none" : "block";
+      }
+    }
 
     // Penanda "udah dicetak fotonya" -- cuma buat pengingat pribadi pas nyetak,
     // disimpen di browser aja (localStorage), ga perlu nyambung ke server/API.
