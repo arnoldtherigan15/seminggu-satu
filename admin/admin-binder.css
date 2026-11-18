@@ -643,3 +643,28 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .ab-global-refresh:hover { border-color: var(--brand); color: var(--brand); }
 .ab-global-refresh:active svg { transform: rotate(180deg); transition: transform .3s ease; }
 .wa-actions .pc-photolink { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 10px; border-radius: 10px; border: 1.5px solid #c9d6f5; background: #ffffff; color: var(--ink); font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+
+/* ---------- Utang & Target tabungan: kartu + panel detail ---------- */
+.fd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.fd-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 16px; border: 1px solid var(--line); background: #ffffff; text-align: left; cursor: pointer; font: inherit; color: var(--ink); transition: box-shadow .15s ease, transform .15s ease; }
+.fd-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.fd-card:focus-visible { outline: 3px solid var(--ab-yellow); outline-offset: 2px; }
+.fd-card-top { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.fd-card-top b { flex: 1; min-width: 0; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fd-ico { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: #e6edff; color: var(--brand); display: inline-flex; align-items: center; justify-content: center; }
+.fd-big { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 22px; color: var(--ink); }
+.fd-big small { font-family: 'Open Sans', sans-serif; font-weight: 600; font-size: 13px; color: var(--muted); }
+.fd-bar { display: block; height: 8px; border-radius: 999px; background: #e6edff; overflow: hidden; }
+.fd-bar > span { display: block; height: 100%; border-radius: 999px; background: var(--brand); }
+.is-done .fd-bar > span { background: #0f7a4a; }
+.fd-sub { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.fd-sum { padding: 16px; border-radius: 16px; background: #f7f9ff; display: flex; flex-direction: column; gap: 8px; }
+.fd-sum .fd-big { font-size: 28px; }
+.fd-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.fd-acts .btn { width: auto !important; height: 40px; }
+.fd-sec { margin-top: 18px; }
+.fd-sec h4 { margin: 0 0 10px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; color: var(--ink); }
+.fd-sec .fin-card { margin: 0 !important; padding: 0; box-shadow: none; border: 0; background: transparent; }
+.fd-sec .fin-card .btn { width: auto !important; }
+.fd-amt { flex-shrink: 0; min-width: 110px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px; }
+.fd-amt.pos { color: #0f7a4a; } .fd-amt.neg { color: var(--err); }

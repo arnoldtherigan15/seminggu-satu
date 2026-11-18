@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=21">
+  <link rel="stylesheet" href="admin-binder.css?v=22">
 </head>
 
 <body>
@@ -5644,10 +5644,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
             <div class="subtab-panel" data-tab="target">
               <button class="btn btn-sm" id="goalAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Target baru</button>
-              <div id="goalList" style="margin-top:10px;"></div>
+              <div id="goalList"></div>
 
-              <div class="fin-card" style="margin-top:14px;">
-                <div style="font-weight:800;margin-bottom:8px;">Log Deposit / Withdrawal</div>
+              <div class="fin-home" hidden>
+              <div class="fin-card" id="goalLogCard">
+                
                 <input type="hidden" id="contribId">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:1;min-width:150px;"><label>Target</label><select class="form-control" id="contribGoal"></select></div>
@@ -5656,20 +5657,22 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 </div>
                 <div class="konten-field"><label>Catatan (opsional)</label><input class="form-control" type="text" id="contribNote" maxlength="300" placeholder="mis. sisa THR"></div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
-                  <button class="btn btn-sm" id="contribSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Log Deposit</button>
+                  <button class="btn btn-sm" id="contribSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Simpan setoran</button>
                 </div>
                 <div class="msg" id="contribMsg"></div>
               </div>
-              <h3 class="ov-section-title" style="margin-top:16px;">Deposit History</h3>
+              
               <div id="contribList"></div>
+              </div>
             </div>
 
             <div class="subtab-panel" data-tab="hutang">
               <button class="btn btn-sm" id="liabAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Utang baru</button>
-              <div id="liabList" style="margin-top:10px;"></div>
+              <div id="liabList"></div>
 
-              <div class="fin-card" style="margin-top:14px;">
-                <div style="font-weight:800;margin-bottom:8px;">Log Payment</div>
+              <div class="fin-home" hidden>
+              <div class="fin-card" id="liabLogCard">
+                
                 <input type="hidden" id="liabPayId">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <div class="konten-field" style="flex:1;min-width:150px;"><label>Utang</label><select class="form-control" id="liabPayLiability"></select></div>
@@ -5684,12 +5687,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <div id="liabPayProofPreview" style="margin-top:6px;"></div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
-                  <button class="btn btn-sm" id="liabPaySaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Log Payment</button>
+                  <button class="btn btn-sm" id="liabPaySaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Simpan pembayaran</button>
                 </div>
                 <div class="msg" id="liabPayMsg"></div>
               </div>
-              <h3 class="ov-section-title" style="margin-top:16px;">Payment History</h3>
+              
               <div id="liabPayList"></div>
+              </div>
             </div>
 
             <div class="subtab-panel" data-tab="tagihan">
@@ -6080,6 +6084,21 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
   </div>
 
   <!-- Layar Tambah/Edit transaksi Personal Finance (full-screen di mobile) -->
+  <!-- Panel detail Utang / Target tabungan: ringkasan + catat + riwayat item ITU aja -->
+  <div id="finDetailOverlay" class="filter-overlay" style="display:none;">
+    <div class="filter-overlay-box">
+      <div class="filter-overlay-head">
+        <button class="filter-back" id="finDetailBack" aria-label="Tutup">&larr;</button>
+        <div class="filter-overlay-title" id="finDetailTitle"></div>
+      </div>
+      <div class="filter-overlay-body">
+        <div id="finDetailSum"></div>
+        <section class="fd-sec"><h4 id="finDetailLogTitle"></h4><div id="finDetailLogSlot"></div></section>
+        <section class="fd-sec"><h4>Riwayat</h4><div id="finDetailHist"></div></section>
+      </div>
+    </div>
+  </div>
+
   <div id="txFormOverlay" class="filter-overlay" style="display:none;">
     <div class="filter-overlay-box">
       <div class="filter-overlay-head">
@@ -7408,6 +7427,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       applyMobileHeaderHeightVar();
       try { abBuildHeads(); } catch (e) { console.error("abBuildHeads", e); }
       try { abEnhanceForms(); } catch (e) { console.error("abEnhanceForms", e); }
+      const fdb = document.getElementById("finDetailBack");
+      if (fdb && !fdb.dataset.wired) {
+        fdb.dataset.wired = "1"; fdb.addEventListener("click", closeFinDetail);
+        document.getElementById("finDetailOverlay").addEventListener("click", (e) => { if (e.target.id === "finDetailOverlay") closeFinDetail(); });
+      }
       const gr = document.getElementById("abGlobalRefresh");
       if (gr && !gr.dataset.wired) { gr.dataset.wired = "1"; gr.addEventListener("click", abGlobalRefresh); }
       if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // jangan pulihkan scroll lama
@@ -16125,32 +16149,118 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       return PER_CONTRIBUTIONS.filter(c => c.goal_id === goal.id).reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
     }
 
-    function renderGoals() {
-      const list = document.getElementById("goalList");
-      if (!PER_GOALS.length) { list.innerHTML = '<p class="hint">Belum ada target tabungan.</p>'; return; }
-      list.innerHTML = PER_GOALS.map(g => {
-        const current = perGoalProgress(g);
-        const pct = Math.round((current / g.target_amount) * 100);
-        const reached = current >= g.target_amount;
-        const barColor = reached ? "var(--ok)" : "var(--brand)";
-        return `<div class="fin-card" style="margin-bottom:10px;padding:16px;cursor:pointer;${g.archived ? "opacity:.55;" : ""}" data-editgoal="${g.id}">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="color:var(--brand);flex-shrink:0;">${icon(g.icon || "piggy")}</div>
-            <div style="flex:1;min-width:0;font-weight:800;">${escapeHtml(g.name)}${reached ? ' <span class="per-badge income">Tercapai</span>' : ""}${g.archived ? ' <span class="subtab-count">archived</span>' : ""}</div>
-            <button class="btn btn-sm btn-ghost" data-archivegoal="${g.id}" data-archived="${g.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
-          </div>
-          <div style="margin-top:10px;">
-            <span class="bar-track"><span class="bar-fill" style="width:${Math.max(0, Math.min(100, pct))}%;background:${barColor};"></span></span>
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b7280;margin-top:4px;">
-              <span>${rupiah(current)} terkumpul (${pct}%)</span>
-              <span>Target ${rupiah(g.target_amount)}</span>
-            </div>
+    // ---- Utang & Target tabungan: daftar ringkas + panel detail per item ----
+    // Dulu 1 halaman numpuk 3 hal: daftar, form "log" (pilih item dari dropdown),
+    // dan riwayat SEMUA item dicampur. Sekarang halaman cuma daftar; tap 1 item
+    // = panel detail berisi ringkasan, form catat (udah kekunci ke item itu),
+    // dan riwayat item itu aja. Form lama dipindah ke panel -> logika simpan sama.
+    const FIN_DETAIL = { kind: null, id: null };
+    const FIN_FILTER = { liab: "active", goal: "active" };
+    const FIN_CFG = {
+      liab: {
+        items: () => PER_LIABILITIES, hist: () => PER_LIABILITY_PAYMENTS, histKey: "liability_id",
+        card: "liabLogCard", select: "liabPayLiability", list: "liabList", newForm: () => newLiabPayForm(),
+        title: "Catat pembayaran", noun: "utang", ico: "receipt",
+        stat: (l) => { const rem = perLiabBalance(l); const done = Math.max(0, l.principal_amount - rem); return { pct: Math.round(done / l.principal_amount * 100), done: rem <= 0, big: rupiah(Math.max(0, rem)), bigLbl: "sisa utang", sub: `${rupiah(done)} udah dibayar dari ${rupiah(l.principal_amount)}`, due: l.due_date }; },
+        chips: [["active", "Belum lunas", (l) => !l.archived && perLiabBalance(l) > 0], ["done", "Lunas", (l) => !l.archived && perLiabBalance(l) <= 0], ["archived", "Diarsipkan", (l) => l.archived]],
+        edit: (id) => editLiability(id), archive: (id, a) => archiveLiability(id, a), del: (id) => deleteLiabPayment(id),
+      },
+      goal: {
+        items: () => PER_GOALS, hist: () => PER_CONTRIBUTIONS, histKey: "goal_id",
+        card: "goalLogCard", select: "contribGoal", list: "goalList", newForm: () => newContribForm(),
+        title: "Catat setoran / ambil", noun: "target", ico: "piggy",
+        stat: (g) => { const cur = perGoalProgress(g); return { pct: Math.round(cur / g.target_amount * 100), done: cur >= g.target_amount, big: rupiah(cur), bigLbl: "terkumpul", sub: `Target ${rupiah(g.target_amount)} · kurang ${rupiah(Math.max(0, g.target_amount - cur))}`, due: g.target_date }; },
+        chips: [["active", "Jalan", (g) => !g.archived && perGoalProgress(g) < g.target_amount], ["done", "Tercapai", (g) => !g.archived && perGoalProgress(g) >= g.target_amount], ["archived", "Diarsipkan", (g) => g.archived]],
+        edit: (id) => editGoal(id), archive: (id, a) => archiveGoal(id, a), del: (id) => deleteContrib(id),
+      }
+    };
+    function renderFinList(kind) {
+      const c = FIN_CFG[kind];
+      const list = document.getElementById(c.list); if (!list) return;
+      const all = c.items();
+      let bar = document.getElementById("finbar-" + kind);
+      if (!bar) {
+        bar = document.createElement("div"); bar.id = "finbar-" + kind; bar.className = "ab-chips";
+        list.parentNode.insertBefore(bar, list);
+        bar.addEventListener("click", (e) => { const b = e.target.closest("[data-ff]"); if (b) { FIN_FILTER[kind] = b.dataset.ff; renderFinList(kind); } });
+      }
+      if (!c.chips.find(x => x[0] === FIN_FILTER[kind])) FIN_FILTER[kind] = "active";
+      bar.innerHTML = all.length ? c.chips.map(([k, l, fn]) => `<button type="button" class="ab-chip${FIN_FILTER[kind] === k ? " active" : ""}" data-ff="${k}">${l} <span>${all.filter(fn).length}</span></button>`).join("") : "";
+      if (!all.length) { list.innerHTML = `<div class="empty">Belum ada ${c.noun} yang dicatat.</div>`; return; }
+      const fn = c.chips.find(x => x[0] === FIN_FILTER[kind])[2];
+      const rows = all.filter(fn);
+      if (!rows.length) { list.innerHTML = `<p class="hint">Nggak ada ${c.noun} di filter ini.</p>`; return; }
+      list.innerHTML = `<div class="fd-grid">` + rows.map(it => {
+        const st = c.stat(it);
+        return `<button type="button" class="fd-card${st.done ? " is-done" : ""}" data-fd="${it.id}">
+          <span class="fd-card-top"><span class="fd-ico">${icon(it.icon || c.ico)}</span><b>${escapeHtml(it.name)}</b>${st.done ? `<span class="cfg-pill on">${kind === "liab" ? "Lunas" : "Tercapai"}</span>` : ""}</span>
+          <span class="fd-big">${st.big} <small>${st.bigLbl}</small></span>
+          <span class="fd-bar"><span style="width:${Math.max(0, Math.min(100, st.pct))}%"></span></span>
+          <span class="fd-sub">${Math.max(0, Math.min(100, st.pct))}% · ${escapeHtml(st.sub)}${st.due ? " · tenggat " + escapeHtml(fmtTxDate(st.due)) : ""}</span>
+        </button>`;
+      }).join("") + `</div>`;
+      list.querySelectorAll("[data-fd]").forEach(b => b.addEventListener("click", () => openFinDetail(kind, b.dataset.fd)));
+    }
+    function openFinDetail(kind, id) {
+      const c = FIN_CFG[kind];
+      FIN_DETAIL.kind = kind; FIN_DETAIL.id = id;
+      const card = document.getElementById(c.card);
+      document.getElementById("finDetailLogSlot").appendChild(card);
+      const sel = document.getElementById(c.select);
+      sel.value = id;
+      const fld = sel.closest(".konten-field"); if (fld) fld.style.display = "none";
+      c.newForm();
+      document.getElementById("finDetailLogTitle").textContent = c.title;
+      renderFinDetail();
+      document.getElementById("finDetailOverlay").style.display = "flex";
+    }
+    function closeFinDetail() {
+      if (!FIN_DETAIL.kind) return;
+      const c = FIN_CFG[FIN_DETAIL.kind];
+      const card = document.getElementById(c.card);
+      const home = document.querySelector(`[data-tab="${FIN_DETAIL.kind === "liab" ? "hutang" : "target"}"] .fin-home`);
+      if (home) home.insertBefore(card, home.firstChild);
+      const fld = document.getElementById(c.select).closest(".konten-field"); if (fld) fld.style.display = "";
+      document.getElementById("finDetailOverlay").style.display = "none";
+      FIN_DETAIL.kind = null; FIN_DETAIL.id = null;
+    }
+    function renderFinDetail() {
+      if (!FIN_DETAIL.kind) return;
+      const kind = FIN_DETAIL.kind, c = FIN_CFG[kind];
+      const it = c.items().find(x => x.id === FIN_DETAIL.id);
+      if (!it) { closeFinDetail(); return; }
+      const st = c.stat(it);
+      document.getElementById("finDetailTitle").textContent = it.name;
+      document.getElementById("finDetailSum").innerHTML = `<div class="fd-sum${st.done ? " is-done" : ""}">
+          <div class="fd-big">${st.big} <small>${st.bigLbl}</small></div>
+          <div class="fd-bar"><span style="width:${Math.max(0, Math.min(100, st.pct))}%"></span></div>
+          <div class="fd-sub">${Math.max(0, Math.min(100, st.pct))}% · ${escapeHtml(st.sub)}${st.due ? " · tenggat " + escapeHtml(fmtTxDate(st.due)) : ""}</div>
+          <div class="fd-acts">
+            <button type="button" class="btn btn-ghost" data-fda="edit">${icon("pencil")} Edit ${c.noun}</button>
+            ${kind === "liab" && it.public_token ? `<button type="button" class="btn btn-ghost" data-fda="link">${icon("link")} Salin link buat yang diutangin</button>` : ""}
+            <button type="button" class="btn btn-ghost" data-fda="arch">${icon("archive")} ${it.archived ? "Buka arsip" : "Arsipkan"}</button>
           </div>
         </div>`;
-      }).join("");
-      list.querySelectorAll("[data-editgoal]").forEach(b => b.addEventListener("click", () => editGoal(b.dataset.editgoal)));
-      list.querySelectorAll("[data-archivegoal]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archiveGoal(b.dataset.archivegoal, b.dataset.archived === "1"); }));
+      const box = document.getElementById("finDetailSum");
+      box.querySelector('[data-fda="edit"]').onclick = () => { const id = it.id; closeFinDetail(); c.edit(id); };
+      box.querySelector('[data-fda="arch"]').onclick = () => c.archive(it.id, !it.archived);
+      const lk = box.querySelector('[data-fda="link"]');
+      if (lk) lk.onclick = () => navigator.clipboard.writeText(siteOrigin() + "/debt.html?token=" + it.public_token).then(() => abToast("Link disalin", "ok"));
+      const hist = c.hist().filter(h => h[c.histKey] === it.id);
+      document.getElementById("finDetailHist").innerHTML = hist.length ? `<div class="kt-list">` + hist.map(h => {
+        const neg = Number(h.amount) < 0;
+        return `<div class="kt-row">
+          <span class="fd-amt ${neg ? "neg" : "pos"}">${neg ? "−" : "+"}${rupiah(Math.abs(h.amount))}</span>
+          <span class="kt-main" style="cursor:default"><b style="font-size:14px">${escapeHtml(fmtTxDate(h.date))}</b><small>${escapeHtml(h.note || "")}</small></span>
+          <span class="kt-acts">
+            ${h.payment_proof_url ? `<button type="button" class="cell-priv-link" data-privpath="${escapeHtml(h.payment_proof_url)}">${icon("lock")} Bukti</button>` : ""}
+            <button type="button" class="kt-btn danger" data-fdel="${h.id}" title="Hapus" aria-label="Hapus">${icon("trash")}</button>
+          </span></div>`;
+      }).join("") + `</div>` : `<p class="hint">Belum ada catatan buat ${c.noun} ini.</p>`;
+      document.querySelectorAll("#finDetailHist [data-fdel]").forEach(b => b.addEventListener("click", () => c.del(b.dataset.fdel)));
     }
+
+    function renderGoals() { renderFinList("goal"); }
 
     // Layar Tambah/Edit target tabungan -- full-screen, pola sama kayak
     // Akun/Kategori/Transaksi.
@@ -16214,7 +16324,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     function renderContributions() {
       const list = document.getElementById("contribList");
-      if (!PER_CONTRIBUTIONS.length) { list.innerHTML = '<p class="hint">Belum ada setoran.</p>'; return; }
+      if (!PER_CONTRIBUTIONS.length) { list.innerHTML = '<p class="hint">Belum ada setoran.</p>'; renderFinDetail(); return; }
       list.innerHTML = PER_CONTRIBUTIONS.slice(0, 15).map(c => {
         const goalName = (PER_GOALS.find(g => g.id === c.goal_id) || {}).name || "?";
         const isNeg = Number(c.amount) < 0;
@@ -16229,6 +16339,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         </div>`;
       }).join("");
       list.querySelectorAll("[data-delcontrib]").forEach(b => b.addEventListener("click", () => deleteContrib(b.dataset.delcontrib)));
+      renderFinDetail();
     }
 
     function newContribForm() {
@@ -16270,40 +16381,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       return Number(liab.principal_amount) - paid;
     }
 
-    function renderLiabilities() {
-      const list = document.getElementById("liabList");
-      if (!PER_LIABILITIES.length) { list.innerHTML = '<p class="hint">Belum ada utang yang dicatat.</p>'; return; }
-      list.innerHTML = PER_LIABILITIES.map(l => {
-        const remaining = perLiabBalance(l);
-        const paidOff = Math.max(0, l.principal_amount - remaining);
-        const pct = Math.round((paidOff / l.principal_amount) * 100);
-        const cleared = remaining <= 0;
-        const barColor = cleared ? "var(--ok)" : "var(--err)";
-        const dueLabel = l.due_date ? " · due " + fmtTxDate(l.due_date) : "";
-        return `<div class="fin-card" style="margin-bottom:10px;padding:16px;cursor:pointer;${l.archived ? "opacity:.55;" : ""}" data-editliab="${l.id}">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="color:var(--err);flex-shrink:0;">${icon(l.icon || "receipt")}</div>
-            <div style="flex:1;min-width:0;font-weight:800;">${escapeHtml(l.name)}${cleared ? ' <span class="per-badge income">Lunas</span>' : ""}${l.archived ? ' <span class="subtab-count">archived</span>' : ""}</div>
-            ${l.public_token ? `<button class="btn btn-sm btn-ghost" data-copyliablink="${l.public_token}" title="Salin link (cuma bisa dilihat) buat yang kamu utangin" style="flex-shrink:0;">${icon("link")}</button>` : ""}
-            <button class="btn btn-sm btn-ghost" data-archiveliab="${l.id}" data-archived="${l.archived ? "0" : "1"}" style="flex-shrink:0;">${icon("archive")}</button>
-          </div>
-          <div style="margin-top:10px;">
-            <span class="bar-track"><span class="bar-fill" style="width:${Math.max(0, Math.min(100, pct))}%;background:${barColor};"></span></span>
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b7280;margin-top:4px;">
-              <span>${rupiah(Math.max(0, remaining))} remaining (${pct}% paid)</span>
-              <span>Principal ${rupiah(l.principal_amount)}${dueLabel}</span>
-            </div>
-          </div>
-        </div>`;
-      }).join("");
-      list.querySelectorAll("[data-editliab]").forEach(b => b.addEventListener("click", () => editLiability(b.dataset.editliab)));
-      list.querySelectorAll("[data-archiveliab]").forEach(b => b.addEventListener("click", (e) => { e.stopPropagation(); archiveLiability(b.dataset.archiveliab, b.dataset.archived === "1"); }));
-      list.querySelectorAll("[data-copyliablink]").forEach(b => b.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const link = siteOrigin() + "/debt.html?token=" + b.dataset.copyliablink;
-        copyToClipboardEl(link, b);
-      }));
-    }
+    function renderLiabilities() { renderFinList("liab"); }
 
     function openLiabForm(isEdit) {
       document.getElementById("liabFormTitle").textContent = isEdit ? "Edit utang" : "Utang baru";
@@ -16368,7 +16446,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     function renderLiabPayments() {
       const list = document.getElementById("liabPayList");
-      if (!PER_LIABILITY_PAYMENTS.length) { list.innerHTML = '<p class="hint">Belum ada pembayaran.</p>'; return; }
+      if (!PER_LIABILITY_PAYMENTS.length) { list.innerHTML = '<p class="hint">Belum ada pembayaran.</p>'; renderFinDetail(); return; }
       list.innerHTML = PER_LIABILITY_PAYMENTS.slice(0, 15).map(p => {
         const liabName = (PER_LIABILITIES.find(l => l.id === p.liability_id) || {}).name || "?";
         const isNeg = Number(p.amount) < 0;
@@ -16387,6 +16465,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         </div>`;
       }).join("");
       list.querySelectorAll("[data-delliabpay]").forEach(b => b.addEventListener("click", () => deleteLiabPayment(b.dataset.delliabpay)));
+      renderFinDetail();
     }
 
     function newLiabPayForm() {
