@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=13">
+  <link rel="stylesheet" href="admin-binder.css?v=14">
 </head>
 
 <body>
@@ -4306,7 +4306,7 @@
       <label for="pwd">Password</label>
       <input class="form-control" type="password" id="pwd" placeholder="Masukkan password" autocomplete="current-password" />
       <div style="height:14px"></div>
-      <button class="btn" id="loginBtn">Log In</button>
+      <button class="btn" id="loginBtn">Masuk</button>
       <div class="msg" id="loginMsg"></div>
     </div>
   </div>
@@ -4563,7 +4563,7 @@
                   <div class="fin-card">
                     <label for="finPrice">Harga per peserta (Rp)</label>
                     <input class="form-control" type="text" inputmode="numeric" id="finPrice" readonly style="background:#f8f9fa;" />
-                    <p class="hint">Follows this batch's price (or General Config if the batch doesn't have its own price yet). Want to change it? Edit it in <b>Config &gt; select the Event + Batch</b>.</p>
+                    <p class="hint">Ikut harga batch ini (atau config umum kalau batch-nya belum punya harga sendiri). Mau ganti? Edit di <b>Config event, pilih event dan batch-nya</b>.</p>
                     <p class="hint">Pendaftar: <b id="finCount">0</b> orang (otomatis)</p>
                   </div>
 
@@ -4574,7 +4574,7 @@
                     </div>
                     <datalist id="costItemsList"></datalist>
                     <div id="costRows"></div>
-                    <p class="hint">The <b>per-participant</b> type is automatically multiplied by the number of registrants. <b>fixed</b> = one-time only. Tap an item to edit it, or the trash icon to delete -- changes save immediately.
+                    <p class="hint">Jenis <b>per peserta</b> otomatis dikali jumlah pendaftar, jenis <b>tetap</b> dihitung sekali. Tap item buat edit, atau ikon tempat sampah buat hapus. Perubahan langsung tersimpan.
                     </p>
                     <div class="msg" id="finMsg"></div>
                   </div>
@@ -4587,7 +4587,7 @@
                     <div class="per-hero-amount" id="resProfit">Rp 0</div>
                     <div class="per-hero-sub" id="resMargin">0% margin</div>
                     <div class="per-hero-mini">
-                      <div class="per-hero-mini-item"><span>Income</span><b id="resRevenue" style="color:#4ade80;">Rp 0</b></div>
+                      <div class="per-hero-mini-item"><span>Pemasukan</span><b id="resRevenue" style="color:#4ade80;">Rp 0</b></div>
                       <div class="per-hero-mini-item"><span>Total biaya</span><b id="resCost" style="color:#fb7185;">Rp 0</b></div>
                     </div>
                   </div>
@@ -4624,7 +4624,7 @@
                   <div class="konten-field" style="flex:2;min-width:180px;"><label>Item</label><select class="form-control" id="invItem"></select></div>
                   <div class="konten-field" style="flex:1;min-width:150px;"><label>Jenis</label>
                     <select class="form-control" id="invType">
-                      <option value="beli">Buy (stock in)</option>
+                      <option value="beli">Beli (stok masuk)</option>
                       <option value="pakai">Use (stock out)</option>
                       <option value="adjust">Manual correction</option>
                     </select>
@@ -4643,7 +4643,7 @@
               </div>
 
               <div class="fin-card" style="margin-top:14px;">
-                <div style="font-weight:800;margin-bottom:8px;">Current Stock</div>
+                <div style="font-weight:800;margin-bottom:8px;">Stok sekarang</div>
                 <input class="form-control" type="text" id="invStockSearch" placeholder="Cari nama item…" style="margin-bottom:8px;">
                 <div id="invStockList"></div>
               </div>
@@ -4670,7 +4670,7 @@
                   <div style="font-weight:800;">Extracted Results (<span id="riResultCount">0</span>)</div>
                   <button class="btn btn-sm btn-ghost" id="riSelectAllBtn">Centang / hapus centang semua</button>
                 </div>
-                <p class="hint" style="margin:6px 0;">Double-check the name/price/quantity first -- AI can misread sometimes. Unchecked items won't be imported.</p>
+                <p class="hint" style="margin:6px 0;">Cek dulu nama, harga, dan jumlahnya. AI kadang salah baca. Yang nggak dicentang nggak diimpor.</p>
                 <div id="riResultsList" style="margin-top:6px;"></div>
                 <button class="btn btn-sm" id="riSaveBtn" style="margin-top:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Impor yang dicentang</button>
                 <div class="msg" id="riSaveMsg"></div>
@@ -4816,7 +4816,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <div style="font-weight:800;margin-bottom:4px;">Batch Detail: <span id="cfgBatchLabel"></span></div>
                 <p class="hint" style="margin:0 0 8px;">Defaults follow General Config above. Fill in one/several fields HERE only if this batch differs (e.g. venue/price/quota different from other batches of the same type) -- leave blank to follow General Config. New batches automatically copy this from the last batch created -- just edit what's different.</p>
                 <div class="konten-field"><label>Nama batch</label><input class="form-control" type="text" id="batchLabelInput" placeholder="mis. Vol 1"></div>
-                <div class="konten-field"><label>Description / Theme (optional -- kalau tema batch ini beda dari biasanya)</label><textarea class="form-control" id="batchDescription" rows="2" placeholder="follows Config"></textarea></div>
+                <div class="konten-field"><label>Deskripsi / tema (opsional, kalau tema batch ini beda dari biasanya)</label><textarea class="form-control" id="batchDescription" rows="2" placeholder="follows Config"></textarea></div>
                 <div class="konten-field">
                   <label>Isi lokasi dari venue (opsional)</label>
                   <div style="position:relative;">
@@ -4954,7 +4954,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <select class="form-control" id="mouFilterStatus">
                 <option value="">Semua status</option>
                 <option value="draft">Draft</option>
-                <option value="sent">Sent</option>
+                <option value="sent">Terkirim</option>
                 <option value="signed">Signed</option>
               </select>
             </div>
@@ -4979,8 +4979,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <select class="form-control" id="invoiceFilterStatus">
                 <option value="">Semua status</option>
                 <option value="draft">Draft</option>
-                <option value="sent">Sent</option>
-                <option value="paid">Paid</option>
+                <option value="sent">Terkirim</option>
+                <option value="paid">Lunas</option>
               </select>
             </div>
           </div>
@@ -5024,7 +5024,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <button class="btn btn-sm" id="recBatchNewBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Koleksi Baru</button>
               <button class="btn btn-sm btn-ghost" id="recBatchReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
             </div>
-            <p class="hint" style="margin-bottom:12px;">Bikin koleksi rekomendasi produk (beda-beda isinya per koleksi), tiap koleksi dapet <b>link + QR sendiri</b> buat di-share -- beda dari list Rekomendasi Alat &amp; Bahan yang satu-satunya & global di Content.</p>
+            <p class="hint" style="margin-bottom:12px;">Bikin koleksi rekomendasi produk (beda-beda isinya per koleksi), tiap koleksi dapet <b>link + QR sendiri</b> buat dibagikan — beda dari daftar Rekomendasi Alat &amp; Bahan yang cuma satu di Konten website.</p>
             <div id="recBatchList"></div>
           </div>
 
@@ -5046,8 +5046,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
             <div class="fin-card" style="margin-top:12px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                <label style="font-weight:700;">Item Produk</label>
-                <button class="btn btn-sm" id="recBatchAddItemBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah Item</button>
+                <label style="font-weight:700;">Item produk</label>
+                <button class="btn btn-sm" id="recBatchAddItemBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Tambah item</button>
               </div>
               <div id="recBatchItemList"></div>
             </div>
@@ -5313,14 +5313,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               </div>
               <div class="konten-field" id="shopOrdAddressWrap"><label>Alamat Pengiriman</label><textarea class="form-control" id="shopOrdAddress" rows="2" placeholder="Alamat lengkap buat dikirim..."></textarea></div>
               <div style="display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap;">
-                <span class="hint" style="margin:0;">Status Bayar:</span>
+                <span class="hint" style="margin:0;">Status bayar:</span>
                 <button class="btn btn-sm btn-ghost" id="shopOrdPaidToggleBtn" type="button"></button>
               </div>
               <button class="btn btn-sm btn-ghost" id="shopOrdSaveInfoBtn" type="button">Simpan Info Pembeli</button>
             </div>
 
             <div class="fin-card" style="margin-top:12px;">
-              <label style="font-weight:700;display:block;margin-bottom:10px;">Tambah Item</label>
+              <label style="font-weight:700;display:block;margin-bottom:10px;">Tambah item</label>
               <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
                 <div style="flex:2;min-width:160px;position:relative;">
                   <label class="hint" style="display:block;margin-bottom:4px;">Produk</label>
@@ -5341,7 +5341,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
 
             <div class="fin-card" style="margin-top:12px;">
-              <label style="font-weight:700;display:block;margin-bottom:10px;">Item Dibeli</label>
+              <label style="font-weight:700;display:block;margin-bottom:10px;">Item dibeli</label>
               <div id="shopOrdItemList"></div>
               <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);margin-top:10px;font-size:1.1rem;"><span style="font-weight:700;">Total</span><b id="shopOrdTotal" style="color:var(--brand);">Rp 0</b></div>
             </div>
@@ -5453,13 +5453,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <div class="subtab-panel" data-tab="peserta">
                 <div class="fin-card">
                   <div style="font-weight:800;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/></svg> Link form peserta</div>
-                  <p class="hint" style="margin:4px 0 8px;">Share this link to the event's WA group — participants fill in their name & pick a menu themselves, automatically added to the list below.</p>
+                  <p class="hint" style="margin:4px 0 8px;">Bagikan link ini ke grup WA event. Peserta isi nama dan pilih menu sendiri, otomatis masuk ke daftar di bawah.</p>
                   <div class="reg-tools">
                     <input class="form-control" type="text" id="pesLinkOut" readonly>
                     <button class="btn btn-sm" id="pesCopyLinkBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg> Salin link</button>
                   </div>
                 </div>
-                <p class="hint" style="margin:14px 0 8px;">Send the link that's ALREADY pre-filled with their name — the participant just opens it & picks a menu, no need to type their name.</p>
+                <p class="hint" style="margin:14px 0 8px;">Kirim link yang udah keisi namanya. Peserta tinggal buka dan pilih menu, nggak perlu ngetik nama.</p>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
                   <label style="font-weight:700;font-size:13.5px;margin:0;" for="pesRegFilterMenu">Filter per menu</label>
                   <select class="form-control" id="pesRegFilterMenu" style="max-width:220px;">
@@ -5516,7 +5516,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
             <div class="subtab-panel" data-tab="ringkasan">
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
-                <label style="font-weight:700;font-size:13.5px;margin:0;" for="perPeriod">Period</label>
+                <label style="font-weight:700;font-size:13.5px;margin:0;" for="perPeriod">Periode</label>
                 <input class="form-control" type="month" id="perPeriod" style="max-width:170px;">
                 <span class="hint" id="perPeriodHint" style="margin:0;"></span>
               </div>
@@ -5533,14 +5533,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <div class="per-hero-flow-item income">
                     <div class="per-hero-flow-head">
                       <div class="per-hero-flow-icon">&darr;</div>
-                      <span id="perMonthIncomeLabel">Income</span>
+                      <span id="perMonthIncomeLabel">Pemasukan</span>
                     </div>
                     <b id="perMonthIncome">Rp 0</b>
                   </div>
                   <div class="per-hero-flow-item expense">
                     <div class="per-hero-flow-head">
                       <div class="per-hero-flow-icon">&uarr;</div>
-                      <span id="perMonthExpenseLabel">Expense</span>
+                      <span id="perMonthExpenseLabel">Pengeluaran</span>
                     </div>
                     <b id="perMonthExpense">Rp 0</b>
                   </div>
@@ -5550,18 +5550,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <div class="fin-card" style="margin-top:16px;border-left:4px solid var(--brand);">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
                   <div>
-                    <div class="hint" style="margin:0 0 2px;">Business Info — Seminggu Satu Profit (active workshops)</div>
+                    <div class="hint" style="margin:0 0 2px;">Info bisnis — untung Seminggu Satu (workshop aktif)</div>
                     <div style="font-weight:800;font-size:18px;" id="perBizProfit">Rp 0</div>
                   </div>
                   <div style="text-align:right;">
-                    <div class="hint" style="margin:0 0 2px;">Gross Income</div>
+                    <div class="hint" style="margin:0 0 2px;">Pendapatan kotor</div>
                     <div style="font-weight:700;" id="perBizRevenue">Rp 0</div>
                   </div>
                 </div>
                 <p class="hint" style="margin:8px 0 0;">This is just info from the Overview tab, NOT part of the personal balance above. Once you actually withdraw the profit to your personal account, log it manually in the Transactions tab as Income under the "Seminggu Satu Income" category.</p>
               </div>
 
-              <h3 class="ov-section-title" style="margin-top:20px;">Cash Flow — Last 6 Months</h3>
+              <h3 class="ov-section-title" style="margin-top:20px;">Arus kas — 6 bulan terakhir</h3>
               <div class="fin-card">
                 <div id="perCashflow" class="per-cashflow-row"></div>
               </div>
@@ -5575,13 +5575,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
             <div class="subtab-panel" data-tab="analisis">
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
-                <label style="font-weight:700;font-size:13.5px;margin:0;" for="anaPeriod">Period</label>
+                <label style="font-weight:700;font-size:13.5px;margin:0;" for="anaPeriod">Periode</label>
                 <input class="form-control" type="month" id="anaPeriod" style="max-width:170px;">
                 <span class="hint" id="anaPeriodHint" style="margin:0;"></span>
               </div>
               <div class="per-grid-2">
                 <div class="fin-card">
-                  <div style="font-weight:800;margin-bottom:4px;">Expense Breakdown</div>
+                  <div style="font-weight:800;margin-bottom:4px;">Rincian pengeluaran</div>
                   <p class="hint" id="anaChartHint" style="margin:0 0 6px;">Ke mana aja uangmu bulan ini.</p>
                   <div class="per-donut-wrap" id="anaDonutWrap"></div>
                   <div style="text-align:center;font-weight:700;margin-top:4px;">Total pengeluaran <span id="anaTotalExpense">Rp 0</span></div>
@@ -5614,7 +5614,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
             <div class="subtab-panel" data-tab="budget">
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
-                <label style="font-weight:700;font-size:13.5px;margin:0;" for="budPeriod">Period</label>
+                <label style="font-weight:700;font-size:13.5px;margin:0;" for="budPeriod">Periode</label>
                 <input class="form-control" type="month" id="budPeriod" style="max-width:170px;">
                 <span class="hint" id="budPeriodHint" style="margin:0;"></span>
                 <button class="btn btn-sm btn-ghost" id="budCopyBtn">Salin dari bulan lalu</button>
@@ -5691,7 +5691,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 <p class="hint" style="margin:0 0 10px;">Upload a transaction history/receipt screenshot, OR a bank statement PDF (can have many pages & many transactions at once) — AI will try to read it & compile a transaction list you can review/edit before saving.</p>
                 <input type="hidden" id="impImageBase64">
                 <input type="hidden" id="impImageMime">
-                <div class="konten-field"><label>Screenshot / Photo / PDF</label><input class="form-control" type="file" id="impFile" accept="image/*,application/pdf,.pdf"></div>
+                <div class="konten-field"><label>Screenshot / foto / PDF</label><input class="form-control" type="file" id="impFile" accept="image/*,application/pdf,.pdf"></div>
                 <div id="impPreview" style="margin:8px 0;"></div>
                 <div class="konten-field"><label>Masukin semua transaksi ke akun</label><select class="form-control" id="impAccount"></select></div>
                 <div id="impQuota" class="hint" style="margin:0 0 10px;"></div>
@@ -5703,7 +5703,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <div style="font-weight:800;">Extracted Results (<span id="impResultCount">0</span>)</div>
                   <button class="btn btn-sm btn-ghost" id="impSelectAllBtn">Centang / hapus centang semua</button>
                 </div>
-                <p class="hint" style="margin:6px 0;">Double-check the date/amount/category first — AI can misread sometimes. Unchecked items won't be imported.</p>
+                <p class="hint" style="margin:6px 0;">Cek dulu tanggal, jumlah, dan kategorinya. AI kadang salah baca. Yang nggak dicentang nggak diimpor.</p>
                 <div id="impResultsList" style="margin-top:6px;"></div>
                 <button class="btn btn-sm" id="impSaveBtn" style="margin-top:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Impor yang dicentang</button>
                 <div class="msg" id="impSaveMsg"></div>
@@ -5880,7 +5880,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="fin-card ig-import" id="igImportPanel" style="display:none; margin-bottom:16px;">
             <h3 style="font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Impor data Instagram</h3>
             <details class="ig-guide">
-              <summary><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/><path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/></svg> How to get the data (click to open the guide)</summary>
+              <summary><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/><path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/></svg> Cara ambil datanya (tap buat buka panduan)</summary>
               <ol>
                 <li>Buka <b>Instagram</b> → Profile → menu <b>☰</b> → <b>Accounts Center</b>
                   (or: Settings → <i>Meta Accounts Center</i>).</li>
@@ -5907,7 +5907,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <input class="form-control" type="file" id="igFiles" accept=".json,application/json" multiple>
               <button class="btn btn-sm" id="igAnalyzeBtn">Analyze</button>
             </div>
-            <p class="hint">Files are only processed in your browser — nothing is sent anywhere.</p>
+            <p class="hint">File cuma diproses di browser kamu, nggak dikirim ke mana-mana.</p>
             <div class="msg" id="igMsg"></div>
             <div id="igResult"></div>
           </div>
@@ -6044,7 +6044,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <div class="filter-section">
-          <div class="filter-section-title">Period</div>
+          <div class="filter-section-title">Periode</div>
           <input class="form-control" type="month" id="txFilterPeriod" style="max-width:170px;">
           <div class="hint" id="txFilterPeriodHint" style="margin-top:4px;"></div>
         </div>
@@ -6081,9 +6081,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="konten-field" style="flex:1;min-width:130px;"><label>Tanggal</label><input class="form-control" type="date" id="txDate"></div>
           <div class="konten-field" style="flex:1;min-width:150px;"><label>Jenis</label>
             <select class="form-control" id="txType">
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-              <option value="transfer">Transfer Between Accounts</option>
+              <option value="expense">Pengeluaran</option>
+              <option value="income">Pemasukan</option>
+              <option value="transfer">Transfer antar akun</option>
             </select>
           </div>
           <div class="konten-field" style="flex:1;min-width:130px;"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="txAmount" placeholder="mis. 50,000"></div>
@@ -6114,7 +6114,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <input type="hidden" id="accId">
         <div class="konten-field"><label>Nama akun</label><input class="form-control" type="text" id="accName" placeholder="mis. BCA, Cash Wallet, GoPay"></div>
         <div class="konten-field">
-          <label>Photo</label>
+          <label>Foto</label>
           <input type="hidden" id="accPhotoUrl">
           <input class="form-control" type="file" accept="image/*" id="accPhotoPick">
           <div id="accPhotoPreview" style="margin-top:8px;"></div>
@@ -6123,7 +6123,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <select class="form-control" id="accType">
             <option value="cash">Tunai</option>
             <option value="bank">Bank</option>
-            <option value="ewallet">E-Wallet</option>
+            <option value="ewallet">E-wallet</option>
             <option value="other">Lainnya</option>
           </select>
         </div>
@@ -6149,11 +6149,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="konten-field"><label>Nama kategori</label><input class="form-control" type="text" id="catName" placeholder="mis. Transport"></div>
         <div class="konten-field"><label>Jenis</label>
           <select class="form-control" id="catType">
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
+            <option value="expense">Pengeluaran</option>
+            <option value="income">Pemasukan</option>
           </select>
         </div>
-        <div class="konten-field"><label>Icon</label><select class="form-control" id="catIcon"></select></div>
+        <div class="konten-field"><label>Ikon</label><select class="form-control" id="catIcon"></select></div>
         <div class="msg" id="catMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6174,7 +6174,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <input type="hidden" id="goalId">
         <div class="konten-field"><label>Nama target</label><input class="form-control" type="text" id="goalName" placeholder="mis. laptop baru"></div>
         <div class="konten-field"><label>Target (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="goalTarget" placeholder="15,000,000"></div>
-        <div class="konten-field"><label>Icon</label><select class="form-control" id="goalIcon"></select></div>
+        <div class="konten-field"><label>Ikon</label><select class="form-control" id="goalIcon"></select></div>
         <div class="msg" id="goalMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6196,7 +6196,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="konten-field"><label>Nama utang</label><input class="form-control" type="text" id="liabName" placeholder="mis. Kartu Kredit BCA"></div>
         <div class="konten-field"><label>Pokok utang (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="liabPrincipal" placeholder="5,000,000"></div>
         <div class="konten-field"><label>Tenggat (opsional)</label><input class="form-control" type="date" id="liabDueDate"></div>
-        <div class="konten-field"><label>Icon</label><select class="form-control" id="liabIcon"></select></div>
+        <div class="konten-field"><label>Ikon</label><select class="form-control" id="liabIcon"></select></div>
         <div class="msg" id="liabMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6217,9 +6217,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <input type="hidden" id="billId">
         <div class="konten-field"><label>Nama tagihan</label><input class="form-control" type="text" id="billName" placeholder="mis. KPR, Internet, Member Parkir"></div>
         <div class="konten-field"><label>Jumlah (Rp)</label><input class="form-control" type="text" inputmode="numeric" id="billAmount" placeholder="mis. 500,000"></div>
-        <div class="konten-field"><label>Resets every month on day</label><input class="form-control" type="number" min="1" max="28" id="billResetDay" placeholder="25"></div>
+        <div class="konten-field"><label>Reset tiap bulan di tanggal</label><input class="form-control" type="number" min="1" max="28" id="billResetDay" placeholder="25"></div>
         <p class="hint" style="margin:-4px 0 0;">Checklist "udah bayar" balik kosong otomatis begitu lewat tanggal ini tiap bulannya.</p>
-        <div class="konten-field"><label>Icon</label><select class="form-control" id="billIcon"></select></div>
+        <div class="konten-field"><label>Ikon</label><select class="form-control" id="billIcon"></select></div>
         <div class="msg" id="billMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6299,13 +6299,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="konten-field"><label>Judul / tema</label><input class="form-control" type="text" id="ideaTitle" placeholder="mis. Under Construction"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:160px;"><label>Jenis event</label><select class="form-control" id="ideaWorkshopType"></select></div>
-          <div class="konten-field" style="flex:1;min-width:140px;"><label>Target Month</label><input class="form-control" type="month" id="ideaTargetMonth"></div>
+          <div class="konten-field" style="flex:1;min-width:140px;"><label>Target bulan</label><input class="form-control" type="month" id="ideaTargetMonth"></div>
         </div>
         <div class="konten-field"><label>Status</label>
           <select class="form-control" id="ideaStatus">
-            <option value="idea">Idea</option>
+            <option value="idea">Ide</option>
             <option value="planned">Planned</option>
-            <option value="confirmed">Confirmed</option>
+            <option value="confirmed">Fix</option>
             <option value="done">Selesai</option>
           </select>
         </div>
@@ -6333,7 +6333,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="konten-field"><label>Prolog / deskripsi tema</label><textarea class="form-control" id="ideaThemeDesc" rows="3" placeholder="Intro singkat yang nge-set nada temanya"></textarea></div>
 
         <div class="konten-field">
-          <label>Reflection Questions</label>
+          <label>Pertanyaan refleksi</label>
           <div id="ideaQuestions"></div>
           <button type="button" class="btn btn-sm btn-ghost" id="ideaAddQuestionBtn" style="margin-top:6px;">＋ Tambah pertanyaan</button>
         </div>
@@ -6351,9 +6351,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <div class="konten-field" style="flex:1;min-width:130px;margin:0;"><label>Status</label>
               <select class="form-control" id="ideaPartnerStatus">
                 <option value="possible">Possible</option>
-                <option value="in_touch">In Touch</option>
+                <option value="in_touch">Lagi dihubungi</option>
                 <option value="proposed">Proposed</option>
-                <option value="confirmed">Confirmed</option>
+                <option value="confirmed">Fix</option>
                 <option value="declined">Declined</option>
               </select>
             </div>
@@ -6361,7 +6361,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           </div>
           <div class="msg" id="ideaPartnerMsg"></div>
         </div>
-        <p class="hint" id="ideaPartnersHint">Save the idea first before adding partners to its pipeline.</p>
+        <p class="hint" id="ideaPartnersHint">Simpan idenya dulu sebelum nambah partner ke pipeline.</p>
 
         <div class="msg" id="ideaFormMsg"></div>
       </div>
@@ -6384,7 +6384,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       <div class="filter-overlay-body">
         <input type="hidden" id="preqTemplatePartnerId">
         <p class="hint" style="margin:0 0 8px;">Template standar request partner ini -- dipakai tiap kali "Pull In Requests" ditekan, di batch atau event manapun. Satu baris = satu request.</p>
-        <div class="konten-field"><label>Requests</label><textarea class="form-control" id="preqTemplateText" rows="8" placeholder="Contoh:&#10;Wajib bikin reels sebelum acara&#10;List pertanyaan interview yang wajib ditanyakan"></textarea></div>
+        <div class="konten-field"><label>Request</label><textarea class="form-control" id="preqTemplateText" rows="8" placeholder="Contoh:&#10;Wajib bikin reels sebelum acara&#10;List pertanyaan interview yang wajib ditanyakan"></textarea></div>
         <div class="msg" id="preqTemplateMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6421,7 +6421,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         </div>
         <label style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;">
           <input type="checkbox" id="ciNoStock" style="width:18px;height:18px;accent-color:var(--brand);flex-shrink:0;">
-          <span>No stock tracking (service, e.g. banner printing) -- skips the Stok badge & Inventory log.</span>
+          <span>Tanpa stok (jasa, mis. cetak banner) — nggak dicatat di inventaris.</span>
         </label>
         <div class="msg" id="ciMsg"></div>
       </div>
@@ -6455,9 +6455,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         </div>
         <label style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;">
           <input type="checkbox" id="costAddExclude" style="width:18px;height:18px;accent-color:var(--brand);flex-shrink:0;">
-          <span>Partner/collab cost (e.g. revenue share) -- still counted in Total Costs & Profit, but excluded from the "Biaya per peserta" stat.</span>
+          <span>Biaya partner/kolaborasi (mis. bagi hasil) — tetap dihitung di total biaya & untung, tapi nggak masuk "Biaya per peserta".</span>
         </label>
-        <p class="hint">The <b>per-participant</b> type is automatically multiplied by the number of registrants. <b>fixed</b> = one-time only. Type the cost name to see suggestions from the Item Database (the price auto-fills, still adjustable).</p>
+        <p class="hint">Jenis <b>per peserta</b> otomatis dikali jumlah pendaftar, jenis <b>tetap</b> dihitung sekali. Ketik nama biaya buat lihat saran dari Database item (harga keisi otomatis, masih bisa diubah).</p>
         <div class="msg" id="costAddMsg"></div>
       </div>
       <div class="filter-overlay-foot">
@@ -6478,7 +6478,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <button type="button" class="btn btn-sm btn-ghost" id="qGenerateBtn" style="margin-bottom:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg> Bikin ide pakai AI</button>
         <input type="hidden" id="qId">
         <div class="konten-field"><label>Judul challenge</label><input class="form-control" type="text" id="qTitle" placeholder="mis. Spread tiket film"></div>
-        <div class="konten-field"><label>Theme (small badge)</label><input class="form-control" type="text" id="qTheme" placeholder="mis. Movie Night"></div>
+        <div class="konten-field"><label>Tema (label kecil)</label><input class="form-control" type="text" id="qTheme" placeholder="mis. Movie Night"></div>
         <div class="konten-field"><label>Deskripsi / instruksi</label><textarea class="form-control" id="qDesc" rows="4" placeholder="mis. bikin spread tentang film yang baru kamu tonton, wajib tempel tiket bioskopnya!"></textarea></div>
         <div class="konten-field">
           <label>Contoh gambar (biar warga kebayang)</label>
@@ -6487,7 +6487,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <input type="hidden" id="qImageBase64"><input type="hidden" id="qImageExisting">
         </div>
         <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
-          <div class="konten-field" style="flex:1;min-width:110px;"><label>Points</label><input class="form-control" type="number" id="qPoints" value="10"></div>
+          <div class="konten-field" style="flex:1;min-width:110px;"><label>Poin</label><input class="form-control" type="number" id="qPoints" value="10"></div>
           <label style="display:flex;gap:8px;align-items:center;font-weight:600;padding-bottom:12px;"><input type="checkbox" id="qActive" style="width:16px;height:16px;accent-color:var(--brand);cursor:pointer;"> Aktif (kelihatan di Balai Warga)</label>
         </div>
         <div class="msg" id="qMsg"></div>
@@ -6622,7 +6622,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="konten-field"><label>Instagram (username atau link)</label><input class="form-control" type="text" id="partnerInstagram" placeholder="mis. @cookiesys"></div>
         <div class="konten-field"><label>Catatan</label><textarea class="form-control" id="partnerNotes" rows="3"></textarea></div>
         <div class="konten-field">
-          <label>Standing Requests (one per line)</label>
+          <label>Request tetap (satu baris satu request)</label>
           <textarea class="form-control" id="partnerRequests" rows="4" placeholder="Contoh:&#10;Wajib bikin reels sebelum acara&#10;List pertanyaan interview yang wajib ditanyakan"></textarea>
           <p class="hint" style="margin:4px 0 0;">Bisa ditarik ke checklist Prep tiap batch yang kerjasama sama partner ini (tab "Partner" di Prep). Edit di sini nggak ngubah checklist yang udah ditarik ke batch manapun.</p>
         </div>
@@ -6651,7 +6651,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="konten-field" style="flex:1;min-width:130px;"><label>Status</label>
             <select class="form-control" id="mouStatus">
               <option value="draft">Draft</option>
-              <option value="sent">Sent</option>
+              <option value="sent">Terkirim</option>
               <option value="signed">Signed</option>
             </select>
           </div>
@@ -6660,7 +6660,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div class="konten-field"><label>Nama event</label><input class="form-control" type="text" id="mouEventName" placeholder="mis. Side by Side, Parent & Kid Journal Playdate by seminggu satu"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:150px;"><label>Hari & tanggal</label><input class="form-control" type="date" id="mouEventDate"></div>
-          <div class="konten-field" style="flex:1;min-width:110px;"><label>From</label><input class="form-control" type="time" id="mouEventTimeStart"></div>
+          <div class="konten-field" style="flex:1;min-width:110px;"><label>Mulai</label><input class="form-control" type="time" id="mouEventTimeStart"></div>
           <div class="konten-field" style="flex:1;min-width:110px;"><label>Sampai</label><input class="form-control" type="time" id="mouEventTimeEnd"></div>
           <div class="konten-field" style="flex:1;min-width:170px;"><label>Target peserta</label><input class="form-control" type="text" id="mouTargetPeserta" placeholder="mis. 15 (Couple : 1 Orang Tua dan 1 Anak) Peserta"></div>
         </div>
@@ -6711,7 +6711,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="konten-field" style="flex:1;min-width:130px;"><label>Status</label>
             <select class="form-control" id="mouUploadStatus">
               <option value="draft">Draft</option>
-              <option value="sent">Sent</option>
+              <option value="sent">Terkirim</option>
               <option value="signed">Signed</option>
             </select>
           </div>
@@ -6720,7 +6720,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="konten-field" style="flex:2;min-width:180px;"><label>Event (opsional)</label><select class="form-control" id="mouUploadEventSelect"><option value="">— Nggak terkait event —</option></select></div>
           <div class="konten-field" style="flex:1;min-width:160px;"><label>Batch</label><select class="form-control" id="mouUploadBatchSelect"><option value="">⭐ General (default)</option></select></div>
         </div>
-        <div class="konten-field"><label>Link (optional -- mis. Google Docs yang masih diedit)</label><input class="form-control" type="url" id="mouUploadLink" placeholder="https://docs.google.com/document/d/..."></div>
+        <div class="konten-field"><label>Link (opsional, mis. Google Docs yang masih diedit)</label><input class="form-control" type="url" id="mouUploadLink" placeholder="https://docs.google.com/document/d/..."></div>
         <div id="mouUploadCurrentFile" style="display:none;margin-bottom:10px;">
           <button type="button" class="btn btn-sm btn-ghost" id="mouUploadPreviewBtn"></button>
         </div>
@@ -6738,24 +6738,24 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     <div class="filter-overlay-box">
       <div class="filter-overlay-head">
         <button class="filter-back" id="waManageBackBtn" aria-label="Tutup">&larr;</button>
-        <div class="filter-overlay-title">Manage WA Number</div>
+        <div class="filter-overlay-title">Kelola nomor WA</div>
       </div>
       <div class="filter-overlay-body">
         <p class="hint" id="waManageForName" style="margin:0 0 10px;font-weight:700;color:var(--ink);"></p>
-        <div class="konten-field"><label>Current Active Number</label><input class="form-control" type="text" id="waManageCurrent" disabled></div>
+        <div class="konten-field"><label>Nomor aktif sekarang</label><input class="form-control" type="text" id="waManageCurrent" disabled></div>
 
-        <p class="hint" style="margin:18px 0 2px;font-weight:700;color:var(--ink);">Change Active Number</p>
+        <p class="hint" style="margin:18px 0 2px;font-weight:700;color:var(--ink);">Ganti nomor aktif</p>
         <p class="hint" style="margin:0 0 8px;">Kalau warga ini ganti nomor HP, pindahin akunnya ke sini. Semua histori (loyalty stamp, quest, post) ikut pindah.</p>
         <div style="display:flex;gap:8px;">
           <input class="form-control" type="text" id="waManageNewActive" placeholder="mis. 081234567890" autocomplete="off">
-          <button class="btn btn-sm" id="waManageChangeBtn" style="flex-shrink:0;">Switch</button>
+          <button class="btn btn-sm" id="waManageChangeBtn" style="flex-shrink:0;">Pindahkan</button>
         </div>
 
-        <p class="hint" style="margin:20px 0 2px;font-weight:700;color:var(--ink);">Merge Another Number</p>
+        <p class="hint" style="margin:20px 0 2px;font-weight:700;color:var(--ink);">Gabungin nomor lain</p>
         <p class="hint" style="margin:0 0 8px;">Kalau dia kedaftar lagi pakai nomor lain, gabungin histori-nya ke akun ini (nomor aktifnya tetap yang di atas).</p>
         <div style="display:flex;gap:8px;">
           <input class="form-control" type="text" id="waManageMergeFrom" placeholder="mis. 081234567890" autocomplete="off">
-          <button class="btn btn-sm btn-ghost" id="waManageMergeBtn" style="flex-shrink:0;">Merge</button>
+          <button class="btn btn-sm btn-ghost" id="waManageMergeBtn" style="flex-shrink:0;">Gabung</button>
         </div>
 
         <div class="msg" id="waManageMsg"></div>
@@ -6824,7 +6824,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       </div>
       <div class="filter-overlay-body">
         <input type="hidden" id="vidId">
-        <div class="konten-field"><label>Video URL</label><input class="form-control" type="url" id="vidUrl" placeholder="https://youtube.com/watch?v=..."></div>
+        <div class="konten-field"><label>Link</label><input class="form-control" type="url" id="vidUrl" placeholder="https://youtube.com/watch?v=..."></div>
         <div class="konten-field"><label>Judul (opsional)</label><input class="form-control" type="text" id="vidTitle" placeholder="mis. Tutorial bikin macrame"></div>
         <div class="konten-field"><label>Folder</label><select class="form-control" id="vidFolderSelect"><option value="">Tanpa folder</option></select></div>
         <div class="konten-field"><label>Catatan (opsional)</label><textarea class="form-control" id="vidNotes" rows="2"></textarea></div>
@@ -6853,8 +6853,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="konten-field" style="flex:1;min-width:130px;"><label>Status</label>
             <select class="form-control" id="invoiceStatus">
               <option value="draft">Draft</option>
-              <option value="sent">Sent</option>
-              <option value="paid">Paid</option>
+              <option value="sent">Terkirim</option>
+              <option value="paid">Lunas</option>
             </select>
           </div>
         </div>
@@ -6866,13 +6866,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <div id="invoiceItemRows"></div>
         <button type="button" class="btn btn-sm btn-ghost" id="invoiceItemAddBtn" style="margin-bottom:4px;">+ Tambah item</button>
         <div class="hint" style="text-align:right;font-weight:700;color:var(--ink);margin-bottom:8px;">Total: <span id="invoiceTotalOut">Rp 0</span></div>
-        <p class="hint" style="margin:8px 0 4px;">Bank Transfer</p>
+        <p class="hint" style="margin:8px 0 4px;">Transfer bank</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:120px;"><label>Nama bank</label><input class="form-control" type="text" id="invoiceBankName" value="Blu by BCA Digital"></div>
           <div class="konten-field" style="flex:1;min-width:170px;"><label>Nama akun</label><input class="form-control" type="text" id="invoiceBankAccountName" value="Arnold Therigan"></div>
           <div class="konten-field" style="flex:1;min-width:150px;"><label>No. rekening</label><input class="form-control" type="text" id="invoiceBankAccountNo" value="090163537583"></div>
         </div>
-        <p class="hint" style="margin:8px 0 4px;">Signature</p>
+        <p class="hint" style="margin:8px 0 4px;">Tanda tangan</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <div class="konten-field" style="flex:1;min-width:170px;"><label>Nama penanda tangan</label><input class="form-control" type="text" id="invoiceSignerName" value="Arnold Therigan"></div>
           <div class="konten-field" style="flex:1;min-width:170px;"><label>Jabatan penanda tangan</label><input class="form-control" type="text" id="invoiceSignerRole" value="Founder Seminggu Satu"></div>
@@ -7296,11 +7296,88 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       });
     }
 
+    // ---- Form lama: input file & pilihan ikon dibikin enak dipakai ----
+    // Input file bawaan browser ("Choose File / No file chosen") diganti zona
+    // pilih file + nama file + pratinjau gambar; <select> ikon diganti grid
+    // ikon yang bisa langsung diklik. Elemen aslinya TETAP ada (cuma
+    // disembunyiin), jadi semua kode lama yang baca .files/.value nggak berubah.
+    function abEnhanceFile(inp) {
+      if (inp.dataset.abEnh) return;
+      inp.dataset.abEnh = "1";
+      const isImg = /image/.test(inp.accept || "");
+      const zone = document.createElement("label");
+      zone.className = "ab-file";
+      inp.parentNode.insertBefore(zone, inp);
+      zone.appendChild(inp);
+      inp.classList.add("ab-file-input");
+      const ui = document.createElement("span");
+      ui.className = "ab-file-ui";
+      zone.appendChild(ui);
+      const empty = `<span class="ab-file-ico">${icon(isImg ? "camera" : "download")}</span><span class="ab-file-txt"><b>${isImg ? "Pilih foto" : "Pilih file"}</b><small>${isImg ? "JPG/PNG" : (/pdf/.test(inp.accept || "") ? "PDF" : "File")}</small></span>`;
+      const sync = () => {
+        const f = inp.files && inp.files[0];
+        if (!f) { ui.innerHTML = empty; zone.classList.remove("has"); return; }
+        zone.classList.add("has");
+        const name = inp.files.length > 1 ? inp.files.length + " file dipilih" : escapeHtml(f.name);
+        if (isImg && /^image\//.test(f.type)) {
+          const url = URL.createObjectURL(f);
+          ui.innerHTML = `<img class="ab-file-thumb" src="${url}" alt=""><span class="ab-file-txt"><b>${name}</b><small>Tap buat ganti</small></span>`;
+        } else ui.innerHTML = `<span class="ab-file-ico">${icon("checkCircle")}</span><span class="ab-file-txt"><b>${name}</b><small>Tap buat ganti</small></span>`;
+      };
+      inp.addEventListener("change", sync);
+      inp._abSync = sync;
+      sync();
+    }
+    function abEnhanceIconSelect(sel) {
+      if (sel.dataset.abEnh) return;
+      sel.dataset.abEnh = "1";
+      sel.classList.add("ab-hidden-select");
+      const grid = document.createElement("div");
+      grid.className = "ab-icongrid";
+      grid.setAttribute("role", "radiogroup");
+      grid.setAttribute("aria-label", "Pilih ikon");
+      sel.insertAdjacentElement("afterend", grid);
+      const render = () => {
+        grid.innerHTML = Array.from(sel.options).map(o =>
+          `<button type="button" role="radio" aria-checked="${o.value === sel.value}" class="ab-ico-opt${o.value === sel.value ? " on" : ""}" data-v="${escapeHtml(o.value)}" title="${escapeHtml(o.textContent)}">${icon(o.value)}</button>`).join("");
+      };
+      grid.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-v]"); if (!b) return;
+        sel.value = b.dataset.v; sel.dispatchEvent(new Event("change", { bubbles: true })); render();
+      });
+      sel.addEventListener("change", render);
+      new MutationObserver(render).observe(sel, { childList: true });
+      sel._abSync = render;
+      render();
+    }
+    function abEnhanceForms() {
+      const FILE_SEL = 'input.form-control[type="file"]';
+      document.querySelectorAll(FILE_SEL).forEach(abEnhanceFile);
+      // input file yang dirender belakangan (item Konten, editor produk, dst)
+      new MutationObserver(muts => muts.forEach(m => m.addedNodes.forEach(n => {
+        if (n.nodeType !== 1) return;
+        if (n.matches && n.matches(FILE_SEL)) abEnhanceFile(n);
+        else if (n.querySelectorAll) n.querySelectorAll(FILE_SEL).forEach(abEnhanceFile);
+      }))).observe(document.body, { childList: true, subtree: true });
+      document.querySelectorAll(".filter-overlay").forEach(ov => {
+        ov.querySelectorAll('select[id$="Icon"]').forEach(abEnhanceIconSelect);
+        if (ov.dataset.abObs) return;
+        ov.dataset.abObs = "1";
+        // pas form dibuka: nilai yang diisi kode (edit item / reset form) ikut ketampil
+        new MutationObserver(() => {
+          if (ov.style.display === "none") return;
+          ov.querySelectorAll('input[type="file"]').forEach(i => i._abSync && i._abSync());
+          ov.querySelectorAll("select.ab-hidden-select").forEach(s => s._abSync && s._abSync());
+        }).observe(ov, { attributes: true, attributeFilter: ["style"] });
+      });
+    }
+
     function showDashboard() {
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
       applyMobileHeaderHeightVar();
       try { abBuildHeads(); } catch (e) { console.error("abBuildHeads", e); }
+      try { abEnhanceForms(); } catch (e) { console.error("abEnhanceForms", e); }
       if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // jangan pulihkan scroll lama
       populateWorkshopSelect();
       applyHash(); // buka view sesuai URL hash (default overview)
@@ -11523,7 +11600,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="doc-invoice-footer">
             <div>
               <div class="doc-invoice-footer-title">Payment Information</div>
-              <div class="doc-invoice-footer-body">Bank Transfer<br>Bank Name : ${escapeHtml(d.bankName || "-")}<br>Account Name : ${escapeHtml(d.bankAccountName || "-")}<br>Account No : ${escapeHtml(d.bankAccountNo || "-")}</div>
+              <div class="doc-invoice-footer-body">Transfer bank<br>Bank Name : ${escapeHtml(d.bankName || "-")}<br>Account Name : ${escapeHtml(d.bankAccountName || "-")}<br>Account No : ${escapeHtml(d.bankAccountNo || "-")}</div>
             </div>
             <div class="doc-invoice-footer-right">
               <div class="doc-invoice-footer-title">${escapeHtml(d.signerRole || "-")}</div>
@@ -16320,7 +16397,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <b>${escapeHtml(b.name)}</b>
             <div class="hint" style="margin:2px 0 0;">${rupiah(b.amount)} · reset tgl ${b.reset_day}</div>
           </div>
-          ${isPaid ? '<span class="per-badge income">Paid</span>' : ""}
+          ${isPaid ? '<span class="per-badge income">Lunas</span>' : ""}
         </div>`;
       }).join("");
       box.querySelectorAll("[data-editbill]").forEach(el => el.addEventListener("click", (e) => {

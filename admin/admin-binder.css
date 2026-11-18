@@ -521,3 +521,24 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 @media (max-width: 720px) {
     .filter-overlay-foot .btn { flex: 1 1 auto; }
 }
+
+/* ---------- Zona pilih file (ganti "Choose File") & grid ikon ---------- */
+.ab-file { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; margin: 0; padding: 10px 14px; border: 2px dashed #c9d6f5; border-radius: 14px; background: #f7f9ff; cursor: pointer; font-weight: 400 !important; }
+.ab-file:hover { border-color: var(--brand); background: #f0f4ff; }
+.ab-file:focus-within { outline: 3px solid var(--ab-yellow); outline-offset: 2px; }
+.ab-file.has { border-style: solid; background: #ffffff; }
+.ab-file-input { position: absolute !important; inset: 0; width: 100% !important; height: 100% !important; opacity: 0; cursor: pointer; margin: 0 !important; }
+.ab-file-ui { display: flex; align-items: center; gap: 12px; min-width: 0; pointer-events: none; }
+.ab-file-ico { width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: #e6edff; color: var(--brand); }
+.ab-file-ico svg { width: 20px; height: 20px; }
+.ab-file-thumb { width: 48px; height: 48px; flex-shrink: 0; border-radius: 10px; object-fit: cover; }
+.ab-file-txt { display: flex; flex-direction: column; min-width: 0; }
+.ab-file-txt b { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-file-txt small { font-size: 12.5px; color: var(--muted); }
+.ab-hidden-select { display: none !important; }
+.ab-icongrid { display: flex; flex-wrap: wrap; gap: 8px; }
+.ab-ico-opt { width: 46px; height: 46px; border-radius: 12px; border: 1.5px solid #c9d6f5; background: #ffffff; color: var(--ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.ab-ico-opt svg { width: 20px; height: 20px; }
+.ab-ico-opt:hover { border-color: var(--brand); color: var(--brand); }
+.ab-ico-opt.on { background: var(--ab-yellow); border-color: var(--ab-yellow); box-shadow: var(--ab-sticker); color: #10245e; }
+@media (min-width: 721px) { .filter-overlay-foot .btn { flex: 0 0 auto !important; } }
