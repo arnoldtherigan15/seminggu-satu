@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=15">
+  <link rel="stylesheet" href="admin-binder.css?v=17">
 </head>
 
 <body>
@@ -4758,17 +4758,19 @@
             <button class="btn btn-sm btn-ghost" id="cfgReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
 
-          <div class="fin-card" id="cfgSummaryCard">
-            <div style="font-weight:800;margin-bottom:4px;" id="cfgSummaryTitle">—</div>
-            <p class="hint" id="cfgSummarySub" style="margin:0 0 10px;"></p>
+          <div class="fin-card cfg-summary" id="cfgSummaryCard">
+            <div class="cfg-sum-head">
+              <div><div class="cfg-sum-title" id="cfgSummaryTitle">Pilih event dulu</div>
+              <p class="hint" id="cfgSummarySub" style="margin:2px 0 0;"></p></div>
+              <button class="btn" id="cfgEditBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg> Edit detail</button>
+            </div>
             <div id="cfgSummaryBody"></div>
-            <button class="btn" id="cfgEditBtn" style="margin-top:12px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg> Edit</button>
           </div>
 
-          <div class="fin-card" id="cfgCaptionCard" style="margin-top:14px;">
-            <div style="font-weight:800;margin-bottom:4px;">Caption otomatis (AI)</div>
-            <p class="hint" style="margin:0 0 8px;">Attached to the event+batch picked above. Fill in creative details (collab partner, kit contents, discount vouchers, special theme) -- AI drafts a promo caption using this + the event's real date/time/location/price (auto, no need to retype).</p>
-            <textarea class="form-control" id="cfgCaptionContext" rows="5" placeholder="Example:
+          <details class="fin-card cfg-cap" id="cfgCaptionCard">
+            <summary class="cfg-cap-sum">Caption promosi pakai AI <span>buat event/batch yang dipilih</span></summary>
+            <p class="hint" style="margin:10px 0 8px;">Isi detail kreatif (partner kolaborasi, isi kit, voucher, tema spesial). AI bikinin draft caption promosi pakai detail ini plus tanggal, jam, lokasi, dan harga event yang asli.</p>
+            <textarea class="form-control" id="cfgCaptionContext" rows="5" placeholder="Contoh:
 Kolaborasi dengan @cookiesys, tema Lino Cut Workshop 2-in-1.
 Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedia & SUN Indonesia, all you can use journaling supplies, 1x 4R Photo Print."></textarea>
             <button class="btn btn-sm" id="cfgCaptionSaveContextBtn" style="margin-top:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan konteks</button>
@@ -4789,7 +4791,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <p class="hint" style="margin:0 0 8px;">Caption yang udah disimpan buat event/batch ini. Edit draft di atas lalu tap "Simpan ke daftar caption" kalau mau nyimpen beberapa versi (mis. beda platform).</p>
               <div id="cfgCaptionList"></div>
             </div>
-          </div>
+          </details>
         </div>
 
         <!-- ===== OVERLAY: CONFIG EDITOR (General Config / Batch Detail) ===== -->
@@ -4801,7 +4803,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
             <div class="filter-overlay-body">
               <div class="fin-card" id="cfgGeneralCard">
-                <p class="hint" style="margin:0 0 10px;">PRODUCT/PAGE data for the event (name, description, bank account, etc.) -- applies to ALL batches of this type. Date/time/location/price/quota/WA link can differ per batch -- pick the batch in the "Batch" dropdown above.</p>
+                <p class="hint" style="margin:0 0 10px;">Data halaman event (nama, deskripsi, rekening, dll.) — berlaku buat SEMUA batch event ini. Tanggal, jam, lokasi, harga, kuota, dan link WA bisa beda per batch: pilih batch-nya di atas.</p>
                 <div id="cfgForm" class="cfg-form"></div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
                   <button class="btn" id="cfgSaveBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v4.5h2a.5.5 0 0 1 .354.854l-2.5 2.5a.5.5 0 0 1-.708 0l-2.5-2.5A.5.5 0 0 1 5.5 6.5h2V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1z"/></svg> Simpan config</button>
@@ -4814,7 +4816,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
               <div class="fin-card" id="cfgBatchCard" style="display:none;margin-top:14px;">
                 <div style="font-weight:800;margin-bottom:4px;">Batch Detail: <span id="cfgBatchLabel"></span></div>
-                <p class="hint" style="margin:0 0 8px;">Defaults follow General Config above. Fill in one/several fields HERE only if this batch differs (e.g. venue/price/quota different from other batches of the same type) -- leave blank to follow General Config. New batches automatically copy this from the last batch created -- just edit what's different.</p>
+                <p class="hint" style="margin:0 0 8px;">Kosong = ikut config umum. Isi di sini cuma kalau batch ini beda (mis. venue, harga, atau kuota). Batch baru otomatis nyontek batch terakhir, tinggal ubah yang beda.</p>
                 <div class="konten-field"><label>Nama batch</label><input class="form-control" type="text" id="batchLabelInput" placeholder="mis. Vol 1"></div>
                 <div class="konten-field"><label>Deskripsi / tema (opsional, kalau tema batch ini beda dari biasanya)</label><textarea class="form-control" id="batchDescription" rows="2" placeholder="follows Config"></textarea></div>
                 <div class="konten-field">
@@ -4849,7 +4851,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal buka pendaftaran</label><input class="form-control" type="date" id="batchOpenDate"></div>
                   <div class="konten-field" style="flex:1;min-width:180px;"><label>Tanggal tutup pendaftaran</label><input class="form-control" type="date" id="batchCloseDate"></div>
                 </div>
-                <p class="hint" style="margin:-6px 0 10px;">Kosongin Close Date kalau mau pendaftaran otomatis tutup pas Event Date lewat -- JANGAN kosongin cuma karena batch sebelumnya juga kosong & "ikut Config", karena Close Date TIDAK ikut Config (beda dari field lain di atas) -- itu bug yang pernah bikin batch baru ke-anggap tutup duluan gara-gara kepatok closeDate batch LAMA di Config.</p>
+                <p class="hint" style="margin:-6px 0 10px;">Kosongin tanggal tutup kalau mau pendaftaran otomatis tutup pas tanggal event lewat. Tanggal tutup TIDAK ikut config umum (beda dari field lain), jadi isi cuma kalau batch ini memang perlu tutup lebih awal.</p>
                 <div class="konten-field">
                   <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
                     <input type="checkbox" id="batchHideFromPicker" style="width:16px;height:16px;">
@@ -4881,7 +4883,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
                 <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
                   <div style="font-weight:800;margin-bottom:4px;">Data peserta manual (void)</div>
-                  <p class="hint" style="margin:0 0 8px;">For batches from BEFORE this system existed (used to be tracked manually/via WA) -- if you roughly know the participant count but don't have individual data, add it here so quota/revenue/profit are counted correctly. The row shows up in the Registrations table (marked "Void"), and can be deleted/archived like a regular registrant.</p>
+                  <p class="hint" style="margin:0 0 8px;">Buat batch dari SEBELUM sistem ini ada (dulu dicatat manual/lewat WA). Kalau tahu kira-kira jumlah pesertanya tapi nggak punya datanya, tambah di sini biar kuota, pendapatan, dan untung kehitung. Barisnya muncul di Pendaftar (ditandai "Void") dan bisa dihapus/diarsip kayak pendaftar biasa.</p>
                   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
                     <div class="konten-field" style="flex:1;min-width:100px;max-width:140px;"><label>Count</label><input class="form-control" type="text" inputmode="numeric" id="batchVoidCount" placeholder="mis. 20"></div>
                     <div class="konten-field" style="flex:2;min-width:180px;"><label>Catatan (opsional)</label><input class="form-control" type="text" id="batchVoidNote" placeholder="mis. data lama dari WA"></div>
@@ -4892,7 +4894,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
                 <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
                   <div style="font-weight:800;margin-bottom:4px;">Pindahkan batch ke event lain</div>
-                  <p class="hint" style="margin:0 0 8px;">For a batch that ended up stuck under the wrong event (e.g. it was accidentally given its own separate event when it should just be 1 batch under the right event). This batch's registrants & costs move along with it.</p>
+                  <p class="hint" style="margin:0 0 8px;">Buat batch yang nyangkut di event yang salah. Pendaftar dan biaya batch ini ikut pindah.</p>
                   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
                     <div class="konten-field" style="flex:1;min-width:200px;"><label>Pindah ke</label><select class="form-control" id="batchMoveTarget"></select></div>
                     <button class="btn btn-sm btn-ghost" id="batchMoveBtn">Pindahkan</button>
@@ -7635,7 +7637,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             ? `<button class="wa-copy" data-photolink="${escapeHtml(regId)}" data-photoname="${escapeHtml(nm)}" data-photowa="${escapeHtml((it && it.wa) || "")}" title="Send photo re-upload link">${icon("camera")}</button>`
             : "";
           const voidBadge = isVoid ? `<span class="subtab-count" title="Manual placeholder data, not a real registrant -- created via Config > Batch Detail" style="margin-right:6px;">Void</span>` : "";
-          const archiveBtn = `<button class="sg-archive${isArchived ? " is-archived" : ""}" data-archivereg="${escapeHtml(regId)}" data-archived="${isArchived ? "0" : "1"}" title="${isArchived ? "Cancel their spot, but still counted in quota/loyalty/profit -- click to unarchive" : "Registered but not attending & already given a free slot at another event -- archive so it's excluded from quota/loyalty/profit, row stays saved"}">${icon("archive")} ${isArchived ? "Archived" : "Archive"}</button>`;
+          const archiveBtn = `<button class="sg-archive${isArchived ? " is-archived" : ""}" data-archivereg="${escapeHtml(regId)}" data-archived="${isArchived ? "0" : "1"}" title="${isArchived ? "Diarsipkan. Tap buat batalkan arsip" : "Daftar tapi nggak jadi ikut: arsipkan biar nggak dihitung di kuota, loyalty, dan untung (data tetap tersimpan)"}">${icon("archive")} ${isArchived ? "Diarsipkan" : "Arsipkan"}</button>`;
           const delBtn = `<button class="sg-del" data-delreg="${escapeHtml(regId)}">${icon("trash")} Hapus</button>`;
 
           const cells = row.map((c, idx) => idx === tsIdx ? `<td>${escapeHtml(fmtDateTime(c))}</td>` : `<td>${regValueHtml(shaped.keys[idx], c, workshop)}</td>`).join("");
@@ -9935,11 +9937,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const b = CFG_BATCHES.find(x => x.id === batchId);
       const archived = !!(b && b.archived);
       btn.innerHTML = archived
-        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Unarchive'
-        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Archive Batch';
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Buka arsip'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z"/></svg> Arsipkan batch';
       hint.textContent = archived
-        ? "This batch is archived -- registration is closed, and it's excluded from quota, revenue/profit, & participant count everywhere (Overview, Analytics, Finance)."
-        : "For test batches / dirty data that shouldn't mix into any calculations -- the row stays saved, just excluded from quota & revenue/profit/participant count.";
+        ? "Batch ini diarsipkan: pendaftaran tutup, dan nggak dihitung di kuota, pendapatan/untung, maupun jumlah peserta di mana pun."
+        : "Buat batch uji coba atau data kotor yang nggak boleh ikut dihitung. Datanya tetap tersimpan, cuma nggak masuk kuota, pendapatan/untung, dan jumlah peserta.";
     }
 
     async function toggleCfgBatchArchive() {
@@ -10347,27 +10349,44 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const subEl = document.getElementById("cfgSummarySub");
       const bodyEl = document.getElementById("cfgSummaryBody");
       if (!titleEl) return;
-      if (!w) { titleEl.textContent = "—"; subEl.textContent = ""; bodyEl.innerHTML = ""; return; }
+      const card = document.getElementById("cfgSummaryCard");
+      if (!w) { titleEl.textContent = "Pilih event dulu"; subEl.textContent = "Pilih event di atas buat lihat dan edit detailnya."; bodyEl.innerHTML = ""; card.classList.add("is-empty"); return; }
+      card.classList.remove("is-empty");
+      const fact = (lbl, val) => `<div class="cfg-fact"><dt>${lbl}</dt><dd>${val}</dd></div>`;
+      const pill = (on, a, b) => `<span class="cfg-pill ${on ? "on" : "off"}">${on ? a : b}</span>`;
+      let link = "";
       if (!batchId) {
-        titleEl.textContent = w.name || w.id;
-        subEl.textContent = "General Config";
-        bodyEl.innerHTML = `
-          <div class="hint">Active: <b>${w.enabled ? "Yes" : "No"}</b> · Show on homepage: <b>${w.isDisplay ? "Yes" : "No"}</b></div>
-          <div class="hint" style="margin-top:4px;">Bank: <b>${escapeHtml(w.bankName || "Blu by BCA Digital (default)")}</b></div>`;
+        titleEl.innerHTML = escapeHtml(w.name || w.id) + " " + pill(w.enabled, "Aktif", "Nonaktif");
+        subEl.textContent = "Config umum — berlaku buat semua batch event ini";
+        link = "https://seminggusatu.com/" + w.id + "/";
+        bodyEl.innerHTML = `<dl class="cfg-facts">
+          ${fact("Tampil di homepage", w.isDisplay ? "Ya" : "Nggak")}
+          ${fact("Bank", escapeHtml(w.bankName || "Blu by BCA Digital"))}
+          ${fact("Harga normal", w.normalPrice != null ? "Rp " + formatRibuan(w.normalPrice) : "-")}
+          ${fact("Kuota default", w.maxQuota || "-")}
+        </dl>`;
       } else {
         const b = CFG_BATCHES.find(x => x.id === batchId);
-        titleEl.textContent = (b && b.label) || "Batch";
+        titleEl.innerHTML = escapeHtml((b && b.label) || "Batch") + " " + (b && b.archived ? pill(false, "", "Diarsipkan") : pill(!!(b && b.active), "Pendaftaran buka", "Pendaftaran tutup"));
         subEl.textContent = w.name || w.id;
         const loc = (b && b.locationName) || w.locationName || "-";
         const date = (b && b.workshopDate) || w.workshopDate || "-";
         const time = (b && b.workshopTime) || w.workshopTime || "-";
         const price = (b && b.normalPrice != null) ? b.normalPrice : w.normalPrice;
         const quota = (b && b.maxQuota != null) ? b.maxQuota : w.maxQuota;
-        bodyEl.innerHTML = `
-          <div class="hint">Location: <b>${escapeHtml(loc)}</b></div>
-          <div class="hint" style="margin-top:4px;">Date: <b>${escapeHtml(date)}</b> · Time: <b>${escapeHtml(time)}</b></div>
-          <div class="hint" style="margin-top:4px;">Price: <b>Rp ${formatRibuan(price || 0)}</b> · Quota: <b>${quota || "-"}</b></div>`;
+        link = "https://seminggusatu.com/" + w.id + "/" + (b && b.label ? "?batch=" + encodeURIComponent(b.label) : "");
+        bodyEl.innerHTML = `<dl class="cfg-facts">
+          ${fact("Tanggal", escapeHtml(date))}
+          ${fact("Jam", escapeHtml(time))}
+          ${fact("Lokasi", escapeHtml(loc))}
+          ${fact("Harga", "Rp " + formatRibuan(price || 0))}
+          ${fact("Kuota", quota || "-")}
+          ${fact("Pendaftar", (b && b.count != null) ? b.count : "-")}
+        </dl>`;
       }
+      bodyEl.insertAdjacentHTML("beforeend", `<div class="cfg-links"><a class="btn btn-ghost" href="${escapeHtml(link)}" target="_blank" rel="noopener">${icon("openLink")} Lihat halaman</a><button type="button" class="btn btn-ghost" data-cfgcopy="${escapeHtml(link)}">${icon("link")} Salin link daftar</button></div>`);
+      const cp = bodyEl.querySelector("[data-cfgcopy]");
+      cp.addEventListener("click", () => navigator.clipboard.writeText(cp.dataset.cfgcopy).then(() => abToast("Link disalin", "ok")));
     }
 
     // ---------- CONFIG: AI Caption generator (per event+batch, sama pola

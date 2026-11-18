@@ -574,3 +574,27 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
     .kt-row { flex-wrap: wrap; }
     .kt-acts { width: 100%; justify-content: flex-end; }
 }
+
+/* ---------- Config event: kartu ringkasan ---------- */
+.cfg-sum-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.cfg-sum-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 22px; color: var(--ink); }
+.cfg-summary.is-empty #cfgEditBtn { display: none; }
+#cfgEditBtn { flex-shrink: 0; height: 44px; }
+.cfg-pill { font-family: 'Open Sans', sans-serif; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; }
+.cfg-pill.on { background: #e3f6ea; color: #0b5d38; }
+.cfg-pill.off { background: #f1f5f9; color: #475569; }
+.cfg-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin: 0; padding: 14px; border-radius: 14px; background: #f7f9ff; }
+.cfg-fact dt { font-size: 12px; font-weight: 700; color: var(--muted); margin: 0 0 2px; }
+.cfg-fact dd { margin: 0; font-weight: 700; font-size: 15px; color: var(--ink); overflow-wrap: anywhere; }
+.cfg-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.cfg-links .btn { height: 42px; }
+.cfg-cap { margin-top: 14px; }
+.cfg-cap-sum { cursor: pointer; list-style: none; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; color: var(--ink); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.cfg-cap-sum::-webkit-details-marker { display: none; }
+.cfg-cap-sum::before { content: "+"; display: inline-flex; width: 22px; height: 22px; border-radius: 8px; align-items: center; justify-content: center; background: #e6edff; color: var(--brand); font-size: 15px; }
+.cfg-cap[open] .cfg-cap-sum::before { content: "−"; }
+.cfg-cap-sum span { font-family: 'Open Sans', sans-serif; font-weight: 600; font-size: 13px; color: var(--muted); }
+@media (max-width: 560px) { .cfg-sum-head { flex-direction: column; } }
+.cfg-summary .btn { width: auto !important; flex: 0 0 auto; }
+.cfg-sum-head > div:first-child { flex: 1; min-width: 0; }
+.cfg-pill { white-space: nowrap; }
