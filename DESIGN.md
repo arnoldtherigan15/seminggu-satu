@@ -94,7 +94,7 @@ components:
 
 # Design System: Seminggu Satu — Binder Diary
 
-> **Scope.** This world lives on the public homepage (`index.html`), every registration page (`reka-rekat/`, `paper-journal/`, `upcycle-journal/`, `side-by-side/`, `private-uc/`, `3d-frame-journaling/`, `bookmark-journal/`, `journaling-date/`, plus the `update-photo` pages) via the shared `binder-form.css`, `closed.html`, and `recommendation.html` (Alat & Bahan). Registration pages are Operate surfaces: same materials, calmer decoration (no washi on sheets under tabs, no ruled lines behind fields, no looping price/ticket animation). Other pages (Balai Warga, admin) still follow `.claude/skills/seminggu-ui`. The homepage surface contract is `.impeccable/surfaces/index-html.md`.
+> **Scope.** This world lives on the public homepage (`index.html`), every registration page (`reka-rekat/`, `paper-journal/`, `upcycle-journal/`, `side-by-side/`, `private-uc/`, `3d-frame-journaling/`, `bookmark-journal/`, `journaling-date/`, plus the `update-photo` pages) via the shared `binder-form.css`, `closed.html`, and `recommendation.html` (Alat & Bahan). Registration pages are Operate surfaces: same materials, calmer decoration (no washi on sheets under tabs, no ruled lines behind fields, no looping price/ticket animation). Balai Warga (`warga/`) joins through `warga/warga-binder.css` (stitched cover header, index-tabbed Home groups, ruled card-stock member card, wax-seal punch card, mading leaderboard, sticker nav). Admin and the remaining tools still follow `.claude/skills/seminggu-ui`. The homepage surface contract is `.impeccable/surfaces/index-html.md`.
 
 ## Overview
 
@@ -214,7 +214,7 @@ Loose-leaf sheets have a slightly asymmetric radius (6px on the binding edge, 16
 
 ### Don't:
 - **Don't** draw chrome/metal hardware (gradient binder rings); the cover is flat stitched fabric.
-- **Don't** use emoji or Unicode glyphs (→, 🏘️) as interface icons.
+- **Don't** use emoji anywhere, in markup or in JS-rendered copy, and don't use Unicode glyphs (→, ✓, ★) as icons. Use Lucide-style SVG. `icons.js` (loaded on every page) swaps any known emoji/glyph for its SVG at runtime as a safety net, strips them where SVG can't render (`<option>`, `<title>`, attributes, `alert`), and leaves unknown, user-typed emoji untouched.
 - **Don't** rebuild the uniform rounded-card link-in-bio column this world replaced.
 - **Don't** put white text on Sticker Yellow, or use Margin Pink for text.
 - **Don't** add looping or bouncy animation, fake urgency, or invented social proof (see seminggu-psych and PRODUCT.md).
