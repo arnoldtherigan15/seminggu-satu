@@ -4583,7 +4583,7 @@
                 <!-- Kanan: hasil -->
                 <div class="fin-col">
                   <div class="per-hero">
-                    <div class="per-hero-label" id="resProfitLabel">Profit</div>
+                    <div class="per-hero-label" id="resProfitLabel">Untung</div>
                     <div class="per-hero-amount" id="resProfit">Rp 0</div>
                     <div class="per-hero-sub" id="resMargin">0% margin</div>
                     <div class="per-hero-mini">
@@ -5886,8 +5886,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
           <!-- Import Instagram (following vs followers) -->
           <div style="margin-bottom:16px;">
-            <button class="btn btn-sm btn-ghost" id="igImportToggle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Import Instagram — find who doesn't follow
-              back</button>
+            <button class="btn btn-sm btn-ghost" id="igImportToggle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Impor Instagram: cari yang nggak follow balik</button>
           </div>
           <div class="fin-card ig-import" id="igImportPanel" style="display:none; margin-bottom:16px;">
             <h3 style="font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Impor data Instagram</h3>
@@ -8913,7 +8912,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <div style="padding-top:10px;border-top:1.5px solid var(--line);">
               <div style="display:flex;justify-content:space-between;font-size:.9rem;"><span>Total biaya</span><b style="color:var(--err);">${rupiah(d.cost)}</b></div>
               <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-top:4px;"><span>Income (Net) − Total Costs</span><span>${rupiah(d.revenue)} − ${rupiah(d.cost)}</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:1rem;margin-top:8px;"><span style="font-weight:800;">Profit</span><b style="color:${d.profit < 0 ? "var(--err)" : "var(--ok)"};">${rupiah(d.profit)}</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:1rem;margin-top:8px;"><span style="font-weight:800;">Untung</span><b style="color:${d.profit < 0 ? "var(--err)" : "var(--ok)"};">${rupiah(d.profit)}</b></div>
               <div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-top:2px;"><span>Margin</span><span>${rupiah(d.profit)} ÷ ${rupiah(d.revenue)} = ${d.revenue > 0 ? d.margin + "%" : "-"}</span></div>
             </div>
           </div>
@@ -14352,36 +14351,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const bdMonthName = r.bdayMonthName || "";
         if (bdCnt) bdCnt.textContent = birthdays.length ? "(" + birthdays.length + ")" : "";
         if (bdEl) {
+          // Ucapan ultah satu tempat aja: kotak "Perlu disapa" di Member. Di sini cuma ringkasan + tautan.
+          const upcoming = birthdays.filter(b => b.isToday || (b.day >= todayDD0 && b.day - todayDD0 <= 7 && !isBdayWished(b.wa)));
           bdEl.innerHTML = birthdays.length
-            ? birthdays.map(b => {
-              const wished = isBdayWished(b.wa);
-              let when, cls = "", badge = "";
-              if (b.isToday) { when = '<span class="bday-when">TODAY</span>'; cls = "bday-today"; badge = '<span class="bday-today-badge">' + icon("cake") + ' TODAY</span>'; }
-              else if (b.day === todayDD0 + 1) when = '<span class="bday-when">tomorrow</span>';
-              else if (b.day > todayDD0) when = (b.day - todayDD0) + " days left";
-              else when = "past";
-              const wishedNote = wished ? ' · <span style="color:#16a34a;font-weight:700;">' + icon("checkCircle") + ' wished</span>' : "";
-              return `<div class="loy-card${cls ? " " + cls : ""}"><div class="loy-top">
-                <div style="min-width:0;">
-                  <div class="loy-name">${escapeHtml(b.nickname)}${badge}</div>
-                  <div class="loy-wa">${icon("cake")} ${b.day} ${escapeHtml(bdMonthName)} · ${when}${wishedNote}</div>
-                </div>
-                <div class="mem-btns">
-                  ${b.wa ? `<button class="mem-wa loy-send" data-bdaywa="${escapeHtml(b.wa)}" data-bdayname="${escapeHtml(b.nickname)}">${icon("chat")} Ucapin</button>` : ""}
-                  ${b.ig ? `<button class="mem-ig" data-ig="${escapeHtml(b.ig)}" title="Salin username IG">${icon("clipboard")} ${escapeHtml(b.ig)}</button>` : ""}
-                </div>
-              </div></div>`;
-            }).join("")
+            ? `<button type="button" class="ov-attn-item tone-${upcoming.length ? "soon" : "ok"} act-bday-link"><span class="ov-attn-dot" aria-hidden="true"></span>
+                <span class="ov-attn-txt"><b>${upcoming.length ? upcoming.length + " warga ulang tahun minggu ini" : birthdays.length + " warga ulang tahun bulan " + escapeHtml(bdMonthName)}</b><span>${upcoming.length ? escapeHtml(upcoming.map(b => b.nickname).slice(0, 4).join(", ")) : "Semua yang minggu ini udah diucapin"}</span></span>
+                <span class="ov-attn-cta">Buka Member</span></button>`
             : '<p class="hint">Nggak ada yang ulang tahun bulan ini.</p>';
-          bdEl.querySelectorAll("[data-bdaywa]").forEach(btn => btn.addEventListener("click", () => {
-            const wa = waNormalize(btn.dataset.bdaywa);
-            if (!wa) { alert("Nomor WA nggak valid."); return; }
-            const nm = (btn.dataset.bdayname || "").trim().split(/\s+/)[0] || "kak";
-            window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(memWaMsg("bday", nm)), "_blank");
-            markBdayWished(btn.dataset.bdaywa);
-            loadActivity();
-          }));
-          bdEl.querySelectorAll("[data-ig]").forEach(b => b.addEventListener("click", () => copyIg(b)));
+          const lk = bdEl.querySelector(".act-bday-link");
+          if (lk) lk.addEventListener("click", () => switchView("members"));
         }
 
         const pending = r.pending || [];
@@ -18534,7 +18512,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       wireRnToolbar(body, editor, dirty);
       saveBtn.addEventListener("click", saveRichNote);
       RN_TAB_BODY = body;
-      return { id: "catatan", labelHtml: icon("journal") + " Full Notes", bodyEl: body };
+      return { id: "catatan", labelHtml: icon("journal") + " Catatan lengkap", bodyEl: body };
     }
 
     function isTouchDevice() {
@@ -20253,13 +20231,13 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           </div>
           <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;align-items:flex-end;">
             <div><span class="hint" style="margin:0;">Revenue</span><div style="font-weight:700;">${rupiah(e.totalRevenue)}</div></div>
-            <div><span class="hint" style="margin:0;">Profit</span><div style="font-weight:700;color:${e.totalProfit >= 0 ? "var(--ok)" : "var(--err)"};">${rupiah(e.totalProfit)}</div></div>
+            <div><span class="hint" style="margin:0;">Untung</span><div style="font-weight:700;color:${e.totalProfit >= 0 ? "var(--ok)" : "var(--err)"};">${rupiah(e.totalProfit)}</div></div>
             <button type="button" class="ana-detail-toggle" data-target="${detailId}" style="background:none;border:none;color:var(--brand);font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;">Lihat rincian batch</button>
           </div>
           <div id="${detailId}" style="display:none;margin-top:12px;overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;">
               <thead><tr style="text-align:left;color:var(--muted);">
-                <th style="padding:4px 8px 4px 0;">Batch</th><th style="padding:4px 8px;">Tanggal</th><th style="padding:4px 8px;">Participants</th><th style="padding:4px 8px;">Harga</th><th style="padding:4px 8px;">Revenue</th><th style="padding:4px 8px;">Cost</th><th style="padding:4px 0;">Profit</th>
+                <th style="padding:4px 8px 4px 0;">Batch</th><th style="padding:4px 8px;">Tanggal</th><th style="padding:4px 8px;">Peserta</th><th style="padding:4px 8px;">Harga</th><th style="padding:4px 8px;">Revenue</th><th style="padding:4px 8px;">Cost</th><th style="padding:4px 0;">Profit</th>
               </tr></thead>
               <tbody>${batchRows}</tbody>
             </table>
