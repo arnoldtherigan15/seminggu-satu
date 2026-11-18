@@ -1454,3 +1454,12 @@
     transform: rotate(-0.6deg);
 }
 #pane-events .ev-bday-note { position: relative; z-index: 1; }
+
+/* ---- Quest Board: cari + saring ---- */
+#pane-quest .q-finder { margin-bottom: 1.2rem; }
+#pane-quest .q-search { margin-bottom: 0.9rem; }
+#pane-quest .q-search .rsearch { padding-left: 2.6rem; }
+#pane-quest .q-search .rsearch::-webkit-search-cancel-button { cursor: pointer; }
+#pane-quest .q-tabs { margin-bottom: 0.2rem; }
+#pane-quest .q-empty { padding: 2rem 1rem; }
+#pane-quest .q-empty .em img { width: 72px; }

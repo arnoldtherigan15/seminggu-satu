@@ -972,6 +972,26 @@ async function loadQuests() {
     onGalleryReady(() => { if ($("questGrid")) renderQuestBoard(); });
 }
 
+// ---- Cari & saring challenge (biar tetap gampang dicari walau udah puluhan) ----
+// Filter status + kata kunci berlaku di ketiga mode (buku/grid/list). Sengaja
+// tanpa angka "Belum dicoba (20)" -- daftar tugas yang numpuk bikin tertekan
+// (seminggu-psych); cukup bantu nemu, bukan nagih.
+let _questFilter = "all";   // all | new | todo | done
+let _questSearch = "";
+function questVisibleIdx() {
+    const kw = _questSearch;
+    const out = [];
+    _questChallenges.forEach((q, i) => {
+        const done = _questSubmitted.indexOf(q.id) >= 0;
+        if (_questFilter === "new" && !isQuestNew(q)) return;
+        if (_questFilter === "todo" && done) return;
+        if (_questFilter === "done" && !done) return;
+        if (kw && (String(q.title || "") + " " + String(q.theme || "") + " " + String(q.description || "")).toLowerCase().indexOf(kw) < 0) return;
+        out.push(i);
+    });
+    return out;
+}
+
 function renderQuestBoard() {
     const pane = $("pane-quest");
     const toolbar =
@@ -983,21 +1003,63 @@ function renderQuestBoard() {
         '<button class="vbtn' + (_questView === "list" ? " active" : "") + '" id="qViewList" title="Mode List" aria-label="Mode List">' + ICON_FEED + '</button>' +
         '</div>' +
         '</div>';
-    _qbRefresh = null;
-    if (_questView === "book") {
-        pane.innerHTML = toolbar + '<div id="questGrid"></div>';
-        renderQuestBook($("questGrid"));
-    } else {
-        const body = (_questView === "list")
-            ? '<div class="quest-list" id="questGrid">' + _questChallenges.map(renderQuestRow).join("") + '</div>'
-            : '<div class="quest-grid" id="questGrid">' + _questChallenges.map(renderQuestCell).join("") + '</div>';
-        pane.innerHTML = toolbar + body;
-        $("questGrid").querySelectorAll("[data-i]").forEach(cell =>
-            cell.addEventListener("click", () => openQuestDetail(Number(cell.dataset.i))));
-    }
+    const hasNew = _questChallenges.some(isQuestNew);
+    const hasDone = _questChallenges.some(q => _questSubmitted.indexOf(q.id) >= 0);
+    if ((_questFilter === "new" && !hasNew) || (_questFilter === "done" && !hasDone)) _questFilter = "all";
+    const tab = (key, label) => '<button type="button" class="rfilter' + (_questFilter === key ? " active" : "") + '" data-qf="' + key + '" aria-pressed="' + (_questFilter === key) + '">' + label + '</button>';
+    const finder =
+        '<div class="q-finder">' +
+        '<div class="rsearch-wrap q-search">' +
+        '<span class="rsearch-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>' +
+        '<input type="search" id="qSearch" class="rsearch" placeholder="Cari challenge, tema, atau kata…" aria-label="Cari challenge" value="' + esc(_questSearch) + '">' +
+        '</div>' +
+        '<div class="rfilters q-tabs" id="qTabs">' +
+        tab("all", "Semua") + (hasNew ? tab("new", "Baru") : "") + tab("todo", "Belum dicoba") + (hasDone ? tab("done", "Udah kamu ikuti") : "") +
+        '</div>' +
+        '</div>';
+    pane.innerHTML = toolbar + finder + '<div id="questBody"></div>';
     $("qViewBook").addEventListener("click", () => { _questView = "book"; renderQuestBoard(); });
     $("qViewGrid").addEventListener("click", () => { _questView = "grid"; renderQuestBoard(); });
     $("qViewList").addEventListener("click", () => { _questView = "list"; renderQuestBoard(); });
+    // ketik = saring langsung, tanpa render ulang kolom cari (fokus keyboard nggak ilang)
+    $("qSearch").addEventListener("input", (e) => {
+        _questSearch = e.target.value.toLowerCase().trim();
+        _qbCur = 0;
+        renderQuestBody();
+    });
+    $("qTabs").querySelectorAll("[data-qf]").forEach(b => b.addEventListener("click", () => {
+        _questFilter = b.dataset.qf;
+        $("qTabs").querySelectorAll("[data-qf]").forEach(x => {
+            x.classList.toggle("active", x === b);
+            x.setAttribute("aria-pressed", String(x === b));
+        });
+        _qbCur = 0;
+        renderQuestBody();
+    }));
+    renderQuestBody();
+}
+
+function renderQuestBody() {
+    const host = $("questBody");
+    if (!host) return;
+    _qbRefresh = null;
+    const ids = questVisibleIdx();
+    if (!ids.length) {
+        host.innerHTML = '<div class="placeholder q-empty"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div>' +
+            '<h3>Nggak ada challenge yang cocok</h3>' +
+            '<p>' + (_questSearch && _questFilter !== "all" ? 'Coba kata lain, atau pilih "Semua".' : (_questSearch ? 'Coba kata lain ya.' : 'Coba pilih "Semua".')) + '</p></div>';
+        return;
+    }
+    if (_questView === "book") {
+        host.innerHTML = '<div id="questGrid"></div>';
+        renderQuestBook($("questGrid"), ids);
+    } else {
+        host.innerHTML = (_questView === "list")
+            ? '<div class="quest-list" id="questGrid">' + ids.map(i => renderQuestRow(_questChallenges[i], i)).join("") + '</div>'
+            : '<div class="quest-grid" id="questGrid">' + ids.map(i => renderQuestCell(_questChallenges[i], i)).join("") + '</div>';
+        $("questGrid").querySelectorAll("[data-i]").forEach(cell =>
+            cell.addEventListener("click", () => openQuestDetail(Number(cell.dataset.i))));
+    }
 }
 
 // ---------- Quest Book: buku harian terbuka + flip halaman 3D ----------
@@ -1053,8 +1115,10 @@ function qbRightHtml(i) {
         '<button class="qb-cta' + (done ? " done" : "") + '" data-open="' + i + '">' + (done ? "✏️ Lihat / Edit Karya" : "🚀 Ikut Challenge") + '</button>';
 }
 
-function renderQuestBook(host) {
-    const N = _questChallenges.length;
+function renderQuestBook(host, ids) {
+    // ids = urutan challenge yang lolos saringan; _qbCur = posisi di dalam ids
+    if (!ids) ids = _questChallenges.map((_, k) => k);
+    const N = ids.length;
     if (_qbCur >= N) _qbCur = 0;
     host.innerHTML =
         '<div class="qbook-wrap">' +
@@ -1081,8 +1145,8 @@ function renderQuestBook(host) {
     }
     function setPages(i) {
         _qbCur = i;
-        leftP.innerHTML = qbLeftHtml(i);
-        rightP.innerHTML = qbRightHtml(i);
+        leftP.innerHTML = qbLeftHtml(ids[i]);
+        rightP.innerHTML = qbRightHtml(ids[i]);
         $("qbCount").textContent = (i + 1) + " / " + N;
         $("qbPrev").style.opacity = i === 0 ? ".35" : "1";
         $("qbNext").style.opacity = i === N - 1 ? ".35" : "1";
@@ -1106,13 +1170,13 @@ function renderQuestBook(host) {
         anim = true;
         playSfx("flip", 0.7);
         if (dir === 1) {
-            front.innerHTML = qbRightHtml(_qbCur); // muka depan leaf = halaman kanan sekarang
-            back.innerHTML = qbLeftHtml(j);        // baliknya = halaman kiri berikutnya
-            rightP.innerHTML = qbRightHtml(j);     // di bawah leaf udah nunggu halaman baru
+            front.innerHTML = qbRightHtml(ids[_qbCur]); // muka depan leaf = halaman kanan sekarang
+            back.innerHTML = qbLeftHtml(ids[j]);        // baliknya = halaman kiri berikutnya
+            rightP.innerHTML = qbRightHtml(ids[j]);     // di bawah leaf udah nunggu halaman baru
         } else {
-            front.innerHTML = qbRightHtml(j);
-            back.innerHTML = qbLeftHtml(_qbCur);
-            leftP.innerHTML = qbLeftHtml(j);
+            front.innerHTML = qbRightHtml(ids[j]);
+            back.innerHTML = qbLeftHtml(ids[_qbCur]);
+            leftP.innerHTML = qbLeftHtml(ids[j]);
         }
         // Posisi awal dipasang SELAGI leaf masih hidden, di-commit dulu (reflow +
         // double rAF), baru transisi jalan — kalau nggak, pas back leaf sempat
