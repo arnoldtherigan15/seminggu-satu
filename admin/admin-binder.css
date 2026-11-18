@@ -324,10 +324,11 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .pc-table { display: none; }
 .pc-mode-table .pc-table { display: block; }
 .pc-mode-table .pc-grid { display: none; }
+/* HP juga bisa pilih tabel (geser kiri-kanan) -- tadinya dipaksa kartu */
 @media (max-width: 680px) {
-    .pc-view { display: none; }
-    .pc-mode-table .pc-table { display: none; }
-    .pc-mode-table .pc-grid { display: grid; }
+    .pc-bar .pc-view { order: 2; }
+    .pc-mode-table .pc-table.mobile-table-box { display: block !important; }
+    .pc-mode-table .pc-grid { display: none; }
 }
 .pc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; align-items: start; }
 @media (max-width: 480px) { .pc-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -623,3 +624,22 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .per-stat-card .per-hero-label { opacity: 1; color: var(--muted); }
 .per-stat-card .per-hero-amount { color: var(--ink); }
 .per-loss { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 3px 10px; border-radius: 999px; background: var(--ab-yellow); color: #10245e; font-size: 13px; font-weight: 800; }
+
+/* ---------- Pendaftar: kartu info batch ---------- */
+.batch-info:has(.rb-card) { display: block; margin: 0 0 16px; }
+.rb-card { padding: 16px 18px; border-radius: 16px; background: #ffffff; border: 1px solid var(--line); }
+.rb-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.rb-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 20px; color: var(--ink); }
+.rb-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.rb-acts .btn { height: 40px; }
+.rb-facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 10px; font-weight: 600; font-size: 14.5px; color: var(--ink); }
+.rb-facts span { display: inline-flex; align-items: center; gap: 6px; }
+.rb-facts svg { width: 16px; height: 16px; color: var(--brand); }
+.rb-facts a { color: var(--ink); text-decoration: underline; text-decoration-color: #c9d6f5; }
+
+/* ---------- Muat ulang: satu tombol global di header mobile ---------- */
+.btn.ab-refresh { display: none !important; }
+.ab-global-refresh { justify-self: end; width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid #c9d6f5; background: #ffffff; color: var(--ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.ab-global-refresh:hover { border-color: var(--brand); color: var(--brand); }
+.ab-global-refresh:active svg { transform: rotate(180deg); transition: transform .3s ease; }
+.wa-actions .pc-photolink { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 10px; border-radius: 10px; border: 1.5px solid #c9d6f5; background: #ffffff; color: var(--ink); font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
