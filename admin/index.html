@@ -20,7 +20,7 @@
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="theme-color" content="#5e72e4" />
+  <meta name="theme-color" content="#0046ff" />
   <link rel="icon" href="icon-192.png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -3537,7 +3537,7 @@
       height: 100%;
       width: 40%;
       left: -40%;
-      background: linear-gradient(90deg, transparent, var(--brand), #825ee4);
+      background: linear-gradient(90deg, transparent, var(--brand), var(--ab-yellow, #ffe500));
       animation: barslide 1.1s infinite ease-in-out;
     }
 
@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=23">
+  <link rel="stylesheet" href="admin-binder.css?v=24">
 </head>
 
 <body>
@@ -6621,12 +6621,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
         <div class="fin-card" style="margin-top:14px;">
           <div style="font-weight:800;margin-bottom:4px;">MOU</div>
-          <div id="partnerDetailMouList"><p class="hint">Memuat…</p></div>
+          <div id="partnerDetailMouList"></div>
         </div>
 
         <div class="fin-card" style="margin-top:14px;">
           <div style="font-weight:800;margin-bottom:4px;">Invoice</div>
-          <div id="partnerDetailInvoiceList"><p class="hint">Memuat…</p></div>
+          <div id="partnerDetailInvoiceList"></div>
         </div>
       </div>
       <div class="filter-overlay-foot">
@@ -7109,6 +7109,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       for (let i = 0; i < n; i++) h += `<div class="skel-line" style="width:${70 + (i % 3) * 10}%"></div>`;
       return `<div class="skel">${h}</div>`;
     }
+    // Skeleton yang bentuknya sama kayak baris daftar baru (ikon kotak + 2 baris teks)
+    function skelRows(n) {
+      let h = "";
+      for (let i = 0; i < n; i++) h += `<div class="skr-row"><span class="skr-box"></span><span class="skr-txt"><span class="skel-line" style="width:${45 + (i % 3) * 12}%"></span><span class="skel-line" style="width:${28 + (i % 2) * 14}%;height:10px"></span></span></div>`;
+      return `<div class="skr" aria-busy="true" aria-label="Memuat">${h}</div>`;
+    }
     function skelTableRows(cols, rows) {
       let h = "";
       for (let r = 0; r < rows; r++) {
@@ -7429,10 +7435,24 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         // pas form dibuka: nilai yang diisi kode (edit item / reset form) ikut ketampil
         new MutationObserver(() => {
           if (ov.style.display === "none") return;
+          ov.querySelectorAll("button.is-busy").forEach(b => abBusy(b, false));
+          ov.querySelectorAll(".msg").forEach(m => { m.style.visibility = ""; m._abBusyBtn = null; });
           ov.querySelectorAll('input[type="file"]').forEach(i => i._abSync && i._abSync());
           ov.querySelectorAll("select.ab-hidden-select").forEach(s => s._abSync && s._abSync());
         }).observe(ov, { attributes: true, attributeFilter: ["style"] });
       });
+    }
+
+    // Daftar utama diisi skeleton dulu pas dashboard kebuka -- begitu data
+    // datang, renderer masing-masing nimpa isinya. Jadi nggak ada lagi halaman
+    // yang kosong melompong sesaat sebelum tiba-tiba keisi.
+    const AB_SKEL_LISTS = ["activityList", "adminLbList", "billList", "btList", "budList", "ciList", "goalList", "ideaGroups", "invStockList", "invTxList",
+      "kontenList", "liabList", "mhList", "mnList", "noteGroups", "partnerList", "pastEventList", "perAccList", "perCatList", "perTxList", "pesOrderList",
+      "preqGroups", "pwList", "questList", "recBatchList", "sgList", "shopFinList", "shopMatList", "shopOrdAllList", "shopProdList", "venueList", "vidGroups",
+      "taskListBacklog", "taskListInProgress", "taskListDone", "epList", "ovCards"];
+    function abInitialSkeletons() {
+      AB_SKEL_LISTS.forEach(id => { const el = document.getElementById(id); if (el && !el.children.length && !el.textContent.trim()) el.innerHTML = skelRows(3); });
+      ["mouBody", "invoiceBody", "leadsTableBody"].forEach(id => { const el = document.getElementById(id); if (el && !el.children.length) el.innerHTML = skelTableRows(5, 3); });
     }
 
     // Satu tombol muat ulang global (header mobile) -- ganti tombol refresh di
@@ -7456,7 +7476,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
       applyMobileHeaderHeightVar();
-      try { abBuildHeads(); } catch (e) { console.error("abBuildHeads", e); }
+      try { abBuildHeads(); abInitialSkeletons(); } catch (e) { console.error("abBuildHeads", e); }
       try { abEnhanceForms(); } catch (e) { console.error("abEnhanceForms", e); }
       const fdb = document.getElementById("finDetailBack");
       if (fdb && !fdb.dataset.wired) {
@@ -8187,9 +8207,22 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const OK_RX = /(✓|tersimpan|disimpan|saved|berhasil|sukses|success|terkirim|ditambahkan|diperbarui|dihapus)/i;
       const BUSY_RX = /(…|\.\.\.)\s*$/;
       const last = new WeakMap();
+      // tombol simpan terdekat dari sebuah .msg (satu form/overlay/kartu yang sama)
+      const saveBtnFor = (el) => {
+        const scope = el.closest(".filter-overlay-box, .fin-card, .konten-item, .ab-dlg, .wrap.view, .subtab-panel") || el.parentElement;
+        const cands = Array.from(scope.querySelectorAll("button.btn:not(.btn-ghost):not(.ab-refresh)")).filter(b => b.offsetParent);
+        return cands.find(b => /simpan|save|unggah|upload|tambah|bikin|proses|catat|kirim/i.test(b.textContent)) || null;
+      };
       const handle = (el) => {
         if (el.closest(".ab-dlg")) return;
         const t = (el.textContent || "").trim();
+        // "Menyimpan…" -> spinner di tombolnya, teksnya nggak usah nongol di bawah
+        if (/^(menyimpan|saving)/i.test(t)) {
+          const b = saveBtnFor(el);
+          if (b) { abBusy(b, true, "Menyimpan"); el._abBusyBtn = b; el.style.visibility = "hidden"; }
+          return;
+        }
+        if (el._abBusyBtn) { abBusy(el._abBusyBtn, false); el._abBusyBtn = null; el.style.visibility = ""; }
         if (!t) { last.delete(el); return; }
         if (el.classList.contains("err") || BUSY_RX.test(t)) return;
         if (!(el.classList.contains("ok") || OK_RX.test(t))) return;
@@ -8431,7 +8464,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = document.getElementById("ciMsg");
       const name = document.getElementById("ciName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama item wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       let imageUrl = document.getElementById("ciImageExisting").value || "";
       const imageBase64 = document.getElementById("ciImageBase64").value;
       if (imageBase64) {
@@ -8576,7 +8609,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (type !== "adjust" && qty < 0) { msg.className = "msg err"; msg.textContent = "Jumlah harus positif buat beli/pakai."; return; }
       const date = document.getElementById("invDate").value;
       if (!date) { msg.className = "msg err"; msg.textContent = "Tanggal wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("saveInventoryTransaction", {
         token: getToken(), id: document.getElementById("invId").value, itemId, type, qty, date,
         workshopType: document.getElementById("invWorkshop").value, note: document.getElementById("invNote").value.trim()
@@ -9013,7 +9046,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     async function persistCosts(msgEl, onSuccess) {
       const id = document.getElementById("finSelect").value;
       const batchKey = document.getElementById("finBatchSelect").value; // "" = general
-      if (msgEl) { msgEl.className = "msg"; msgEl.textContent = "Saving..."; }
+      if (msgEl) { msgEl.className = "msg"; msgEl.textContent = "Menyimpan…"; }
       try {
         const r = await api("saveModal", { token: getToken(), workshop: id, batch: batchKey, items: CURRENT_COST_ITEMS });
         if (r.status === "success") {
@@ -9386,7 +9419,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = document.getElementById("venueMsg");
       const name = document.getElementById("venueName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama venue wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("saveVenue", {
         token: getToken(), id: document.getElementById("venueId").value, name,
         address: document.getElementById("venueAddress").value.trim(),
@@ -9601,7 +9634,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = document.getElementById("ideaFormMsg");
       const title = document.getElementById("ideaTitle").value.trim();
       if (!title) { msg.className = "msg err"; msg.textContent = "Judul wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const validQuestions = ideaEditQuestions.filter(q => q.question && q.question.trim());
       const r = await api("saveEventIdea", {
         token: getToken(), id: document.getElementById("ideaId").value, title,
@@ -9662,7 +9695,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const partnerName = document.getElementById("ideaPartnerNameInput").value.trim();
       const status = document.getElementById("ideaPartnerStatus").value;
       if (!partnerId && !partnerName) { msg.className = "msg err"; msg.textContent = "Pilih partner yang ada, atau ketik nama prospek."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("saveIdeaPartner", { token: getToken(), ideaId, partnerId, partnerName, status });
       if (r && r.status === "success") {
         document.getElementById("ideaPartnerSelect").value = "";
@@ -10127,7 +10160,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (count <= 0) { msg.className = "msg err"; msg.textContent = "Isi jumlahnya dulu."; return; }
       const note = document.getElementById("batchVoidNote").value.trim();
       if (!await abConfirm(`Add ${count} manual participant entries (void) to this batch? They'll count normally toward quota/revenue/profit.`)) return;
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("addVoidRegistrations", { token: getToken(), batchId, count, note });
       if (r && r.status === "success") {
         msg.className = "msg ok"; msg.textContent = r.message || "Tersimpan";
@@ -10253,7 +10286,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih batch dulu."; return; }
       const label = document.getElementById("batchLabelInput").value.trim();
       if (!label) { msg.className = "msg err"; msg.textContent = "Nama batch nggak boleh kosong."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const timeStart = document.getElementById("batchTimeStart").value;
       const timeEnd = document.getElementById("batchTimeEnd").value;
       let workshopTime = "";
@@ -10429,7 +10462,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       });
       const btn = document.getElementById("cfgSaveBtn");
       const msg = document.getElementById("cfgMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("saveConfig", { token: getToken(), config: CONFIG });
         if (r.status === "success") {
@@ -10592,7 +10625,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const { event, batchId } = captionEventBatch();
       if (!event) { msg.className = "msg err"; msg.textContent = "Pilih event dulu."; return; }
       const context = document.getElementById("cfgCaptionContext").value;
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("saveEventCaptionContext", { token: getToken(), event, batchId, context });
       if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Tersimpan"; }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
@@ -10878,8 +10911,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       notesRow.style.display = p.notes ? "block" : "none";
       if (p.notes) document.getElementById("partnerDetailNotes").textContent = p.notes;
 
-      document.getElementById("partnerDetailMouList").innerHTML = '<p class="hint">Memuat…</p>';
-      document.getElementById("partnerDetailInvoiceList").innerHTML = '<p class="hint">Memuat…</p>';
+      document.getElementById("partnerDetailMouList").innerHTML = skelLines(2);
+      document.getElementById("partnerDetailInvoiceList").innerHTML = skelLines(2);
       document.getElementById("partnerDetailOverlay").style.display = "flex";
 
       const [mouR, invR] = await Promise.all([
@@ -10974,7 +11007,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = document.getElementById("partnerMsg");
       const name = document.getElementById("partnerName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama partner wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const requests = document.getElementById("partnerRequests").value.split("\n").map(s => s.trim()).filter(Boolean);
       const r = await api("savePartner", {
         token: getToken(), id: document.getElementById("partnerId").value, name,
@@ -11328,7 +11361,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const f = collectMouFormData();
       if (!f.title) { msg.className = "msg err"; msg.textContent = "Judul wajib diisi."; return; }
       if (!f.partnerId) { msg.className = "msg err"; msg.textContent = "Pilih partner dulu."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("savePartnerDoc", { token: getToken(), id: f.id, type: "mou", partnerId: f.partnerId, title: f.title, docDate: f.docDate, status: f.status, data: f.data });
       if (r.status === "success") { closeMouForm(); await loadPartnerDocs("mou"); await loadPartners(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan."; }
@@ -11509,7 +11542,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const f = collectInvoiceFormData();
       if (!f.title) { msg.className = "msg err"; msg.textContent = "Judul wajib diisi."; return; }
       if (!f.data.items.length) { msg.className = "msg err"; msg.textContent = "Tambah minimal satu item."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("savePartnerDoc", { token: getToken(), id: f.id, type: "invoice", partnerId: f.partnerId, title: f.title, docDate: f.docDate, status: f.status, data: f.data });
       if (r.status === "success") { closeInvoiceForm(); await loadPartnerDocs("invoice"); await loadPartners(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan."; }
@@ -12002,7 +12035,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       }
       const btn = document.getElementById("kontenSaveBtn");
       const msg = document.getElementById("kontenMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("saveContent", { token: getToken(), contentType: type, items });
         if (r.status === "success") {
@@ -12224,7 +12257,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           if (!f) return;
           if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maksimal 8MB."); imgPick.value = ""; return; }
           const prev = div.querySelector('[data-imgprev="1"]');
-          if (prev) prev.innerHTML = `<p class="hint">Mengupload…</p>`;
+          if (prev) prev.innerHTML = `<div class="ab-upl"><span class="ab-spin" aria-hidden="true"></span> Mengunggah…</div>`;
           try {
             const dataUrl = await qCompress(f, 1400, 0.82);
             const r = await api("uploadImage", { token: getToken(), bucket: "rec-batch-photos", imageBase64: dataUrl.split(",")[1], prefix: item.name || "rec-item" });
@@ -12258,7 +12291,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       };
       const btn = document.getElementById("recBatchSaveBtn");
       const msg = document.getElementById("recBatchMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("saveRecBatch", payload);
         if (r.status === "success") {
@@ -12378,7 +12411,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!link) { alert("Link wajib diisi."); return; }
       const btn = document.getElementById("qrLinkSaveBtn");
       const msg = document.getElementById("qrLinkMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("saveQrLink", { token: getToken(), id: qrLinkEditId || undefined, title, link });
         if (r.status === "success") {
@@ -12529,7 +12562,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!f) return;
       if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maksimal 8MB."); input.value = ""; return; }
       const prev = document.getElementById("shopMatImagePreview");
-      prev.innerHTML = `<p class="hint">Mengupload…</p>`;
+      prev.innerHTML = `<div class="ab-upl"><span class="ab-spin" aria-hidden="true"></span> Mengunggah…</div>`;
       try {
         const dataUrl = await qCompress(f, 1400, 0.82);
         const r = await api("uploadImage", { token: getToken(), bucket: "shop-material-photos", imageBase64: dataUrl.split(",")[1], prefix: document.getElementById("shopMatName").value || "bahan" });
@@ -12560,7 +12593,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       };
       const btn = document.getElementById("shopMatSaveBtn");
       const msg = document.getElementById("shopMatMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("saveShopMaterial", payload);
         if (r.status === "success") {
@@ -12731,7 +12764,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!f) return;
       if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maksimal 8MB."); input.value = ""; return; }
       const prev = document.getElementById("shopProdImagePreview");
-      prev.innerHTML = `<p class="hint">Mengupload…</p>`;
+      prev.innerHTML = `<div class="ab-upl"><span class="ab-spin" aria-hidden="true"></span> Mengunggah…</div>`;
       try {
         const dataUrl = await qCompress(f, 1400, 0.82);
         const r = await api("uploadImage", { token: getToken(), bucket: "shop-product-photos", imageBase64: dataUrl.split(",")[1], prefix: document.getElementById("shopProdName").value || "produk" });
@@ -13029,7 +13062,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       };
       const btn = document.getElementById("shopProdSaveBtn");
       const msg = document.getElementById("shopProdMsg");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("saveShopProduct", payload);
         if (r.status === "success") {
@@ -13295,7 +13328,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!batchId) { alert("Pilih batch dulu."); input.value = ""; return; }
       if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maksimal 8MB."); input.value = ""; return; }
       const preview = document.getElementById("shopOrdQrisPreview");
-      preview.innerHTML = `<p class="hint">Mengupload…</p>`;
+      preview.innerHTML = `<div class="ab-upl"><span class="ab-spin" aria-hidden="true"></span> Mengunggah…</div>`;
       try {
         const dataUrl = await qCompress(f, 1400, 0.9);
         const r = await api("uploadImage", { token: getToken(), bucket: "batch-qris-photos", imageBase64: dataUrl.split(",")[1], prefix: "qris" });
@@ -13769,7 +13802,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const isCod = document.getElementById("shopOrdCodCheck").checked;
       const deliveryAddress = isCod ? "" : document.getElementById("shopOrdAddress").value.trim();
       const msg = document.getElementById("shopOrdMsg");
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("saveShopOrder", {
           token: getToken(), id: SHOPORD_CURRENT.id, workshopType: SHOPORD_CURRENT.workshopType,
@@ -14023,7 +14056,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!newWa) { msg.className = "msg err"; msg.textContent = "Isi nomor barunya dulu."; return; }
       const nm = WA_MANAGE_TARGET.nickname || "warga ini";
       if (!await abConfirm(`Pindahin nomor aktif ${nm} ke ${newWa}? Semua histori-nya ikut pindah.`)) return;
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("mergeMemberWa", { token: getToken(), fromWa: WA_MANAGE_TARGET.wa, toWa: newWa });
       if (r.status === "success") { closeWaManageForm(); await loadMembers(); if (loyaltyInit) await loadLoyalty(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed."; }
@@ -14035,7 +14068,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!fromWa) { msg.className = "msg err"; msg.textContent = "Isi nomor yang mau digabung dulu."; return; }
       const nm = WA_MANAGE_TARGET.nickname || "warga ini";
       if (!await abConfirm(`Gabungin semua histori dari ${fromWa} ke akun ${nm}?`)) return;
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("mergeMemberWa", { token: getToken(), fromWa, toWa: WA_MANAGE_TARGET.wa });
       if (r.status === "success") { closeWaManageForm(); await loadMembers(); if (loyaltyInit) await loadLoyalty(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed."; }
@@ -14968,7 +15001,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = document.getElementById("qMsg");
       const title = document.getElementById("qTitle").value.trim();
       if (!title) { msg.className = "msg err"; msg.textContent = "Judul wajib diisi."; return; }
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("saveChallenge", {
           token: getToken(),
@@ -15109,7 +15142,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function savePesVendorWa() {
       const msg = document.getElementById("pesVendorMsg");
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("saveVendorWa", { token: getToken(), wa: document.getElementById("pesVendorWa").value });
       if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Tersimpan"; }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
@@ -15385,7 +15418,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = document.getElementById("mnMsg");
       const name = document.getElementById("mnName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama menu wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("saveMenuItem", {
         token: getToken(),
         id: document.getElementById("mnId").value,
@@ -15479,7 +15512,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!batchId) { msg.className = "msg err"; msg.textContent = "Pilih event dulu."; return; }
       if (!participantName) { msg.className = "msg err"; msg.textContent = "Nama peserta wajib diisi."; return; }
       if (!menuItemId) { msg.className = "msg err"; msg.textContent = "Pilih menu dulu (tambah di Kelola menu kalau masih kosong)."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("saveOrder", { token: getToken(), id: document.getElementById("pesOrderId").value, batchId, participantName, menuItemId });
       if (r && r.status === "success") { closePesOrderForm(); await loadPesOrders(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
@@ -15732,7 +15765,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           if (!f) return;
           if (f.size > 8 * 1024 * 1024) { alert("Ukuran gambar maksimal 8MB."); input.value = ""; return; }
           const preview = document.getElementById("accPhotoPreview");
-          preview.innerHTML = `<p class="hint">Mengupload…</p>`;
+          preview.innerHTML = `<div class="ab-upl"><span class="ab-spin" aria-hidden="true"></span> Mengunggah…</div>`;
           try {
             const dataUrl = await qCompress(f, 600, 0.85);
             const r = await api("uploadImage", { token: getToken(), bucket: "account-photos", imageBase64: dataUrl.split(",")[1], prefix: document.getElementById("accName").value || "account" });
@@ -16028,7 +16061,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     let anaPeriod = "";
     let budPeriod = "";
-    const PER_CHART_COLORS = ["#5e72e4", "#2dce89", "#fb6340", "#11cdef", "#f5365c", "#ffd600", "#8965e0", "#f3a4b5", "#2dcecc", "#adb5bd"];
+    const PER_CHART_COLORS = ["#0046ff", "#2dce89", "#fb6340", "#11cdef", "#f5365c", "#ffd600", "#8965e0", "#f3a4b5", "#2dcecc", "#adb5bd"];
 
     function renderAnalisis() {
       const ym = anaPeriod || currentPayPeriod();
@@ -16330,7 +16363,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const targetAmount = parseRibuan(document.getElementById("goalTarget").value);
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama target wajib diisi."; return; }
       if (targetAmount <= 0) { msg.className = "msg err"; msg.textContent = "Target harus lebih dari 0."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("saveSavingsGoal", {
         token: getToken(), id: document.getElementById("goalId").value, name, targetAmount,
         icon: document.getElementById("goalIcon").value
@@ -16389,7 +16422,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!goalId) { msg.className = "msg err"; msg.textContent = "Pilih target dulu (bikin dulu kalau belum ada)."; return; }
       if (!amount) { msg.className = "msg err"; msg.textContent = "Jumlah nggak boleh 0."; return; }
       if (!date) { msg.className = "msg err"; msg.textContent = "Tanggal wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("saveSavingsContribution", {
         token: getToken(), id: document.getElementById("contribId").value, goalId, amount, date,
         note: document.getElementById("contribNote").value.trim()
@@ -16451,7 +16484,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const principalAmount = parseRibuan(document.getElementById("liabPrincipal").value);
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama utang wajib diisi."; return; }
       if (principalAmount <= 0) { msg.className = "msg err"; msg.textContent = "Pokok utang harus lebih dari 0."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("saveLiability", {
         token: getToken(), id: document.getElementById("liabId").value, name, principalAmount,
         dueDate: document.getElementById("liabDueDate").value || "",
@@ -16530,7 +16563,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!liabilityId) { msg.className = "msg err"; msg.textContent = "Pilih utang dulu (bikin dulu kalau belum ada)."; return; }
       if (!amount) { msg.className = "msg err"; msg.textContent = "Jumlah nggak boleh 0."; return; }
       if (!date) { msg.className = "msg err"; msg.textContent = "Tanggal wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("saveLiabilityPayment", {
         token: getToken(), id: document.getElementById("liabPayId").value, liabilityId, amount, date,
         note: document.getElementById("liabPayNote").value.trim(),
@@ -16637,7 +16670,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const name = document.getElementById("billName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama tagihan wajib diisi."; return; }
       const resetDay = Number(document.getElementById("billResetDay").value) || 25;
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("saveBill", {
         token: getToken(), id: document.getElementById("billId").value, name,
         amount: parseRibuan(document.getElementById("billAmount").value),
@@ -16872,7 +16905,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       } else {
         payload.categoryId = document.getElementById("txCategory").value || "";
       }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("savePersonalTransaction", payload);
       if (r && r.status === "success") { closeTxForm(); await loadPersonalData(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
@@ -16938,7 +16971,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = document.getElementById("catMsg");
       const name = document.getElementById("catName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama kategori wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("savePersonalCategory", {
         token: getToken(), id: document.getElementById("catId").value, name,
         type: document.getElementById("catType").value, icon: document.getElementById("catIcon").value
@@ -17055,7 +17088,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = document.getElementById("accMsg");
       const name = document.getElementById("accName").value.trim();
       if (!name) { msg.className = "msg err"; msg.textContent = "Nama akun wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("savePersonalAccount", {
         token: getToken(), id: document.getElementById("accId").value, name,
         type: document.getElementById("accType").value,
@@ -17393,7 +17426,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = document.getElementById("leadAddMsg");
       if (!username) { msg.className = "msg err"; msg.textContent = "Username-nya kosong."; return; }
       const btn = document.getElementById("addLeadBtn");
-      btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+      btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("addLead", { token: getToken(), platform, username, status, following });
         if (r.status === "success" && r.lead) {
@@ -17854,7 +17887,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function buildPesananTab() {
       const body = document.createElement("div");
       body.innerHTML =
-        `<div id="prepPesananSummary"><p class="hint">Memuat…</p></div>
+        `<div id="prepPesananSummary">${skelLines(2)}</div>
          <button class="btn btn-sm btn-ghost" id="prepPesananGoBtn" style="margin-top:14px;display:none;">Kelola semua pesanan →</button>`;
       return { id: "pesanan-ringkas", labelHtml: icon("cup") + " Pesanan minum", countId: "prepPesananCount", countDefault: "…", bodyEl: body };
     }
@@ -18003,7 +18036,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const event = document.getElementById("prepSelect").value;
       const batchId = document.getElementById("prepBatchSelect").value;
       const context = document.getElementById("faqContext").value;
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("savePrepFaqContext", { token: getToken(), event, batchId, context });
       if (r && r.status === "success") { msg.className = "msg ok"; msg.textContent = "Tersimpan"; }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = (r && r.message) || "Gagal menyimpan."; }
@@ -18216,7 +18249,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         items: (g.items || []).filter(it => it.text && it.text.trim()),
       }));
       const msg = document.getElementById("preqSaveMsg");
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("savePrepPartnerRequests", { token: getToken(), event, batchId, groups });
         if (r && r.status === "success") {
@@ -18280,7 +18313,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const id = document.getElementById("preqTemplatePartnerId").value;
       const requests = document.getElementById("preqTemplateText").value.split("\n").map(s => s.trim()).filter(Boolean);
       const msg = document.getElementById("preqTemplateMsg");
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await api("savePartnerRequestsTemplate", { token: getToken(), id, requests });
       if (r && r.status === "success") {
         const p = PARTNERS.find(x => x.id === id);
@@ -18707,7 +18740,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const msg = document.getElementById("rnMsg");
       const html = editor.innerHTML.trim();
       const items = (html && html !== "<br>") ? [{ html: html }] : [];
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("savePrep", { token: getToken(), event, prepType: "richnote", items, batchId });
         if (r.status === "success") {
@@ -18877,7 +18910,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const bodyHtml = editor ? editor.innerHTML.trim() : "";
       const bodyText = editor ? editor.textContent.trim() : "";
       if (!title && !bodyText) { msg.className = "msg err"; msg.textContent = "Tulis sesuatu dulu."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("savePersonalNote", { token: getToken(), id, title, bodyHtml, folderId });
       if (r.status === "success") { closeNoteForm(); await loadNotes(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Gagal menyimpan."; }
@@ -19059,7 +19092,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const password = document.getElementById("pwPassword").value;
       if (!title) { msg.className = "msg err"; msg.textContent = "Nama layanan wajib diisi."; return; }
       if (!password) { msg.className = "msg err"; msg.textContent = "Password wajib diisi."; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("savePersonalPassword", {
         token: getToken(), id: document.getElementById("pwId").value, title, password,
         username: document.getElementById("pwUsername").value.trim(),
@@ -19330,7 +19363,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const url = document.getElementById("vidUrl").value.trim();
       if (!url) { msg.className = "msg err"; msg.textContent = "Link wajib diisi."; return; }
       if (!/^https?:\/\//i.test(url)) { msg.className = "msg err"; msg.textContent = "Link harus diawali http:// atau https://"; return; }
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       const r = await personalApi("saveVideoLink", {
         token: getToken(), id: document.getElementById("vidId").value, url,
         title: document.getElementById("vidTitle").value.trim(),
@@ -20105,7 +20138,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       // buang item yang semua field-nya kosong
       const items = (PREP[type] || []).filter(it => sec.fields.some(f => it[f.key] && String(it[f.key]).trim()));
       const msg = document.getElementById("prep-msg-" + type);
-      msg.className = "msg"; msg.textContent = "Saving...";
+      msg.className = "msg"; msg.textContent = "Menyimpan…";
       try {
         const r = await api("savePrep", { token: getToken(), event, prepType: type, items });
         if (r.status === "success") {
