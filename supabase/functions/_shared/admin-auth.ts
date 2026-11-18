@@ -16,29 +16,37 @@ export async function hashAdminPassword(salt: string, password: string): Promise
   return sha256Hex(`${salt}:${password}`);
 }
 
-// Login admin. Super admin = password di secret ADMIN_PASSWORD_HASH/ADMIN_SALT
+// Login admin: username + password. Super admin = username ADMIN_USERNAME
+// (default "arnold") + password di secret ADMIN_PASSWORD_HASH/ADMIN_SALT
 // (folder ini ke-commit ke git, jadi hash-nya nggak boleh di kode). Admin lain
-// (asisten) disimpan di tabel admin_users dengan hash + salt masing-masing.
+// (asisten) di tabel admin_users, username unik. Gagal = pesan yang sama
+// apa pun penyebabnya + jeda, biar nebak beruntun jadi lambat.
 // Tiap login bikin 1 baris admin_sessions -> login di HP nggak nendang laptop.
-export async function adminLogin(admin: SupabaseClient, password: string): Promise<{ token: string; role: AdminRole; name: string } | { error: string }> {
-  if (!password) return { error: "Isi password-nya dulu." };
+export function superUsername(): string {
+  return (Deno.env.get("ADMIN_USERNAME") || "arnold").trim().toLowerCase();
+}
+export function cleanUsername(v: unknown): string {
+  return String(v || "").trim().toLowerCase();
+}
+export async function adminLogin(admin: SupabaseClient, usernameRaw: string, password: string): Promise<{ token: string; role: AdminRole; name: string } | { error: string }> {
+  const username = cleanUsername(usernameRaw);
+  const fail = async () => { await new Promise((r) => setTimeout(r, 700)); return { error: "Username atau password salah." }; };
+  if (!username || !password) return { error: "Isi username dan password dulu." };
   let session: AdminSession | null = null;
 
-  const hash = Deno.env.get("ADMIN_PASSWORD_HASH");
-  const salt = Deno.env.get("ADMIN_SALT");
-  if (hash && salt && (await hashAdminPassword(salt, password)) === hash) {
-    session = { role: "super", name: "Super admin", userId: null };
+  if (username === superUsername()) {
+    const hash = Deno.env.get("ADMIN_PASSWORD_HASH");
+    const salt = Deno.env.get("ADMIN_SALT");
+    if (!hash || !salt) return { error: "Password admin belum di-set (ADMIN_PASSWORD_HASH/ADMIN_SALT secret)." };
+    if ((await hashAdminPassword(salt, password)) === hash) session = { role: "super", name: "Arnold", userId: null };
   } else {
-    const { data: users } = await admin.from("admin_users").select("id, name, role, pass_hash, salt").eq("active", true);
-    for (const u of users || []) {
-      if ((await hashAdminPassword(u.salt, password)) === u.pass_hash) {
-        session = { role: u.role as AdminRole, name: u.name, userId: u.id };
-        await admin.from("admin_users").update({ last_login: new Date().toISOString() }).eq("id", u.id);
-        break;
-      }
+    const { data: u } = await admin.from("admin_users").select("id, name, role, pass_hash, salt, active").eq("username", username).maybeSingle();
+    if (u && u.active && (await hashAdminPassword(u.salt, password)) === u.pass_hash) {
+      session = { role: u.role as AdminRole, name: u.name, userId: u.id };
+      await admin.from("admin_users").update({ last_login: new Date().toISOString() }).eq("id", u.id);
     }
   }
-  if (!session) return { error: "Password salah." };
+  if (!session) return await fail();
 
   const token = crypto.randomUUID();
   const expires = new Date(Date.now() + SESSION_HOURS * 60 * 60 * 1000).toISOString();

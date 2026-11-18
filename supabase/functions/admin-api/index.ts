@@ -7,7 +7,7 @@ import { jsonResponse, errorResponse, handleOptions } from "../_shared/cors.ts";
 import { waKey } from "../_shared/auth.ts";
 import { uploadBase64, uploadFileBase64 } from "../_shared/storage.ts";
 import { getConfigValue, setConfigValue } from "../_shared/config.ts";
-import { adminLogin, adminLogout, requireAdminAuth, hashAdminPassword, ASSISTANT_ACTIONS } from "../_shared/admin-auth.ts";
+import { adminLogin, adminLogout, requireAdminAuth, hashAdminPassword, ASSISTANT_ACTIONS, superUsername, cleanUsername } from "../_shared/admin-auth.ts";
 import { loyaltyMembers, questPointsMap, extraPointsMap, memberNickMap } from "../_shared/queries.ts";
 import { activeBirthdayVoucher } from "../_shared/birthday.ts";
 import { callGemini } from "../_shared/gemini.ts";
@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
     const admin = supabaseAdmin();
 
     if (action === "login") {
-      const result = await adminLogin(admin, String(data.password || ""));
+      const result = await adminLogin(admin, String(data.username || ""), String(data.password || ""));
       if ("error" in result) return errorResponse(result.error);
       return jsonResponse({ status: "success", token: result.token, role: result.role, name: result.name });
     }
@@ -132,8 +132,8 @@ Deno.serve(async (req) => {
 
       // ---- Kelola akun admin (super only) ----
       case "listAdminUsers": {
-        const { data: rows } = await admin.from("admin_users").select("id, name, role, active, created_at, last_login").order("created_at", { ascending: true });
-        return jsonResponse({ status: "success", users: rows || [] });
+        const { data: rows } = await admin.from("admin_users").select("id, name, username, role, active, created_at, last_login").order("created_at", { ascending: true });
+        return jsonResponse({ status: "success", users: rows || [], superUsername: superUsername() });
       }
       case "saveAdminUser": {
         const name = String(data.name || "").trim().slice(0, 60);
@@ -141,10 +141,15 @@ Deno.serve(async (req) => {
         const password = String(data.password || "");
         const id = String(data.id || "");
         if (!name) return errorResponse("Nama wajib diisi.");
+        const username = cleanUsername(data.username);
+        if (!/^[a-z0-9._-]{3,30}$/.test(username)) return errorResponse("Username 3–30 karakter: huruf kecil, angka, titik, strip, atau garis bawah.");
+        if (username === superUsername()) return errorResponse("Username itu udah dipakai super admin.");
+        const { data: dup } = await admin.from("admin_users").select("id").eq("username", username).maybeSingle();
+        if (dup && dup.id !== id) return errorResponse("Username udah dipakai akun lain.");
         if (!id && password.length < 8) return errorResponse("Password minimal 8 karakter.");
         if (password && password.length < 8) return errorResponse("Password minimal 8 karakter.");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const row: any = { name, role };
+        const row: any = { name, role, username };
         if (password) { const salt = crypto.randomUUID(); row.salt = salt; row.pass_hash = await hashAdminPassword(salt, password); }
         if (id) {
           const { error } = await admin.from("admin_users").update(row).eq("id", id);

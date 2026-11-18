@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=27">
+  <link rel="stylesheet" href="admin-binder.css?v=29">
 </head>
 
 <body>
@@ -4309,7 +4309,9 @@
     <div class="login-card">
       <div class="login-brand"><img src="../images/logo-paw-tight.png" alt="" width="44" height="44"><span>Seminggu Satu</span></div>
       <h1>Masuk ke admin</h1>
-      <p>Khusus admin. Masukin password buat lanjut.</p>
+      <p>Khusus admin. Masuk pakai username dan password kamu.</p>
+      <label for="loginUser">Username</label>
+      <input class="form-control login-user" type="text" id="loginUser" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false" />
       <label for="pwd">Password</label>
       <div class="login-pw">
         <input class="form-control" type="password" id="pwd" placeholder="Password admin" autocomplete="current-password" />
@@ -7216,20 +7218,20 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       v.querySelector("#accAddTeam").addEventListener("click", openTeamDialog);
       v.addEventListener("click", accClick);
     }
-    let ACC_ADMINS = [], ACC_TEAM = [];
+    let ACC_ADMINS = [], ACC_TEAM = [], ACC_SUPER_USER = "";
     async function loadAccess() {
       const al = document.getElementById("accAdminList"), tl = document.getElementById("accTeamList");
       if (!ACC_ADMINS.length) al.innerHTML = skelRows(2);
       if (!ACC_TEAM.length) tl.innerHTML = skelRows(2);
       const [a, t] = await Promise.all([api("listAdminUsers", { token: getToken() }), api("listTeam", { token: getToken() })]);
-      if (a && a.status === "success") ACC_ADMINS = a.users || []; else { handleAuthError(a || {}); }
+      if (a && a.status === "success") { ACC_ADMINS = a.users || []; ACC_SUPER_USER = a.superUsername || ""; } else { handleAuthError(a || {}); }
       if (t && t.status === "success") ACC_TEAM = t.team || [];
       const fmtLast = (iso) => iso ? "terakhir masuk " + new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "belum pernah masuk";
       al.innerHTML = `<div class="kt-list">
-          <div class="kt-row"><span class="kt-thumb"><span class="kt-ava">${escapeHtml((localStorage.getItem(NAME_KEY) || "S").charAt(0))}</span></span><span class="kt-main" style="cursor:default"><b>Super admin utama <span class="cfg-pill on">Super admin</span></b><small>Password lama (di server). Ganti lewat secret ADMIN_PASSWORD_HASH.</small></span></div>
+          <div class="kt-row"><span class="kt-thumb"><span class="kt-ava">${escapeHtml((localStorage.getItem(NAME_KEY) || "S").charAt(0))}</span></span><span class="kt-main" style="cursor:default"><b>Super admin utama <span class="cfg-pill on">Super admin</span></b><small>@${escapeHtml(ACC_SUPER_USER || "arnold")} · password di server (secret ADMIN_PASSWORD_HASH)</small></span></div>
           ${ACC_ADMINS.map(u => `<div class="kt-row${u.active ? "" : " is-off"}">
             <span class="kt-thumb"><span class="kt-ava">${escapeHtml(u.name.charAt(0).toUpperCase())}</span></span>
-            <span class="kt-main" style="cursor:default"><b>${escapeHtml(u.name)} <span class="cfg-pill ${u.role === "super" ? "on" : "off"}">${u.role === "super" ? "Super admin" : "Asisten"}</span>${u.active ? "" : ' <span class="cfg-pill off">Nonaktif</span>'}</b><small>${fmtLast(u.last_login)}</small></span>
+            <span class="kt-main" style="cursor:default"><b>${escapeHtml(u.name)} <span class="cfg-pill ${u.role === "super" ? "on" : "off"}">${u.role === "super" ? "Super admin" : "Asisten"}</span>${u.active ? "" : ' <span class="cfg-pill off">Nonaktif</span>'}${u.username ? "" : ' <span class="cfg-pill warn">Belum ada username — edit dulu biar bisa login</span>'}</b><small>${u.username ? "@" + escapeHtml(u.username) + " · " : ""}${fmtLast(u.last_login)}</small></span>
             <span class="kt-acts">
               <button type="button" class="kt-btn" data-acc="edit" data-id="${u.id}" title="Edit / ganti password" aria-label="Edit">${icon("pencil")}</button>
               <button type="button" class="kt-btn" data-acc="toggle" data-id="${u.id}" title="${u.active ? "Nonaktifkan" : "Aktifkan"}" aria-label="${u.active ? "Nonaktifkan" : "Aktifkan"}">${icon(u.active ? "lock" : "checkCircle")}</button>
@@ -7271,14 +7273,16 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       return abDialog({
         title: isEdit ? "Edit akun admin" : "Tambah admin", okText: "Simpan",
         html: `<div class="kt-form">
-          <label class="ab-dlg-lbl">Nama<input class="form-control" data-f="name" value="${escapeHtml(u ? u.name : "")}" placeholder="mis. Rani (asisten)"></label>
+          <label class="ab-dlg-lbl">Nama<input class="form-control" data-f="name" value="${escapeHtml(u ? u.name : "")}" placeholder="mis. Rani"></label>
+          <label class="ab-dlg-lbl">Username<input class="form-control" data-f="user" value="${escapeHtml(u && u.username ? u.username : "")}" placeholder="mis. rani" autocapitalize="none" spellcheck="false">
+            <small class="kt-hint">Dipakai buat login. Huruf kecil, angka, titik, strip, atau garis bawah (3–30).</small></label>
           <div class="ab-dlg-lbl">Role<div class="ab-chips" data-f="rolebox" style="margin:6px 0 0">
             <button type="button" class="ab-chip${!u || u.role !== "super" ? " active" : ""}" data-role="assistant">Asisten</button>
             <button type="button" class="ab-chip${u && u.role === "super" ? " active" : ""}" data-role="super">Super admin</button></div>
             <small class="kt-hint">Asisten cuma bisa buka Pendaftar, Prep, dan Pesanan minum.</small></div>
           <label class="ab-dlg-lbl">${isEdit ? "Password baru (kosongin kalau nggak diganti)" : "Password"}
             <span class="acc-pw"><input class="form-control" data-f="pw" type="text" autocomplete="new-password" placeholder="minimal 8 karakter"><button type="button" class="btn btn-ghost" data-f="gen">Acak</button></span>
-            <small class="kt-hint">Kasih password ini ke orangnya lewat chat pribadi. Abis disimpan nggak bisa dilihat lagi.</small></label>
+            <small class="kt-hint">Kasih username &amp; password ini ke orangnya lewat chat pribadi. Password nggak bisa dilihat lagi abis disimpan.</small></label>
         </div>`,
         onOpen: (box) => {
           box.querySelector('[data-f="rolebox"]').addEventListener("click", (e) => {
@@ -7289,10 +7293,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         },
         getValue: (box) => {
           const name = box.querySelector('[data-f="name"]').value.trim();
+          const username = box.querySelector('[data-f="user"]').value.trim().toLowerCase();
           const pw = box.querySelector('[data-f="pw"]').value;
           if (!name) throw new Error("Nama wajib diisi.");
+          if (!/^[a-z0-9._-]{3,30}$/.test(username)) throw new Error("Username 3–30 karakter: huruf kecil, angka, titik, strip, atau garis bawah.");
           if ((!isEdit || pw) && pw.length < 8) throw new Error("Password minimal 8 karakter.");
-          return { name, password: pw, role: box.querySelector("[data-role].active").dataset.role };
+          return { name, username, password: pw, role: box.querySelector("[data-role].active").dataset.role };
         }
       }).then(async v => {
         if (!v) return;
@@ -7324,16 +7330,22 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     const pwdInput = document.getElementById("pwd");
     const loginMsg = document.getElementById("loginMsg");
 
+    const loginUser = document.getElementById("loginUser");
+    try { const lu = localStorage.getItem("ss_admin_last_user"); if (lu) { loginUser.value = lu; } } catch (e) { }
+    setTimeout(() => { (loginUser.value ? pwdInput : loginUser).focus(); }, 0);
     async function doLogin() {
       const password = pwdInput.value.trim();
-      if (!password) return;
+      const username = loginUser.value.trim().toLowerCase();
+      if (!username) { loginUser.focus(); loginMsg.className = "msg err"; loginMsg.textContent = "Isi username dulu."; return; }
+      if (!password) { pwdInput.focus(); return; }
       abBusy(loginBtn, true, "Memeriksa");
       loginMsg.className = "msg";
       loginMsg.textContent = "";
       try {
-        const r = await api("login", { password });
+        const r = await api("login", { username, password });
         if (r.status === "success" && r.token) {
           setToken(r.token);
+          try { localStorage.setItem("ss_admin_last_user", username); } catch (e) { }
           try { localStorage.setItem(ROLE_KEY, r.role || "super"); localStorage.setItem(NAME_KEY, r.name || ""); } catch (e) { }
           showDashboard();
         } else {
@@ -7358,6 +7370,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     });
     loginBtn.addEventListener("click", doLogin);
     pwdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+    loginUser.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); pwdInput.focus(); } });
 
     // ---------- LOGOUT & SIDEBAR ----------
     document.querySelectorAll("#logoutBtn, #logoutBtnMobile").forEach(btn => {
