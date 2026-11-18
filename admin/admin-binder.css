@@ -717,3 +717,7 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .ab-upl { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px; background: #f0f4ff; color: var(--brand); font-weight: 700; font-size: 13.5px; }
 .ab-upl .ab-spin { width: 14px; height: 14px; }
 @media (prefers-reduced-motion: reduce) { .skr-box, .skel-line { animation: none !important; } }
+/* Keuangan pribadi: 10 tab -> satu baris yang bisa digeser, bukan dua baris */
+#perSubtabs > .subtab-bar { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; }
+#perSubtabs > .subtab-bar::-webkit-scrollbar { display: none; }
+#perSubtabs > .subtab-bar .subtab-btn { flex-shrink: 0; }
