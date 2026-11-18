@@ -4293,6 +4293,7 @@
       font-family: monospace;
     }
   </style>
+  <link rel="stylesheet" href="admin-binder.css?v=1">
 </head>
 
 <body>
@@ -4326,6 +4327,7 @@
           <h2><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/><path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/></svg> Admin Dashboard</h2>
           <p>Seminggu Satu</p>
         </div>
+        <div class="ab-navsearch"><input type="search" id="abNavSearch" placeholder="Cari menu…" aria-label="Cari menu admin" autocomplete="off"></div>
         <nav class="sidebar-nav">
           <details class="nav-acc" open>
           <summary class="nav-section-label">Main <span class="nav-acc-chevron">&#9656;</span></summary>
@@ -4457,25 +4459,33 @@
 
         <!-- ===== VIEW: OVERVIEW ===== -->
         <div class="wrap view" id="viewOverview">
+          <div class="ov-hello"><h2 id="ovHello">Halo, Arnold</h2><p id="ovToday"></p></div>
+          <section class="ov-attn" id="ovAttention" aria-labelledby="ovAttnT">
+            <h3 class="ov-section-title" id="ovAttnT">Perlu perhatian</h3>
+            <div id="ovAttnList"></div>
+          </section>
+
+          <h3 class="ov-section-title">Event yang lagi buka</h3>
+          <div id="ovCards" class="ov-cards"></div>
+
+          <h3 class="ov-section-title">Pemasukan</h3>
           <div class="ov-income">
             <div class="ov-income-head">
-              <span class="ov-income-title">Total Income — All Events</span>
+              <span class="ov-income-title">Total semua event</span>
               <button class="ov-eye" id="incomeToggle" title="Show/hide"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg></button>
             </div>
             <div class="ov-income-body">
-              <div class="ov-income-item"><span>Income</span><b id="ovRevenue">Rp •••••••</b></div>
-              <div class="ov-income-item"><span>Estimated Profit</span><b id="ovProfit">Rp •••••••</b></div>
+              <div class="ov-income-item"><span>Pemasukan</span><b id="ovRevenue">Rp •••••••</b></div>
+              <div class="ov-income-item"><span>Perkiraan untung</span><b id="ovProfit">Rp •••••••</b></div>
             </div>
-            <button type="button" id="ovIncomeDetailToggle" style="background:none;border:none;color:rgba(255,255,255,.85);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:10px 0 0;">View per-batch breakdown</button>
+            <button type="button" id="ovIncomeDetailToggle" style="background:none;border:none;color:rgba(255,255,255,.85);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:10px 0 0;">Lihat rincian per batch</button>
             <div id="ovIncomeBreakdown" style="display:none;margin-top:8px;"></div>
           </div>
 
-          <h3 class="ov-section-title">Currently Open Events</h3>
-          <div id="ovCards" class="ov-cards"></div>
+
 
           <div class="ach-headrow" style="margin:28px 0;">
-            <h3 class="ov-section-title" style="margin:0;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/></svg> Workshop Analytics</h3>
-            <button class="btn btn-sm" id="recapBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .07 0 .27-.038.494H15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 14.5V7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h2.038A3 3 0 0 1 3 2.506zm1.068.5H7v-.5a1.5 1.5 0 1 0-3 0c0 .085.002.274.045.43zM9 3h2.932l.023-.07c.043-.156.045-.345.045-.43a1.5 1.5 0 0 0-3 0zM1 4v2h6V4zm8 0v2h6V4zm5 3H9v8h4.5a.5.5 0 0 0 .5-.5zm-7 8V7H2v7.5a.5.5 0 0 0 .5.5z"/></svg> Create Wrapped</button>
+            <h3 class="ov-section-title" style="margin:0;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/></svg> Analitik workshop</h3>
           </div>
           <div id="analytics"></div>
         </div>
@@ -7683,6 +7693,36 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // Open Events" di Overview (1 kartu = 1 batch spesifik, bukan cuma tipe
     // workshop-nya) biar klik kartu Vol 5 beneran buka Prep Vol 5, bukan
     // ketimpa default batch aktif pertama yang ketemu.
+    // Cari menu di sidebar: 27 halaman kebagi 7 grup -- ketik "foto", "batch",
+    // "pesan" dst langsung nyaring tombol menu (grup yang cocok kebuka otomatis).
+    (function initNavSearch() {
+      const inp = document.getElementById("abNavSearch");
+      if (!inp) return;
+      const nav = document.querySelector(".sidebar-nav");
+      let empty = null;
+      inp.addEventListener("input", () => {
+        const q = inp.value.trim().toLowerCase();
+        let shown = 0;
+        nav.querySelectorAll(".nav-acc").forEach(acc => {
+          let any = false;
+          acc.querySelectorAll(".nav-btn").forEach(b => {
+            const hit = !q || b.textContent.toLowerCase().indexOf(q) >= 0 || (b.dataset.view || "").indexOf(q) >= 0;
+            b.style.display = hit ? "" : "none";
+            if (hit) { any = true; shown++; }
+          });
+          acc.style.display = any ? "" : "none";
+          if (q && any) acc.open = true;
+        });
+        if (!empty) { empty = document.createElement("div"); empty.className = "ab-navempty"; nav.appendChild(empty); }
+        empty.textContent = q && !shown ? "Nggak ada menu yang cocok." : "";
+      });
+      inp.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        const first = [...nav.querySelectorAll(".nav-btn")].find(b => b.style.display !== "none");
+        if (first) { first.click(); inp.value = ""; inp.dispatchEvent(new Event("input")); }
+      });
+    })();
+
     function switchView(view, event, subtab, batchId) {
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
       const activeBtn = document.querySelector(".nav-btn.active");
@@ -7757,6 +7797,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // per satuan hasil bagi kayak 150000/20 = 7500 aman, tapi kalau baginya
     // nggak bulat, mis. 139996.8, bakal kepampang "Rp 139.996,8" yang aneh
     // kalau nggak dibulatin di sini).
+    // Gambar default buat item yang belum/nggak punya foto (atau link fotonya rusak)
+    const NOIMG = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#e6edff"/><g fill="none" stroke="#7a8db8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="18" width="32" height="28" rx="4"/><circle cx="26" cy="27" r="3"/><path d="m48 38-8-8-16 16"/></g></svg>');
+    function noImg(size) { return `<img src="${NOIMG}" alt="" class="ab-noimg" style="width:${size}px;height:${size}px;border-radius:10px;flex-shrink:0;">`; }
+    // Foto yang gagal dimuat (file dihapus / link mati) -> ganti gambar default,
+    // KECUALI <img> yang udah punya penanganan error sendiri (onerror).
+    document.addEventListener("error", (e) => {
+      const el = e.target;
+      if (!el || el.tagName !== "IMG" || el.dataset.noimgDone || el.hasAttribute("onerror")) return;
+      el.dataset.noimgDone = "1";
+      el.src = NOIMG;
+    }, true);
+
     function rupiah(n) { return "Rp " + Math.round(Number(n) || 0).toLocaleString("id-ID"); }
 
     // Input harga bertitik-ribuan (mis. "100.000") -- input tetap type="text"
@@ -8362,7 +8414,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       box.innerHTML = CURRENT_COST_ITEMS.map((it, idx) => {
         const match = COST_ITEMS.find(x => x.name === it.nama);
         const thumb = (match && match.image_url)
-          ? `<img src="${escapeHtml(match.image_url)}" style="width:100%;height:100%;object-fit:cover;">` : icon("cart");
+          ? `<img src="${escapeHtml(match.image_url)}" style="width:100%;height:100%;object-fit:cover;">` : `<img src="${NOIMG}" alt="" style="width:100%;height:100%;">`;
         const tipeLabel = it.tipe === "tetap" ? "fixed" : "per-participant";
         const excludeBadge = it.excludeFromBudget ? ` · <span class="per-badge transfer" style="white-space:nowrap;">Partner/collab</span>` : "";
         return `
@@ -8426,7 +8478,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!match) { prev.style.display = "none"; return; }
       prev.style.display = "block";
       prev.innerHTML = `<div style="display:flex;align-items:center;gap:10px;">
-        ${match.image_url ? `<img src="${escapeHtml(match.image_url)}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;">` : ""}
+        ${match.image_url ? `<img src="${escapeHtml(match.image_url)}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;">` : noImg(36)}
         <span class="hint" style="margin:0;">Cocok sama Item Database${match.link ? ` · <a href="${escapeHtml(match.link)}" target="_blank" rel="noopener">Lihat di toko</a>` : ""}</span>
       </div>`;
       // Auto-fill harga cuma pas nambah baru -- pas edit item yang udah ada,
@@ -8596,11 +8648,23 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           const box = document.getElementById("ovIncomeBreakdown");
           const open = box.style.display !== "none";
           box.style.display = open ? "none" : "block";
-          e.target.textContent = open ? "View per-batch breakdown" : "Hide breakdown";
+          e.target.textContent = open ? "Lihat rincian per batch" : "Tutup rincian";
           if (!open) renderIncomeBreakdown();
         });
         // Tap kartu workshop -> buka detail (tab Prep event itu) via hash
         document.getElementById("ovCards").addEventListener("click", (e) => {
+          const act = e.target.closest(".ov-act");
+          if (act) {
+            e.stopPropagation();
+            if (act.dataset.ovcopy) {
+              const url = act.dataset.ovcopy;
+              (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => {
+                act.textContent = "Tersalin ✓"; setTimeout(() => { act.textContent = "Salin link daftar"; }, 1800);
+              }).catch(() => prompt("Salin link ini:", url));
+            } else if (act.dataset.ovgo === "pendaftar") jumpFromActivity("pendaftar", act.dataset.ws);
+            else if (act.dataset.ovgo === "prep") location.hash = "prep:" + act.dataset.ws + "::" + (act.dataset.batch || "");
+            return;
+          }
           const card = e.target.closest(".ov-card[data-event]");
           // Sertain batch id (bukan cuma tipe workshop) -- kalau ada 2+ batch
           // tipe yang sama lagi buka bareng (mis. Vol 4/5/6), tanpa ini semua
@@ -8608,7 +8672,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           // beneran diklik.
           if (card) location.hash = "prep:" + card.dataset.event + ":" + ":" + (card.dataset.batch || "");
         });
-        document.getElementById("recapBtn").addEventListener("click", openRecap);
+        const recapBtn = document.getElementById("recapBtn"); if (recapBtn) recapBtn.addEventListener("click", openRecap); // Wrapped: tombolnya udah dicopot (nggak dipakai lagi)
         document.getElementById("recapClose").addEventListener("click", closeRecap);
         document.getElementById("recapModal").addEventListener("click", (e) => { if (e.target.id === "recapModal") closeRecap(); });
         document.getElementById("recapDownload").addEventListener("click", downloadRecap);
@@ -8689,6 +8753,54 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       }).join("");
     }
 
+    // ---------- "Perlu perhatian": jawab "apa yang perlu aku urus sekarang?" ----------
+    // Dibangun dari data yang UDAH ada (OPEN_BATCHES, TASKS, badge Notifikasi) --
+    // nggak nambah request. Dipanggil ulang tiap tasks/notifikasi selesai dimuat.
+    function renderAttention() {
+      const box = document.getElementById("ovAttnList");
+      if (!box) return;
+      const hello = document.getElementById("ovToday");
+      if (hello) hello.textContent = new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const dayDiff = iso => Math.round((new Date(iso + "T00:00:00") - today) / 86400000);
+      const items = [];
+      (OPEN_BATCHES || []).forEach(b => {
+        const nm = escapeHtml(b.workshopName) + (b.label ? " — " + escapeHtml(b.label) : "");
+        if (!b.eventDateIso) {
+          items.push({ tone: "warn", t: nm, d: "Tanggal event belum diatur", go: "config", cta: "Atur tanggal" });
+          return;
+        }
+        const dd = dayDiff(b.eventDateIso);
+        if (dd < 0) items.push({ tone: "warn", t: nm, d: "Tanggal event udah lewat tapi batch masih buka", go: "config", cta: "Cek batch" });
+        else if (dd <= 7) items.push({ tone: "soon", t: nm, d: (dd === 0 ? "Hari ini" : "H-" + dd) + " · " + b.count + "/" + (b.maxQuota || "?") + " peserta", go: "prep:" + b.workshopType + "::" + (b.batchId || ""), cta: "Buka Prep" });
+        if (b.maxQuota && b.count >= b.maxQuota && dd >= 0) items.push({ tone: "ok", t: nm, d: "Kuota penuh (" + b.count + "/" + b.maxQuota + ")", go: "pendaftar:" + b.workshopType, cta: "Lihat pendaftar" });
+      });
+      const open = (typeof TASKS !== "undefined" ? TASKS : []).filter(t => t.status !== "done");
+      const overdue = open.filter(t => t.dueDate && dayDiff(t.dueDate) < 0).length;
+      const dueSoon = open.filter(t => t.dueDate && dayDiff(t.dueDate) >= 0 && dayDiff(t.dueDate) <= 3).length;
+      if (overdue) items.push({ tone: "warn", t: overdue + " task lewat tenggat", d: "Dari " + open.length + " task yang belum selesai", go: "tasks", cta: "Buka Tasks" });
+      else if (dueSoon) items.push({ tone: "soon", t: dueSoon + " task tenggatnya ≤ 3 hari", d: "Dari " + open.length + " task yang belum selesai", go: "tasks", cta: "Buka Tasks" });
+      const nb = document.getElementById("navActBadge");
+      const notif = nb && nb.style.display !== "none" ? parseInt(nb.textContent, 10) || 0 : 0;
+      if (notif) items.push({ tone: "info", t: notif + " notifikasi belum dicek", d: "Pendaftar baru, karya, atau pesan warga", go: "activity", cta: "Lihat" });
+      if (!items.length) {
+        box.innerHTML = `<div class="ov-attn-empty">Aman, nggak ada yang mendesak sekarang.</div>`;
+        return;
+      }
+      const order = { warn: 0, soon: 1, info: 2, ok: 3 };
+      items.sort((a, b) => order[a.tone] - order[b.tone]);
+      box.innerHTML = items.map(it => `<button type="button" class="ov-attn-item tone-${it.tone}" data-attngo="${escapeHtml(it.go)}">
+          <span class="ov-attn-dot" aria-hidden="true"></span>
+          <span class="ov-attn-txt"><b>${it.t}</b><span>${escapeHtml(it.d)}</span></span>
+          <span class="ov-attn-cta">${escapeHtml(it.cta)} →</span>
+        </button>`).join("");
+      box.querySelectorAll("[data-attngo]").forEach(el => el.addEventListener("click", () => {
+        const go = el.dataset.attngo;
+        if (go.indexOf("pendaftar:") === 0) jumpFromActivity("pendaftar", go.split(":")[1]);
+        else location.hash = go;
+      }));
+    }
+
     function renderOverview() {
       // Revenue/profit dihitung SERVER-SIDE (getOverview) dari SEMUA batch
       // SEPANJANG WAKTU (bukan cuma yang aktif/lagi buka pendaftaran) --
@@ -8704,12 +8816,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       // Beda dari revenue di atas: batch yg buka bareng (mis. Vol 6 & Vol 7)
       // kelihatan sebagai 2 card terpisah dengan data masing-masing.
       const box = document.getElementById("ovCards");
-      if (!OPEN_BATCHES.length) { box.innerHTML = `<p class="hint">No workshops currently open for registration.</p>`; return; }
+      renderAttention();
+      if (!OPEN_BATCHES.length) { box.innerHTML = `<p class="hint">Belum ada event yang buka pendaftaran.</p>`; return; }
       box.innerHTML = OPEN_BATCHES.map(b => {
         const pct = b.maxQuota ? Math.min(100, Math.round(b.count / b.maxQuota * 100)) : 0;
         const badge = countdownBadge(b.eventDateIso ? isoToIdDate(b.eventDateIso) : "");
         const labelSuffix = b.label ? ` — ${escapeHtml(b.label)}` : "";
-        return `<div class="ov-card ov-card-clickable" data-event="${b.workshopType}" data-batch="${escapeHtml(b.batchId || "")}" title="Tap for details & prep">
+        const regUrl = "https://seminggusatu.com/" + b.workshopType + "/" + (b.label ? "?batch=" + encodeURIComponent(b.label) : "");
+        return `<div class="ov-card ov-card-clickable" data-event="${b.workshopType}" data-batch="${escapeHtml(b.batchId || "")}" title="Buka Prep event ini">
           <div class="ov-card-top">
             <div class="ov-card-name">${escapeHtml(b.workshopName)}${labelSuffix}</div>
             ${badge}
@@ -8717,7 +8831,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="ov-meta">${icon("calendar")} ${escapeHtml(b.displayDate || "-")}${b.workshopTime ? " · " + escapeHtml(b.workshopTime) : ""}</div>
           <div class="ov-meta">${icon("geo")} ${escapeHtml(b.locationName || "-")}</div>
           <div class="ov-progress"><div class="ov-progress-bar" style="width:${pct}%"></div></div>
-          <div class="ov-progress-label">${b.count} / ${b.maxQuota || "?"} participants (${pct}%)</div>
+          <div class="ov-progress-label">${b.count} / ${b.maxQuota || "?"} peserta (${pct}%)</div>
+          <div class="ov-card-actions">
+            <button type="button" class="ov-act" data-ovgo="pendaftar" data-ws="${b.workshopType}">Pendaftar</button>
+            <button type="button" class="ov-act" data-ovgo="prep" data-ws="${b.workshopType}" data-batch="${escapeHtml(b.batchId || "")}">Prep</button>
+            <button type="button" class="ov-act" data-ovcopy="${escapeHtml(regUrl)}">Salin link daftar</button>
+          </div>
         </div>`;
       }).join("");
     }
@@ -9237,6 +9356,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const openCount = TASKS.filter(t => t.status !== "done").length;
       badge.textContent = openCount;
       badge.style.display = openCount ? "" : "none";
+      if (typeof renderAttention === "function") renderAttention();
     }
 
     function taskCard(t) {
@@ -11882,7 +12002,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         div.style.marginBottom = "10px";
         const img = m.image
           ? `<img src="${escapeHtml(m.image)}" style="width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
-          : `<div style="width:56px;height:56px;border-radius:10px;background:var(--bg);flex-shrink:0;"></div>`;
+          : noImg(56);
         div.innerHTML =
           `<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
              ${img}
@@ -12080,7 +12200,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           : "";
         const img = p.image
           ? `<img src="${escapeHtml(p.image)}" style="width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
-          : `<div style="width:56px;height:56px;border-radius:10px;background:var(--bg);flex-shrink:0;"></div>`;
+          : noImg(56);
         div.innerHTML =
           `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
              <div style="display:flex;gap:12px;align-items:flex-start;min-width:0;">
@@ -13706,6 +13826,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!b) return;
       if (count > 0) { b.textContent = count; b.style.display = "inline-block"; }
       else b.style.display = "none";
+      if (typeof renderAttention === "function") renderAttention();
     }
 
     // Penanda "udah diucapin ultahnya tahun ini" -- disimpen di browser aja
@@ -14181,7 +14302,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
              <span class="k-num">${escapeHtml(c.title || "(tanpa judul)")} ${c.active ? '<span class="loy-badge">AKTIF</span>' : '<span class="loy-note-badge">draft</span>'}</span>
            </div>
            <div style="display:flex;gap:12px;align-items:center;">
-             ${c.image ? `<img src="${escapeHtml(driveThumb(c.image))}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;flex-shrink:0;">` : ""}
+             ${c.image ? `<img src="${escapeHtml(driveThumb(c.image))}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;flex-shrink:0;">` : noImg(56)}
              <div style="min-width:0;"><div style="font-weight:600;font-size:13px;">${escapeHtml(c.theme || "")}</div>
              <div class="hint" style="margin:0;">${escapeHtml((c.description || "").slice(0, 90))}</div></div>
            </div>
@@ -14586,7 +14707,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
              <span class="k-num">${escapeHtml(m.name)} ${m.active ? '<span class="loy-badge">AKTIF</span>' : '<span class="loy-note-badge">nonaktif</span>'}</span>
            </div>
            <div style="display:flex;gap:12px;align-items:center;">
-             ${m.imageUrl ? `<img src="${escapeHtml(driveThumb(m.imageUrl))}" style="width:48px;height:48px;object-fit:cover;border-radius:10px;flex-shrink:0;">` : ""}
+             ${m.imageUrl ? `<img src="${escapeHtml(driveThumb(m.imageUrl))}" style="width:48px;height:48px;object-fit:cover;border-radius:10px;flex-shrink:0;">` : noImg(48)}
              <div class="hint" style="margin:0;">${escapeHtml(m.description || "")}</div>
            </div>
          </div>`
@@ -18982,7 +19103,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       }
       box.innerHTML = matches.map(it => `
         <div class="supply-search-row" data-pick="${escapeHtml(it.id)}">
-          <div class="supply-search-thumb">${it.image_url ? `<img src="${escapeHtml(it.image_url)}">` : icon("cart")}</div>
+          <div class="supply-search-thumb">${it.image_url ? `<img src="${escapeHtml(it.image_url)}">` : `<img src="${NOIMG}" alt="">`}</div>
           <div style="flex:1;min-width:0;">
             <div style="font-weight:700;">${escapeHtml(it.name)}</div>
             <div class="hint" style="margin:0;">${rupiah(it.default_price)}</div>
@@ -19020,7 +19141,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       box.innerHTML = "";
       items.forEach((item, idx) => {
         const match = COST_ITEMS.find(it => it.name === item.name);
-        const thumb = (match && match.image_url) ? `<img src="${escapeHtml(match.image_url)}">` : icon("cart");
+        const thumb = (match && match.image_url) ? `<img src="${escapeHtml(match.image_url)}">` : `<img src="${NOIMG}" alt="">`;
         const row = document.createElement("div");
         row.className = "prep-row prep-row-check";
         row.innerHTML = `
@@ -19510,7 +19631,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;align-items:flex-end;">
             <div><span class="hint" style="margin:0;">Revenue</span><div style="font-weight:700;">${rupiah(e.totalRevenue)}</div></div>
             <div><span class="hint" style="margin:0;">Profit</span><div style="font-weight:700;color:${e.totalProfit >= 0 ? "var(--ok)" : "var(--err)"};">${rupiah(e.totalProfit)}</div></div>
-            <button type="button" class="ana-detail-toggle" data-target="${detailId}" style="background:none;border:none;color:var(--brand);font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;">View batch breakdown</button>
+            <button type="button" class="ana-detail-toggle" data-target="${detailId}" style="background:none;border:none;color:var(--brand);font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;">Lihat rincian batch</button>
           </div>
           <div id="${detailId}" style="display:none;margin-top:12px;overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;">
@@ -19528,16 +19649,16 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       ).join("");
 
       box.innerHTML = `
-        <p class="hint" style="margin:0 0 12px;">All figures below are calculated from <b>the entire batch history</b> (not just currently active ones) -- different from "Estimated Profit" above, which is only currently open/active workshops. Journaling Date is excluded since it's free & exclusive to Community members.</p>
+        <p class="hint" style="margin:0 0 12px;">Dihitung dari <b>semua batch sepanjang waktu</b> (bukan cuma yang lagi buka). Journaling Date nggak dihitung karena gratis khusus warga.</p>
         <div class="ach-stats" style="margin-bottom:14px;">
-          <div class="ach-stat"><b>${t.events}</b><span>Events</span></div>
-          <div class="ach-stat"><b>${t.batches}</b><span>Total batches</span></div>
-          <div class="ach-stat"><b>${t.participants}</b><span>Total participants</span></div>
-          <div class="ach-stat"><b style="font-size:15px;">${rupiah(t.revenue)}</b><span>All-time revenue</span></div>
+          <div class="ach-stat"><b>${t.events}</b><span>Event</span></div>
+          <div class="ach-stat"><b>${t.batches}</b><span>Total batch</span></div>
+          <div class="ach-stat"><b>${t.participants}</b><span>Total peserta</span></div>
+          <div class="ach-stat"><b style="font-size:15px;">${rupiah(t.revenue)}</b><span>Pemasukan sepanjang waktu</span></div>
         </div>
         ${highlightCards ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px;">${highlightCards}</div>` : ""}
-        ${soldOutList ? `<div class="fin-card" style="margin-bottom:14px;"><div style="font-weight:800;margin-bottom:8px;">Batches that have sold out</div>${soldOutList}</div>` : ""}
-        <div style="font-weight:800;margin-bottom:8px;">Per event, all-time (sorted by most profitable)</div>
+        ${soldOutList ? `<div class="fin-card" style="margin-bottom:14px;"><div style="font-weight:800;margin-bottom:8px;">Batch yang pernah sold out</div>${soldOutList}</div>` : ""}
+        <div style="font-weight:800;margin-bottom:8px;">Per event, sepanjang waktu (urut dari paling untung)</div>
         ${eventRows}`;
 
       box.querySelectorAll(".ana-detail-toggle").forEach(btn => btn.addEventListener("click", () => {
@@ -19545,7 +19666,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         if (!target) return;
         const open = target.style.display !== "none";
         target.style.display = open ? "none" : "block";
-        btn.textContent = open ? "View batch breakdown" : "Hide breakdown";
+        btn.textContent = open ? "Lihat rincian batch" : "Tutup rincian";
       }));
     }
 

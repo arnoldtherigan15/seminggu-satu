@@ -1,0 +1,197 @@
+/* =========================================================
+   Admin -- "Binder Diary" versi kalem (lihat DESIGN.md).
+   Admin = surface Operate: warna, font, kertas & stiker sama kayak
+   Balai Warga, TAPI tanpa washi/miring -- prioritasnya gampang
+   dipindai & dipakai cepat. Dimuat SETELAH <style> inline, jadi
+   cukup ganti token + beberapa komponen inti, 27 halaman ikut.
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&display=swap');
+
+:root {
+    --bg: #f4f7ff;
+    --card: #ffffff;
+    --ink: #10245e;
+    --muted: #4a5674;
+    --line: #e4e9f5;
+    --brand: #0046ff;
+    --brand-hover: #0038cc;
+    --brand-light: #e6edff;
+    --brand-grad: linear-gradient(0deg, #0046ff, #0046ff);
+    --dark-grad: linear-gradient(0deg, #10245e, #10245e);
+    --ok: #0a7a3d;
+    --ok-light: #d1fae5;
+    --err: #c42b3b;
+    --err-light: #ffe3e6;
+    --warn: #b45309;
+    --info: #0369a1;
+    --ab-yellow: #ffe600;
+    --ab-note: #fff6a8;
+    --ab-pink: #ff8fb8;
+    --shadow-sm: 0 1px 2px rgba(16, 36, 94, .08), 0 4px 12px rgba(16, 36, 94, .05);
+    --shadow-md: 0 2px 4px rgba(16, 36, 94, .10), 0 10px 22px rgba(16, 36, 94, .10);
+    --shadow-lg: 0 10px 30px rgba(16, 36, 94, .14);
+    --ab-sticker: 0 0 0 3px #ffffff, 0 3px 8px rgba(16, 36, 94, .20);
+}
+
+body {
+    background-color: var(--bg);
+    background-image: radial-gradient(rgba(16, 36, 94, .07) 1px, transparent 1.2px);
+    background-size: 22px 22px;
+    color: var(--ink);
+}
+h1, h2, h3, h4, .ov-section-title, .det-name, .filter-overlay-title { font-family: 'Outfit', 'Open Sans', sans-serif; color: var(--ink); letter-spacing: -0.01em; }
+
+/* ---------- Tombol: tanpa gradasi & HURUF KAPITAL ---------- */
+.btn {
+    background-image: none;
+    background-color: var(--brand);
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: 'Outfit', 'Open Sans', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(16, 36, 94, .18);
+}
+.btn:hover { background-color: var(--brand-hover); box-shadow: 0 4px 10px rgba(0, 70, 255, .22); }
+.btn-ghost, .btn.btn-ghost {
+    background-color: #ffffff;
+    color: var(--ink);
+    border: 1.5px solid var(--line);
+    box-shadow: none;
+}
+.btn-ghost:hover, .btn.btn-ghost:hover { background-color: #f4f7ff; border-color: #c9d6f5; box-shadow: none; }
+.form-control, select.form-control, input.form-control, textarea.form-control {
+    border: 1.5px solid #c9d6f5;
+    border-radius: 12px;
+    color: var(--ink);
+}
+.form-control:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(255, 230, 0, .5); outline: none; }
+
+/* ---------- Sidebar ---------- */
+.sidebar { background: #ffffff; border-right: 1px solid var(--line); }
+.sidebar-header { padding: 20px 20px 16px; }
+.sidebar-header h2 {
+    display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0;
+    background: var(--brand); color: #ffffff;
+    padding: 10px 14px; border-radius: 12px 16px 16px 12px;
+    font-size: 17px; line-height: 1.1;
+    box-shadow: inset 4px 0 0 rgba(0, 0, 0, .2);
+}
+.sidebar-header h2 svg { display: none; }
+.sidebar-header p { font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--brand); font-size: 13px; margin-top: 6px; }
+/* cari menu */
+.ab-navsearch { padding: 12px 12px 4px; }
+.ab-navsearch input {
+    width: 100%; min-height: 40px; padding: 0 12px 0 34px;
+    border: 1.5px solid #c9d6f5; border-radius: 10px;
+    font: inherit; font-size: 14px; color: var(--ink);
+    background: #f4f7ff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235f6b8a' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='m20 20-3.5-3.5'/></svg>") 10px 50% / 16px no-repeat;
+}
+.ab-navsearch input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(255, 230, 0, .5); background-color: #ffffff; }
+.ab-navempty { padding: 10px 16px; font-size: 13px; color: var(--muted); }
+summary.nav-section-label, .nav-section-label {
+    font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 800;
+    letter-spacing: 0; text-transform: none; color: var(--muted);
+}
+summary.nav-section-label:hover { background: #f4f7ff; }
+.sidebar-nav .nav-btn { color: var(--ink); font-weight: 600; min-height: 42px; }
+.sidebar-nav .nav-btn:hover { background: #f4f7ff; }
+/* menu aktif = stiker kuning (sama kayak tab aktif di Balai Warga) */
+.sidebar-nav .nav-btn.active {
+    background-image: none; background-color: var(--ab-yellow); color: #10245e;
+    box-shadow: var(--ab-sticker); font-weight: 800;
+}
+.sidebar-nav .nav-btn.active .nav-icon { background: #ffffff; color: #10245e; }
+.nav-icon { box-shadow: none; border: 1px solid var(--line); color: var(--ink); }
+.nav-badge { background: var(--ab-pink); color: #10245e; font-weight: 800; }
+
+/* ---------- Kartu umum ---------- */
+.ov-card, .fin-card, .card-box, .table-box, .det-sec, .ach-stat {
+    border-color: var(--line);
+}
+.ov-card, .fin-card { border-radius: 6px 16px 16px 6px; box-shadow: var(--shadow-sm); }
+
+/* ---------- Overview ---------- */
+.ov-hello { margin: 4px 0 18px; }
+.ov-hello h2 { font-size: 26px; font-weight: 800; }
+.ov-hello p { color: var(--muted); font-size: 14px; margin-top: 2px; }
+.ov-section-title { font-size: 18px; font-weight: 800; margin: 28px 0 12px; }
+.ov-attn .ov-section-title { margin-top: 0; }
+
+/* Perlu perhatian = daftar tugas di sticky note */
+.ov-attn {
+    background: var(--ab-note);
+    border-radius: 4px;
+    padding: 16px 16px 12px;
+    box-shadow: var(--shadow-sm);
+}
+#ovAttnList { display: flex; flex-direction: column; gap: 8px; }
+.ov-attn-item {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; min-height: 56px; padding: 10px 14px;
+    background: #ffffff; border: none; border-radius: 12px;
+    text-align: left; cursor: pointer; color: var(--ink);
+    box-shadow: 0 1px 2px rgba(16, 36, 94, .08);
+}
+.ov-attn-item:hover { box-shadow: var(--shadow-md); }
+.ov-attn-dot { flex: 0 0 auto; width: 12px; height: 12px; border-radius: 50%; background: #0046ff; box-shadow: 0 0 0 3px #e6edff; }
+.tone-warn .ov-attn-dot { background: #c42b3b; box-shadow: 0 0 0 3px #ffe3e6; }
+.tone-soon .ov-attn-dot { background: #e0a800; box-shadow: 0 0 0 3px #fff3c4; }
+.tone-ok .ov-attn-dot { background: #0a7a3d; box-shadow: 0 0 0 3px #d1fae5; }
+.ov-attn-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ov-attn-txt b { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 800; }
+.ov-attn-txt span { font-size: 13px; color: var(--muted); }
+.ov-attn-cta { flex: 0 0 auto; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 13px; color: var(--brand); white-space: nowrap; }
+.ov-attn-empty { background: #ffffff; border-radius: 12px; padding: 14px; font-weight: 600; color: var(--ok); }
+
+/* kartu event: tombol cepat */
+.ov-card { padding: 18px 18px 14px; }
+.ov-card-name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; }
+.ov-progress { background: #e6edff; height: 8px; border-radius: 999px; }
+.ov-progress-bar { background: var(--brand); border-radius: 999px; }
+.ov-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed #c9d6f5; }
+.ov-act {
+    min-height: 36px; padding: 0 12px;
+    border: 1.5px solid #c9d6f5; border-radius: 10px;
+    background: #ffffff; color: var(--ink);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 13px;
+    cursor: pointer;
+}
+.ov-act:hover { border-color: var(--brand); color: var(--brand); }
+
+/* pemasukan: kartu biru polos (tanpa gradasi ungu & glow) */
+.ov-income {
+    background: var(--brand);
+    background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, .04) 0 2px, transparent 2px 6px);
+    border-radius: 14px 20px 20px 14px;
+    box-shadow: var(--shadow-md), inset 6px 0 0 rgba(0, 0, 0, .18);
+}
+.ov-income::after { display: none; }
+.ov-income-title { text-transform: none; letter-spacing: 0; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px; }
+.ov-eye { background: #ffffff; color: #10245e; }
+.ov-eye:hover { background: var(--ab-yellow); }
+.ov-income-item b { font-family: 'Outfit', sans-serif; font-weight: 800; }
+
+/* badge H-xx & stat analitik */
+.ach-stat b { font-family: 'Outfit', sans-serif; color: var(--ink); }
+
+/* ---------- Header HP ---------- */
+.mobile-header { background: #ffffff; border-bottom: 1px solid var(--line); }
+.mobile-title { font-family: 'Outfit', sans-serif; font-weight: 800; color: var(--ink); }
+
+/* ---------- Tabel ---------- */
+th { text-transform: none !important; letter-spacing: 0 !important; color: var(--muted) !important; font-weight: 800 !important; }
+
+@media (prefers-reduced-motion: reduce) {
+    .btn, .ov-card, .ov-attn-item { transition: none !important; }
+}
+
+/* ---------- Toolbar: tombol sejajar sama kotak isian (bukan ngambang di tengah label+input) ---------- */
+.toolbar { align-items: flex-end; border-radius: 16px; box-shadow: var(--shadow-sm); }
+.toolbar .form-control, .toolbar select.form-control { min-height: 44px; }
+.toolbar .btn { height: 44px; }
+.toolbar > h3, .toolbar > .ov-section-title { align-self: center; }
+/* thumbnail tanpa foto */
+.cost-row-thumb, .supply-search-thumb { background: #e6edff; }
+.ab-noimg { object-fit: cover; }
