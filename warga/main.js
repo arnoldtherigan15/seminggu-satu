@@ -222,6 +222,48 @@ function musicMuted() {
 function runnerOff() {
     try { return localStorage.getItem("ss_runner") === "0"; } catch (e) { return false; }
 }
+
+// ---------- Mode istirahat ----------
+// Warga yang lagi butuh jeda bisa minta Balai DIEM: tanpa push, tanpa streak,
+// tanpa ajakan/colekan Mochi, tanpa toast poin & bisik-bisik peringkat.
+// Yang nenangin (Jar, Jurnal, Kotak Surat, napas) tetap bisa dibuka kapan aja --
+// nggak ada yang dikunci. (seminggu-psych: autonomi -- warga yang pegang kendali
+// kapan mau diajak; bolong itu boleh & aman buat balik.)
+function restOn() {
+    try { return localStorage.getItem("ss_rest") === "1"; } catch (e) { return false; }
+}
+function pushTagRest(on) {
+    try {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        window.OneSignalDeferred.push((OneSignal) => {
+            // server (_shared/push.ts) nggak ngirim push ke subscription bertag rest
+            if (on) OneSignal.User.addTag("rest", "1"); else OneSignal.User.removeTag("rest");
+        });
+    } catch (e) { }
+}
+function restBannerHtml() {
+    if (!restOn()) return "";
+    return '<div class="rest-note" role="status">' +
+        '<div class="rest-t">Mode istirahat lagi nyala</div>' +
+        '<p>Balai nggak bakal ngingetin atau ngajak apa-apa dulu. Pelan-pelan aja ya, kamu boleh balik kapan pun kamu siap.</p>' +
+        '<button type="button" class="rest-off" id="restOffBtn">Aku udah siap lagi</button>' +
+        '</div>';
+}
+function wireRestBanner() {
+    const b = $("restOffBtn");
+    if (b) b.onclick = () => setRest(false);
+}
+function setRest(on) {
+    try { localStorage.setItem("ss_rest", on ? "1" : "0"); } catch (e) { }
+    document.documentElement.classList.toggle("bw-rest", on);
+    pushTagRest(on);
+    const slot = $("restSlot");
+    if (slot) { slot.innerHTML = restBannerHtml(); wireRestBanner(); }
+    const w = $("journalTrackerWidget");
+    if (w && _profile) { w.outerHTML = renderJournalTrackerHtml(_profile.wa); initJournalTrackerListeners(_profile.wa); }
+    if (on) { const mb = $("mochiBubble"); if (mb) mb.classList.remove("show"); }
+}
+(function initRestClass() { if (restOn()) document.documentElement.classList.add("bw-rest"); })();
 let _loyaltyLoaded = false;
 
 function $(id) { return document.getElementById(id); }
@@ -478,6 +520,7 @@ function fireConfetti(preset) {
 // dapet +5 poin: check-in mingguan, isi Jar, isi Jurnal Bulanan, kirim pesan Mading.
 let _ptToastTimer = null;
 function showPointsToast(msg) {
+    if (restOn()) return; // mode istirahat: nggak ada hitung-hitungan poin
     let el = $("ptToast");
     if (!el) {
         el = document.createElement("div");
@@ -2638,7 +2681,7 @@ function renderJournalTrackerHtml(wa) {
         '<div class="jt-sub">' + esc(currMonthWeek.monthName) + ' ' + currMonthWeek.year + '</div>' +
         '</div>' +
         '</div>' +
-        (streak > 0 ? '<div class="jt-streak-pill">' + streak + ' minggu berturut-turut</div>' : '') +
+        (streak > 0 && !restOn() ? '<div class="jt-streak-pill">' + streak + ' minggu berturut-turut</div>' : '') +
         '</div>' +
         '<div class="jt-grid">' + gridHtml + '</div>' +
         actionBtnHtml +
@@ -3220,6 +3263,7 @@ async function loadLoyalty() {
         const birthdayHtml = bday ? buildBirthdayHtml(bday) : "";
 
         content.innerHTML =
+            '<div id="restSlot">' + restBannerHtml() + '</div>' +
             '<div id="installSlot"></div>' +
             renderRecapCardHtml() +
             bdayFriendsBannerHtml() +
@@ -3251,6 +3295,7 @@ async function loadLoyalty() {
             '<div class="card loyalty-card"><div class="section-lbl">Loyalty Card</div><p class="loyalty-sub">Tiap ikut event dapat satu cap. ' + target + ' cap = hadiah gratis.</p><div class="stamps" role="img" aria-label="' + progress + ' dari ' + target + ' cap">' + stamps + '</div>' + rewardBox + '</div>';
 
         $("btnPassport").addEventListener("click", openPassport);
+        wireRestBanner();
         init3DCardListeners();
         initJournalTrackerListeners(_profile.wa);
         initWeekNowListeners();
@@ -3311,7 +3356,8 @@ function initPush() {
                 if (records[cw.key]) OneSignal.User.addTag("ciw", cw.key);
             } catch (e) { }
             // prompt izin ala slidedown (OneSignal atur frequency capping-nya)
-            OneSignal.Slidedown.promptPush();
+            if (restOn()) OneSignal.User.addTag("rest", "1"); else OneSignal.User.removeTag("rest");
+            if (!restOn()) OneSignal.Slidedown.promptPush(); // lagi istirahat: jangan minta izin notif
         } catch (e) { /* push gagal init = bukan masalah fatal */ }
     });
 }
@@ -3696,6 +3742,9 @@ function openSettings() {
         '<div class="qm-body">' +
         '<div class="quest-game-title">⚙️ Pengaturan</div>' +
         '<div class="quest-game-desc">Atur Balai-mu senyaman kamu 💙</div>' +
+        '<div class="st-row st-rest"><div class="st-lbl">Mode istirahat</div>' +
+        seg("stRest", [{ v: "on", t: "Nyala", on: restOn() }, { v: "off", t: "Mati", on: !restOn() }]) +
+        '<div class="st-hint">Lagi butuh jeda? Balai nggak bakal ngingetin apa-apa dulu: tanpa notifikasi, tanpa streak, tanpa ajakan. Jar, jurnal, dan surat tetap bisa kamu buka kapan aja.</div></div>' +
         '<div class="st-row"><div class="st-lbl">🌓 Tema</div>' +
         seg("stTheme", [{ v: "light", t: "☀️ Terang", on: !isDark }, { v: "dark", t: "🌙 Gelap", on: isDark }]) + '</div>' +
         '<div class="st-row"><div class="st-lbl">🔤 Ukuran Teks</div>' +
@@ -3732,6 +3781,7 @@ function openSettings() {
     }
     // ganti preferensi suara mana pun -> kunci lama ss_mute dilepas biar nggak nge-override
     function clearLegacyMute() { try { localStorage.removeItem("ss_mute"); } catch (e) { } }
+    pick("stRest", v => setRest(v === "on"));
     pick("stTheme", v => { setThemePref(v === "dark"); playSfx("light", 0.8); });
     pick("stFont", v => {
         if (v === "medium" || v === "large") document.documentElement.setAttribute("data-font", v);
@@ -4451,7 +4501,7 @@ function startMochiBubbles() {
     // dibaca -- warga yang pegang kendali, bukan notifikasinya)
     let quiet = false;
     try { quiet = sessionStorage.getItem("ss_mochi_quiet") === "1"; } catch (e) { }
-    if (quiet) return;
+    if (quiet || restOn()) return; // mode istirahat: Mochi nggak nyolek
     mb.setAttribute("role", "button");
     mb.setAttribute("tabindex", "0");
     mb.setAttribute("aria-label", "Tutup pesan Mochi");
@@ -4464,7 +4514,7 @@ function startMochiBubbles() {
     mb.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " " || e.key === "Escape") { e.preventDefault(); dismiss(); } });
     const shown = [];
     function next() {
-        if (quiet) return;
+        if (quiet || restOn()) { mb.classList.remove("show"); return; }
         const msg = mochiSmartMessages().find(m => shown.indexOf(m) < 0);
         if (!msg || shown.length >= 3) { mb.classList.remove("show"); return; }
         shown.push(msg);
@@ -4525,7 +4575,7 @@ function scheduleMochi() {
 }
 
 function spawnMochi() {
-    if (runnerOff()) return; // dimatiin dari Pengaturan
+    if (runnerOff() || restOn()) return; // dimatiin dari Pengaturan / lagi mode istirahat
     if (_mochiRuns >= 3) return;
     // lagi ada modal kebuka / masih di halaman login? coba lagi nanti
     if (document.body.style.position === "fixed" || $("dashView").style.display === "none") { scheduleMochi(); return; }
@@ -4585,6 +4635,10 @@ function balaiWhispers(ctx) {
             else out.push("Kamu udah nyelesain SEMUA challenge — legend! 🏆");
         }
     } catch (e) { }
+    if (restOn()) {
+        const calm = out.filter(t => !/poin|peringkat|leaderboard|streak|challenge|kejar|nyalip/i.test(t));
+        out.length = 0; calm.forEach(t => out.push(t));
+    }
     if (!out.length) out.push("Balai lagi hangat-hangatnya — makasih udah jadi bagian dari sini 💙");
     return out;
 }

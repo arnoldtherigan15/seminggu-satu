@@ -17,8 +17,9 @@ function currentWeekKey(): string {
 Deno.serve(async (_req) => {
   const wk = currentWeekKey();
   await sendPush(
-    "✍️ Belum check-in minggu ini!",
-    "Streak journaling-mu nunggu nih — simpan memori minggumu di Weekly Tracker sebelum minggunya ganti 🔥",
+    // seminggu-psych: ajakan hangat, bukan nagih streak / hitung mundur
+    "Cerita minggu ini",
+    "Kalau lagi sempat, simpan memori minggumu di Balai Warga. Nggak sempat juga nggak apa-apa.",
     "https://seminggusatu.com/warga/",
     undefined,
     [

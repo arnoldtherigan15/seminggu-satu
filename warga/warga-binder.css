@@ -1967,3 +1967,37 @@
 /* label header sekarang <button> (ke Home Balai), bukan link keluar */
 button.bw-brand { border: none; font: inherit; cursor: pointer; text-align: left; }
 button.bw-brand:focus-visible { outline: 3px solid var(--bw-yellow); outline-offset: 4px; }
+
+/* ===================== MODE ISTIRAHAT ===================== */
+.rest-note {
+    position: relative;
+    margin: 6px 4px 18px;
+    padding: 18px 16px 16px;
+    background: #ffe3ec;
+    color: #10245e;
+    border-radius: 3px;
+    box-shadow: var(--bw-depth-paper);
+    transform: rotate(-0.6deg);
+}
+.rest-note::before {
+    content: ""; position: absolute; top: -10px; left: 50%;
+    width: 80px; height: 20px; margin-left: -40px;
+    background: var(--bw-washi-blue);
+    transform: rotate(2deg);
+}
+.rest-t { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.1rem; }
+.rest-note p { margin-top: 4px; font-size: .92rem; line-height: 1.55; color: #4a5674; }
+.rest-off {
+    margin-top: 12px; min-height: 44px; padding: 0 1rem;
+    border: none; border-radius: 12px;
+    background: #ffffff; color: #10245e;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem;
+    cursor: pointer;
+}
+/* baris Pengaturan-nya ditaruh paling atas & sedikit menonjol */
+.st-row.st-rest { background: #ffe3ec; border-radius: 12px; padding: 12px 12px 10px; margin-bottom: 6px; }
+:root[data-theme="dark"] .st-row.st-rest { background: rgba(255, 143, 184, .14); }
+:root[data-theme="dark"] .st-row.st-rest .st-hint { color: var(--muted); }
+/* pas istirahat: Mochi pelari & gelembung disembunyiin total */
+.bw-rest .mochi-bubble, .bw-rest .mochi-run { display: none !important; }
