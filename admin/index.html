@@ -11980,29 +11980,25 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     function renderRecBatchList() {
       const listEl = document.getElementById("recBatchList");
-      if (!RECBATCH_LIST.length) { listEl.innerHTML = `<p class="hint">Belum ada koleksi. Klik "Koleksi Baru" buat bikin yang pertama.</p>`; return; }
-      listEl.innerHTML = "";
-      RECBATCH_LIST.forEach(b => {
+      const sb = abListBar(listEl, "recbatch", "Cari judul koleksi…", renderRecBatchList);
+      if (!RECBATCH_LIST.length) { listEl.innerHTML = `<div class="empty">Belum ada koleksi. Tap "Koleksi baru" buat bikin yang pertama.</div>`; return; }
+      const q = sb.q();
+      const rows = RECBATCH_LIST.filter(b => !q || String(b.title || "").toLowerCase().includes(q));
+      if (!rows.length) { listEl.innerHTML = '<p class="hint">Nggak ada koleksi yang cocok.</p>'; return; }
+      listEl.innerHTML = '<div class="kt-list"></div>';
+      const wrap = listEl.firstChild;
+      rows.forEach(b => {
         const shareUrl = REC_SHARE_ORIGIN + "/rec/?s=" + encodeURIComponent(b.slug);
         const div = document.createElement("div");
-        div.className = "fin-card";
-        div.style.marginBottom = "10px";
-        div.innerHTML =
-          `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-             <div style="min-width:0;">
-               <div style="font-weight:700;display:flex;align-items:center;gap:8px;">
-                 ${escapeHtml(b.title)}
-                 ${b.active ? `<span class="badge" style="background:#dcfce7;color:#166534;font-size:0.68rem;">Aktif</span>` : `<span class="badge" style="background:#f1f5f9;color:#64748b;font-size:0.68rem;">Nonaktif</span>`}
-               </div>
-               <div class="hint" style="margin-top:2px;">${b.itemCount} item · dibuat ${new Date(b.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</div>
-               <div class="hint" style="margin-top:4px;word-break:break-all;">${escapeHtml(shareUrl)}</div>
-             </div>
-             <div style="display:flex;gap:6px;flex-wrap:wrap;">
-               <button class="btn btn-sm btn-ghost" data-act="copy">Salin link</button>
-               <button class="btn btn-sm btn-ghost" data-act="edit">Edit</button>
-               <button class="btn btn-sm btn-ghost" data-act="del" style="color:var(--err);">Hapus</button>
-             </div>
-           </div>`;
+        div.className = "kt-row" + (b.active ? "" : " is-off");
+        div.innerHTML = `
+          <span class="kt-thumb"><span class="kt-ico">${icon("recommendation")}</span></span>
+          <button type="button" class="kt-main" data-act="edit"><b>${escapeHtml(b.title)} <span class="cfg-pill ${b.active ? "on" : "off"}">${b.active ? "Aktif" : "Nonaktif"}</span></b><small>${b.itemCount} item · dibuat ${new Date(b.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</small></button>
+          <span class="kt-acts">
+            <button type="button" class="kt-btn" data-act="copy" title="Salin link" aria-label="Salin link">${icon("link")}</button>
+            <a class="kt-btn" href="${escapeHtml(shareUrl)}" target="_blank" rel="noopener" title="Buka halaman" aria-label="Buka halaman">${icon("openLink")}</a>
+            <button type="button" class="kt-btn danger" data-act="del" title="Hapus" aria-label="Hapus">${icon("trash")}</button>
+          </span>`;
         div.querySelector('[data-act="copy"]').addEventListener("click", () => copyRecBatchLink(shareUrl));
         div.querySelector('[data-act="edit"]').addEventListener("click", async () => {
           const r = await api("getRecBatch", { token: getToken(), id: b.id });
@@ -12010,7 +12006,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           openRecBatchEditor(r.batch);
         });
         div.querySelector('[data-act="del"]').addEventListener("click", () => deleteRecBatchFn(b.id, b.title));
-        listEl.appendChild(div);
+        wrap.appendChild(div);
       });
     }
 
