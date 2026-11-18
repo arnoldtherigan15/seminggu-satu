@@ -1922,3 +1922,44 @@
 .md-send .ss-ic { width: 16px; height: 16px; }
 .md-send:active { transform: rotate(-2deg) scale(.96); }
 .mading-modal .md-compose .wb-pin { top: -8px; }
+
+/* ===================== MADING TEASER DI GALLERY ===================== */
+/* Tetap gabus (biar langsung kebaca "mading"), tapi jadi selembar papan gabus
+   tipis yang DITEMPEL washi di binder -- bukan papan berbingkai kayu tebal. */
+.wb-board, :root[data-theme="dark"] .wb-board {
+    position: relative;
+    border: none;
+    border-radius: 4px;
+    background-color: #dcbf94;
+    background-image: radial-gradient(rgba(120, 80, 30, .22) 1.2px, transparent 1.4px);
+    background-size: 9px 9px;
+    box-shadow: var(--bw-depth-photo);
+    padding: 18px 12px 14px;
+    margin: 8px 4px 22px;
+    transform: rotate(-0.4deg);
+    overflow: visible;
+}
+:root[data-theme="dark"] .wb-board { background-color: #8a6a44; }
+.wb-board::before, .wb-board::after {
+    content: ""; position: absolute; z-index: 3; pointer-events: none;
+    width: 70px; height: 20px;
+}
+.wb-board::before { top: -9px; left: -14px; background: var(--bw-washi-pink); transform: rotate(-32deg); }
+.wb-board::after { bottom: -9px; right: -14px; background: var(--bw-washi-blue); transform: rotate(-32deg); }
+.wb-track { padding: 10px 4px 8px; }
+/* pin bulat flat (sama kayak halaman Mading penuh) */
+.wb-pin {
+    font-size: 0; width: 15px; height: 15px; border-radius: 50%;
+    background: #ff4d6d;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18), 1px 3px 3px rgba(60, 40, 10, .35);
+    filter: none;
+    top: -6px;
+}
+.wb-pin .ss-ic { display: none; }
+.wb-note.r .wb-pin { background: #0046ff; }
+.wb-tape2, :root[data-theme="dark"] .wb-tape2 { border: none; box-shadow: none; }
+.wb-tape2.wt-y { background: var(--bw-washi-yellow); }
+.wb-tape2.wt-b { background: var(--bw-washi-blue); }
+.wb-tape2.wt-p { background: var(--bw-washi-pink); }
+.wb-note.note-y { background: var(--bw-note); }
+.wb-text { font-family: 'Outfit', sans-serif; font-size: .92rem; font-weight: 600; }
