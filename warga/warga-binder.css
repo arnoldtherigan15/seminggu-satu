@@ -1640,3 +1640,94 @@
 .photo-lightbox img { border: 8px solid #ffffff; border-bottom-width: 18px; border-radius: 3px; }
 .photo-lightbox-close { width: 44px; height: 44px; background: #ffffff; color: #10245e; box-shadow: var(--bw-depth-sticker); }
 .photo-lightbox-close .ss-ic { width: 20px; height: 20px; }
+
+/* ===================== GRATITUDE JAR ===================== */
+/* Toples mason mulut lebar: kaca bening (bukan biru pekat), tutup kain
+   kotak-kotak warna pita + tali + pita, label kertas ditempel. */
+.jp-head { margin-bottom: 4px; }
+.jp-title {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .4rem .9rem;
+    background: #ffffff; color: #10245e;
+    border-radius: 12px;
+    box-shadow: var(--bw-depth-sticker);
+    font-size: 1.15rem;
+    transform: rotate(-2deg);
+}
+.jp-close { width: 42px; height: 42px; background: #ffffff; color: #10245e; box-shadow: var(--bw-depth-sticker); }
+.jp-sub { font-size: .88rem; margin: 14px 0 18px; }
+.jp-dock {
+    border: none;
+    border-radius: 6px 16px 16px 6px;
+    background: var(--bw-paper);
+    box-shadow: var(--bw-depth-paper);
+    padding: .8rem .9rem;
+}
+.jp-name-input { border: 2px solid var(--bw-field); border-radius: 10px; min-height: 40px; font-size: .92rem; background: var(--bw-paper); }
+.jp-name-input:focus { border-color: #0046ff; box-shadow: 0 0 0 4px rgba(255, 230, 0, .55); }
+.jp-swatch { width: 26px; height: 26px; box-shadow: 0 0 0 2px #ffffff, 0 1px 3px rgba(16, 36, 94, .3); }
+
+.jp-shell { filter: drop-shadow(0 16px 20px rgba(var(--bw-tint), .16)); margin-top: 18px; }
+/* kaca: hampir bening, isi kertas kelihatan */
+.jp-clip { background: linear-gradient(180deg, rgba(214, 227, 255, .28) 0%, rgba(214, 227, 255, .5) 100%); }
+:root[data-theme="dark"] .jp-clip { background: linear-gradient(180deg, rgba(122, 162, 255, .07) 0%, rgba(122, 162, 255, .14) 100%); }
+.jp-shine {
+    background:
+        linear-gradient(90deg, transparent 20%, rgba(255, 255, 255, .75) 22%, rgba(255, 255, 255, .75) 25%, transparent 27%),
+        linear-gradient(90deg, transparent 29%, rgba(255, 255, 255, .45) 30%, transparent 31.5%);
+}
+:root[data-theme="dark"] .jp-shine {
+    background:
+        linear-gradient(90deg, transparent 20%, rgba(255, 255, 255, .22) 22%, rgba(255, 255, 255, .22) 25%, transparent 27%),
+        linear-gradient(90deg, transparent 29%, rgba(255, 255, 255, .12) 30%, transparent 31.5%);
+}
+.jp-outline path { opacity: 1; }
+.jp-outline .jp-glass { fill: none; stroke: var(--bw-ink); stroke-width: 4; }
+.jp-outline .jp-cloth { fill: url(#jpGing); stroke: #10245e; stroke-width: 3; stroke-linejoin: round; }
+.jp-outline .jp-string { fill: none; stroke: #10245e; stroke-width: 3; stroke-linecap: round; }
+/* pita diikat di tali tutup */
+.jp-ribbon { top: calc(13% - 22px); width: 70px; height: 44px; filter: drop-shadow(0 3px 4px rgba(16, 36, 94, .25)); }
+.jp-ribbon .bow-shape { stroke: #10245e; stroke-width: 1.6; }
+/* label = kertas putih ditempel di kaca */
+.jp-label,
+:root[data-theme="dark"] .jp-label {
+    top: 30%;
+    background: #ffffff; color: #10245e;
+    border: none; border-radius: 4px;
+    box-shadow: var(--bw-depth-paper);
+    padding: .4rem .9rem;
+    font-size: .9rem;
+    max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.jp-count, :root[data-theme="dark"] .jp-count {
+    background: var(--bw-yellow); color: #10245e;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-size: .78rem; font-weight: 800;
+    padding: .3rem .7rem; bottom: -6px; right: 2px;
+    transform: rotate(-6deg);
+}
+.jp-pile { left: 16%; right: 16%; bottom: 5%; max-height: 62%; }
+.jp-tag { border-radius: 2px; box-shadow: 0 2px 4px rgba(16, 36, 94, .2); }
+
+/* tulis kata */
+.jp-composer input, :root[data-theme="dark"] .jp-composer input { border: 2px solid var(--bw-field); border-radius: 14px; min-height: 50px; font-size: 1rem; background: var(--bw-paper); }
+.jp-composer input:focus { border-color: #0046ff; box-shadow: 0 0 0 4px rgba(255, 230, 0, .55); }
+.jp-composer button {
+    min-height: 50px; border-radius: 14px;
+    background: #0046ff; box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .98rem;
+    transform: rotate(-1deg);
+}
+.jp-composer button:disabled { background: #e6edff; color: #4a5674; box-shadow: none; opacity: 1; transform: none; }
+.jp-hint { font-size: .84rem; }
+
+/* rak toples bulan lalu: ikon toples mason mini */
+.jp-shelf-title { font-family: 'Outfit', sans-serif; text-transform: none; letter-spacing: 0; font-size: 1rem; color: var(--bw-ink); }
+.jp-mini .glyph.jar-glyph {
+    clip-path: path("M 9 0 L 33 0 L 33 6 L 31 6 L 31 8 C 31 10 40 11 40 15 L 40 42 C 40 45 37 47 34 47 L 8 47 C 5 47 2 45 2 42 L 2 15 C 2 11 11 10 11 8 L 11 6 L 9 6 Z");
+    background: linear-gradient(180deg, var(--bw-yellow) 0 13%, rgba(214, 227, 255, .9) 13% 100%);
+    border: none;
+}
+:root[data-theme="dark"] .jp-mini .glyph.jar-glyph { background: linear-gradient(180deg, var(--bw-yellow) 0 13%, rgba(122, 162, 255, .3) 13% 100%); }
+.jp-mini .glyph.current { box-shadow: none; }
+.jp-mini { font-family: 'Outfit', sans-serif; font-weight: 800; color: var(--bw-ink); font-size: .72rem; }

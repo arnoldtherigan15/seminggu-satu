@@ -6054,7 +6054,21 @@ function closeSnailPage(retHash) {
 // kalau kelewat hari, lihat skill seminggu-psych).
 const JAR_TAG_PALETTE = ["#ffe08a", "#ffc2d1", "#b8e3ff", "#c8f2d4", "#ffd3b0", "#dcd0ff"];
 const JAR_RIBBON_COLORS = ["#ffe600", "#ff6f8f", "#6fc2ff", "#7fe0a8", "#ffab73"];
-const JAR_MASK_PATH = "M 0.3933 0.0211 L 0.6067 0.0211 L 0.6067 0.1105 C 0.6067 0.1105 0.7733 0.1526 0.8267 0.2526 C 0.8733 0.3421 0.8733 0.3947 0.8733 0.3947 L 0.8733 0.8684 C 0.8733 0.9342 0.8000 0.9789 0.7000 0.9789 L 0.3000 0.9789 C 0.2000 0.9789 0.1267 0.9342 0.1267 0.8684 L 0.1267 0.3947 C 0.1267 0.3947 0.1267 0.3421 0.1733 0.2526 C 0.2267 0.1526 0.3933 0.1105 0.3933 0.1105 Z";
+// Toples mason mulut lebar (viewBox 300x380, dinormalisasi 0..1) -- harus sama
+// persis sama JAR_BODY_D di bawah (mask isi = garis luar kaca)
+const JAR_MASK_PATH = "M 0.26 0.1053 L 0.74 0.1053 L 0.74 0.1526 C 0.74 0.1842 0.8667 0.2053 0.8667 0.2842 L 0.8667 0.8842 C 0.8667 0.9421 0.8133 0.9789 0.74 0.9789 L 0.26 0.9789 C 0.1867 0.9789 0.1333 0.9421 0.1333 0.8842 L 0.1333 0.2842 C 0.1333 0.2053 0.26 0.1842 0.26 0.1526 Z";
+const JAR_BODY_D = "M 78 40 L 222 40 L 222 58 C 222 70 260 78 260 108 L 260 336 C 260 358 244 372 222 372 L 78 372 C 56 372 40 358 40 336 L 40 108 C 40 78 78 70 78 58 Z";
+// Tutup kain kotak-kotak (warna = pita pilihan) dengan tepi digunting zig-zag + tali
+function jarLidSvg() {
+    let zig = "";
+    for (let x = 250, up = false; x >= 50; x -= 10, up = !up) zig += " L " + x + " " + (up ? 50 : 57);
+    return '<defs><pattern id="jpGing" width="14" height="14" patternUnits="userSpaceOnUse">' +
+        '<rect width="14" height="14" fill="#ffffff"/>' +
+        '<rect width="7" height="14" style="fill:var(--jar-ribbon, #ffe600)" opacity=".5"/>' +
+        '<rect width="14" height="7" style="fill:var(--jar-ribbon, #ffe600)" opacity=".5"/></pattern></defs>' +
+        '<path class="jp-cloth" d="M 50 44 Q 150 -6 250 44 L 250 50' + zig + ' Z"/>' +
+        '<path class="jp-string" d="M 62 49 Q 150 60 238 49"/>';
+}
 let _jarViewMonth = null; // bulan yang lagi ditampilin (default: bulan berjalan)
 
 function jarMonthKey(d) {
@@ -6225,7 +6239,7 @@ function renderJarPage() {
         '<path d="' + JAR_MASK_PATH + '"/>' +
         '</clipPath></defs></svg>' +
         '<div class="jp-wrap">' +
-        '<div class="jp-head"><div class="jp-title">🫙 Gratitude Jar</div>' +
+        '<div class="jp-head"><div class="jp-title">Gratitude Jar</div>' +
         '<button type="button" class="jp-close" id="jpClose">✕</button></div>' +
         '<div class="jp-sub">1 kata/hari, kapan aja kamu inget. Nggak keburu-buru — nggak dipaksa tiap hari juga nggak apa 💙</div>' +
         '<div class="jp-dock">' +
@@ -6239,7 +6253,7 @@ function renderJarPage() {
         '<div class="jp-shell" id="jpShell" style="--jar-ribbon:' + (jar.ribbon || "#ffe600") + '">' +
         '<div class="jp-clip"><div class="jp-pile" id="jpPile">' + jarPileHtml(items) + '</div></div>' +
         '<div class="jp-shine"></div>' +
-        '<svg class="jp-outline" viewBox="0 0 300 380" preserveAspectRatio="none"><path d="M 118 8 L 182 8 L 182 42 C 182 42 232 58 248 96 C 262 130 262 150 262 150 L 262 330 C 262 355 240 372 210 372 L 90 372 C 60 372 38 355 38 330 L 38 150 C 38 150 38 130 52 96 C 68 58 118 42 118 42 Z"/></svg>' +
+        '<svg class="jp-outline" viewBox="0 0 300 380" preserveAspectRatio="none"><path class="jp-glass" d="' + JAR_BODY_D + '"/>' + jarLidSvg() + '</svg>' +
         '<div class="jp-ribbon" id="jpRibbon"><svg viewBox="0 0 74 46" fill="none">' +
         '<path class="bow-shape" d="M35 20 C 24 8 8 6 4 14 C 0 22 8 28 35 22 Z"/><path class="bow-shade" d="M35 20 C 28 13 16 10 8 13 C 20 14 30 18 35 22 Z"/>' +
         '<path class="bow-shape" d="M39 20 C 50 8 66 6 70 14 C 74 22 66 28 39 22 Z"/><path class="bow-shade" d="M39 20 C 46 13 58 10 66 13 C 54 14 44 18 39 22 Z"/>' +
