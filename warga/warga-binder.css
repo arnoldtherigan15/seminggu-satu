@@ -256,3 +256,130 @@
 @media (prefers-reduced-motion: reduce) {
     .jt-action-btn, .jt-action-btn::after, .pr-tile { transition: none; }
 }
+
+/* ===================== TAHAP 2: KARTU ANGGOTA + KARTU CAP ===================== */
+
+/* ---- Kartu anggota = kartu karton putih bergaris, bukan kartu bank mengkilap ---- */
+.member-card-3d { border-radius: 14px; box-shadow: var(--bw-depth-photo); }
+.member-card-wrapper:hover .member-card-3d { box-shadow: var(--bw-depth-photo); }
+.card-face { border-radius: 14px; border: none; box-shadow: none; }
+.card-face.front, .card-face.back,
+:root[data-theme="dark"] .card-face.front,
+:root[data-theme="dark"] .card-face.back {
+    background-color: #ffffff;
+    color: #10245e;
+}
+/* garis biru muda kayak kartu perpus + margin pink di kiri */
+.card-bg-pattern,
+:root[data-theme="dark"] .card-bg-pattern {
+    background:
+        linear-gradient(90deg, transparent 0 30px, rgba(255, 143, 184, 0.75) 30px 32px, transparent 32px),
+        repeating-linear-gradient(180deg, transparent 0 25px, #d6e3ff 25px 26px);
+    background-position: 0 0, 0 14px;
+}
+.card-bg-pattern::before, .card-bg-pattern::after { display: none; }
+.holo-sheen { display: none; }
+.card-face .card-layer { padding-left: 22px; }
+.card-tape, .card-tape-strip { border: none; box-shadow: none; }
+.card-tape.a { display: none; } /* ketutup tab Kartuku */
+.card-tape.b { background: var(--bw-washi-blue); }
+.card-tape-strip { background: var(--bw-washi-blue); }
+.card-sticker {
+    width: 46px; height: 46px; padding: 4px;
+    border: none; border-radius: 50%;
+    background: var(--bw-yellow);
+    box-shadow: var(--bw-depth-sticker);
+}
+.card-sticker img { width: 100%; height: 100%; object-fit: contain; }
+.card-logo-title { color: #0046ff; }
+.card-logo-sub, .card-label { color: #5f6b8a; }
+.card-tier-badge {
+    background: var(--bw-yellow);
+    border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker);
+    padding: 5px 12px;
+}
+.card-number { background: #fff3a0; border: none; color: #10245e; box-shadow: var(--bw-depth-paper); }
+.card-name, .card-sig-line, .card-stat-box .val { color: #10245e; }
+.card-flip-hint { border: none; box-shadow: var(--bw-depth-sticker); color: #10245e; background: #ffffff; }
+.card-flip-hint .ss-ic { width: 0.95em; height: 0.95em; }
+.card-sig-line { border-color: #c9d6f5; }
+.card-back-tag { color: #4a5674; }
+.card-stat-box { background: var(--bw-note); border: none; box-shadow: var(--bw-depth-paper); }
+
+/* ---- Kartu cap loyalty: cap lilin paw ---- */
+.loyalty-card,
+:root[data-theme="dark"] .loyalty-card {
+    position: relative;
+    background: var(--bw-paper);
+    background-image: none;
+    border: none;
+    border-radius: 6px 16px 16px 6px;
+    box-shadow: var(--bw-depth-paper);
+    padding: 1.35rem 1.2rem 1.2rem;
+    margin-top: 0.4rem;
+}
+.loyalty-card::before {
+    content: ""; position: absolute; top: -10px; left: 50%;
+    width: 86px; height: 20px; margin-left: -43px;
+    background: var(--bw-washi-pink);
+    transform: rotate(-3deg);
+}
+.loyalty-card .section-lbl {
+    font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800;
+    letter-spacing: -0.01em; text-transform: none;
+    color: var(--bw-ink); background: none; padding: 0;
+}
+.loyalty-sub { font-size: 0.84rem; color: var(--muted); margin-top: 0.2rem; line-height: 1.5; }
+.loyalty-card .stamps {
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.4rem;
+    margin-top: 0.9rem;
+    justify-items: center;
+}
+.loyalty-card .stamp,
+:root[data-theme="dark"] .loyalty-card .stamp {
+    width: 100%; max-width: 50px; aspect-ratio: 1; height: auto; min-width: 0;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px dashed var(--bw-field);
+    box-shadow: none;
+    color: var(--muted);
+    font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 800;
+    text-shadow: none;
+}
+.loyalty-card .stamp.on,
+:root[data-theme="dark"] .loyalty-card .stamp.on {
+    border: none; background: transparent; box-shadow: none;
+}
+.loyalty-card .stamp.on img {
+    width: 112%; height: 112%; object-fit: contain;
+    transform: rotate(var(--r, 0deg));
+    filter: drop-shadow(0 2px 2px rgba(var(--bw-tint), 0.28));
+}
+.loyalty-card .togo { margin-top: 0.95rem; color: var(--muted); }
+.loyalty-card .eligible {
+    background: var(--bw-note); color: #10245e; border: none;
+    border-radius: 3px; box-shadow: var(--bw-depth-paper);
+    transform: rotate(-0.6deg);
+}
+/* Mode gelap: kartu tetap kartu karton putih (benda fisik, kayak polaroid di Home) */
+:root[data-theme="dark"] .member-card-3d .card-sticker { background: var(--bw-yellow); color: #10245e; }
+:root[data-theme="dark"] .member-card-3d .card-logo-title { color: #0046ff; }
+:root[data-theme="dark"] .member-card-3d .card-logo-sub,
+:root[data-theme="dark"] .member-card-3d .card-label,
+:root[data-theme="dark"] .member-card-3d .card-back-foot,
+:root[data-theme="dark"] .member-card-3d .card-stat-box .lbl { color: #5f6b8a; }
+:root[data-theme="dark"] .member-card-3d .card-number { background: #fff3a0; color: #10245e; }
+:root[data-theme="dark"] .member-card-3d .card-name,
+:root[data-theme="dark"] .member-card-3d .card-sig-line,
+:root[data-theme="dark"] .member-card-3d .card-stat-box .val { color: #10245e; }
+:root[data-theme="dark"] .member-card-3d .card-flip-hint { background: #ffffff; color: #10245e; box-shadow: var(--bw-depth-sticker); }
+:root[data-theme="dark"] .member-card-3d .card-tape.b,
+:root[data-theme="dark"] .member-card-3d .card-tape-strip { background: var(--bw-washi-blue); }
+:root[data-theme="dark"] .member-card-3d .card-sig-line { background: #ffffff; border-color: #c9d6f5; }
+:root[data-theme="dark"] .member-card-3d .card-sig-line b { color: #0046ff; }
+:root[data-theme="dark"] .member-card-3d .card-stamp { color: #0a7a3d; background: rgba(16, 185, 129, 0.08); }
+:root[data-theme="dark"] .member-card-3d .card-stat-box,
+:root[data-theme="dark"] .member-card-3d .card-stat-box:last-child { background: var(--bw-note); }
+:root[data-theme="dark"] .member-card-3d .card-back-tag { color: #4a5674; }
+:root[data-theme="dark"] .loyalty-card .section-lbl { background: none; color: var(--bw-ink); }

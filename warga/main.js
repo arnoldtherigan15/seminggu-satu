@@ -3056,7 +3056,12 @@ async function loadLoyalty() {
         };
         const toGo = Math.max(0, target - progress);
         let stamps = "";
-        for (let i = 0; i < target; i++) stamps += '<div class="stamp' + (i < progress ? ' on' : '') + '">' + (i < progress ? '★' : '') + '</div>';
+        // kartu cap: tiap event = satu cap lilin paw (miringnya beda-beda kayak dicap
+        // tangan); slot kosong = lingkaran putus-putus bernomor
+        const SEAL_TILT = [-12, 8, -4, 14, -9, 5, -14, 10];
+        for (let i = 0; i < target; i++) stamps += i < progress
+            ? '<div class="stamp on"><img src="seal-paw.png" alt="" style="--r:' + SEAL_TILT[i % SEAL_TILT.length] + 'deg"></div>'
+            : '<div class="stamp"><span>' + (i + 1) + '</span></div>';
         const rewardBox = d.eligible
             ? '<div class="eligible">🎉 Kamu dapat HADIAH GRATIS! Tunjukkin ke admin ya.</div>'
             : '<div class="togo">' + (count === 0 ? '' : '<b>' + toGo + ' event lagi</b> buat hadiah gratis 🎁') + '</div>';
@@ -3071,7 +3076,7 @@ async function loadLoyalty() {
             '<div class="holo-sheen" id="cardSheen"></div>' +
             '<img class="card-stk" src="../images/sticker/str-6.png" alt="">' +
             '<div class="card-layer card-top">' +
-            '<div class="card-sticker">SS</div>' +
+            '<div class="card-sticker"><img src="../images/logo-paw-tight.png" alt=""></div>' +
             '<div class="card-logo">' +
             '<div class="card-logo-title">SEMINGGU SATU</div>' +
             '<div class="card-logo-sub">WARGA DIGITAL</div>' +
@@ -3153,7 +3158,7 @@ async function loadLoyalty() {
             '<button type="button" class="scard" id="scardEvents"><b>' + count + '</b><span>Events Joined</span><span class="scard-go">lihat \u2192</span></button>' +
             '<button type="button" class="scard" id="scardQuests"><b>' + (d.questCount || 0) + '</b><span>Challenges</span><span class="scard-go">karyaku \u2192</span></button>' +
             '</div>' +
-            '<div class="card loyalty-card"><div class="section-lbl">Loyalty Card</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>';
+            '<div class="card loyalty-card"><div class="section-lbl">Loyalty Card</div><p class="loyalty-sub">Tiap ikut event dapat satu cap. ' + target + ' cap = hadiah gratis.</p><div class="stamps" role="img" aria-label="' + progress + ' dari ' + target + ' cap">' + stamps + '</div>' + rewardBox + '</div>';
 
         $("btnPassport").addEventListener("click", openPassport);
         init3DCardListeners();
