@@ -6776,6 +6776,7 @@ function renderJournalPage(openLast) {
     wireJournalShelf();
 }
 
+let _snailFilter = "all"; // all | unread
 function renderSnailBox() {
     const body = $("snpBody");
     if (!body) return;
@@ -6803,19 +6804,48 @@ function renderSnailBox() {
             '</div>';
     }
 
-    // koleksi: semua surat yang udah nyampe, amplop mini skin per bulan
-    let coll = "";
-    avail.forEach((l, i) => {
+    // koleksi: amplop mini skin per bulan. Biar tetep enak walau udah puluhan
+    // surat: tahun ini tampil penuh, tahun-tahun lalu dibundel per tahun (tumpukan
+    // amplop diikat tali, diketuk buat dibuka), plus saringan "Belum dibaca".
+    const miniHtml = (l, i) => {
         const k = snailSkin(l);
         const isNew = !read.has(l.id);
-        coll += '<button type="button" class="sn-mini sk' + k + (i % 2 ? " r" : "") + '" data-sn="' + esc(l.id) + '">' +
+        return '<button type="button" class="sn-mini sk' + k + (i % 2 ? " r" : "") + '" data-sn="' + esc(l.id) + '">' +
             '<span class="sn-mini-stamp">' + SN_STAMPS[k] + '</span>' +
             (isNew ? '<img class="sn-mini-seal" src="seal-paw.png" alt="">' : '<span class="sn-mini-done">✓ dibaca</span>') +
             '<span class="sn-mini-month">' + esc(snailMonthLabel(l).toUpperCase()) + '</span>' +
             '<span class="sn-mini-theme">' + esc(l.theme) + '</span>' +
             (isNew ? '<span class="sn-badge">BARU</span>' : '') +
             '</button>';
-    });
+    };
+    const showFilter = avail.length > 6 && unreadL.length > 0;
+    if (!showFilter) _snailFilter = "all";
+    let coll = "";
+    if (_snailFilter === "unread") {
+        coll = '<div class="snp-grid">' + unreadL.map(miniHtml).join("") + '</div>';
+    } else if (avail.length) {
+        const byYear = {};
+        avail.forEach(l => { const y = String(l.publish_date).slice(0, 4); (byYear[y] = byYear[y] || []).push(l); });
+        const years = Object.keys(byYear).sort((a, b) => b - a);
+        coll = '<div class="snp-grid">' + byYear[years[0]].map(miniHtml).join("") + '</div>';
+        years.slice(1).forEach(y => {
+            const ls = byYear[y];
+            const un = ls.filter(l => !read.has(l.id)).length;
+            const stack = ls.slice(0, 3).map((l, j) => '<span class="sn-stack-env sk' + snailSkin(l) + '" style="--j:' + j + '"></span>').join("");
+            coll += '<details class="sn-bundle">' +
+                '<summary><span class="sn-stack">' + stack + '<span class="sn-stack-string"></span></span>' +
+                '<span class="sn-bundle-t"><b>Bundel ' + esc(y) + '</b><span>' + ls.length + ' surat' + (un ? ' · ada yang belum kamu buka' : '') + '</span></span>' +
+                '<span class="sn-bundle-chev" aria-hidden="true">▾</span></summary>' +
+                '<div class="snp-grid">' + ls.map(miniHtml).join("") + '</div>' +
+                '</details>';
+        });
+    }
+    const filterHtml = showFilter
+        ? '<div class="rfilters sn-filter" id="snFilter">' +
+        '<button type="button" class="rfilter' + (_snailFilter === "all" ? " active" : "") + '" data-sf="all">Semua</button>' +
+        '<button type="button" class="rfilter' + (_snailFilter === "unread" ? " active" : "") + '" data-sf="unread">Belum dibaca</button>' +
+        '</div>'
+        : "";
 
     // siput jalan: progress menuju surat bulan depan
     const nextL = (_snailMail || []).filter(l => new Date(String(l.publish_date) + "T09:00:00").getTime() > Date.now())
@@ -6866,10 +6896,15 @@ function renderSnailBox() {
     } catch (e) { }
 
     body.innerHTML = hero + sugg +
-        (coll ? '<div class="snp-sec">📚 Koleksi Suratmu (' + avail.length + ')</div><div class="snp-grid">' + coll + '</div>'
+        (coll ? '<div class="snp-sec">📚 Koleksi Suratmu (' + avail.length + ')</div>' + filterHtml + coll
             : '<div class="placeholder" style="padding:1.4rem 0;"><div class="em"><img src="../images/sticker/mochi_shock.png" alt=""></div><p>Belum ada surat yang nyampe.</p></div>') +
         walk;
 
+    const sf = $("snFilter");
+    if (sf) sf.querySelectorAll("[data-sf]").forEach(b => b.addEventListener("click", () => {
+        _snailFilter = b.dataset.sf;
+        renderSnailBox();
+    }));
     const heroEl = $("snHero");
     if (heroEl) heroEl.addEventListener("click", () => {
         if (heroEl.classList.contains("open")) return;
