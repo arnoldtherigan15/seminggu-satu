@@ -278,6 +278,8 @@
         }
         .workshop-card:nth-child(3n+2)::after { background: var(--washi-blue); transform: rotate(4deg); left: 30%; }
         .workshop-card:nth-child(3n)::after { background: var(--washi-yellow); transform: rotate(-5deg); left: 46%; }
+        /* lembar pertama nempel di bawah tab -- washi-nya ketutup tab, jadi nggak usah */
+        .workshop-card:first-child::after, .ws-notice + .workshop-card::after { display: none; }
         /* status lewat POLA kertas: belum buka = kertas kotak-kotak */
         .workshop-card.disabled {
             background-image:
