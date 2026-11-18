@@ -1731,3 +1731,90 @@
 :root[data-theme="dark"] .jp-mini .glyph.jar-glyph { background: linear-gradient(180deg, var(--bw-yellow) 0 13%, rgba(122, 162, 255, .3) 13% 100%); }
 .jp-mini .glyph.current { box-shadow: none; }
 .jp-mini { font-family: 'Outfit', sans-serif; font-weight: 800; color: var(--bw-ink); font-size: .72rem; }
+
+/* ===================== KOTAK SURAT MOCHI ===================== */
+/* Meja binder (bukan kraft krem), judul & tombol = stiker, label BARU = stiker
+   pink, jalur siput = kertas dengan rute putus-putus. Amplop warna-warninya tetap. */
+.snail-page {
+    background-color: var(--bw-desk);
+    background-image: radial-gradient(rgba(var(--bw-tint), .09) 1px, transparent 1.2px);
+    background-size: 22px 22px;
+}
+:root[data-theme="dark"] .snail-page {
+    background-color: var(--bw-desk);
+    background-image: radial-gradient(rgba(234, 239, 252, .06) 1px, transparent 1.2px);
+}
+.snp-title,
+:root[data-theme="dark"] .snp-title {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .4rem .9rem;
+    background: #ffffff; color: #10245e;
+    border-radius: 12px;
+    box-shadow: var(--bw-depth-sticker);
+    font-size: 1.12rem;
+    transform: rotate(-2deg);
+}
+.snp-close, :root[data-theme="dark"] .snp-close { width: 42px; height: 42px; background: #ffffff; color: #10245e; box-shadow: var(--bw-depth-sticker); }
+.snp-sub, :root[data-theme="dark"] .snp-sub { color: var(--muted); font-size: .88rem; margin: 14px 0 10px; }
+.snp-hero-k {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: .3rem .8rem; margin-bottom: 18px;
+    background: var(--bw-pink); color: #10245e;
+    border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Open Sans', sans-serif; font-size: .7rem; font-weight: 800; letter-spacing: .06em;
+    transform: rotate(-2deg);
+}
+.snp-hero-hint, :root[data-theme="dark"] .snp-hero-hint { color: var(--muted); font-size: .84rem; }
+.snp-sec,
+:root[data-theme="dark"] .snp-sec {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .35rem .85rem;
+    background: var(--bw-yellow); color: #10245e;
+    border-radius: 10px;
+    box-shadow: var(--bw-depth-sticker);
+    font-size: .98rem; letter-spacing: -0.01em;
+    transform: rotate(-1.5deg);
+    margin: 30px 0 18px 4px;
+}
+.sn-badge { background: var(--bw-pink); color: #10245e; border: none; box-shadow: var(--bw-depth-sticker); }
+
+/* jalur siput = secarik kertas */
+.snp-walk {
+    margin-top: 32px;
+    background: var(--bw-paper);
+    border-radius: 6px 16px 16px 6px;
+    box-shadow: var(--bw-depth-paper);
+    padding: 20px 18px 16px;
+}
+.snp-walk-line, :root[data-theme="dark"] .snp-walk-line { height: 30px; margin: 0 22px 0 8px; border-bottom: 2.5px dashed var(--bw-field); }
+.snp-snail, .snp-mailbox {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 50%;
+    box-shadow: var(--bw-depth-sticker);
+    bottom: -17px;
+}
+.snp-snail { background: var(--bw-yellow); color: #10245e; transform: translateX(-50%); }
+.snp-mailbox { background: #0046ff; color: #ffffff; right: -22px; }
+.snp-snail .ss-ic, .snp-mailbox .ss-ic { width: 18px; height: 18px; }
+.snp-walk-t, :root[data-theme="dark"] .snp-walk-t { margin-top: 24px; font-size: .86rem; color: var(--muted); }
+.snp-walk-t b, :root[data-theme="dark"] .snp-walk-t b { color: var(--bw-ink); }
+
+/* surat yang dibuka */
+.sn-washi { background: var(--bw-washi-yellow); border: none; box-shadow: none; }
+.sn-bonus {
+    min-height: 52px;
+    background: var(--bw-yellow) !important; color: #10245e !important;
+    border: none !important; border-radius: 14px !important;
+    box-shadow: var(--bw-depth-sticker) !important;
+    font-family: 'Outfit', sans-serif; font-weight: 800;
+    transform: rotate(-0.6deg);
+}
+.sn-back, :root[data-theme="dark"] .sn-back {
+    min-height: 48px;
+    background: #ffffff; color: #10245e;
+    border: none; border-radius: 14px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .92rem;
+    margin-top: 18px;
+}
