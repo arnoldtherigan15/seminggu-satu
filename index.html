@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <script src="icons.js?v=1"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seminggu Satu by Arnold — Creative Workshop & Journaling</title>
     <meta name="description" content="Komunitas workshop kreatif journaling oleh Arnold. Ikuti workshop paper journal, 3D frame, dan lainnya.">
@@ -571,7 +572,7 @@
 </head>
 
 <body>
-    <button class="theme-toggle" id="themeToggle" title="Ganti tema" aria-label="Ganti tema gelap/terang">🌙</button>
+    <button class="theme-toggle" id="themeToggle" title="Ganti tema" aria-label="Ganti tema gelap/terang"></button>
     <div class="page">
 
         <!-- Sampul binder -->
@@ -586,7 +587,7 @@
                     <img src="images/logo-paw-tight.png" width="240" height="240" alt="">
                 </span>
             </div>
-            <p class="cover-bio">Komunitas journaling &amp; workshop kreatif di Jakarta. Bikin karya unikmu bareng kita! ✨🐾</p>
+            <p class="cover-bio">Komunitas journaling &amp; workshop kreatif di Jakarta. Bikin karya unikmu bareng kita!</p>
             <div class="social-links">
                 <a href="https://www.instagram.com/seminggu_satu?igsh=MTJoaHdvdmszYzMxcQ%3D%3D&utm_source=qr"
                     target="_blank" rel="noopener" class="social-btn" id="btnInstagram">
@@ -619,7 +620,7 @@
             <a class="balai-cta" href="balai/">
                 <span class="balai-cta-ic" aria-hidden="true"><i data-lucide="house"></i></span>
                 <span class="balai-cta-body">
-                    <b>Intip Balai Warga 🐾</b>
+                    <b>Intip Balai Warga</b>
                     <span>Kenalan sama warga komunitasnya, lihat karya & keseruannya di dalam</span>
                 </span>
                 <span class="balai-cta-go" aria-hidden="true"><i data-lucide="arrow-right"></i></span>
@@ -648,7 +649,7 @@
         <footer class="footer section">
             <div class="footer-ask">
                 <img src="images/mochi_maskot_sm.png" width="170" height="240" alt="" loading="lazy">
-                <p><b>Masih ragu atau mau tanya dulu?</b>Chat aja ke Arnold, nggak usah sungkan 🙌</p>
+                <p><b>Masih ragu atau mau tanya dulu?</b>Chat aja ke Arnold, nggak usah sungkan.</p>
             </div>
             <a class="cta-btn" href="https://wa.me/6281214574782?text=Halo%20Arnold!%20Aku%20mau%20tanya%20soal%20workshop%20Seminggu%20Satu%20%F0%9F%99%8C"
                 target="_blank" rel="noopener"><i data-lucide="message-circle"></i> Tanya Arnold via WhatsApp</a>
@@ -1090,7 +1091,7 @@
                     </a>`;
             }).filter(Boolean);
             if (!cards.length) {
-                listEl.innerHTML = '<p style="color:var(--text-2); font-size:0.9rem;">Cerita warga segera hadir ✨</p>';
+                listEl.innerHTML = '<p style="color:var(--text-2); font-size:0.9rem;">Cerita warga segera hadir</p>';
                 const hint = document.querySelector('.story-hint');
                 if (hint) hint.remove();
                 return;

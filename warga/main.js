@@ -493,7 +493,8 @@ function onAuthSuccess(r) {
     BDAY_TODAY = Array.isArray(r.birthdays) ? r.birthdays.filter(b => b && b.nickname) : [];
     try { localStorage.setItem(TOKEN_KEY, r.token); } catch (e) { }
     showDashboard();
-    fireConfetti("login");
+    // confetti sengaja nggak ditembak tiap login: biar tetep spesial buat
+    // momen beneran (hadiah loyalty, ultah, challenge kelar) -- seminggu-psych
 }
 
 function logout() {
@@ -2518,7 +2519,7 @@ function renderJournalTrackerHtml(wa) {
     // udah check-in -> nggak perlu banner apa-apa, kartu "Minggu Ini" di atas udah ngabarin
     let actionBtnHtml = "";
     if (!isCurrentChecked) {
-        actionBtnHtml = '<button type="button" class="jt-action-btn" id="jtCheckInBtn">' + SVG_PENCIL + ' Check In This Week (+1 Streak)</button>';
+        actionBtnHtml = '<button type="button" class="jt-action-btn" id="jtCheckInBtn">' + SVG_PENCIL + ' Check-in minggu ini</button>';
     }
 
     const currRec = records[currMonthWeek.key] || {};
@@ -2547,7 +2548,7 @@ function renderJournalTrackerHtml(wa) {
         '<div class="jt-sub">' + esc(currMonthWeek.monthName) + ' ' + currMonthWeek.year + '</div>' +
         '</div>' +
         '</div>' +
-        '<div class="jt-streak-pill">🔥 ' + streak + '-Week Streak</div>' +
+        (streak > 0 ? '<div class="jt-streak-pill">' + streak + ' minggu berturut-turut</div>' : '') +
         '</div>' +
         '<div class="jt-grid">' + gridHtml + '</div>' +
         actionBtnHtml +
@@ -2857,15 +2858,11 @@ function renderWeekNowHtml() {
     if (records[cw.key]) {
         return '<div id="weekNowCard" style="display:none"></div>';
     }
-    const left = weekDaysLeft();
-    const leftTxt = left <= 1
-        ? '<b>Hari terakhir</b> minggu ke-' + cw.week + ' \u2014 jangan sampai bolong! \u23f0'
-        : '<b>' + left + ' hari lagi</b> sebelum minggu ke-' + cw.week + ' ditutup';
-    return '<div class="wn-card todo" id="weekNowCard"><span class="wn-tape"></span>' +
-        '<div class="wn-body"><div class="wn-title">Belum check-in minggu ini \u270d\ufe0f</div>' +
-        '<div class="wn-sub">' + leftTxt + (streak > 0 ? ' \u00b7 streak ' + streak + ' minggu taruhannya \ud83d\udd25' : '') + '</div></div>' +
-        '<button type="button" class="wn-btn" id="wnCheckinBtn">Check-In \u2192</button>' +
-        '</div>';
+    // Seminggu-psych: dulu di sini ada kartu "Belum check-in" + hitung mundur
+    // ("4 hari lagi sebelum minggu ke-3 ditutup", "streak taruhannya") -- itu
+    // urgency yang bikin cemas & dobel sama tombol di tracker. Ajakan check-in
+    // cukup satu, di tracker, tanpa jam pasir.
+    return '<div id="weekNowCard" style="display:none"></div>';
 }
 
 function initWeekNowListeners() {
@@ -3129,22 +3126,25 @@ async function loadLoyalty() {
 
         content.innerHTML =
             '<div id="installSlot"></div>' +
-            renderWeekNowHtml() +
-            '<div id="moodSlot"></div>' +
             renderRecapCardHtml() +
             bdayFriendsBannerHtml() +
             birthdayHtml +
+            '<h2 class="bw-tab">Minggu ini</h2>' +
+            renderWeekNowHtml() +
             trackerHtml +
+            '<div id="moodSlot"></div>' +
             '<div id="evTicketSlot"></div>' +
+            '<h2 class="bw-tab pink">Koleksiku</h2>' +
             '<div class="pr-row" id="personalRow">' +
             '<div id="prJarTile"></div>' +
             '<div id="prJournalTile"></div>' +
             '<div id="prMailTile"></div>' +
             '<button type="button" class="pr-tile" id="btnPassport">' +
-            '<span class="pr-ic">🪪</span><span class="pr-t">Paspor Warga</span>' +
+            '<span class="pr-ic">' + PR_IC.stamp + '</span><span class="pr-t">Paspor Warga</span>' +
             '<span class="pr-s">Stempel event</span>' +
             '</button>' +
             '</div>' +
+            '<h2 class="bw-tab blue">Kartuku</h2>' +
             cardHtml +
             '<button type="button" class="scard-wide" id="scardPoin">' +
             '<div class="scard-wide-l"><b id="poinVal">' + ((_lbData && _lbData.me) ? _lbData.me.poin : "\u2026") + '</b><span>Poin Kamu</span></div>' +
@@ -3153,8 +3153,7 @@ async function loadLoyalty() {
             '<button type="button" class="scard" id="scardEvents"><b>' + count + '</b><span>Events Joined</span><span class="scard-go">lihat \u2192</span></button>' +
             '<button type="button" class="scard" id="scardQuests"><b>' + (d.questCount || 0) + '</b><span>Challenges</span><span class="scard-go">karyaku \u2192</span></button>' +
             '</div>' +
-            '<div class="tier"><div class="em">' + p.emoji + '</div><div><div class="t">' + esc(p.title) + '</div><div class="d">' + esc(p.tag) + '</div></div></div>' +
-            '<div class="card"><div class="section-lbl">Loyalty Card 🎁</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>';
+            '<div class="card loyalty-card"><div class="section-lbl">Loyalty Card</div><div class="stamps">' + stamps + '</div>' + rewardBox + '</div>';
 
         $("btnPassport").addEventListener("click", openPassport);
         init3DCardListeners();
@@ -4293,16 +4292,12 @@ function mochiSmartMessages() {
         const un = snailAvail().filter(l => !snailReadSet().has(l.id)).length;
         if (un) msgs.push("\ud83d\udcec Surat bulanan dari Mochi udah nyampe — buka Kotak Surat di Home!");
     } catch (e) { }
-    // 3) Belum check-in minggu ini: ingetin (bawa-bawa streak biar makin kepancing)
+    // 3) Belum check-in minggu ini: ajakan hangat, tanpa nakut-nakutin streak putus
+    //    (seminggu-psych: bolong itu boleh, yang penting gampang balik lagi)
     try {
         const records = getJournalTrackerData(_profile.wa).records || {};
         const cw = getMonthWeekObj(new Date());
-        if (!records[cw.key]) {
-            const streak = calculateJournalStreak(records);
-            msgs.push(streak > 0
-                ? "🔥 Streak " + streak + " minggu — check-in sekarang biar nggak putus!"
-                : "✍️ Belum check-in minggu ini — yuk mulai streak pertamamu!");
-        }
+        if (!records[cw.key]) msgs.push("✍️ Cerita minggu ini belum ditulis — kapan aja kamu siap ya 💙");
     } catch (e) { }
     // 4) SEMUA event yang lagi buka & belum didaftar diingetin satu-satu
     //    (urut dari yang paling dekat; yang tanggalnya nggak kebaca di ekor)
@@ -4358,7 +4353,7 @@ function startMochiBubbles() {
     const shown = [];
     function next() {
         const msg = mochiSmartMessages().find(m => shown.indexOf(m) < 0);
-        if (!msg) { mb.classList.remove("show"); return; }
+        if (!msg || shown.length >= 3) { mb.classList.remove("show"); return; }
         shown.push(msg);
         mb.textContent = msg;
         mb.classList.add("show");
@@ -4441,13 +4436,12 @@ function balaiWhispers(ctx) {
         if (loved) out.push("Karya paling disayang se-Balai saat ini punya " + loved.nickname + " — " + loved.likes + " ❤️");
     } catch (e) { }
     try {
-        if (_lbData && _lbData.top && _lbData.top[0]) out.push("Psst… " + _lbData.top[0].nickname + " lagi di puncak leaderboard dengan " + _lbData.top[0].poin + " poin ⚡ Kejar yuk!");
-        if (_lbData && _lbData.me && _lbData.me.rank) out.push("Peringkat #" + _lbData.me.rank + " dari " + _lbData.me.total + "… satu karya lagi bisa nyalip nih 👀");
+        if (_lbData && _lbData.top && _lbData.top[0]) out.push(_lbData.top[0].nickname + " lagi rajin banget ikut challenge — " + _lbData.top[0].poin + " poin ⚡ Intip karyanya di Gallery yuk");
         if (_lbData && _lbData.topEvents && _lbData.topEvents[0]) out.push(_lbData.topEvents[0].nickname + " paling sering dateng event — " + _lbData.topEvents[0].events + " kali! Setia banget 💙");
     } catch (e) { }
     try {
         const streak = calculateJournalStreak(getJournalTrackerData(_profile.wa).records || {});
-        if (streak > 0) out.push("Streak journaling-mu " + streak + " minggu 🔥 Jangan sampe putus ya!");
+        if (streak > 0) out.push("Udah " + streak + " minggu berturut-turut kamu nulis. Makasih udah nemenin dirimu sendiri 💙");
     } catch (e) { }
     try {
         // nggak relevan kalau lagi DI mading (ya jelas dia lagi baca)
@@ -5875,9 +5869,9 @@ function snailCtaRefresh() {
     slot.innerHTML =
         '<button type="button" class="pr-tile" id="snailCta">' +
         (unread ? '<span class="pr-dot"></span>' : '') +
-        '<span class="pr-ic">📬</span>' +
+        '<span class="pr-ic">' + PR_IC.mail + '</span>' +
         '<span class="pr-t">Kotak Surat</span>' +
-        '<span class="pr-s">' + (unread ? unread + ' baru 💌' : 'sudah dibaca') + '</span>' +
+        '<span class="pr-s">' + (unread ? unread + ' surat baru' : 'sudah dibaca') + '</span>' +
         '</button>';
     $("snailCta").addEventListener("click", openSnailBox);
 }
@@ -5977,7 +5971,7 @@ function jarCtaRefresh() {
     const name = (jar && jar.name) || "Gratitude Jar";
     slot.innerHTML =
         '<button type="button" class="pr-tile" id="jarCta">' +
-        '<span class="pr-ic">🫙</span>' +
+        '<span class="pr-ic">' + PR_IC.jar + '</span>' +
         '<span class="pr-t">' + esc(name) + '</span>' +
         '<span class="pr-s">' + (doneToday ? 'udah hari ini ✓' : (items.length ? items.length + ' kata bulan ini' : 'yuk mulai')) + '</span>' +
         '</button>';
@@ -6389,13 +6383,23 @@ function wbookShelfHtml(months, activeKey) {
 const JOURNAL_LAUNCH_KEY = "2026-08";
 function journalLaunched() { return wbookMonthKey() >= JOURNAL_LAUNCH_KEY; }
 
+// Ikon tile Koleksiku: garis 2px gaya Lucide (warga/ nggak load Lucide), dipasang
+// di stiker bulat kuning lewat CSS .pr-ic -- bukan emoji OS lagi (lihat DESIGN.md)
+const PR_SVG = (d) => '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+const PR_IC = {
+    jar: PR_SVG('<path d="M8 2h8"/><path d="M9 2v3"/><path d="M15 2v3"/><path d="M7 5h10a2 2 0 0 1 2 2v12a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V7a2 2 0 0 1 2-2z"/><path d="M12 11.5c-1-1.2-3-.7-3 .8 0 1.6 3 3.2 3 3.2s3-1.6 3-3.2c0-1.5-2-2-3-.8z"/>'),
+    journal: PR_SVG('<path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>'),
+    mail: PR_SVG('<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'),
+    stamp: PR_SVG('<path d="M5 22h14"/><path d="M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-1.66 0-3 1-3 3s1 2 1 3.5V13"/>')
+};
+
 function journalCtaRefresh() {
     const slot = $("prJournalTile");
     if (!slot) return;
     if (!journalLaunched()) {
         slot.innerHTML =
             '<div class="pr-tile pr-tile-soon">' +
-            '<span class="pr-ic">📔</span>' +
+            '<span class="pr-ic">' + PR_IC.journal + '</span>' +
             '<span class="pr-t">Jurnal Bulanan</span>' +
             '<span class="pr-s">Segera hadir 1 Agustus</span>' +
             '</div>';
@@ -6409,7 +6413,7 @@ function journalCtaRefresh() {
     const name = (book && book.name) || "Jurnal Bulanan";
     slot.innerHTML =
         '<button type="button" class="pr-tile" id="journalCta">' +
-        '<span class="pr-ic">📔</span>' +
+        '<span class="pr-ic">' + PR_IC.journal + '</span>' +
         '<span class="pr-t">' + esc(name) + '</span>' +
         '<span class="pr-s">' + (doneToday ? "udah hari ini ✓" : (entries.length ? entries.length + " catatan" : "yuk mulai")) + '</span>' +
         '</button>';

@@ -1,0 +1,258 @@
+/* =========================================================
+   Balai Warga ikut dunia "Binder Diary" (lihat DESIGN.md).
+   Dimuat SETELAH <style> inline di warga/index.html, jadi aturan
+   di sini menang tanpa ngubah 14rb baris CSS lama.
+   Ini surface Operate: material sama dengan Home (sampul berjahit,
+   lembar kertas, stiker, washi), dekorasinya lebih kalem.
+   Kedalaman 3 tingkat: kertas < foto < stiker.
+   ========================================================= */
+:root {
+    --bw-board: #0046ff;
+    --bw-paper: #ffffff;
+    --bw-ink: #10245e;
+    --bw-rule: #d6e3ff;
+    --bw-field: #c9d6f5;
+    --bw-yellow: #ffe600;
+    --bw-pink: #ff8fb8;
+    --bw-note: #fff6a8;
+    --bw-peel: #dfe7fb;
+    --bw-desk: #f4f7ff;
+    --bw-tint: 16, 36, 94;
+    --bw-depth-paper: 0 1px 2px rgba(16, 36, 94, 0.10), 0 6px 16px rgba(16, 36, 94, 0.06);
+    --bw-depth-photo: 0 10px 22px rgba(16, 36, 94, 0.18);
+    --bw-depth-sticker: 0 0 0 3px #ffffff, 0 4px 8px rgba(16, 36, 94, 0.22);
+    --bw-washi-yellow: repeating-linear-gradient(135deg, rgba(255, 230, 0, 0.78) 0 8px, rgba(255, 243, 140, 0.78) 8px 16px);
+    --bw-washi-pink: repeating-linear-gradient(90deg, rgba(255, 143, 184, 0.72) 0 6px, rgba(255, 196, 218, 0.72) 6px 12px);
+    --bw-washi-blue: repeating-linear-gradient(45deg, rgba(0, 146, 255, 0.45) 0 7px, rgba(120, 190, 255, 0.45) 7px 14px);
+    --bw-ease: cubic-bezier(.16, 1, .3, 1);
+}
+:root[data-theme="dark"] {
+    --bw-paper: #18213b;
+    --bw-ink: #eaeffc;
+    --bw-rule: #27355e;
+    --bw-field: #33467a;
+    --bw-peel: #33467a;
+    --bw-desk: #0d1526;
+    --bw-tint: 0, 0, 0;
+    --bw-depth-paper: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 18px rgba(0, 0, 0, 0.35);
+    --bw-depth-photo: 0 10px 22px rgba(0, 0, 0, 0.5);
+    --bw-depth-sticker: 0 0 0 3px #ffffff, 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+::selection { background: var(--bw-yellow); color: #10245e; }
+
+/* ===================== TAHAP 1: SAMPUL + HOME ===================== */
+
+/* ---- Header = sampul binder kain biru berjahit (sama kayak Home) ---- */
+.top {
+    position: relative;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.8rem;
+    text-align: left;
+    margin: 0.25rem 0 1.4rem;
+    padding: 1.15rem 1.2rem 1.2rem 2.6rem;
+    color: #ffffff;
+    border-radius: 14px 24px 24px 14px;
+    background-color: var(--bw-board);
+    background-image:
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.045) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 6px);
+    box-shadow: var(--bw-depth-photo), inset 6px 0 10px rgba(0, 0, 0, 0.18);
+}
+.top::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 20px;
+    border-radius: 14px 0 0 14px;
+    background: rgba(0, 0, 0, 0.18);
+    box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.10);
+    pointer-events: none;
+}
+.top::after {
+    content: ""; position: absolute; inset: 7px 7px 7px 27px;
+    border: 2px dashed rgba(255, 255, 255, 0.45);
+    border-radius: 8px 17px 17px 8px;
+    pointer-events: none;
+}
+.bw-brand {
+    position: relative; z-index: 1;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.4rem 0.9rem 0.4rem 0.45rem;
+    background: #ffffff; color: #10245e;
+    border-radius: 12px;
+    box-shadow: var(--bw-depth-sticker);
+    text-decoration: none;
+    transform: rotate(-2deg);
+}
+.top .bw-brand img, #siteLogo, :root[data-theme="dark"] #siteLogo {
+    width: 42px; height: 42px; filter: none; object-fit: contain;
+}
+.bw-name {
+    display: flex; flex-direction: column;
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.3rem; line-height: 1;
+    letter-spacing: -0.02em;
+}
+.bw-name small {
+    font-weight: 700; font-size: 0.78rem; letter-spacing: 0; color: #0046ff; margin-top: 0.2rem;
+}
+.top .seasonal-badge-row { position: relative; z-index: 1; margin: 0; }
+
+/* ---- Sapaan + avatar stiker ---- */
+.dash-top { margin: 0 0 0.4rem; }
+.dash-hi { font-size: 1.45rem; letter-spacing: -0.01em; color: var(--bw-ink); }
+.profile-ava {
+    box-shadow: var(--bw-depth-sticker) !important;
+    border: none !important;
+    transform: rotate(-4deg);
+}
+
+/* ---- Index tab pembuka tiap kelompok ---- */
+.bw-tab {
+    position: relative; z-index: 0;
+    display: inline-block;
+    margin: 1.9rem 0 -0.4rem 1rem;
+    padding: 0.5rem 1.05rem 0.85rem;
+    border-radius: 14px 14px 0 0;
+    background: var(--bw-yellow); color: #10245e;
+    font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 800; line-height: 1.2;
+    letter-spacing: -0.01em;
+    box-shadow: 0 -1px 3px rgba(var(--bw-tint), 0.10);
+}
+.bw-tab:first-of-type { margin-top: 1.2rem; }
+.bw-tab.pink { background: var(--bw-pink); }
+.bw-tab.blue { background: var(--bw-board); color: #ffffff; }
+/* lembar pertama setelah tab nutupin kaki tab-nya */
+.bw-tab ~ .journal-tracker-card,
+.bw-tab ~ .pr-row,
+.bw-tab ~ .member-card-wrapper,
+.bw-tab ~ .mood-w,
+.bw-tab ~ #moodSlot,
+.bw-tab ~ #evTicketSlot { position: relative; z-index: 1; }
+
+/* ---- Tracker mingguan = lembar kertas ---- */
+.journal-tracker-card,
+:root[data-theme="dark"] .journal-tracker-card {
+    background: var(--bw-paper);
+    border: none;
+    border-radius: 6px 16px 16px 6px;
+    box-shadow: var(--bw-depth-paper);
+    padding: 1.15rem 1.1rem 1.15rem;
+    margin-bottom: 1.1rem;
+}
+/* washi disembunyiin: lembar ini ada di bawah tab (tab-nya bakal nutupin) */
+.journal-tracker-card .washi-tape-header { display: none; }
+.jt-title { font-size: 1.1rem; color: var(--bw-ink); }
+.jt-streak-pill {
+    background: var(--bw-yellow); color: #10245e;
+    box-shadow: var(--bw-depth-sticker);
+    border-radius: 999px;
+    font-size: 0.76rem;
+    transform: rotate(4deg);
+}
+.jt-week-box,
+:root[data-theme="dark"] .jt-week-box {
+    background: transparent;
+    border: 2px dashed var(--bw-field);
+    border-radius: 10px;
+}
+.jt-week-box.neutral, :root[data-theme="dark"] .jt-week-box.neutral { background: transparent; color: var(--muted); }
+.jt-week-box.current,
+:root[data-theme="dark"] .jt-week-box.current {
+    background: var(--bw-note);
+    border: none;
+    border-radius: 3px;
+    box-shadow: var(--bw-depth-paper);
+    transform: rotate(1.2deg);
+}
+.jt-week-box.current .jt-week-label, .jt-week-box.current .jt-pencil { color: #10245e; }
+.jt-week-box.done,
+:root[data-theme="dark"] .jt-week-box.done {
+    background: var(--bw-paper);
+    background-image: none;
+    border: 2px solid var(--bw-rule);
+    box-shadow: var(--bw-depth-paper);
+    color: var(--bw-ink);
+}
+.jt-week-box.done .jt-week-label { color: var(--bw-ink); }
+.jt-week-box.done::before { background: var(--bw-washi-pink); border: none; box-shadow: none; }
+
+/* ---- Tombol utama = stiker biru, ujungnya kelupas ---- */
+.jt-action-btn {
+    position: relative;
+    min-height: 52px;
+    background: #0046ff;
+    border-radius: 14px;
+    font-family: 'Outfit', sans-serif; font-size: 1.02rem; font-weight: 800;
+    box-shadow: var(--bw-depth-sticker);
+    transform: rotate(-0.6deg);
+}
+.jt-action-btn::after {
+    content: ""; position: absolute; right: 0; bottom: 0;
+    width: 14px; height: 14px;
+    border-radius: 0 0 14px 0;
+    background: linear-gradient(315deg, var(--bw-paper) 0 48%, var(--bw-peel) 50% 100%);
+    box-shadow: -2px -2px 4px rgba(var(--bw-tint), 0.18);
+    transition: width .2s ease, height .2s ease;
+}
+.jt-action-btn:hover { transform: rotate(-1.4deg) translateY(-2px); box-shadow: var(--bw-depth-sticker); }
+.jt-action-btn:hover::after, .jt-action-btn:active::after { width: 28px; height: 28px; }
+.jt-action-btn:active { transform: rotate(-0.6deg) scale(0.98); }
+
+/* ---- Cuaca hati = catatan kecil di kertas ---- */
+.mood-w {
+    border: none;
+    border-radius: 6px 16px 16px 6px;
+    background: var(--bw-paper);
+    box-shadow: var(--bw-depth-paper);
+    transform: rotate(-0.4deg);
+}
+.mood-w:active { transform: rotate(-0.4deg) scale(.98); }
+.mw-go { color: var(--blue); }
+.mw-em { color: var(--bw-ink); }
+.mw-em .ss-ic { width: 1.6rem; height: 1.6rem; vertical-align: middle; }
+.mw-em.big .ss-ic { width: 2rem; height: 2rem; }
+
+/* ---- Koleksiku: tiap tile = kartu kertas, ikon di stiker bulat kuning ---- */
+.pr-row { gap: 0.8rem; margin-bottom: 1.2rem; }
+.pr-tile {
+    gap: 0.35rem;
+    padding: 0.95rem 0.6rem 0.85rem;
+    border: none;
+    border-radius: 6px 14px 14px 6px;
+    background: var(--bw-paper);
+    box-shadow: var(--bw-depth-paper);
+    transition: transform .18s ease;
+}
+.pr-row > :nth-child(odd) .pr-tile { transform: rotate(-0.8deg); }
+.pr-row > :nth-child(even) .pr-tile { transform: rotate(0.7deg); }
+.pr-row > .pr-tile:nth-child(odd) { transform: rotate(-0.8deg); }
+.pr-row > .pr-tile:nth-child(even) { transform: rotate(0.7deg); }
+.pr-tile:hover { transform: rotate(0deg) translateY(-2px); }
+.pr-tile:active { transform: scale(.97); }
+.pr-ic {
+    display: flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--bw-yellow); color: #10245e;
+    box-shadow: var(--bw-depth-sticker);
+    margin-bottom: 0.25rem;
+    transform: rotate(-6deg);
+}
+.pr-ic svg { width: 21px; height: 21px; }
+.pr-t { font-size: 0.86rem; color: var(--bw-ink); }
+.pr-s { font-size: 0.72rem; }
+.pr-dot { background: var(--bw-pink); box-shadow: 0 0 0 2px var(--bw-paper); animation: none; top: 8px; right: 10px; }
+.pr-tile-soon { opacity: .6; }
+
+/* ---- Kartuku: poin & statistik = kertas ---- */
+.scard-wide, .scard {
+    border: none;
+    border-radius: 6px 16px 16px 6px;
+    background: var(--bw-paper);
+    box-shadow: var(--bw-depth-paper);
+}
+.scard-wide-l b, .scard b { color: var(--blue); }
+.scard-go { color: var(--blue); }
+
+/* ---- Tiket event terdekat: tiket kertas ---- */
+.evt-ticket { box-shadow: var(--bw-depth-paper); }
+
+@media (prefers-reduced-motion: reduce) {
+    .jt-action-btn, .jt-action-btn::after, .pr-tile { transition: none; }
+}
