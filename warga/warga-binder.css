@@ -1238,3 +1238,146 @@
 #pane-rec .rec-desc { font-size: 0.86rem; line-height: 1.55; margin: 0.3rem 0 0.75rem; color: var(--muted); }
 #pane-rec .rec-link { min-height: 38px; font-size: 0.84rem; padding: 0.4rem 0.9rem; transform: rotate(-1.5deg); }
 #pane-rec #recList .placeholder { padding: 2rem 0.5rem; }
+
+/* ===================== QUEST BOARD (Challenge) ===================== */
+/* Judul = label stiker; Buku = buku jurnal dijahit (bukan spiral logam);
+   Grid = polaroid inspirasi; List = satu lembar loose-leaf bergaris.
+   XP = stiker kuning, "Ikut Challenge" = stiker biru. */
+#pane-quest .gallery-toolbar { margin-bottom: 1.3rem; }
+#pane-quest .section-lbl,
+:root[data-theme="dark"] #pane-quest .section-lbl {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    background: var(--bw-yellow); background-image: none; color: #10245e;
+    border-radius: 10px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 800;
+    letter-spacing: -0.01em; text-transform: none;
+    transform: rotate(-1.5deg);
+}
+
+/* ---- Mode buku ---- */
+#pane-quest .qbook { filter: drop-shadow(0 14px 24px rgba(var(--bw-tint), .2)); }
+#pane-quest .qb-left, #pane-quest .qb-back {
+    background-color: #ffffff;
+    background-image: radial-gradient(rgba(16, 36, 94, .09) 1px, transparent 1.2px);
+    border: none; border-radius: 14px 3px 3px 14px;
+}
+#pane-quest .qb-right, #pane-quest .qb-front {
+    background-color: #ffffff;
+    background-image: repeating-linear-gradient(180deg, transparent 0 21px, #d6e3ff 21px 22px);
+    border: none; border-radius: 3px 14px 14px 3px;
+}
+:root[data-theme="dark"] #pane-quest .qb-left, :root[data-theme="dark"] #pane-quest .qb-back,
+:root[data-theme="dark"] #pane-quest .qb-right, :root[data-theme="dark"] #pane-quest .qb-front {
+    background-color: var(--bw-paper);
+}
+:root[data-theme="dark"] #pane-quest .qb-right, :root[data-theme="dark"] #pane-quest .qb-front {
+    background-image: repeating-linear-gradient(180deg, transparent 0 21px, #27355e 21px 22px);
+}
+/* jahitan di tengah buku, ganti spiral logam */
+#pane-quest .qb-rings {
+    width: 0; top: 10px; bottom: 10px;
+    border-left: 2px dashed rgba(var(--bw-tint), .35);
+}
+:root[data-theme="dark"] #pane-quest .qb-rings { border-left-color: rgba(234, 239, 252, .3); }
+#pane-quest .qb-rings span { display: none; }
+#pane-quest .qb-xp {
+    background: var(--bw-yellow); color: #10245e;
+    border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker);
+    padding: 3px 9px; font-size: .66rem;
+    transform: rotate(-3deg);
+}
+#pane-quest .qb-title { font-size: 1.05rem; }
+#pane-quest .qb-cta {
+    min-height: 44px;
+    background: #0046ff; color: #ffffff;
+    border-radius: 12px;
+    box-shadow: var(--bw-depth-sticker);
+    transform: rotate(-1deg);
+}
+#pane-quest .qb-cta.done { background: #ffffff; color: #10245e; box-shadow: var(--bw-depth-sticker); }
+#pane-quest .qb-arrow {
+    width: 44px; height: 44px;
+    background: #ffffff; color: #10245e;
+    border: none; box-shadow: var(--bw-depth-sticker);
+}
+
+/* ---- Mode grid: polaroid inspirasi ---- */
+#pane-quest .quest-grid { gap: 18px; padding-top: 10px; }
+#pane-quest .qg-cell,
+:root[data-theme="dark"] #pane-quest .qg-cell {
+    background: #ffffff;
+    border: none; border-radius: 3px;
+    padding: 8px 8px 12px;
+    box-shadow: var(--bw-depth-photo);
+}
+#pane-quest .qg-cell:nth-child(4n+1) { transform: rotate(-1.2deg); }
+#pane-quest .qg-cell:nth-child(4n+2) { transform: rotate(1deg); }
+#pane-quest .qg-cell:nth-child(4n+3) { transform: rotate(0.8deg); }
+#pane-quest .qg-cell:nth-child(4n) { transform: rotate(-0.9deg); }
+#pane-quest .qg-cell:hover { transform: rotate(0deg) translateY(-3px); box-shadow: var(--bw-depth-photo); }
+#pane-quest .qg-cell .jtape, :root[data-theme="dark"] #pane-quest .qg-cell .jtape {
+    border: none; box-shadow: none; backdrop-filter: none;
+    width: 56px; height: 18px; top: -9px;
+    background: var(--bw-washi-yellow);
+}
+#pane-quest .qg-cell .jtape.blue { background: var(--bw-washi-blue); }
+#pane-quest .qg-imgwrap { border-radius: 1px; }
+#pane-quest .qg-xp, #pane-quest .qg-count {
+    border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-weight: 800;
+}
+#pane-quest .qg-xp { background: var(--bw-yellow); color: #10245e; transform: rotate(4deg); }
+#pane-quest .qg-count { background: #ffffff; color: #10245e; }
+#pane-quest .qg-title { color: #10245e; font-size: .92rem; }
+#pane-quest .qg-theme { color: #5f6b8a; }
+
+/* ---- Mode list: satu lembar loose-leaf ---- */
+#pane-quest .quest-list {
+    position: relative;
+    gap: 0;
+    background: var(--bw-paper);
+    border-radius: 6px 16px 16px 6px;
+    box-shadow: var(--bw-depth-paper);
+    padding: 4px 14px 4px 50px;
+}
+#pane-quest .quest-list::before {
+    content: ""; position: absolute; left: 36px; top: 0; bottom: 0; width: 2px;
+    background: var(--bw-pink); opacity: .85;
+}
+#pane-quest .quest-list::after {
+    content: ""; position: absolute; left: 11px; top: 28px; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bw-desk);
+    box-shadow: inset 0 1px 2px rgba(var(--bw-tint), .25), 0 160px 0 0 var(--bw-desk), 0 320px 0 0 var(--bw-desk);
+}
+#pane-quest .quest-row,
+#pane-quest .quest-row:nth-child(odd), #pane-quest .quest-row:nth-child(even), #pane-quest .quest-row:hover {
+    background: transparent;
+    border: none; border-bottom: 1px solid var(--bw-rule);
+    border-radius: 0;
+    box-shadow: none; transform: none;
+    padding: 18px 0;
+    gap: 14px;
+}
+#pane-quest .quest-row:last-child { border-bottom: none; }
+#pane-quest .quest-row::before, :root[data-theme="dark"] #pane-quest .quest-row::before { display: none; }
+#pane-quest .qr-title { font-size: 1.05rem; }
+#pane-quest .qr-desc { font-size: .86rem; line-height: 1.55; }
+#pane-quest .qr-theme, #pane-quest .qr-friends { font-size: .78rem; }
+#pane-quest .qr-xp {
+    display: flex; align-items: center; justify-content: center; gap: 2px;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--bw-yellow); color: #10245e;
+    border: none; box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 800;
+    transform: rotate(8deg);
+    padding: 0;
+}
+#pane-quest .qr-xp .ss-ic { width: 12px; height: 12px; }
+#pane-quest .qr-done, :root[data-theme="dark"] #pane-quest .qr-done {
+    background: #e6edff; color: #10245e; border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker); padding: 2px 8px;
+}
