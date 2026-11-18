@@ -483,3 +483,41 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .ab-ep-tag.off { background: #f1f5f9; color: #475569; }
 .ab-q-card.is-off .ab-ep-img { filter: grayscale(.6); opacity: .8; }
 .ab-ep-img img.ab-noimg { width: 100% !important; height: 100% !important; border-radius: 0 !important; }
+
+/* ---------- Form lama (.filter-overlay, 27 form) -> gaya dialog Galeri Event ----------
+   Dulu full-screen di SEMUA ukuran: di desktop input (tanggal, angka) melar
+   selebar layar. Sekarang: desktop = kartu dialog di tengah, lebar terbatas;
+   HP = tetap layar penuh (lebih enak buat ngetik). */
+.filter-overlay { background: rgba(13, 21, 38, .45); }
+.filter-overlay-head { padding: 16px 20px; gap: 12px; border-bottom: 1px solid var(--line); }
+.filter-overlay-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 20px; color: var(--ink); flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.filter-back { width: 40px; height: 40px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.filter-back:hover { background: #f0f4ff; }
+.filter-reset-link { font-size: 14px; }
+.filter-overlay-body { padding: 20px; }
+.filter-overlay-body .konten-field { margin-bottom: 16px; }
+.filter-overlay-body .konten-field > label,
+.filter-overlay-body label:not(.filter-check-item):not(.pc-toggle):not(.plist-opt) { font-weight: 700; font-size: 14px; color: var(--muted); }
+.filter-overlay-body .form-control { min-height: 46px; font-size: 16px; }
+.filter-overlay-body textarea.form-control { font-family: 'Open Sans', sans-serif; line-height: 1.5; }
+.filter-overlay-body .form-control::placeholder { color: #9aa6bf; }
+.filter-overlay-foot { padding: 14px 20px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.filter-overlay-foot .btn { height: 48px; }
+
+@media (min-width: 721px) {
+    .filter-overlay { padding: 24px; }
+    .filter-overlay-box {
+        max-width: 640px; height: auto !important; max-height: calc(100dvh - 48px) !important;
+        border-radius: 20px; box-shadow: 0 24px 60px -20px rgba(13, 21, 38, .45);
+    }
+    /* form yang isinya banyak (tabel item, editor catatan, config) dikasih ruang lebih */
+    #invoiceFormOverlay .filter-overlay-box, #mouFormOverlay .filter-overlay-box, #configFormOverlay .filter-overlay-box,
+    #noteFormOverlay .filter-overlay-box, #partnerDetailOverlay .filter-overlay-box, #pesOrderFormOverlay .filter-overlay-box,
+    #ideaFormOverlay .filter-overlay-box { max-width: 880px; }
+    #noteFormOverlay .filter-overlay-box { height: calc(100dvh - 48px) !important; }
+    /* tombol simpan nggak usah selebar dialog */
+    .filter-overlay-foot .btn { width: auto !important; min-width: 180px; flex: 0 0 auto; }
+}
+@media (max-width: 720px) {
+    .filter-overlay-foot .btn { flex: 1 1 auto; }
+}
