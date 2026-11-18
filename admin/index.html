@@ -2,6 +2,12 @@
 <html lang="id">
 
 <head>
+  <script>
+    /* Udah login? sembunyiin layar login SEBELUM apa pun ke-render (cegah kedip login pas refresh).
+       Kalau ternyata token-nya basi, handleAuthError() hapus token & reload ke login. */
+    try { if (localStorage.getItem("ss_admin_token")) document.documentElement.classList.add("ab-authed"); } catch (e) { }
+  </script>
+  <style>.ab-authed #loginScreen { display: none !important; } .ab-authed #dashboard { display: block; }</style>
   <meta charset="UTF-8" />
     <script src="../icons.js?v=1"></script>
     <script src="../bgm-toggle.js?v=2"></script>
