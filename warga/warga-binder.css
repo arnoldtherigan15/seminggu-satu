@@ -833,3 +833,16 @@
     border: 2px solid #ffffff;
     box-shadow: 0 1px 3px rgba(16, 36, 94, 0.25);
 }
+
+/* Baris chip yang bisa digeser ke samping: cuma scroll horizontal, bayangan
+   stiker dikasih ruang (padding) biar nggak bikin scroll vertikal, scrollbar disembunyiin */
+.gfilters, .rfilters {
+    overflow-x: auto; overflow-y: hidden;
+    padding: 8px 6px 10px;
+    margin: -8px 0 -10px -6px;
+    gap: 0.6rem;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+}
+.gfilters::-webkit-scrollbar, .rfilters::-webkit-scrollbar { display: none; }
+.rfilters { margin-bottom: 0.6rem; }
