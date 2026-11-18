@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=30">
+  <link rel="stylesheet" href="admin-binder.css?v=31">
 </head>
 
 <body>
@@ -10016,27 +10016,44 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (typeof renderAttention === "function") renderAttention();
     }
 
+    // Tenggat: "20 Nov" + label kalau udah lewat / hari ini / besok
+    function taskDue(t) {
+      if (!t.dueDate) return null;
+      const d = new Date(String(t.dueDate).slice(0, 10) + "T00:00:00");
+      if (isNaN(d)) return null;
+      const today = new Date(new Date().toDateString());
+      const diff = Math.round((d - today) / 86400000);
+      const txt = d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+      if (t.status === "done") return { txt, cls: "" , diff };
+      if (diff < 0) return { txt, cls: "late", tag: "Lewat " + (-diff) + " hari", diff };
+      if (diff === 0) return { txt, cls: "today", tag: "Hari ini", diff };
+      if (diff === 1) return { txt, cls: "soon", tag: "Besok", diff };
+      return { txt, cls: "", diff };
+    }
     function taskCard(t) {
-      const bits = [];
-      if (t.refLabel) bits.push(escapeHtml(t.refLabel));
-      if (t.dueDate) bits.push("Due " + escapeHtml(t.dueDate));
+      const due = taskDue(t);
       const ctaLabel = TASK_CTA_LABELS[t.checkType];
-      // CTA langsung di kartu-nya (bukan cuma di dalem form edit) -- biar
-      // sekali tap dari Backlog langsung nyampe ke halaman yang perlu diisi,
-      // Event+Batch-nya udah otomatis kepilih (lihat taskGoToTarget()).
+      // CTA langsung di kartu (task otomatis) -> sekali tap nyampe ke halaman yang perlu diisi
       const cta = (t.source === "auto" && ctaLabel && t.status !== "done")
-        ? `<button class="btn btn-sm btn-ghost" data-taskgo="${t.id}" style="margin-top:8px;">${ctaLabel} →</button>`
-        : "";
-      return `
-        <div class="fin-card" style="margin-bottom:8px;padding:14px;cursor:pointer;" data-edittask="${t.id}">
-          <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
-            <b>${escapeHtml(t.title)}</b>
-            ${t.source === "auto" ? '<span class="hint" style="flex-shrink:0;background:#eef2ff;color:#4338ca;padding:2px 8px;border-radius:999px;font-weight:700;">Auto</span>' : ""}
-          </div>
-          ${t.description ? `<div class="hint" style="margin:4px 0 0;">${escapeHtml(t.description)}</div>` : ""}
-          ${bits.length ? `<div class="hint" style="margin-top:4px;">${bits.join(" · ")}</div>` : ""}
-          ${cta}
+        ? `<button type="button" class="kt-btn wide" data-taskgo="${t.id}">${escapeHtml(ctaLabel)} →</button>` : "";
+      // pindah status sekali tap, nggak perlu buka form
+      const next = t.status === "backlog" ? `<button type="button" class="kt-btn wide" data-taskmv="${t.id}" data-to="in_progress">Mulai</button>`
+        : t.status === "in_progress" ? `<button type="button" class="kt-btn wide ok" data-taskmv="${t.id}" data-to="done">${icon("check")} Selesai</button>`
+        : `<button type="button" class="kt-btn wide" data-taskmv="${t.id}" data-to="backlog">Buka lagi</button>`;
+      return `<div class="kt-row task-row${t.status === "done" ? " is-off" : ""}">
+          <button type="button" class="kt-main" data-edittask="${t.id}"><b>${escapeHtml(t.title)}${t.source === "auto" ? ' <span class="cfg-pill off">Otomatis</span>' : ""}</b>
+            <small>${[t.description ? escapeHtml(t.description) : "", t.refLabel ? escapeHtml(t.refLabel) : ""].filter(Boolean).join(" · ")}</small>
+            ${due ? `<span class="task-due ${due.cls}">${icon("calendar")} ${due.txt}${due.tag ? " · " + due.tag : ""}</span>` : ""}</button>
+          <span class="kt-acts">${cta}${t.source === "auto" && t.status !== "done" ? "" : next}</span>
         </div>`;
+    }
+    async function moveTask(id, to, btn) {
+      const t = TASKS.find(x => x.id === id); if (!t) return;
+      const prev = t.status; t.status = to; renderTaskColumns(); // optimis: langsung pindah
+      const r = await api("saveTask", { token: getToken(), id, status: to });
+      if (!r || r.status !== "success") { t.status = prev; renderTaskColumns(); handleAuthError(r || {}); abToast((r && r.message) || "Gagal memindahkan task", "err"); return; }
+      abToast(to === "done" ? "Task selesai" : to === "in_progress" ? "Dipindah ke Lagi dikerjain" : "Dibuka lagi", "ok");
+      if (typeof renderAttention === "function") renderAttention();
     }
 
     function renderTaskColumns() {
@@ -10046,10 +10063,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         { status: "done", listId: "taskListDone", tabId: "taskTabDone", label: "Selesai", empty: "Belum ada yang kelar." },
       ];
       cols.forEach(c => {
-        const items = TASKS.filter(t => t.status === c.status);
+        // lewat tenggat paling atas, lalu yang tenggatnya paling dekat, sisanya terbaru
+        const items = TASKS.filter(t => t.status === c.status).slice().sort((a, b) => {
+          const da = a.dueDate ? String(a.dueDate) : "9999", db = b.dueDate ? String(b.dueDate) : "9999";
+          return c.status === "done" ? String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")) : da.localeCompare(db);
+        });
         document.getElementById(c.tabId).textContent = `${c.label} (${items.length})`;
         const box = document.getElementById(c.listId);
-        box.innerHTML = items.length ? items.map(taskCard).join("") : `<p class="hint">${c.empty}</p>`;
+        box.innerHTML = items.length ? `<div class="kt-list">` + items.map(taskCard).join("") + `</div>` : `<div class="empty">${c.empty}</div>`;
+        box.querySelectorAll("[data-taskmv]").forEach(el => el.addEventListener("click", () => moveTask(el.dataset.taskmv, el.dataset.to, el)));
         box.querySelectorAll("[data-edittask]").forEach(el => el.addEventListener("click", () => editTask(el.dataset.edittask)));
         box.querySelectorAll("[data-taskgo]").forEach(el => el.addEventListener("click", (e) => {
           e.stopPropagation();
