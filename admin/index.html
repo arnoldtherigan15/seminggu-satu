@@ -13418,7 +13418,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!confirm(`Pindahin nomor aktif ${nm} ke ${newWa}? Semua histori-nya ikut pindah.`)) return;
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("mergeMemberWa", { token: getToken(), fromWa: WA_MANAGE_TARGET.wa, toWa: newWa });
-      if (r.status === "success") { closeWaManageForm(); await loadMembers(); }
+      if (r.status === "success") { closeWaManageForm(); await loadMembers(); if (loyaltyInit) await loadLoyalty(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed."; }
     }
 
@@ -13430,11 +13430,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!confirm(`Gabungin semua histori dari ${fromWa} ke akun ${nm}?`)) return;
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("mergeMemberWa", { token: getToken(), fromWa, toWa: WA_MANAGE_TARGET.wa });
-      if (r.status === "success") { closeWaManageForm(); await loadMembers(); }
+      if (r.status === "success") { closeWaManageForm(); await loadMembers(); if (loyaltyInit) await loadLoyalty(); }
       else { handleAuthError(r); msg.className = "msg err"; msg.textContent = r.message || "Failed."; }
     }
 
+    let waManageWired = false; // dipanggil dari tab Members DAN modal Loyalty -> jangan dobel listener
     function wireWaManageOnce() {
+      if (waManageWired) return;
+      waManageWired = true;
       document.getElementById("waManageBackBtn").addEventListener("click", closeWaManageForm);
       document.getElementById("waManageOverlay").addEventListener("click", (e) => {
         if (e.target.id === "waManageOverlay") closeWaManageForm();
@@ -19290,6 +19293,9 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         : "";
       const actions =
         `<button class="btn btn-sm loy-passport">${icon("ticket")} Create Passport</button>` +
+        // warga ganti nomor / kedaftar pakai nomor lain -> loyalty-nya kepecah;
+        // buka form Manage WA Number (merge_member_wa) langsung dari sini
+        (m.wa ? `<button class="btn btn-sm btn-ghost loy-wa">${icon("phone")} Ganti / gabung nomor</button>` : "") +
         (m.eligible ? `<button class="btn btn-sm loy-claim">${icon("gift")} Redeem Reward</button>` : "") +
         (m.claimed > 0 ? `<button class="btn btn-sm btn-ghost loy-unclaim">↩︎ Undo 1 redemption</button>` : "");
 
@@ -19325,6 +19331,12 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
       // wiring
       const d = document.getElementById("loyaltyDetail");
+      const lw = d.querySelector(".loy-wa");
+      if (lw) lw.addEventListener("click", () => {
+        wireWaManageOnce();
+        closeLoyaltyModal();
+        openWaManageForm(m.wa, m.nickname || m.fullName || "");
+      });
       const cl = d.querySelector(".loy-claim");
       if (cl) cl.addEventListener("click", () => claimReward(m.key, 1, m.count));
       const uc = d.querySelector(".loy-unclaim");
