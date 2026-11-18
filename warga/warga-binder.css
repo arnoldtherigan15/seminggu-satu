@@ -1381,3 +1381,76 @@
     background: #e6edff; color: #10245e; border: none; border-radius: 999px;
     box-shadow: var(--bw-depth-sticker); padding: 2px 8px;
 }
+
+/* ===================== EVENT: SAMA KAYAK JADWAL DI HOME ===================== */
+/* Index tab kuning -> tiap event = lembar loose-leaf (garis 28px, margin pink,
+   lubang binder), harga = stiker kuning, Daftar = stiker biru kelupas. */
+#pane-events .bw-tab { margin-top: 0.4rem; }
+#pane-events .ev,
+#pane-events .ev:nth-child(odd), #pane-events .ev:nth-child(even) {
+    position: relative; z-index: 1;
+    background-color: var(--bw-paper);
+    background-image:
+        linear-gradient(90deg, transparent 0 45px, var(--bw-pink) 45px 47px, transparent 47px),
+        repeating-linear-gradient(180deg, transparent 0 27px, var(--bw-rule) 27px 28px);
+    background-position: 0 0, 0 32px;
+    border: none;
+    border-radius: 6px 16px 16px 6px;
+    box-shadow: var(--bw-depth-paper);
+    padding: 32px 1.1rem 1.3rem 62px;
+    margin-bottom: 1.6rem;
+    transform: rotate(-0.3deg);
+}
+#pane-events .ev:nth-child(even) { transform: rotate(0.3deg); }
+#pane-events .ev:hover { transform: none; box-shadow: var(--bw-depth-paper); }
+/* lubang binder (pengganti washi kecil) */
+#pane-events .ev::before,
+:root[data-theme="dark"] #pane-events .ev::before {
+    content: ""; position: absolute; left: 14px; top: 30px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bw-desk); border: none;
+    box-shadow: inset 0 1px 2px rgba(var(--bw-tint), .25), 0 70px 0 0 var(--bw-desk);
+    transform: none;
+}
+#pane-events .ev-top { align-items: flex-start; }
+#pane-events .ev-name { font-size: 1.15rem; line-height: 28px; letter-spacing: -0.01em; }
+#pane-events .ev-meta { font-style: normal; font-size: .9rem; line-height: 28px; margin-top: 0; color: var(--muted); }
+#pane-events .ev-badge,
+:root[data-theme="dark"] #pane-events .ev-badge {
+    border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 800; letter-spacing: 0;
+    padding: 5px 11px; margin-top: -2px;
+    transform: rotate(5deg);
+}
+#pane-events .ev-badge.price, :root[data-theme="dark"] #pane-events .ev-badge.price { background: var(--bw-yellow); color: #10245e; }
+#pane-events .ev-badge.soon, :root[data-theme="dark"] #pane-events .ev-badge.soon { background: #ffffff; color: #10245e; }
+#pane-events .ev-badge.open, :root[data-theme="dark"] #pane-events .ev-badge.open { background: #d1fae5; color: #065f46; }
+#pane-events .ev-action { border-top: none; margin-top: 0.5rem; padding-top: 0; }
+#pane-events .ev-go {
+    position: relative;
+    min-height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 14px;
+    font-family: 'Outfit', sans-serif; font-size: 1.05rem;
+    box-shadow: var(--bw-depth-sticker);
+    transform: rotate(-0.6deg);
+    background: #0046ff;
+}
+#pane-events .ev-go::after {
+    content: ""; position: absolute; right: 0; bottom: 0;
+    width: 14px; height: 14px; border-radius: 0 0 14px 0;
+    background: linear-gradient(315deg, var(--bw-paper) 0 48%, var(--bw-peel) 50% 100%);
+    box-shadow: -2px -2px 4px rgba(var(--bw-tint), .18);
+    transition: width .2s ease, height .2s ease;
+}
+#pane-events .ev-go:hover { transform: rotate(-1.4deg) translateY(-2px); }
+#pane-events .ev-go:hover::after, #pane-events .ev-go:active::after { width: 28px; height: 28px; }
+#pane-events .ev-done,
+:root[data-theme="dark"] #pane-events .ev-done {
+    background: var(--bw-note); color: #10245e;
+    border: none; border-radius: 3px;
+    box-shadow: var(--bw-depth-paper);
+    transform: rotate(-0.6deg);
+}
+#pane-events .ev-bday-note { position: relative; z-index: 1; }

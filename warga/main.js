@@ -715,7 +715,7 @@ async function loadEvents() {
         return;
     }
 
-    let html = '<div class="section-lbl">🎟️ Upcoming Events</div>';
+    let html = '<h2 class="bw-tab">Jadwal Event</h2>';
     // Bulan ultah? Tempelin catatan diskon voucher di atas daftar event
     const bd = birthdayInfo();
     if (bd) {
@@ -740,7 +740,7 @@ async function loadEvents() {
         const kIDR = n => (n >= 1000 ? Math.round(n / 1000) : n); // 250000 -> 250
         let badge;
         if (x.status === "not-open-yet") {
-            badge = '<span class="ev-badge soon">SOON</span>';
+            badge = '<span class="ev-badge soon">Segera</span>';
         } else {
             // currentPrice dari batch yang beneran ditawarin kalau ada (udah
             // dihitung server per-batch), fallback ke itungan type-level lama
@@ -749,13 +749,13 @@ async function loadEvents() {
             const cur = (batch && batch.currentPrice != null) ? batch.currentPrice : ((typeof getCurrentPrice === "function") ? getCurrentPrice(w, used) : w.normalPrice);
             const eb = (typeof isEarlyBird === "function") && isEarlyBird(w, used) && w.normalPrice > cur;
             badge = (cur > 0)
-                ? '<span class="ev-badge price">' + (eb ? '<s>' + kIDR(w.normalPrice) + '</s> ' : '') + kIDR(cur) + ' IDR</span>'
-                : '<span class="ev-badge open">FREE 🎉</span>';
+                ? '<span class="ev-badge price">' + (eb ? '<s>' + kIDR(w.normalPrice) + 'rb</s> ' : '') + 'Rp ' + kIDR(cur) + 'rb</span>'
+                : '<span class="ev-badge open">Gratis</span>';
         }
 
         let action;
-        if (isReg) action = '<div class="ev-done">✅ You\'re in — see you there! 💙</div>';
-        else if (x.status === "not-open-yet") action = '<div class="ev-meta">Registration opens soon</div>';
+        if (isReg) action = '<div class="ev-done">✓ Kamu udah terdaftar. Sampai ketemu di sana!</div>';
+        else if (x.status === "not-open-yet") action = '<div class="ev-meta">Pendaftaran segera dibuka</div>';
         else {
             let href = "../" + (w.path || "");
             // Bawa WA (nggak input ulang) + flag from=member (biar abis daftar balik ke portal warga, bukan homepage publik)
@@ -764,14 +764,14 @@ async function loadEvents() {
             // otomatis ke-pilih Vol 5 di form pendaftaran, bukan default ke
             // batch lain (lihat matchBatchFromQuery() di halaman masing-masing).
             if (batch && batch.label) href += "&batch=" + encodeURIComponent(batch.label);
-            action = '<a class="btn-primary" href="' + esc(href) + '">Register →</a>';
+            action = '<a class="btn-primary ev-go" href="' + esc(href) + '">Daftar →</a>';
         }
 
         // Nama event + label batch -- cuma ditempelin kalau tipe ini punya
         // 2+ kartu (biar nggak kebaca "Side by Side · Batch 1" pas emang cuma
         // ada satu sesi, tapi jelas beda pas ada Vol 4 & Vol 5 bareng).
         const nameTxt = (w.name || w.id) + (batch && batch.label && x.multiCount > 1 ? ' · ' + batch.label : '');
-        const meta = [dateTxt, (left != null && !isReg ? (left + " seats left") : "")].filter(Boolean).join(" · ");
+        const meta = [dateTxt, (left != null && !isReg ? ("sisa " + left + " tiket") : "")].filter(Boolean).join(" · ");
 
         html += '<div class="ev">' +
             '<div class="ev-top"><div class="ev-name">' + esc(nameTxt) + '</div>' + badge + '</div>' +
