@@ -11992,7 +11992,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const div = document.createElement("div");
         div.className = "kt-row" + (b.active ? "" : " is-off");
         div.innerHTML = `
-          <span class="kt-thumb"><span class="kt-ico">${icon("recommendation")}</span></span>
+          <span class="kt-thumb"><span class="kt-ico">${icon("star")}</span></span>
           <button type="button" class="kt-main" data-act="edit"><b>${escapeHtml(b.title)} <span class="cfg-pill ${b.active ? "on" : "off"}">${b.active ? "Aktif" : "Nonaktif"}</span></b><small>${b.itemCount} item · dibuat ${new Date(b.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</small></button>
           <span class="kt-acts">
             <button type="button" class="kt-btn" data-act="copy" title="Salin link" aria-label="Salin link">${icon("link")}</button>
