@@ -6016,16 +6016,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     </div>
   </div>
 
-  <!-- Modal passport -->
-  <div id="passportModal" class="modal" style="display:none;">
-    <div class="modal-box passport-box" style="max-width:380px;">
-      <button class="modal-close" id="passportClose" aria-label="Tutup">&times;</button>
-      <div id="passportCard" class="recap-story"></div>
-      <button class="btn" id="passportDownload" style="margin-top:14px;width:100%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg> Download IG Story (PNG)</button>
-      <p class="hint" style="text-align:center;margin-top:8px;">Ukuran 9:16, pas buat Instagram Story 📲</p>
-    </div>
-  </div>
-
   <!-- Modal recap / Wrapped (IG Story) -->
   <div id="recapModal" class="modal" style="display:none;">
     <div class="modal-box passport-box" style="max-width:380px;">
@@ -13621,7 +13611,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     function openWaManageForm(wa, nickname) {
       WA_MANAGE_TARGET = { wa, nickname };
-      document.getElementById("waManageForName").textContent = nickname || "(no name)";
+      document.getElementById("waManageForName").textContent = nickname || "(tanpa nama)";
       document.getElementById("waManageCurrent").value = wa;
       document.getElementById("waManageNewActive").value = "";
       document.getElementById("waManageMergeFrom").value = "";
@@ -13753,7 +13743,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // sub boleh HTML (potongan data di-escape satu-satu pas nyusun)
     function memRow(nickname, sub, wa, btnLabel, type, ig, cls, badge, showWaManage) {
       return `<div class="loy-card${cls ? " " + cls : ""}"><div class="loy-top">
-        <div style="min-width:0;"><div class="loy-name">${escapeHtml(nickname || "(no name)")}${badge || ""}</div>
+        <div style="min-width:0;"><div class="loy-name">${escapeHtml(nickname || "(tanpa nama)")}${badge || ""}</div>
         <div class="loy-wa">${sub || ""}</div></div>
         <div class="mem-btns">
           ${wa ? `<button class="mem-wa loy-send" data-memwa="${escapeHtml(wa)}" data-memname="${escapeHtml(nickname || "")}" data-memtype="${type}">${btnLabel}</button>` : ""}
@@ -19435,7 +19425,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     document.getElementById("imgLightbox").addEventListener("click", (e) => {
       if (e.target.id === "imgLightbox") closeLightbox(); // klik area gelap
     });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeLightbox(); closeLoyaltyModal(); closePassport(); closeRecap(); } });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeLightbox(); closeLoyaltyModal(); closeRecap(); } });
 
     // ---------- LOYALTY ----------
     const LOYALTY_TARGET = 6;
@@ -19446,9 +19436,6 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (!loyaltyInit) {
         document.getElementById("loyaltyModalClose").addEventListener("click", closeLoyaltyModal);
         document.getElementById("loyaltyModal").addEventListener("click", (e) => { if (e.target.id === "loyaltyModal") closeLoyaltyModal(); });
-        document.getElementById("passportClose").addEventListener("click", closePassport);
-        document.getElementById("passportModal").addEventListener("click", (e) => { if (e.target.id === "passportModal") closePassport(); });
-        document.getElementById("passportDownload").addEventListener("click", downloadPassport);
         loyaltyInit = true;
       }
       await loadLoyalty();
@@ -19490,12 +19477,11 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         let stamps = "";
         for (let i = 0; i < LOYALTY_TARGET; i++) stamps += `<span class="stamp ${i < filled ? "on" : ""}">${i < filled ? "★" : "☆"}</span>`;
         const rewardBadge = m.eligible ? '<span class="loy-badge">' + icon("gift") + ' SIAP TUKAR</span>' : "";
-        const noteBadge = (m.notes && m.notes.length) ? `<span class="loy-note-badge" title="Has notes">${icon("journal")} ${m.notes.length}</span>` : "";
         const voucherBadge = m.voucherActive ? `<span class="loy-note-badge" title="Voucher ultah aktif ${m.voucherAge}% off">${icon("gift")} Voucher aktif</span>` : "";
         return `<div class="loy-card${m.eligible ? " loy-reward" : ""}" data-key="${escapeHtml(m.key)}">
           <div class="loy-top">
             <div>
-              <div class="loy-name">${escapeHtml(m.nickname || m.fullName || "(tanpa nama)")} ${rewardBadge} ${voucherBadge} ${noteBadge}</div>
+              <div class="loy-name">${escapeHtml(m.nickname || m.fullName || "(tanpa nama)")} ${rewardBadge} ${voucherBadge}</div>
               <div class="loy-wa">${escapeHtml(m.wa || "-")} · Total ikut: <b>${m.count}</b>${m.claimed > 0 ? ` · ${icon("gift")} ${m.claimed}×` : ""}</div>
             </div>
             <div class="loy-count">${m.progress}/${LOYALTY_TARGET}</div>
@@ -19562,15 +19548,11 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       }
       ).join("");
 
-      const notes = (m.notes || []).map((n, i) =>
-        `<div class="note-item"><span>${escapeHtml(n)}</span><button class="note-del" data-i="${i}" title="Delete">&times;</button></div>`
-      ).join("");
-
       const igLine = m.ig ? `<div class="det-row"><span>${icon("camera")} Instagram</span><b>@${escapeHtml(m.ig.replace(/^@/, ""))}</b></div>` : "";
       const bdayAge = memAge(m.birthDate);
       const bdayLine = m.birthDate
-        ? `<div class="det-row"><span>${icon("cake")} Birthday</span><b>${escapeHtml(memBdayShort(m.birthDate))}${bdayAge !== null ? " · " + bdayAge + "yo" : ""}</b></div>`
-        : `<div class="det-row"><span>${icon("cake")} Birthday</span><b>- (belum diisi warga)</b></div>`;
+        ? `<div class="det-row"><span>${icon("cake")} Ulang tahun</span><b>${escapeHtml(memBdayShort(m.birthDate))}${bdayAge !== null ? " · " + bdayAge + " th" : ""}</b></div>`
+        : `<div class="det-row"><span>${icon("cake")} Ulang tahun</span><b>- (belum diisi warga)</b></div>`;
       const voucherBanner = m.voucherActive
         ? `<div class="det-sec" style="background:var(--brand-light);border-radius:12px;padding:12px 14px;">
             <div style="font-weight:800;display:flex;align-items:center;gap:6px;">${icon("gift")} Voucher ultah AKTIF -- ${m.voucherAge}% off</div>
@@ -19579,39 +19561,29 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           </div>`
         : "";
       const actions =
-        `<button class="btn btn-sm loy-passport">${icon("ticket")} Create Passport</button>` +
         // warga ganti nomor / kedaftar pakai nomor lain -> loyalty-nya kepecah;
         // buka form Manage WA Number (merge_member_wa) langsung dari sini
         (m.wa ? `<button class="btn btn-sm btn-ghost loy-wa">${icon("phone")} Ganti / gabung nomor</button>` : "") +
-        (m.eligible ? `<button class="btn btn-sm loy-claim">${icon("gift")} Redeem Reward</button>` : "") +
-        (m.claimed > 0 ? `<button class="btn btn-sm btn-ghost loy-unclaim">↩︎ Undo 1 redemption</button>` : "");
+        (m.eligible ? `<button class="btn btn-sm loy-claim">${icon("gift")} Tukar hadiah</button>` : "") +
+        (m.claimed > 0 ? `<button class="btn btn-sm btn-ghost loy-unclaim">Batalkan 1 penukaran</button>` : "");
 
       document.getElementById("loyaltyDetail").innerHTML = `
-        <h2 class="det-name">${escapeHtml(m.nickname || m.fullName || "(no name)")}</h2>
+        <h2 class="det-name">${escapeHtml(m.nickname || m.fullName || "(tanpa nama)")}</h2>
         <div class="loy-stamps det-stamps">${stamps}</div>
-        <div class="det-prog">${m.progress}/${LOYALTY_TARGET} stamps · Attended <b>${m.count}</b> · ${icon("gift")} redeemed <b>${m.claimed}</b></div>
+        <div class="det-prog">${m.progress}/${LOYALTY_TARGET} stempel · ikut <b>${m.count}</b>x · hadiah ditukar <b>${m.claimed}</b></div>
         ${actions ? `<div class="loy-actions">${actions}</div>` : ""}
         ${voucherBanner}
 
         <div class="det-sec">
           <div class="det-row"><span>${icon("tag")} Nickname</span><b>${escapeHtml(m.nickname || "-")}</b></div>
-          <div class="det-row"><span>${icon("tag")} Full Name</span><b>${escapeHtml(m.fullName || "-")}</b></div>
+          <div class="det-row"><span>${icon("tag")} Nama lengkap</span><b>${escapeHtml(m.fullName || "-")}</b></div>
           <div class="det-row"><span>${icon("phone")} WhatsApp</span><b>${escapeHtml(m.wa || "-")}</b></div>
           ${bdayLine}
           ${igLine}
         </div>
 
         <div class="det-sec">
-          <h4>${icon("journal")} Notes</h4>
-          <div id="noteList">${notes || '<p class="hint">No notes yet.</p>'}</div>
-          <div class="note-add">
-            <input class="form-control" type="text" id="noteInput" placeholder="e.g. Birthday May 12, likes pastel colors..." />
-            <button class="btn btn-sm" id="noteAddBtn">${icon("plus")} Add</button>
-          </div>
-        </div>
-
-        <div class="det-sec">
-          <h4>${icon("calendar")} Events Attended (${m.events.length})</h4>
+          <h4>${icon("calendar")} Event yang diikuti (${m.events.length})</h4>
           <ul class="det-events">${events}</ul>
         </div>
       `;
@@ -19628,8 +19600,6 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (cl) cl.addEventListener("click", () => claimReward(m.key, 1, m.count));
       const uc = d.querySelector(".loy-unclaim");
       if (uc) uc.addEventListener("click", () => claimReward(m.key, -1, 0));
-      const pp = d.querySelector(".loy-passport");
-      if (pp) pp.addEventListener("click", () => openPassport(m));
       const vw = d.querySelector(".loy-voucher-wa");
       if (vw) vw.addEventListener("click", () => {
         const num = waNormalize(m.wa);
@@ -19637,29 +19607,6 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         const nm = (String(m.nickname || m.fullName || "kak").trim().split(/\s+/)[0]);
         window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(memWaMsg("bday", nm)), "_blank");
       });
-      d.querySelector("#noteAddBtn").addEventListener("click", addNote);
-      d.querySelector("#noteInput").addEventListener("keydown", e => { if (e.key === "Enter") addNote(); });
-      d.querySelectorAll(".note-del").forEach(b => b.addEventListener("click", () => delNote(Number(b.dataset.i))));
-    }
-
-    async function saveNotes(m) {
-      try {
-        const r = await api("saveLoyaltyNotes", { token: getToken(), key: m.key, notes: m.notes });
-        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to save note."); }
-      } catch (e) { alert("Failed to connect."); }
-    }
-    function addNote() {
-      const m = LOYALTY.find(x => x.key === detailKey); if (!m) return;
-      const inp = document.getElementById("noteInput");
-      const v = (inp.value || "").trim();
-      if (!v) return;
-      m.notes = m.notes || []; m.notes.push(v);
-      renderLoyaltyDetail(); saveNotes(m);
-    }
-    function delNote(i) {
-      const m = LOYALTY.find(x => x.key === detailKey); if (!m) return;
-      m.notes.splice(i, 1);
-      renderLoyaltyDetail(); saveNotes(m);
     }
 
     async function claimReward(key, dir, total) {
@@ -19674,90 +19621,6 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       } catch (e) { alert("Failed to connect."); }
     }
 
-    // ---------- PASSPORT ----------
-    function passportPersona(m) {
-      const n = m.count;
-      let title, tag;
-      if (n >= 10) { title = "DEWA JOURNALING"; tag = "Warga kehormatan Seminggu Satu 👑"; }
-      else if (n >= 6) { title = "LEGENDA JOURNALING"; tag = "Sahabat setia Seminggu Satu — udah dapat hadiah 🎁"; }
-      else if (n >= 4) { title = "JOURNALING ENTHUSIAST"; tag = "Anak tongkrongan Seminggu Satu 🔥"; }
-      else if (n >= 2) { title = "PETUALANG KREATIF"; tag = "Mulai betah kumpul bareng kita ✨"; }
-      else { title = "PENDATANG BARU"; tag = "Baru gabung keluarga Seminggu Satu 🌱"; }
-      const uniqueWs = new Set(m.events.map(e => e.workshop)).size;
-      const trait = uniqueWs >= 3 ? "Sang Penjelajah" : (n >= 3 ? "Si Paling Setia" : "Pencari Inspirasi");
-      return { title, tag, uniqueWs, trait };
-    }
-
-    function openPassport(m) {
-      const p = passportPersona(m);
-      const years = m.events.map(e => { const mm = String(e.date || "").match(/(\d{4})$/); return mm ? Number(mm[1]) : null; }).filter(Boolean);
-      const since = years.length ? Math.min.apply(null, years) : null;
-      const name = m.nickname || m.name || "Journaler";
-      const MAX = 12;
-      const shown = Math.min(m.count, MAX);
-      const stampStr = "★".repeat(shown);
-      const more = m.count > MAX ? `<span class="more"> +${m.count - MAX}</span>` : "";
-      const handle = m.ig ? ("@" + escapeHtml(m.ig.replace(/^@/, ""))) : "@seminggu_satu";
-
-      document.getElementById("passportCard").innerHTML = `
-        <div class="rs-orb a"></div>
-        <div class="rs-orb b"></div>
-        <div class="rs-head"><span><span class="rs-dot"></span>Seminggu Satu</span><span>Passport</span></div>
-        <div class="rs-period">Journaling Passport</div>
-        <div class="rs-title">${escapeHtml(name)}</div>
-        <div class="rs-hero"><b>${m.count}</b><span>Kali kumpul bareng kita</span></div>
-        <div class="rs-stamps">${stampStr}${more}</div>
-        <div class="rs-grid" style="grid-template-columns:repeat(3,1fr);">
-          <div class="rs-stat"><b>${since || "🌱"}</b><span>Sahabat sejak</span></div>
-          <div class="rs-stat"><b>${m.questCount || 0}</b><span>⚡ Quest</span></div>
-          <div class="rs-stat"><b>${m.claimed}</b><span>🎁 Hadiah</span></div>
-        </div>
-        <div class="rs-spot hi"><div class="rs-emoji">🎖️</div><div>
-          <div class="rs-lbl">${escapeHtml(p.title)}</div>
-          <div class="rs-val">${escapeHtml(p.trait)}</div>
-          <div class="rs-meta">${escapeHtml(p.tag)}</div>
-        </div></div>
-        <div class="rs-foot"><span>Sampai jumpa lagi ✨</span><span class="rs-brand">${handle}</span></div>`;
-      document.getElementById("passportModal").style.display = "flex";
-    }
-
-    function closePassport() { document.getElementById("passportModal").style.display = "none"; }
-
-    async function downloadPassport() {
-      const card = document.getElementById("passportCard");
-      const btn = document.getElementById("passportDownload");
-      const label = btn.innerHTML;
-      const nmeEl = card.querySelector(".rs-title");
-      const nm = (nmeEl ? nmeEl.textContent : "peserta").trim().replace(/\s+/g, "-").toLowerCase() || "peserta";
-      btn.disabled = true; btn.textContent = "Merender...";
-
-      // Sama seperti Wrapped: clone off-screen 360x640 (9:16) + safe zone -> 1080x1920 pas IG Story
-      const clone = card.cloneNode(true);
-      clone.classList.add("export");
-      clone.style.width = "360px";
-      clone.style.height = "640px";
-      clone.style.minHeight = "0";
-      clone.style.maxWidth = "none";
-      clone.style.margin = "0";
-      clone.style.position = "fixed";
-      clone.style.left = "-10000px";
-      clone.style.top = "0";
-      document.body.appendChild(clone);
-      try {
-        const canvas = await html2canvas(clone, {
-          scale: 3, backgroundColor: null, useCORS: true,
-          width: 360, height: 640, windowWidth: 360, windowHeight: 640
-        });
-        const a = document.createElement("a");
-        a.href = canvas.toDataURL("image/png");
-        a.download = "passport-" + nm + ".png";
-        a.click();
-      } catch (e) { alert("Failed to render image. Please try again."); }
-      finally {
-        if (clone.parentNode) clone.parentNode.removeChild(clone);
-        btn.disabled = false; btn.innerHTML = label;
-      }
-    }
 
     // ---------- ANALITIK (beneran, bukan gamifikasi) + RECAP ----------
     let WRAP_MEMBERS = [];
