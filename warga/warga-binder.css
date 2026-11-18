@@ -1963,3 +1963,7 @@
 .wb-tape2.wt-p { background: var(--bw-washi-pink); }
 .wb-note.note-y { background: var(--bw-note); }
 .wb-text { font-family: 'Outfit', sans-serif; font-size: .92rem; font-weight: 600; }
+
+/* label header sekarang <button> (ke Home Balai), bukan link keluar */
+button.bw-brand { border: none; font: inherit; cursor: pointer; text-align: left; }
+button.bw-brand:focus-visible { outline: 3px solid var(--bw-yellow); outline-offset: 4px; }

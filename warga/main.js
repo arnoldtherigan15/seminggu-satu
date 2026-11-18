@@ -4483,6 +4483,19 @@ function startMochiBubbles() {
     }
     next();
 }
+// Header "Balai Warga" = tombol Home di dalam portal (bukan link ke homepage
+// publik -- warga nggak dilempar keluar dari Balai pas nge-tap judul)
+(function initBrandHome() {
+    const b = $("bwBrand");
+    if (!b) return;
+    b.addEventListener("click", () => {
+        if ($("dashView") && $("dashView").style.display !== "none") {
+            if (location.hash && location.hash !== "#loyalty") { try { history.replaceState(null, "", "#loyalty"); } catch (e) { } }
+            activateTab("loyalty");
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+})();
 (function initMochi() {
     const wrap = $("mochiAvatar");
     if (!wrap) return;
