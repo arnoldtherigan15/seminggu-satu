@@ -385,3 +385,11 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .preq-pic-label { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--brand); color: #ffffff; font-size: 11px; font-weight: 800; letter-spacing: .04em; }
 .preq-pic-acts { display: flex; gap: 8px; flex-wrap: wrap; }
 .ov-card-closed { display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.prep-partner-line { flex-wrap: wrap; gap: 6px; align-items: center; }
+.ppl-label { font-weight: 700; color: var(--ink); }
+.prep-partner-line .muted { color: var(--muted); }
+.ppl-chip { display: inline-flex; align-items: baseline; gap: 6px; min-height: 32px; padding: 4px 12px; border-radius: 999px; border: 1.5px solid #c9d6f5; background: #ffffff; color: var(--ink); font-weight: 800; font-size: 13.5px; cursor: pointer; }
+.ppl-chip small { font-weight: 600; color: var(--muted); font-size: 12px; }
+.ppl-chip:hover { border-color: var(--brand); }
+.ppl-manage, .plist-src .link-btn { border: 0; background: none; padding: 4px 2px; color: var(--brand); font-weight: 700; font-size: 13.5px; text-decoration: underline; cursor: pointer; }
+.plist-src { margin-top: 12px; font-size: 13.5px; color: var(--muted); }

@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=6">
+  <link rel="stylesheet" href="admin-binder.css?v=7">
 </head>
 
 <body>
@@ -17219,9 +17219,26 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <div class="ov-card-top"><div class="ov-card-name">${escapeHtml(info.name)}</div>${badge}</div>
           <div class="ov-meta">${icon("calendar")} ${escapeHtml(info.displayDate || "-")}${info.workshopTime ? " · " + escapeHtml(info.workshopTime) : ""}</div>
           <div class="ov-meta">${icon("geo")} ${escapeHtml(info.locationName || "-")}</div>
+          <div class="ov-meta prep-partner-line" id="prepPartnerLine"></div>
           <div class="ov-progress"><div class="ov-progress-bar" style="width:${pct}%"></div></div>
-          <div class="ov-progress-label">${info.count} / ${info.quota || "?"} participants (${pct}%)</div>
+          <div class="ov-progress-label">${info.count} / ${info.quota || "?"} peserta (${pct}%)</div>
         </div>`;
+      renderPrepPartnerLine();
+    }
+
+    // Partner yang di-link ke batch ini -- ditampilin di kartu event biar
+    // kelihatan tanpa harus buka tab "Partner & Requests".
+    function gotoPrepPartnerTab() {
+      const b = document.querySelector('#prepSections .subtab-btn[data-tab="partnerreq"]');
+      if (b) { b.click(); b.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    }
+    function renderPrepPartnerLine() {
+      const el = document.getElementById("prepPartnerLine"); if (!el) return;
+      const ps = (typeof plistPartners === "function") ? plistPartners() : [];
+      el.innerHTML = `${icon("people")} <span class="ppl-label">Partner:</span> ` + (ps.length
+        ? ps.map(p => `<button type="button" class="ppl-chip" data-pplgo="1">${escapeHtml(p.name)}${p.pic ? ` <small>PIC ${escapeHtml(p.pic)}</small>` : ""}</button>`).join("") + ` <button type="button" class="ppl-manage" data-pplgo="1">Atur</button>`
+        : `<span class="muted">belum ada</span> <button type="button" class="ppl-manage" data-pplgo="1">Tambah partner</button>`);
+      el.querySelectorAll("[data-pplgo]").forEach(b => b.addEventListener("click", gotoPrepPartnerTab));
     }
 
     async function loadPrep() {
@@ -17578,6 +17595,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     function renderPartnerReqGroups() {
+      renderPrepPartnerLine();
       const box = document.getElementById("preqGroups");
       if (!box) return;
       if (!PREP_PARTNER_REQ_GROUPS.length) {
@@ -19241,8 +19259,8 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       const ordered = partnerId ? partners.filter(p => p.id === partnerId).concat(partners.filter(p => p.id !== partnerId)) : partners;
       const chk = (k, label, hint) => `<label class="plist-opt"><input type="checkbox" data-opt="${k}" ${opts[k] ? "checked" : ""}> <span>${label}${hint ? `<small>${hint}</small>` : ""}</span></label>`;
       const sendBtns = ordered.map(p => p.phone
-        ? `<button type="button" class="plist-send" data-phone="${p.phone}">${icon("chat")} Kirim ke ${escapeHtml(p.pic || p.name)}<small>${escapeHtml(p.name)}${p.role ? " · " + escapeHtml(p.role) : ""}</small></button>`
-        : `<div class="plist-nophone">${escapeHtml(p.name)}: nomor PIC belum diisi. <button type="button" class="link-btn" data-editpartner="${escapeHtml(p.id)}">Isi sekarang</button></div>`).join("");
+        ? `<button type="button" class="plist-send" data-phone="${p.phone}">${icon("chat")} Kirim ke ${escapeHtml(p.pic || p.name)}<small>${[p.pic ? escapeHtml(p.name) : "", p.role ? escapeHtml(p.role) : "", escapeHtml(p.phone)].filter(Boolean).join(" · ")}</small></button>`
+        : `<div class="plist-nophone"><b>${escapeHtml(p.name)}</b>: nomor PIC belum diisi. <button type="button" class="link-btn" data-editpartner="${escapeHtml(p.id)}">Isi sekarang</button></div>`).join("");
       return abDialog({
         title: "Kirim list peserta",
         okText: "Salin teks", cancelText: "Tutup",
@@ -19254,6 +19272,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
             ${chk("hadirOnly", "Cuma yang hadir")}
           </div>
           <textarea class="form-control plist-text" rows="9" aria-label="Isi pesan"></textarea>
+          <div class="plist-src">${partners.length ? `Partner yang di-link ke batch ini (${partners.length}).` : ""} <button type="button" class="link-btn plist-manage">Atur partner event</button></div>
           <div class="plist-sends">${sendBtns || `<p class="hint" style="margin:0;">Belum ada partner yang di-link ke batch ini. Link di tab "Partner & Requests", atau salin teksnya lalu kirim manual.</p>`}</div>`,
         onOpen: (box) => {
           const ta = box.querySelector(".plist-text");
@@ -19267,6 +19286,10 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           box.querySelectorAll(".plist-send").forEach(b => b.addEventListener("click", () => {
             window.open("https://wa.me/" + b.dataset.phone + "?text=" + encodeURIComponent(ta.value), "_blank");
           }));
+          box.querySelector(".plist-manage").addEventListener("click", () => {
+            box.parentElement.querySelector(".ab-dlg-cancel").click();
+            gotoPrepPartnerTab();
+          });
           box.querySelectorAll("[data-editpartner]").forEach(b => b.addEventListener("click", () => {
             box.parentElement.querySelector(".ab-dlg-cancel").click();
             editPartner(b.dataset.editpartner);
