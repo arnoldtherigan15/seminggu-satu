@@ -798,7 +798,7 @@ function loadRec() {
     // Filter tabs: Semua + kategori yang dipakai (label dari RECOMMENDATION_CATEGORIES)
     const cats = [];
     list.forEach(it => { if (it.category && cats.indexOf(it.category) < 0) cats.push(it.category); });
-    let tabs = '<button class="rfilter active" data-cat="all">All</button>';
+    let tabs = '<button class="rfilter active" data-cat="all">Semua</button>';
     cats.forEach(c => { tabs += '<button class="rfilter" data-cat="' + esc(c) + '">' + esc(recCatLabel_(c)) + '</button>'; });
     const bar = $("recTabs");
     bar.innerHTML = tabs;
