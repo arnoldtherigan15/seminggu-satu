@@ -49,7 +49,7 @@
     display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.8rem;
     text-align: left;
     margin: 0.25rem 0 1.4rem;
-    padding: 1.15rem 1.2rem 1.2rem 2.6rem;
+    padding: 1rem 1.1rem 1rem 2.6rem;
     color: #ffffff;
     border-radius: 14px 24px 24px 14px;
     background-color: var(--bw-board);
@@ -74,15 +74,25 @@
 .bw-brand {
     position: relative; z-index: 1;
     display: inline-flex; align-items: center; gap: 0.55rem;
-    padding: 0.4rem 0.9rem 0.4rem 0.45rem;
+    padding: 0.5rem 0.95rem 0.5rem;
     background: #ffffff; color: #10245e;
     border-radius: 12px;
     box-shadow: var(--bw-depth-sticker);
     text-decoration: none;
     transform: rotate(-2deg);
 }
-.top .bw-brand img, #siteLogo, :root[data-theme="dark"] #siteLogo {
-    width: 42px; height: 42px; filter: none; object-fit: contain;
+/* logo = stiker bulat kuning di kanan sampul (kayak paw di Home) */
+.bw-paw {
+    position: relative; z-index: 1;
+    margin-left: auto;
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--bw-yellow);
+    box-shadow: var(--bw-depth-sticker);
+    display: flex; align-items: center; justify-content: center;
+    transform: rotate(9deg);
+}
+#siteLogo, :root[data-theme="dark"] #siteLogo {
+    width: 48px; height: 48px; filter: none; object-fit: contain;
 }
 .bw-name {
     display: flex; flex-direction: column;
@@ -667,4 +677,159 @@
 .tr-cup::after {
     content: ''; width: 14px; height: 14px; top: -16px;
     background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a94a6' stroke-width='2' stroke-linecap='round'><path d='M8 20c-2-3 2-5 0-8s2-5 0-8'/><path d='M16 20c-2-3 2-5 0-8s2-5 0-8'/></svg>") center / contain no-repeat;
+}
+
+/* ===================== GALLERY: DINDING POLAROID ===================== */
+/* Semua karya pakai bingkai polaroid putih yang sama (benda fisik -> tetep
+   putih di mode gelap), ditempel washi yang warnanya gantian. Jenis karya
+   (Workshop / Reka-Rekat / Temu-Warga / Jurnal Mingguan / nama challenge)
+   cukup ditandai stiker label di pojok foto. */
+
+/* ---- Judul seksi (Sahabat Stories, Mading, Barter) = label stiker ---- */
+#pane-gallery .story-lbl,
+:root[data-theme="dark"] #pane-gallery .story-lbl {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.35rem 0.8rem;
+    background: var(--bw-yellow); color: #10245e;
+    background-image: none;
+    border-radius: 10px;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 800;
+    letter-spacing: -0.01em; text-transform: none;
+    transform: rotate(-1.5deg);
+    margin: 4px 4px 10px;
+}
+#pane-gallery .wb-add {
+    min-height: 40px; padding: 0.45rem 0.95rem;
+    background: #0046ff; color: #ffffff;
+    border-radius: 12px;
+    box-shadow: var(--bw-depth-sticker) !important;
+    font-size: 0.85rem;
+}
+#pane-gallery .bt-open { background: #0046ff !important; box-shadow: var(--bw-depth-sticker) !important; }
+
+/* ---- Barter = catatan kertas, bukan kotak hijau putus-putus ---- */
+.bt-teaser, :root[data-theme="dark"] .bt-teaser {
+    background: var(--bw-paper);
+    background-image: none;
+    border: none;
+    border-radius: 6px 16px 16px 6px;
+    box-shadow: var(--bw-depth-paper);
+    padding: 14px;
+    margin: 6px 0 20px;
+}
+.bt-empty-mini { font-weight: 600; font-size: 0.85rem; }
+.bt-thumb { border: 3px solid #ffffff; border-radius: 3px; box-shadow: var(--bw-depth-photo); }
+
+/* ---- Toolbar filter ---- */
+.gallery-toolbar { margin-top: 0.4rem; }
+.vbtn {
+    background: #ffffff !important; color: #10245e !important;
+    border: none !important;
+    box-shadow: var(--bw-depth-sticker);
+    border-radius: 10px !important;
+}
+.vbtn.active { background: var(--bw-yellow) !important; }
+.view-toggle { background: transparent; border: none; gap: 0.5rem; padding: 0; }
+
+/* ---- Polaroid ---- */
+#igGrid { gap: 16px; padding-top: 18px; }
+#igGrid .ig-col { gap: 26px; }
+#igGrid .jcard,
+:root[data-theme="dark"] #igGrid .jcard {
+    background: #ffffff;
+    background-image: none;
+    border: none;
+    border-radius: 3px;
+    padding: 8px 8px 11px;
+    box-shadow: var(--bw-depth-photo);
+    transition: transform .2s ease;
+}
+#igGrid .ig-col:first-child .jcard:nth-child(odd) { transform: rotate(-1.4deg); }
+#igGrid .ig-col:first-child .jcard:nth-child(even) { transform: rotate(0.9deg); }
+#igGrid .ig-col:last-child .jcard:nth-child(odd) { transform: rotate(1.2deg); }
+#igGrid .ig-col:last-child .jcard:nth-child(even) { transform: rotate(-0.8deg); }
+#igGrid .jcard:hover { transform: rotate(0deg) translateY(-3px); box-shadow: var(--bw-depth-photo); }
+#igGrid .jcard:active { transform: scale(.97); }
+
+/* washi di atas tiap polaroid */
+#igGrid .jcard::before {
+    content: ""; position: absolute; z-index: 3;
+    top: -10px; left: 50%; width: 64px; height: 20px; margin-left: -32px;
+    background: var(--bw-washi-pink);
+    border: none; box-shadow: none;
+    transform: rotate(-4deg);
+}
+#igGrid .ig-col:first-child .jcard:nth-child(3n+2)::before,
+#igGrid .ig-col:last-child .jcard:nth-child(3n+1)::before { background: var(--bw-washi-blue); transform: rotate(3deg); }
+#igGrid .ig-col:first-child .jcard:nth-child(3n)::before,
+#igGrid .ig-col:last-child .jcard:nth-child(3n+2)::before { background: var(--bw-washi-yellow); transform: rotate(-2deg); }
+#igGrid .jcard::after { display: none; }
+
+/* hiasan lama per jenis dicopot: washi udah jadi satu bahasa */
+#igGrid .jtape, #igGrid .gal-stk, #igGrid .tw-stk, #igGrid .rr-heart, #igGrid .wj-check { display: none; }
+
+#igGrid .jcard-imgwrap,
+#igGrid .jcard.frame-workshop .jcard-imgwrap,
+#igGrid .jcard.frame-temuwarga .jcard-imgwrap,
+#igGrid .jcard.frame-rekarekat .jcard-imgwrap,
+#igGrid .jcard.frame-weekly .jcard-imgwrap {
+    border: none; border-radius: 0; box-shadow: none;
+    background: #eef2fb;
+    overflow: visible;
+}
+#igGrid .jcard-imgwrap img { border-radius: 0; }
+#igGrid .jcard.frame-workshop .jcard-imgwrap::before,
+#igGrid .jcard.frame-workshop .jcard-imgwrap::after { display: none; }
+
+/* stiker label jenis karya: nempel di kaki foto */
+#igGrid .ev-stamp {
+    top: auto; right: auto; bottom: -11px; left: 6px;
+    max-width: calc(100% - 12px);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    padding: 4px 9px;
+    border: none; border-radius: 999px;
+    background: var(--bw-yellow); color: #10245e;
+    box-shadow: var(--bw-depth-sticker);
+    font-family: 'Open Sans', sans-serif; font-size: 0.6rem; font-weight: 800;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    transform: rotate(-3deg);
+}
+#igGrid .ev-stamp.rr { background: var(--bw-pink); color: #10245e; }
+#igGrid .ev-stamp.tw { background: #0046ff; color: #ffffff; }
+#igGrid .ev-stamp.wj { background: #ffffff; color: #10245e; }
+#igGrid .ev-stamp.ch { background: #e6edff; color: #10245e; }
+#igGrid .gal-new {
+    top: 6px; left: auto; right: 6px;
+    background: var(--bw-pink); color: #10245e;
+    border: none; border-radius: 999px;
+    box-shadow: var(--bw-depth-sticker);
+    transform: rotate(6deg);
+}
+
+/* tulisan di kaki polaroid (warna tetap, polaroid selalu putih) */
+#igGrid .jcard-body { padding: 16px 2px 0; }
+#igGrid .jcard-nick,
+#igGrid .jcard.frame-workshop .jcard-nick, #igGrid .jcard.frame-temuwarga .jcard-nick,
+#igGrid .jcard.frame-rekarekat .jcard-nick, #igGrid .jcard.frame-weekly .jcard-nick {
+    color: #10245e; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.8rem;
+}
+#igGrid .jcard-cap,
+#igGrid .jcard.frame-workshop .jcard-cap, #igGrid .jcard.frame-temuwarga .jcard-cap,
+#igGrid .jcard.frame-rekarekat .jcard-cap, #igGrid .jcard.frame-weekly .jcard-cap {
+    color: #4a5674; font-size: 0.78rem; line-height: 1.4;
+}
+#igGrid .jcard-likes, #igGrid .jcard-date,
+#igGrid .jcard.frame-workshop .jcard-likes, #igGrid .jcard.frame-temuwarga .jcard-likes,
+#igGrid .jcard.frame-rekarekat .jcard-likes, #igGrid .jcard.frame-weekly .jcard-likes,
+#igGrid .jcard.frame-workshop .jcard-date, #igGrid .jcard.frame-temuwarga .jcard-date,
+#igGrid .jcard.frame-rekarekat .jcard-date {
+    color: #5f6b8a;
+}
+#igGrid .jcard-likes .ss-tone-red { color: #ff4d6d; }
+#igGrid .jcard-ava {
+    width: 24px; height: 24px;
+    background: var(--bw-yellow); color: #10245e;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(16, 36, 94, 0.25);
 }

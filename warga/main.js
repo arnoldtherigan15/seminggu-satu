@@ -5674,9 +5674,12 @@ function galGridItem(it, i) {
     } else if (it.kind === "weekly") {
         frame = "frame-weekly";
         deco = '<span class="wj-check">✓</span><img class="gal-stk" src="../images/sticker/str-1.png" alt="">';
+        // dinding polaroid: jenis karya cukup ditandai stiker label kecil
+        stampIn = '<span class="ev-stamp wj">Jurnal Mingguan</span>';
     } else {
         frame = (i % 2 === 0) ? "frame-polaroid" : "frame-stitched";
         deco = (i % 2 === 0) ? '<div class="jtape ' + (i % 4 === 0 ? "tr" : "tl") + '"></div>' : "";
+        if (it.title) stampIn = '<span class="ev-stamp ch">' + esc(it.title) + '</span>';
     }
     const ava = (it.kind === "workshop" || it.kind === "reka-rekat" || it.kind === "temu-warga")
         ? '<span class="jcard-ava official">SS</span>'
