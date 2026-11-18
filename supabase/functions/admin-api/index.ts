@@ -276,9 +276,16 @@ Deno.serve(async (req) => {
           const typeConfig = cfgByType.get(b.workshop_type) || {};
           const merged = mergeBatchConfig(b, typeConfig);
           const open = isBatchOpen(merged);
+          // Overview = "event yang masih bakal/lagi jalan", BUKAN "pendaftaran
+          // yang masih buka". Pendaftaran sering ditutup H-1, tapi di hari H
+          // admin justru paling butuh kartu ini buat lompat ke Prep -- jadi
+          // tetap tampil sampai tanggal event lewat (H+1, tanggal WIB).
+          const todayWib = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+          const upcoming = merged.active && (merged.eventDateIso ? String(merged.eventDateIso).slice(0, 10) >= todayWib : open);
 
-          if (open) {
+          if (upcoming) {
             openBatches.push({
+              regOpen: open,
               workshopType: b.workshop_type,
               workshopName: (typeConfig as Record<string, unknown>).name || b.workshop_type,
               batchId: b.id, label: merged.label, count: usedCount,

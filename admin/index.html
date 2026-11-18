@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=5">
+  <link rel="stylesheet" href="admin-binder.css?v=6">
 </head>
 
 <body>
@@ -4468,7 +4468,7 @@
             <div id="ovAttnList"></div>
           </section>
 
-          <h3 class="ov-section-title">Event yang lagi buka</h3>
+          <h3 class="ov-section-title">Event mendatang</h3>
           <div id="ovCards" class="ov-cards"></div>
 
           <h3 class="ov-section-title">Pemasukan</h3>
@@ -8830,7 +8830,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const dd = dayDiff(b.eventDateIso);
         if (dd < 0) items.push({ tone: "warn", t: nm, d: "Tanggal event udah lewat tapi batch masih buka", go: "config", cta: "Cek batch" });
         else if (dd <= 7) items.push({ tone: "soon", t: nm, d: (dd === 0 ? "Hari ini" : "H-" + dd) + " · " + b.count + "/" + (b.maxQuota || "?") + " peserta", go: "prep:" + b.workshopType + "::" + (b.batchId || ""), cta: "Buka Prep" });
-        if (b.maxQuota && b.count >= b.maxQuota && dd >= 0) items.push({ tone: "ok", t: nm, d: "Kuota penuh (" + b.count + "/" + b.maxQuota + ")", go: "pendaftar:" + b.workshopType, cta: "Lihat pendaftar" });
+        if (b.regOpen !== false && b.maxQuota && b.count >= b.maxQuota && dd >= 0) items.push({ tone: "ok", t: nm, d: "Kuota penuh (" + b.count + "/" + b.maxQuota + ")", go: "pendaftar:" + b.workshopType, cta: "Lihat pendaftar" });
       });
       const open = (typeof TASKS !== "undefined" ? TASKS : []).filter(t => t.status !== "done");
       const overdue = open.filter(t => t.dueDate && dayDiff(t.dueDate) < 0).length;
@@ -8867,14 +8867,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       // data overview dimuat, di sini cuma tinggal render.
       renderIncome();
 
-      // Kartu 1 per BATCH yang BENERAN masih buka pendaftaran (OPEN_BATCHES
+      // Kartu 1 per BATCH yang event-nya belum lewat (OPEN_BATCHES; tetap tampil di hari H walau pendaftaran udah tutup
       // dari server udah difilter isBatchOpen -- batch yang acaranya udah
       // lewat & lupa ditutup manual nggak nyangkut nongol di sini lagi).
       // Beda dari revenue di atas: batch yg buka bareng (mis. Vol 6 & Vol 7)
       // kelihatan sebagai 2 card terpisah dengan data masing-masing.
       const box = document.getElementById("ovCards");
       renderAttention();
-      if (!OPEN_BATCHES.length) { box.innerHTML = `<p class="hint">Belum ada event yang buka pendaftaran.</p>`; return; }
+      if (!OPEN_BATCHES.length) { box.innerHTML = `<p class="hint">Belum ada event mendatang.</p>`; return; }
       box.innerHTML = OPEN_BATCHES.map(b => {
         const pct = b.maxQuota ? Math.min(100, Math.round(b.count / b.maxQuota * 100)) : 0;
         const badge = countdownBadge(b.eventDateIso ? isoToIdDate(b.eventDateIso) : "");
@@ -8882,7 +8882,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const regUrl = "https://seminggusatu.com/" + b.workshopType + "/" + (b.label ? "?batch=" + encodeURIComponent(b.label) : "");
         return `<div class="ov-card ov-card-clickable" data-event="${b.workshopType}" data-batch="${escapeHtml(b.batchId || "")}" title="Buka Prep event ini">
           <div class="ov-card-top">
-            <div class="ov-card-head"><div class="ov-card-name">${escapeHtml(b.workshopName)}</div>${labelLine}</div>
+            <div class="ov-card-head"><div class="ov-card-name">${escapeHtml(b.workshopName)}</div>${labelLine}${b.regOpen === false ? `<span class="ov-card-closed">Pendaftaran tutup</span>` : ""}</div>
             ${badge}
           </div>
           <div class="ov-meta">${icon("calendar")} ${escapeHtml(b.displayDate || "-")}${b.workshopTime ? " · " + escapeHtml(b.workshopTime) : ""}</div>

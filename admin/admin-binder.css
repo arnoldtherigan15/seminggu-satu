@@ -384,3 +384,4 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .preq-pic-who .muted { color: var(--muted); }
 .preq-pic-label { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--brand); color: #ffffff; font-size: 11px; font-weight: 800; letter-spacing: .04em; }
 .preq-pic-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.ov-card-closed { display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 12px; font-weight: 700; white-space: nowrap; }
