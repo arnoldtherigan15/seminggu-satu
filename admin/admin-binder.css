@@ -195,3 +195,40 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 /* thumbnail tanpa foto */
 .cost-row-thumb, .supply-search-thumb { background: #e6edff; }
 .ab-noimg { object-fit: cover; }
+
+/* ---------- Chip filter (dipakai Notes, Link Penting, dst) ---------- */
+.ab-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 16px; }
+.ab-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 38px; padding: 0 14px;
+    border: 1.5px solid #c9d6f5; border-radius: 999px;
+    background: #ffffff; color: var(--ink);
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 14px;
+    cursor: pointer;
+}
+.ab-chip span { font-family: 'Open Sans', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); }
+.ab-chip:hover { border-color: var(--brand); }
+.ab-chip.active { background: var(--ab-yellow); border-color: var(--ab-yellow); box-shadow: var(--ab-sticker); }
+.ab-chip.active span { color: #10245e; }
+.ab-chip-tools { display: inline-flex; gap: 4px; margin-left: 4px; }
+.ab-chip-tools button { width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--line); background: #ffffff; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.ab-chip-tools button:hover { border-color: var(--brand); color: var(--brand); }
+
+/* ---------- Notes ---------- */
+.ab-notes-bar { margin: 0 0 12px; }
+.ab-notes-bar .form-control { min-height: 46px; }
+.ab-note-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.ab-note-grid .note-card {
+    background: #ffffff; border: none; border-radius: 6px 14px 14px 6px;
+    box-shadow: var(--shadow-sm);
+    padding: 16px 16px 14px;
+    border-top: 4px solid var(--ab-yellow);
+    min-height: 150px; display: flex; flex-direction: column;
+    cursor: pointer; transition: box-shadow .15s ease, transform .15s ease;
+}
+.ab-note-grid .note-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.ab-note-grid .note-card:nth-child(3n+2) { border-top-color: #9ec2ff; }
+.ab-note-grid .note-card:nth-child(3n) { border-top-color: var(--ab-pink); }
+.ab-note-grid .note-card-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; color: var(--ink); }
+.ab-note-grid .note-card-snippet { flex: 1; margin-top: 6px; color: var(--muted); font-size: 14px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.ab-note-grid .note-card-date { margin-top: 10px; font-size: 12px; color: var(--muted); }
