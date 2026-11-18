@@ -4293,7 +4293,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=9">
+  <link rel="stylesheet" href="admin-binder.css?v=11">
 </head>
 
 <body>
@@ -7193,10 +7193,102 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       return w ? w.name : id;
     }
 
+    // ---- Header standar tiap halaman ----
+    // Dulu tiap halaman beda-beda: ada yang nggak punya judul, tombol utama
+    // kadang kiri kadang kanan, "Reload" vs "Muat ulang", penjelasan panjang
+    // di mana-mana. Sekali jalan pas dashboard kebuka, fungsi ini nyusun
+    // ulang bagian atas SEMUA halaman jadi pola yang sama:
+    //   [Judul + jumlah / deskripsi 1 baris]        [aksi lain] [aksi utama] [muat ulang]
+    //   ▸ Cara kerjanya (penjelasan panjang, kelipat)
+    // Elemen & id-nya dipindah (bukan dibikin ulang), jadi listener tetap jalan.
+    const AB_PAGES = {
+      activity: ["Notifikasi", "Pendaftar baru, karya warga, dan hal yang nunggu tindakanmu."],
+      tasks: ["Tasks", "Kerjaan manual plus pengingat otomatis dari data yang belum lengkap."],
+      pendaftar: ["Pendaftar", "Semua yang daftar, per event dan batch."],
+      prep: ["Prep event", "Persiapan satu batch: peserta, pesanan, partner, dan checklist."],
+      roadmap: ["Roadmap event", "Ide event yang belum jadi batch, plus arsip event yang udah lewat."],
+      pesanan: ["Pesanan minum", "Pesanan makan/minum peserta per event, buat diterusin ke vendor."],
+      keuangan: ["Keuangan event", "Modal, biaya, dan untung tiap event."],
+      config: ["Config event", "Detail event dan batch yang tampil di halaman pendaftaran."],
+      members: ["Member", "Semua yang pernah ikut event, stempel loyalty, dan status Balai Warga."],
+      quest: ["Challenge", "Challenge yang bisa dikerjain warga di Balai Warga."],
+      eventgallery: ["Galeri Event", "Foto momen event resmi yang tampil di galeri Balai Warga."],
+      suggest: ["Kotak Pos Warga", "Usulan dari warga: ide challenge, tema surat, dan fitur."],
+      barter: ["Barter Warga", "Postingan tukar barang dari warga."],
+      leads: ["Leads", "Prospek dari Instagram, TikTok, dan Threads."],
+      konten: ["Konten website", "Galeri, testimoni, rekomendasi, dan halaman /links di website publik."],
+      recbatch: ["Koleksi Rekomendasi", "Koleksi produk rekomendasi, tiap koleksi punya link dan QR sendiri."],
+      partnerlist: ["Daftar partner", "Brand dan pihak yang pernah atau bakal kerja sama."],
+      venues: ["Venue", "Tempat event yang sering dipakai, tinggal pilih pas bikin event."],
+      mou: ["MOU", "Dokumen kerja sama dengan partner."],
+      invoice: ["Invoice", "Tagihan ke partner atau klien."],
+      shopstock: ["Stok bahan", "Bahan baku yang kamu beli buat bikin produk."],
+      shopproduct: ["Produk & HPP", "Produk yang kamu jual, HPP-nya dihitung otomatis."],
+      shoporders: ["Order toko", "Penjualan ke peserta event dan pembeli lain."],
+      shopfinance: ["Laporan keuangan toko", "Pendapatan, modal, dan untung toko per bulan."],
+      personal: ["Keuangan pribadi", "Pemasukan, pengeluaran, anggaran, dan tabungan pribadimu."],
+      notes: ["Catatan", "Catatan pribadi, dikelompokin per folder."],
+      passwords: ["Password", "Akun dan password yang kamu simpan."],
+      videos: ["Link Penting", "Link apa aja yang mau kamu simpan, dikelompokin per folder."],
+      qrgen: ["QR Generator", "Bikin QR dari link apa aja buat dicetak."],
+    };
+    function abRefreshify(btn) {
+      if (!btn || btn.classList.contains("ab-refresh")) return;
+      btn.classList.remove("btn-sm"); btn.classList.add("btn", "btn-ghost", "ab-refresh");
+      btn.innerHTML = icon("refresh") + '<span class="sr-only">Muat ulang</span>';
+      btn.title = "Muat ulang"; btn.setAttribute("aria-label", "Muat ulang");
+    }
+    function abBuildHeads() {
+      document.querySelectorAll('button[id$="ReloadBtn"]').forEach(abRefreshify);
+      Object.keys(AB_PAGES).forEach(v => {
+        const view = Array.from(document.querySelectorAll(".wrap.view")).find(el => el.id.toLowerCase() === "view" + v);
+        if (!view || view.querySelector(":scope > .ab-head")) return;
+        const [title, desc] = AB_PAGES[v];
+        const head = document.createElement("header");
+        head.className = "ab-head";
+        head.innerHTML = `<div class="ab-head-txt"><h1>${escapeHtml(title)}<span class="ab-head-count"></span></h1><p>${escapeHtml(desc)}</p></div><div class="ab-head-acts"></div>`;
+        const acts = head.querySelector(".ab-head-acts");
+        const kids = Array.from(view.children).slice(0, 4);
+        const tb = kids.find(k => k.classList.contains("toolbar"));
+        const take = [];
+        if (tb) {
+          Array.from(tb.children).forEach(c => {
+            if (c.matches("button, a.btn")) take.push(c);
+            else if (!c.classList.contains("field") && !c.querySelector("input, select, textarea, button")) {
+              // judul lama di toolbar -> buang, tapi badge jumlahnya dipindah ke judul baru
+              const cnt = c.querySelector(".subtab-count, [id$='Count']");
+              if (cnt) head.querySelector(".ab-head-count").appendChild(cnt);
+              c.remove();
+            }
+          });
+        }
+        kids.forEach(k => { if (k.matches("button.btn")) take.push(k); });
+        const lh = kids.find(k => k.classList.contains("loyalty-head"));
+        if (lh) lh.remove();
+        const refresh = take.filter(b => b.classList.contains("ab-refresh"));
+        const ghost = take.filter(b => !refresh.includes(b) && b.classList.contains("btn-ghost"));
+        const primary = take.filter(b => !refresh.includes(b) && !ghost.includes(b));
+        ghost.concat(primary, refresh).forEach(b => { b.style.marginLeft = ""; b.style.flex = ""; acts.appendChild(b); });
+        if (tb && !tb.querySelector("*")) tb.remove();
+        // penjelasan panjang di awal halaman -> dilipat ke "Cara kerjanya"
+        const hint = Array.from(view.children).slice(0, 4).find(k => k.matches("p.hint"));
+        view.insertBefore(head, view.firstChild);
+        if (hint) {
+          const d = document.createElement("details");
+          d.className = "ab-howto";
+          d.innerHTML = `<summary>${icon("lightbulb")} Cara kerjanya</summary>`;
+          hint.style.margin = "";
+          d.appendChild(hint);
+          head.insertAdjacentElement("afterend", d);
+        }
+      });
+    }
+
     function showDashboard() {
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
       applyMobileHeaderHeightVar();
+      try { abBuildHeads(); } catch (e) { console.error("abBuildHeads", e); }
       if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // jangan pulihkan scroll lama
       populateWorkshopSelect();
       applyHash(); // buka view sesuai URL hash (default overview)
@@ -7490,14 +7582,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           }));
           root.querySelectorAll("[data-archivereg]").forEach(b => b.addEventListener("click", async () => {
             const willArchive = b.dataset.archived === "1";
-            if (willArchive && !confirm("Archive this participant? The row stays saved, but it's excluded from the batch quota, revenue/profit, & loyalty stamp.")) return;
+            if (willArchive && !await abConfirm("Archive this participant? The row stays saved, but it's excluded from the batch quota, revenue/profit, & loyalty stamp.")) return;
             b.disabled = true;
             const r2 = await api("archiveRegistration", { token: getToken(), id: b.dataset.archivereg, archived: willArchive });
             if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
             loadRegistrations();
           }));
           root.querySelectorAll("[data-delreg]").forEach(b => b.addEventListener("click", async () => {
-            if (!confirm("Delete this participant from the list? This can't be undone (e.g. if they cancelled).")) return;
+            if (!await abConfirm("Delete this participant from the list? This can't be undone (e.g. if they cancelled).")) return;
             b.disabled = true;
             const r2 = await api("deleteRegistration", { token: getToken(), id: b.dataset.delreg });
             if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
@@ -7655,7 +7747,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const msg = open
         ? "Open this batch for public registration?\n\n(Other still-open batches are left open -- toggle each one manually if you want to close it.)"
         : "Close this batch from public registration?";
-      if (!confirm(msg)) return;
+      if (!await abConfirm(msg)) return;
       const r = await api("setActiveBatch", { token: getToken(), batchId, open });
       alert(r.message || r.status);
       if (r.status === "success") { await loadBatches(); loadSummary(); }
@@ -7876,6 +7968,26 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       t.textContent = msg;
       // teks panjang dikasih waktu baca lebih lama (maks 6 detik)
       clearTimeout(t._h); t._h = setTimeout(() => { t.className = "ab-toast"; }, Math.min(6000, 2600 + Math.max(0, String(msg).length - 40) * 40));
+    }
+
+    // alert() bawaan browser (146 tempat) -> toast. Non-blocking, jadi alur
+    // kode setelahnya sama aja (alert dulu cuma "berhenti" nunggu OK).
+    window.alert = function (m) {
+      const t = String(m == null ? "" : m);
+      abToast(t, /gagal|failed|error|invalid|valid|wajib|harus|belum|nggak bisa|tidak bisa|maks|max|pilih|isi /i.test(t) ? "err" : "");
+    };
+    // confirm() versi admin: dialog sendiri (async). Tombol merah kalau aksinya merusak.
+    function abConfirm(msg, opts) {
+      opts = opts || {};
+      const t = String(msg || "");
+      const danger = opts.danger != null ? opts.danger : /hapus|delete|tolak|reject|arsip|archive|reset|batalkan|unlink|kosongkan|ganti|pindah/i.test(t);
+      return abDialog({
+        title: opts.title || (danger ? "Yakin?" : "Lanjut?"),
+        html: `<p class="ab-dlg-text">${escapeHtml(t).replace(/\n/g, "<br>")}</p>`,
+        okText: opts.okText || (/hapus|delete/i.test(t) ? "Hapus" : /tolak|reject/i.test(t) ? "Tolak" : "Ya, lanjut"),
+        cancelText: "Batal",
+        danger
+      }).then(v => !!v);
     }
 
     // Pesan sukses inline (<div class="msg">Saved ✓</div>) dulu nyangkut terus
@@ -8151,7 +8263,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteCostItemForm(id) {
       if (!id) return false;
-      if (!confirm("Delete this item from the database? Costs already saved in other events/batches won't be deleted.")) return false;
+      if (!await abConfirm("Delete this item from the database? Costs already saved in other events/batches won't be deleted.")) return false;
       const r = await api("deleteCostItem", { token: getToken(), id });
       if (r && r.status === "success") { await loadCostItems(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -8286,7 +8398,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteInvTx(id) {
-      if (!confirm("Delete this stock transaction?")) return;
+      if (!await abConfirm("Delete this stock transaction?")) return;
       const r = await api("deleteInventoryTransaction", { token: getToken(), id });
       if (r && r.status === "success") await loadInventoryTx();
       else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
@@ -8601,13 +8713,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteCostFromForm() {
       if (costEditIndex === -1) return;
-      if (!confirm("Delete this cost item?")) return;
+      if (!await abConfirm("Delete this cost item?")) return;
       CURRENT_COST_ITEMS.splice(costEditIndex, 1);
       await persistCosts(document.getElementById("costAddMsg"), closeCostAddForm);
     }
 
     async function deleteCostAt(idx) {
-      if (!confirm("Delete this cost item?")) return;
+      if (!await abConfirm("Delete this cost item?")) return;
       CURRENT_COST_ITEMS.splice(idx, 1);
       await persistCosts(document.getElementById("finMsg"));
     }
@@ -9069,7 +9181,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteVenueFn(id) {
       if (!id) return false;
-      if (!confirm("Delete this venue?")) return false;
+      if (!await abConfirm("Delete this venue?")) return false;
       const r = await api("deleteVenue", { token: getToken(), id });
       if (r && r.status === "success") { await loadVenues(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -9293,7 +9405,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteEventIdea(id) {
       if (!id) return false;
-      if (!confirm("Delete this idea? Its partner pipeline will be deleted too.")) return false;
+      if (!await abConfirm("Delete this idea? Its partner pipeline will be deleted too.")) return false;
       const r = await api("deleteEventIdea", { token: getToken(), id });
       if (r && r.status === "success") { await loadEventIdeas(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -9347,7 +9459,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteIdeaPartnerFn(id) {
-      if (!confirm("Remove this partner from the pipeline?")) return;
+      if (!await abConfirm("Remove this partner from the pipeline?")) return;
       const ideaId = document.getElementById("ideaId").value;
       const r = await api("deleteIdeaPartner", { token: getToken(), id });
       if (r && r.status === "success") {
@@ -9562,7 +9674,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteTaskFn(id) {
       if (!id) return false;
-      if (!confirm("Hapus task ini?")) return false;
+      if (!await abConfirm("Hapus task ini?")) return false;
       const r = await api("deleteTask", { token: getToken(), id });
       if (r && r.status === "success") { await loadTasks(); return true; }
       handleAuthError(r); alert((r && r.message) || "Gagal menghapus."); return false;
@@ -9743,7 +9855,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!batchId) return;
       const b = CFG_BATCHES.find(x => x.id === batchId);
       const willArchive = !(b && b.archived);
-      if (willArchive && !confirm(`Arsipkan batch "${b ? b.label : ""}"? Pendaftarannya bakal ditutup, dan batch ini dikecualikan total dari kuota/revenue/profit/jumlah peserta di mana pun. Row-nya tetep kesimpen, bisa dibuka arsipnya lagi kapan aja.`)) return;
+      if (willArchive && !await abConfirm(`Arsipkan batch "${b ? b.label : ""}"? Pendaftarannya bakal ditutup, dan batch ini dikecualikan total dari kuota/revenue/profit/jumlah peserta di mana pun. Row-nya tetep kesimpen, bisa dibuka arsipnya lagi kapan aja.`)) return;
       const btn = document.getElementById("batchArchiveBtn");
       btn.disabled = true;
       const r = await api("archiveBatch", { token: getToken(), batchId, archived: willArchive });
@@ -9796,7 +9908,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const count = parseInt(document.getElementById("batchVoidCount").value, 10) || 0;
       if (count <= 0) { msg.className = "msg err"; msg.textContent = "Please enter a count first."; return; }
       const note = document.getElementById("batchVoidNote").value.trim();
-      if (!confirm(`Add ${count} manual participant entries (void) to this batch? They'll count normally toward quota/revenue/profit.`)) return;
+      if (!await abConfirm(`Add ${count} manual participant entries (void) to this batch? They'll count normally toward quota/revenue/profit.`)) return;
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("addVoidRegistrations", { token: getToken(), batchId, count, note });
       if (r && r.status === "success") {
@@ -9820,7 +9932,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!target) { msg.className = "msg err"; msg.textContent = "Please select a destination event first."; return; }
       const targetName = (CONFIG.find(w => w.id === target) || {}).name || target;
       const b = CFG_BATCHES.find(x => x.id === batchId);
-      if (!confirm(`Pindahin batch "${b ? b.label : ""}" ke event "${targetName}"? Pendaftar & biaya batch ini ikut dipindah.`)) return;
+      if (!await abConfirm(`Pindahin batch "${b ? b.label : ""}" ke event "${targetName}"? Pendaftar & biaya batch ini ikut dipindah.`)) return;
       msg.className = "msg"; msg.textContent = "Memindahkan...";
       const r = await api("moveBatchToWorkshop", { token: getToken(), batchId, workshop: target });
       if (r && r.status === "success") {
@@ -10068,7 +10180,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const idx = Number(document.getElementById("cfgSelect").value) || 0;
       const w = CONFIG[idx];
       if (!w) return;
-      if (!confirm(`Delete event "${w.name || w.id}" from config?\n\nNote: this only removes it from the config list (page & dashboard). Registrant data in the sheet is NOT deleted.`)) return;
+      if (!await abConfirm(`Delete event "${w.name || w.id}" from config?\n\nNote: this only removes it from the config list (page & dashboard). Registrant data in the sheet is NOT deleted.`)) return;
       CONFIG.splice(idx, 1);
       const msg = document.getElementById("cfgMsg");
       msg.className = "msg"; msg.textContent = "Deleting...";
@@ -10640,7 +10752,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deletePartner(id) {
-      if (!confirm("Delete this partner? Any MOU/Invoice history stays saved, just unlinked from this partner.")) return false;
+      if (!await abConfirm("Delete this partner? Any MOU/Invoice history stays saved, just unlinked from this partner.")) return false;
       const r = await api("deletePartner", { token: getToken(), id });
       if (r.status === "success") { await loadPartners(); return true; }
       handleAuthError(r); alert(r.message || "Failed to delete."); return false;
@@ -10655,7 +10767,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deletePartnerDoc(id, type) {
-      if (!confirm("Delete this document? This can't be undone.")) return false;
+      if (!await abConfirm("Delete this document? This can't be undone.")) return false;
       const r = await api("deletePartnerDoc", { token: getToken(), id });
       if (r.status === "success") { await loadPartnerDocs(type); await loadPartners(); return true; }
       handleAuthError(r); alert(r.message || "Failed to delete."); return false;
@@ -11929,7 +12041,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteRecBatchFn(id, title) {
-      if (!confirm(`Hapus koleksi "${title}"? Link/QR yang udah dibagikan bakal berhenti kerja.`)) return;
+      if (!await abConfirm(`Hapus koleksi "${title}"? Link/QR yang udah dibagikan bakal berhenti kerja.`)) return;
       try {
         const r = await api("deleteRecBatch", { token: getToken(), id });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
@@ -12048,7 +12160,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteQrLinkFn(id, title) {
-      if (!confirm(`Hapus QR "${title}"?`)) return;
+      if (!await abConfirm(`Hapus QR "${title}"?`)) return;
       try {
         const r = await api("deleteQrLink", { token: getToken(), id });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
@@ -12229,7 +12341,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteShopMatFn(id, name) {
-      if (!confirm(`Hapus bahan "${name}"? Produk yang masih pakai bahan ini bakal nunjukin "bahan dihapus" di Produk & HPP.`)) return;
+      if (!await abConfirm(`Hapus bahan "${name}"? Produk yang masih pakai bahan ini bakal nunjukin "bahan dihapus" di Produk & HPP.`)) return;
       try {
         const r = await api("deleteShopMaterial", { token: getToken(), id });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
@@ -12714,7 +12826,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteShopProdFn(id, name) {
-      if (!confirm(`Hapus produk "${name}"?`)) return;
+      if (!await abConfirm(`Hapus produk "${name}"?`)) return;
       try {
         const r = await api("deleteShopProduct", { token: getToken(), id });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
@@ -12913,7 +13025,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         if (p && qty > p.stockQty) overStock.push(`${p.name} (bawa ${qty}, stok gudang ${p.stockQty})`);
         items.push({ productId: row.dataset.evprod, qty });
       }
-      if (overStock.length && !confirm("Jumlah ini lebih banyak dari stok gudang:\n- " + overStock.join("\n- ") + "\n\nPembeli tetep cuma bisa beli sebanyak stok gudang. Lanjut simpan?")) return;
+      if (overStock.length && !await abConfirm("Jumlah ini lebih banyak dari stok gudang:\n- " + overStock.join("\n- ") + "\n\nPembeli tetep cuma bisa beli sebanyak stok gudang. Lanjut simpan?")) return;
       const btn = document.getElementById("shopOrdEvProdSaveBtn");
       btn.disabled = true;
       msg.style.color = ""; msg.textContent = "Menyimpan…";
@@ -13403,7 +13515,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteShopOrdItemFn(id) {
-      if (!confirm("Hapus item ini dari order? Stok bakal dibalikin.")) return;
+      if (!await abConfirm("Hapus item ini dari order? Stok bakal dibalikin.")) return;
       try {
         const r = await api("deleteShopOrderItem", { token: getToken(), id });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
@@ -13513,7 +13625,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteShopOrdFn() {
-      if (!confirm(`Hapus order "${SHOPORD_CURRENT.buyerName}"? Semua item di dalamnya ikut terhapus & stok dikembalikan.`)) return;
+      if (!await abConfirm(`Hapus order "${SHOPORD_CURRENT.buyerName}"? Semua item di dalamnya ikut terhapus & stok dikembalikan.`)) return;
       try {
         const r = await api("deleteShopOrder", { token: getToken(), id: SHOPORD_CURRENT.id });
         if (r.status !== "success") { handleAuthError(r); alert(r.message || "Failed to delete."); return; }
@@ -13673,7 +13785,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const newWa = document.getElementById("waManageNewActive").value.trim();
       if (!newWa) { msg.className = "msg err"; msg.textContent = "Enter the new number first."; return; }
       const nm = WA_MANAGE_TARGET.nickname || "warga ini";
-      if (!confirm(`Pindahin nomor aktif ${nm} ke ${newWa}? Semua histori-nya ikut pindah.`)) return;
+      if (!await abConfirm(`Pindahin nomor aktif ${nm} ke ${newWa}? Semua histori-nya ikut pindah.`)) return;
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("mergeMemberWa", { token: getToken(), fromWa: WA_MANAGE_TARGET.wa, toWa: newWa });
       if (r.status === "success") { closeWaManageForm(); await loadMembers(); if (loyaltyInit) await loadLoyalty(); }
@@ -13685,7 +13797,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const fromWa = document.getElementById("waManageMergeFrom").value.trim();
       if (!fromWa) { msg.className = "msg err"; msg.textContent = "Enter the number to merge first."; return; }
       const nm = WA_MANAGE_TARGET.nickname || "warga ini";
-      if (!confirm(`Gabungin semua histori dari ${fromWa} ke akun ${nm}?`)) return;
+      if (!await abConfirm(`Gabungin semua histori dari ${fromWa} ke akun ${nm}?`)) return;
       msg.className = "msg"; msg.textContent = "Saving...";
       const r = await api("mergeMemberWa", { token: getToken(), fromWa, toWa: WA_MANAGE_TARGET.wa });
       if (r.status === "success") { closeWaManageForm(); await loadMembers(); if (loyaltyInit) await loadLoyalty(); }
@@ -13742,7 +13854,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           loadSuggestions();
         }));
         el.querySelectorAll("[data-sgid]").forEach(b => b.addEventListener("click", async () => {
-          if (!confirm("Hapus usulan ini? Nggak bisa dibalikin.")) return;
+          if (!await abConfirm("Hapus usulan ini? Nggak bisa dibalikin.")) return;
           b.disabled = true;
           const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.sgid });
           if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
@@ -13779,7 +13891,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           loadBarterAdmin();
         }));
         el.querySelectorAll("[data-btdel]").forEach(b => b.addEventListener("click", async () => {
-          if (!confirm("Tolak & hapus postingan barter ini? Nggak bisa dibalikin.")) return;
+          if (!await abConfirm("Tolak & hapus postingan barter ini? Nggak bisa dibalikin.")) return;
           b.disabled = true;
           const r2 = await api("deleteBarterPost", { token: getToken(), id: b.dataset.btdel });
           if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
@@ -14147,7 +14259,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             loadActivity();
           }));
           pendEl.querySelectorAll("[data-actdel]").forEach(b => b.addEventListener("click", async () => {
-            if (!confirm("Reject this suggestion? This can't be undone.")) return;
+            if (!await abConfirm("Reject this suggestion? This can't be undone.")) return;
             b.disabled = true;
             const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.actdel });
             if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
@@ -14647,7 +14759,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteChallenge(id) {
       if (!id) return false;
-      if (!confirm("Delete this challenge? Participant submissions stay saved.")) return false;
+      if (!await abConfirm("Delete this challenge? Participant submissions stay saved.")) return false;
       try {
         const r = await api("deleteChallenge", { token: getToken(), id });
         if (r.status === "success") { await loadChallenges(); return true; }
@@ -15058,7 +15170,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteMenuItem(id) {
       if (!id) return false;
-      if (!confirm("Delete this menu item?")) return false;
+      if (!await abConfirm("Delete this menu item?")) return false;
       const r = await api("deleteMenuItem", { token: getToken(), id });
       if (r && r.status === "success") { await loadPesMenu(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -15142,7 +15254,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteOrder(id) {
-      if (!confirm("Delete this order?")) return;
+      if (!await abConfirm("Delete this order?")) return;
       const r = await api("deleteOrder", { token: getToken(), id });
       if (r && r.status === "success") loadPesOrders();
       else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
@@ -15917,7 +16029,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteGoal(id) {
       if (!id) return false;
-      if (!confirm("Delete this goal? All its deposit history will be deleted too.")) return false;
+      if (!await abConfirm("Delete this goal? All its deposit history will be deleted too.")) return false;
       const r = await personalApi("deleteSavingsGoal", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -15968,7 +16080,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteContrib(id) {
-      if (!confirm("Delete this deposit?")) return;
+      if (!await abConfirm("Delete this deposit?")) return;
       const r = await personalApi("deleteSavingsContribution", { token: getToken(), id });
       if (r && r.status === "success") await loadPersonalData();
       else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
@@ -16071,7 +16183,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteLiability(id) {
       if (!id) return false;
-      if (!confirm("Delete this debt? All its payment history will be deleted too.")) return false;
+      if (!await abConfirm("Delete this debt? All its payment history will be deleted too.")) return false;
       const r = await personalApi("deleteLiability", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -16142,7 +16254,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteLiabPayment(id) {
-      if (!confirm("Delete this payment?")) return;
+      if (!await abConfirm("Delete this payment?")) return;
       const r = await personalApi("deleteLiabilityPayment", { token: getToken(), id });
       if (r && r.status === "success") await loadPersonalData();
       else { handleAuthError(r); alert((r && r.message) || "Failed to delete."); }
@@ -16250,7 +16362,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteBill(id) {
       if (!id) return false;
-      if (!confirm("Delete this bill? Its checklist history will be deleted too.")) return false;
+      if (!await abConfirm("Delete this bill? Its checklist history will be deleted too.")) return false;
       const r = await personalApi("deleteBill", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -16480,7 +16592,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     async function deleteTx(id) {
-      if (!confirm("Delete this transaction?")) return false;
+      if (!await abConfirm("Delete this transaction?")) return false;
       const r = await personalApi("deletePersonalTransaction", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -16556,7 +16668,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteCat(id) {
       if (!id) return false;
-      if (!confirm("Delete this category?")) return false;
+      if (!await abConfirm("Delete this category?")) return false;
       const r = await personalApi("deletePersonalCategory", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -16605,7 +16717,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (delta === 0) { alert("Same as what's recorded, nothing to adjust."); return; }
       const type = delta > 0 ? "income" : "expense";
       const amount = Math.abs(delta);
-      if (!confirm(`Balance will be adjusted from ${rupiah(current)} to ${rupiah(target)}.\n\nThis will log 1 ${type === "income" ? "income" : "expense"} transaction of ${rupiah(amount)} titled "Balance Adjustment". Continue?`)) return;
+      if (!await abConfirm(`Balance will be adjusted from ${rupiah(current)} to ${rupiah(target)}.\n\nThis will log 1 ${type === "income" ? "income" : "expense"} transaction of ${rupiah(amount)} titled "Balance Adjustment". Continue?`)) return;
       const r = await personalApi("savePersonalTransaction", {
         token: getToken(), type, amount, accountId, date: todayStr(),
         categoryId: "", note: "Balance adjustment", source: "adjustment"
@@ -16675,7 +16787,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     async function deleteAcc(id) {
       if (!id) return false;
-      if (!confirm("Delete this account?")) return false;
+      if (!await abConfirm("Delete this account?")) return false;
       const r = await personalApi("deletePersonalAccount", { token: getToken(), id });
       if (r && r.status === "success") { await loadPersonalData(); return true; }
       handleAuthError(r); alert((r && r.message) || "Failed to delete."); return false;
@@ -17030,7 +17142,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       try { const r = await api("updateLead", { token: getToken(), id, notes }); if (r.status !== "success") handleAuthError(r); } catch (e) { }
     }
     async function onLeadDelete(id) {
-      if (!confirm("Delete this prospect from tracking?")) return;
+      if (!await abConfirm("Delete this prospect from tracking?")) return;
       LEADS = LEADS.filter(x => String(x.id) !== String(id));
       renderStats(); renderLeads();
       try { const r = await api("deleteLead", { token: getToken(), id }); if (r.status !== "success") handleAuthError(r); } catch (e) { }
@@ -17648,10 +17760,10 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         openPreqTemplateForm(partnerId);
       });
       body.querySelector("#preqSaveBtn").addEventListener("click", savePartnerReq);
-      body.querySelector("#preqResetBtn").addEventListener("click", () => {
+      body.querySelector("#preqResetBtn").addEventListener("click", async () => {
         const anyDone = PREP_PARTNER_REQ_GROUPS.some(g => g.items.some(it => it.done));
         if (!anyDone) return;
-        if (!confirm('Uncentang semua item di "Partner & Requests"?')) return;
+        if (!await abConfirm('Uncentang semua item di "Partner & Requests"?', { danger: false })) return;
         PREP_PARTNER_REQ_GROUPS.forEach(g => g.items.forEach(it => { it.done = false; }));
         renderPartnerReqGroups();
         markPartnerReqDirty();
@@ -17744,9 +17856,9 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         det.querySelector(".preq-send-list").addEventListener("click", () => openPesertaListDialog(group.partnerId));
         const picEdit = det.querySelector(".preq-pic-edit");
         if (picEdit) picEdit.addEventListener("click", () => editPartner(p.id));
-        det.querySelector(".preq-group-unlink").addEventListener("click", (e) => {
+        det.querySelector(".preq-group-unlink").addEventListener("click", async (e) => {
           e.preventDefault(); e.stopPropagation();
-          if (!confirm(`Unlink "${name}" dari batch ini? Checklist-nya di batch ini ke-hapus (template partner & batch lain nggak kesentuh).`)) return;
+          if (!await abConfirm(`Lepas "${name}" dari batch ini? Checklist-nya di batch ini ke-hapus (template partner & batch lain nggak kesentuh).`)) return;
           PREP_PARTNER_REQ_GROUPS.splice(gIdx, 1);
           renderPartnerReqGroups();
           markPartnerReqDirty();
@@ -18198,9 +18310,9 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       // to select an <img> and hit Backspace inside contenteditable,
       // especially on mobile (no adjacent text to place a caret next to),
       // so a saved image was otherwise stuck there permanently.
-      editor.addEventListener("click", (e) => {
+      editor.addEventListener("click", async (e) => {
         if (e.target.tagName !== "IMG") return;
-        if (confirm("Remove this image?")) {
+        if (await abConfirm("Hapus gambar ini dari catatan?")) {
           e.target.remove();
           if (onDirty) onDirty();
         }
@@ -18486,7 +18598,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
     async function deleteNote() {
       const id = document.getElementById("noteId").value;
-      if (!id || !confirm("Delete this note?")) return;
+      if (!id || !await abConfirm("Delete this note?")) return;
       const r = await personalApi("deletePersonalNote", { token: getToken(), id });
       if (r.status === "success") { closeNoteForm(); await loadNotes(); }
       else { handleAuthError(r); alert(r.message || "Failed to delete."); }
@@ -18509,7 +18621,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     async function deleteFolder(id, name) {
-      if (!confirm(`Delete folder "${name}"? Notes inside move to "No Folder" -- they won't be deleted.`)) return;
+      if (!await abConfirm(`Delete folder "${name}"? Notes inside move to "No Folder" -- they won't be deleted.`)) return;
       const r = await personalApi("deletePersonalNoteFolder", { token: getToken(), id });
       if (r.status === "success") await loadNotes();
       else { handleAuthError(r); alert(r.message || "Failed to delete folder."); }
@@ -18673,7 +18785,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
     async function deletePasswordForm() {
       const id = document.getElementById("pwId").value;
-      if (!id || !confirm("Delete this password?")) return;
+      if (!id || !await abConfirm("Delete this password?")) return;
       const r = await personalApi("deletePersonalPassword", { token: getToken(), id });
       if (r.status === "success") { closePwForm(); await loadPasswords(); }
       else { handleAuthError(r); alert(r.message || "Failed to delete."); }
@@ -18944,7 +19056,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
     async function deleteVideoLinkForm() {
       const id = document.getElementById("vidId").value;
-      if (!id || !confirm("Hapus link ini?")) return;
+      if (!id || !await abConfirm("Hapus link ini?")) return;
       const r = await personalApi("deleteVideoLink", { token: getToken(), id });
       if (r.status === "success") { closeVideoForm(); await loadVideos(); }
       else { handleAuthError(r); alert(r.message || "Failed to delete."); }
@@ -18967,7 +19079,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     async function deleteVideoFolderFn(id, name) {
-      if (!confirm(`Delete folder "${name}"? Links inside move to "No Folder" -- they won't be deleted.`)) return;
+      if (!await abConfirm(`Delete folder "${name}"? Links inside move to "No Folder" -- they won't be deleted.`)) return;
       const r = await personalApi("deleteVideoFolder", { token: getToken(), id });
       if (r.status === "success") await loadVideos();
       else { handleAuthError(r); alert(r.message || "Failed to delete folder."); }
@@ -19022,10 +19134,10 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       });
       body.querySelector(`[data-save="${sec.type}"]`).addEventListener("click", () => savePrep(sec.type));
       const resetBtn = body.querySelector(`[data-reset="${sec.type}"]`);
-      if (resetBtn) resetBtn.addEventListener("click", () => {
+      if (resetBtn) resetBtn.addEventListener("click", async () => {
         const items = PREP[sec.type] || [];
         if (!items.length || !items.some(it => it.done)) return;
-        if (!confirm(`Uncentang semua item di "${sec.title}"?`)) return;
+        if (!await abConfirm(`Uncentang semua item di "${sec.title}"?`, { danger: false })) return;
         items.forEach(it => { it.done = false; });
         renderPrepList(sec);
         markPrepDirty(sec.type);
@@ -19597,10 +19709,10 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       });
 
       body.querySelector(`[data-save="${type}"]`).addEventListener("click", () => savePrep(type));
-      body.querySelector(`[data-reset="${type}"]`).addEventListener("click", () => {
+      body.querySelector(`[data-reset="${type}"]`).addEventListener("click", async () => {
         const items = PREP[type] || [];
         if (!items.length || !items.some(it => it.done)) return;
-        if (!confirm(`Uncentang semua item di "${cfg.title}"?`)) return;
+        if (!await abConfirm(`Uncentang semua item di "${cfg.title}"?`, { danger: false })) return;
         items.forEach(it => { it.done = false; });
         renderItemPickerList(type);
         markPrepDirty(type);
@@ -19911,8 +20023,8 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
 
     async function claimReward(key, dir, total) {
-      if (dir > 0 && !confirm("Mark this reward as REDEEMED?\nThis person's counter will reset (−6 stamps), total history stays.")) return;
-      if (dir < 0 && !confirm("Batalkan 1 penukaran hadiah?")) return;
+      if (dir > 0 && !await abConfirm("Mark this reward as REDEEMED?\nThis person's counter will reset (−6 stamps), total history stays.")) return;
+      if (dir < 0 && !await abConfirm("Batalkan 1 penukaran hadiah?")) return;
       try {
         const r = await api("claimReward", { token: getToken(), key: key, dir: dir, total: total });
         if (r.status === "success") {

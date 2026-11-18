@@ -449,3 +449,29 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 }
 #mhAttnList { display: flex; flex-direction: column; gap: 8px; }
 #memberSubtabs .subtab-bar { top: var(--mobile-header-h, 52px) !important; }
+
+/* ---------- Header standar tiap halaman ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.ab-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin: 4px 0 18px; }
+.ab-head-txt { min-width: 0; }
+.ab-head h1 { display: flex; align-items: center; gap: 10px; margin: 0; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 28px; line-height: 1.15; color: var(--ink); letter-spacing: -.01em; }
+.ab-head-count:empty { display: none; }
+.ab-head-count .subtab-count { font-size: 13px; }
+.ab-head p { margin: 4px 0 0; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+.ab-head-acts { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+.ab-head-acts .btn { height: 44px; min-height: 44px; margin: 0 !important; }
+.btn.ab-refresh { width: 44px; height: 44px; min-height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.btn.ab-refresh svg { width: 18px; height: 18px; }
+.ab-howto { margin: -8px 0 16px; }
+.ab-howto > summary { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; list-style: none; font-weight: 700; font-size: 13.5px; color: var(--brand); padding: 4px 0; }
+.ab-howto > summary::-webkit-details-marker { display: none; }
+.ab-howto > summary svg { width: 15px; height: 15px; }
+.ab-howto[open] > summary { margin-bottom: 6px; }
+.ab-howto > p.hint { margin: 0 !important; padding: 12px 14px; border-radius: 12px; background: #ffffff; border: 1px dashed #c9d6f5; }
+@media (max-width: 640px) {
+    .ab-head { flex-direction: column; gap: 12px; }
+    .ab-head h1 { font-size: 24px; }
+    .ab-head-acts { justify-content: flex-start; width: 100%; }
+}
+.ab-dlg-text { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink); white-space: normal; }
+.ab-toast.err { background: #b42335; }
