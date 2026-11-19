@@ -3325,10 +3325,10 @@ function openMonthlyRecap() {
             '<span class="wr-tape" style="top:56px;left:22px;transform:rotate(-11deg);"></span>' +
             '<span class="wr-stk" style="top:13%;right:10%;">🌦️</span>' +
             '<div class="wr-anim wr-kicker">CUACA HATI ' + esc(pm.name.toUpperCase()) + '</div>' +
-            '<div class="wr-anim wr-big" style="--d:.08s;">' + dom.e + '</div>' +
+            '<div class="wr-anim wr-big wr-mood-art" style="--d:.08s;">' + moodArt(dom.k) + '</div>' +
             '<div class="wr-anim wr-title" style="--d:.14s;">bulan yang kebanyakan ' + esc(dom.t.toLowerCase()) + '</div>' +
             '<div class="wr-anim wr-sub" style="--d:.2s;">' + moodDays + ' hari kamu catat cuacanya 💙</div>' +
-            '<div class="wr-anim" style="--d:.28s;">' + moodGridHtml(moodMk, true) + '</div>' +
+            '<div class="wr-anim" style="--d:.28s;">' + moodGridHtml(moodMk, true) + moodTallyHtml(moodMk) + '</div>' +
             '</div>');
     }
 
@@ -4977,6 +4977,50 @@ const MOODS = [
     { k: "badai", e: "⛈️", t: "Badai", d: "marah / kewalahan" },
     { k: "pelangi", e: "🌈", t: "Pelangi", d: "lega & bersyukur" }
 ];
+// Ilustrasi cuaca BERWARNA (SVG flat ala stiker). Emoji di atas tetap dipakai
+// di teks biasa (dijadiin ikon garis sama icons.js), tapi di kalender, tombol &
+// widget kita butuh warna: warga nge-track minggu senang/biasa dari warnanya.
+// Semua cuaca sengaja sama-sama cantik -- hujan/badai bukan abu-abu/merah
+// "peringatan", biar nggak ada pilihan yang berasa salah (validasi emosi).
+const MOOD_CLOUD = "M15 35a8 8 0 0 1-.6-16a11 11 0 0 1 20.8 2.2A7 7 0 0 1 34 35z";
+function moodRays(cx, cy, r1, r2, col, w) {
+    let s = "";
+    for (let i = 0; i < 8; i++) {
+        const a = i * Math.PI / 4, c = Math.cos(a), n = Math.sin(a);
+        s += '<line x1="' + (cx + c * r1).toFixed(1) + '" y1="' + (cy + n * r1).toFixed(1) +
+            '" x2="' + (cx + c * r2).toFixed(1) + '" y2="' + (cy + n * r2).toFixed(1) + '"/>';
+    }
+    return '<g stroke="' + col + '" stroke-width="' + w + '" stroke-linecap="round">' + s + '</g>';
+}
+function moodDrop(x, y) {
+    return '<path d="M' + x + ' ' + y + 'c0 0-3 4-3 6a3 3 0 0 0 6 0c0-2-3-6-3-6z"/>';
+}
+const MOOD_ART = {
+    cerah: moodRays(24, 24, 16, 21, "#FF9F1C", 3.5) +
+        '<circle cx="24" cy="24" r="11.5" fill="#FFD43B" stroke="#F59F00" stroke-width="2"/>' +
+        '<path d="M17.5 21.5a7.5 7.5 0 0 1 4.5-4.6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity=".8"/>',
+    berawan: moodRays(32, 15, 10.5, 13.5, "#FF9F1C", 2.6) +
+        '<circle cx="32" cy="15" r="8" fill="#FFD43B" stroke="#F59F00" stroke-width="2"/>' +
+        '<path transform="translate(-3 6)" d="' + MOOD_CLOUD + '" fill="#fff" stroke="#8FA6D1" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M10 35.5h22" stroke="#DCE5F7" stroke-width="2.4" stroke-linecap="round"/>',
+    hujan: '<path transform="translate(0 -5)" d="' + MOOD_CLOUD + '" fill="#CFE4FF" stroke="#3D86E8" stroke-width="2" stroke-linejoin="round"/>' +
+        '<g fill="#2F7BFF">' + moodDrop(16, 35) + moodDrop(25, 38) + moodDrop(34, 35) + '</g>',
+    badai: '<path transform="translate(0 -5)" d="' + MOOD_CLOUD + '" fill="#B3A6F5" stroke="#6A55D8" stroke-width="2" stroke-linejoin="round"/>' +
+        '<polygon points="26,27 18.5,38 24,38 21,47 31.5,33.5 26,33.5 29.5,27" fill="#FFE600" stroke="#E0A800" stroke-width="1.6" stroke-linejoin="round"/>' +
+        '<g fill="#7C6CF0">' + moodDrop(12, 34) + moodDrop(37, 35) + '</g>',
+    pelangi: '<g fill="none" stroke-width="3.6" stroke-linecap="round">' +
+        [["#FF5C8A", 19], ["#FF9F1C", 15.4], ["#FFD43B", 11.8], ["#3CC48A", 8.2], ["#3B9BFF", 4.6]]
+            .map(a => '<path d="M' + (24 - a[1]) + ' 35A' + a[1] + ' ' + a[1] + ' 0 0 1 ' + (24 + a[1]) + ' 35" stroke="' + a[0] + '"/>').join("") +
+        '</g>' +
+        '<g fill="#fff" stroke="#AFC0E3" stroke-width="5" stroke-linejoin="round">' +
+        '<path transform="translate(-1.5 24) scale(.4)" d="' + MOOD_CLOUD + '"/>' +
+        '<path transform="translate(30.5 24) scale(.4)" d="' + MOOD_CLOUD + '"/></g>'
+};
+function moodArt(k, cls) {
+    const art = MOOD_ART[k];
+    if (!art) return "";
+    return '<svg class="ma ma-' + k + (cls ? " " + cls : "") + '" viewBox="0 0 48 48" aria-hidden="true" focusable="false">' + art + '</svg>';
+}
 function moodStore() {
     try { return JSON.parse(localStorage.getItem("ss_mood") || "{}") || {}; } catch (e) { return {}; }
 }
@@ -5012,14 +5056,28 @@ function moodGridHtml(mk, small) {
     const rec = moodStore()[mk] || {};
     const now = new Date();
     const isCurMonth = moodMonthKey(now) === mk;
-    let cells = "";
+    // kolom = Sen..Min, jadi 1 baris = 1 minggu -> "minggu ini lagi cerah/biasa" kebaca sekilas
+    let cells = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"].map(h => '<span class="mg-h">' + h + '</span>').join("");
+    const pad = (new Date(year, mon, 1).getDay() + 6) % 7;
+    for (let i = 0; i < pad; i++) cells += '<span class="mg-cell mg-pad"></span>';
     for (let d = 1; d <= days; d++) {
         const mood = MOODS.find(x => x.k === rec[String(d)]);
         const future = isCurMonth && d > now.getDate();
-        cells += '<span class="mg-cell' + (mood ? " on" : "") + (future ? " fut" : "") + '">' +
-            (mood ? mood.e : '<i>' + d + '</i>') + '</span>';
+        const today = isCurMonth && d === now.getDate();
+        cells += '<span class="mg-cell' + (mood ? " on m-" + mood.k : "") + (future ? " fut" : "") + (today ? " today" : "") + '"' +
+            (mood ? ' title="' + d + ' · ' + mood.t + '"' : '') + '>' +
+            (mood ? moodArt(mood.k) : '<i>' + d + '</i>') + '</span>';
     }
     return '<div class="mg-grid' + (small ? " sm" : "") + '">' + cells + '</div>';
+}
+// ringkasan kecil per cuaca (cuma yang pernah dicatat) -- hitungan, bukan ranking
+function moodTallyHtml(mk) {
+    const rec = moodStore()[mk] || {};
+    const tally = {};
+    Object.values(rec).forEach(k => { tally[k] = (tally[k] || 0) + 1; });
+    const chips = MOODS.filter(mo => tally[mo.k]).map(mo =>
+        '<span class="mg-tally-i m-' + mo.k + '">' + moodArt(mo.k) + '<b>' + tally[mo.k] + '</b> ' + mo.t.toLowerCase() + '</span>').join("");
+    return chips ? '<div class="mg-tally">' + chips + '</div>' : "";
 }
 
 // Respons Mochi per cuaca: validasi perasaan + micro-prompt journaling + aksi lanjutan.
@@ -5403,7 +5461,7 @@ function moodWidgetHtml() {
     const picked = moodOf(moodMonthKey(), today);
     if (!picked) {
         return '<button type="button" class="mood-w empty" id="moodWidget">' +
-            '<span class="mw-em">🌦️</span>' +
+            '<span class="mw-em">' + moodArt("berawan") + '</span>' +
             '<span class="mw-body"><span class="mw-t">Mochi pengen tau cuaca hatimu hari ini</span>' +
             '<span class="mw-s">Cerah? Hujan? Cerita dikit yuk</span></span>' +
             '<span class="mw-go">catat →</span>' +
@@ -5414,7 +5472,7 @@ function moodWidgetHtml() {
     const seed = today + new Date().getMonth();
     const line = care ? care.v[seed % care.v.length] : "";
     return '<button type="button" class="mood-w mw-' + mo.k + '" id="moodWidget">' +
-        '<span class="mw-em big">' + mo.e + '</span>' +
+        '<span class="mw-em big">' + moodArt(mo.k) + '</span>' +
         '<span class="mw-body"><span class="mw-k">CUACA HATIMU HARI INI</span>' +
         '<span class="mw-t">' + mo.t + ' · ' + esc(mo.d) + '</span>' +
         (line ? '<span class="mw-s">' + esc(line) + '</span>' : '') + '</span>' +
@@ -5434,8 +5492,8 @@ function openMoodTracker(modal, justPicked) {
     const picked = moodOf(mk, today);
     let btns = "";
     MOODS.forEach(mo => {
-        btns += '<button type="button" class="mood-btn' + (picked === mo.k ? " on" : "") + '" data-mood="' + mo.k + '">' +
-            '<span class="mood-e">' + mo.e + '</span><span class="mood-t">' + mo.t + '</span>' +
+        btns += '<button type="button" class="mood-btn m-' + mo.k + (picked === mo.k ? " on" : "") + '" data-mood="' + mo.k + '">' +
+            '<span class="mood-e">' + moodArt(mo.k) + '</span><span class="mood-t">' + mo.t + '</span>' +
             '<span class="mood-d">' + mo.d + '</span></button>';
     });
     const rec = moodStore()[mk] || {};
@@ -5472,6 +5530,7 @@ function openMoodTracker(modal, justPicked) {
         '<div class="mood-cal">' +
         '<div class="mood-cal-t">📓 ' + esc(BULAN_ID[new Date().getMonth()]) + ' — ' + cnt + ' hari tercatat</div>' +
         moodGridHtml(mk) +
+        moodTallyHtml(mk) +
         '</div>' +
         '</div>';
     $("mpClose").addEventListener("click", closeMochiPrompt);
@@ -8358,7 +8417,7 @@ async function fillBalaiWeather() {
     const mo = MOODS.find(x => x.k === _bwData.dominant) || MOODS[0];
     slot.innerHTML =
         '<div class="bw-strip md-in" style="--d:.1s">' +
-        '<span class="bw-em">' + mo.e + '</span>' +
+        '<span class="bw-em">' + moodArt(mo.k) + '</span>' +
         '<span class="bw-body"><span class="bw-k">🌦️ CUACA BALAI MINGGU INI</span>' +
         '<span class="bw-t">' + esc(BW_MSG[_bwData.dominant] || "") + '</span>' +
         '<span class="bw-n">' + _bwData.total + ' catatan cuaca hati dari warga</span></span>' +

@@ -2120,3 +2120,93 @@ button.bw-brand:focus-visible { outline: 3px solid var(--bw-yellow); outline-off
 
 /* Akun Tim Seminggu Satu */
 .team-badge { display: inline-flex; align-items: center; margin: 6px 0 0; padding: 4px 12px; border-radius: 999px; background: #0046ff; color: #ffffff; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 12.5px; letter-spacing: .01em; }
+
+/* ===================== CUACA HATI BERWARNA =====================
+   Feedback warga: setelah emoji jadi ikon garis, kalender cuaca jadi
+   monoton dan minggu senang/biasa nggak kebaca lagi. Sekarang tiap
+   cuaca punya ilustrasi SVG berwarna (moodArt di main.js) + warna
+   kertas sendiri. Semua warna sama-sama lembut & cantik: hujan/badai
+   bukan abu-abu/merah, biar nggak ada cuaca yang berasa "salah". */
+.m-cerah   { --mt: #fff0a3; --mb: #f5c400; }
+.m-berawan { --mt: #e8eefa; --mb: #b9c8e6; }
+.m-hujan   { --mt: #d3e6ff; --mb: #7fb2f5; }
+.m-badai   { --mt: #e3dbff; --mb: #a898f0; }
+.m-pelangi { --mt: linear-gradient(135deg, #ffe0ec, #fff3c4 50%, #d6f1ff); --mb: #f5a3c4; }
+:root[data-theme="dark"] .m-cerah   { --mt: rgba(255, 212, 59, .26);  --mb: rgba(255, 212, 59, .55); }
+:root[data-theme="dark"] .m-berawan { --mt: rgba(185, 200, 230, .18); --mb: rgba(185, 200, 230, .42); }
+:root[data-theme="dark"] .m-hujan   { --mt: rgba(80, 150, 255, .26);  --mb: rgba(80, 150, 255, .55); }
+:root[data-theme="dark"] .m-badai   { --mt: rgba(150, 130, 245, .28); --mb: rgba(150, 130, 245, .58); }
+:root[data-theme="dark"] .m-pelangi { --mt: linear-gradient(135deg, rgba(255, 92, 138, .26), rgba(255, 212, 59, .2) 50%, rgba(59, 155, 255, .26)); --mb: rgba(245, 163, 196, .55); }
+
+.ma { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* tombol pilihan cuaca */
+.mood-btn { min-width: 60px; transition: transform .16s var(--bw-ease), background .16s ease, border-color .16s ease; }
+.mood-btn .mood-e { width: 2.1rem; height: 2.1rem; font-size: 0; }
+.mood-btn:hover .mood-e { transform: translateY(-2px) rotate(-4deg); }
+.mood-btn .mood-e { transition: transform .2s var(--bw-ease); }
+.mood-btn.on {
+    background: var(--mt);
+    border: 2px solid var(--mb);
+    transform: rotate(-2deg) translateY(-2px);
+    box-shadow: 0 6px 14px rgba(var(--bw-tint), .14);
+}
+.mood-btn.on .mood-t { color: var(--bw-ink); }
+.mood-btn.on .mood-d { color: var(--muted); }
+:root:not([data-theme="dark"]) .mood-btn.on .mood-t { color: #10245e; }
+:root:not([data-theme="dark"]) .mood-btn.on .mood-d { color: rgba(16, 36, 94, .75); }
+
+/* kalender: 1 baris = 1 minggu, tiap hari kertas berwarna sesuai cuacanya */
+.mg-h {
+    font-family: 'Outfit', sans-serif;
+    font-size: .56rem; font-weight: 800; letter-spacing: .04em;
+    text-align: center; text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 2px;
+}
+.mg-cell.mg-pad { background: transparent; border: none; }
+.mg-cell.on {
+    background: var(--mt);
+    border: 1.5px solid var(--mb);
+    padding: 12%;
+}
+:root[data-theme="dark"] .mg-cell.on { background: var(--mt); }
+.mg-cell.today:not(.on) { border: 1.5px dashed var(--blue); }
+.mg-cell.today:not(.on) i { color: var(--blue); }
+
+.mg-grid.sm .mg-h { color: rgba(16, 36, 94, .45); font-size: .5rem; }
+.mg-grid.sm .mg-cell.mg-pad { background: transparent; }
+.mg-grid.sm .mg-cell:not(.on):not(.mg-pad) { border-color: rgba(16, 36, 94, .1); }
+.mg-grid.sm .mg-cell.on { background: var(--mt); padding: 10%; }
+/* slide recap = kertas terang selalu -> pakai warna versi terang */
+.wr-slide .m-cerah   { --mt: #fff0a3; --mb: #f5c400; }
+.wr-slide .m-berawan { --mt: #e8eefa; --mb: #b9c8e6; }
+.wr-slide .m-hujan   { --mt: #d3e6ff; --mb: #7fb2f5; }
+.wr-slide .m-badai   { --mt: #e3dbff; --mb: #a898f0; }
+.wr-slide .m-pelangi { --mt: linear-gradient(135deg, #ffe0ec, #fff3c4 50%, #d6f1ff); --mb: #f5a3c4; }
+
+/* ringkasan per cuaca di bawah kalender */
+.mg-tally { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; justify-content: flex-start; }
+.mg-tally-i {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px 3px 4px;
+    border-radius: 999px;
+    background: var(--mt);
+    border: 1px solid var(--mb);
+    font-size: .7rem; color: var(--bw-ink);
+}
+.mg-tally-i .ma { width: 1.25rem; height: 1.25rem; }
+.mg-tally-i b { font-family: 'Outfit', sans-serif; font-weight: 800; }
+.wr-slide .mg-tally { justify-content: center; max-width: 300px; margin: 10px auto 0; }
+.wr-slide .mg-tally-i { color: #10245e; }
+
+/* widget Home, recap besar, strip Cuaca Balai */
+.mw-em { width: 2rem; height: 2rem; }
+.mw-em.big { width: 2.6rem; height: 2.6rem; filter: drop-shadow(0 2px 3px rgba(16, 36, 94, .18)); }
+.wr-mood-art { width: clamp(96px, 30vw, 132px); height: clamp(96px, 30vw, 132px); margin-left: auto; margin-right: auto; filter: drop-shadow(0 6px 10px rgba(16, 36, 94, .18)); }
+.bw-em { width: 2.2rem; height: 2.2rem; }
+
+@media (prefers-reduced-motion: reduce) {
+    .mood-btn, .mood-btn .mood-e { transition: none; }
+    .mood-btn:hover .mood-e { transform: none; }
+}
