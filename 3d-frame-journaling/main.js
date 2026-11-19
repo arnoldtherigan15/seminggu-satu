@@ -175,6 +175,7 @@ async function loadOpenBatches() {
         clearTimeout(timer);
         const all = await res.json();
         _openBatches = (all && all['3d-frame-journaling']) || [];
+        if (window.ssPreviewBatches) _openBatches = window.ssPreviewBatches(_openBatches, '3d-frame-journaling'); // pratinjau admin
     } catch (err) {
         console.error('Cek sesi gagal:', err);
         hideBlockerLoader();

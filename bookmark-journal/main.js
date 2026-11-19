@@ -186,6 +186,7 @@ async function loadOpenBatches() {
         clearTimeout(timer);
         const all = await res.json();
         _openBatches = (all && all['bookmark-journal']) || [];
+        if (window.ssPreviewBatches) _openBatches = window.ssPreviewBatches(_openBatches, 'bookmark-journal'); // pratinjau admin
     } catch (err) {
         console.error('Cek sesi gagal:', err);
         hideBlockerLoader();

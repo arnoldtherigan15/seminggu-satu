@@ -191,6 +191,7 @@ async function loadOpenBatches() {
         clearTimeout(timer);
         const all = await res.json();
         _openBatches = (all && all['side-by-side']) || [];
+        if (window.ssPreviewBatches) _openBatches = window.ssPreviewBatches(_openBatches, 'side-by-side'); // pratinjau admin
     } catch (err) {
         console.error('Cek sesi gagal:', err);
         hideBlockerLoader();

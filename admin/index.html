@@ -10771,7 +10771,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           ${fact("Pendaftar", (b && b.count != null) ? b.count : "-")}
         </dl>`;
       }
-      bodyEl.insertAdjacentHTML("beforeend", `<div class="cfg-links"><a class="btn btn-ghost" href="${escapeHtml(link)}" target="_blank" rel="noopener">${icon("openLink")} Lihat halaman</a><button type="button" class="btn btn-ghost" data-cfgcopy="${escapeHtml(link)}">${icon("link")} Salin link daftar</button></div>`);
+      // Pratinjau: ?preview=1 -> halaman event tetap kebuka walau tutup/nonaktif (khusus browser yang login admin,
+      // formulir nggak bisa dikirim). Link yang disalin tetap link asli buat dibagikan.
+      const previewLink = link + (link.indexOf("?") >= 0 ? "&" : "?") + "preview=1";
+      bodyEl.insertAdjacentHTML("beforeend", `<div class="cfg-links"><a class="btn btn-ghost" href="${escapeHtml(previewLink)}" target="_blank" rel="noopener" title="Tetap bisa dibuka walau pendaftaran tutup. Formulir nggak bakal terkirim.">${icon("eye")} Pratinjau halaman</a><button type="button" class="btn btn-ghost" data-cfgcopy="${escapeHtml(link)}">${icon("link")} Salin link daftar</button></div>`);
       const cp = bodyEl.querySelector("[data-cfgcopy]");
       cp.addEventListener("click", () => navigator.clipboard.writeText(cp.dataset.cfgcopy).then(() => abToast("Link disalin", "ok")));
     }

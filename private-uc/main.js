@@ -300,6 +300,7 @@ async function loadOpenBatches() {
         clearTimeout(timer);
         const all = await res.json();
         _openBatches = (all && all['private-uc']) || [];
+        if (window.ssPreviewBatches) _openBatches = window.ssPreviewBatches(_openBatches, 'private-uc'); // pratinjau admin
     } catch (err) {
         console.error('Cek sesi gagal:', err);
         hideBlockerLoader();

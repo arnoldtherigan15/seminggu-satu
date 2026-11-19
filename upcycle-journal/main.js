@@ -266,6 +266,7 @@ async function loadOpenBatches() {
         clearTimeout(timer);
         const all = await res.json();
         _openBatches = (all && all['upcycle-journal']) || [];
+        if (window.ssPreviewBatches) _openBatches = window.ssPreviewBatches(_openBatches, 'upcycle-journal'); // pratinjau admin
     } catch (err) {
         console.error('Cek sesi gagal:', err);
         hideBlockerLoader();
