@@ -384,8 +384,27 @@ footer p { color: var(--ink-2); }
 /* toast & loader ikut palet */
 .blocker-spinner { border-top-color: #0046ff; }
 
+/* Desktop: binder kebuka kayak Home -- sampul (buku biru) diam di kiri,
+   form di kanan & lebih lebar. HP/tablet tetap 1 kolom. */
 @media (min-width: 1024px) {
-    .hero { margin-top: 2.5rem; }
+    body {
+        display: grid;
+        grid-template-columns: minmax(360px, 430px) minmax(0, 640px);
+        column-gap: 3.5rem;
+        justify-content: center;
+        align-items: start;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+    body > * { grid-column: 2; }
+    body > .hero {
+        grid-column: 1; grid-row: 1 / span 20; align-self: start;
+        position: sticky; top: 2.5rem;
+        width: auto; max-width: none; margin: 2.5rem 0;
+    }
+    body > main.container { max-width: none; width: 100%; padding: 2.5rem 0 1.5rem; }
+    body > footer { padding-bottom: 2rem; }
 }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
