@@ -1204,3 +1204,65 @@ body.has-fab #dashboard .main-content { padding-bottom: 88px; }
     .nt-toolbar::-webkit-scrollbar { display: none; }
     .nt-toolbar .rn-btn { flex-shrink: 0; }
 }
+
+/* ---------- Catatan: pohon folder (ala Dia/Notion) ---------- */
+.nt-tree { display: flex; flex-direction: column; gap: 1px; }
+.nt-frow, .nt-leaf {
+    display: flex; align-items: center; gap: 6px; width: 100%; min-height: 34px;
+    padding: 4px 6px 4px calc(4px + var(--d, 0) * 16px); border: 0; border-radius: 9px;
+    background: transparent; color: var(--ink); text-align: left; cursor: pointer;
+    font: 600 14px 'Open Sans', sans-serif; transition: background-color .12s ease;
+}
+.nt-frow:hover, .nt-leaf:hover { background: #ffffff; }
+.nt-frow:focus-visible, .nt-leaf:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.nt-leaf.is-active { background: var(--brand-light); color: var(--brand); }
+.nt-leaf.is-active .nt-leaf-t { font-weight: 800; }
+.nt-twisty { width: 18px; height: 18px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); border-radius: 5px; transition: transform .15s ease; }
+.nt-frow.is-open > .nt-twisty { transform: rotate(90deg); }
+.nt-fic { width: 22px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
+.nt-fic svg { width: 16px; height: 16px; }
+.nt-fname { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nt-fcount { flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--muted); min-width: 14px; text-align: right; }
+.nt-facts { display: inline-flex; align-items: center; gap: 1px; flex-shrink: 0; opacity: 0; transition: opacity .12s ease; }
+.nt-frow:hover .nt-facts, .nt-frow:focus-within .nt-facts, .nt-facts:has([aria-expanded="true"]) { opacity: 1; }
+@media (hover: none) { .nt-facts { opacity: 1; } }
+.nt-facts .ab-more-btn, .nt-fadd, .nt-sec-add {
+    width: 26px; height: 26px; border: 0; border-radius: 7px; background: transparent; color: var(--muted);
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.nt-facts .ab-more-btn svg, .nt-fadd svg, .nt-sec-add svg { width: 15px; height: 15px; }
+.nt-facts .ab-more-btn:hover, .nt-fadd:hover, .nt-sec-add:hover { background: var(--bg); color: var(--ink); }
+.nt-leaf-ic { width: 22px; height: 22px; flex-shrink: 0; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+.nt-leaf-ic svg { width: 13px; height: 13px; }
+.nt-leaf-t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nt-empty-leaf { display: flex; align-items: center; min-height: 28px; padding-left: calc(28px + var(--d, 0) * 16px); font-size: 12.5px; color: var(--muted); font-style: italic; }
+.nt-sec-row { display: flex; align-items: center; justify-content: space-between; border-radius: 8px; padding-right: 2px; }
+.nt-frow.is-drop, .nt-sec-row.is-drop { background: var(--brand-light); box-shadow: inset 0 0 0 2px var(--brand); }
+.nt-frow.is-dragging, .nt-leaf.is-dragging { opacity: .45; }
+
+/* ---------- tautan antar catatan + "Disebut di" + template ---------- */
+.rn-editor .rn-notelink {
+    display: inline; padding: 1px 6px; border-radius: 6px; background: var(--brand-light); color: var(--brand);
+    font-weight: 700; text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+.rn-editor .rn-notelink::before { content: "↗ "; font-weight: 800; }
+.rn-editor .rn-notelink:hover { background: #d4e0ff; }
+.rn-editor .rn-notelink.is-missing { background: #f1f3f8; color: var(--muted); text-decoration: line-through; }
+.rn-slash-empty { padding: 8px 10px 10px; font-size: 13px; color: var(--muted); }
+.nt-backlinks { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--line); }
+.nt-backlinks .nt-sec { margin-top: 0; }
+.nt-backlinks[hidden], .nt-templates[hidden] { display: none; }
+.nt-templates { margin-top: 18px; }
+.nt-tpl-h { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+.nt-tpl-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.nt-tpl {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1.5px solid var(--line);
+    border-radius: 12px; background: #ffffff; color: var(--ink); font: 800 14px 'Outfit', sans-serif; cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease, transform .12s ease;
+}
+.nt-tpl svg { width: 16px; height: 16px; color: var(--muted); }
+.nt-tpl:hover { border-color: #c9d6f5; background: var(--bg); }
+.nt-tpl:active { transform: scale(.97); }
+/* template tampil tepat di bawah tempat nulis (editor kosong nggak perlu setinggi 50vh) */
+.nt-doc-inner:has(.nt-templates:not([hidden])) .rn-editor.nt-editor { min-height: 64px; }
+.nt-title:focus, .nt-title:focus-visible { outline: none; box-shadow: none; border: 0; }

@@ -576,6 +576,21 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
           payload.name = name;
         }
         if (has("icon")) payload.icon = String(data.icon || "").slice(0, 16);
+        if (has("parentId")) {
+          const parentId = data.parentId ? String(data.parentId) : null;
+          if (parentId && id) {
+            // cegah folder masuk ke dirinya sendiri / turunannya (bikin lingkaran)
+            const { data: all, error: e1 } = await admin.from("personal_note_folders").select("id, parent_id");
+            if (e1) return errorResponse("Gagal cek folder: " + e1.message);
+            const parentOf = new Map((all || []).map((f: { id: string; parent_id: string | null }) => [f.id, f.parent_id]));
+            let cur: string | null = parentId;
+            for (let i = 0; cur && i < 100; i++) {
+              if (cur === id) return errorResponse("Folder nggak bisa dipindah ke dalam dirinya sendiri.");
+              cur = parentOf.get(cur) ?? null;
+            }
+          }
+          payload.parent_id = parentId;
+        }
         if (id) {
           const { error } = await admin.from("personal_note_folders").update(payload).eq("id", id);
           if (error) return errorResponse("Gagal update folder: " + error.message);
@@ -588,8 +603,17 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
       }
 
       case "deletePersonalNoteFolder": {
+        // Isi folder (catatan + subfolder) naik ke folder induknya, bukan
+        // ikut kehapus / jadi yatim.
         const id = String(data.id || "");
         if (!id) return errorResponse("ID folder kosong.");
+        const { data: f, error: e0 } = await admin.from("personal_note_folders").select("parent_id").eq("id", id).maybeSingle();
+        if (e0) return errorResponse("Gagal ambil folder: " + e0.message);
+        const parent = f ? f.parent_id : null;
+        const { error: e1 } = await admin.from("personal_notes").update({ folder_id: parent }).eq("folder_id", id);
+        if (e1) return errorResponse("Gagal mindahin catatan: " + e1.message);
+        const { error: e2 } = await admin.from("personal_note_folders").update({ parent_id: parent }).eq("parent_id", id);
+        if (e2) return errorResponse("Gagal mindahin subfolder: " + e2.message);
         const { error } = await admin.from("personal_note_folders").delete().eq("id", id);
         if (error) return errorResponse("Gagal hapus folder: " + error.message);
         return jsonResponse({ status: "success", message: "Folder dihapus." });
