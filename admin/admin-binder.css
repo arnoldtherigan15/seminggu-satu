@@ -2045,3 +2045,27 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
     .wa-b { grid-template-columns: minmax(0, 1fr) auto; }
     .wa-b-fill { grid-column: 1 / -1; grid-row: 2; }
 }
+
+/* ===== Skeleton bawaan (keliatan dari frame pertama, ketimpa begitu data siap) ===== */
+.sk { display: block; border-radius: 7px; background: linear-gradient(90deg, #eef1f8 25%, #e3e8f3 37%, #eef1f8 63%); background-size: 400% 100%; animation: shimmer 1.3s infinite; max-width: 100%; }
+.sk.sk-dark { background: linear-gradient(90deg, rgba(255,255,255,.18) 25%, rgba(255,255,255,.32) 37%, rgba(255,255,255,.18) 63%); background-size: 400% 100%; }
+.sk-stack { display: flex; flex-direction: column; gap: 10px; }
+.sk-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin: 12px 0 28px; }
+.sk-day { background: #ffffff; border-radius: 14px; box-shadow: var(--shadow-sm); padding: 12px 10px; min-height: 120px; display: flex; flex-direction: column; gap: 10px; }
+.sk-attn { display: flex; flex-direction: column; gap: 8px; }
+.sk-attn-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,.6); border-radius: 12px; }
+.sk-attn-row span { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+.sk-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.sk-wa .wa-kpi { gap: 9px; }
+.sk-wa-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-top: 1px solid #eef1f8; }
+.sk-wa-row:first-child { border-top: 0; }
+.sk-wa-row > .sk:first-child { border-radius: 50%; flex-shrink: 0; }
+.sk-wa-row span { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+.sk-gl { background: #ffffff; border-radius: 16px; box-shadow: var(--shadow-sm); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+@media (max-width: 680px) {
+    .sk-week { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; background: #ffffff; border-radius: 16px; padding: 8px 6px; box-shadow: var(--shadow-sm); margin: 12px 0 10px; }
+    .sk-day { min-height: 0; box-shadow: none; padding: 4px; align-items: center; gap: 6px; }
+    .sk-day .sk { width: 70% !important; }
+}
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
+.sk-card { background: #ffffff; border-radius: 16px; box-shadow: var(--shadow-sm); padding: 18px; display: flex; flex-direction: column; gap: 12px; min-height: 120px; }
