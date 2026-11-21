@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=34">
+  <link rel="stylesheet" href="admin-binder.css?v=36">
 </head>
 
 <body>
@@ -5396,38 +5396,16 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
         <!-- ===== VIEW: SHOP > LAPORAN KEUANGAN (shop_sales yang udah lunas) ===== -->
         <div class="wrap view" id="viewShopFinance" style="display:none;">
-          <div class="toolbar">
-            <div class="field">
-              <label for="shopFinYearSelect">Tahun</label>
-              <select class="form-control" id="shopFinYearSelect"></select>
+          <div class="sf-panel">
+            <div class="sf-bar">
+              <select class="form-control so-period" id="shopFinPeriod" aria-label="Periode"></select>
+              <p class="sf-note">Cuma yang udah dibayar. Yang belum ada di <a href="#shoporders" data-sf-go>Order toko</a>.</p>
             </div>
-            <div class="field">
-              <label for="shopFinMonthSelect">Bulan</label>
-              <select class="form-control" id="shopFinMonthSelect">
-                <option value="">Semua Bulan</option>
-                <option value="0">Januari</option>
-                <option value="1">Februari</option>
-                <option value="2">Maret</option>
-                <option value="3">April</option>
-                <option value="4">Mei</option>
-                <option value="5">Juni</option>
-                <option value="6">Juli</option>
-                <option value="7">Agustus</option>
-                <option value="8">September</option>
-                <option value="9">Oktober</option>
-                <option value="10">November</option>
-                <option value="11">Desember</option>
-              </select>
-            </div>
-            <button class="btn btn-sm btn-ghost" id="shopFinReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+            <div class="so-stats sf-stats" id="shopFinStats"></div>
+            <section class="sf-trend" id="shopFinTrend"></section>
+            <div class="sf-sec-h"><b>Per produk</b><span id="shopFinCount"></span></div>
+            <div id="shopFinList"></div>
           </div>
-          <p class="hint" style="margin-bottom:12px;">Pendapatan yang BENERAN udah diterima: penjualan scan QR dianggap lunas instan, penjualan lewat Order cuma dihitung kalau statusnya udah ditandai "Lunas" di Order Toko -- yang masih "Belum Bayar" dianggap piutang, belum masuk laporan ini.</p>
-          <div class="fin-card" style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Pendapatan</span><b id="shopFinRevenue">Rp 0</b></div>
-            <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Modal (HPP)</span><b id="shopFinHpp">Rp 0</b></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);margin-top:6px;font-size:1.1rem;"><span style="font-weight:700;">Keuntungan</span><b id="shopFinProfit" style="color:var(--brand);">Rp 0</b></div>
-          </div>
-          <div id="shopFinList"></div>
         </div>
 
         <!-- ===== VIEW: SIDE QUEST ===== -->
@@ -5615,7 +5593,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
               <h3 class="ov-section-title" style="margin-top:20px;">Arus kas — 6 bulan terakhir</h3>
               <div class="fin-card">
-                <div id="perCashflow" class="per-cashflow-row"></div>
+                <div id="perCashflow" class="cf-wrap"></div>
               </div>
 
               <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:20px;">
@@ -14912,14 +14890,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let SHOPFIN_ENTRIES = [];
     let SHOPFIN_TOTALS = { revenue: 0, hpp: 0, profit: 0 };
 
+    const SF = { period: "" };
     function ensureShopFinanceView() {
       if (!shopFinInit) {
-        document.getElementById("shopFinYearSelect").addEventListener("change", renderShopFinList);
-        document.getElementById("shopFinMonthSelect").addEventListener("change", renderShopFinList);
-        document.getElementById("shopFinReloadBtn").addEventListener("click", loadShopFinReport);
-        // Default bulan = bulan SEKARANG (bukan "Semua Bulan"), sekali doang
-        // pas pertama kali dibuka -- sama alasan kayak filter Pembeli Lain.
-        document.getElementById("shopFinMonthSelect").value = String(new Date().getMonth());
+        document.getElementById("shopFinPeriod").addEventListener("change", (e) => { SF.period = e.target.value; renderShopFinList(); });
         shopFinInit = true;
       }
       loadShopFinReport();
@@ -14940,78 +14914,115 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       }
     }
 
+    // pilihan periode sama kayak Order toko > Semua (bulan / tahun / semua waktu)
     function populateShopFinYearFilter() {
-      const sel = document.getElementById("shopFinYearSelect");
-      const years = Array.from(new Set(SHOPFIN_ENTRIES.map(e => new Date(e.createdAt).getFullYear())));
-      const nowYear = new Date().getFullYear();
-      if (!years.includes(nowYear)) years.push(nowYear);
-      years.sort((a, b) => b - a);
-      const prevVal = sel.value;
-      sel.innerHTML = `<option value="">Semua Tahun</option>` + years.map(y => `<option value="${y}">${y}</option>`).join("");
-      sel.value = (prevVal && years.some(y => String(y) === prevVal)) ? prevVal : String(nowYear);
+      const sel = document.getElementById("shopFinPeriod");
+      const now = new Date(), cur = soMonthKey(now);
+      const months = new Set([cur]), years = new Set([now.getFullYear()]);
+      SHOPFIN_ENTRIES.forEach(e => { const d = new Date(e.createdAt); if (!isNaN(d)) { months.add(soMonthKey(d)); years.add(d.getFullYear()); } });
+      const label = (k) => { if (k === cur) return "Bulan ini"; const [y, m] = k.split("-").map(Number); return SO_MONTHS[m - 1] + (y !== now.getFullYear() ? " " + y : ""); };
+      sel.innerHTML = `<optgroup label="Bulan">${[...months].sort().reverse().map(k => `<option value="m:${k}">${label(k)}</option>`).join("")}</optgroup>`
+        + `<optgroup label="Tahun">${[...years].sort((a, b) => b - a).map(y => `<option value="y:${y}">Tahun ${y}</option>`).join("")}</optgroup>`
+        + `<option value="all">Semua waktu</option>`;
+      if (!SF.period || ![...sel.options].some(o => o.value === SF.period)) SF.period = "m:" + cur;
+      sel.value = SF.period;
+    }
+
+    // Untung 6 bulan terakhir (batang 1 warna, ketuk = rincian). Bulan yang
+    // lagi dipilih di periode ditebelin.
+    function renderShopFinTrend() {
+      const box = document.getElementById("shopFinTrend"); if (!box) return;
+      const now = new Date(); const rows = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1), k = soMonthKey(d);
+        const es = SHOPFIN_ENTRIES.filter(e => soMonthKey(new Date(e.createdAt)) === k);
+        rows.push({ k, lbl: SO_MONTHS[d.getMonth()].slice(0, 3), full: SO_MONTHS[d.getMonth()] + " " + d.getFullYear(),
+          rev: es.reduce((s, e) => s + e.revenue, 0), profit: es.reduce((s, e) => s + e.profit, 0), n: es.reduce((s, e) => s + e.qty, 0) });
+      }
+      if (!rows.some(r => r.rev)) { box.innerHTML = ""; box.hidden = true; return; }
+      box.hidden = false;
+      const W = Math.max(260, (box.clientWidth || 600) - 36), H = 150, pl = 48, pr = 4, pt = 10, pb = 26;
+      let lo = Math.min(0, ...rows.map(r => r.profit)), hi = Math.max(1, ...rows.map(r => r.profit));
+      const ticks = niceTicks(lo, hi, 2); lo = ticks[0]; hi = ticks[ticks.length - 1];
+      const y = v => pt + (hi - v) / (hi - lo) * (H - pt - pb);
+      const slot = (W - pl - pr) / rows.length, bw = Math.min(34, slot * 0.46);
+      const sel = SF.period.startsWith("m:") ? SF.period.slice(2) : "";
+      const bar = (i, v) => {
+        const x0 = pl + slot * i + slot / 2 - bw / 2, y0 = y(0), y1 = y(v), h = Math.abs(y1 - y0);
+        if (h < 1) return `<rect x="${x0}" y="${y0 - 1}" width="${bw}" height="2" rx="1" class="cf-zero-bar"/>`;
+        const rr = Math.min(5, h, bw / 2), up = v > 0;
+        const yy = up ? y1 + rr : y1 - rr;
+        return `<path class="sf-bar${rows[i].k === sel ? " is-sel" : ""}${up ? "" : " neg"}" d="M${x0},${y0} V${yy} Q${x0},${y1} ${x0 + rr},${y1} H${x0 + bw - rr} Q${x0 + bw},${y1} ${x0 + bw},${yy} V${y0} Z"/>`;
+      };
+      box.innerHTML = `<div class="sf-trend-h"><b>Untung 6 bulan terakhir</b><span>ketuk batang buat lihat bulan itu</span></div>
+        <div class="cf-chart"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Untung toko 6 bulan terakhir">
+          ${ticks.map(t => `<line x1="${pl}" x2="${W - pr}" y1="${y(t)}" y2="${y(t)}" class="${t === 0 ? "cf-base" : "cf-grid"}"/><text x="${pl - 8}" y="${y(t) + 4}" text-anchor="end" class="cf-y">${t === 0 ? "0" : rpCompact(t)}</text>`).join("")}
+          ${rows.map((r, i) => `<rect class="cf-hit" data-i="${i}" x="${pl + slot * i}" y="${pt}" width="${slot}" height="${H - pt - pb}"/>`).join("")}
+          ${rows.map((r, i) => bar(i, r.profit)).join("")}
+          ${rows.map((r, i) => `<text x="${pl + slot * i + slot / 2}" y="${H - 8}" text-anchor="middle" class="cf-x${r.k === sel ? " is-now" : ""}">${r.lbl}</text>`).join("")}
+        </svg><div class="nw-tip cf-tip" hidden></div></div>`;
+      const svg = box.querySelector("svg"), tip = box.querySelector(".cf-tip");
+      const idx = (e) => { const rx = e.clientX - svg.getBoundingClientRect().left; const i = Math.floor((rx - pl) / slot); return i >= 0 && i < rows.length ? i : -1; };
+      svg.addEventListener("pointermove", (e) => {
+        const i = idx(e); if (i < 0) return; const r = rows[i];
+        svg.querySelectorAll(".cf-hit").forEach(h => h.classList.toggle("on", +h.dataset.i === i));
+        tip.hidden = false; tip.innerHTML = `<b>${r.full}</b><span>Pendapatan ${rupiah(r.rev)}</span><span class="cf-tip-net">Untung ${rupiah(r.profit)}</span><span>${r.n} barang terjual</span>`;
+        tip.style.left = Math.min(W - 180, Math.max(0, pl + slot * i + slot / 2 - 90)) + "px";
+      });
+      svg.addEventListener("pointerleave", () => { tip.hidden = true; svg.querySelectorAll(".cf-hit.on").forEach(h => h.classList.remove("on")); });
+      svg.addEventListener("click", (e) => { const i = idx(e); if (i < 0) return; SF.period = "m:" + rows[i].k; const ps = document.getElementById("shopFinPeriod"); if (![...ps.options].some(o => o.value === SF.period)) return; ps.value = SF.period; renderShopFinList(); });
+      perChartAutoResize(box, renderShopFinTrend);
     }
 
     function renderShopFinList() {
       const listEl = document.getElementById("shopFinList");
-      const yearVal = document.getElementById("shopFinYearSelect").value;
-      const monthVal = document.getElementById("shopFinMonthSelect").value;
-      let filtered = SHOPFIN_ENTRIES;
-      if (yearVal) filtered = filtered.filter(e => new Date(e.createdAt).getFullYear() === Number(yearVal));
-      if (monthVal !== "") filtered = filtered.filter(e => new Date(e.createdAt).getMonth() === Number(monthVal));
-
-      // Total di atas ikut angka TERFILTER (bukan grand total semua waktu) --
-      // biar relevan sama periode yang lagi dilihat.
+      const filtered = SHOPFIN_ENTRIES.filter(e => soInPeriod(e, SF.period));
       const revenue = filtered.reduce((s, e) => s + e.revenue, 0);
       const hpp = filtered.reduce((s, e) => s + e.hpp, 0);
-      document.getElementById("shopFinRevenue").textContent = rupiah(revenue);
-      document.getElementById("shopFinHpp").textContent = rupiah(hpp);
-      document.getElementById("shopFinProfit").textContent = rupiah(revenue - hpp);
+      const profit = revenue - hpp, qty = filtered.reduce((s, e) => s + e.qty, 0);
+      const margin = revenue ? Math.round(profit / revenue * 100) : 0;
+      document.getElementById("shopFinStats").innerHTML = `
+        <div class="so-stat"><span>Pendapatan</span><b>${rupiah(revenue)}</b><small>${qty} barang terjual</small></div>
+        <div class="so-stat"><span>Modal (HPP)</span><b>${rupiah(hpp)}</b><small>bahan barang yang laku</small></div>
+        <div class="so-stat is-profit"><span>Untung</span><b>${rupiah(profit)}</b><small>${revenue ? `margin ${margin}%` : "-"}</small></div>`;
+      renderShopFinTrend();
 
-      if (!filtered.length) { listEl.innerHTML = `<p class="hint">Belum ada pendapatan tercatat di periode ini.</p>`; return; }
-
-      // Dikelompokin per produk (bukan per transaksi mentah) -- biar keliatan
-      // produk apa yang paling laku/untung di periode ini. Transaksi
-      // individualnya tetap bisa dibuka lewat accordion per produk.
+      const cnt = document.getElementById("shopFinCount");
+      if (!filtered.length) {
+        cnt.textContent = "";
+        listEl.innerHTML = `<div class="so-empty">${icon("cart")}<b>Belum ada penjualan lunas di periode ini.</b><span class="hint" style="margin:0;">Order yang udah ditandai Lunas otomatis masuk ke sini.</span></div>`;
+        return;
+      }
+      // per produk (paling laku di atas); transaksinya bisa dibuka
       const groups = new Map();
       filtered.forEach(e => {
-        if (!groups.has(e.productName)) groups.set(e.productName, { productName: e.productName, qty: 0, revenue: 0, hpp: 0, profit: 0, entries: [] });
-        const g = groups.get(e.productName);
-        g.qty += e.qty; g.revenue += e.revenue; g.hpp += e.hpp; g.profit += e.profit;
-        g.entries.push(e);
+        const k = e.productName || "Produk";
+        if (!groups.has(k)) groups.set(k, { name: k, qty: 0, revenue: 0, hpp: 0, profit: 0, entries: [] });
+        const g = groups.get(k);
+        g.qty += e.qty; g.revenue += e.revenue; g.hpp += e.hpp; g.profit += e.profit; g.entries.push(e);
       });
-      const groupArr = Array.from(groups.values()).sort((a, b) => b.revenue - a.revenue);
-
-      listEl.innerHTML = groupArr.map(g => {
-        const rows = g.entries
-          .slice()
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .map(e => {
-            const date = new Date(e.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
-            return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line);">
-              <div class="hint">${escapeHtml(e.source)} &middot; ${escapeHtml(date)} &middot; &times;${e.qty}</div>
-              <div style="text-align:right;">
-                <div style="font-weight:700;">${rupiah(e.revenue)}</div>
-                <div class="hint" style="color:${e.profit >= 0 ? "#166534" : "var(--err)"};">untung ${rupiah(e.profit)}</div>
-              </div>
-            </div>`;
-          }).join("");
-        return `<details class="det-acc">
+      const arr = [...groups.values()].sort((a, b) => b.revenue - a.revenue);
+      const maxRev = Math.max(1, ...arr.map(g => g.revenue));
+      cnt.textContent = arr.length + " produk";
+      listEl.innerHTML = `<div class="so-list">${arr.map(g => {
+        const m = g.revenue ? Math.round(g.profit / g.revenue * 100) : 0;
+        const rows = g.entries.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(e => `<div class="sf-tx">
+            <span>${escapeHtml(new Date(e.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" }))} · ${escapeHtml(e.source || "")} · ×${e.qty}</span>
+            <b>${rupiah(e.revenue)}</b><em class="${e.profit >= 0 ? "" : "neg"}">untung ${rupiah(e.profit)}</em>
+          </div>`).join("");
+        return `<details class="sf-prod">
           <summary>
-            <span class="det-acc-title">
-              <span>${escapeHtml(g.productName)}</span>
-              <span class="hint">${g.qty} terjual &middot; ${g.entries.length} transaksi</span>
+            <span class="sf-ava" style="background:${soColor(g.name)}">${escapeHtml(soInitials(g.name))}</span>
+            <span class="sf-main">
+              <b>${escapeHtml(g.name)}</b>
+              <span class="sf-share"><i style="width:${Math.max(3, g.revenue / maxRev * 100).toFixed(1)}%"></i></span>
+              <small>${g.qty} terjual · ${g.entries.length} transaksi</small>
             </span>
-            <span style="display:flex;align-items:center;gap:10px;">
-              <span style="text-align:right;">
-                <div style="font-weight:700;">${rupiah(g.revenue)}</div>
-                <div class="hint" style="color:${g.profit >= 0 ? "#166534" : "var(--err)"};">untung ${rupiah(g.profit)}</div>
-              </span>
-              <span class="det-acc-chevron">▸</span>
-            </span>
+            <span class="sf-right"><b>${rupiah(g.revenue)}</b><small class="${g.profit >= 0 ? "pos" : "neg"}">untung ${rupiah(g.profit)}${g.revenue ? ` · ${m}%` : ""}</small></span>
           </summary>
-          <div class="det-acc-body">${rows}</div>
+          <div class="sf-txs">${rows}</div>
         </details>`;
-      }).join("");
+      }).join("")}</div>`;
     }
 
     // ---------- MEMBER (akun /warga, ultah, aktif) ----------
@@ -16686,7 +16697,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("perMonthExpense").innerHTML = skelText(100, 20);
       document.getElementById("perBizProfit").innerHTML = skelText(120, 18);
       document.getElementById("perBizRevenue").innerHTML = skelText(90, 14);
-      document.getElementById("perCashflow").innerHTML = skelCashflow();
+      { const cfw = document.getElementById("perCashflow"); cfw.className = "per-cashflow-row"; cfw.innerHTML = skelCashflow(); }
       document.getElementById("perRecentList").innerHTML = skelActivityRows(4);
       document.getElementById("perTxList").innerHTML = skelLines(4);
       document.getElementById("perCatList").innerHTML = skelLines(3);
@@ -17040,35 +17051,91 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       else recent.innerHTML = PER_TRANSACTIONS.slice(0, 6).map(t => perActivityRowHtml(t)).join("");
     }
 
+    // Rupiah ringkas buat label grafik: 1,3 M · 32,7 jt · 250 rb
+    function rpCompact(n) {
+      const v = Math.abs(Number(n) || 0), sg = n < 0 ? "−" : "";
+      const f = (x, d) => x.toLocaleString("id-ID", { maximumFractionDigits: d });
+      if (v >= 1e9) return sg + f(v / 1e9, v >= 1e10 ? 1 : 2) + " M";
+      if (v >= 1e6) return sg + f(v / 1e6, v >= 1e8 ? 0 : 1) + " jt";
+      if (v >= 1e3) return sg + f(v / 1e3, 0) + " rb";
+      return sg + f(v, 0);
+    }
+    // grafik digambar ulang pas lebar kartunya berubah (bukan di-stretch)
+    function perChartAutoResize(el, fn) {
+      if (el._ro || typeof ResizeObserver === "undefined") return;
+      let w = el.clientWidth;
+      el._ro = new ResizeObserver(() => { if (el.clientWidth && Math.abs(el.clientWidth - w) > 4) { w = el.clientWidth; fn(); } });
+      el._ro.observe(el);
+    }
+    function niceTicks(lo, hi, n) {
+      const span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+      const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(st => st >= raw) || raw;
+      const out = []; for (let v = Math.floor(lo / step) * step; v <= hi + step * 0.001; v += step) out.push(v);
+      if (out[out.length - 1] < hi) out.push(out[out.length - 1] + step);
+      return out;
+    }
+
+    // Arus kas 6 bulan: selisih masuk − keluar per bulan, batang naik (lebih)
+    // / turun (kurang) dari garis nol. Ketuk/hover = rincian masuk & keluar.
     function renderCashflow() {
       const wrap = document.getElementById("perCashflow");
-      const months = [];
+      if (!wrap) return;
       const cur = currentPayPeriod();
       const [cy, cm] = cur.split("-").map(Number);
+      const rows = [];
       for (let i = 5; i >= 0; i--) {
         const d = new Date(cy, cm - 1 - i, 1);
-        months.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
-      }
-      const nets = months.map(ym => {
+        const ym = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
         let inc = 0, exp = 0;
         PER_TRANSACTIONS.forEach(t => {
           if (!inPayPeriod(t.date, ym)) return;
           if (t.type === "income") inc += Number(t.amount) || 0;
           else if (t.type === "expense") exp += Number(t.amount) || 0;
         });
-        return inc - exp;
-      });
-      const maxAbs = Math.max(1, ...nets.map(n => Math.abs(n)));
-      wrap.innerHTML = months.map((ym, i) => {
-        const net = nets[i];
-        const h = Math.max(3, Math.round((Math.abs(net) / maxAbs) * 85));
-        const color = net >= 0 ? "var(--ok)" : "var(--err)";
-        const label = PER_MONTH_NAMES[parseInt(ym.slice(5, 7), 10) - 1].slice(0, 3);
-        return `<div class="per-cashflow-col" title="${escapeHtml(fmtPeriodLabel(ym))}: ${rupiah(net)}">
-          <div class="per-cashflow-bar" style="height:${h}%;background:${color};"></div>
-          <div class="per-cashflow-label">${label}</div>
-        </div>`;
-      }).join("");
+        rows.push({ ym, lbl: PER_MONTH_NAMES[d.getMonth()].slice(0, 3), full: fmtPeriodLabel(ym), inc, exp, net: inc - exp });
+      }
+      const now = rows[rows.length - 1];
+      const avg = rows.reduce((s, r) => s + r.net, 0) / rows.length;
+      const Wd = Math.max(280, wrap.clientWidth || 600), H = 190, pl = 52, pr = 6, pt = 14, pb = 28;
+      let lo = Math.min(0, ...rows.map(r => r.net)), hi = Math.max(0, ...rows.map(r => r.net));
+      if (lo === hi) hi = 1;
+      const ticks = niceTicks(lo, hi, 3); lo = ticks[0]; hi = ticks[ticks.length - 1];
+      const y = v => pt + (hi - v) / (hi - lo) * (H - pt - pb);
+      const slot = (Wd - pl - pr) / rows.length, bw = Math.min(40, slot * 0.46), r4 = Math.min(5, bw / 2);
+      const bar = (i, v) => {
+        const cx = pl + slot * i + slot / 2, x0 = cx - bw / 2, y0 = y(0), y1 = y(v);
+        const h = Math.abs(y1 - y0);
+        if (h < 1) return `<rect x="${x0}" y="${y0 - 1}" width="${bw}" height="2" rx="1" class="cf-zero-bar"/>`;
+        const rr = Math.min(r4, h);
+        return v > 0
+          ? `<path class="cf-bar up" d="M${x0},${y0} V${y1 + rr} Q${x0},${y1} ${x0 + rr},${y1} H${x0 + bw - rr} Q${x0 + bw},${y1} ${x0 + bw},${y1 + rr} V${y0} Z"/>`
+          : `<path class="cf-bar down" d="M${x0},${y0} V${y1 - rr} Q${x0},${y1} ${x0 + rr},${y1} H${x0 + bw - rr} Q${x0 + bw},${y1} ${x0 + bw},${y1 - rr} V${y0} Z"/>`;
+      };
+      const sign = v => (v > 0 ? "+" : v < 0 ? "−" : "") + rupiah(Math.abs(v));
+      wrap.className = "cf-wrap";
+      wrap.innerHTML = `<div class="cf-head">
+          <div><span class="cf-k">Bulan ini</span><b class="${now.net >= 0 ? "pos" : "neg"}">${sign(now.net)}</b><small>masuk ${rupiah(now.inc)} · keluar ${rupiah(now.exp)}</small></div>
+          <div class="cf-avg"><span class="cf-k">Rata-rata 6 bulan</span><b>${sign(Math.round(avg))}</b><small>per bulan</small></div>
+        </div>
+        <div class="cf-chart"><svg width="${Wd}" height="${H}" viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Arus kas 6 bulan terakhir">
+          ${ticks.map(t => `<line x1="${pl}" x2="${Wd - pr}" y1="${y(t)}" y2="${y(t)}" class="${t === 0 ? "cf-base" : "cf-grid"}"/><text x="${pl - 8}" y="${y(t) + 4}" text-anchor="end" class="cf-y">${t === 0 ? "0" : rpCompact(t)}</text>`).join("")}
+          ${rows.map((r, i) => `<rect class="cf-hit" data-i="${i}" x="${pl + slot * i}" y="${pt}" width="${slot}" height="${H - pt - pb}"/>`).join("")}
+          ${rows.map((r, i) => bar(i, r.net)).join("")}
+          ${rows.map((r, i) => `<text x="${pl + slot * i + slot / 2}" y="${H - 8}" text-anchor="middle" class="cf-x${i === rows.length - 1 ? " is-now" : ""}">${r.lbl}</text>`).join("")}
+        </svg><div class="nw-tip cf-tip" hidden></div></div>
+        <details class="nw-table"><summary>Lihat angka</summary><table><tr><th></th><th>Masuk</th><th>Keluar</th><th>Selisih</th></tr>${rows.map(r => `<tr><td>${escapeHtml(r.full)}</td><td>${rupiah(r.inc)}</td><td>${rupiah(r.exp)}</td><td>${sign(r.net)}</td></tr>`).join("")}</table></details>`;
+      const svg = wrap.querySelector("svg"), tip = wrap.querySelector(".cf-tip");
+      const show = (i) => {
+        const r = rows[i];
+        svg.querySelectorAll(".cf-hit").forEach(h => h.classList.toggle("on", +h.dataset.i === i));
+        tip.hidden = false;
+        tip.innerHTML = `<b>${escapeHtml(r.full)}</b><span>Masuk ${rupiah(r.inc)}</span><span>Keluar ${rupiah(r.exp)}</span><span class="cf-tip-net">Selisih ${sign(r.net)}</span>`;
+        const cx = pl + slot * i + slot / 2;
+        tip.style.left = Math.min(Wd - 180, Math.max(0, cx - 90)) + "px";
+      };
+      svg.addEventListener("pointermove", (e) => { const h = e.target.closest(".cf-hit"); if (h) show(+h.dataset.i); else { const rx = e.clientX - svg.getBoundingClientRect().left; const i = Math.floor((rx - pl) / slot); if (i >= 0 && i < rows.length) show(i); } });
+      svg.addEventListener("pointerleave", () => { tip.hidden = true; svg.querySelectorAll(".cf-hit.on").forEach(h => h.classList.remove("on")); });
+      perChartAutoResize(wrap, renderCashflow);
     }
 
     let anaPeriod = "";
@@ -17250,34 +17317,44 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         pts.push({ lbl: PER_MONTH_NAMES[d.getMonth()].slice(0, 3), full: PER_MONTH_NAMES[d.getMonth()] + " " + d.getFullYear(), v: perNetWorthAt(end) });
       }
       const cur = pts[pts.length - 1].v, prev = pts[pts.length - 2].v, delta = cur - prev;
-      const W = 640, H = 170, pl = 8, pr = 8, pt = 14, pb = 26;
+      const W = Math.max(280, (box.clientWidth || 640) - 40), H = 200, pl = 56, pr = 14, pt = 18, pb = 28;
       const vals = pts.map(p => p.v); let lo = Math.min(...vals), hi = Math.max(...vals);
-      if (lo === hi) { lo -= 1; hi += 1; }
+      if (lo === hi) { lo -= Math.abs(lo) * 0.1 || 1; hi += Math.abs(hi) * 0.1 || 1; }
+      const pad = (hi - lo) * 0.12; lo -= pad; hi += pad;
+      const ticks = niceTicks(lo, hi, 3); lo = ticks[0]; hi = ticks[ticks.length - 1];
       const x = i => pl + i * (W - pl - pr) / (pts.length - 1);
       const y = v => pt + (hi - v) / (hi - lo) * (H - pt - pb);
       const line = pts.map((p, i) => (i ? "L" : "M") + x(i).toFixed(1) + "," + y(p.v).toFixed(1)).join(" ");
-      const area = line + ` L${x(pts.length - 1).toFixed(1)},${H - pb} L${x(0).toFixed(1)},${H - pb} Z`;
+      const base = H - pb;
+      const area = line + ` L${x(pts.length - 1).toFixed(1)},${base} L${x(0).toFixed(1)},${base} Z`;
+      const gid = "nwg" + Math.random().toString(36).slice(2, 7);
+      const last = pts.length - 1;
       box.innerHTML = `<div class="nw-head"><div><div class="nw-lbl">Kekayaan bersih</div><div class="nw-val">${rupiah(cur)}</div>
           <div class="nw-delta ${delta >= 0 ? "up" : "down"}">${delta >= 0 ? "Naik" : "Turun"} ${rupiah(Math.abs(delta))} dari bulan lalu</div></div>
           <p class="hint nw-note">Saldo semua akun dikurangi sisa utang, di akhir tiap bulan.</p></div>
-        <div class="nw-chart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Kekayaan bersih 6 bulan terakhir">
-          <line x1="${pl}" x2="${W - pr}" y1="${H - pb}" y2="${H - pb}" class="nw-axis"/>
-          <path d="${area}" class="nw-area"/><path d="${line}" class="nw-line"/>
-          ${pts.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.v)}" r="4.5" class="nw-dot"/>`).join("")}
-          ${pts.map((p, i) => `<text x="${x(i)}" y="${H - 8}" text-anchor="${i === 0 ? "start" : i === pts.length - 1 ? "end" : "middle"}" class="nw-x">${p.lbl}</text>`).join("")}
-          <line class="nw-cross" x1="0" x2="0" y1="${pt}" y2="${H - pb}" style="display:none"/>
+        <div class="nw-chart"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kekayaan bersih 6 bulan terakhir">
+          <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0046ff" stop-opacity=".18"/><stop offset="1" stop-color="#0046ff" stop-opacity="0"/></linearGradient></defs>
+          ${ticks.map(t => `<line x1="${pl}" x2="${W - pr}" y1="${y(t)}" y2="${y(t)}" class="${t === 0 && lo < 0 ? "cf-base" : "cf-grid"}"/><text x="${pl - 8}" y="${y(t) + 4}" text-anchor="end" class="cf-y">${t === 0 ? "0" : rpCompact(t)}</text>`).join("")}
+          <path d="${area}" fill="url(#${gid})"/><path d="${line}" class="nw-line"/>
+          ${pts.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.v)}" r="${i === last ? 5.5 : 4}" class="nw-dot${i === last ? " is-now" : ""}"/>`).join("")}
+          ${pts.map((p, i) => `<text x="${x(i)}" y="${H - 8}" text-anchor="middle" class="cf-x${i === last ? " is-now" : ""}">${p.lbl}</text>`).join("")}
+          <line class="nw-cross" x1="0" x2="0" y1="${pt}" y2="${base}" style="display:none"/>
+          <circle class="nw-hov" r="6" cx="0" cy="0" style="display:none"/>
         </svg><div class="nw-tip" hidden></div></div>
         <details class="nw-table"><summary>Lihat angka</summary><table>${pts.map(p => `<tr><td>${p.full}</td><td>${rupiah(p.v)}</td></tr>`).join("")}</table></details>`;
-      const svg = box.querySelector("svg"), tip = box.querySelector(".nw-tip"), cross = box.querySelector(".nw-cross");
+      const svg = box.querySelector("svg"), tip = box.querySelector(".nw-tip"), cross = box.querySelector(".nw-cross"), hov = box.querySelector(".nw-hov");
       const show = (clientX) => {
-        const r = svg.getBoundingClientRect(); const rx = (clientX - r.left) / r.width * W;
-        let i = Math.round((rx - pl) / ((W - pl - pr) / (pts.length - 1))); i = Math.max(0, Math.min(pts.length - 1, i));
+        const r = svg.getBoundingClientRect(); const rx = clientX - r.left;
+        let i = Math.round((rx - pl) / ((W - pl - pr) / (pts.length - 1))); i = Math.max(0, Math.min(last, i));
         cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.style.display = "";
-        tip.hidden = false; tip.innerHTML = `<b>${pts[i].full}</b>${rupiah(pts[i].v)}`;
-        tip.style.left = Math.min(r.width - 150, Math.max(0, x(i) / W * r.width - 70)) + "px";
+        hov.setAttribute("cx", x(i)); hov.setAttribute("cy", y(pts[i].v)); hov.style.display = "";
+        const pv = i ? pts[i].v - pts[i - 1].v : null;
+        tip.hidden = false; tip.innerHTML = `<b>${pts[i].full}</b>${rupiah(pts[i].v)}${pv != null ? `<small>${pv >= 0 ? "+" : "−"}${rupiah(Math.abs(pv))} dari bulan sebelumnya</small>` : ""}`;
+        tip.style.left = Math.min(W - 190, Math.max(0, x(i) - 95)) + "px";
       };
       svg.addEventListener("pointermove", (e) => show(e.clientX));
-      svg.addEventListener("pointerleave", () => { tip.hidden = true; cross.style.display = "none"; });
+      svg.addEventListener("pointerleave", () => { tip.hidden = true; cross.style.display = "none"; hov.style.display = "none"; });
+      perChartAutoResize(box, renderPerNetWorth);
     }
 
     // ---- Anggaran: tabel ala Lunch Money + preset ----

@@ -1845,3 +1845,93 @@ body.ksr-open { overflow: hidden; }
     .so-row { padding: 11px 12px; gap: 10px; }
     .so-ava { width: 36px; height: 36px; font-size: 14px; }
 }
+
+/* ===== Grafik Keuangan: digambar di lebar asli (nggak di-stretch) ===== */
+.nw-chart svg { width: auto; height: auto; max-width: 100%; overflow: visible; }
+.nw-chart { margin-top: 14px; }
+.nw-val { font-size: 30px; letter-spacing: -.01em; }
+.nw-dot { stroke-width: 2.5; }
+.nw-dot.is-now { fill: #ffffff; stroke: var(--brand); stroke-width: 3; }
+.nw-hov { fill: var(--brand); stroke: #ffffff; stroke-width: 2.5; pointer-events: none; }
+.nw-line { stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.nw-tip { width: auto; min-width: 150px; max-width: 190px; gap: 1px; box-shadow: 0 10px 24px rgba(16, 36, 94, .25); z-index: 2; }
+.nw-tip small { font-size: 11.5px; opacity: .75; }
+.cf-grid { stroke: #eef1f8; stroke-width: 1; }
+.cf-base { stroke: #c9d2e6; stroke-width: 1.25; }
+.cf-y { font: 600 11px 'Open Sans', sans-serif; fill: #8a94ad; }
+.cf-x { font: 600 12px 'Open Sans', sans-serif; fill: var(--muted); }
+.cf-x.is-now { fill: var(--ink); font-weight: 800; }
+.cf-wrap { display: block; }
+.cf-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
+.cf-head > div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.cf-head .cf-avg { text-align: right; align-items: flex-end; }
+.cf-k { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.cf-head b { font: 800 22px 'Outfit', sans-serif; color: var(--ink); }
+.cf-head b.pos { color: #0f7a4a; } .cf-head b.neg { color: #a51c30; }
+.cf-avg b { font-size: 17px; }
+.cf-head small { font-size: 12px; color: var(--muted); }
+.cf-chart { position: relative; margin-top: 8px; }
+.cf-chart svg { display: block; max-width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+.cf-bar.up { fill: #1f9d5c; } .cf-bar.down { fill: #d64545; }
+.cf-zero-bar { fill: #c9d2e6; }
+.cf-hit { fill: transparent; cursor: pointer; }
+.cf-hit.on { fill: rgba(16, 36, 94, .04); }
+.cf-tip { top: -6px; }
+.cf-tip span { font-size: 12.5px; } .cf-tip .cf-tip-net { font-weight: 800; margin-top: 2px; }
+.nw-table th { text-align: left; font-size: 12px; color: var(--muted); padding: 2px 16px 2px 0; }
+@media (max-width: 600px) { .cf-head .cf-avg { text-align: left; align-items: flex-start; } }
+
+/* ===== Laporan keuangan toko ===== */
+.sf-panel { background: #ffffff; border-radius: 22px; padding: 20px; box-shadow: var(--shadow-sm); }
+.sf-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.sf-bar .so-period { flex: 0 0 200px; width: 200px; }
+.sf-note { margin: 0; font-size: 13px; color: var(--muted); }
+.sf-note a { color: var(--brand); font-weight: 700; text-decoration: none; }
+.sf-trend { border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px 8px; margin-bottom: 18px; }
+.sf-trend-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.sf-trend-h b { font: 800 15px 'Outfit', sans-serif; color: var(--ink); }
+.sf-trend-h span { font-size: 12px; color: var(--muted); }
+
+
+path.sf-bar { fill: #9db7ff; transition: fill .12s ease; }
+path.sf-bar.is-sel { fill: var(--brand); }
+path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
+.sf-trend svg { cursor: pointer; }
+.sf-sec-h { display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px 8px; }
+.sf-sec-h b { font: 800 16px 'Outfit', sans-serif; color: var(--ink); }
+.sf-sec-h span { font-size: 12.5px; color: var(--muted); }
+.sf-prod { border-top: 1px solid #eef1f8; }
+.sf-prod:first-child { border-top: 0; }
+.sf-prod > summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; transition: background-color .12s ease; }
+.sf-prod > summary::-webkit-details-marker { display: none; }
+.sf-prod > summary:hover { background: #f6f8fe; }
+.sf-prod[open] > summary { background: #f6f8fe; }
+.sf-ava { width: 38px; height: 38px; flex-shrink: 0; border-radius: 11px; color: #ffffff; display: inline-flex; align-items: center; justify-content: center; font: 800 14px 'Outfit', sans-serif; }
+.sf-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.sf-main b { font-size: 15px; font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sf-main small { font-size: 12px; color: var(--muted); }
+.sf-share { display: block; height: 6px; border-radius: 999px; background: #eef1f8; overflow: hidden; max-width: 260px; }
+.sf-share i { display: block; height: 100%; border-radius: 999px; background: var(--brand); }
+.sf-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.sf-right b { font: 800 15.5px 'Outfit', sans-serif; color: var(--ink); white-space: nowrap; }
+.sf-right small { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.sf-right small.pos { color: #0f7a4a; } .sf-right small.neg { color: #a51c30; }
+.sf-txs { padding: 2px 14px 10px 64px; background: #f6f8fe; }
+.sf-tx { display: grid; grid-template-columns: 1fr auto auto; gap: 4px 14px; align-items: baseline; padding: 7px 0; border-top: 1px dashed #dfe5f2; font-size: 13px; }
+.sf-tx:first-child { border-top: 0; }
+.sf-tx span { color: #4a5674; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sf-tx b { font-weight: 700; color: var(--ink); white-space: nowrap; }
+.sf-tx em { font-style: normal; font-size: 12px; color: #0f7a4a; white-space: nowrap; }
+.sf-tx em.neg { color: #a51c30; }
+@media (max-width: 680px) {
+    .sf-panel { padding: 14px; border-radius: 18px; }
+    .sf-bar .so-period { flex: 1 1 100%; width: 100%; }
+    .sf-stats .so-stat.is-profit { grid-column: 1 / -1; }
+    .sf-trend { padding: 12px 10px 6px; }
+    .sf-prod > summary { padding: 11px 12px; gap: 10px; }
+    .sf-txs { padding-left: 14px; }
+    .sf-tx { grid-template-columns: 1fr auto; }
+    .sf-tx em { grid-column: 2; text-align: right; }
+}
+.sf-main small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 680px) { .sf-right small { white-space: normal; text-align: right; max-width: 150px; } .sf-tx em { display: none; } }
