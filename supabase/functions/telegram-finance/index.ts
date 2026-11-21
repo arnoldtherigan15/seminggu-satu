@@ -131,6 +131,7 @@ async function handleCallback(admin: Admin, q: any, s: Record<string, string>) {
   if (!s.tg_chat_id || chatId !== s.tg_chat_id) return answer();
   const data: string = q.data || "";
   const [kind, id, extra] = data.split(":");
+  if (kind === "bp") return payBillFromChat(admin, q, chatId, id, answer);
   const { data: t } = await admin.from("personal_transactions").select("*").eq("id", id).maybeSingle();
   if (!t) { await answer("Transaksinya udah nggak ada."); return tg("editMessageReplyMarkup", { chat_id: chatId, message_id: q.message.message_id, reply_markup: { inline_keyboard: [] } }); }
   const ctx = await loadCtx(admin);
@@ -222,4 +223,36 @@ async function readReceipt(fileId: string): Promise<{ ok: boolean; error?: strin
     const date = /^\d{4}-\d{2}-\d{2}$/.test(String(j.date || "")) && j.date <= todayWib() ? `${j.date.slice(8, 10)}/${j.date.slice(5, 7)}/${j.date.slice(0, 4)}` : "";
     return { ok: true, merchant: String(j.merchant || "").replace(/\d+/g, "").trim().slice(0, 60), total, date };
   } catch (_e) { return { ok: false, error: "Hasil bacaan fotonya aneh. Coba ketik aja ya." }; }
+}
+
+// Tombol "Lunas & catat" dari pengingat tagihan (cron-finance-telegram):
+// catat pengeluaran dari akun yang paling sering dipakai + tandai lunas.
+// deno-lint-ignore no-explicit-any
+async function payBillFromChat(admin: Admin, q: any, chatId: string, billId: string, answer: (t?: string) => Promise<unknown>) {
+  const { data: bill } = await admin.from("personal_bills").select("id, name, amount, reset_day").eq("id", billId).maybeSingle();
+  if (!bill) { await answer("Tagihannya nggak ketemu."); return; }
+  // periode = periode yang jatuh temponya (besok atau hari ini) -- sama kayak billPeriodKey di admin
+  const d = new Date(Date.now() + 7 * 3600 * 1000);
+  const iso = d.toISOString().slice(0, 10);
+  let y = Number(iso.slice(0, 4)), m = Number(iso.slice(5, 7)) - 1;
+  if (Number(iso.slice(8, 10)) + 1 < bill.reset_day) { m -= 1; if (m < 0) { m = 11; y -= 1; } }
+  const periodKey = `${y}-${String(m + 1).padStart(2, "0")}`;
+  const { data: already } = await admin.from("personal_bill_payments").select("id").eq("bill_id", billId).eq("period_key", periodKey).maybeSingle();
+  if (already) { await answer("Udah lunas."); return tg("editMessageReplyMarkup", { chat_id: chatId, message_id: q.message.message_id, reply_markup: { inline_keyboard: [] } }); }
+  const ctx = await loadCtx(admin);
+  const cnt = new Map<string, number>();
+  for (const h of ctx.history.slice(0, 200)) cnt.set(h.account_id, (cnt.get(h.account_id) || 0) + 1);
+  const ok = ctx.accounts.filter((a: { archived?: boolean }) => !a.archived);
+  const accId = ([...cnt.entries()].filter(([id]) => ok.some((a: { id: string }) => a.id === id)).sort((a, b) => b[1] - a[1])[0] || [ok[0] && ok[0].id])[0];
+  if (!accId) { await answer("Belum ada akun."); return; }
+  const cat = ctx.categories.find((c: { type: string; name: string; archived?: boolean }) => c.type === "expense" && !c.archived && /tagihan|langganan/i.test(c.name));
+  const { data: tx, error } = await admin.from("personal_transactions").insert({
+    date: iso, type: "expense", amount: bill.amount, account_id: accId, category_id: cat ? cat.id : null, note: bill.name, source: "bill",
+  }).select("id").single();
+  if (error) { await answer("Gagal nyatet."); return; }
+  await admin.from("personal_bill_payments").upsert({ bill_id: billId, period_key: periodKey, transaction_id: tx.id }, { onConflict: "bill_id,period_key" });
+  const accName = (ok.find((a: { id: string }) => a.id === accId) || { name: "?" }).name;
+  await answer("Lunas & kecatat");
+  return send(chatId, `Lunas: ${escHtml(bill.name)} · <b>${rp(bill.amount)}</b>
+Kecatat dari ${escHtml(accName)}.`, { inline_keyboard: [[{ text: "Batalkan", callback_data: "u:" + tx.id }]] });
 }

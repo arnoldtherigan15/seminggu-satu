@@ -214,7 +214,11 @@ Deno.serve(async (req) => {
       // ---------- Catat lewat Telegram ----------
       // Pakai bot notif yang udah ada (TELEGRAM_TOKEN, cuma di production).
       case "telegramStatus": {
-        const st = await getSettings(admin, ["tg_chat_id", "tg_chat_name", "tg_bot_username"]);
+        const st = await getSettings(admin, ["tg_chat_id", "tg_chat_name", "tg_bot_username", "cron_key", "functions_base"]);
+        // siapin setting buat job pengingat (pg_cron baca dari sini) -- sekali aja
+        if (!st.cron_key || st.functions_base !== Deno.env.get("SUPABASE_URL")) {
+          await setSettings(admin, { cron_key: st.cron_key || randomHex(24), functions_base: Deno.env.get("SUPABASE_URL") || "" });
+        }
         return jsonResponse({
           status: "success", prod: isProdProject(), tokenSet: !!Deno.env.get("TELEGRAM_TOKEN"),
           linked: !!st.tg_chat_id, chatName: st.tg_chat_name || "", botUsername: st.tg_bot_username || "",
