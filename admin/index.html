@@ -5291,7 +5291,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
             <div class="subtab-panel" data-tab="walkin">
               <div class="toolbar">
-                <button class="btn btn-sm" id="shopOrdWalkinNewBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Pembeli Baru</button>
+                <button class="btn btn-sm" id="shopOrdWalkinNewBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Order baru</button>
                 <div class="field">
                   <label for="shopOrdWalkinYearSelect">Tahun</label>
                   <select class="form-control" id="shopOrdWalkinYearSelect"></select>
@@ -14268,28 +14268,200 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       wireShopOrdRowHandlers(listEl, "semua");
     }
 
+    // Order baru (pembeli lain ATAU peserta event) -> Kasir cepat (1 layar, 1 request)
     async function startNewShopOrder(reg, walkin) {
-      let workshop = null, batchId = null;
-      if (!walkin) {
-        workshop = document.getElementById("shopOrdWorkshopSelect").value;
-        batchId = document.getElementById("shopOrdBatchSelect").value;
-      }
-      const buyerName = reg ? (reg.full_name || reg.nickname || "") : ((await abAsk("Order baru", "Nama pembeli", "")) || "").trim();
-      if (!buyerName) return;
-      const buyerWa = reg ? (reg.wa || "") : "";
-      try {
-        const r = await api("saveShopOrder", {
-          token: getToken(), workshopType: workshop, batchId, registrationId: reg ? reg.id : null,
-          buyerName, buyerWa,
+      if (walkin) return openKasir({ source: "walkin" });
+      openKasir({
+        source: "event",
+        workshopType: document.getElementById("shopOrdWorkshopSelect").value || null,
+        batchId: document.getElementById("shopOrdBatchSelect").value || null,
+        registrationId: reg ? reg.id : null,
+        buyerName: reg ? (reg.full_name || reg.nickname || "") : "",
+        buyerWa: reg ? (reg.wa || "") : "",
+      });
+    }
+
+    // ===================== KASIR CEPAT (Order toko) =====================
+    // 1 layar: nama pembeli -> ketuk produk (− / +, varian) -> Simpan. Semua
+    // kesimpen dalam 1 request (admin-api quickShopOrder: cek stok dulu, nggak
+    // pernah setengah jadi). Default "Lunas" & "Ambil langsung" nyala -- kasus
+    // paling umum di booth. Habis simpan langsung bisa kirim invoice/WA.
+    const KSR = { ctx: null, cart: new Map(), q: "", busy: false };
+    function ksrKnownBuyers() {
+      const seen = new Map();
+      [...SHOPORD_WALKIN_ORDERS, ...SHOPORD_ALL_ORDERS, ...SHOPORD_ORDERS].forEach(o => {
+        const k = (o.buyerName || "").trim().toLowerCase();
+        if (k && !seen.has(k)) seen.set(k, { name: o.buyerName.trim(), wa: o.buyerWa || "" });
+      });
+      return [...seen.values()];
+    }
+    async function openKasir(ctx) {
+      KSR.ctx = Object.assign({ buyerName: "", buyerWa: "", workshopType: null, batchId: null, registrationId: null, source: "walkin" }, ctx || {});
+      KSR.cart = new Map(); KSR.q = ""; KSR.busy = false;
+      let ov = document.getElementById("ksrOv");
+      if (!ov) {
+        ov = document.createElement("div"); ov.id = "ksrOv"; ov.className = "ksr-ov";
+        ov.innerHTML = `<div class="ksr" role="dialog" aria-modal="true" aria-labelledby="ksrT">
+            <div class="ksr-head"><b id="ksrT">Order baru</b><button type="button" class="ksr-x" data-ksr="close" aria-label="Tutup">&times;</button></div>
+            <div class="ksr-body">
+              <div class="ksr-buyer">
+                <input class="form-control" id="ksrName" list="ksrBuyers" placeholder="Nama pembeli" autocomplete="off" aria-label="Nama pembeli">
+                <input class="form-control" id="ksrWa" inputmode="tel" placeholder="No. WA (opsional)" aria-label="Nomor WA">
+                <datalist id="ksrBuyers"></datalist>
+              </div>
+              <input class="form-control ksr-search" id="ksrSearch" type="search" placeholder="Cari produk / kode…" aria-label="Cari produk" autocomplete="off">
+              <div class="ksr-grid" id="ksrGrid"></div>
+            </div>
+            <div class="ksr-foot">
+              <div class="ksr-cart" id="ksrCart"></div>
+              <div class="ksr-opts">
+                <label class="ksr-tog"><input type="checkbox" id="ksrPaid" checked> Lunas</label>
+                <label class="ksr-tog"><input type="checkbox" id="ksrCod" checked> Ambil langsung</label>
+              </div>
+              <textarea class="form-control ksr-addr" id="ksrAddr" rows="2" placeholder="Alamat kirim" hidden></textarea>
+              <div class="ksr-msg" id="ksrMsg" aria-live="polite"></div>
+              <button type="button" class="btn ksr-save" id="ksrSave" disabled>Simpan order</button>
+            </div>
+            <div class="ksr-done" id="ksrDone" hidden></div>
+          </div>`;
+        document.body.appendChild(ov);
+        ov.addEventListener("click", ksrOnClick);
+        ov.querySelector("#ksrSearch").addEventListener("input", (e) => { KSR.q = e.target.value.trim().toLowerCase(); ksrRenderGrid(); });
+        ov.querySelector("#ksrName").addEventListener("input", (e) => {
+          const b = ksrKnownBuyers().find(x => x.name.toLowerCase() === e.target.value.trim().toLowerCase());
+          const wa = ov.querySelector("#ksrWa"); if (b && b.wa && !wa.value) wa.value = b.wa;
+          ksrSync();
         });
-        if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal bikin pesanan."); return; }
-        openShopOrdEditor({
-          id: r.id, workshopType: workshop, batchId, registrationId: reg ? reg.id : null,
-          buyerName, buyerWa, items: [], total: 0, isPaid: false,
-        }, walkin ? "walkin" : "event");
-      } catch (e) {
-        alert("Gagal terhubung ke server.");
+        ov.querySelector("#ksrCod").addEventListener("change", (e) => { ov.querySelector("#ksrAddr").hidden = e.target.checked; });
+        ov.querySelector("#ksrCart").addEventListener("input", (e) => { const n = e.target.closest("[data-ksrnote]"); if (n) { const l = KSR.cart.get(n.dataset.ksrnote); if (l) l.notes = n.value; } });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape" && document.getElementById("ksrOv").classList.contains("show")) closeKasir(); });
       }
+      ov.querySelector("#ksrT").textContent = KSR.ctx.registrationId ? "Order peserta" : "Order baru";
+      ov.querySelector("#ksrName").value = KSR.ctx.buyerName; ov.querySelector("#ksrWa").value = KSR.ctx.buyerWa;
+      ov.querySelector("#ksrBuyers").innerHTML = ksrKnownBuyers().map(b => `<option value="${escapeHtml(b.name)}">`).join("");
+      ov.querySelector("#ksrSearch").value = "";
+      ov.querySelector("#ksrPaid").checked = true; ov.querySelector("#ksrCod").checked = true;
+      ov.querySelector("#ksrAddr").hidden = true; ov.querySelector("#ksrAddr").value = "";
+      ov.querySelector("#ksrMsg").textContent = "";
+      ov.querySelector("#ksrDone").hidden = true;
+      ov.querySelector(".ksr-body").hidden = false; ov.querySelector(".ksr-foot").hidden = false;
+      ov.classList.add("show"); document.body.classList.add("ksr-open");
+      if (!SHOPORD_PRODUCTS_CACHE.length) {
+        ov.querySelector("#ksrGrid").innerHTML = skelLines(3);
+        const r = await api("listShopProducts", { token: getToken() });
+        if (r.status === "success") SHOPORD_PRODUCTS_CACHE = r.products || [];
+        else handleAuthError(r);
+      }
+      ksrRenderGrid(); ksrRenderCart();
+      setTimeout(() => { const n = ov.querySelector(KSR.ctx.buyerName ? "#ksrSearch" : "#ksrName"); if (n && !matchMedia("(max-width: 680px)").matches) n.focus(); }, 60);
+    }
+    function closeKasir() {
+      const ov = document.getElementById("ksrOv"); if (!ov) return;
+      ov.classList.remove("show"); document.body.classList.remove("ksr-open");
+    }
+    function ksrRenderGrid() {
+      const grid = document.getElementById("ksrGrid");
+      const q = KSR.q;
+      const list = SHOPORD_PRODUCTS_CACHE.filter(p => p.sellPrice != null && (!q || (p.name + " " + (p.code || "")).toLowerCase().includes(q)))
+        .sort((a, b) => ((b.stockQty > 0) - (a.stockQty > 0)) || a.name.localeCompare(b.name, "id"));
+      if (!list.length) { grid.innerHTML = `<p class="hint" style="grid-column:1/-1;">${q ? "Produk nggak ketemu." : "Belum ada produk dengan harga jual. Atur di menu Produk."}</p>`; return; }
+      grid.innerHTML = list.map(p => {
+        const inCart = [...KSR.cart.values()].filter(l => l.p.id === p.id).reduce((s, l) => s + l.qty, 0);
+        const left = p.stockQty - inCart;
+        return `<button type="button" class="ksr-p${inCart ? " is-in" : ""}" data-ksradd="${p.id}" ${left <= 0 ? "disabled" : ""} aria-label="Tambah ${escapeHtml(p.name)}">
+            <span class="ksr-p-img">${p.image ? `<img src="${escapeHtml(p.image)}" alt="" loading="lazy">` : icon("cart")}${inCart ? `<span class="ksr-p-n">${inCart}</span>` : ""}</span>
+            <b>${escapeHtml(p.name)}</b>
+            <small>${rupiah(p.sellPrice)} · ${left <= 0 ? "habis" : "sisa " + left}</small>
+          </button>`;
+      }).join("");
+    }
+    function ksrRenderCart() {
+      const box = document.getElementById("ksrCart");
+      const lines = [...KSR.cart.entries()];
+      box.innerHTML = lines.length ? lines.map(([k, l]) => `<div class="ksr-line">
+          <span class="ksr-line-main"><b>${escapeHtml(l.p.name)}</b><input class="ksr-note" data-ksrnote="${k}" value="${escapeHtml(l.notes || "")}" placeholder="varian / catatan" aria-label="Catatan ${escapeHtml(l.p.name)}"></span>
+          <span class="ksr-qty"><button type="button" data-ksrdec="${k}" aria-label="Kurangi">−</button><b>${l.qty}</b><button type="button" data-ksrinc="${k}" aria-label="Tambah" ${l.qty >= l.p.stockQty ? "disabled" : ""}>+</button></span>
+          <span class="ksr-line-amt">${rupiah(l.qty * l.p.sellPrice)}</span>
+        </div>`).join("") : `<p class="ksr-empty">Ketuk produk di atas buat nambahin.</p>`;
+      ksrSync();
+    }
+    function ksrSync() {
+      const total = [...KSR.cart.values()].reduce((s, l) => s + l.qty * l.p.sellPrice, 0);
+      const btn = document.getElementById("ksrSave");
+      const name = document.getElementById("ksrName").value.trim();
+      btn.disabled = KSR.busy || !KSR.cart.size || !name;
+      btn.textContent = KSR.cart.size ? `Simpan order · ${rupiah(total)}` : "Simpan order";
+      btn.title = !name ? "Isi nama pembeli dulu" : "";
+    }
+    async function ksrOnClick(e) {
+      const ov = document.getElementById("ksrOv");
+      if (e.target === ov || e.target.closest('[data-ksr="close"]')) return closeKasir();
+      const add = e.target.closest("[data-ksradd]");
+      if (add) {
+        const p = SHOPORD_PRODUCTS_CACHE.find(x => x.id === add.dataset.ksradd); if (!p) return;
+        // 1 produk = 1 baris; mau varian beda -> ketuk "+" di baris lalu tulis catatannya, atau tambah lagi setelah isi catatan
+        const k = [...KSR.cart.keys()].find(key => KSR.cart.get(key).p.id === p.id && !KSR.cart.get(key).notes) || (p.id + ":" + Date.now());
+        const l = KSR.cart.get(k) || { p, qty: 0, notes: "" };
+        const used = [...KSR.cart.values()].filter(x => x.p.id === p.id).reduce((s, x) => s + x.qty, 0);
+        if (used >= p.stockQty) return;
+        l.qty++; KSR.cart.set(k, l);
+        ksrRenderGrid(); ksrRenderCart();
+        return;
+      }
+      const inc = e.target.closest("[data-ksrinc]"), dec = e.target.closest("[data-ksrdec]");
+      if (inc || dec) {
+        const k = (inc || dec).dataset[inc ? "ksrinc" : "ksrdec"]; const l = KSR.cart.get(k); if (!l) return;
+        const used = [...KSR.cart.values()].filter(x => x.p.id === l.p.id).reduce((s, x) => s + x.qty, 0);
+        if (inc && used < l.p.stockQty) l.qty++;
+        if (dec) { l.qty--; if (l.qty <= 0) KSR.cart.delete(k); }
+        ksrRenderGrid(); ksrRenderCart();
+        return;
+      }
+      if (e.target.closest("#ksrSave")) return ksrSave();
+      const act = e.target.closest("[data-ksrdone]");
+      if (act) {
+        const a = act.dataset.ksrdone;
+        if (a === "again") openKasir({ source: KSR.ctx.source });
+        else if (a === "invoice") downloadShopOrderInvoiceFn();
+        else if (a === "wa") openShopOrdWaFn();
+        else if (a === "close") closeKasir();
+      }
+    }
+    async function ksrSave() {
+      const name = document.getElementById("ksrName").value.trim();
+      if (!name || !KSR.cart.size || KSR.busy) return;
+      const isCod = document.getElementById("ksrCod").checked;
+      const msg = document.getElementById("ksrMsg");
+      KSR.busy = true; ksrSync(); msg.textContent = "Menyimpan…";
+      const r = await api("quickShopOrder", {
+        token: getToken(), buyerName: name, buyerWa: document.getElementById("ksrWa").value.trim(),
+        workshopType: KSR.ctx.workshopType, batchId: KSR.ctx.batchId, registrationId: KSR.ctx.registrationId,
+        isPaid: document.getElementById("ksrPaid").checked, isCod, deliveryAddress: isCod ? "" : document.getElementById("ksrAddr").value.trim(),
+        items: [...KSR.cart.values()].map(l => ({ productId: l.p.id, qty: l.qty, notes: l.notes || "" })),
+      });
+      KSR.busy = false;
+      if (r.status !== "success") { handleAuthError(r); msg.textContent = r.message || "Gagal nyimpen."; ksrSync(); return; }
+      msg.textContent = "";
+      const o = r.order;
+      // stok lokal ikut kepotong biar grid berikutnya akurat
+      o.items.forEach(it => { const p = SHOPORD_PRODUCTS_CACHE.find(x => x.id === it.productId); if (p) p.stockQty -= it.qty; });
+      SHOPORD_CURRENT = Object.assign({}, o, { items: o.items.map(it => Object.assign({}, it)) }); // dipakai invoice/WA
+      const ov = document.getElementById("ksrOv");
+      ov.querySelector(".ksr-body").hidden = true; ov.querySelector(".ksr-foot").hidden = true;
+      const done = ov.querySelector("#ksrDone");
+      done.hidden = false;
+      done.innerHTML = `<div class="ksr-ok">${icon("checkCircle")}</div>
+        <b class="ksr-ok-t">Order ${escapeHtml(o.buyerName)} tersimpan</b>
+        <p>${o.items.length} produk · ${rupiah(o.total)} · ${o.isPaid ? "Lunas" : "Belum bayar"}</p>
+        <div class="ksr-done-acts">
+          ${o.buyerWa ? `<button type="button" class="btn" data-ksrdone="wa">${icon("chat")} Kirim ke WA</button>` : ""}
+          <button type="button" class="btn ${o.buyerWa ? "btn-ghost" : ""}" data-ksrdone="invoice">${icon("download")} Invoice PDF</button>
+          <button type="button" class="btn btn-ghost" data-ksrdone="again">${icon("plus")} Order lagi</button>
+          <button type="button" class="ksr-close-link" data-ksrdone="close">Selesai</button>
+        </div>`;
+      abToast("Order tersimpan", "ok");
+      // segarkan daftar di belakang
+      try { if (KSR.ctx.source === "walkin") loadShopOrdWalkinList(); else if (KSR.ctx.source === "semua") loadShopOrdAllList(); else loadShopOrdList(); } catch (err) {}
     }
 
     function openShopOrdEditor(order, source) {

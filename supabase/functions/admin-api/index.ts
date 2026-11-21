@@ -101,6 +101,33 @@ function parseIdDate(input: string): string | null {
   return null; // format nggak dikenal -- biar caller yang mutusin
 }
 
+// HPP per unit SAAT INI (bahan + biaya lain) -- di-snapshot ke shop_sales
+// tiap penjualan. Dipakai addShopOrderItem & quickShopOrder (sama persis
+// logikanya kayak Edge Function publik shop-sell / scan QR).
+// deno-lint-ignore no-explicit-any
+async function computeUnitHpp(admin: any, product: any): Promise<number> {
+  const materials = Array.isArray(product.materials) ? product.materials : [];
+  const extraCosts = Array.isArray(product.extra_costs) ? product.extra_costs : [];
+  let materialCost = 0;
+  if (materials.length) {
+    // deno-lint-ignore no-explicit-any
+    const ids = materials.map((m: any) => m.materialId).filter(Boolean);
+    const { data: matRows } = await admin.from("shop_materials").select("id, purchase_qty, price").in("id", ids);
+    // deno-lint-ignore no-explicit-any
+    const matById = new Map((matRows || []).map((m: any) => [m.id, m]));
+    // deno-lint-ignore no-explicit-any
+    for (const m of materials as any[]) {
+      // deno-lint-ignore no-explicit-any
+      const mat: any = matById.get(m.materialId);
+      const unitCost = mat && Number(mat.purchase_qty) > 0 ? Number(mat.price) / Number(mat.purchase_qty) : 0;
+      materialCost += unitCost * (Number(m.qty) || 0);
+    }
+  }
+  // deno-lint-ignore no-explicit-any
+  const extraTotal = extraCosts.reduce((sum: number, e: any) => sum + (Number(e.amount) || 0), 0);
+  return Math.round(materialCost + extraTotal);
+}
+
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
   if (opt) return opt;
@@ -1771,27 +1798,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         const currentStock = Number(product.stock_qty) || 0;
         if (qty > currentStock) return errorResponse(`Stok "${product.name}" cuma tersisa ${currentStock}.`);
 
-        // Hitung HPP SAAT INI & snapshot ke shop_sales -- logic sama persis
-        // kayak Edge Function publik shop-sell (scan QR).
-        const materials = Array.isArray(product.materials) ? product.materials : [];
-        const extraCosts = Array.isArray(product.extra_costs) ? product.extra_costs : [];
-        let materialCost = 0;
-        if (materials.length) {
-          // deno-lint-ignore no-explicit-any
-          const ids = materials.map((m: any) => m.materialId).filter(Boolean);
-          const { data: matRows } = await admin.from("shop_materials").select("id, purchase_qty, price").in("id", ids);
-          // deno-lint-ignore no-explicit-any
-          const matById = new Map((matRows || []).map((m: any) => [m.id, m]));
-          // deno-lint-ignore no-explicit-any
-          for (const m of materials as any[]) {
-            const mat = matById.get(m.materialId);
-            const unitCost = mat && Number(mat.purchase_qty) > 0 ? Number(mat.price) / Number(mat.purchase_qty) : 0;
-            materialCost += unitCost * (Number(m.qty) || 0);
-          }
-        }
-        // deno-lint-ignore no-explicit-any
-        const extraTotal = extraCosts.reduce((sum: number, e: any) => sum + (Number(e.amount) || 0), 0);
-        const unitHpp = Math.round(materialCost + extraTotal);
+        const unitHpp = await computeUnitHpp(admin, product);
         const unitSellPrice = product.sell_price != null ? Number(product.sell_price) : 0;
 
         const { error: saleErr } = await admin.from("shop_sales").insert({
@@ -1801,6 +1808,85 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         const { error: stockErr } = await admin.from("shop_products").update({ stock_qty: currentStock - qty }).eq("id", productId);
         if (stockErr) return errorResponse("Gagal update stok: " + stockErr.message);
         return jsonResponse({ status: "success", message: "Item ditambahkan." });
+      }
+
+      // "Kasir cepat": 1 request = order + semua item + status lunas. Stok
+      // SEMUA item dicek dulu sebelum apa pun disimpan, dan kalau ada yang
+      // gagal di tengah jalan order-nya dihapus lagi + stok dibalikin -- biar
+      // nggak pernah ada order setengah jadi.
+      case "quickShopOrder": {
+        const buyerName = String(data.buyerName || "").trim();
+        if (!buyerName) return errorResponse("Nama pembeli wajib diisi.");
+        // deno-lint-ignore no-explicit-any
+        const rawItems = (Array.isArray(data.items) ? data.items : []) as any[];
+        const want = new Map<string, number>();
+        for (const it of rawItems) {
+          const pid = String(it.productId || ""), q = Math.round(Number(it.qty) || 0);
+          if (!pid || q <= 0) return errorResponse("Ada item yang jumlahnya belum bener.");
+          want.set(pid, (want.get(pid) || 0) + q);
+        }
+        if (!want.size) return errorResponse("Belum ada produk yang dipilih.");
+        const { data: prods, error: pe } = await admin.from("shop_products").select("*").in("id", [...want.keys()]);
+        if (pe) return errorResponse("Gagal ambil produk: " + pe.message);
+        // deno-lint-ignore no-explicit-any
+        const byId = new Map((prods || []).map((p: any) => [p.id, p]));
+        for (const [pid, q] of want) {
+          // deno-lint-ignore no-explicit-any
+          const p: any = byId.get(pid);
+          if (!p) return errorResponse("Ada produk yang udah nggak ada. Muat ulang dulu ya.");
+          if (q > (Number(p.stock_qty) || 0)) return errorResponse(`Stok "${p.name}" cuma tersisa ${Number(p.stock_qty) || 0}.`);
+        }
+        const isCod = data.isCod !== false;
+        const { data: order, error: oe } = await admin.from("shop_orders").insert({
+          workshop_type: data.workshopType ? String(data.workshopType) : null,
+          batch_id: data.batchId ? String(data.batchId) : null,
+          registration_id: data.registrationId ? String(data.registrationId) : null,
+          buyer_name: buyerName, buyer_wa: data.buyerWa ? String(data.buyerWa).trim() : null,
+          is_cod: isCod, delivery_address: !isCod && data.deliveryAddress ? String(data.deliveryAddress).trim() : null,
+          is_paid: !!data.isPaid,
+        }).select("*").single();
+        if (oe) return errorResponse("Gagal bikin order: " + oe.message);
+        const done: { pid: string; q: number }[] = [];
+        const outItems: Record<string, unknown>[] = [];
+        try {
+          const hpp = new Map<string, number>();
+          for (const pid of want.keys()) hpp.set(pid, await computeUnitHpp(admin, byId.get(pid)));
+          for (const it of rawItems) {
+            const pid = String(it.productId), q = Math.round(Number(it.qty));
+            // deno-lint-ignore no-explicit-any
+            const p: any = byId.get(pid);
+            const price = p.sell_price != null ? Number(p.sell_price) : 0;
+            const notes = it.notes ? String(it.notes).trim().slice(0, 200) : null;
+            const { data: sale, error: se } = await admin.from("shop_sales").insert({
+              product_id: pid, qty: q, unit_sell_price: price, unit_hpp: hpp.get(pid) || 0, order_id: order.id, notes,
+            }).select("id").single();
+            if (se) throw new Error(se.message);
+            outItems.push({ id: sale.id, productId: pid, productName: p.name, qty: q, unitSellPrice: price, unitHpp: hpp.get(pid) || 0, lineTotal: q * price, notes });
+          }
+          for (const [pid, q] of want) {
+            // deno-lint-ignore no-explicit-any
+            const p: any = byId.get(pid);
+            const { error: ue } = await admin.from("shop_products").update({ stock_qty: (Number(p.stock_qty) || 0) - q }).eq("id", pid);
+            if (ue) throw new Error(ue.message);
+            done.push({ pid, q });
+          }
+        } catch (e) {
+          // balikin: stok yang udah kepotong + hapus order (shop_sales ikut lewat cascade/hapus manual)
+          for (const d of done) {
+            // deno-lint-ignore no-explicit-any
+            const p: any = byId.get(d.pid);
+            await admin.from("shop_products").update({ stock_qty: Number(p.stock_qty) || 0 }).eq("id", d.pid);
+          }
+          await admin.from("shop_sales").delete().eq("order_id", order.id);
+          await admin.from("shop_orders").delete().eq("id", order.id);
+          return errorResponse("Gagal nyimpen order: " + (e as Error).message);
+        }
+        const total = outItems.reduce((a, x) => a + Number(x.lineTotal), 0);
+        return jsonResponse({ status: "success", order: {
+          id: order.id, workshopType: order.workshop_type, batchId: order.batch_id, registrationId: order.registration_id,
+          buyerName: order.buyer_name, buyerWa: order.buyer_wa, isPaid: !!order.is_paid, isCod: !!order.is_cod,
+          deliveryAddress: order.delivery_address || null, items: outItems, total, createdAt: order.created_at,
+        } });
       }
 
       case "deleteShopOrderItem": {
