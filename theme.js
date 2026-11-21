@@ -52,7 +52,7 @@ window.SS_ICON_SUN = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none
         btn.type = "button";
         btn.title = "Ganti tema";
         btn.setAttribute("aria-label", "Ganti tema gelap/terang");
-        btn.style.cssText = "position:fixed;top:14px;right:14px;z-index:2000;width:42px;height:42px;" +
+        btn.style.cssText = "position:absolute;top:14px;right:14px;z-index:2000;width:42px;height:42px;" +
             "border-radius:50%;border:1px solid rgba(120,130,160,.35);cursor:pointer;" +
             "line-height:1;display:flex;align-items:center;justify-content:center;padding:0;" +
             "box-shadow:0 6px 18px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);" +

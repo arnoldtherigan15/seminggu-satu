@@ -41,7 +41,8 @@
     // --- gaya (ngikut warna tema halaman lewat --primary-color / --accent-color) ---
     const css = document.createElement('style');
     css.textContent = `
-.rs-progress{position:sticky;top:0;z-index:20;background:inherit;padding:12px 0 14px;margin:0 0 6px}
+.rs-progress{position:sticky;top:0;z-index:20;background:var(--paper,#fff);padding:12px 1.05rem 12px 10px;margin:0 -1.05rem 6px -10px;transition:box-shadow .15s ease}
+.rs-progress.is-stuck{box-shadow:0 10px 14px -12px rgba(16,36,94,.35);border-radius:0 0 12px 12px}
 .rs-progress-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:9px}
 .rs-progress-top b{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800}
 .rs-progress-top span{font-size:13px;opacity:.65;font-weight:600;white-space:nowrap}
@@ -248,6 +249,9 @@
         progress.after(note);
         setTimeout(() => note.remove(), 6000);
     }
+    // bayangan tipis pas header langkah nempel di atas (biar kebaca kepisah dari isi)
+    const stuck = () => progress.classList.toggle('is-stuck', progress.getBoundingClientRect().top <= 1 && form.getBoundingClientRect().top < 0);
+    window.addEventListener('scroll', stuck, { passive: true }); stuck();
     // config workshop datang belakangan (mis. section foto baru dimunculin) -> hitung ulang jumlah langkah
     window.addEventListener('workshops:updated', () => setTimeout(() => show(Math.min(cur, active().length - 1), false), 0));
 })();
