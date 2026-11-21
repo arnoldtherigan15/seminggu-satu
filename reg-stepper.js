@@ -53,8 +53,13 @@
 .rs-step[hidden]{display:none!important}
 .rs-sub{margin:-2px 0 14px;font-size:14px;opacity:.7}
 .rs-nav{display:flex;gap:10px;margin-top:18px}
-.rs-nav .submit-btn{margin-top:0}
-.rs-back{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:52px;padding:0 18px;border-radius:12px;border:1.5px solid rgba(0,0,0,.15);background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer;transition:transform .12s ease,border-color .12s ease}
+.rs-nav{align-items:stretch}
+.rs-nav .submit-btn{margin-top:0;min-height:56px;transform:none;box-shadow:0 6px 16px rgba(0,70,255,.22)}
+.rs-nav .submit-btn::after{display:none}
+.rs-nav .submit-btn:hover{transform:translateY(-1px)}
+.rs-nav .submit-btn:active{transform:scale(.98)}
+.rs-nav .submit-btn:disabled{transform:none;box-shadow:none}
+.rs-back{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:56px;padding:0 20px;border-radius:14px;border:1.5px solid rgba(0,0,0,.15);background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer;transition:transform .12s ease,border-color .12s ease}
 .rs-back:hover{border-color:var(--primary-color,#000)}
 .rs-back:active,.rs-next:active{transform:scale(.98)}
 .rs-next{flex:1}
