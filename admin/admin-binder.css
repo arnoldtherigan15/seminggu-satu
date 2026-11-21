@@ -878,3 +878,41 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .tr-tag { justify-self: end; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; background: #f1f5f9; color: #475569; white-space: nowrap; }
 .tr-tag.up { background: #ffe3e6; color: #a51c30; } .tr-tag.down { background: #e3f6ea; color: #0b5d38; } .tr-tag.new { background: #e6edff; color: var(--brand); }
 @media (max-width: 560px) { .tr-row { grid-template-columns: minmax(0, 1fr) 90px 70px; } .tr-bar { grid-column: 1 / -1; order: 5; } }
+
+/* ---------- Menu aksi "⋯" (overflow menu) ----------
+   Dipake buat baris/kartu yang aksinya >= 3 atau ada aksi destruktif
+   (Hapus/Arsipkan) -- biar baris bersih & Hapus nggak kepencet nggak
+   sengaja. Buka pakai TAP/KLIK (bukan hover: di HP nggak ada hover, dan
+   menu yang muncul sendiri pas kursor lewat itu gampang kebuka nggak
+   sengaja). Desktop = popover nempel tombol; HP = bottom sheet. */
+.ab-more { display: inline-flex; position: relative; vertical-align: middle; }
+.ab-more-btn { width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--line); background: #ffffff; color: var(--ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color .15s ease, color .15s ease, background-color .15s ease, transform .12s ease; }
+.ab-more-btn svg { width: 18px; height: 18px; }
+.ab-more-btn:hover, .ab-more-btn[aria-expanded="true"] { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+.ab-more-btn:active { transform: scale(.94); }
+.ab-more-btn:focus-visible, .ab-mi:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.ab-menu[hidden] { display: none !important; }
+.ab-menu { position: fixed; z-index: 10001; min-width: 200px; max-width: min(300px, calc(100vw - 24px)); background: #ffffff; border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lg); padding: 6px; display: flex; flex-direction: column; gap: 2px; animation: ab-pop .16s cubic-bezier(.2,.9,.3,1.2); }
+.ab-menu-t { display: none; }
+.ab-mi { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 8px 12px; border: 0; border-radius: 9px; background: transparent; color: var(--ink); font: 700 14px 'Open Sans', sans-serif; text-align: left; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.ab-mi svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--muted); }
+.ab-mi:hover, .ab-mi:focus-visible { background: var(--bg); }
+.ab-mi.danger, .ab-mi.danger svg { color: var(--err); }
+.ab-mi.danger:hover, .ab-mi.danger:focus-visible { background: var(--err-light); }
+.ab-mi:disabled { opacity: .5; cursor: default; }
+.ab-menu-sep { height: 1px; background: var(--line); margin: 4px 6px; }
+.ab-menu-bd { position: fixed; inset: 0; z-index: 10000; background: rgba(13, 21, 38, .45); animation: ab-fade .16s ease; }
+/* HP: bottom sheet -- deket jempol, tombol gede, ada judul biar jelas
+   lagi ngapain baris yang mana. */
+.ab-menu.is-sheet { left: 0 !important; right: 0; top: auto !important; bottom: 0; max-width: none; min-width: 0; border-radius: 20px 20px 0 0; border: 0; padding: 8px 12px calc(14px + env(safe-area-inset-bottom)); animation: ab-sheet-up .22s cubic-bezier(.2,.9,.3,1); }
+.ab-menu.is-sheet::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 4px; background: #d5dcec; margin: 2px auto 8px; }
+.ab-menu.is-sheet .ab-menu-t { display: block; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; color: var(--ink); padding: 2px 12px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-menu.is-sheet .ab-mi { min-height: 50px; font-size: 15.5px; }
+@keyframes ab-sheet-up { from { transform: translateY(100%); } }
+@media (prefers-reduced-motion: reduce) { .ab-menu, .ab-menu-bd { animation: none !important; } .ab-more-btn:active { transform: none; } }
+/* Kartu (Shop: produk/bahan/QR): ⋯ SELALU di pojok kanan atas, sejajar
+   baris judul -- bukan nyelip di antara tombol (tinggi beda = keliatan
+   miring). Judul dikasih ruang kanan biar nggak ketiban. */
+.ab-card-menu { position: relative; }
+.ab-card-menu > .ab-more { position: absolute; top: 14px; right: 14px; }
+.ab-card-menu .ab-card-title { padding-right: 40px; }

@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "open sans",
+        "createdAt": "2026-11-21T02:03:56.165Z",
+        "reason": "Claude: Open Sans is the documented brand body font in .claude/skills/seminggu-ui (Outfit headings + Open Sans body)"
+      }
+    ]
+  }
+}
