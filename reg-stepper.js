@@ -145,7 +145,7 @@
     // --- ringkasan buat langkah terakhir ---
     function renderReview() {
         const rows = [];
-        const add = (label, val, step) => { if (val) rows.push(`<div class="rs-review-row"><span>${esc(label)}</span><b>${esc(val)}<button type="button" class="rs-edit" data-rs-go="${step}">Ubah</button></b></div>`); };
+        const add = (label, val, step) => { if (val) rows.push(`<div class="rs-review-row"><span>${esc(label)}</span><b>${esc(val)}${step == null ? "" : `<button type="button" class="rs-edit" data-rs-go="${step}">Ubah</button>`}</b></div>`); };
         STEPS.slice(0, 3).forEach((st, si) => {
             if (!active().includes(st)) return;
             st.els.filter(isShown).forEach(blk => blk.querySelectorAll('input[type="text"], input[type="tel"], input:not([type]), select, textarea').forEach(inp => {
@@ -158,7 +158,7 @@
             }));
         });
         const amt = document.getElementById('paymentAmount');
-        if (amt && amt.textContent.trim()) add('Total transfer', amt.textContent.trim(), 2);
+        if (amt && amt.textContent.trim()) add('Total transfer', amt.textContent.trim(), null); // harga dari sistem, bukan isian
         document.getElementById('rsReview').innerHTML = rows.join('') || '<div class="rs-review-row"><span>Siap dikirim</span></div>';
     }
     function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
