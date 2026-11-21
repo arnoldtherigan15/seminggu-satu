@@ -916,3 +916,141 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .ab-card-menu { position: relative; }
 .ab-card-menu > .ab-more { position: absolute; top: 14px; right: 14px; }
 .ab-card-menu .ab-card-title { padding-right: 40px; }
+
+/* ---------- Sidebar desktop: bisa disembunyiin (ala browser Dia/Arc) ----------
+   Desktop (>= 992px) sidebar jadi fixed + konten dikasih margin kiri, jadi
+   pas disembunyiin konten bisa geser mulus (transisi margin). Pas
+   disembunyiin: nyisa rel tipis + tombol buat munculin lagi, dan kalau
+   kursor nyentuh tepi kiri layar sidebar "ngintip" melayang di atas konten. */
+.sb-toggle, .sb-reveal, .sb-hotzone { display: none; }
+@media (min-width: 992px) {
+    #dashboard .sidebar {
+        position: fixed; top: 16px; left: 16px; bottom: 16px; height: auto; margin: 0;
+        transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease;
+    }
+    #dashboard .main-content { margin-left: 272px; transition: margin-left .28s cubic-bezier(.2,.8,.2,1); }
+    .sidebar-header { position: relative; }
+    .sb-toggle {
+        display: inline-flex; align-items: center; justify-content: center;
+        position: absolute; top: 22px; right: 14px; width: 32px; height: 32px;
+        border: 0; border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer;
+        transition: background-color .15s ease, color .15s ease;
+    }
+    .sb-toggle:hover { background: var(--bg); color: var(--ink); }
+    .sb-toggle:focus-visible, .sb-reveal:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .sb-toggle svg, .sb-reveal svg { width: 17px; height: 17px; }
+
+    body.sb-collapsed #dashboard .sidebar { transform: translateX(calc(-100% - 32px)) !important; box-shadow: none; }
+    body.sb-collapsed #dashboard .main-content { margin-left: 56px; }
+    /* .wrap dibatesin 1200px & di tengah -- tanpa ini, ruang bekas sidebar
+       cuma jadi margin kosong kiri-kanan (tabel nggak ikut lebar, kerasa
+       "sama aja"). Pas disembunyiin: batas lebar dinaikin biar ruangnya
+       beneran kepake konten, ikut animasi bareng geser sidebar. */
+    #dashboard .wrap { transition: max-width .28s cubic-bezier(.2,.8,.2,1), padding .28s cubic-bezier(.2,.8,.2,1); }
+    body.sb-collapsed #dashboard .wrap { max-width: 1680px; padding-left: 32px; padding-right: 40px; }
+    body.sb-collapsed.sb-peek #dashboard .sidebar { transform: none !important; z-index: 200; box-shadow: 0 24px 60px rgba(16, 36, 94, .28), 0 0 0 1px var(--line); }
+
+    .sb-reveal {
+        position: fixed; top: 20px; left: 12px; z-index: 120; width: 36px; height: 36px;
+        align-items: center; justify-content: center; border-radius: 10px;
+        border: 1.5px solid var(--line); background: #ffffff; color: var(--ink); cursor: pointer;
+        box-shadow: var(--shadow-sm); transition: border-color .15s ease, color .15s ease, opacity .2s ease;
+    }
+    .sb-reveal:hover { border-color: var(--brand); color: var(--brand); }
+    body.sb-collapsed .sb-reveal { display: inline-flex; }
+    body.sb-collapsed.sb-peek .sb-reveal { opacity: 0; pointer-events: none; }
+    body.sb-collapsed .sb-hotzone { display: block; position: fixed; left: 0; top: 0; bottom: 0; width: 10px; z-index: 150; }
+    /* pas ngintip: zona dilebarin sampe nyambung ke sidebar (ada celah 16px), biar kursor di celah itu nggak dianggap "keluar" */
+    body.sb-collapsed.sb-peek .sb-hotzone { width: 24px; z-index: 190; }
+}
+@media (min-width: 992px) and (prefers-reduced-motion: reduce) {
+    #dashboard .sidebar, #dashboard .main-content, #dashboard .wrap { transition: none; }
+}
+
+/* ---------- Tabel panjang: semua kontrol penting tetep keliatan pas scroll ----------
+   Urutan tumpukan sticky dari atas (tingginya diukur JS -> CSS var, lihat
+   updateStickyStack di index.html):
+   1. .ctx-bar     -- pemilih Event + Batch (dipadetin jadi 1 baris)
+   2. .subtab-bar  -- tab Peserta / Pesanan / ... (1 baris, geser horizontal)
+   3. .tbl-tools   -- cari + filter tampilan
+   4. <thead>      -- digeser JS (transform) biar nempel di bawah tumpukan
+                      TANPA bikin tabel punya scroll vertikal sendiri. */
+.wrap.view > .toolbar.ctx-bar {
+    position: sticky; top: var(--mobile-header-h, 0px); z-index: 9;
+    padding: 10px 12px; gap: 10px; align-items: center;
+    box-shadow: 0 1px 2px rgba(16, 36, 94, .08), 0 6px 16px rgba(16, 36, 94, .06);
+}
+.ctx-bar .field { flex-direction: row; align-items: center; gap: 0; flex: 1 1 220px; min-width: 0; position: relative; }
+.ctx-bar .field > label {
+    position: absolute; left: 13px; top: 50%; transform: translateY(-50%); pointer-events: none;
+    font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--muted);
+}
+.ctx-bar .field > select.form-control { min-height: 42px; padding-left: var(--ctx-lbl-w, 72px); font-weight: 700; color: var(--ink); }
+.ctx-bar .btn { height: 42px !important; }
+
+.wrap.view .subtab-bar { top: calc(var(--mobile-header-h, 0px) + var(--ctx-h, 0px)); }
+/* tab 1 baris aja (dulu turun 2 baris = makan tempat pas nempel di atas);
+   kelebihan tab digeser horizontal, tab aktif di-scroll ke kelihatan (JS) */
+.wrap.view .subtab-bar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; scroll-padding: 0 32px; }
+.wrap.view .subtab-bar::-webkit-scrollbar { display: none; }
+.wrap.view .subtab-bar .subtab-btn { flex-shrink: 0; white-space: nowrap; }
+
+.tbl-tools {
+    position: sticky; z-index: 7;
+    top: calc(var(--mobile-header-h, 0px) + var(--ctx-h, 0px) + var(--stk-sub-h, 0px));
+    background: var(--bg); padding-top: 8px; padding-bottom: 8px; margin-top: -8px;
+}
+/* di dalam panel putih (tab Prep): bg putih + lebarin nutup padding panel (20px) */
+.subtab-panel .tbl-tools { background: #ffffff; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; }
+.tbl-tools.is-stuck { box-shadow: 0 8px 12px -10px rgba(16, 36, 94, .25); }
+
+/* header tabel "ngambang" (digeser JS) */
+.table-box thead.is-floating th { box-shadow: 0 1px 0 var(--line), 0 8px 12px -10px rgba(16, 36, 94, .3); }
+.table-box thead { position: relative; z-index: 4; will-change: transform; }
+/* tiap sel header punya lapisan sendiri -- di tabel border-collapse, isi
+   baris yang lewat di belakang bisa "nembus" ke atas header kalau nggak */
+.table-box th { position: relative; z-index: 4; background-clip: padding-box; }
+/* HP: layar pendek -- jangan numpuk 4 lapis sticky. Event/Batch ikut
+   scroll (jarang diganti pas lagi di tengah daftar), 2 pilihan sebelahan
+   tanpa label (isinya udah jelas: nama event & batch). Bar cari tetep
+   nempel, dipadetin jadi 1 baris: kotak cari + Kartu/Tabel + ikon kirim. */
+@media (max-width: 680px) {
+    .wrap.view > .toolbar.ctx-bar { position: static; }
+    .ctx-bar .field { flex: 1 1 0; min-width: 0; }
+    .ctx-bar .field > label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .ctx-bar .field > select.form-control { padding-left: 12px; font-size: 14px; }
+    .pc-bar.tbl-tools { flex-wrap: nowrap; gap: 8px; }
+    .pc-bar.tbl-tools .form-control { flex: 1 1 auto; min-width: 0; }
+    .pc-bar.tbl-tools .pc-view-btn { padding: 0 10px; }
+    .pc-bar.tbl-tools #pcSendListBtn { order: 3; flex: 0 0 auto; width: 44px; height: 44px; padding: 0; font-size: 0; gap: 0; }
+    .pc-bar.tbl-tools #pcSendListBtn svg { width: 18px; height: 18px; }
+}
+/* Member: cari + urutan + chip filter = satu bar yang nempel */
+.mh-tools.tbl-tools .ab-chips { margin: 0 0 4px; }
+.mh-tools.tbl-tools .mh-bar { margin-bottom: 10px; }
+
+/* ---------- Tombol aksi utama melayang (FAB) ----------
+   Muncul cuma kalau tombol "bikin baru" asli di halaman/tab itu udah
+   ke-scroll keluar layar -- jadi nggak dobel pas tombol aslinya kelihatan. */
+.ab-fab {
+    position: fixed; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom)); z-index: 95;
+    display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 22px 0 18px;
+    border: 0; border-radius: 999px; background: var(--brand); color: #ffffff; cursor: pointer;
+    font: 800 15px 'Outfit', 'Open Sans', sans-serif;
+    box-shadow: 0 10px 24px rgba(0, 70, 255, .35), 0 2px 6px rgba(16, 36, 94, .2);
+    transform: translateY(0) scale(1); opacity: 1;
+    transition: transform .22s cubic-bezier(.2,.9,.3,1.2), opacity .18s ease, background-color .15s ease;
+}
+.ab-fab svg { width: 18px; height: 18px; }
+.ab-fab:hover { background: var(--brand-hover); }
+.ab-fab:active { transform: scale(.96); }
+.ab-fab:focus-visible { outline: 3px solid var(--ab-yellow); outline-offset: 3px; }
+.ab-fab kbd { font: 700 11px 'Open Sans', sans-serif; padding: 2px 6px; border-radius: 6px; background: rgba(255, 255, 255, .2); margin-left: 2px; }
+.ab-fab[hidden] { display: inline-flex !important; transform: translateY(16px) scale(.9); opacity: 0; pointer-events: none; }
+/* ruang di bawah daftar biar baris terakhir (mis. tombol hapus di kanan) nggak ketutup FAB */
+body.has-fab #dashboard .main-content { padding-bottom: 88px; }
+@media (max-width: 991px) {
+    .ab-fab { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); }
+    .ab-fab kbd { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .ab-fab { transition: none; } }
