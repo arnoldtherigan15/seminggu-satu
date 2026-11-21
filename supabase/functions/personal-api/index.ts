@@ -525,21 +525,36 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
       }
 
       case "savePersonalNote": {
+        // Update PARSIAL: cuma field yang dikirim yang diubah -- biar pin /
+        // ganti ikon dari daftar nggak ngehapus isi catatan, dan autosave
+        // editor nggak nimpa pin. updated_at cuma maju kalau ISI berubah
+        // (judul/isi/folder), bukan pas pin/ikon/warna doang.
         const id = String(data.id || "");
-        const payload = {
-          title: String(data.title || "").trim(),
-          body_html: String(data.bodyHtml || ""),
-          folder_id: data.folderId ? String(data.folderId) : null,
-          updated_at: new Date().toISOString(),
-        };
+        const has = (k: string) => Object.prototype.hasOwnProperty.call(data, k);
+        const NOTE_COLORS = ["", "blue", "yellow", "pink", "green", "orange", "purple"];
+        const payload: Record<string, unknown> = {};
+        let contentChanged = false;
+        if (has("title")) { payload.title = String(data.title || "").trim(); contentChanged = true; }
+        if (has("bodyHtml")) { payload.body_html = String(data.bodyHtml || ""); contentChanged = true; }
+        if (has("folderId")) { payload.folder_id = data.folderId ? String(data.folderId) : null; contentChanged = true; }
+        if (has("icon")) payload.icon = String(data.icon || "").slice(0, 16);
+        if (has("color")) payload.color = NOTE_COLORS.includes(String(data.color || "")) ? String(data.color || "") : "";
+        if (has("pinned")) payload.pinned = !!data.pinned;
+        if (has("noteDate")) payload.note_date = /^\d{4}-\d{2}-\d{2}$/.test(String(data.noteDate || "")) ? String(data.noteDate) : null;
+        if (contentChanged || !id) payload.updated_at = new Date().toISOString();
         if (id) {
-          const { error } = await admin.from("personal_notes").update(payload).eq("id", id);
+          if (!Object.keys(payload).length) return jsonResponse({ status: "success", id });
+          const { data: row, error } = await admin.from("personal_notes").update(payload).eq("id", id).select("id, updated_at").single();
           if (error) return errorResponse("Gagal update note: " + error.message);
-          return jsonResponse({ status: "success", id });
+          return jsonResponse({ status: "success", id, updatedAt: row && row.updated_at });
         } else {
-          const { data: inserted, error } = await admin.from("personal_notes").insert(payload).select("id").single();
-          if (error) return errorResponse("Gagal simpan note: " + error.message);
-          return jsonResponse({ status: "success", id: inserted.id });
+          const { data: inserted, error } = await admin.from("personal_notes").insert(payload).select("id, updated_at").single();
+          if (error) {
+            // catatan harian tanggal itu udah ada (mis. dibikin dari device lain)
+            if ((error as { code?: string }).code === "23505") return errorResponse("Catatan harian buat tanggal ini udah ada. Muat ulang dulu ya.");
+            return errorResponse("Gagal simpan note: " + error.message);
+          }
+          return jsonResponse({ status: "success", id: inserted.id, updatedAt: inserted.updated_at });
         }
       }
 
@@ -553,14 +568,20 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
 
       case "savePersonalNoteFolder": {
         const id = String(data.id || "");
+        const has = (k: string) => Object.prototype.hasOwnProperty.call(data, k);
         const name = String(data.name || "").trim();
-        if (!name) return errorResponse("Nama folder wajib diisi.");
+        const payload: Record<string, unknown> = {};
+        if (has("name") || !id) {
+          if (!name) return errorResponse("Nama folder wajib diisi.");
+          payload.name = name;
+        }
+        if (has("icon")) payload.icon = String(data.icon || "").slice(0, 16);
         if (id) {
-          const { error } = await admin.from("personal_note_folders").update({ name }).eq("id", id);
+          const { error } = await admin.from("personal_note_folders").update(payload).eq("id", id);
           if (error) return errorResponse("Gagal update folder: " + error.message);
           return jsonResponse({ status: "success", id });
         } else {
-          const { data: inserted, error } = await admin.from("personal_note_folders").insert({ name }).select("id").single();
+          const { data: inserted, error } = await admin.from("personal_note_folders").insert(payload).select("id").single();
           if (error) return errorResponse("Gagal bikin folder: " + error.message);
           return jsonResponse({ status: "success", id: inserted.id });
         }
