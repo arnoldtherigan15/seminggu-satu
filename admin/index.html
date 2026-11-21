@@ -5925,8 +5925,14 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <button class="btn btn-sm btn-ghost" id="vidReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
           <p class="hint" style="margin:10px 0;">Simpan link apa aja: artikel, dokumen, vendor, referensi, inspirasi. Link YouTube/Vimeo bisa langsung ditonton di sini. <b>Buka semua</b> ngebuka semua link satu folder di tab baru (kalau cuma 1 tab yang kebuka, izinin pop-up sekali di browser).</p>
+          <div class="lk-quick">
+            <input class="form-control lk-paste" id="lkPaste" type="url" inputmode="url" autocomplete="off" enterkeyhint="done" placeholder="Tempel link di sini, Enter = simpan" aria-label="Tempel link">
+            <select class="form-control lk-folder" id="lkPasteFolder" aria-label="Simpan ke folder"></select>
+            <button type="button" class="btn lk-save" id="lkPasteBtn" disabled>Simpan</button>
+          </div>
+          <input class="form-control lk-search" id="lkSearch" type="search" placeholder="Cari judul, alamat, atau catatan…" aria-label="Cari link" autocomplete="off">
           <div id="vidGroups"></div>
-          <div class="empty" id="vidEmpty" style="display:none;">Belum ada link. Tap "Link baru" buat simpan yang pertama.</div>
+          <div class="empty" id="vidEmpty" style="display:none;">Belum ada link. Tempel link di kolom atas, langsung kesimpan.</div>
           <button type="button" class="note-fab" id="vidFabBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Link baru</button>
         </div>
 
@@ -7763,7 +7769,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const t = abCurrentPrimary();
       abFabTarget = t;
       let show = false;
-      if (t && t.id !== "noteNewBtn" && !abOverlayOpen()) {
+      const ownFab = t && (t.id === "noteNewBtn" || t.id === "vidNewBtn"); // halaman ini udah punya FAB sendiri
+      if (t && !ownFab && !abOverlayOpen()) {
         const r = t.getBoundingClientRect();
         const stackBottom = STICKY.base + STICKY.ctx + STICKY.sub + STICKY.tools;
         show = r.bottom < stackBottom + 4 || r.top > innerHeight; // tombol asli udah nggak kelihatan
@@ -7777,7 +7784,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         }
       }
       abFab.hidden = !show;
-      document.body.classList.toggle("has-fab", !!t && t.id !== "noteNewBtn");
+      document.body.classList.toggle("has-fab", !!t && !ownFab);
     }
     abFab.addEventListener("click", () => { if (abFabTarget) { abFabTarget.click(); setTimeout(updateFab, 60); } });
     // N = aksi utama halaman ini, dari posisi scroll mana pun (kecuali lagi ngetik / ada dialog)
@@ -22002,18 +22009,40 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       }
     }
 
+    // ---- Link Penting v2: baris ringkas (ketuk = buka link), aksi di menu ⋯ ----
+    const LK_COLORS = ["#3b6cff", "#e6528a", "#1f9d5c", "#e07a1f", "#7c4dff", "#0f9bb5", "#c2410c", "#4b5563"];
+    let LK_SEARCH = "";
+    const LK_OPEN_KEY = "ab.lkClosed";
+    let LK_CLOSED = (() => { try { return new Set(JSON.parse(localStorage.getItem(LK_OPEN_KEY) || "[]")); } catch (e) { return new Set(); } })();
+    function lkColor(host) { let h = 0; for (const c of host) h = (h * 31 + c.charCodeAt(0)) >>> 0; return LK_COLORS[h % LK_COLORS.length]; }
+    function lkYoutubeId(url) { const src = videoEmbedSrc(url); const m = src && /youtube\.com\/embed\/([\w-]+)/.exec(src); return m ? m[1] : ""; }
+    // judul tebakan dari alamat (kalau judul belum diisi): bagian path terakhir yang kebaca
+    function lkGuessTitle(url) {
+      try {
+        const u = new URL(url);
+        const seg = u.pathname.split("/").filter(Boolean).pop() || "";
+        // buang ekstensi file & kode acak di ujung (mis. "Ide-workshop-3f9a1c2b" ala Notion)
+        const nice = decodeURIComponent(seg).replace(/\.[a-z0-9]{2,5}$/i, "").replace(/[-_+]+/g, " ").replace(/\s+(?=[a-z0-9]*\d)[a-z0-9]{6,}$/i, "").trim();
+        return nice && /[a-z]{3}/i.test(nice) && nice.length <= 70 ? nice.charAt(0).toUpperCase() + nice.slice(1) : u.hostname.replace(/^www\./, "");
+      } catch (e) { return url; }
+    }
     function videoCardHtml(v) {
-      const embedSrc = videoEmbedSrc(v.url);
-      return `<div class="note-card" data-id="${v.id}">
-        <div class="note-card-title">${escapeHtml(v.title || videoHostname(v.url))}</div>
-        <div class="hint" style="margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(v.url)}</div>
-        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;" onclick="event.stopPropagation()">
-          ${embedSrc ? `<button type="button" class="btn btn-sm btn-ghost" style="margin:0;" data-watch="${v.id}">${icon("playCircle")} Tonton</button>` : ""}
-          <a href="${escapeHtml(v.url)}" target="_blank" rel="noopener" class="btn btn-sm btn-ghost" style="margin:0;text-decoration:none;">${icon("openLink")} Buka</a>
-        </div>
-        <div id="vidEmbed-${v.id}"></div>
-        <div class="note-card-date">${fmtVidDate(v.updated_at)}</div>
-      </div>`;
+      const host = videoHostname(v.url);
+      const yt = lkYoutubeId(v.url);
+      const embed = videoEmbedSrc(v.url);
+      const title = v.title || lkGuessTitle(v.url);
+      const thumb = yt ? `<span class="lk-thumb"><img src="https://i.ytimg.com/vi/${yt}/mqdefault.jpg" alt="" loading="lazy"><span class="lk-play">${icon("playCircle")}</span></span>`
+        : `<span class="lk-ava" style="background:${lkColor(host)}">${escapeHtml((host.replace(/^(m|web|app)\./, "").charAt(0) || "?").toUpperCase())}</span>`;
+      return `<div class="lk-row" data-id="${v.id}">
+          <a class="lk-main" href="${escapeHtml(v.url)}" target="_blank" rel="noopener" title="Buka ${escapeHtml(host)}">
+            ${thumb}
+            <span class="lk-text"><b>${escapeHtml(title)}</b><small>${escapeHtml(host)} · ${fmtVidDate(v.updated_at || v.created_at)}</small>${v.notes ? `<em>${escapeHtml(v.notes)}</em>` : ""}</span>
+          </a>
+          ${abMore([embed ? abMi("playCircle", "Tonton di sini", `data-lka="watch" data-id="${v.id}"`) : "", abMi("link", "Salin link", `data-lka="copy" data-id="${v.id}"`),
+            abMi("pencil", "Edit", `data-lka="edit" data-id="${v.id}"`), PERSONAL_VIDEO_FOLDERS.length ? abMi("folder", "Pindah folder", `data-lka="move" data-id="${v.id}"`) : "",
+            '<div class="ab-menu-sep"></div>', abMi("trash", "Hapus", `data-lka="del" data-id="${v.id}"`, true)], title)}
+          <div class="lk-embed" id="vidEmbed-${v.id}"></div>
+        </div>`;
     }
 
     function toggleVideoWatch(id, btn) {
@@ -22022,7 +22051,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (wrap.dataset.open === "1") {
         wrap.innerHTML = ""; // beneran dilepas (bukan cuma disembunyiin) biar video/audio-nya berhenti
         wrap.dataset.open = "0";
-        btn.innerHTML = icon("playCircle") + " Tonton";
+        if (btn) btn.innerHTML = icon("playCircle") + " Tonton";
       } else {
         const v = PERSONAL_VIDEO_LINKS.find(x => x.id === id);
         const src = v ? videoEmbedSrc(v.url) : null;
@@ -22031,7 +22060,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           <iframe src="${src}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>`;
         wrap.dataset.open = "1";
-        btn.innerHTML = icon("eyeSlash") + " Tutup";
+        if (btn) btn.innerHTML = icon("eyeSlash") + " Tutup";
       }
     }
 
@@ -22068,62 +22097,98 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     function renderVideoList() {
       const groups = document.getElementById("vidGroups");
       const empty = document.getElementById("vidEmpty");
-      if (!PERSONAL_VIDEO_LINKS.length && !PERSONAL_VIDEO_FOLDERS.length) {
-        groups.innerHTML = "";
-        empty.style.display = "block";
+      const fsel = document.getElementById("lkPasteFolder");
+      if (fsel) {
+        const prev = fsel.value || (localStorage.getItem("ab.lkFolder") || "");
+        fsel.innerHTML = '<option value="">Tanpa folder</option>' + PERSONAL_VIDEO_FOLDERS.map(f => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join("");
+        fsel.value = PERSONAL_VIDEO_FOLDERS.some(f => f.id === prev) ? prev : "";
+      }
+      if (!PERSONAL_VIDEO_LINKS.length && !PERSONAL_VIDEO_FOLDERS.length) { groups.innerHTML = ""; empty.style.display = "block"; return; }
+      empty.style.display = "none";
+      const q = LK_SEARCH;
+      const match = (v) => !q || [v.title, v.url, v.notes].join(" ").toLowerCase().includes(q);
+      const sorted = PERSONAL_VIDEO_LINKS.filter(match).sort((a, b) => String(b.updated_at || b.created_at || "").localeCompare(String(a.updated_at || a.created_at || "")));
+      if (q) {
+        groups.innerHTML = sorted.length ? `<div class="lk-sec-h"><b>Hasil (${sorted.length})</b></div><div class="lk-list">${sorted.map(videoCardHtml).join("")}</div>` : '<p class="hint" style="padding:10px 2px;">Nggak ketemu.</p>';
         return;
       }
-      empty.style.display = "none";
-
-      const byFolder = {};
-      const noFolder = [];
-      PERSONAL_VIDEO_LINKS.forEach(v => {
-        if (v.folder_id) { if (!byFolder[v.folder_id]) byFolder[v.folder_id] = []; byFolder[v.folder_id].push(v); }
-        else noFolder.push(v);
+      const section = (id, name, links) => {
+        const key = id || "__none__", open = !LK_CLOSED.has(key);
+        return `<section class="lk-sec${open ? " is-open" : ""}" data-folder-id="${id}">
+            <div class="lk-sec-h">
+              <button type="button" class="lk-sec-tog" data-lktog="${key}" aria-expanded="${open}"><span class="lk-chev">${icon("folder")}</span><b>${escapeHtml(name)}</b><span class="lk-count">${links.length}</span></button>
+              ${abMore([links.length ? abMi("openLink", `Buka semua (${links.length})`, `data-lkf="openall" data-f="${id}"`) : "",
+                id ? abMi("pencil", "Ubah nama", `data-lkf="rename" data-f="${id}" data-name="${escapeHtml(name)}"`) : "",
+                id ? '<div class="ab-menu-sep"></div>' : "", id ? abMi("trash", "Hapus folder", `data-lkf="del" data-f="${id}" data-name="${escapeHtml(name)}"`, true) : ""], name)}
+            </div>
+            ${open ? `<div class="lk-list">${links.length ? links.map(videoCardHtml).join("") : '<p class="hint" style="padding:6px 4px;">Masih kosong.</p>'}</div>` : ""}
+          </section>`;
+      };
+      const noFolder = sorted.filter(v => !v.folder_id || !PERSONAL_VIDEO_FOLDERS.some(f => f.id === v.folder_id));
+      groups.innerHTML = PERSONAL_VIDEO_FOLDERS.map(f => section(f.id, f.name, sorted.filter(v => v.folder_id === f.id))).join("") +
+        (noFolder.length || !PERSONAL_VIDEO_FOLDERS.length ? section("", "Tanpa folder", noFolder) : "");
+    }
+    async function lkQuickSave() {
+      const inp = document.getElementById("lkPaste"), btn = document.getElementById("lkPasteBtn");
+      let url = inp.value.trim();
+      if (!url) return;
+      if (!/^https?:\/\//i.test(url)) url = "https://" + url.replace(/^\/+/, "");
+      try { new URL(url); } catch (e) { abToast("Itu bukan link yang valid.", "err"); return; }
+      if (PERSONAL_VIDEO_LINKS.some(v => v.url === url) && !await abConfirm("Link ini udah pernah disimpan. Simpan lagi?", { danger: false, okText: "Simpan lagi" })) return;
+      const folderId = document.getElementById("lkPasteFolder").value;
+      abBusy(btn, true, "Menyimpan");
+      const r = await personalApi("saveVideoLink", { token: getToken(), id: "", url, title: "", folderId, notes: "" });
+      abBusy(btn, false);
+      if (r.status !== "success") { handleAuthError(r); abToast(r.message || "Gagal nyimpen.", "err"); return; }
+      try { localStorage.setItem("ab.lkFolder", folderId); } catch (e) {}
+      inp.value = ""; btn.disabled = true;
+      if (folderId) { LK_CLOSED.delete(folderId); } else LK_CLOSED.delete("__none__");
+      await loadVideos();
+      abToast("Link disimpan · judul bisa diisi dari menu ⋯ > Edit", "ok");
+    }
+    function wireLinkV2Once() {
+      const inp = document.getElementById("lkPaste");
+      if (!inp || inp.dataset.wired) return;
+      inp.dataset.wired = "1";
+      const btn = document.getElementById("lkPasteBtn");
+      inp.addEventListener("input", () => { btn.disabled = !inp.value.trim(); });
+      inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); lkQuickSave(); } });
+      btn.addEventListener("click", lkQuickSave);
+      document.getElementById("lkSearch").addEventListener("input", (e) => { LK_SEARCH = e.target.value.trim().toLowerCase(); renderVideoList(); });
+      document.getElementById("vidGroups").addEventListener("click", (e) => {
+        const t = e.target.closest("[data-lktog]"); if (!t) return;
+        const k = t.dataset.lktog; if (LK_CLOSED.has(k)) LK_CLOSED.delete(k); else LK_CLOSED.add(k);
+        try { localStorage.setItem(LK_OPEN_KEY, JSON.stringify([...LK_CLOSED])); } catch (err) {}
+        renderVideoList();
       });
-
-      const folderSection = (id, name, links) => `
-        <details class="det-acc note-folder-acc" data-folder-id="${id || ""}" open>
-          <summary>
-            <span class="det-acc-title">${icon("folder")} ${escapeHtml(name)} <span class="acc-count">${links.length}</span></span>
-            <span style="display:flex;align-items:center;gap:4px;">
-              ${links.length ? `<button type="button" class="note-folder-openall" data-openall="${id || ""}" title="Buka semua link di folder ini" aria-label="Buka semua link di folder ini">${icon("openLink")}</button>` : ""}
-              ${id ? `<button type="button" class="note-folder-rename" data-id="${id}" data-name="${escapeHtml(name)}" title="Rename folder">${icon("pencil")}</button>
-              <button type="button" class="note-folder-delete" data-id="${id}" data-name="${escapeHtml(name)}" title="Hapus folder">${icon("trash")}</button>` : ""}
-              <span class="det-acc-chevron">▸</span>
-            </span>
-          </summary>
-          <div class="det-acc-body">
-            <div class="note-list">${links.length ? links.map(videoCardHtml).join("") : '<p class="hint">Folder ini masih kosong.</p>'}</div>
-          </div>
-        </details>`;
-
-      groups.innerHTML =
-        PERSONAL_VIDEO_FOLDERS.map(f => folderSection(f.id, f.name, byFolder[f.id] || [])).join("") +
-        (noFolder.length || !PERSONAL_VIDEO_FOLDERS.length ? folderSection("", "Tanpa folder", noFolder) : "");
-
-      groups.querySelectorAll(".note-card").forEach(card => {
-        card.addEventListener("click", () => {
-          const v = PERSONAL_VIDEO_LINKS.find(x => x.id === card.dataset.id);
-          if (v) openVideoForm(v);
-        });
+      // menu ⋯ (dipindah ke <body> pas kebuka -> delegasi di document)
+      document.addEventListener("click", async (e) => {
+        const it = e.target.closest("[data-lka], [data-lkf]"); if (!it) return;
+        if (it.dataset.lkf) {
+          const f = it.dataset.f;
+          if (it.dataset.lkf === "openall") openAllInVideoFolder(f);
+          else if (it.dataset.lkf === "rename") renameVideoFolder(f, it.dataset.name);
+          else if (it.dataset.lkf === "del") deleteVideoFolderFn(f, it.dataset.name);
+          return;
+        }
+        const v = PERSONAL_VIDEO_LINKS.find(x => x.id === it.dataset.id); if (!v) return;
+        const a = it.dataset.lka;
+        if (a === "watch") toggleVideoWatch(v.id, null);
+        else if (a === "copy") navigator.clipboard.writeText(v.url).then(() => abToast("Link disalin", "ok")).catch(() => alert(v.url));
+        else if (a === "edit") openVideoForm(v);
+        else if (a === "del") {
+          if (!await abConfirm(`Hapus link "${v.title || lkGuessTitle(v.url)}"?`)) return;
+          const r = await personalApi("deleteVideoLink", { token: getToken(), id: v.id });
+          if (r.status === "success") { abToast("Link dihapus", "ok"); loadVideos(); } else { handleAuthError(r); alert(r.message || "Gagal menghapus."); }
+        } else if (a === "move") {
+          const res = await abDialog({ title: "Pindah folder", okText: "Pindahin",
+            html: `<label class="ab-dlg-lbl">Ke folder<select class="form-control"><option value="">Tanpa folder</option>${PERSONAL_VIDEO_FOLDERS.map(f => `<option value="${f.id}"${f.id === v.folder_id ? " selected" : ""}>${escapeHtml(f.name)}</option>`).join("")}</select></label>`,
+            getValue: (box) => box.querySelector("select").value });
+          if (res === null || res === undefined) return;
+          const r = await personalApi("saveVideoLink", { token: getToken(), id: v.id, url: v.url, title: v.title || "", folderId: res, notes: v.notes || "" });
+          if (r.status === "success") { LK_CLOSED.delete(res || "__none__"); loadVideos(); abToast("Dipindah", "ok"); } else { handleAuthError(r); abToast(r.message || "Gagal mindahin.", "err"); }
+        }
       });
-      groups.querySelectorAll("[data-watch]").forEach(btn => btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleVideoWatch(btn.dataset.watch, btn);
-      }));
-      groups.querySelectorAll("[data-openall]").forEach(b => b.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        openAllInVideoFolder(b.dataset.openall);
-      }));
-      groups.querySelectorAll(".note-folder-rename").forEach(b => b.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        renameVideoFolder(b.dataset.id, b.dataset.name);
-      }));
-      groups.querySelectorAll(".note-folder-delete").forEach(b => b.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        deleteVideoFolderFn(b.dataset.id, b.dataset.name);
-      }));
     }
 
     function populateVideoFolderSelect(selectedId) {
@@ -22198,6 +22263,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     function wireVideosOnce() {
       if (videosInit) return;
       videosInit = true;
+      wireLinkV2Once();
       document.getElementById("vidNewBtn").addEventListener("click", () => openVideoForm(null));
       document.getElementById("vidFabBtn").addEventListener("click", () => openVideoForm(null));
       document.getElementById("vidNewFolderBtn").addEventListener("click", createVideoFolder);

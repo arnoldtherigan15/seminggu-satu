@@ -1711,3 +1711,53 @@ body.ksr-open { overflow: hidden; }
 @media (max-width: 991px) {
     .nt-toolbar { margin-left: -18px; margin-right: -18px; padding-left: 12px; padding-right: 12px; }
 }
+
+/* =========================================================
+   Link Penting v2: tempel cepat + baris ringkas
+   ========================================================= */
+.lk-quick { display: flex; gap: 8px; align-items: center; background: #ffffff; border-radius: 16px; padding: 8px; box-shadow: var(--shadow-sm); margin-bottom: 10px; }
+.lk-paste { flex: 1; min-width: 0; min-height: 46px; font-size: 16px; border-color: transparent !important; background: var(--bg); }
+.lk-folder { flex: 0 1 170px; min-width: 0; min-height: 46px; }
+.lk-save { width: auto; min-height: 46px; padding: 0 18px; }
+.lk-search { min-height: 44px; margin-bottom: 14px; }
+.lk-sec { margin-bottom: 14px; }
+.lk-sec-h { display: flex; align-items: center; gap: 6px; padding: 2px 2px 6px; }
+.lk-sec-tog { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 6px 4px; cursor: pointer; color: var(--ink); text-align: left; border-radius: 10px; }
+.lk-sec-tog:hover { background: #ffffff; }
+.lk-chev { color: var(--muted); display: inline-flex; }
+.lk-sec-tog b { font: 800 16px 'Outfit', sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lk-count { font: 800 12px 'Open Sans', sans-serif; color: var(--brand); background: var(--brand-light); border-radius: 999px; padding: 1px 8px; }
+.lk-sec:not(.is-open) .lk-sec-tog b { color: var(--muted); }
+.lk-sec-h .ab-more-btn { width: 32px; height: 32px; border-color: transparent; background: transparent; }
+.lk-list { display: flex; flex-direction: column; background: #ffffff; border-radius: 16px; box-shadow: var(--shadow-sm); overflow: hidden; }
+.lk-row { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; padding: 4px 6px 4px 4px; border-top: 1px solid #eef1f8; }
+.lk-row:first-child { border-top: 0; }
+.lk-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 12px; text-decoration: none; color: var(--ink); transition: background-color .12s ease; }
+.lk-main:hover { background: #f6f8fe; }
+.lk-main:hover b { color: var(--brand); }
+.lk-ava { width: 40px; height: 40px; flex-shrink: 0; border-radius: 11px; color: #ffffff; display: inline-flex; align-items: center; justify-content: center; font: 800 17px 'Outfit', sans-serif; }
+.lk-thumb { position: relative; width: 64px; height: 40px; flex-shrink: 0; border-radius: 9px; overflow: hidden; background: #111; }
+.lk-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lk-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #ffffff; background: rgba(0, 0, 0, .18); }
+.lk-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.lk-text b { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lk-text small { font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lk-text em { font-style: normal; font-size: 12.5px; color: #4a5674; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lk-row .ab-more-btn { width: 34px; height: 34px; border-color: transparent; background: transparent; }
+.lk-embed { flex-basis: 100%; }
+.lk-embed:empty { display: none; }
+.lk-embed > div { margin: 0 8px 10px !important; }
+@media (max-width: 680px) {
+    .lk-quick { flex-wrap: wrap; }
+    .lk-paste { flex-basis: 100%; }
+    .lk-folder { flex: 1 1 auto; }
+}
+.lk-folder { width: auto !important; }
+.lk-save, .lk-save:disabled { background: var(--brand) !important; color: #ffffff !important; border: 0 !important; }
+.lk-save:disabled { opacity: .4 !important; }
+@media (max-width: 680px) {
+    .lk-folder { flex: 1 1 0 !important; }
+    .lk-save { flex: 0 0 auto; }
+}
+.lk-quick { align-items: stretch; }
+.lk-save { margin: 0 !important; align-self: stretch; height: auto; }
