@@ -1593,3 +1593,20 @@ body.has-fab #dashboard .main-content { padding-bottom: 88px; }
     .txb .txb-period { flex: 1 1 0; min-width: 0; }
     .txb .txb-period b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 }
+
+/* Target & Utang: ringkasan + kebutuhan per bulan */
+.fd-summary { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; font-size: 13.5px; color: var(--muted); font-weight: 600; }
+.fd-summary:empty { display: none; }
+.fd-summary b { font: 800 22px 'Outfit', sans-serif; color: var(--ink); }
+.fd-need { display: inline-block; margin-top: 8px; font-size: 12.5px; font-weight: 800; color: var(--brand); background: var(--brand-light); border-radius: 999px; padding: 3px 10px; }
+
+/* Kartu saldo di Ringkasan: dari blok biru gede jadi kartu putih ringkas
+   (biar nggak rebutan perhatian sama kartu "Sisa aman") */
+#viewPersonal .per-hero { background: #ffffff !important; color: var(--ink) !important; box-shadow: var(--shadow-sm) !important; padding: 18px 20px !important; border-radius: 18px !important; }
+#viewPersonal .per-hero-label { color: var(--muted) !important; }
+#viewPersonal .per-hero-amount { color: var(--ink) !important; font-size: 28px !important; }
+#viewPersonal .per-hero-sub { color: var(--muted) !important; opacity: 1 !important; }
+#viewPersonal .per-acc-slider > * , #viewPersonal .per-hero-flow-item { background: var(--bg) !important; color: var(--ink) !important; border: 1px solid var(--line) !important; }
+#viewPersonal .per-acc-slider * { color: inherit; }
+#viewPersonal .per-hero-flow-item span, #viewPersonal .per-acc-slider small, #viewPersonal .per-acc-slider span { color: var(--muted) !important; }
+#viewPersonal .per-hero-flow-item b { color: var(--ink) !important; }

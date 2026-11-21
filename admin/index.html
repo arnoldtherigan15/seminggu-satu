@@ -16920,16 +16920,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const bills = PER_BILLS.filter(b => !b.archived).map(b => {
         const period = billPeriodKey(b.reset_day);
         const paid = PER_BILL_PAYMENTS.some(p => p.bill_id === b.id && p.period_key === period);
-        const [py, pm] = period.split("-").map(Number);
-        let due = new Date(py, pm - 1, Math.min(b.reset_day, 28));
-        if (due < today) { const n = new Date(due); n.setMonth(n.getMonth() + 1); if (!paid) due = due; }
-        const diff = Math.round((due - today) / 86400000);
-        return { b, paid, diff };
+        // sama kayak tab Rutin: hitung mundur ke tanggal jatuh tempo berikutnya
+        return { b, paid, diff: billDaysUntil(b.reset_day) };
       }).filter(x => !x.paid).sort((a, b) => a.diff - b.diff);
       const unpaidTotal = bills.reduce((s, x) => s + (Number(x.b.amount) || 0), 0);
       const billHtml = bills.length ? bills.slice(0, 5).map(x => `<div class="gl-row">
           <span class="gl-ico">${icon(x.b.icon || "receipt")}</span><span class="gl-name">${escapeHtml(x.b.name)}</span>
-          <span class="gl-when ${x.diff < 0 ? "late" : x.diff <= 3 ? "soon" : ""}">${x.diff < 0 ? "lewat " + (-x.diff) + " hr" : x.diff === 0 ? "hari ini" : "tgl " + x.b.reset_day}</span>
+          <span class="gl-when ${x.diff < 0 ? "late" : x.diff <= 3 ? "soon" : ""}">${x.diff === 0 ? "hari ini" : x.diff === 1 ? "besok" : x.diff <= 7 ? x.diff + " hari lagi" : "tgl " + x.b.reset_day}</span>
           <b>${rupiah(x.b.amount)}</b></div>`).join("")
         : `<p class="gl-empty">${PER_BILLS.length ? "Semua tagihan periode ini udah dibayar." : "Belum ada tagihan rutin yang dicatat."}</p>`;
       // anggaran sekilas
@@ -17099,11 +17096,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <span class="cal-total">Pengeluaran ${rupiah(total)}</span></div>
         <div class="cal-grid">${["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"].map(d => `<span class="cal-dow">${d}</span>`).join("")}${cells}</div>
         <div class="cal-legend"><span>Sedikit</span><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Banyak</span><span class="cal-in-lg"><i class="cal-in"></i> ada pemasukan</span></div>
-        ${CAL_DAY ? `<div class="cal-day"><h4>${escapeHtml(fmtTxDate(CAL_DAY))}</h4>${dayTx.length ? `<div class="fin-card">${dayTx.map(t => perActivityRowHtml(t)).join("")}</div>` : '<p class="hint">Nggak ada transaksi di tanggal ini.</p>'}</div>` : '<p class="hint" style="margin-top:10px;">Tap tanggal buat lihat transaksinya.</p>'}`;
+        ${CAL_DAY ? `<div class="cal-day"><h4>${escapeHtml(fmtTxDate(CAL_DAY))}</h4>${dayTx.length ? `<div class="fin-card">${dayTx.map(t => perTxRowHtmlV2(t)).join("")}</div>` : '<p class="hint">Nggak ada transaksi di tanggal ini.</p>'}</div>` : '<p class="hint" style="margin-top:10px;">Tap tanggal buat lihat transaksinya.</p>'}`;
       box.querySelectorAll("[data-cal]").forEach(b => b.addEventListener("click", () => {
         const d = new Date(y, m - 1 + Number(b.dataset.cal), 1); CAL_YM = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); CAL_DAY = ""; renderPerCalendar();
       }));
       box.querySelectorAll("[data-day]").forEach(b => b.addEventListener("click", () => { CAL_DAY = CAL_DAY === b.dataset.day ? "" : b.dataset.day; renderPerCalendar(); }));
+      box.querySelectorAll("[data-edittx]").forEach(r => r.addEventListener("click", (e) => { if (e.target.closest(".txr-cat, .ab-more")) return; editTx(r.dataset.edittx); }));
     }
 
     // ---- Tren: periode ini vs rata-rata 3 periode sebelumnya, per kategori ----
@@ -17206,6 +17204,24 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const fn = c.chips.find(x => x[0] === FIN_FILTER[kind])[2];
       const rows = all.filter(fn);
       if (!rows.length) { list.innerHTML = `<p class="hint">Nggak ada ${c.noun} di filter ini.</p>`; return; }
+      // ringkasan total di atas + "nabung/bayar ±Rp X/bulan biar kekejar tenggat"
+      const act = all.filter(x => !x.archived);
+      const sumEl = document.getElementById("finsum-" + kind) || (() => { const d = document.createElement("div"); d.id = "finsum-" + kind; d.className = "fd-summary"; bar.parentNode.insertBefore(d, bar); return d; })();
+      if (kind === "goal") {
+        const got = act.reduce((s, g) => s + Math.max(0, perGoalProgress(g)), 0), tgt = act.reduce((s, g) => s + Number(g.target_amount || 0), 0);
+        sumEl.innerHTML = act.length ? `<span>Terkumpul</span><b>${rupiah(got)}</b><span>dari total target ${rupiah(tgt)}</span>` : "";
+      } else {
+        const rem = act.reduce((s, l) => s + Math.max(0, perLiabBalance(l)), 0);
+        sumEl.innerHTML = act.length ? `<span>Sisa utang</span><b>${rupiah(rem)}</b><span>${act.filter(l => perLiabBalance(l) > 0).length} belum lunas</span>` : "";
+      }
+      const perMonthHint = (it, st) => {
+        if (st.done || !st.due) return "";
+        const left = kind === "goal" ? Number(it.target_amount) - perGoalProgress(it) : perLiabBalance(it);
+        const t = new Date(noteTodayIso() + "T00:00:00"), d = new Date(String(st.due).slice(0, 10) + "T00:00:00");
+        const months = Math.max(1, (d.getFullYear() - t.getFullYear()) * 12 + d.getMonth() - t.getMonth());
+        if (left <= 0 || d < t) return "";
+        return `<span class="fd-need">${kind === "goal" ? "Nabung" : "Bayar"} ±${rupiah(Math.ceil(left / months / 1000) * 1000)}/bulan biar kekejar</span>`;
+      };
       list.innerHTML = `<div class="fd-grid">` + rows.map(it => {
         const st = c.stat(it);
         return `<button type="button" class="fd-card${st.done ? " is-done" : ""}" data-fd="${it.id}">
@@ -17213,6 +17229,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           <span class="fd-big">${st.big} <small>${st.bigLbl}</small></span>
           <span class="fd-bar"><span style="width:${Math.max(0, Math.min(100, st.pct))}%"></span></span>
           <span class="fd-sub">${Math.max(0, Math.min(100, st.pct))}% · ${escapeHtml(st.sub)}${st.due ? " · tenggat " + escapeHtml(fmtTxDate(st.due)) : ""}</span>
+          ${perMonthHint(it, st)}
         </button>`;
       }).join("") + `</div>`;
       list.querySelectorAll("[data-fd]").forEach(b => b.addEventListener("click", () => openFinDetail(kind, b.dataset.fd)));
@@ -17234,7 +17251,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!FIN_DETAIL.kind) return;
       const c = FIN_CFG[FIN_DETAIL.kind];
       const card = document.getElementById(c.card);
-      const home = document.querySelector(`[data-tab="${FIN_DETAIL.kind === "liab" ? "hutang" : "target"}"] .fin-home`);
+      // (tab Target & Utang sekarang 1 tab gabungan -- panelnya pakai data-segpane)
+      const home = document.querySelector(`[data-segpane="tab:${FIN_DETAIL.kind === "liab" ? "hutang" : "target"}"] .fin-home`);
       if (home) home.insertBefore(card, home.firstChild);
       const fld = document.getElementById(c.select).closest(".konten-field"); if (fld) fld.style.display = "";
       document.getElementById("finDetailOverlay").style.display = "none";
@@ -17707,8 +17725,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("txPrev").addEventListener("click", () => shift(-1));
       document.getElementById("txNext").addEventListener("click", () => shift(1));
       // ganti kategori langsung dari baris
-      document.getElementById("perTxList").addEventListener("change", async (e) => {
-        const sel = e.target.closest("[data-txcat]"); if (!sel) return;
+      document.addEventListener("change", async (e) => {
+        const sel = e.target.closest && e.target.closest("[data-txcat]"); if (!sel) return;
         const tx = PER_TRANSACTIONS.find((x) => x.id === sel.dataset.txcat); if (!tx) return;
         const prev = tx.category_id;
         tx.category_id = sel.value || null;
