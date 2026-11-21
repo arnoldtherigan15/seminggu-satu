@@ -1935,3 +1935,45 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
 }
 .sf-main small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 680px) { .sf-right small { white-space: normal; text-align: right; max-width: 150px; } .sf-tx em { display: none; } }
+
+/* asal order (Instagram / Threads / WhatsApp / ...) */
+.ksr-buyer { grid-template-columns: 1.4fr 1fr 170px; }
+.so-ch { display: inline-block; padding: 0 7px; border-radius: 999px; font-size: 11.5px; font-weight: 700; line-height: 18px; background: #eef1f8; color: #4a5674; }
+.so-ch-instagram { background: #fde8f1; color: #b4236a; }
+.so-ch-threads { background: #ececec; color: #222222; }
+.so-ch-whatsapp { background: #e3f7ea; color: #127a3e; }
+.so-ch-lainnya { background: #eef1f8; color: #4a5674; }
+.so-chips-ch:empty { display: none; }
+.so-chips-lbl { align-self: center; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-right: 2px; flex-shrink: 0; }
+.so-chip-sm { min-height: 32px; padding: 0 12px; font-size: 13px; }
+@media (max-width: 680px) { .ksr-buyer { grid-template-columns: 1fr 1fr; } .ksr-buyer #ksrName { grid-column: 1 / -1; } }
+
+/* Overview "Minggu ini" versi HP: strip tanggal + daftar sisa minggu */
+.ov-strip, .ov-agenda { display: none; }
+@media (max-width: 680px) {
+    .ov-week { display: none; }
+    .ov-week-top { flex-wrap: nowrap; }
+    .ov-week-acts .btn { padding: 0 12px; min-height: 40px; }
+    .ov-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 12px 0 10px; background: #ffffff; border-radius: 16px; padding: 6px; box-shadow: var(--shadow-sm); }
+    .ov-strip-d { display: flex; flex-direction: column; align-items: center; gap: 1px; border: 0; background: none; border-radius: 12px; padding: 6px 0 5px; cursor: pointer; color: var(--muted); min-width: 0; }
+    .ov-strip-d span { font: 800 10.5px 'Open Sans', sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+    .ov-strip-d b { font: 800 17px 'Outfit', sans-serif; color: var(--ink); line-height: 1.2; }
+    .ov-strip-d i { width: 5px; height: 5px; border-radius: 50%; background: transparent; }
+    .ov-strip-d i.on { background: var(--brand); }
+    .ov-strip-d.is-past { opacity: .5; }
+    .ov-strip-d.is-today { background: var(--ab-yellow); }
+    .ov-strip-d.is-today span { color: #10245e; }
+    .ov-strip-d:active { transform: scale(.96); }
+    .ov-agenda { display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
+    .ov-agenda-day { background: #ffffff; border-radius: 16px; box-shadow: var(--shadow-sm); padding: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .ov-agenda-h { font: 800 13px 'Outfit', sans-serif; color: var(--ink); padding: 2px 4px 4px; }
+    .ov-agenda-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 18px 14px; border: 1.5px dashed var(--line); border-radius: 16px; color: var(--muted); font-size: 13px; }
+    .ov-agenda-empty b { color: var(--ink); font-size: 14.5px; }
+    .ov-agenda-empty .btn { margin-top: 6px; }
+}
+@media (max-width: 680px) {
+    .ov-week-top > :first-child { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ov-week-acts { flex-shrink: 0; }
+    .ov-week-acts .btn { font-size: 0; gap: 0; width: 42px; height: 42px; min-height: 42px; padding: 0; }
+    .ov-week-acts .btn svg { width: 18px; height: 18px; }
+}

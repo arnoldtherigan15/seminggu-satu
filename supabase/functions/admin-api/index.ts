@@ -128,6 +128,10 @@ async function computeUnitHpp(admin: any, product: any): Promise<number> {
   return Math.round(materialCost + extraTotal);
 }
 
+const SHOP_CHANNELS = ["instagram", "threads", "whatsapp", "event", "lainnya"];
+// deno-lint-ignore no-explicit-any
+function shopChannel(v: any): string | null { const c = String(v || "").trim().toLowerCase(); return SHOP_CHANNELS.includes(c) ? c : null; }
+
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
   if (opt) return opt;
@@ -1714,6 +1718,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
             id: o.id, workshopType: o.workshop_type, batchId: o.batch_id, registrationId: o.registration_id,
             buyerName: o.buyer_name, buyerWa: o.buyer_wa, isPaid: !!o.is_paid,
             deliveryAddress: o.delivery_address || null, isCod: !!o.is_cod,
+            channel: o.channel || (o.batch_id ? "event" : null),
             items, total, createdAt: o.created_at,
           };
         });
@@ -1773,6 +1778,8 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           buyer_wa: data.buyerWa ? String(data.buyerWa).trim() : null,
           delivery_address: data.deliveryAddress ? String(data.deliveryAddress).trim() : null,
           is_cod: !!data.isCod,
+          // channel cuma diubah kalau dikirim (form lama nggak ngirim -> nggak kehapus)
+          ...(data.channel !== undefined ? { channel: shopChannel(data.channel) } : {}),
         };
         if (id) {
           const { error } = await admin.from("shop_orders").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
@@ -1844,6 +1851,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
           buyer_name: buyerName, buyer_wa: data.buyerWa ? String(data.buyerWa).trim() : null,
           is_cod: isCod, delivery_address: !isCod && data.deliveryAddress ? String(data.deliveryAddress).trim() : null,
           is_paid: !!data.isPaid,
+          channel: shopChannel(data.channel) || (data.batchId ? "event" : null),
         }).select("*").single();
         if (oe) return errorResponse("Gagal bikin order: " + oe.message);
         const done: { pid: string; q: number }[] = [];
@@ -1885,7 +1893,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         return jsonResponse({ status: "success", order: {
           id: order.id, workshopType: order.workshop_type, batchId: order.batch_id, registrationId: order.registration_id,
           buyerName: order.buyer_name, buyerWa: order.buyer_wa, isPaid: !!order.is_paid, isCod: !!order.is_cod,
-          deliveryAddress: order.delivery_address || null, items: outItems, total, createdAt: order.created_at,
+          deliveryAddress: order.delivery_address || null, channel: order.channel || null, items: outItems, total, createdAt: order.created_at,
         } });
       }
 

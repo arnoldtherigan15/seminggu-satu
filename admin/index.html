@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=36">
+  <link rel="stylesheet" href="admin-binder.css?v=38">
 </head>
 
 <body>
@@ -5331,6 +5331,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                   <button class="btn so-new" id="shopOrdAllNewBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg><span>Order baru</span></button>
                 </div>
                 <div class="so-chips" id="shopOrdAllChips" role="tablist" aria-label="Status bayar"></div>
+                <div class="so-chips so-chips-ch" id="shopOrdAllChChips" aria-label="Asal order"></div>
               </div>
               <div class="so-stats" id="shopOrdAllStats"></div>
               <div id="shopOrdAllList"></div>
@@ -5344,6 +5345,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <div class="fin-card">
               <div class="konten-field"><label>Nama Pembeli</label><input class="form-control" type="text" id="shopOrdBuyerName"></div>
               <div class="konten-field"><label>Nomor WA</label><input class="form-control" type="text" id="shopOrdBuyerWa" placeholder="08xx..."></div>
+              <div class="konten-field"><label for="shopOrdChannel">Order dari</label><select class="form-control" id="shopOrdChannel"><option value="">Belum diisi</option><option value="instagram">Instagram</option><option value="threads">Threads</option><option value="whatsapp">WhatsApp</option><option value="event">Event</option><option value="lainnya">Lainnya</option></select></div>
               <div style="display:flex;align-items:center;gap:8px;margin:10px 0 4px;">
                 <input type="checkbox" id="shopOrdCodCheck" style="width:18px;height:18px;">
                 <label for="shopOrdCodCheck" style="margin:0;cursor:pointer;">COD -- ketemu langsung, nggak perlu alamat</label>
@@ -13785,6 +13787,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           const b = e.target.closest("[data-sost]"); if (!b) return;
           SO_ALL.status = b.dataset.sost; renderShopOrdAllList();
         });
+        document.getElementById("shopOrdAllChChips").addEventListener("click", (e) => {
+          const b = e.target.closest("[data-soch]"); if (!b) return;
+          SO_ALL.channel = SO_ALL.channel === b.dataset.soch ? "" : b.dataset.soch; renderShopOrdAllList();
+        });
         document.getElementById("shopOrdAllStats").addEventListener("click", (e) => {
           const b = e.target.closest("[data-sost]"); if (!b) return;
           SO_ALL.status = SO_ALL.status === b.dataset.sost ? "all" : b.dataset.sost; renderShopOrdAllList();
@@ -14034,6 +14040,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const d = new Date(iso); if (isNaN(d)) return "";
       return String(d.getHours()).padStart(2, "0") + "." + String(d.getMinutes()).padStart(2, "0");
     }
+    const SO_CHANNELS = { instagram: "Instagram", threads: "Threads", whatsapp: "WhatsApp", event: "Event", lainnya: "Lainnya" };
     function renderShopOrdRow(name, order, reg, opts) {
       opts = opts || {};
       const clean = String(name || "").trim();
@@ -14041,7 +14048,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const ava = `<span class="so-ava" style="background:${clean ? soColor(clean) : "#c3cadb"}">${escapeHtml(clean ? soInitials(clean) : "?")}</span>`;
       if (order) {
         const meta = [];
-        if (opts.showSource) meta.push(order.batchId ? escapeHtml(workshopName(order.workshopType) || "Event") : "Pembeli lain");
+        const ch = order.channel || (order.batchId ? "event" : "");
+        if (ch && ch !== "event") meta.push(`<span class="so-ch so-ch-${ch}">${SO_CHANNELS[ch] || ch}</span>`);
+        if (opts.showSource) meta.push(order.batchId ? escapeHtml(workshopName(order.workshopType) || "Event") : (ch === "event" ? "Event" : (ch ? "" : "Pembeli lain")));
         if (opts.showDate) meta.push(new Date(order.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" }));
         meta.push(soTime(order.createdAt));
         if (order.isCod === false && order.deliveryAddress) meta.push("Dikirim");
@@ -14224,7 +14233,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     }
 
     // State tab Semua: periode ("m:2026-11" | "y:2026" | "all") + status bayar.
-    const SO_ALL = { period: "", status: "all" };
+    const SO_ALL = { period: "", status: "all", channel: "" };
     const SO_MONTHS = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     const soMonthKey = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
     function populateShopOrdAllYearFilter() {
@@ -14265,6 +14274,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       let base = SHOPORD_ALL_ORDERS.filter(o => soInPeriod(o, SO_ALL.period));
       if (searchVal) base = base.filter(o => (o.buyerName || "").toLowerCase().includes(searchVal)
         || (o.items || []).some(it => (it.productName || "").toLowerCase().includes(searchVal)));
+      // asal order: chip cuma muncul buat yang ada isinya di periode ini
+      const chOf = (o) => o.channel || (o.batchId ? "event" : "none");
+      const chCount = {}; base.forEach(o => { const c = chOf(o); chCount[c] = (chCount[c] || 0) + 1; });
+      const chKeys = ["instagram", "threads", "whatsapp", "event", "lainnya", "none"].filter(k => chCount[k]);
+      if (SO_ALL.channel && !chCount[SO_ALL.channel]) SO_ALL.channel = "";
+      document.getElementById("shopOrdAllChChips").innerHTML = chKeys.length > 1 || SO_ALL.channel
+        ? `<span class="so-chips-lbl">Dari</span>` + chKeys.map(k => `<button type="button" class="so-chip so-chip-sm${SO_ALL.channel === k ? " active" : ""}" data-soch="${k}" aria-pressed="${SO_ALL.channel === k}">${k === "none" ? "Belum diisi" : SO_CHANNELS[k]}<span>${chCount[k]}</span></button>`).join("")
+        : "";
+      if (SO_ALL.channel) base = base.filter(o => chOf(o) === SO_ALL.channel);
 
       // Ringkasan cuma ngitung yang UDAH LUNAS (sama kayak Laporan Keuangan:
       // belum bayar = piutang, belum beneran masuk).
@@ -14346,6 +14364,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <div class="ksr-buyer">
                 <input class="form-control" id="ksrName" list="ksrBuyers" placeholder="Nama pembeli" autocomplete="off" aria-label="Nama pembeli">
                 <input class="form-control" id="ksrWa" inputmode="tel" placeholder="No. WA (opsional)" aria-label="Nomor WA">
+                <select class="form-control ksr-ch" id="ksrChannel" aria-label="Order dari mana"><option value="">Dari mana?</option><option value="instagram">Instagram</option><option value="threads">Threads</option><option value="whatsapp">WhatsApp</option><option value="event">Event</option><option value="lainnya">Lainnya</option></select>
                 <datalist id="ksrBuyers"></datalist>
               </div>
               <input class="form-control ksr-search" id="ksrSearch" type="search" placeholder="Cari produk / kode…" aria-label="Cari produk" autocomplete="off">
@@ -14371,6 +14390,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           const wa = ov.querySelector("#ksrWa"); if (b && b.wa && !wa.value) wa.value = b.wa;
           ksrSync();
         });
+        ov.querySelector("#ksrChannel").addEventListener("change", (e) => { try { localStorage.setItem("ab.ksrChannel", e.target.value); } catch (err) {} });
         ov.querySelector("#ksrCod").addEventListener("change", (e) => { ov.querySelector("#ksrAddr").hidden = e.target.checked; });
         ov.querySelector("#ksrCart").addEventListener("input", (e) => { const n = e.target.closest("[data-ksrnote]"); if (n) { const l = KSR.cart.get(n.dataset.ksrnote); if (l) l.notes = n.value; } });
         document.addEventListener("keydown", (e) => { if (e.key === "Escape" && document.getElementById("ksrOv").classList.contains("show")) closeKasir(); });
@@ -14379,6 +14399,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       ov.querySelector("#ksrName").value = KSR.ctx.buyerName; ov.querySelector("#ksrWa").value = KSR.ctx.buyerWa;
       ov.querySelector("#ksrBuyers").innerHTML = ksrKnownBuyers().map(b => `<option value="${escapeHtml(b.name)}">`).join("");
       ov.querySelector("#ksrSearch").value = "";
+      // asal order: order peserta/batch = Event; selain itu pakai pilihan terakhir
+      let lastCh = ""; try { lastCh = localStorage.getItem("ab.ksrChannel") || ""; } catch (e) {}
+      ov.querySelector("#ksrChannel").value = KSR.ctx.batchId ? "event" : (lastCh === "event" ? "" : lastCh);
       ov.querySelector("#ksrPaid").checked = true; ov.querySelector("#ksrCod").checked = true;
       ov.querySelector("#ksrAddr").hidden = true; ov.querySelector("#ksrAddr").value = "";
       ov.querySelector("#ksrMsg").textContent = "";
@@ -14474,6 +14497,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       KSR.busy = true; ksrSync(); msg.textContent = "Menyimpan…";
       const r = await api("quickShopOrder", {
         token: getToken(), buyerName: name, buyerWa: document.getElementById("ksrWa").value.trim(),
+        channel: document.getElementById("ksrChannel").value || null,
         workshopType: KSR.ctx.workshopType, batchId: KSR.ctx.batchId, registrationId: KSR.ctx.registrationId,
         isPaid: document.getElementById("ksrPaid").checked, isCod, deliveryAddress: isCod ? "" : document.getElementById("ksrAddr").value.trim(),
         items: [...KSR.cart.values()].map(l => ({ productId: l.p.id, qty: l.qty, notes: l.notes || "" })),
@@ -14510,6 +14534,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("shopOrdEditorWrap").style.display = "block";
       document.getElementById("shopOrdBuyerName").value = SHOPORD_CURRENT.buyerName || "";
       document.getElementById("shopOrdBuyerWa").value = SHOPORD_CURRENT.buyerWa || "";
+      document.getElementById("shopOrdChannel").value = SHOPORD_CURRENT.channel || "";
       document.getElementById("shopOrdCodCheck").checked = !!SHOPORD_CURRENT.isCod;
       document.getElementById("shopOrdAddress").value = SHOPORD_CURRENT.deliveryAddress || "";
       updateShopOrdAddressVisibility();
@@ -14691,6 +14716,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const buyerName = document.getElementById("shopOrdBuyerName").value.trim();
       if (!buyerName) { alert("Nama pembeli wajib diisi."); return; }
       const buyerWa = document.getElementById("shopOrdBuyerWa").value.trim();
+      const channel = document.getElementById("shopOrdChannel").value || null;
       const isCod = document.getElementById("shopOrdCodCheck").checked;
       const deliveryAddress = isCod ? "" : document.getElementById("shopOrdAddress").value.trim();
       const msg = document.getElementById("shopOrdMsg");
@@ -14699,11 +14725,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const r = await api("saveShopOrder", {
           token: getToken(), id: SHOPORD_CURRENT.id, workshopType: SHOPORD_CURRENT.workshopType,
           batchId: SHOPORD_CURRENT.batchId, registrationId: SHOPORD_CURRENT.registrationId,
-          buyerName, buyerWa, isCod, deliveryAddress,
+          buyerName, buyerWa, isCod, deliveryAddress, channel,
         });
         if (r.status === "success") {
           SHOPORD_CURRENT.buyerName = buyerName; SHOPORD_CURRENT.buyerWa = buyerWa;
-          SHOPORD_CURRENT.isCod = isCod; SHOPORD_CURRENT.deliveryAddress = deliveryAddress;
+          SHOPORD_CURRENT.isCod = isCod; SHOPORD_CURRENT.deliveryAddress = deliveryAddress; SHOPORD_CURRENT.channel = channel;
+          [SHOPORD_ORDERS, SHOPORD_WALKIN_ORDERS, SHOPORD_ALL_ORDERS].forEach(arr => { const o = arr.find(x => x.id === SHOPORD_CURRENT.id); if (o) Object.assign(o, { buyerName, buyerWa, isCod, deliveryAddress, channel }); });
           msg.className = "msg ok"; msg.textContent = "Tersimpan";
         } else {
           handleAuthError(r);
@@ -20882,6 +20909,16 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           </div>`;
       }
       html += `</div>`;
+      // HP: strip 7 tanggal (titik = ada agenda) + daftar sisa minggu ini
+      html += `<div class="ov-strip">` + Array.from({ length: 7 }, (_, i) => {
+        const d = calAdd(from, i), n = (byDay[d] || []).length;
+        return `<button type="button" class="ov-strip-d${d === today ? " is-today" : ""}${d < today ? " is-past" : ""}" data-ovday="${d}" aria-label="${calLongDay(d)}${n ? ", " + n + " agenda" : ""}"><span>${CAL_DAYS[i]}</span><b>${Number(d.slice(8))}</b><i class="${n ? "on" : ""}"></i></button>`;
+      }).join("") + `</div>`;
+      const rest = [];
+      for (let i = 0; i < 7; i++) { const d = calAdd(from, i); if (d >= today && (byDay[d] || []).length) rest.push(d); }
+      html += `<div class="ov-agenda">` + (rest.length
+        ? rest.map(d => `<div class="ov-agenda-day"><div class="ov-agenda-h">${d === today ? "Hari ini" : d === calAdd(today, 1) ? "Besok" : escapeHtml(calLongDay(d))}</div>${byDay[d].map(it => calItemHtml(it)).join("")}</div>`).join("")
+        : `<div class="ov-agenda-empty"><b>Sisa minggu ini kosong</b><span>Belum ada event atau agenda sampai Minggu.</span><button type="button" class="btn btn-sm btn-ghost" data-ovadd>${icon("plus")} Tambah agenda</button></div>`) + `</div>`;
       document.getElementById("ovWeekSum").textContent = total ? `${total} agenda` : "Minggu ini masih lega";
       box.innerHTML = html;
     }
@@ -20891,6 +20928,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       box.dataset.wired = "1";
       box.addEventListener("click", (e) => {
         const it = e.target.closest(".cal-item"); if (it) { calOpenItem(it, box._byDay); return; }
+        if (e.target.closest("[data-ovadd]")) { calAgendaDialog(null, calIso(new Date())); return; }
         const h = e.target.closest("[data-ovday]"); if (h) { CAL.sel = h.dataset.ovday; location.hash = "calendar:" + h.dataset.ovday.slice(0, 7); }
       });
       document.getElementById("ovWeekAdd").addEventListener("click", () => calAgendaDialog(null, calIso(new Date())));
