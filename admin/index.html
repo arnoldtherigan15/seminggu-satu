@@ -5565,6 +5565,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <button class="btn btn-sm btn-ghost" id="perReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
           </div>
 
+          <!-- Catat cepat: 1 kalimat -> transaksi. Desktop nempel di atas, HP nempel di bawah (kayak kolom chat). -->
+          <div class="qx-bar ctx-bar" id="qxBar">
+            <div class="qx-row">
+              <span class="qx-lead" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg></span>
+              <input class="qx-input" id="qxInput" type="text" autocomplete="off" autocapitalize="sentences" enterkeyhint="send" placeholder="Catat cepat… mis. kopi 25rb, grab 32k gopay kemarin" aria-label="Catat cepat (contoh: kopi 25rb)">
+              <button type="button" class="qx-send" id="qxSend" aria-label="Catat" title="Catat (Enter)" disabled><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"/></svg></button>
+            </div>
+            <div class="qx-chips" id="qxChips" hidden></div>
+            <div class="qx-sugg-row" id="qxSugg" hidden></div>
+            <div class="qx-msg" id="qxMsg" aria-live="polite"></div>
+          </div>
+
           <div class="subtabs" id="perSubtabs">
             <div class="subtab-bar">
               <button class="subtab-btn" type="button" data-tab="ringkasan"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/><path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/></svg> <span>Ringkasan</span></button>
@@ -5581,6 +5593,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
 
             <div class="subtab-panel" data-tab="ringkasan">
+              <section class="fin-card pt-card" id="perToday" aria-label="Hari ini"></section>
+              <section class="tgc" id="perTelegram" hidden aria-label="Catat lewat Telegram"></section>
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
                 <label style="font-weight:700;font-size:13.5px;margin:0;" for="perPeriod">Periode</label>
                 <input class="form-control" type="month" id="perPeriod" style="max-width:170px;">
@@ -7698,7 +7712,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // aslinya udah lewat dari layar; klik FAB = klik tombol aslinya.
     // noteNewBtn ikut buat shortcut N, tapi FAB umum-nya nggak ditampilin di
     // Catatan (udah punya #noteFabBtn sendiri) -- lihat updateFab.
-    const AB_PRIMARY_IDS = ["noteNewBtn", "calAddBtn", "txAddBtn", "taskAddBtn", "ciAddBtn", "partnerAddBtn", "venueAddBtn", "mouAddBtn",
+    const AB_PRIMARY_IDS = ["noteNewBtn", "calAddBtn", "taskAddBtn", "ciAddBtn", "partnerAddBtn", "venueAddBtn", "mouAddBtn",
       "invoiceAddBtn", "kontenAddBtn", "recBatchNewBtn", "shopMatNewBtn", "shopProdNewBtn", "shopOrdWalkinNewBtn",
       "questNewBtn", "pesOrderAddBtn", "mnAddBtn", "catAddBtn", "accAddBtn", "goalAddBtn", "liabAddBtn",
       "billAddBtn", "pwNewBtn", "epNewBtn", "vidNewBtn"];
@@ -7750,6 +7764,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const a = document.activeElement;
       if (a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) return;
       if (abOverlayOpen()) return;
+      const qx = document.getElementById("qxInput");
+      if (qx && qx.offsetParent !== null) { e.preventDefault(); qx.focus(); return; } // Keuangan: N = Catat cepat
       const t = abCurrentPrimary();
       if (t) { e.preventDefault(); t.click(); setTimeout(updateFab, 60); }
     });
@@ -8620,7 +8636,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "pesanan") ensurePesanan(event, subtab);
       if (view === "roadmap") { ensureRoadmapView(); if (event && roadmapTabsCtl) roadmapTabsCtl.show(event); }
       if (view === "tasks") ensureTasksView();
-      if (view === "personal") { ensurePersonal(); if (event && perTabsCtl) perTabsCtl.show(event); }
+      if (view === "personal") {
+        ensurePersonal(); if (event && perTabsCtl) perTabsCtl.show(event);
+        if (subtab === "catat") setTimeout(() => { const q = document.getElementById("qxInput"); if (q) q.focus(); }, 350); // shortcut ikon app "Catat cepat"
+      }
       if (view === "notes") ensureNotesView(event);
       if (view === "passwords") ensurePasswordsView();
       if (view === "videos") ensureVideosView();
@@ -16438,6 +16457,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     async function ensurePersonal() {
       if (!personalInit) {
         personalInit = true;
+        wireQuickTxOnce();
+        wirePerTelegramOnce();
+        loadPerTelegram();
         document.getElementById("perReloadBtn").addEventListener("click", () => { showPersonalSkeletons(); loadPersonalData(); renderBizProfitCard(); });
         document.getElementById("txType").addEventListener("change", onTxTypeChange);
         document.getElementById("txSaveBtn").addEventListener("click", saveTx);
@@ -16621,6 +16643,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       renderLiabilities();
       renderLiabPayments();
       renderBills();
+      renderPerToday();
+      qxRenderSugg();
     }
 
     function populatePersonalSelects() {
@@ -19674,6 +19698,240 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (isNaN(d)) return "";
       return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) + " " +
         d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    // ===================== CATAT CEPAT (Keuangan pribadi) =====================
+    // 1 kalimat -> transaksi. Tebakan (nominal/kategori/akun/tanggal) dari
+    // server (personal-api quickTx, parser yang SAMA kayak bot Telegram),
+    // ditampilin jadi chip yang bisa dikoreksi sebelum Enter. Desktop: nempel
+    // di atas; HP: nempel di bawah kayak kolom chat (deket jempol).
+    const QX = { seq: 0, timer: null, parsed: null, overrides: {}, busy: false, last: null };
+    function qxShortRp(n) {
+      if (n >= 1e6 && n % 1e5 === 0) return (n / 1e6).toString().replace(".", ",") + "jt";
+      if (n >= 1000 && n % 1000 === 0) return (n / 1000) + "rb";
+      return String(n);
+    }
+    function qxEls() { return { bar: document.getElementById("qxBar"), input: document.getElementById("qxInput"), send: document.getElementById("qxSend"), chips: document.getElementById("qxChips"), msg: document.getElementById("qxMsg"), sugg: document.getElementById("qxSugg") }; }
+    // chip yang bisa diketuk -- <select>/<input> transparan di atasnya, jadi di HP
+    // kebuka pemilih bawaan (roda/kalender) yang enak dipake jempol
+    function qxChip(label, value, control, guessed, cls) {
+      return `<label class="qx-chip${guessed ? " is-guess" : ""}${cls ? " " + cls : ""}" title="${guessed ? "Tebakan -- ketuk buat ganti" : "Ketuk buat ganti"}"><span class="qx-chip-k">${label}</span><b>${escapeHtml(value)}</b>${control || ""}</label>`;
+    }
+    function qxRenderChips() {
+      const { chips } = qxEls();
+      const p = QX.parsed;
+      if (!p) { chips.innerHTML = ""; chips.hidden = true; return; }
+      chips.hidden = false;
+      if (!p.ok) { chips.innerHTML = `<span class="qx-hint">${escapeHtml(p.error || "")}</span>`; return; }
+      const accName = (id) => (PER_ACCOUNTS.find((a) => a.id === id) || {}).name || "Pilih akun";
+      const cat = PER_CATEGORIES.find((c) => c.id === p.categoryId);
+      const today = noteTodayIso();
+      const dateLabel = p.date === today ? "Hari ini" : p.date === noteShiftIso(today, -1) ? "Kemarin" : calDate(p.date).toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" });
+      const accOpts = (sel) => PER_ACCOUNTS.filter((a) => !a.archived).map((a) => `<option value="${a.id}"${a.id === sel ? " selected" : ""}>${escapeHtml(a.name)}</option>`).join("");
+      const typeLbl = { expense: "Keluar", income: "Masuk", transfer: "Transfer" }[p.type];
+      let html = qxChip("", typeLbl, `<select data-qo="type" aria-label="Tipe"><option value="expense"${p.type === "expense" ? " selected" : ""}>Pengeluaran</option><option value="income"${p.type === "income" ? " selected" : ""}>Pemasukan</option><option value="transfer"${p.type === "transfer" ? " selected" : ""}>Transfer</option></select>`, false, "qx-type qx-" + p.type);
+      html += `<span class="qx-amt qx-${p.type}">${p.type === "expense" ? "−" : p.type === "income" ? "+" : ""}${rupiah(p.amount)}</span>`;
+      if (p.type !== "transfer") {
+        const cats = PER_CATEGORIES.filter((c) => c.type === p.type && !c.archived);
+        html += qxChip("", cat ? cat.name : "Tanpa kategori", `<select data-qo="categoryId" aria-label="Kategori"><option value="">Tanpa kategori</option>${cats.map((c) => `<option value="${c.id}"${c.id === p.categoryId ? " selected" : ""}>${escapeHtml(c.name)}</option>`).join("")}</select>`, p.guessed.category !== "history" && !("categoryId" in QX.overrides) && p.guessed.category !== "keyword");
+      }
+      html += qxChip(p.type === "transfer" ? "dari" : "", accName(p.accountId), `<select data-qo="accountId" aria-label="Akun">${accOpts(p.accountId)}</select>`, p.guessed.account && !QX.overrides.accountId);
+      if (p.type === "transfer") html += qxChip("ke", accName(p.toAccountId), `<select data-qo="toAccountId" aria-label="Akun tujuan">${accOpts(p.toAccountId)}</select>`, false);
+      html += qxChip("", dateLabel, `<input type="date" data-qo="date" value="${p.date}" max="${today}" aria-label="Tanggal">`, false);
+      if (p.note) html += `<span class="qx-note">“${escapeHtml(p.note)}”</span>`;
+      chips.innerHTML = html;
+    }
+    async function qxPreview() {
+      const { input } = qxEls();
+      const text = input.value.trim();
+      const seq = ++QX.seq;
+      if (!text) { QX.parsed = null; qxRenderChips(); qxRenderSugg(); return; }
+      qxRenderSugg();
+      const r = await personalApi("quickTx", { token: getToken(), mode: "preview", text, overrides: QX.overrides });
+      if (seq !== QX.seq) return; // ketikan baru udah nyusul
+      if (r.status !== "success") { handleAuthError(r); return; }
+      QX.parsed = r.parsed;
+      qxRenderChips();
+      qxSyncSend();
+    }
+    function qxSyncSend() {
+      const { input, send } = qxEls();
+      send.disabled = QX.busy || !input.value.trim();
+    }
+    async function qxSave() {
+      const { input, msg } = qxEls();
+      const text = input.value.trim();
+      if (!text || QX.busy) return;
+      QX.busy = true; qxSyncSend();
+      msg.textContent = "";
+      const r = await personalApi("quickTx", { token: getToken(), mode: "save", text, overrides: QX.overrides });
+      QX.busy = false;
+      if (r.status !== "success") { handleAuthError(r); msg.textContent = r.message || "Gagal nyimpen."; qxSyncSend(); return; }
+      if (!r.parsed.ok) { QX.parsed = r.parsed; qxRenderChips(); qxSyncSend(); input.focus(); return; }
+      const t = r.transaction;
+      PER_TRANSACTIONS.unshift(t);
+      input.value = ""; QX.overrides = {}; QX.parsed = null; QX.seq++;
+      qxRenderChips(); qxRenderSugg(); qxSyncSend();
+      qxSnack(t);
+      qxRefreshViews();
+      // di HP keyboard tetep kebuka buat nyatet berikutnya (beruntun)
+      input.focus({ preventScroll: true });
+    }
+    function qxRefreshViews() {
+      try { renderPersonalHero(); renderCashflow(); renderPerGlance(); renderPerNetWorth(); renderPerCalendar(); renderPerTrends(); renderPersonalTransactions(); renderBudget(); renderAnalisis(); renderPerToday(); } catch (e) { console.error("qx refresh", e); }
+    }
+    function qxSnack(t) {
+      let s = document.getElementById("qxSnack");
+      if (!s) { s = document.createElement("div"); s.id = "qxSnack"; s.className = "qx-snack"; s.setAttribute("role", "status"); document.body.appendChild(s); }
+      const cat = PER_CATEGORIES.find((c) => c.id === t.category_id);
+      const acc = PER_ACCOUNTS.find((a) => a.id === t.account_id);
+      s.innerHTML = `<span class="qx-snack-ic">${icon("check")}</span><span class="qx-snack-t"><b>${escapeHtml(t.note || "Transaksi")} · ${rupiah(t.amount)}</b><small>${escapeHtml([cat && cat.name, acc && acc.name].filter(Boolean).join(" · "))}</small></span><button type="button" class="qx-undo">Batalkan</button>`;
+      s.classList.add("show");
+      clearTimeout(s._h);
+      s._h = setTimeout(() => s.classList.remove("show"), 6000);
+      s.querySelector(".qx-undo").onclick = async () => {
+        s.classList.remove("show");
+        const r = await personalApi("deletePersonalTransaction", { token: getToken(), id: t.id });
+        if (r.status !== "success") { handleAuthError(r); abToast(r.message || "Gagal membatalkan.", "err"); return; }
+        PER_TRANSACTIONS = PER_TRANSACTIONS.filter((x) => x.id !== t.id);
+        qxRefreshViews();
+        abToast("Dibatalkan", "ok");
+      };
+    }
+    // "Sering dicatat": catatan pengeluaran yang paling sering 90 hari terakhir
+    function qxRenderSugg() {
+      const { sugg, input } = qxEls();
+      if (!sugg) return;
+      if (input.value.trim()) { sugg.hidden = true; return; }
+      const since = noteShiftIso(noteTodayIso(), -90);
+      const groups = new Map();
+      for (const t of PER_TRANSACTIONS) {
+        if (t.type === "transfer" || !t.note || t.date < since) continue;
+        const k = t.note.trim().toLowerCase();
+        const g = groups.get(k) || { note: t.note.trim(), n: 0, amount: t.amount, acc: t.account_id, type: t.type };
+        g.n++; groups.set(k, g); // PER_TRANSACTIONS urut terbaru dulu -> amount/akun = yang terakhir
+      }
+      const accCount = new Map(); PER_TRANSACTIONS.slice(0, 200).forEach((t) => accCount.set(t.account_id, (accCount.get(t.account_id) || 0) + 1));
+      const mainAcc = [...accCount.entries()].sort((a, b) => b[1] - a[1])[0];
+      const top = [...groups.values()].filter((g) => g.n >= 2).sort((a, b) => b.n - a.n).slice(0, 8);
+      if (!top.length) { sugg.hidden = true; return; }
+      sugg.hidden = false;
+      sugg.innerHTML = `<span class="qx-sugg-h">Sering:</span>` + top.map((g) => {
+        const acc = mainAcc && g.acc !== mainAcc[0] ? " " + ((PER_ACCOUNTS.find((a) => a.id === g.acc) || {}).name || "") : "";
+        const text = `${g.type === "income" ? "+" : ""}${g.note} ${qxShortRp(g.amount)}${acc}`.trim();
+        return `<button type="button" class="qx-sugg" data-qtext="${escapeHtml(text)}">${escapeHtml(g.note)} <span>${qxShortRp(g.amount)}</span></button>`;
+      }).join("");
+    }
+    // ---------- Catat lewat Telegram (bot notif yang udah ada) ----------
+    const TGC = { st: null, link: "", poll: null };
+    async function loadPerTelegram() {
+      const r = await personalApi("telegramStatus", { token: getToken() });
+      if (r.status !== "success") return;
+      TGC.st = r;
+      if (r.linked) { TGC.link = ""; clearInterval(TGC.poll); TGC.poll = null; }
+      renderPerTelegram();
+    }
+    function renderPerTelegram() {
+      const box = document.getElementById("perTelegram"); if (!box) return;
+      const st = TGC.st; if (!st) return;
+      box.hidden = false;
+      const ic = `<span class="tgc-ic">${icon("chat")}</span>`;
+      if (st.linked) {
+        box.className = "tgc is-on";
+        box.innerHTML = `${ic}<div class="tgc-t"><b>Telegram tersambung${st.chatName ? " · " + escapeHtml(st.chatName) : ""}</b><small>Chat <code>kopi 25rb</code> ke bot, langsung kecatat. Bisa juga kirim foto struk.</small></div>
+          <div class="tgc-acts">${st.botUsername ? `<a class="btn btn-sm btn-ghost" href="https://t.me/${escapeHtml(st.botUsername)}" target="_blank" rel="noopener">Buka bot</a>` : ""}<button type="button" class="tgc-off" data-tg="off">Putuskan</button></div>`;
+      } else if (TGC.link) {
+        box.className = "tgc is-wait";
+        box.innerHTML = `${ic}<div class="tgc-t"><b>Satu langkah lagi</b><small>Ketuk tombol ini, terus tekan <b>Start</b> di Telegram. Link berlaku 15 menit.</small></div>
+          <div class="tgc-acts"><a class="btn btn-sm" href="${escapeHtml(TGC.link)}" target="_blank" rel="noopener" data-tg="open">Buka Telegram</a></div>`;
+      } else {
+        box.className = "tgc";
+        box.innerHTML = `${ic}<div class="tgc-t"><b>Catat dari HP lewat Telegram</b><small>Chat <code>kopi 25rb</code> ke bot Seminggu Satu, langsung masuk sini. Nggak perlu buka admin.</small></div>
+          <div class="tgc-acts"><button type="button" class="btn btn-sm" data-tg="connect">Hubungkan</button></div>`;
+      }
+    }
+    function wirePerTelegramOnce() {
+      const box = document.getElementById("perTelegram");
+      if (!box || box.dataset.wired) return;
+      box.dataset.wired = "1";
+      box.addEventListener("click", async (e) => {
+        const b = e.target.closest("[data-tg]"); if (!b) return;
+        const act = b.dataset.tg;
+        if (act === "connect") {
+          abBusy(b, true, "Menyiapkan");
+          const r = await personalApi("telegramConnect", { token: getToken() });
+          abBusy(b, false);
+          if (r.status !== "success") { handleAuthError(r); abToast(r.message || "Gagal nyambungin.", "err"); return; }
+          TGC.link = r.link; renderPerTelegram();
+          // cek berkala sampai kesambung (maks ~3 menit)
+          clearInterval(TGC.poll); let n = 0;
+          TGC.poll = setInterval(() => { if (++n > 60) { clearInterval(TGC.poll); return; } loadPerTelegram(); }, 3000);
+        } else if (act === "off") {
+          if (!await abConfirm("Putuskan Telegram? Bot nggak akan nyatet dari chat kamu lagi (notif pendaftar tetap jalan).")) return;
+          const r = await personalApi("telegramDisconnect", { token: getToken() });
+          if (r.status !== "success") { handleAuthError(r); return; }
+          loadPerTelegram();
+        }
+      });
+      document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && TGC.link) loadPerTelegram(); });
+    }
+
+    // Ringkasan: "Hari ini"
+    function renderPerToday() {
+      const box = document.getElementById("perToday"); if (!box) return;
+      const today = noteTodayIso();
+      const list = PER_TRANSACTIONS.filter((t) => t.date === today);
+      const out = list.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
+      const inc = list.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
+      const row = (t) => {
+        const cat = PER_CATEGORIES.find((c) => c.id === t.category_id);
+        const acc = PER_ACCOUNTS.find((a) => a.id === t.account_id);
+        const sign = t.type === "expense" ? "−" : t.type === "income" ? "+" : "";
+        return `<div class="pt-row"><span class="pt-ic">${icon(t.type === "transfer" ? "swap" : (cat && cat.icon) || "receipt")}</span><span class="pt-main"><b>${escapeHtml(t.note || (cat && cat.name) || "Transaksi")}</b><small>${escapeHtml([t.note && cat && cat.name, acc && acc.name].filter(Boolean).join(" · "))}</small></span><span class="pt-amt pt-${t.type}">${sign}${rupiah(t.amount)}</span></div>`;
+      };
+      box.innerHTML = `<div class="pt-head"><b>Hari ini</b><span>${list.length ? `${list.length} transaksi · keluar ${rupiah(out)}${inc ? ` · masuk ${rupiah(inc)}` : ""}` : "Belum ada yang dicatat"}</span></div>` +
+        (list.length ? `<div class="pt-list">${list.slice(0, 6).map(row).join("")}</div>${list.length > 6 ? `<button type="button" class="pt-more" data-pergo="transaksi">Lihat ${list.length - 6} lagi →</button>` : ""}` : `<p class="pt-empty">Ketik di kolom Catat cepat, mis. <b>kopi 25rb</b>. Nggak harus lengkap, yang penting kecatat.</p>`);
+    }
+    function wireQuickTxOnce() {
+      const { bar, input, send, chips, sugg } = qxEls();
+      if (!bar || bar.dataset.wired) return;
+      bar.dataset.wired = "1";
+      if (matchMedia("(max-width: 991px)").matches) input.placeholder = "Catat… mis. kopi 25rb";
+      input.addEventListener("input", () => {
+        qxSyncSend();
+        if (!input.value.trim()) QX.overrides = {};
+        clearTimeout(QX.timer); QX.timer = setTimeout(qxPreview, 220);
+      });
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); clearTimeout(QX.timer); qxSave(); } if (e.key === "Escape") input.blur(); });
+      input.addEventListener("focus", () => { bar.classList.add("is-focus"); qxRenderSugg(); });
+      input.addEventListener("blur", () => setTimeout(() => { if (!bar.contains(document.activeElement)) bar.classList.remove("is-focus"); }, 150));
+      send.addEventListener("click", () => { clearTimeout(QX.timer); qxSave(); });
+      chips.addEventListener("change", (e) => {
+        const c = e.target.closest("[data-qo]"); if (!c) return;
+        QX.overrides[c.dataset.qo] = c.value;
+        if (c.dataset.qo === "type") delete QX.overrides.categoryId;
+        qxPreview();
+      });
+      sugg.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-qtext]"); if (!b) return;
+        input.value = b.dataset.qtext; QX.overrides = {};
+        input.focus(); qxSyncSend(); qxPreview();
+      });
+      document.getElementById("perToday").addEventListener("click", (e) => { const m = e.target.closest("[data-pergo]"); if (m && typeof perTabsCtl !== "undefined" && perTabsCtl) perTabsCtl.show(m.dataset.pergo); });
+      qxSyncSend();
+      // HP: tinggi kolom (buat posisi snackbar) + naik pas keyboard kebuka (iOS
+      // nggak ngangkat elemen fixed-bottom ke atas keyboard sendiri)
+      const syncH = () => document.documentElement.style.setProperty("--qx-h", bar.offsetHeight + "px");
+      if (window.ResizeObserver) new ResizeObserver(syncH).observe(bar);
+      if (window.visualViewport) {
+        const kb = () => {
+          const vv = window.visualViewport;
+          const gap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+          document.documentElement.style.setProperty("--qx-kb", (document.activeElement === input ? gap : 0) + "px");
+        };
+        visualViewport.addEventListener("resize", kb); visualViewport.addEventListener("scroll", kb);
+        input.addEventListener("focus", () => setTimeout(kb, 300)); input.addEventListener("blur", () => setTimeout(kb, 200));
+      }
     }
 
     // ===================== KALENDER =====================

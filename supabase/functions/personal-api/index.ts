@@ -10,6 +10,8 @@ import { encryptSecret, decryptSecret } from "../_shared/vault-crypto.ts";
 import { uploadBase64 } from "../_shared/storage.ts";
 import { getConfigValue } from "../_shared/config.ts";
 import { mergeBatchConfig } from "../_shared/batch-merge.ts";
+import { parseQuickTx } from "../_shared/quick-tx.ts";
+import { getSettings, setSettings, tg, randomHex, isProdProject } from "../_shared/tg-finance.ts";
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -170,11 +172,79 @@ Deno.serve(async (req) => {
           const { error } = await admin.from("personal_transactions").update(payload).eq("id", id);
           if (error) return errorResponse("Gagal update transaksi: " + error.message);
         } else {
-          const source = ["screenshot", "adjustment"].includes(String(data.source)) ? String(data.source) : "manual";
+          const source = ["screenshot", "adjustment", "quick"].includes(String(data.source)) ? String(data.source) : "manual";
           const { error } = await admin.from("personal_transactions").insert({ ...payload, source });
           if (error) return errorResponse("Gagal simpan transaksi: " + error.message);
         }
         return jsonResponse({ status: "success", message: "Transaksi tersimpan." });
+      }
+
+      // "Catat cepat": 1 kalimat -> transaksi (parser sama persis kayak bot Telegram).
+      // mode "preview" cuma nebak (buat pratinjau di kolom ketik), "save" nebak
+      // + simpan. overrides = koreksi manual dari chip pratinjau (akun/kategori/
+      // tanggal/tipe) yang menang atas tebakan.
+      case "quickTx": {
+        const [accRes, catRes, histRes] = await Promise.all([
+          admin.from("personal_accounts").select("id, name, type, archived"),
+          admin.from("personal_categories").select("id, name, type, archived"),
+          admin.from("personal_transactions").select("note, category_id, account_id, type").order("created_at", { ascending: false }).limit(400),
+        ]);
+        if (accRes.error || catRes.error) return errorResponse("Gagal ambil data akun/kategori.");
+        const p = parseQuickTx(String(data.text || ""), { accounts: accRes.data || [], categories: catRes.data || [], history: histRes.data || [] });
+        const o = (data.overrides || {}) as Record<string, string>;
+        if (p.ok) {
+          if (o.type && ["income", "expense", "transfer"].includes(o.type) && o.type !== p.type) { p.type = o.type as typeof p.type; if (p.type === "transfer") p.categoryId = null; }
+          if (o.accountId) p.accountId = o.accountId;
+          if (o.toAccountId) p.toAccountId = o.toAccountId;
+          if ("categoryId" in o) p.categoryId = o.categoryId || null;
+          if (o.date && /^\d{4}-\d{2}-\d{2}$/.test(o.date)) p.date = o.date;
+          if (p.type === "transfer" && (!p.toAccountId || p.toAccountId === p.accountId)) { p.ok = false; p.error = "Transfer butuh akun tujuan yang beda. Tulis mis. \"bca ke gopay\"."; }
+        }
+        if (data.mode !== "save" || !p.ok) return jsonResponse({ status: "success", parsed: p });
+        const { data: row, error } = await admin.from("personal_transactions").insert({
+          date: p.date, type: p.type, amount: p.amount, account_id: p.accountId,
+          to_account_id: p.type === "transfer" ? p.toAccountId : null,
+          category_id: p.type === "transfer" ? null : p.categoryId,
+          note: p.note ? p.note.slice(0, 300) : null, source: "quick",
+        }).select("*").single();
+        if (error) return errorResponse("Gagal simpan transaksi: " + error.message);
+        return jsonResponse({ status: "success", parsed: p, transaction: row });
+      }
+
+      // ---------- Catat lewat Telegram ----------
+      // Pakai bot notif yang udah ada (TELEGRAM_TOKEN, cuma di production).
+      case "telegramStatus": {
+        const st = await getSettings(admin, ["tg_chat_id", "tg_chat_name", "tg_bot_username"]);
+        return jsonResponse({
+          status: "success", prod: isProdProject(), tokenSet: !!Deno.env.get("TELEGRAM_TOKEN"),
+          linked: !!st.tg_chat_id, chatName: st.tg_chat_name || "", botUsername: st.tg_bot_username || "",
+        });
+      }
+      case "telegramConnect": {
+        if (!isProdProject()) return errorResponse("Bot Telegram cuma aktif di production. Buka admin dari seminggusatu.com buat nyambungin.");
+        if (!Deno.env.get("TELEGRAM_TOKEN")) return errorResponse("Token bot Telegram belum diset di server.");
+        const me = await tg("getMe");
+        if (!me.ok) return errorResponse("Bot Telegram nggak bisa dihubungi: " + (me.description || ""));
+        const st = await getSettings(admin, ["tg_webhook_secret"]);
+        const secret = st.tg_webhook_secret || randomHex(24);
+        const hook = await tg("setWebhook", {
+          url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/telegram-finance`, secret_token: secret,
+          allowed_updates: ["message", "callback_query"], drop_pending_updates: true,
+        });
+        if (!hook.ok) return errorResponse("Gagal pasang webhook: " + (hook.description || ""));
+        await tg("setMyCommands", { commands: [
+          { command: "hariini", description: "Catatan hari ini" }, { command: "bulanini", description: "Ringkasan bulan ini" },
+          { command: "saldo", description: "Saldo semua akun" }, { command: "batal", description: "Batalin catatan terakhir" },
+          { command: "bantuan", description: "Contoh cara catat" },
+        ] });
+        const code = randomHex(8);
+        await setSettings(admin, { tg_webhook_secret: secret, tg_link_code: code, tg_link_exp: String(Date.now() + 15 * 60 * 1000), tg_bot_username: me.result.username || "" });
+        return jsonResponse({ status: "success", botUsername: me.result.username, link: `https://t.me/${me.result.username}?start=${code}` });
+      }
+      case "telegramDisconnect": {
+        // webhook-nya dibiarin (bot notif tetap jalan), cuma chat-nya yang di-unlink
+        await setSettings(admin, { tg_chat_id: null, tg_chat_name: null, tg_link_code: null, tg_link_exp: null });
+        return jsonResponse({ status: "success" });
       }
 
       case "parseImportImage": {
