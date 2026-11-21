@@ -251,7 +251,6 @@
                     </div>
                 </div>
                 </div>
-                </div>
 
                 <!-- Photo Upload Section (Controlled by config in main.js) -->
                 <div id="photoUploadSection" style="display: none;">
@@ -371,6 +370,14 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="igUsername">Username Instagram</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="at-sign"></i>
+                        <input type="text" id="igUsername" name="igUsername" placeholder="@username" autocapitalize="off" autocorrect="off">
+                    </div>
+                </div>
+
                 <div class="form-group checkbox-group">
                     <label class="checkbox-container">
                         <input type="checkbox" name="consentCheck">
@@ -408,6 +415,7 @@
     <audio id="bgMusic" src="../bg_music.mp3" loop preload="auto" autoplay></audio>
 
     <script src="main.js?v=3"></script>
+    <script src="../reg-stepper.js?v=5"></script>
     <script>
         lucide.createIcons();
 

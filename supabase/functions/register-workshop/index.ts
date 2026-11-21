@@ -98,6 +98,7 @@ Deno.serve(async (req) => {
     let wa = String(data.whatsapp || "");
 
     if (workshopType === "journaling-date") {
+      igUsername = String(data.igUsername || "");
       // Event gratis khusus member -- verifikasi member DI SERVER, jangan percaya klien.
       // Pake isMemberWa() (loyaltyMembers() di baliknya, normalisasi wa di kode) --
       // BUKAN `.eq("wa", key)` mentah ke DB. Sebagian baris `registrations.wa`
@@ -196,10 +197,10 @@ Deno.serve(async (req) => {
       extra = { photos };
     } else if (workshopType === "private-uc") {
       // Upcycle Journal Private Session -- sesi private kecil (kuota 3),
-      // field-nya sengaja lebih ringkas dari reka-rekat (tanpa Instagram),
-      // tapi mekanisme foto/bukti bayar sama persis.
+      // field-nya lebih ringkas dari reka-rekat, mekanisme foto/bukti bayar sama persis.
       fullName = String(data.fullName || "");
       nickname = String(data.nickname || "");
+      igUsername = String(data.igUsername || "");
       consent = yn(data.consentCheck);
       paymentUrl = await uploadBase64(admin, "payment-proofs", data.paymentBase64, `payment-${workshopType}`);
       const photos = [];

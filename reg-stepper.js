@@ -21,14 +21,21 @@
 
     // --- klasifikasi blok form ---
     const groups = { data: [], detail: [], pay: [], send: [] };
+    // input hidden (nilai pilihan picker) ikut pindah bareng blok SESUDAHNYA,
+    // biar bisa dicek per langkah ("Belum dipilih: Warna buku")
+    let carry = [];
+    const push = (g, el) => { if (el.classList.contains('picker-group')) carry.forEach(h => groups[g].push(h)); carry = []; groups[g].push(el); };
     kids.forEach(el => {
-        if (el.tagName === 'INPUT' && el.type === 'hidden') return; // pilihan visualizer (tetep di tempat)
-        if (has(el, '#submitBtn') || el.id === 'statusMessage' || el.classList.contains('checkbox-group')) groups.send.push(el);
-        else if (el.classList.contains('payment-info') || el.classList.contains('non-refund-notice') || has(el, '#paymentPhoto')) groups.pay.push(el);
-        else if (has(el, '#whatsapp, #igUsername')) groups.data.push(el);
-        else if (has(el, '#fullName, #nickname, #parentName, #childName')) groups.data.push(el);
-        else groups.detail.push(el);
+        if (el.tagName === 'INPUT' && el.type === 'hidden') { carry.push(el); return; }
+        const _g = classify(el);
+        if (_g) push(_g, el);
     });
+    function classify(el) {
+        if (has(el, '#submitBtn') || el.id === 'statusMessage' || el.classList.contains('checkbox-group')) return 'send';
+        if (el.classList.contains('payment-info') || el.classList.contains('non-refund-notice') || el.classList.contains('fnb-notice') || has(el, '#paymentPhoto')) return 'pay';
+        if (has(el, '#whatsapp, #igUsername, #fullName, #nickname, #parentName, #childName')) return 'data';
+        return 'detail';
+    }
     if (!groups.pay.length || !groups.send.length || !groups.data.length) return; // bentuk form beda -> biarin
 
     const STEPS = [
@@ -126,7 +133,13 @@
     }
     function check(st) {
         const missing = [];
-        st.els.filter(isShown).forEach(blk => {
+        st.els.forEach((blk, bi) => {
+            if (!(blk.tagName === 'INPUT' && blk.type === 'hidden' && blk.required && !String(blk.value || '').trim())) return;
+            const nx = st.els[bi + 1]; if (nx && !isShown(nx)) return;
+            const l = nx && nx.querySelector('label');
+            missing.push('pilihan ' + ((l && l.textContent.trim()) || blk.name || '').replace(/^Pilih\s+/i, '').toLowerCase());
+        });
+        st.els.filter(b => b.tagName !== 'INPUT' && isShown(b)).forEach(blk => {
             blk.querySelectorAll('input, select, textarea').forEach(inp => {
                 if (inp.type === 'hidden' || inp.disabled || !isShown(inp.closest('.form-group') || inp)) return;
                 if (inp.type === 'file') {

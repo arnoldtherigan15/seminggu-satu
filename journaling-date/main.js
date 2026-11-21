@@ -289,6 +289,7 @@ document.getElementById("jdForm").addEventListener("submit", async (e) => {
         batchId: _selectedBatchId || "",
         whatsapp: _member.wa,
         nickname: _member.nickname,
+        igUsername: (document.getElementById("igUsername") || {}).value || "",
         photo1Base64: document.getElementById("photo1Base64").value || "",
         photo2Base64: document.getElementById("photo2Base64").value || "",
         photo3Base64: document.getElementById("photo3Base64").value || "",
