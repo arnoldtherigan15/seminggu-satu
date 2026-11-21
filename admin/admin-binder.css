@@ -2200,3 +2200,11 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
 .sf-trend { background: #ffffff; border: 0; box-shadow: var(--shadow-sm); }
 .sf-panel .so-list { border: 0; box-shadow: var(--shadow-sm); }
 @media (max-width: 680px) { .sf-panel { padding: 0; } }
+
+/* Pengaturan > Tampilan (tema) */
+.th-row { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 6px; }
+.th-lbl { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--ink); font-size: 14.5px; }
+.th-seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+.th-opt { border: 0; background: none; border-radius: 9px; min-height: 34px; padding: 0 4px; white-space: nowrap; font: 700 11.5px 'Open Sans', sans-serif; color: var(--muted); cursor: pointer; transition: background-color .12s ease, color .12s ease; }
+.th-opt:hover { color: var(--ink); }
+.th-opt[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: var(--shadow-sm); }

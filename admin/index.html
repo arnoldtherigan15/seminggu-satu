@@ -34,6 +34,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="SS Admin" />
   <script>
+    // Tema (Terang/Gelap/Otomatis) dipasang SEBELUM halaman digambar -- biar nggak kedip putih.
+    (function () {
+      var m = "auto"; try { m = localStorage.getItem("ab.theme") || "auto"; } catch (e) {}
+      var dark = m === "dark" || (m === "auto" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    })();
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
         navigator.serviceWorker.register("sw.js").catch(function () { });
@@ -4299,7 +4305,8 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=43">
+  <link rel="stylesheet" href="admin-binder.css?v=44">
+  <link rel="stylesheet" href="admin-dark.css?v=5">
 </head>
 
 <body>
@@ -7302,7 +7309,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const nav = document.querySelector(".sidebar-nav");
       const grp = document.createElement("details");
       grp.className = "nav-acc";
-      grp.innerHTML = `<summary class="nav-section-label">Pengaturan <span class="nav-acc-chevron">&#9656;</span></summary><div class="nav-acc-body"><button class="nav-btn" data-view="access"><span class="nav-icon">${icon("people")}</span> Tim &amp; akses</button></div>`;
+      grp.innerHTML = `<summary class="nav-section-label">Pengaturan <span class="nav-acc-chevron">&#9656;</span></summary><div class="nav-acc-body"><button class="nav-btn" data-view="access"><span class="nav-icon">${icon("people")}</span> Tim &amp; akses</button>${themeSwitchHtml()}</div>`;
       nav.appendChild(grp);
       grp.querySelector(".nav-btn").addEventListener("click", () => { location.hash = "access"; });
       v.querySelector("#accAddAdmin").addEventListener("click", () => openAdminUserDialog(null));
@@ -7310,6 +7317,28 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       v.addEventListener("click", accClick);
     }
     let ACC_ADMINS = [], ACC_TEAM = [], ACC_SUPER_USER = "";
+
+    // ---- Tema: Terang / Gelap / Otomatis (ikut setelan HP) ----
+    // Warna gelapnya di admin-dark.css (digenerate admin/tools/gen-dark-css.py).
+    function themeMode() { try { return localStorage.getItem("ab.theme") || "auto"; } catch (e) { return "auto"; } }
+    function applyTheme(mode) {
+      const dark = mode === "dark" || (mode === "auto" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.setAttribute("content", dark ? "#0e1322" : "#0046ff");
+      document.querySelectorAll("[data-themeset]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.themeset === mode)));
+    }
+    function themeSwitchHtml() {
+      const m = themeMode();
+      const opt = (k, l) => `<button type="button" class="th-opt" data-themeset="${k}" aria-pressed="${m === k}">${l}</button>`;
+      return `<div class="th-row"><span class="th-lbl"><span class="nav-icon">${icon("eye")}</span> Tampilan</span><div class="th-seg" role="group" aria-label="Tema">${opt("light", "Terang")}${opt("dark", "Gelap")}${opt("auto", "Otomatis")}</div></div>`;
+    }
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-themeset]"); if (!b) return;
+      try { localStorage.setItem("ab.theme", b.dataset.themeset); } catch (err) {}
+      applyTheme(b.dataset.themeset);
+    });
+    if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (themeMode() === "auto") applyTheme("auto"); });
+    applyTheme(themeMode());
     async function loadAccess() {
       const al = document.getElementById("accAdminList"), tl = document.getElementById("accTeamList");
       if (!ACC_ADMINS.length) al.innerHTML = skelRows(2);
