@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=38">
+  <link rel="stylesheet" href="admin-binder.css?v=39">
 </head>
 
 <body>
@@ -23399,77 +23399,86 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       } catch (e) { if (box) box.innerHTML = `<p class="hint" style="color:var(--err)">Gagal memuat analitik.</p>`; }
     }
 
+    // Analitik workshop: ringkasan angka -> 3 juara dalam 1 baris -> daftar
+    // event (bisa diurut untung / peserta / isi kursi), ketuk = rincian batch.
+    let ANA_SORT = "profit";
+    try { ANA_SORT = localStorage.getItem("ab.anaSort") || "profit"; } catch (e) {}
+    function anaFill(e) {
+      const q = e.batches.filter(b => b.maxQuota > 0);
+      const seats = q.reduce((s, b) => s + b.maxQuota, 0);
+      return seats ? Math.min(100, Math.round(q.reduce((s, b) => s + Math.min(b.count, b.maxQuota), 0) / seats * 100)) : null;
+    }
     function renderAnalytics() {
       const box = document.getElementById("analytics");
       if (!box) return;
       if (!ANALYTICS || !ANALYTICS.events || !ANALYTICS.events.length) { box.innerHTML = `<p class="hint">Belum ada data event.</p>`; return; }
-      const t = ANALYTICS.totals;
-      const h = ANALYTICS.highlights;
-      const byProfit = [...ANALYTICS.events].sort((a, b) => b.totalProfit - a.totalProfit);
+      const t = ANALYTICS.totals, h = ANALYTICS.highlights, evs = ANALYTICS.events;
+      const profit = evs.reduce((s, e) => s + (e.totalProfit || 0), 0);
+      const soldOut = evs.reduce((s, e) => s + (e.soldOutCount || 0), 0);
+      const allQ = evs.flatMap(e => e.batches).filter(b => b.maxQuota > 0);
+      const seats = allQ.reduce((s, b) => s + b.maxQuota, 0);
+      const fillAll = seats ? Math.min(100, Math.round(allQ.reduce((s, b) => s + Math.min(b.count, b.maxQuota), 0) / seats * 100)) : null;
+      const avgPer = t.batches ? Math.round(t.participants / t.batches) : 0;
 
-      const highlightCards = [
-        h.mostProfitableEvent ? `<div class="fin-card" style="border-left:4px solid var(--ok);"><div class="hint" style="margin:0 0 2px;">Event paling untung (sepanjang waktu)</div><div style="font-weight:800;">${escapeHtml(h.mostProfitableEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${rupiah(h.mostProfitableEvent.totalProfit)} profit dari ${h.mostProfitableEvent.batchCount} batch</div></div>` : "",
-        h.mostPopularEvent ? `<div class="fin-card" style="border-left:4px solid var(--brand);"><div class="hint" style="margin:0 0 2px;">Event paling rame (sepanjang waktu)</div><div style="font-weight:800;">${escapeHtml(h.mostPopularEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${h.mostPopularEvent.totalParticipants} peserta total</div></div>` : "",
-        h.mostSoldOutEvent ? `<div class="fin-card" style="border-left:4px solid #fb6340;"><div class="hint" style="margin:0 0 2px;">Event paling laku (sepanjang waktu)</div><div style="font-weight:800;">${escapeHtml(h.mostSoldOutEvent.workshopName)}</div><div class="hint" style="margin:2px 0 0;">${h.mostSoldOutEvent.soldOutCount}/${h.mostSoldOutEvent.batchCount} batch sold out</div></div>` : "",
+      const champ = (lbl, ev, val) => ev ? `<div class="wa-champ"><span>${lbl}</span><b>${escapeHtml(ev.workshopName)}</b><small>${val}</small></div>` : "";
+      const champs = [
+        champ("Paling untung", h.mostProfitableEvent, h.mostProfitableEvent && rupiah(h.mostProfitableEvent.totalProfit)),
+        champ("Paling rame", h.mostPopularEvent, h.mostPopularEvent && `${h.mostPopularEvent.totalParticipants} peserta`),
+        champ("Paling cepat penuh", h.mostSoldOutEvent, h.mostSoldOutEvent && `${h.mostSoldOutEvent.soldOutCount}/${h.mostSoldOutEvent.batchCount} batch penuh`),
       ].filter(Boolean).join("");
 
-      const eventRows = byProfit.map(e => {
-        const detailId = "anaDetail_" + e.workshopType;
-        const batchRows = [...e.batches].sort((a, b) => String(b.eventDateIso || "").localeCompare(String(a.eventDateIso || ""))).map(b => `
-          <tr>
-            <td style="padding:6px 8px 6px 0;">${escapeHtml(b.label)}</td>
-            <td style="padding:6px 8px;">${b.displayDate ? escapeHtml(b.displayDate) : "-"}</td>
-            <td style="padding:6px 8px;">${b.count}${b.maxQuota ? "/" + b.maxQuota : ""}${b.soldOut ? " · penuh" : ""}</td>
-            <td style="padding:6px 8px;">${rupiah(b.price)}</td>
-            <td style="padding:6px 8px;">${rupiah(b.revenue)}</td>
-            <td style="padding:6px 8px;">${rupiah(b.cost)}</td>
-            <td style="padding:6px 0;font-weight:700;color:${b.profit >= 0 ? "var(--ok)" : "var(--err)"};">${rupiah(b.profit)}</td>
-          </tr>`).join("");
-        return `
-        <div class="fin-card" style="margin-bottom:8px;padding:14px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-            <b>${escapeHtml(e.workshopName)}</b>
-            <span class="hint" style="margin:0;">${e.batchCount} batch · ${e.totalParticipants} peserta${e.soldOutCount ? ` · ${e.soldOutCount} kali penuh` : ""}</span>
-          </div>
-          <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;align-items:flex-end;">
-            <div><span class="hint" style="margin:0;">Revenue</span><div style="font-weight:700;">${rupiah(e.totalRevenue)}</div></div>
-            <div><span class="hint" style="margin:0;">Untung</span><div style="font-weight:700;color:${e.totalProfit >= 0 ? "var(--ok)" : "var(--err)"};">${rupiah(e.totalProfit)}</div></div>
-            <button type="button" class="ana-detail-toggle" data-target="${detailId}" style="background:none;border:none;color:var(--brand);font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;">Lihat rincian batch</button>
-          </div>
-          <div id="${detailId}" style="display:none;margin-top:12px;overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;">
-              <thead><tr style="text-align:left;color:var(--muted);">
-                <th style="padding:4px 8px 4px 0;">Batch</th><th style="padding:4px 8px;">Tanggal</th><th style="padding:4px 8px;">Peserta</th><th style="padding:4px 8px;">Harga</th><th style="padding:4px 8px;">Revenue</th><th style="padding:4px 8px;">Cost</th><th style="padding:4px 0;">Profit</th>
-              </tr></thead>
-              <tbody>${batchRows}</tbody>
-            </table>
-          </div>
-        </div>`;
+      const key = { profit: e => e.totalProfit, people: e => e.totalParticipants, fill: e => (anaFill(e) ?? -1) * 1000 + e.soldOutCount };
+      const sorted = [...evs].sort((a, b) => key[ANA_SORT](b) - key[ANA_SORT](a));
+      const maxV = Math.max(1, ...sorted.map(e => Math.max(0, ANA_SORT === "people" ? e.totalParticipants : ANA_SORT === "fill" ? (anaFill(e) || 0) : e.totalProfit)));
+
+      const rows = sorted.map((e, i) => {
+        const fill = anaFill(e);
+        const barV = ANA_SORT === "people" ? e.totalParticipants : ANA_SORT === "fill" ? (fill || 0) : Math.max(0, e.totalProfit);
+        const main = ANA_SORT === "people" ? `${e.totalParticipants} peserta` : ANA_SORT === "fill" ? (fill != null ? fill + "% terisi" : "-") : rupiah(e.totalProfit);
+        const sub = ANA_SORT === "profit" ? `dari ${rupiah(e.totalRevenue)}` : `untung ${rupiah(e.totalProfit)}`;
+        const batches = [...e.batches].sort((a, b) => String(b.eventDateIso || "").localeCompare(String(a.eventDateIso || ""))).map(b => {
+          const pct = b.maxQuota ? Math.min(100, Math.round(b.count / b.maxQuota * 100)) : null;
+          return `<div class="wa-b">
+            <div class="wa-b-name"><b>${escapeHtml(b.label)}</b><small>${b.displayDate ? escapeHtml(b.displayDate) : "Tanpa tanggal"}${b.price ? " · " + rupiah(b.price) : ""}</small></div>
+            <div class="wa-b-fill">${pct != null ? `<span class="wa-mini"><i style="width:${pct}%"></i></span>` : ""}<small>${b.count}${b.maxQuota ? "/" + b.maxQuota : ""}</small>${b.soldOut ? `<em class="wa-full">Penuh</em>` : ""}</div>
+            <div class="wa-b-money"><b class="${b.profit >= 0 ? "" : "neg"}">${rupiah(b.profit)}</b><small>${b.cost ? "biaya " + rupiah(b.cost) : "tanpa biaya"}</small></div>
+          </div>`;
+        }).join("");
+        return `<details class="wa-ev">
+          <summary>
+            <span class="wa-rank">${i + 1}</span>
+            <span class="wa-ev-main">
+              <b>${escapeHtml(e.workshopName)}</b>
+              <span class="wa-bar"><i style="width:${Math.max(2, barV / maxV * 100).toFixed(1)}%"></i></span>
+              <small>${e.batchCount} batch · ${e.totalParticipants} peserta${fill != null ? ` · ${fill}% kursi terisi` : ""}${e.soldOutCount ? ` · ${e.soldOutCount}× penuh` : ""}</small>
+            </span>
+            <span class="wa-ev-val"><b class="${ANA_SORT === "profit" && e.totalProfit < 0 ? "neg" : ""}">${main}</b><small>${sub}</small></span>
+            <span class="wa-chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/></svg></span>
+          </summary>
+          <div class="wa-bs">${batches}</div>
+        </details>`;
       }).join("");
 
-      const soldOutList = (h.soldOutBatches || []).slice(0, 6).map(b =>
-        `<div class="hint" style="margin:0 0 4px;"><b style="color:var(--ink);">${escapeHtml(b.workshopName)} — ${escapeHtml(b.label)}</b> (${b.count}/${b.maxQuota}${b.displayDate ? `, ${escapeHtml(b.displayDate)}` : ""})</div>`
-      ).join("");
-
       box.innerHTML = `
-        <p class="hint" style="margin:0 0 12px;">Dihitung dari <b>semua batch sepanjang waktu</b> (bukan cuma yang lagi buka). Journaling Date nggak dihitung karena gratis khusus warga.</p>
-        <div class="ach-stats" style="margin-bottom:14px;">
-          <div class="ach-stat"><b>${t.events}</b><span>Event</span></div>
-          <div class="ach-stat"><b>${t.batches}</b><span>Total batch</span></div>
-          <div class="ach-stat"><b>${t.participants}</b><span>Total peserta</span></div>
-          <div class="ach-stat"><b style="font-size:15px;">${rupiah(t.revenue)}</b><span>Pemasukan sepanjang waktu</span></div>
+        <div class="wa-kpis">
+          <div class="wa-kpi is-main"><span>Pemasukan</span><b>${rupiah(t.revenue)}</b><small>untung ${rupiah(profit)}</small></div>
+          <div class="wa-kpi"><span>Peserta</span><b>${t.participants}</b><small>rata-rata ${avgPer} per batch</small></div>
+          <div class="wa-kpi"><span>Batch</span><b>${t.batches}</b><small>${t.events} event · ${soldOut} penuh</small></div>
+          <div class="wa-kpi"><span>Kursi terisi</span><b>${fillAll != null ? fillAll + "%" : "-"}</b><small>dari batch yang ada kuota</small></div>
         </div>
-        ${highlightCards ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px;">${highlightCards}</div>` : ""}
-        ${soldOutList ? `<div class="fin-card" style="margin-bottom:14px;"><div style="font-weight:800;margin-bottom:8px;">Batch yang pernah sold out</div>${soldOutList}</div>` : ""}
-        <div style="font-weight:800;margin-bottom:8px;">Per event, sepanjang waktu (urut dari paling untung)</div>
-        ${eventRows}`;
+        ${champs ? `<div class="wa-champs">${champs}</div>` : ""}
+        <div class="wa-list-h">
+          <b>Per event</b>
+          <div class="wa-sort" role="tablist" aria-label="Urutkan">
+            ${[["profit", "Untung"], ["people", "Peserta"], ["fill", "Isi kursi"]].map(([k, l]) => `<button type="button" class="so-chip so-chip-sm${ANA_SORT === k ? " active" : ""}" data-anasort="${k}" role="tab" aria-selected="${ANA_SORT === k}">${l}</button>`).join("")}
+          </div>
+        </div>
+        <div class="wa-list">${rows}</div>
+        <p class="wa-foot">Semua batch sepanjang waktu, termasuk yang udah lewat. Journaling Date (gratis khusus warga) nggak ikut dihitung. Ketuk event buat lihat tiap batch.</p>`;
 
-      box.querySelectorAll(".ana-detail-toggle").forEach(btn => btn.addEventListener("click", () => {
-        const target = document.getElementById(btn.dataset.target);
-        if (!target) return;
-        const open = target.style.display !== "none";
-        target.style.display = open ? "none" : "block";
-        btn.textContent = open ? "Lihat rincian batch" : "Tutup rincian";
+      box.querySelectorAll("[data-anasort]").forEach(btn => btn.addEventListener("click", () => {
+        ANA_SORT = btn.dataset.anasort; try { localStorage.setItem("ab.anaSort", ANA_SORT); } catch (e) {}
+        renderAnalytics();
       }));
     }
 
