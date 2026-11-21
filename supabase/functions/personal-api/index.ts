@@ -8,6 +8,8 @@ import { requireAdminAuth } from "../_shared/admin-auth.ts";
 import { callGemini } from "../_shared/gemini.ts";
 import { encryptSecret, decryptSecret } from "../_shared/vault-crypto.ts";
 import { uploadBase64 } from "../_shared/storage.ts";
+import { getConfigValue } from "../_shared/config.ts";
+import { mergeBatchConfig } from "../_shared/batch-merge.ts";
 
 Deno.serve(async (req) => {
   const opt = handleOptions(req);
@@ -512,6 +514,91 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
         const { error } = await admin.from("personal_transactions").delete().eq("id", id);
         if (error) return errorResponse("Gagal hapus transaksi: " + error.message);
         return jsonResponse({ status: "success", message: "Transaksi dihapus." });
+      }
+
+      // ---------- Kalender admin ----------
+      // 1 panggilan = 3 sumber dalam rentang [from, to] (YYYY-MM-DD):
+      //  - events : batch Seminggu Satu yang tanggal event-nya kena rentang
+      //             (otomatis, read-only, diturunin dari tabel batches + config)
+      //  - agenda : personal_agenda (kegiatan di luar Seminggu Satu)
+      //  - tasks  : task yang punya tenggat & belum selesai
+      case "getCalendar": {
+        const iso = /^\d{4}-\d{2}-\d{2}$/;
+        const from = String(data.from || ""), to = String(data.to || "");
+        if (!iso.test(from) || !iso.test(to) || from > to) return errorResponse("Rentang tanggal nggak valid.");
+
+        const [agRes, batchRes, taskRes] = await Promise.all([
+          admin.from("personal_agenda").select("*").lte("start_date", to)
+            .or(`end_date.gte.${from},and(end_date.is.null,start_date.gte.${from})`)
+            .order("start_date", { ascending: true }),
+          admin.from("batches").select("*").eq("archived", false),
+          admin.from("tasks").select("id, title, due_date, status").neq("status", "done").gte("due_date", from).lte("due_date", to),
+        ]);
+        if (agRes.error) return errorResponse("Gagal ambil agenda: " + agRes.error.message);
+        if (batchRes.error) return errorResponse("Gagal ambil event: " + batchRes.error.message);
+
+        let cfg: Record<string, unknown>[] = [];
+        try { cfg = JSON.parse((await getConfigValue(admin, "WORKSHOPS_JSON")) || "[]"); } catch (_e) { /* abaikan */ }
+        const cfgByType = new Map(cfg.map((w) => [String(w.id || ""), w]));
+        const events: Record<string, unknown>[] = [];
+        for (const b of batchRes.data || []) {
+          const typeConfig = (cfgByType.get(b.workshop_type) || {}) as Record<string, unknown>;
+          const m = mergeBatchConfig(b, typeConfig);
+          const day = m.eventDateIso ? String(m.eventDateIso).slice(0, 10) : "";
+          if (!day || day < from || day > to) continue;
+          events.push({
+            batchId: b.id, workshopType: b.workshop_type, workshopName: typeConfig.name || b.workshop_type,
+            label: m.label, date: day, time: m.workshopTime || "", location: m.locationName || "",
+            maxQuota: m.maxQuota || null, active: !!m.active,
+          });
+        }
+        // jumlah pendaftar per batch -- 1 query, bukan 1 per batch
+        if (events.length) {
+          const { data: regs } = await admin.from("registrations").select("batch_id")
+            .in("batch_id", events.map((e) => e.batchId as string)).eq("archived", false);
+          const cnt = new Map<string, number>();
+          for (const r of regs || []) cnt.set(r.batch_id, (cnt.get(r.batch_id) || 0) + 1);
+          for (const e of events) e.count = cnt.get(e.batchId as string) || 0;
+        }
+        return jsonResponse({ status: "success", agenda: agRes.data || [], events, tasks: taskRes.error ? [] : (taskRes.data || []) });
+      }
+
+      case "saveAgendaItem": {
+        const id = String(data.id || "");
+        const iso = /^\d{4}-\d{2}-\d{2}$/, hm = /^\d{2}:\d{2}$/;
+        const title = String(data.title || "").trim();
+        const startDate = String(data.startDate || "");
+        const endDate = data.endDate ? String(data.endDate) : null;
+        if (!title) return errorResponse("Judul agenda wajib diisi.");
+        if (!iso.test(startDate)) return errorResponse("Tanggal mulai wajib diisi.");
+        if (endDate && (!iso.test(endDate) || endDate < startDate)) return errorResponse("Tanggal selesai harus sama atau setelah tanggal mulai.");
+        const startTime = data.startTime && hm.test(String(data.startTime)) ? String(data.startTime) : null;
+        const endTime = startTime && data.endTime && hm.test(String(data.endTime)) ? String(data.endTime) : null;
+        const COLORS = ["", "blue", "yellow", "pink", "green", "orange", "purple"];
+        const payload = {
+          title, start_date: startDate, end_date: endDate && endDate !== startDate ? endDate : null,
+          start_time: startTime, end_time: endTime,
+          location: String(data.location || "").trim().slice(0, 200),
+          note: String(data.note || "").trim().slice(0, 2000),
+          color: COLORS.includes(String(data.color || "")) ? String(data.color || "") : "",
+          updated_at: new Date().toISOString(),
+        };
+        if (id) {
+          const { error } = await admin.from("personal_agenda").update(payload).eq("id", id);
+          if (error) return errorResponse("Gagal update agenda: " + error.message);
+          return jsonResponse({ status: "success", id });
+        }
+        const { data: ins, error } = await admin.from("personal_agenda").insert(payload).select("id").single();
+        if (error) return errorResponse("Gagal simpan agenda: " + error.message);
+        return jsonResponse({ status: "success", id: ins.id });
+      }
+
+      case "deleteAgendaItem": {
+        const id = String(data.id || "");
+        if (!id) return errorResponse("ID agenda kosong.");
+        const { error } = await admin.from("personal_agenda").delete().eq("id", id);
+        if (error) return errorResponse("Gagal hapus agenda: " + error.message);
+        return jsonResponse({ status: "success" });
       }
 
       case "getPersonalNotes": {

@@ -4348,6 +4348,9 @@
           <button class="nav-btn active" data-view="overview">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/></svg></span> Overview
           </button>
+          <button class="nav-btn" data-view="calendar">
+            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2M1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857z"/><path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg></span> Kalender
+          </button>
           <button class="nav-btn" data-view="activity">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg></span> Notifikasi <span class="nav-badge" id="navActBadge" style="display:none;"></span>
           </button>
@@ -4485,6 +4488,16 @@
         <!-- ===== VIEW: OVERVIEW ===== -->
         <div class="wrap view" id="viewOverview">
           <div class="ov-hello"><h2 id="ovHello">Halo, Arnold</h2><p id="ovToday"></p></div>
+          <section class="ov-week-sec" aria-labelledby="ovWeekT">
+            <div class="ov-week-top">
+              <h3 class="ov-section-title" id="ovWeekT">Minggu ini <span class="ov-week-sum" id="ovWeekSum"></span></h3>
+              <div class="ov-week-acts">
+                <button type="button" class="btn btn-sm btn-ghost" id="ovWeekAdd"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Agenda</button>
+                <a class="btn btn-sm btn-ghost" href="#calendar"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2M1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857z"/><path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg> Kalender</a>
+              </div>
+            </div>
+            <div id="ovWeek"></div>
+          </section>
           <section class="ov-attn" id="ovAttention" aria-labelledby="ovAttnT">
             <h3 class="ov-section-title" id="ovAttnT">Perlu perhatian</h3>
             <div id="ovAttnList"></div>
@@ -4513,6 +4526,30 @@
             <h3 class="ov-section-title" style="margin:0;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/></svg> Analitik workshop</h3>
           </div>
           <div id="analytics"></div>
+        </div>
+
+        <!-- ===== VIEW: KALENDER ===== -->
+        <div class="wrap view" id="viewCalendar" style="display:none;">
+          <div class="toolbar">
+            <button class="btn btn-sm" id="calAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Agenda baru</button>
+          </div>
+          <div class="cal-bar">
+            <div class="cal-nav">
+              <button type="button" class="cal-nav-btn" id="calPrev" aria-label="Bulan sebelumnya">&lsaquo;</button>
+              <h2 class="cal-title" id="calTitle" aria-live="polite"></h2>
+              <button type="button" class="cal-nav-btn" id="calNext" aria-label="Bulan berikutnya">&rsaquo;</button>
+              <button type="button" class="btn btn-sm btn-ghost" id="calTodayBtn">Hari ini</button>
+            </div>
+            <div class="cal-legend" role="group" aria-label="Tampilkan">
+              <button type="button" class="cal-tog" data-calshow="event" aria-pressed="true"><i style="background:var(--brand)"></i>Event Seminggu Satu</button>
+              <button type="button" class="cal-tog" data-calshow="agenda" aria-pressed="true"><i style="background:#64748b"></i>Agenda lain</button>
+              <button type="button" class="cal-tog" data-calshow="task" aria-pressed="true"><i style="background:#b45309"></i>Tenggat task</button>
+            </div>
+          </div>
+          <div class="cal-layout">
+            <div class="cal-month" id="calMonth" role="grid" aria-label="Kalender bulan ini"></div>
+            <aside class="cal-side" id="calAgenda" aria-live="polite"></aside>
+          </div>
         </div>
 
         <!-- ===== VIEW: PENDAFTAR (Registrations) ===== -->
@@ -7661,7 +7698,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // aslinya udah lewat dari layar; klik FAB = klik tombol aslinya.
     // noteNewBtn ikut buat shortcut N, tapi FAB umum-nya nggak ditampilin di
     // Catatan (udah punya #noteFabBtn sendiri) -- lihat updateFab.
-    const AB_PRIMARY_IDS = ["noteNewBtn", "txAddBtn", "taskAddBtn", "ciAddBtn", "partnerAddBtn", "venueAddBtn", "mouAddBtn",
+    const AB_PRIMARY_IDS = ["noteNewBtn", "calAddBtn", "txAddBtn", "taskAddBtn", "ciAddBtn", "partnerAddBtn", "venueAddBtn", "mouAddBtn",
       "invoiceAddBtn", "kontenAddBtn", "recBatchNewBtn", "shopMatNewBtn", "shopProdNewBtn", "shopOrdWalkinNewBtn",
       "questNewBtn", "pesOrderAddBtn", "mnAddBtn", "catAddBtn", "accAddBtn", "goalAddBtn", "liabAddBtn",
       "billAddBtn", "pwNewBtn", "epNewBtn", "vidNewBtn"];
@@ -7749,6 +7786,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     //   ▸ Cara kerjanya (penjelasan panjang, kelipat)
     // Elemen & id-nya dipindah (bukan dibikin ulang), jadi listener tetap jalan.
     const AB_PAGES = {
+      calendar: ["Kalender", "Event Seminggu Satu otomatis masuk, plus agenda lain di luar itu."],
       activity: ["Notifikasi", "Pendaftar baru, karya warga, dan hal yang nunggu tindakanmu."],
       tasks: ["Tasks", "Kerjaan manual plus pengingat otomatis dari data yang belum lengkap."],
       pendaftar: ["Pendaftar", "Semua yang daftar, per event dan batch."],
@@ -8460,7 +8498,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (!h) h = "overview";
       if (h === "loyalty" || h.indexOf("loyalty:") === 0) h = "members"; // tab lama, digabung ke Member
       const parts = h.split(":");
-      const valid = ["overview", "pendaftar", "keuangan", "prep", "config", "partnerlist", "venues", "mou", "invoice", "konten", "recbatch", "shopstock", "shopproduct", "shoporders", "shopfinance", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos", "eventgallery", "suggest", "barter", "qrgen", "access"];
+      const valid = ["overview", "calendar", "pendaftar", "keuangan", "prep", "config", "partnerlist", "venues", "mou", "invoice", "konten", "recbatch", "shopstock", "shopproduct", "shoporders", "shopfinance", "leads", "quest", "activity", "members", "pesanan", "roadmap", "tasks", "personal", "notes", "passwords", "videos", "eventgallery", "suggest", "barter", "qrgen", "access"];
       const view = valid.indexOf(parts[0]) >= 0 ? parts[0] : "overview";
       switchView(view, parts[1], parts[2], parts[3]);
     }
@@ -8526,6 +8564,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       // Selalu mulai dari atas — biar bagian atas nggak ketutup header sticky pas load / ganti tab
       window.scrollTo(0, 0);
       document.getElementById("viewOverview").style.display = (view === "overview") ? "block" : "none";
+      document.getElementById("viewCalendar").style.display = (view === "calendar") ? "block" : "none";
       document.getElementById("viewPendaftar").style.display = (view === "pendaftar") ? "block" : "none";
       document.getElementById("viewKeuangan").style.display = (view === "keuangan") ? "block" : "none";
       document.getElementById("viewPrep").style.display = (view === "prep") ? "block" : "none";
@@ -8559,6 +8598,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       applySubtabBarHeightVar();
       applyMemSearchHeightVar();
       if (view === "overview") ensureOverview();
+      if (view === "calendar") ensureCalendar(event);
       if (view === "pendaftar") ensurePendaftar();
       if (view === "keuangan") { ensureFinanceLoaded(); if (event && finTabsCtl) finTabsCtl.show(event); }
       if (view === "prep") ensurePrep(event, subtab, batchId);
@@ -9713,6 +9753,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         loadAnalytics();
       }
       renderOverview();
+      wireOvWeekOnce();
+      renderOvWeek(true);
     }
     let overviewDataLoaded = false;
 
@@ -19632,6 +19674,292 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       if (isNaN(d)) return "";
       return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) + " " +
         d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    // ===================== KALENDER =====================
+    // 3 sumber: event Seminggu Satu (otomatis dari batch), agenda lain
+    // (personal_agenda, bisa ditambah/diubah), tenggat task. Minggu mulai
+    // Senin. Dipakai juga sama widget "Minggu ini" di Overview.
+    const CAL = { inited: false, month: null, sel: null, cache: new Map(), show: { event: true, agenda: true, task: true } };
+    const CAL_SHOW_KEY = "ab.calShow";
+    try { Object.assign(CAL.show, JSON.parse(localStorage.getItem(CAL_SHOW_KEY) || "{}")); } catch (e) {}
+    const CAL_DAYS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
+    function calIso(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+    function calDate(iso) { return new Date(iso + "T00:00:00"); }
+    function calAdd(iso, n) { const d = calDate(iso); d.setDate(d.getDate() + n); return calIso(d); }
+    function calMonday(iso) { const d = calDate(iso); const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd); return calIso(d); }
+    function calLongDay(iso) { return calDate(iso).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" }); }
+    // tampilan ringkas (sel kalender / Minggu ini): cuma jam mulai, biar judul kebaca
+    function calShortTime(t) { const m = /(\d{1,2})[:.](\d{2})/.exec(String(t || "")); return m ? m[1].padStart(2, "0") + "." + m[2] : ""; }
+    function calHm(t) { return t ? String(t).slice(0, 5).replace(":", ".") : ""; }
+    async function calFetch(from, to, force) {
+      const key = from + "|" + to;
+      if (!force && CAL.cache.has(key)) return CAL.cache.get(key);
+      const r = await personalApi("getCalendar", { token: getToken(), from, to });
+      if (r.status !== "success") { handleAuthError(r); throw new Error(r.message || "Gagal memuat kalender."); }
+      CAL.cache.set(key, r);
+      return r;
+    }
+    // data mentah -> { "YYYY-MM-DD": [item...] } (agenda multi-hari muncul di tiap harinya)
+    function calByDay(r, from, to, show) {
+      show = show || CAL.show;
+      const out = {};
+      const push = (iso, it) => { if (iso < from || iso > to) return; (out[iso] = out[iso] || []).push(it); };
+      if (show.event) (r.events || []).forEach((e) => push(e.date, {
+        kind: "event", id: e.batchId, title: `${e.workshopName}${e.label ? " · " + e.label : ""}`, time: e.time || "",
+        sub: [e.location, e.maxQuota ? `${e.count || 0}/${e.maxQuota} peserta` : `${e.count || 0} peserta`].filter(Boolean).join(" · "),
+        sort: "0" + (e.time || "99"), go: "prep:" + e.workshopType + "::" + e.batchId,
+      }));
+      if (show.agenda) (r.agenda || []).forEach((a) => {
+        const end = a.end_date || a.start_date;
+        for (let d = a.start_date, i = 0; d <= end && i < 62; d = calAdd(d, 1), i++) {
+          const multi = end !== a.start_date;
+          push(d, {
+            kind: "agenda", id: a.id, raw: a, title: a.title, color: a.color || "",
+            time: d === a.start_date && a.start_time ? calHm(a.start_time) + (a.end_time ? "–" + calHm(a.end_time) : "") : (multi ? (d === a.start_date ? "Mulai" : d === end ? "Selesai" : "Lanjut") : ""),
+            sub: a.location || "", sort: "1" + (a.start_time || "99"),
+          });
+        }
+      });
+      if (show.task) (r.tasks || []).forEach((t) => push(String(t.due_date).slice(0, 10), {
+        kind: "task", id: t.id, title: t.title, time: "Tenggat", sub: t.status === "in_progress" ? "Lagi dikerjain" : "Belum mulai", sort: "2", go: "tasks",
+      }));
+      Object.values(out).forEach((l) => l.sort((a, b) => a.sort.localeCompare(b.sort)));
+      return out;
+    }
+    function calItemColor(it) {
+      if (it.kind === "event") return "var(--brand)";
+      if (it.kind === "task") return "#b45309";
+      return it.color ? `var(--cal-${it.color})` : "#64748b";
+    }
+    function calItemHtml(it, opts) {
+      const compact = opts && opts.compact;
+      const tag = it.kind === "event" ? "Seminggu Satu" : it.kind === "task" ? "Task" : "Agenda";
+      return `<button type="button" class="cal-item cal-k-${it.kind}${compact ? " is-compact" : ""}" data-kind="${it.kind}" data-id="${escapeHtml(it.id)}"${it.go ? ` data-go="${escapeHtml(it.go)}"` : ""} style="--c:${calItemColor(it)}">
+          <span class="cal-item-bar"></span>
+          <span class="cal-item-main"><b>${escapeHtml(it.title)}</b>${compact ? "" : `<small>${escapeHtml([it.time, it.sub].filter(Boolean).join(" · ") || tag)}</small>`}</span>
+          ${compact && calShortTime(it.time) ? `<span class="cal-item-time">${calShortTime(it.time)}</span>` : ""}
+        </button>`;
+    }
+    function calOpenItem(btn, byDay) {
+      const kind = btn.dataset.kind;
+      if (kind === "agenda") {
+        const it = Object.values(byDay || {}).flat().find((x) => x.kind === "agenda" && x.id === btn.dataset.id);
+        if (it) calAgendaDialog(it.raw);
+      } else if (btn.dataset.go) location.hash = btn.dataset.go;
+    }
+
+    // ---------- halaman Kalender ----------
+    function calRange() {
+      const [y, m] = CAL.month.split("-").map(Number);
+      const first = `${y}-${String(m).padStart(2, "0")}-01`;
+      const from = calMonday(first);
+      return { first, from, to: calAdd(from, 41), y, m };
+    }
+    async function renderCalendar(force) {
+      const grid = document.getElementById("calMonth");
+      const { first, from, to, y, m } = calRange();
+      document.getElementById("calTitle").textContent = calDate(first).toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+      document.querySelectorAll("[data-calshow]").forEach((b) => b.setAttribute("aria-pressed", String(!!CAL.show[b.dataset.calshow])));
+      let r;
+      if (!CAL.cache.has(from + "|" + to) || force) grid.innerHTML = `<div class="cal-loading">${skelLines(4)}</div>`;
+      // ambil 14 hari setelah rentang juga, buat panel "Berikutnya"
+      const sideTo = calAdd(CAL.sel > to ? CAL.sel : to, 14);
+      try { r = await calFetch(from, sideTo, force); }
+      catch (e) { grid.innerHTML = `<div class="cal-err">${escapeHtml(e.message)} <button type="button" class="btn btn-sm btn-ghost" id="calRetry">Coba lagi</button></div>`; document.getElementById("calRetry").onclick = () => renderCalendar(true); return; }
+      const byDay = calByDay(r, from, sideTo);
+      CAL.byDay = byDay;
+      const today = calIso(new Date());
+      let html = CAL_DAYS.map((d, i) => `<div class="cal-dow${i >= 5 ? " is-wkend" : ""}">${d}</div>`).join("");
+      for (let i = 0; i < 42; i++) {
+        const iso = calAdd(from, i);
+        const items = byDay[iso] || [];
+        const inMonth = Number(iso.slice(5, 7)) === m;
+        const cls = ["cal-cell", inMonth ? "" : "is-out", iso === today ? "is-today" : "", iso === CAL.sel ? "is-sel" : "", i % 7 >= 5 ? "is-wkend" : ""].filter(Boolean).join(" ");
+        html += `<div class="${cls}" data-day="${iso}" role="gridcell" tabindex="${iso === CAL.sel ? 0 : -1}" aria-label="${escapeHtml(calLongDay(iso))}${items.length ? ", " + items.length + " agenda" : ""}">
+            <div class="cal-num">${Number(iso.slice(8))}</div>
+            <div class="cal-chips">${items.slice(0, 3).map((it) => calItemHtml(it, { compact: true })).join("")}${items.length > 3 ? `<span class="cal-more">+${items.length - 3} lagi</span>` : ""}</div>
+            <div class="cal-dots">${items.slice(0, 4).map((it) => `<i style="background:${calItemColor(it)}"></i>`).join("")}</div>
+          </div>`;
+      }
+      grid.innerHTML = html;
+      renderCalSide();
+    }
+    function renderCalSide() {
+      const box = document.getElementById("calAgenda");
+      const sel = CAL.sel, byDay = CAL.byDay || {};
+      const dayItems = byDay[sel] || [];
+      let html = `<div class="cal-side-day">
+          <div class="cal-side-h"><b>${escapeHtml(calLongDay(sel))}</b>${sel === calIso(new Date()) ? `<span class="cal-today-pill">Hari ini</span>` : ""}</div>
+          ${dayItems.length ? dayItems.map((it) => calItemHtml(it)).join("") : `<p class="cal-empty">Belum ada agenda di tanggal ini.</p>`}
+          <button type="button" class="cal-add-day" data-addday="${sel}">${icon("plus")} Tambah agenda di tanggal ini</button>
+        </div>`;
+      const next = [];
+      for (let i = 1; i <= 14; i++) { const d = calAdd(sel, i); if (byDay[d] && byDay[d].length) next.push(d); }
+      html += `<div class="nt-sec">14 hari berikutnya</div>` + (next.length ? next.map((d) => `<div class="cal-next-day"><div class="cal-next-h">${escapeHtml(calLongDay(d))}</div>${byDay[d].map((it) => calItemHtml(it)).join("")}</div>`).join("") : `<p class="cal-empty">Belum ada apa-apa dua minggu ke depan.</p>`);
+      box.innerHTML = html;
+    }
+    function calSelect(iso) {
+      const prevMonth = CAL.month;
+      CAL.sel = iso;
+      CAL.month = iso.slice(0, 7);
+      if (CAL.month !== prevMonth) { history.replaceState(null, "", "#calendar:" + CAL.month); renderCalendar(); }
+      else {
+        document.querySelectorAll(".cal-cell").forEach((c) => { const on = c.dataset.day === iso; c.classList.toggle("is-sel", on); c.tabIndex = on ? 0 : -1; });
+        renderCalSide();
+      }
+    }
+    function calShiftMonth(n) {
+      const [y, m] = CAL.month.split("-").map(Number);
+      const d = new Date(y, m - 1 + n, 1);
+      CAL.month = calIso(d).slice(0, 7);
+      const today = calIso(new Date());
+      CAL.sel = today.slice(0, 7) === CAL.month ? today : CAL.month + "-01";
+      history.replaceState(null, "", "#calendar:" + CAL.month);
+      renderCalendar();
+    }
+    function wireCalendarOnce() {
+      if (CAL.inited) return;
+      CAL.inited = true;
+      document.getElementById("calPrev").addEventListener("click", () => calShiftMonth(-1));
+      document.getElementById("calNext").addEventListener("click", () => calShiftMonth(1));
+      document.getElementById("calTodayBtn").addEventListener("click", () => calSelect(calIso(new Date())));
+      document.getElementById("calAddBtn").addEventListener("click", () => calAgendaDialog(null, CAL.sel));
+      document.querySelectorAll("[data-calshow]").forEach((b) => b.addEventListener("click", () => {
+        CAL.show[b.dataset.calshow] = !CAL.show[b.dataset.calshow];
+        try { localStorage.setItem(CAL_SHOW_KEY, JSON.stringify(CAL.show)); } catch (e) {}
+        renderCalendar();
+      }));
+      const root = document.getElementById("viewCalendar");
+      root.addEventListener("click", (e) => {
+        const it = e.target.closest(".cal-item"); if (it) { e.stopPropagation(); calOpenItem(it, CAL.byDay); return; }
+        const add = e.target.closest("[data-addday]"); if (add) { calAgendaDialog(null, add.dataset.addday); return; }
+        const more = e.target.closest(".cal-more"); const cell = e.target.closest(".cal-cell");
+        if (cell) calSelect(cell.dataset.day);
+        if (more && matchMedia("(max-width: 991px)").matches) document.getElementById("calAgenda").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      // dobel-klik tanggal = langsung tambah agenda (desktop)
+      root.addEventListener("dblclick", (e) => { const cell = e.target.closest(".cal-cell"); if (cell && !e.target.closest(".cal-item")) calAgendaDialog(null, cell.dataset.day); });
+      // panah keyboard pindah tanggal di grid
+      document.getElementById("calMonth").addEventListener("keydown", (e) => {
+        const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+        if (step) { e.preventDefault(); calSelect(calAdd(CAL.sel, step)); const c = document.querySelector(`.cal-cell[data-day="${CAL.sel}"]`); if (c) c.focus(); }
+        else if (e.key === "Enter") { e.preventDefault(); calAgendaDialog(null, CAL.sel); }
+      });
+    }
+    async function ensureCalendar(arg) {
+      wireCalendarOnce();
+      const today = calIso(new Date());
+      const m = /^(\d{4}-\d{2})$/.exec(String(arg || ""));
+      CAL.month = m ? m[1] : (CAL.month || today.slice(0, 7));
+      if (!CAL.sel || CAL.sel.slice(0, 7) !== CAL.month) CAL.sel = today.slice(0, 7) === CAL.month ? today : CAL.month + "-01";
+      CAL.cache.clear(); // buka halaman = data segar (event/task bisa berubah dari halaman lain)
+      await renderCalendar();
+    }
+
+    // ---------- tambah / ubah agenda ----------
+    async function calAgendaDialog(a, dayIso) {
+      const isEdit = !!(a && a.id);
+      a = a || { title: "", start_date: dayIso || calIso(new Date()), end_date: null, start_time: null, end_time: null, location: "", note: "", color: "" };
+      let color = a.color || "";
+      const allDay = !a.start_time;
+      const v = await abDialog({
+        title: isEdit ? "Ubah agenda" : "Agenda baru",
+        okText: "Simpan",
+        html: `<div class="cal-form">
+            <label class="ab-dlg-lbl">Judul<input class="form-control" data-f="title" type="text" value="${escapeHtml(a.title)}" placeholder="mis. Meeting klien, Bazar, Deadline desain"></label>
+            <div class="cal-form-row">
+              <label class="ab-dlg-lbl">Tanggal<input class="form-control" data-f="start" type="date" value="${a.start_date}"></label>
+              <label class="ab-dlg-lbl">Sampai (opsional)<input class="form-control" data-f="end" type="date" value="${a.end_date || ""}" min="${a.start_date}"></label>
+            </div>
+            <label class="cal-check"><input type="checkbox" data-f="allday"${allDay ? " checked" : ""}> Seharian (tanpa jam)</label>
+            <div class="cal-form-row" data-times${allDay ? " hidden" : ""}>
+              <label class="ab-dlg-lbl">Mulai<input class="form-control" data-f="t1" type="time" value="${a.start_time ? String(a.start_time).slice(0, 5) : "09:00"}"></label>
+              <label class="ab-dlg-lbl">Selesai<input class="form-control" data-f="t2" type="time" value="${a.end_time ? String(a.end_time).slice(0, 5) : ""}"></label>
+            </div>
+            <label class="ab-dlg-lbl">Lokasi (opsional)<input class="form-control" data-f="loc" type="text" value="${escapeHtml(a.location || "")}" placeholder="mis. Kopi Kenangan Senopati / Zoom"></label>
+            <label class="ab-dlg-lbl">Catatan (opsional)<textarea class="form-control" data-f="note" rows="2">${escapeHtml(a.note || "")}</textarea></label>
+            <div class="ab-dlg-lbl" style="margin-bottom:6px;">Warna</div>
+            <div class="nt-swatches">${NOTE_COLORS.map((c) => `<button type="button" class="nt-swatch${c[0] === color ? " is-on" : ""}" data-color="${c[0]}" style="background:${c[2]}" title="${c[1]}" aria-label="${c[1]}"></button>`).join("")}</div>
+            ${isEdit ? `<button type="button" class="cal-del" data-del>${icon("trash")} Hapus agenda ini</button>` : ""}
+          </div>`,
+        onOpen: (box) => {
+          const q = (f) => box.querySelector(`[data-f="${f}"]`);
+          q("allday").addEventListener("change", (e) => { box.querySelector("[data-times]").hidden = e.target.checked; });
+          q("start").addEventListener("change", (e) => { q("end").min = e.target.value; if (q("end").value && q("end").value < e.target.value) q("end").value = ""; });
+          box.addEventListener("click", async (e) => {
+            const sw = e.target.closest("[data-color]");
+            if (sw) { color = sw.dataset.color; box.querySelectorAll(".nt-swatch").forEach((b) => b.classList.toggle("is-on", b === sw)); }
+            if (e.target.closest("[data-del]")) {
+              const ov = box.closest(".ab-dlg-ov");
+              if (!await abConfirm(`Hapus agenda "${a.title}"?`)) return;
+              const r = await personalApi("deleteAgendaItem", { token: getToken(), id: a.id });
+              if (r.status !== "success") { handleAuthError(r); abToast(r.message || "Gagal menghapus.", "err"); return; }
+              if (ov) ov.querySelector(".ab-dlg-cancel").click();
+              abToast("Agenda dihapus", "ok");
+              calAfterChange();
+            }
+          });
+          setTimeout(() => { const t = q("title"); if (t && !isEdit) t.focus({ preventScroll: true }); }, 30);
+        },
+        getValue: (box) => {
+          const q = (f) => box.querySelector(`[data-f="${f}"]`);
+          const title = q("title").value.trim();
+          if (!title) throw new Error("Isi judulnya dulu ya.");
+          if (!q("start").value) throw new Error("Pilih tanggalnya dulu.");
+          const all = q("allday").checked;
+          return { title, startDate: q("start").value, endDate: q("end").value || "", startTime: all ? "" : q("t1").value, endTime: all ? "" : q("t2").value, location: q("loc").value, note: q("note").value, color };
+        },
+      });
+      if (!v) return;
+      const r = await personalApi("saveAgendaItem", Object.assign({ token: getToken(), id: isEdit ? a.id : "" }, v));
+      if (r.status !== "success") { handleAuthError(r); abToast(r.message || "Gagal menyimpan.", "err"); return; }
+      abToast(isEdit ? "Agenda diubah" : "Agenda ditambah", "ok");
+      if (document.getElementById("viewCalendar").style.display !== "none") { CAL.sel = v.startDate; CAL.month = v.startDate.slice(0, 7); }
+      calAfterChange();
+    }
+    function calAfterChange() {
+      CAL.cache.clear();
+      if (document.getElementById("viewCalendar").style.display !== "none") renderCalendar(true);
+      if (document.getElementById("viewOverview").style.display !== "none") renderOvWeek(true);
+    }
+
+    // ---------- Overview: "Minggu ini" ----------
+    async function renderOvWeek(force) {
+      const box = document.getElementById("ovWeek");
+      if (!box) return;
+      const today = calIso(new Date());
+      const from = calMonday(today), to = calAdd(from, 6);
+      if (!box.dataset.loaded) box.innerHTML = skelLines(2);
+      let r;
+      try { r = await calFetch(from, to, force); }
+      catch (e) { box.innerHTML = `<p class="hint">Kalender belum bisa dimuat. <a href="#calendar">Buka kalender</a></p>`; return; }
+      box.dataset.loaded = "1";
+      const byDay = calByDay(r, from, to, { event: true, agenda: true, task: true });
+      box._byDay = byDay;
+      const total = Object.values(byDay).reduce((s, l) => s + l.length, 0);
+      let html = `<div class="ov-week">`;
+      for (let i = 0; i < 7; i++) {
+        const d = calAdd(from, i), items = byDay[d] || [];
+        const past = d < today;
+        html += `<div class="ov-week-day${d === today ? " is-today" : ""}${past ? " is-past" : ""}${items.length ? "" : " is-empty"}">
+            <button type="button" class="ov-week-h" data-ovday="${d}" title="Buka di kalender"><span>${CAL_DAYS[i]}</span><b>${Number(d.slice(8))}</b></button>
+            <div class="ov-week-items">${items.map((it) => calItemHtml(it, { compact: true })).join("") || `<span class="ov-week-none">–</span>`}</div>
+          </div>`;
+      }
+      html += `</div>`;
+      document.getElementById("ovWeekSum").textContent = total ? `${total} agenda` : "Minggu ini masih lega";
+      box.innerHTML = html;
+    }
+    function wireOvWeekOnce() {
+      const box = document.getElementById("ovWeek");
+      if (!box || box.dataset.wired) return;
+      box.dataset.wired = "1";
+      box.addEventListener("click", (e) => {
+        const it = e.target.closest(".cal-item"); if (it) { calOpenItem(it, box._byDay); return; }
+        const h = e.target.closest("[data-ovday]"); if (h) { CAL.sel = h.dataset.ovday; location.hash = "calendar:" + h.dataset.ovday.slice(0, 7); }
+      });
+      document.getElementById("ovWeekAdd").addEventListener("click", () => calAgendaDialog(null, calIso(new Date())));
     }
 
     // ===================== CATATAN v2 (ala Craft) =====================
