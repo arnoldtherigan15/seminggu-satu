@@ -2074,7 +2074,7 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
 .nx-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
 .nx-new { font-size: 14px; color: #4a5674; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .nx-new b { color: var(--ink); }
-.nx-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px rgba(0, 70, 255, .15); }
+.nx-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--brand); }
 .nx-chips { margin-bottom: 18px; }
 .nx-sec { margin-bottom: 22px; }
 .nx-sec-h, .tk-sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 0 4px 8px; }
@@ -2193,3 +2193,10 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
 .nx-push.is-off { background: #fff4f4; box-shadow: none; }
 .nx-push.is-off .nx-push-ic { background: #fde2e2; color: #b91c1c; }
 @media (max-width: 600px) { .nx-push { flex-wrap: wrap; } .nx-push-btns { width: 100%; padding-left: 46px; } }
+/* Laporan toko: rata (tanpa kartu di dalam kartu) -- tile & daftar langsung di latar halaman */
+.sf-panel { background: none; box-shadow: none; padding: 0; border-radius: 0; }
+.sf-panel .so-stat { background: #ffffff; box-shadow: var(--shadow-sm); }
+.sf-panel .so-stat.is-profit { background: #ffffff; }
+.sf-trend { background: #ffffff; border: 0; box-shadow: var(--shadow-sm); }
+.sf-panel .so-list { border: 0; box-shadow: var(--shadow-sm); }
+@media (max-width: 680px) { .sf-panel { padding: 0; } }
