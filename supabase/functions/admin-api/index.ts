@@ -895,8 +895,8 @@ Kasih:
         const ACT_WINDOW_DAYS = 30;
         const actCutoff = new Date(Date.now() - ACT_WINDOW_DAYS * 86400000).toISOString();
 
-        const { data: regs } = await admin.from("registrations").select("full_name, nickname, workshop_type, created_at").gte("created_at", actCutoff).order("created_at", { ascending: false }).limit(200);
-        for (const r of regs || []) acts.push({ type: "daftar", who: r.nickname || r.full_name || "Peserta", detail: nameMap[r.workshop_type] || r.workshop_type, workshopType: r.workshop_type, ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
+        const { data: regs } = await admin.from("registrations").select("full_name, nickname, workshop_type, batch_id, wa, created_at").gte("created_at", actCutoff).order("created_at", { ascending: false }).limit(200);
+        for (const r of regs || []) acts.push({ type: "daftar", who: r.nickname || r.full_name || "Peserta", detail: nameMap[r.workshop_type] || r.workshop_type, workshopType: r.workshop_type, batchId: r.batch_id || "", wa: r.wa || "", ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
 
         const { data: challenges } = await admin.from("challenges").select("id, title");
         const chalTitle: Record<string, string> = {};
@@ -904,8 +904,8 @@ Kasih:
         const { data: qs } = await admin.from("quest_submissions").select("nickname, challenge_id, created_at").gte("created_at", actCutoff).order("created_at", { ascending: false }).limit(200);
         for (const r of qs || []) acts.push({ type: "quest", who: r.nickname || "Member", detail: chalTitle[r.challenge_id] || "Side Quest", ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
 
-        const { data: mem } = await admin.from("members").select("nickname, created_at").gte("created_at", actCutoff).order("created_at", { ascending: false }).limit(200);
-        for (const r of mem || []) acts.push({ type: "member", who: r.nickname || "Warga", detail: "gabung Balai Warga", ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
+        const { data: mem } = await admin.from("members").select("nickname, wa, created_at").gte("created_at", actCutoff).order("created_at", { ascending: false }).limit(200);
+        for (const r of mem || []) acts.push({ type: "member", who: r.nickname || "Warga", detail: "gabung Balai Warga", wa: r.wa || "", ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
 
         acts.sort((a, b) => b.ts - a.ts);
 

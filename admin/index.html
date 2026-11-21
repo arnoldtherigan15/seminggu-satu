@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=40">
+  <link rel="stylesheet" href="admin-binder.css?v=41">
 </head>
 
 <body>
@@ -4739,17 +4739,25 @@
             <button class="btn btn-sm btn-ghost" id="taskReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
             <button class="btn btn-sm" id="taskAddBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg> Task baru</button>
           </div>
-          <p class="hint" style="margin:0 0 10px;">Task manual yang kamu bikin, DIGABUNG sama task otomatis yang muncul sendiri pas ada data yang kelupaan diisi (Cost &amp; Budget per batch, Prep, Venue). Tap kartunya buat ubah status atau lihat detail.</p>
+          <p class="hint" style="margin:0 0 10px;">Atas: task yang kamu bikin -- ketik di kotak lalu Enter, ketuk bulatan kalau udah selesai, ketuk judulnya buat edit. Bawah: pengingat otomatis dari data yang belum diisi (Cost &amp; Budget, Prep, Venue), dikelompokin per jenis dan hilang sendiri begitu datanya diisi. Batch lama yang emang nggak bakal diisi bisa di-"Abaikan" lewat tombol ⋯ (nggak ikut dihitung di badge).</p>
 
-          <div class="subtabs" id="taskSubtabs">
-            <div class="subtab-bar">
-              <button class="subtab-btn" type="button" data-tab="backlog"><span id="taskTabBacklog">Belum dikerjain</span></button>
-              <button class="subtab-btn" type="button" data-tab="in_progress"><span id="taskTabInProgress">Lagi dikerjain</span></button>
-              <button class="subtab-btn" type="button" data-tab="done"><span id="taskTabDone">Selesai</span></button>
-            </div>
-            <div class="subtab-panel" data-tab="backlog"><div id="taskListBacklog"></div></div>
-            <div class="subtab-panel" data-tab="in_progress"><div id="taskListInProgress"></div></div>
-            <div class="subtab-panel" data-tab="done"><div id="taskListDone"></div></div>
+          <div class="tk">
+            <form class="tk-quick" id="tkQuick" autocomplete="off">
+              <span class="tk-quick-ic" aria-hidden="true">+</span>
+              <input class="form-control" id="tkQuickInput" placeholder="Tambah task, mis. beli kertas washi buat Vol 8" aria-label="Judul task baru">
+              <label class="tk-date" title="Tenggat (opsional)"><span id="tkQuickDateLbl">Tenggat</span><input type="date" id="tkQuickDate" aria-label="Tenggat"></label>
+              <button type="submit" class="btn btn-sm" id="tkQuickBtn">Tambah</button>
+            </form>
+            <section class="tk-sec">
+              <div class="tk-sec-h"><b>Task kamu</b><span id="tkMineCount"></span></div>
+              <div id="tkMine"><div class="tk-card"><div class="sk-wa-row"><i class="sk" style="width:22px;height:22px;border-radius:50%"></i><span><i class="sk" style="width:50%;height:13px"></i><i class="sk" style="width:25%;height:10px"></i></span></div><div class="sk-wa-row"><i class="sk" style="width:22px;height:22px;border-radius:50%"></i><span><i class="sk" style="width:50%;height:13px"></i><i class="sk" style="width:25%;height:10px"></i></span></div><div class="sk-wa-row"><i class="sk" style="width:22px;height:22px;border-radius:50%"></i><span><i class="sk" style="width:50%;height:13px"></i><i class="sk" style="width:25%;height:10px"></i></span></div></div></div>
+            </section>
+            <section class="tk-sec">
+              <div class="tk-sec-h"><b>Data yang belum lengkap</b><span id="tkAutoCount"></span></div>
+              <p class="tk-sec-sub">Muncul otomatis &amp; hilang sendiri begitu datanya diisi.</p>
+              <div id="tkAuto"></div>
+            </section>
+            <details class="tk-done" id="tkDoneWrap"><summary>Selesai <span id="tkDoneCount"></span></summary><div id="tkDone"></div></details>
           </div>
         </div>
 
@@ -5956,24 +5964,21 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
         <!-- ===== VIEW: NOTIFIKASI / AKTIVITAS ===== -->
         <div class="wrap view" id="viewActivity" style="display:none;">
-          <div class="toolbar">
-            <div style="font-weight:800;font-size:16px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/></svg> Notifications</div>
-            <button class="btn btn-sm btn-ghost" id="actReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+          <div class="nx">
+            <div class="nx-top">
+              <div class="nx-new" id="nxNewLine" aria-live="polite"></div>
+              <button type="button" class="btn btn-sm btn-ghost" id="nxSeenBtn" hidden>Tandai semua dibaca</button>
+            </div>
+            <div class="so-chips nx-chips" id="nxChips" role="tablist" aria-label="Filter notifikasi"></div>
+            <section class="nx-sec" id="nxActSec">
+              <div class="nx-sec-h"><b>Perlu tindakan</b><span id="nxActCount"></span></div>
+              <div id="nxActList"><div class="nx-card"><div class="sk-attn-row"><i class="sk sk-dot"></i><span><i class="sk" style="width:40%;height:13px"></i><i class="sk" style="width:75%;height:10px"></i></span></div></div></div>
+            </section>
+            <section class="nx-sec" id="nxFeedSec">
+              <div class="nx-sec-h"><b>Aktivitas</b><span id="nxFeedMeta"></span></div>
+              <div id="nxFeed"><div class="nx-card"><div class="sk-wa-row"><i class="sk" style="width:36px;height:36px;border-radius:50%"></i><span><i class="sk" style="width:45%;height:13px"></i><i class="sk" style="width:30%;height:10px"></i></span></div><div class="sk-wa-row"><i class="sk" style="width:36px;height:36px;border-radius:50%"></i><span><i class="sk" style="width:45%;height:13px"></i><i class="sk" style="width:30%;height:10px"></i></span></div><div class="sk-wa-row"><i class="sk" style="width:36px;height:36px;border-radius:50%"></i><span><i class="sk" style="width:45%;height:13px"></i><i class="sk" style="width:30%;height:10px"></i></span></div><div class="sk-wa-row"><i class="sk" style="width:36px;height:36px;border-radius:50%"></i><span><i class="sk" style="width:45%;height:13px"></i><i class="sk" style="width:30%;height:10px"></i></span></div></div></div>
+            </section>
           </div>
-
-          <div style="font-weight:800;margin:6px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.494.013-.595.79A.747.747 0 0 0 3 1.814v2.683q-.224.051-.432.107c-.702.187-1.305.418-1.745.696C.408 5.56 0 5.954 0 6.5v7c0 .546.408.94.823 1.201.44.278 1.043.51 1.745.696C3.978 15.773 5.898 16 8 16s4.022-.227 5.432-.603c.701-.187 1.305-.418 1.745-.696.415-.261.823-.655.823-1.201v-7c0-.546-.408-.94-.823-1.201-.44-.278-1.043-.51-1.745-.696A12 12 0 0 0 13 4.496v-2.69a.747.747 0 0 0 .092-1.004l-.598-.79-.595.792A.747.747 0 0 0 12 1.813V4.3a22 22 0 0 0-2-.23V1.806a.747.747 0 0 0 .092-1.004l-.598-.79-.595.792A.747.747 0 0 0 9 1.813v2.204a29 29 0 0 0-2 0V1.806A.747.747 0 0 0 7.092.802l-.598-.79-.595.792A.747.747 0 0 0 6 1.813V4.07c-.71.05-1.383.129-2 .23V1.806A.747.747 0 0 0 4.092.802zm-.668 5.556L3 5.524v.967q.468.111 1 .201V5.315a21 21 0 0 1 2-.242v1.855q.488.036 1 .054V5.018a28 28 0 0 1 2 0v1.964q.512-.018 1-.054V5.073c.72.054 1.393.137 2 .242v1.377q.532-.09 1-.201v-.967l.175.045c.655.175 1.15.374 1.469.575.344.217.356.35.356.356s-.012.139-.356.356c-.319.2-.814.4-1.47.575C11.87 7.78 10.041 8 8 8c-2.04 0-3.87-.221-5.174-.569-.656-.175-1.151-.374-1.47-.575C1.012 6.639 1 6.506 1 6.5s.012-.139.356-.356c.319-.2.814-.4 1.47-.575M15 7.806v1.027l-.68.907a.94.94 0 0 1-1.17.276 1.94 1.94 0 0 0-2.236.363l-.348.348a1 1 0 0 1-1.307.092l-.06-.044a2 2 0 0 0-2.399 0l-.06.044a1 1 0 0 1-1.306-.092l-.35-.35a1.935 1.935 0 0 0-2.233-.362.935.935 0 0 1-1.168-.277L1 8.82V7.806c.42.232.956.428 1.568.591C3.978 8.773 5.898 9 8 9s4.022-.227 5.432-.603c.612-.163 1.149-.36 1.568-.591m0 2.679V13.5c0 .006-.012.139-.356.355-.319.202-.814.401-1.47.576C11.87 14.78 10.041 15 8 15c-2.04 0-3.87-.221-5.174-.569-.656-.175-1.151-.374-1.47-.575-.344-.217-.356-.35-.356-.356v-3.02a1.935 1.935 0 0 0 2.298.43.935.935 0 0 1 1.08.175l.348.349a2 2 0 0 0 2.615.185l.059-.044a1 1 0 0 1 1.2 0l.06.044a2 2 0 0 0 2.613-.185l.348-.348a.94.94 0 0 1 1.082-.175c.781.39 1.718.208 2.297-.426"/></svg> Ulang tahun bulan ini <span class="subtab-count" id="actBdayCount"></span></div>
-          <div id="actBdayList"></div>
-
-          <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4a3 3 0 0 0-3 3v6h6V7a3 3 0 0 0-3-3m0-1h8a4 4 0 0 1 4 4v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V7a4 4 0 0 1 4-4m2.646 1A4 4 0 0 1 8 7v6h7V7a3 3 0 0 0-3-3z"/><path d="M11.793 8.5H9v-1h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.354-.146zM5 7c0 .552-.448 0-1 0s-1 .552-1 0a1 1 0 0 1 2 0"/></svg> Perlu tindakan <span class="subtab-count" id="actPendingCount"></span></div>
-          <div id="actPendingList"></div>
-
-          <div style="font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg> Aktivitas terbaru <span id="actWindowLabel" style="font-weight:600;color:var(--muted);font-size:12px;"></span></div>
-          <div id="actStats" class="loyalty-stats"></div>
-          <div id="actCharts"></div>
-          <details class="det-acc" id="actDetailAcc" style="margin-top:14px;">
-            <summary><span class="det-acc-title">Detail lengkap (semua) <span class="acc-count" id="actDetailCount"></span></span><span class="det-acc-chevron">▸</span></summary>
-            <div class="det-acc-body"><div id="activityList"></div></div>
-          </details>
         </div>
 
         <!-- ===== VIEW: LEADS / OUTREACH TRACKER ===== -->
@@ -7962,7 +7967,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     const AB_SKEL_LISTS = ["activityList", "adminLbList", "billList", "btList", "budList", "ciList", "goalList", "ideaGroups", "invStockList", "invTxList",
       "kontenList", "liabList", "mhList", "mnList", "noteGroups", "partnerList", "pastEventList", "perAccList", "perCatList", "perTxList", "pesOrderList",
       "preqGroups", "pwList", "questList", "recBatchList", "sgList", "shopFinList", "shopMatList", "shopOrdAllList", "shopProdList", "venueList", "vidGroups",
-      "taskListBacklog", "taskListInProgress", "taskListDone", "epList", "ovCards"];
+      "epList", "ovCards"];
     function abInitialSkeletons() {
       AB_SKEL_LISTS.forEach(id => { const el = document.getElementById(id); if (el && !el.children.length && !el.textContent.trim()) el.innerHTML = skelRows(3); });
       ["mouBody", "invoiceBody", "leadsTableBody"].forEach(id => { const el = document.getElementById(id); if (el && !el.children.length) el.innerHTML = skelTableRows(5, 3); });
@@ -10405,7 +10410,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     async function ensureTasksView() {
       if (!taskInit) {
         document.getElementById("taskReloadBtn").addEventListener("click", loadTasks);
-        taskTabsCtl = wireSubtabs(document.getElementById("taskSubtabs"), () => {});
+        wireTasksV2Once();
         document.getElementById("taskAddBtn").addEventListener("click", () => { newTaskForm(); openTaskForm(false); });
         document.getElementById("taskFormBackBtn").addEventListener("click", closeTaskForm);
         document.getElementById("taskFormOverlay").addEventListener("click", (e) => { if (e.target.id === "taskFormOverlay") closeTaskForm(); });
@@ -10436,7 +10441,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function updateTaskBadge() {
       const badge = document.getElementById("navTaskBadge");
       if (!badge) return;
-      const openCount = TASKS.filter(t => t.status !== "done").length;
+      const ign = tkIgnored();
+      const openCount = TASKS.filter(t => t.status !== "done" && !(t.source === "auto" && ign.has(t.id))).length;
       badge.textContent = openCount;
       badge.style.display = openCount ? "" : "none";
       if (typeof renderAttention === "function") renderAttention();
@@ -10456,54 +10462,126 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (diff === 1) return { txt, cls: "soon", tag: "Besok", diff };
       return { txt, cls: "", diff };
     }
-    function taskCard(t) {
-      const due = taskDue(t);
-      const ctaLabel = TASK_CTA_LABELS[t.checkType];
-      // CTA langsung di kartu (task otomatis) -> sekali tap nyampe ke halaman yang perlu diisi
-      const cta = (t.source === "auto" && ctaLabel && t.status !== "done")
-        ? `<button type="button" class="kt-btn wide" data-taskgo="${t.id}">${escapeHtml(ctaLabel)} →</button>` : "";
-      // pindah status sekali tap, nggak perlu buka form
-      const next = t.status === "backlog" ? `<button type="button" class="kt-btn wide" data-taskmv="${t.id}" data-to="in_progress">Mulai</button>`
-        : t.status === "in_progress" ? `<button type="button" class="kt-btn wide ok" data-taskmv="${t.id}" data-to="done">${icon("check")} Selesai</button>`
-        : `<button type="button" class="kt-btn wide" data-taskmv="${t.id}" data-to="backlog">Buka lagi</button>`;
-      return `<div class="kt-row task-row${t.status === "done" ? " is-off" : ""}">
-          <button type="button" class="kt-main" data-edittask="${t.id}"><b>${escapeHtml(t.title)}${t.source === "auto" ? ' <span class="cfg-pill off">Otomatis</span>' : ""}</b>
-            <small>${[t.description ? escapeHtml(t.description) : "", t.refLabel ? escapeHtml(t.refLabel) : ""].filter(Boolean).join(" · ")}</small>
-            ${due ? `<span class="task-due ${due.cls}">${icon("calendar")} ${due.txt}${due.tag ? " · " + due.tag : ""}</span>` : ""}</button>
-          <span class="kt-acts">${cta}${t.source === "auto" && t.status !== "done" ? "" : next}</span>
-        </div>`;
+    // ===== Tasks =====
+    // Task manual di atas (bulatan = selesai sekali ketuk), task otomatis
+    // dikelompokin per jenis (Cost & Budget, Prep, Venue) biar nggak 10 baris
+    // kembar. Task otomatis batch lama yang emang nggak bakal diisi bisa
+    // "Abaikan" -- disimpen di browser, nggak dihitung di badge.
+    const TK_IGN_KEY = "ab.taskIgnored";
+    function tkIgnored() { try { return new Set(JSON.parse(localStorage.getItem(TK_IGN_KEY) || "[]")); } catch (e) { return new Set(); } }
+    function tkSetIgnored(id, on) {
+      const set = tkIgnored(); on ? set.add(id) : set.delete(id);
+      try { localStorage.setItem(TK_IGN_KEY, JSON.stringify([...set])); } catch (e) {}
     }
-    async function moveTask(id, to, btn) {
-      const t = TASKS.find(x => x.id === id); if (!t) return;
-      const prev = t.status; t.status = to; renderTaskColumns(); // optimis: langsung pindah
-      const r = await api("saveTask", { token: getToken(), id, status: to });
-      if (!r || r.status !== "success") { t.status = prev; renderTaskColumns(); handleAuthError(r || {}); abToast((r && r.message) || "Gagal memindahkan task", "err"); return; }
-      abToast(to === "done" ? "Task selesai" : to === "in_progress" ? "Dipindah ke Lagi dikerjain" : "Dibuka lagi", "ok");
-      if (typeof renderAttention === "function") renderAttention();
+    const TK_GROUPS = {
+      cost_budget: { label: "Isi Cost & Budget", sub: "Biar untung per batch kehitung bener", icon: "cash", cta: "Isi" },
+      prep: { label: "Lengkapi Prep", sub: "Tools & Materials / Things to Bring masih kosong", icon: "backpack", cta: "Lengkapi" },
+      venue: { label: "Isi Venue", sub: "Lokasi batch belum diatur", icon: "geo", cta: "Isi" },
+    };
+    function tkDueChip(t) {
+      const due = taskDue(t); if (!due) return "";
+      return `<span class="task-due ${due.cls}">${icon("calendar")} ${due.tag || due.txt}</span>`;
+    }
+    function tkMineRow(t) {
+      const done = t.status === "done";
+      const menu = abMore([
+        t.status === "backlog" ? abMi("lightning", "Mulai dikerjain", `data-tka="mv" data-id="${t.id}" data-to="in_progress"`) : "",
+        t.status === "in_progress" ? abMi("swap", "Balik ke belum", `data-tka="mv" data-id="${t.id}" data-to="backlog"`) : "",
+        done ? abMi("swap", "Buka lagi", `data-tka="mv" data-id="${t.id}" data-to="backlog"`) : "",
+        abMi("pencil", "Edit", `data-tka="edit" data-id="${t.id}"`),
+        abMi("trash", "Hapus", `data-tka="del" data-id="${t.id}"`, true),
+      ].filter(Boolean), "Task");
+      return `<div class="tk-row${done ? " is-done" : ""}${t.status === "in_progress" ? " is-doing" : ""}">
+        <button type="button" class="tk-check" data-tka="${done ? "undone" : "done"}" data-id="${t.id}" aria-label="${done ? "Tandai belum selesai" : "Tandai selesai"}">${icon("check")}</button>
+        <button type="button" class="tk-main" data-tka="edit" data-id="${t.id}">
+          <b>${escapeHtml(t.title)}</b>
+          <span class="tk-meta">${t.status === "in_progress" ? `<span class="tk-doing">Lagi dikerjain</span>` : ""}${tkDueChip(t)}${t.description ? `<small>${escapeHtml(t.description)}</small>` : ""}</span>
+        </button>
+        ${menu}
+      </div>`;
+    }
+    function tkAutoRow(t, ign) {
+      const g = TK_GROUPS[t.checkType] || { cta: "Buka" };
+      const menu = abMore([ign ? abMi("eye", "Tampilkan lagi", `data-tka="unign" data-id="${t.id}"`) : abMi("eyeSlash", "Abaikan (batch lama)", `data-tka="ign" data-id="${t.id}"`)], "Task otomatis");
+      return `<div class="tk-arow">
+        <span class="tk-arow-txt"><b>${escapeHtml(t.refLabel || t.title)}</b>${t.dueDate ? tkDueChip(t) : ""}</span>
+        ${TASK_CTA_LABELS[t.checkType] && !ign ? `<button type="button" class="btn btn-sm btn-ghost tk-go" data-tka="go" data-id="${t.id}">${g.cta} →</button>` : ""}
+        ${menu}
+      </div>`;
     }
 
     function renderTaskColumns() {
-      const cols = [
-        { status: "backlog", listId: "taskListBacklog", tabId: "taskTabBacklog", label: "Belum dikerjain", empty: "Nggak ada yang nunggu dikerjain." },
-        { status: "in_progress", listId: "taskListInProgress", tabId: "taskTabInProgress", label: "Lagi dikerjain", empty: "Belum ada yang lagi dikerjain." },
-        { status: "done", listId: "taskListDone", tabId: "taskTabDone", label: "Selesai", empty: "Belum ada yang kelar." },
-      ];
-      cols.forEach(c => {
-        // lewat tenggat paling atas, lalu yang tenggatnya paling dekat, sisanya terbaru
-        const items = TASKS.filter(t => t.status === c.status).slice().sort((a, b) => {
-          const da = a.dueDate ? String(a.dueDate) : "9999", db = b.dueDate ? String(b.dueDate) : "9999";
-          return c.status === "done" ? String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")) : da.localeCompare(db);
-        });
-        document.getElementById(c.tabId).textContent = `${c.label} (${items.length})`;
-        const box = document.getElementById(c.listId);
-        box.innerHTML = items.length ? `<div class="kt-list">` + items.map(taskCard).join("") + `</div>` : `<div class="empty">${c.empty}</div>`;
-        box.querySelectorAll("[data-taskmv]").forEach(el => el.addEventListener("click", () => moveTask(el.dataset.taskmv, el.dataset.to, el)));
-        box.querySelectorAll("[data-edittask]").forEach(el => el.addEventListener("click", () => editTask(el.dataset.edittask)));
-        box.querySelectorAll("[data-taskgo]").forEach(el => el.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const t = TASKS.find(x => x.id === el.dataset.taskgo);
-          if (t) taskGoToTarget(t);
-        }));
+      const mineBox = document.getElementById("tkMine"); if (!mineBox) return;
+      const ign = tkIgnored();
+      const byDue = (a, b) => String(a.dueDate || "9999").localeCompare(String(b.dueDate || "9999"));
+      const mine = TASKS.filter(t => t.source !== "auto" && t.status !== "done")
+        .sort((a, b) => (a.status === "in_progress" ? 0 : 1) - (b.status === "in_progress" ? 0 : 1) || byDue(a, b));
+      const autoOpen = TASKS.filter(t => t.source === "auto" && t.status !== "done");
+      const autoShown = autoOpen.filter(t => !ign.has(t.id)), autoIgn = autoOpen.filter(t => ign.has(t.id));
+      const done = TASKS.filter(t => t.status === "done").sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
+
+      const late = mine.filter(t => { const d = taskDue(t); return d && d.diff < 0; }).length;
+      document.getElementById("tkMineCount").innerHTML = mine.length ? `${mine.length}${late ? ` · <em class="tk-late">${late} lewat tenggat</em>` : ""}` : "";
+      mineBox.innerHTML = mine.length
+        ? `<div class="tk-card">${mine.map(tkMineRow).join("")}</div>`
+        : `<div class="nx-clear">${icon("checkCircle")}<span><b>Nggak ada task yang nunggu.</b> Ketik di kotak atas buat nambah, tekan Enter.</span></div>`;
+
+      document.getElementById("tkAutoCount").textContent = autoShown.length ? String(autoShown.length) : "";
+      const groups = {};
+      autoShown.forEach(t => { (groups[t.checkType] = groups[t.checkType] || []).push(t); });
+      let autoHtml = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length).map(k => {
+        const g = TK_GROUPS[k] || { label: k, sub: "", icon: "warning" };
+        const items = groups[k].sort(byDue);
+        return `<details class="tk-group"${items.length <= 3 ? " open" : ""}>
+          <summary><span class="tk-g-ic">${icon(g.icon)}</span><span class="tk-g-txt"><b>${escapeHtml(g.label)}</b><small>${escapeHtml(g.sub)}</small></span><span class="tk-g-n">${items.length}</span><span class="wa-chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/></svg></span></summary>
+          <div class="tk-g-body">${items.map(t => tkAutoRow(t, false)).join("")}</div>
+        </details>`;
+      }).join("");
+      if (!autoShown.length) autoHtml = `<div class="nx-clear">${icon("checkCircle")}<span><b>Semua data lengkap.</b></span></div>`;
+      if (autoIgn.length) autoHtml += `<details class="tk-ign"><summary>Diabaikan (${autoIgn.length})</summary><div class="tk-card">${autoIgn.map(t => tkAutoRow(t, true)).join("")}</div></details>`;
+      document.getElementById("tkAuto").innerHTML = autoHtml;
+
+      document.getElementById("tkDoneCount").textContent = done.length ? `(${done.length})` : "";
+      document.getElementById("tkDoneWrap").hidden = !done.length;
+      document.getElementById("tkDone").innerHTML = done.length ? `<div class="tk-card">${done.slice(0, 30).map(tkMineRow).join("")}</div>` : "";
+    }
+
+    async function moveTask(id, to) {
+      const t = TASKS.find(x => x.id === id); if (!t) return;
+      const prev = t.status; t.status = to; if (to === "done") t.updatedAt = new Date().toISOString();
+      renderTaskColumns(); updateTaskBadge();
+      const r = await api("saveTask", { token: getToken(), id, status: to });
+      if (!r || r.status !== "success") { t.status = prev; renderTaskColumns(); updateTaskBadge(); handleAuthError(r || {}); abToast((r && r.message) || "Gagal mengubah task", "err"); return; }
+      abToast(to === "done" ? "Selesai" : to === "in_progress" ? "Lagi dikerjain" : "Dibuka lagi", "ok");
+    }
+
+    function wireTasksV2Once() {
+      if (window._tkWired) return; window._tkWired = true;
+      const q = document.getElementById("tkQuick"), inp = document.getElementById("tkQuickInput"), dt = document.getElementById("tkQuickDate"), lbl = document.getElementById("tkQuickDateLbl");
+      dt.addEventListener("change", () => { lbl.textContent = dt.value ? new Date(dt.value + "T00:00:00").toLocaleDateString("id-ID", { day: "numeric", month: "short" }) : "Tenggat"; dt.parentElement.classList.toggle("has", !!dt.value); });
+      q.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const title = inp.value.trim(); if (!title) { inp.focus(); return; }
+        const btn = document.getElementById("tkQuickBtn"); btn.disabled = true;
+        const r = await api("saveTask", { token: getToken(), id: "", title, description: "", status: "backlog", dueDate: dt.value || "" });
+        btn.disabled = false;
+        if (!r || r.status !== "success") { handleAuthError(r || {}); abToast((r && r.message) || "Gagal nambah task", "err"); return; }
+        inp.value = ""; dt.value = ""; dt.dispatchEvent(new Event("change"));
+        abToast("Task ditambah", "ok"); await loadTasks(); inp.focus();
+      });
+      // menu ⋯ dipindah ke <body> pas dibuka -> dengerin di document
+      document.addEventListener("click", async (e) => {
+        const b = e.target.closest("[data-tka]"); if (!b) return;
+        if (!b.closest("#viewTasks") && !b.closest(".ab-menu")) return;
+        const id = b.dataset.id, a = b.dataset.tka, t = TASKS.find(x => x.id === id);
+        if (a === "done") return moveTask(id, "done");
+        if (a === "undone") return moveTask(id, "backlog");
+        if (a === "mv") return moveTask(id, b.dataset.to);
+        if (a === "edit") return editTask(id);
+        if (a === "del") return deleteTaskFn(id);
+        if (a === "go" && t) return taskGoToTarget(t);
+        if (a === "ign") { tkSetIgnored(id, true); renderTaskColumns(); updateTaskBadge(); abToast("Diabaikan. Bisa ditampilin lagi di bawah.", "ok"); return; }
+        if (a === "unign") { tkSetIgnored(id, false); renderTaskColumns(); updateTaskBadge(); return; }
       });
     }
 
@@ -15441,7 +15519,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let activityInit = false;
     async function ensureActivity() {
       if (!activityInit) {
-        document.getElementById("actReloadBtn").addEventListener("click", loadActivity);
+        wireActivityOnce();
         activityInit = true;
       }
       loadActivity(); // selalu refresh tiap dibuka
@@ -15483,178 +15561,162 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       try { localStorage.setItem(BDAY_WISH_KEY, JSON.stringify(Array.from(set))); } catch (e) { }
     }
 
-    // "Ultah Hari Ini" & "Perlu Ditindak" (Kotak Pos Warga yang belum
-    // di-approve/tolak) beda dari activity biasa karena butuh AKSI dari
-    // admin, bukan cuma info. "Riwayat Terbaru" tetep dipertahanin buat
-    // konteks, tapi barisnya bisa diklik langsung ke tab terkait.
+    // ===== Notifikasi = 1 kotak masuk =====
+    // Atas: hal yang BUTUH aksi (usulan warga, ulang tahun yang belum diucapin)
+    // -> bisa diselesain langsung di baris itu. Bawah: aktivitas 30 hari per
+    // hari, yang muncul sejak terakhir dibuka ditandai "Baru". "Tandai semua
+    // dibaca" cuma nyimpen waktu di browser (nggak ngubah data apa pun).
+    const NX = { data: null, filter: "all", seen: 0 };
+    const NX_SEEN_KEY = "ab.actSeenTs";
+    try { NX.seen = Number(localStorage.getItem(NX_SEEN_KEY) || 0); } catch (e) {}
+    const NX_META = {
+      daftar: { label: "Pendaftar", icon: "journal", color: "#3b6cff" },
+      quest: { label: "Challenge", icon: "lightning", color: "#e07a1f" },
+      member: { label: "Warga baru", icon: "people", color: "#1f9d5c" },
+    };
+    function nxAgo(ts) {
+      if (!ts) return "";
+      const min = Math.floor((Date.now() - ts) / 60000);
+      if (min < 1) return "barusan";
+      if (min < 60) return min + " mnt lalu";
+      const hr = Math.floor(min / 60);
+      if (hr < 24) return hr + " jam lalu";
+      return new Date(ts).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    }
+    function nxDayLabel(ts) {
+      const d = new Date(ts); d.setHours(0, 0, 0, 0);
+      const t = new Date(); t.setHours(0, 0, 0, 0);
+      const diff = Math.round((t - d) / 86400000);
+      if (diff === 0) return "Hari ini";
+      if (diff === 1) return "Kemarin";
+      return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "short" });
+    }
+    function nxWa(wa, msg) {
+      const num = waNormalize(wa);
+      if (!num) { abToast("Nomor WA-nya nggak ada / nggak valid", "err"); return false; }
+      window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(msg), "_blank");
+      return true;
+    }
+    function nxFirst(nm) { return String(nm || "").trim().split(/\s+/)[0] || "kak"; }
+
     async function loadActivity() {
-      const el = document.getElementById("activityList");
-      const pendEl = document.getElementById("actPendingList");
-      const pendCnt = document.getElementById("actPendingCount");
-      const bdEl = document.getElementById("actBdayList");
-      const bdCnt = document.getElementById("actBdayCount");
-      el.innerHTML = skelLines(5);
-      if (pendEl) pendEl.innerHTML = skelLines(2);
-      if (bdEl) bdEl.innerHTML = skelLines(1);
       try {
         const r = await api("getActivity", { token: getToken() });
-        if (r.status !== "success") { handleAuthError(r); el.innerHTML = ""; if (pendEl) pendEl.innerHTML = ""; return; }
+        if (r.status !== "success") { handleAuthError(r); return; }
+        NX.data = r;
+        updateInboxBadge((r.pending || []).length);
+        renderActivityInbox();
+      } catch (e) {
+        document.getElementById("nxFeed").innerHTML = `<div class="so-empty"><b>Gagal memuat notifikasi.</b><button type="button" class="btn btn-sm" onclick="loadActivity()">Coba lagi</button></div>`;
+      }
+    }
 
-        const todayDD0 = new Date().getDate();
-        const birthdays = (r.birthdaysMonth || []).slice().sort((a, b) => {
-          const rank = x => x.isToday ? 0 : (x.day > todayDD0 ? 1 : 2);
-          return rank(a) - rank(b) || a.day - b.day;
-        });
-        const bdMonthName = r.bdayMonthName || "";
-        if (bdCnt) bdCnt.textContent = birthdays.length ? "(" + birthdays.length + ")" : "";
-        if (bdEl) {
-          // Ucapan ultah satu tempat aja: kotak "Perlu disapa" di Member. Di sini cuma ringkasan + tautan.
-          const upcoming = birthdays.filter(b => b.isToday || (b.day >= todayDD0 && b.day - todayDD0 <= 7 && !isBdayWished(b.wa)));
-          bdEl.innerHTML = birthdays.length
-            ? `<button type="button" class="ov-attn-item tone-${upcoming.length ? "soon" : "ok"} act-bday-link"><span class="ov-attn-dot" aria-hidden="true"></span>
-                <span class="ov-attn-txt"><b>${upcoming.length ? upcoming.length + " warga ulang tahun minggu ini" : birthdays.length + " warga ulang tahun bulan " + escapeHtml(bdMonthName)}</b><span>${upcoming.length ? escapeHtml(upcoming.map(b => b.nickname).slice(0, 4).join(", ")) : "Semua yang minggu ini udah diucapin"}</span></span>
-                <span class="ov-attn-cta">Buka Member</span></button>`
-            : '<p class="hint">Nggak ada yang ulang tahun bulan ini.</p>';
-          const lk = bdEl.querySelector(".act-bday-link");
-          if (lk) lk.addEventListener("click", () => switchView("members"));
+    function renderActivityInbox() {
+      const r = NX.data; if (!r) return;
+      const today = new Date().getDate();
+      const pending = r.pending || [];
+      const bdays = (r.birthdaysMonth || []).filter(b => b.day >= today && b.day - today <= 7 && !isBdayWished(b.wa)).sort((a, b) => a.day - b.day);
+      const acts = r.activity || [];
+      const fresh = acts.filter(a => a.ts > NX.seen);
+
+      // baris atas: berapa yang baru + tombol tandai dibaca
+      const newLine = document.getElementById("nxNewLine");
+      const seenBtn = document.getElementById("nxSeenBtn");
+      if (!NX.seen) newLine.innerHTML = `<b>${acts.length} aktivitas</b> dalam ${r.activityWindowDays || 30} hari terakhir`;
+      else if (fresh.length) {
+        const by = {}; fresh.forEach(a => { by[a.type] = (by[a.type] || 0) + 1; });
+        newLine.innerHTML = `<span class="nx-dot"></span><b>${fresh.length} baru</b> sejak terakhir dicek · ${Object.keys(by).map(k => by[k] + " " + NX_META[k].label.toLowerCase()).join(", ")}`;
+      } else newLine.innerHTML = `Udah kebaca semua. Yang baru bakal ditandai di sini.`;
+      seenBtn.hidden = !(fresh.length || !NX.seen) || !acts.length;
+
+      // chip filter
+      const cnt = { all: acts.length, daftar: 0, quest: 0, member: 0 };
+      acts.forEach(a => { cnt[a.type] = (cnt[a.type] || 0) + 1; });
+      const chips = [["all", "Semua"], ["daftar", "Pendaftar"], ["quest", "Challenge"], ["member", "Warga baru"]].filter(([k]) => k === "all" || cnt[k]);
+      document.getElementById("nxChips").innerHTML = chips.map(([k, l]) => `<button type="button" class="so-chip so-chip-sm${NX.filter === k ? " active" : ""}" data-nxf="${k}" role="tab" aria-selected="${NX.filter === k}">${l}<span>${cnt[k] || 0}</span></button>`).join("");
+
+      // Perlu tindakan: usulan warga + ulang tahun minggu ini
+      const actItems = [];
+      bdays.forEach(b => {
+        const d = b.day - today;
+        actItems.push(`<div class="nx-act tone-bday">
+          <span class="nx-ic" style="background:#fff3c4;color:#8a5a00">${icon("cake")}</span>
+          <div class="nx-act-txt"><b>${escapeHtml(b.nickname || "Warga")} ${d === 0 ? "ulang tahun hari ini" : d === 1 ? "ulang tahun besok" : `ulang tahun ${d} hari lagi`}</b><span>${b.day} ${escapeHtml(r.bdayMonthName || "")} · voucher ultah otomatis aktif di Member Hub</span></div>
+          <div class="nx-act-btns"><button type="button" class="btn btn-sm nx-wa" data-nxbday="${escapeHtml(b.wa)}" data-nm="${escapeHtml(b.nickname || "")}">${icon("chat")} Ucapin</button></div>
+        </div>`);
+      });
+      pending.forEach(p => {
+        actItems.push(`<div class="nx-act">
+          <span class="nx-ic" style="background:#eef2ff;color:var(--brand)">${icon("mailbox")}</span>
+          <div class="nx-act-txt"><small>${SG_CAT_LABEL[p.category] || "Kotak Pos Warga"}</small><b class="nx-quote">${escapeHtml(p.text)}</b><span>${escapeHtml(p.who)} · ${nxAgo(p.ts) || ""}</span></div>
+          <div class="nx-act-btns"><button type="button" class="btn btn-sm nx-ok" data-actok="${escapeHtml(p.id)}">${icon("check")} Setujui</button><button type="button" class="btn btn-sm btn-ghost nx-no" data-actdel="${escapeHtml(p.id)}">Tolak</button></div>
+        </div>`);
+      });
+      document.getElementById("nxActCount").textContent = actItems.length ? actItems.length + " hal" : "";
+      document.getElementById("nxActList").innerHTML = actItems.length
+        ? `<div class="nx-card">${actItems.join("")}</div>`
+        : `<div class="nx-clear">${icon("checkCircle")}<span><b>Aman, nggak ada yang nunggu.</b> Usulan warga & ulang tahun minggu ini bakal muncul di sini.</span></div>`;
+
+      // Feed per hari
+      const list = acts.filter(a => NX.filter === "all" || a.type === NX.filter);
+      document.getElementById("nxFeedMeta").textContent = `${r.activityWindowDays || 30} hari terakhir`;
+      const feed = document.getElementById("nxFeed");
+      if (!list.length) { feed.innerHTML = `<div class="so-empty">${icon("bell")}<b>Belum ada aktivitas.</b></div>`; return; }
+      const groups = [];
+      list.slice(0, 200).forEach(a => { const l = nxDayLabel(a.ts); let g = groups[groups.length - 1]; if (!g || g.l !== l) { g = { l, items: [] }; groups.push(g); } g.items.push(a); });
+      feed.innerHTML = groups.map(g => `<div class="nx-day"><div class="nx-day-h">${escapeHtml(g.l)}<span>${g.items.length}</span></div><div class="nx-card">${g.items.map((a, i) => {
+        const m = NX_META[a.type] || NX_META.daftar, isNew = NX.seen && a.ts > NX.seen;
+        const what = a.type === "daftar" ? `daftar <b>${escapeHtml(a.detail || "")}</b>` : a.type === "quest" ? `kirim karya <b>${escapeHtml(a.detail || "")}</b>` : "gabung Balai Warga";
+        const btn = a.wa && a.type !== "quest"
+          ? `<button type="button" class="nx-mini" data-nxgreet="${a.type}" data-wa="${escapeHtml(a.wa)}" data-nm="${escapeHtml(a.who)}" data-ev="${escapeHtml(a.detail || "")}" title="${a.type === "daftar" ? "Sapa / konfirmasi via WA" : "Sambut via WA"}">${icon("chat")}<span>${a.type === "daftar" ? "Sapa" : "Sambut"}</span></button>` : "";
+        return `<div class="nx-row${isNew ? " is-new" : ""}" data-jump="${a.type === "daftar" ? "pendaftar" : a.type === "quest" ? "quest" : "members"}" data-ws="${escapeHtml(a.workshopType || "")}" data-batch="${escapeHtml(a.batchId || "")}" role="button" tabindex="0">
+          <span class="nx-ic" style="background:${m.color}1a;color:${m.color}">${icon(m.icon)}</span>
+          <span class="nx-row-txt"><span><b>${escapeHtml(a.who)}</b> ${what}</span><small>${m.label} · ${nxAgo(a.ts)}${isNew ? ' · <em>Baru</em>' : ""}</small></span>
+          ${btn}
+        </div>`;
+      }).join("")}</div></div>`).join("");
+    }
+
+    function wireActivityOnce() {
+      const v = document.getElementById("viewActivity");
+      if (!v || v.dataset.wired) return; v.dataset.wired = "1";
+      document.getElementById("nxSeenBtn").addEventListener("click", () => {
+        NX.seen = Date.now(); try { localStorage.setItem(NX_SEEN_KEY, String(NX.seen)); } catch (e) {}
+        renderActivityInbox(); abToast("Semua ditandai dibaca", "ok");
+      });
+      v.addEventListener("click", async (e) => {
+        const f = e.target.closest("[data-nxf]"); if (f) { NX.filter = f.dataset.nxf; renderActivityInbox(); return; }
+        const bd = e.target.closest("[data-nxbday]");
+        if (bd) { if (nxWa(bd.dataset.nxbday, memWaMsg("bday", nxFirst(bd.dataset.nm)))) { markBdayWished(bd.dataset.nxbday); renderActivityInbox(); abToast("Ditandai udah diucapin", "ok"); } return; }
+        const gr = e.target.closest("[data-nxgreet]");
+        if (gr) {
+          const nm = nxFirst(gr.dataset.nm);
+          const msg = gr.dataset.nxgreet === "daftar"
+            ? `Hai ${nm}! 👋 Makasih udah daftar ${gr.dataset.ev} di Seminggu Satu 💙 Pendaftaranmu udah kami terima ya. Info detail acaranya nanti kami kabarin di sini.`
+            : memWaMsg("nudge", nm);
+          nxWa(gr.dataset.wa, msg); return;
         }
-
-        const pending = r.pending || [];
-        updateInboxBadge(pending.length);
-        if (pendCnt) pendCnt.textContent = pending.length ? "(" + pending.length + ")" : "";
-        if (pendEl) {
-          pendEl.innerHTML = pending.length
-            ? pending.map(p =>
-              `<div class="loy-card"><div class="loy-top">
-                 <div style="min-width:0;">
-                   <div class="loy-name">${SG_CAT_LABEL[p.category] || icon("mailbox")}</div>
-                   <div style="margin:2px 0;">${escapeHtml(p.text)}</div>
-                   <div class="loy-wa">— ${escapeHtml(p.who)} · ${timeAgo(p.ts)}</div>
-                 </div>
-                 <div style="display:flex;flex-direction:column;gap:4px;">
-                   <button class="sg-approve" data-actok="${escapeHtml(p.id)}">${icon("checkCircle")} Setujui</button>
-                   <button class="sg-del" data-actdel="${escapeHtml(p.id)}">${icon("trash")} Reject</button>
-                 </div>
-               </div></div>`
-            ).join("")
-            : '<p class="hint">' + icon("checkCircle") + ' Aman, nggak ada yang nunggu.</p>';
-          pendEl.querySelectorAll("[data-actok]").forEach(b => b.addEventListener("click", async () => {
-            b.disabled = true;
-            const r2 = await api("setSuggestionApproved", { token: getToken(), id: b.dataset.actok });
-            if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
-            loadActivity();
-          }));
-          pendEl.querySelectorAll("[data-actdel]").forEach(b => b.addEventListener("click", async () => {
-            if (!await abConfirm("Tolak usulan ini? Nggak bisa dibalikin.")) return;
-            b.disabled = true;
-            const r2 = await api("deleteSuggestion", { token: getToken(), id: b.dataset.actdel });
-            if (r2.status !== "success") { alert(r2.message || "Failed."); b.disabled = false; return; }
-            loadActivity();
-          }));
+        const ok = e.target.closest("[data-actok]");
+        if (ok) {
+          ok.disabled = true;
+          const r2 = await api("setSuggestionApproved", { token: getToken(), id: ok.dataset.actok });
+          if (r2.status !== "success") { abToast(r2.message || "Gagal", "err"); ok.disabled = false; return; }
+          NX.data.pending = (NX.data.pending || []).filter(p => p.id !== ok.dataset.actok);
+          updateInboxBadge(NX.data.pending.length); renderActivityInbox(); abToast("Usulan disetujui", "ok"); return;
         }
-
-        const acts = r.activity || [];
-        const windowLabel = document.getElementById("actWindowLabel");
-        if (windowLabel) windowLabel.textContent = r.activityWindowDays ? `(last ${r.activityWindowDays} days)` : "";
-        const statsEl = document.getElementById("actStats");
-        const chartsEl = document.getElementById("actCharts");
-        const detailCnt = document.getElementById("actDetailCount");
-        if (!acts.length) {
-          if (statsEl) statsEl.innerHTML = "";
-          if (chartsEl) chartsEl.innerHTML = "";
-          if (detailCnt) detailCnt.textContent = "";
-          el.innerHTML = '<p class="hint">Belum ada aktivitas.</p>';
-          return;
+        const no = e.target.closest("[data-actdel]");
+        if (no) {
+          if (!await abConfirm("Tolak usulan ini? Nggak bisa dibalikin.")) return;
+          no.disabled = true;
+          const r2 = await api("deleteSuggestion", { token: getToken(), id: no.dataset.actdel });
+          if (r2.status !== "success") { abToast(r2.message || "Gagal", "err"); no.disabled = false; return; }
+          NX.data.pending = (NX.data.pending || []).filter(p => p.id !== no.dataset.actdel);
+          updateInboxBadge(NX.data.pending.length); renderActivityInbox(); return;
         }
-
-        // Dikelompokin per kategori (daftar/quest/member), dan di dalam
-        // Pendaftaran & Quest dikelompokin lagi per event/challenge --
-        // biar keliatan pola-nya (mis. "Reka Rekat lagi rame, 4 pendaftar
-        // baru") daripada cuma list rata yang campur aduk kronologis.
-        const ACT_META = {
-          daftar: { label: "Pendaftar baru", icon: "journal", jump: "pendaftar", groupBy: true, row: a => escapeHtml(a.who) + ' <span style="font-weight:600;color:var(--muted);">registered</span>' },
-          quest: { label: "Challenge Submission", icon: "lightning", jump: "quest", groupBy: true, row: a => escapeHtml(a.who) + ' <span style="font-weight:600;color:var(--muted);">submit</span>' },
-          member: { label: "Warga baru gabung", icon: "people", jump: "members", groupBy: false, row: a => escapeHtml(a.who) + ' <span style="font-weight:600;color:var(--muted);">joined Balai Warga</span>' },
-        };
-
-        function rowHtml(a, meta) {
-          return `<div class="act-row" data-jump="${meta.jump}" data-ws="${escapeHtml(a.workshopType || "")}">
-             <span class="act-row-who">${meta.row(a)}</span>
-             <span class="act-row-time">${timeAgo(a.ts)}</span>
-           </div>`;
-        }
-
-        // Sub-grup per "detail" (nama workshop buat daftar, judul challenge
-        // buat quest) -- dipake bareng buat list detail (diurut RECENCY) &
-        // buat bar chart (diurut JUMLAH, biar kebaca perbandingannya).
-        function groupByDetail(items) {
-          const groups = {}; const order = [];
-          items.forEach(a => {
-            const key = a.detail || "-";
-            if (!groups[key]) { groups[key] = { detail: a.detail || "-", workshopType: a.workshopType || "", items: [], latestTs: 0 }; order.push(key); }
-            groups[key].items.push(a);
-            if (a.ts > groups[key].latestTs) groups[key].latestTs = a.ts;
-          });
-          return order.map(k => groups[k]);
-        }
-
-        // ---- Stat ringkas (3 angka besar, glanceable) ----
-        if (statsEl) {
-          statsEl.innerHTML = ["daftar", "quest", "member"].map(type => {
-            const n = acts.filter(a => a.type === type).length;
-            return `<div class="stat"><div class="stat-n">${n}</div><div class="stat-l">${icon(ACT_META[type].icon)} ${ACT_META[type].label}</div></div>`;
-          }).join("");
-        }
-
-        // ---- Bar chart: perbandingan jumlah per workshop / challenge ----
-        // (1 seri warna = brand hue, ga perlu legend; nilai langsung di ujung bar)
-        function barChartHtml(groups, jump) {
-          const sorted = groups.slice().sort((x, y) => y.items.length - x.items.length);
-          const max = Math.max(...sorted.map(g => g.items.length), 1);
-          return `<div class="bar-chart">` + sorted.map(g => {
-            const pct = Math.max(6, Math.round((g.items.length / max) * 100));
-            return `<div class="bar-row" data-jump="${jump}" data-ws="${escapeHtml(g.workshopType || "")}" title="${escapeHtml(g.detail)}">
-               <span class="bar-label">${escapeHtml(g.detail)}</span>
-               <span class="bar-track"><span class="bar-fill" style="width:${pct}%"></span></span>
-               <span class="bar-value">${g.items.length}</span>
-             </div>`;
-          }).join("") + `</div>`;
-        }
-
-        if (chartsEl) {
-          let chartsHtml = "";
-          const daftarGroups = groupByDetail(acts.filter(a => a.type === "daftar"));
-          if (daftarGroups.length) {
-            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;">Registrations per Event</div>` + barChartHtml(daftarGroups, "pendaftar");
-          }
-          const questGroups = groupByDetail(acts.filter(a => a.type === "quest"));
-          if (questGroups.length) {
-            chartsHtml += `<div class="act-group-head" style="padding-left:0;background:none;margin-top:16px;">Submissions per Challenge</div>` + barChartHtml(questGroups, "quest");
-          }
-          chartsEl.innerHTML = chartsHtml;
-          chartsEl.querySelectorAll(".bar-row").forEach(row => row.addEventListener("click", () => jumpFromActivity(row.dataset.jump, row.dataset.ws)));
-        }
-
-        // ---- Detail lengkap (siapa aja, dikelompokin, di dalam <details>) ----
-        if (detailCnt) detailCnt.textContent = "(" + acts.length + ")";
-        let html = "";
-        ["daftar", "quest", "member"].forEach(type => {
-          const items = acts.filter(a => a.type === type);
-          if (!items.length) return;
-          const meta = ACT_META[type];
-          html += `<div class="act-cat-head">${icon(meta.icon)} ${meta.label} <span class="subtab-count">${items.length}</span></div>`;
-          if (meta.groupBy) {
-            groupByDetail(items).sort((x, y) => y.latestTs - x.latestTs).forEach(g => {
-              html += `<div class="act-group-head">${escapeHtml(g.detail)} (${g.items.length})</div>`;
-              html += g.items.map(a => rowHtml(a, meta)).join("");
-            });
-          } else {
-            html += items.map(a => rowHtml(a, meta)).join("");
-          }
-        });
-        el.innerHTML = html;
-        el.querySelectorAll(".act-row").forEach(card => card.addEventListener("click", () => jumpFromActivity(card.dataset.jump, card.dataset.ws)));
-      } catch (e) { el.innerHTML = '<p class="hint" style="color:var(--err)">Gagal memuat. Coba muat ulang.</p>'; }
+        const row = e.target.closest(".nx-row");
+        if (row) jumpFromActivity(row.dataset.jump, row.dataset.ws, row.dataset.batch);
+      });
+      v.addEventListener("keydown", (e) => { const row = e.target.closest(".nx-row"); if (row && (e.key === "Enter" || e.key === " ") && e.target === row) { e.preventDefault(); row.click(); } });
     }
 
     // Lompat dari Notifikasi ke tab terkait -- dipake bareng sama bar chart & list detail.
