@@ -2181,3 +2181,15 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
     .tk-date { flex: 1; justify-content: center; }
     .tk-g-body { padding-left: 14px; }
 }
+.nx-push { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; margin-bottom: 14px; background: #ffffff; box-shadow: var(--shadow-sm); font-size: 13.5px; color: #4a5674; }
+.nx-push b { color: var(--ink); }
+.nx-push-ic { width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: var(--brand-light); color: var(--brand); }
+.nx-push-ic svg { width: 17px; height: 17px; }
+.nx-push-txt { flex: 1; min-width: 0; }
+.nx-push-btns { display: flex; gap: 6px; flex-shrink: 0; }
+.nx-push.is-ask { background: linear-gradient(155deg, #eef3ff, #ffffff); border: 1.5px solid #d6e1ff; box-shadow: none; }
+.nx-push.is-on { background: #eefaf3; box-shadow: none; }
+.nx-push.is-on .nx-push-ic { background: #d4f3e1; color: #1f9d5c; }
+.nx-push.is-off { background: #fff4f4; box-shadow: none; }
+.nx-push.is-off .nx-push-ic { background: #fde2e2; color: #b91c1c; }
+@media (max-width: 600px) { .nx-push { flex-wrap: wrap; } .nx-push-btns { width: 100%; padding-left: 46px; } }

@@ -13,6 +13,8 @@ import { activeBirthdayVoucher } from "../_shared/birthday.ts";
 import { callGemini } from "../_shared/gemini.ts";
 import { mergeBatchConfig, currentPrice, isBatchOpen } from "../_shared/batch-merge.ts";
 import { getEventShopLines } from "../_shared/event-shop.ts";
+import { registrationGreeting } from "../_shared/telegram.ts";
+import { adminVapid, sendAdminPush } from "../_shared/admin-push.ts";
 
 const WORKSHOP_TYPES = ["3d-frame-journaling", "paper-journal", "upcycle-journal", "bookmark-journal", "reka-rekat", "journaling-date", "side-by-side", "private-uc"];
 // Tag foto event: 3 tag bawaan (workshop / reka-rekat / temu-warga) atau teks bebas (<=30 char).
@@ -880,6 +882,31 @@ Kasih:
         return jsonResponse({ status: "success", leaderboard: { top } });
       }
 
+      // ---- Push notif ke PWA admin (lihat _shared/admin-push.ts) ----
+      case "adminPushConfig": {
+        const v = adminVapid();
+        return jsonResponse({ status: "success", publicKey: v ? v.publicKey : "" });
+      }
+      case "adminPushSubscribe": {
+        const sub = data.subscription || {};
+        const endpoint = String(sub.endpoint || ""), p256dh = String(sub.keys?.p256dh || ""), auth = String(sub.keys?.auth || "");
+        if (!/^https:\/\//.test(endpoint) || !p256dh || !auth) return errorResponse("Subscription nggak valid.");
+        const { error } = await admin.from("admin_push_subscriptions").upsert({
+          endpoint, p256dh, auth, device: String(data.device || "").slice(0, 120), last_ok_at: new Date().toISOString(),
+        }, { onConflict: "endpoint" });
+        if (error) return errorResponse("Gagal nyimpen: " + error.message);
+        return jsonResponse({ status: "success" });
+      }
+      case "adminPushUnsubscribe": {
+        const endpoint = String(data.endpoint || "");
+        if (endpoint) await admin.from("admin_push_subscriptions").delete().eq("endpoint", endpoint);
+        return jsonResponse({ status: "success" });
+      }
+      case "adminPushTest": {
+        await sendAdminPush({ title: "Notifikasi nyala", body: "Mulai sekarang pendaftar baru, warga aktivasi, dan notif lain yang masuk Telegram juga muncul di sini.", url: "/admin/#activity", tag: "test" });
+        return jsonResponse({ status: "success" });
+      }
+
       case "getActivity": {
         // deno-lint-ignore no-explicit-any
         const acts: any[] = [];
@@ -896,7 +923,13 @@ Kasih:
         const actCutoff = new Date(Date.now() - ACT_WINDOW_DAYS * 86400000).toISOString();
 
         const { data: regs } = await admin.from("registrations").select("full_name, nickname, workshop_type, batch_id, wa, created_at").gte("created_at", actCutoff).order("created_at", { ascending: false }).limit(200);
-        for (const r of regs || []) acts.push({ type: "daftar", who: r.nickname || r.full_name || "Peserta", detail: nameMap[r.workshop_type] || r.workshop_type, workshopType: r.workshop_type, batchId: r.batch_id || "", wa: r.wa || "", ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
+        // pesan WA sambutan = persis yang di tombol Telegram (termasuk link grup batch-nya)
+        const greetCache = {};
+        for (const r of regs || []) {
+          const label = nameMap[r.workshop_type] || r.workshop_type;
+          const greet = r.wa ? await registrationGreeting(admin, { workshopType: r.workshop_type, label, nickname: r.nickname || r.full_name || "", batchId: r.batch_id || undefined }, greetCache) : "";
+          acts.push({ type: "daftar", who: r.nickname || r.full_name || "Peserta", detail: label, workshopType: r.workshop_type, batchId: r.batch_id || "", wa: r.wa || "", greet, ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
+        }
 
         const { data: challenges } = await admin.from("challenges").select("id, title");
         const chalTitle: Record<string, string> = {};

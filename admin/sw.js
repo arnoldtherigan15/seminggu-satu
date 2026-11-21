@@ -2,7 +2,7 @@
 // Strategi: network-first (biar kode & data selalu fresh), fallback ke cache saat offline.
 // Scope = folder /admin/, jadi TIDAK mengintervensi request ke Apps Script (beda origin).
 
-const CACHE = "ss-admin-v2";
+const CACHE = "ss-admin-v3";
 const CORE = [
   "./index.html",
   "./manifest.webmanifest",
@@ -40,4 +40,34 @@ self.addEventListener("fetch", (e) => {
       })
       .catch(() => caches.match(req).then((m) => m || caches.match("./index.html")))
   );
+});
+
+// ---- Push notif (dikirim admin-api / notif Telegram, lihat _shared/admin-push.ts) ----
+self.addEventListener("push", (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { title: "Seminggu Satu", body: e.data ? e.data.text() : "" }; }
+  const title = d.title || "Seminggu Satu";
+  e.waitUntil((async () => {
+    await self.registration.showNotification(title, {
+      body: d.body || "",
+      icon: "./icon-192.png",
+      badge: "./icon-192.png",
+      tag: d.tag || undefined,
+      data: { url: d.url || "./#activity" },
+    });
+    // titik merah di ikon app (kalau didukung)
+    try { if (self.navigator.setAppBadge) await self.navigator.setAppBadge(); } catch (err) {}
+  })());
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const target = new URL((e.notification.data && e.notification.data.url) || "./#activity", self.location.origin + "/admin/").href;
+  e.waitUntil((async () => {
+    const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const w of wins) {
+      if (w.url.includes("/admin/")) { await w.focus(); try { await w.navigate(target); } catch (err) { w.postMessage({ type: "nav", url: target }); } return; }
+    }
+    await self.clients.openWindow(target);
+  })());
 });

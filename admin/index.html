@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=41">
+  <link rel="stylesheet" href="admin-binder.css?v=42">
 </head>
 
 <body>
@@ -5965,6 +5965,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         <!-- ===== VIEW: NOTIFIKASI / AKTIVITAS ===== -->
         <div class="wrap view" id="viewActivity" style="display:none;">
           <div class="nx">
+            <div class="nx-push" id="nxPush" hidden></div>
             <div class="nx-top">
               <div class="nx-new" id="nxNewLine" aria-live="polite"></div>
               <button type="button" class="btn btn-sm btn-ghost" id="nxSeenBtn" hidden>Tandai semua dibaca</button>
@@ -15522,6 +15523,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         wireActivityOnce();
         activityInit = true;
       }
+      renderPushCard();
       loadActivity(); // selalu refresh tiap dibuka
     }
 
@@ -15668,7 +15670,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const m = NX_META[a.type] || NX_META.daftar, isNew = NX.seen && a.ts > NX.seen;
         const what = a.type === "daftar" ? `daftar <b>${escapeHtml(a.detail || "")}</b>` : a.type === "quest" ? `kirim karya <b>${escapeHtml(a.detail || "")}</b>` : "gabung Balai Warga";
         const btn = a.wa && a.type !== "quest"
-          ? `<button type="button" class="nx-mini" data-nxgreet="${a.type}" data-wa="${escapeHtml(a.wa)}" data-nm="${escapeHtml(a.who)}" data-ev="${escapeHtml(a.detail || "")}" title="${a.type === "daftar" ? "Sapa / konfirmasi via WA" : "Sambut via WA"}">${icon("chat")}<span>${a.type === "daftar" ? "Sapa" : "Sambut"}</span></button>` : "";
+          ? `<button type="button" class="nx-mini" data-nxgreet="${a.type}" data-wa="${escapeHtml(a.wa)}" data-nm="${escapeHtml(a.who)}" data-ev="${escapeHtml(a.detail || "")}" data-greet="${escapeHtml(a.greet || "")}" title="${a.type === "daftar" ? "Sapa / konfirmasi via WA" : "Sambut via WA"}">${icon("chat")}<span>${a.type === "daftar" ? "Sapa" : "Sambut"}</span></button>` : "";
         return `<div class="nx-row${isNew ? " is-new" : ""}" data-jump="${a.type === "daftar" ? "pendaftar" : a.type === "quest" ? "quest" : "members"}" data-ws="${escapeHtml(a.workshopType || "")}" data-batch="${escapeHtml(a.batchId || "")}" role="button" tabindex="0">
           <span class="nx-ic" style="background:${m.color}1a;color:${m.color}">${icon(m.icon)}</span>
           <span class="nx-row-txt"><span><b>${escapeHtml(a.who)}</b> ${what}</span><small>${m.label} · ${nxAgo(a.ts)}${isNew ? ' · <em>Baru</em>' : ""}</small></span>
@@ -15676,6 +15678,61 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         </div>`;
       }).join("")}</div></div>`).join("");
     }
+
+    // ---- Push notif di HP/PWA ini ----
+    function pushSupported() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+    function isIosDevice() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+    function isStandaloneApp() { return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true; }
+    function b64urlToU8(s) { const p = s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4); const b = atob(p); return Uint8Array.from(b, c => c.charCodeAt(0)); }
+    function pushDeviceName() { const u = navigator.userAgent; return (/iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" : /Mac/.test(u) ? "Mac" : /Windows/.test(u) ? "Windows" : "Browser") + (isStandaloneApp() ? " (app)" : ""); }
+    async function renderPushCard() {
+      const box = document.getElementById("nxPush"); if (!box) return;
+      if (location.protocol === "file:") { box.hidden = true; return; }
+      const card = (cls, ic, txt, btns) => { box.hidden = false; box.className = "nx-push " + cls; box.innerHTML = `<span class="nx-push-ic">${icon(ic)}</span><span class="nx-push-txt">${txt}</span>${btns ? `<span class="nx-push-btns">${btns}</span>` : ""}`; };
+      if (!pushSupported()) {
+        if (isIosDevice() && !isStandaloneApp()) card("is-info", "bell", "<b>Mau notif di iPhone?</b> Buka dashboard dari ikon di Home Screen (Share → Add to Home Screen), lalu nyalain dari sini.", "");
+        else box.hidden = true;
+        return;
+      }
+      if (Notification.permission === "denied") { card("is-off", "bell", "<b>Notifikasi diblokir.</b> Izinkan lagi lewat pengaturan notifikasi HP/browser buat seminggusatu.com.", ""); return; }
+      let sub = null;
+      try { const reg = await navigator.serviceWorker.ready; sub = await reg.pushManager.getSubscription(); } catch (e) {}
+      if (sub && Notification.permission === "granted") card("is-on", "checkCircle", "<b>Notifikasi nyala di perangkat ini.</b> Isinya sama kayak notif Telegram.", `<button type="button" class="btn btn-sm btn-ghost" data-push="test">Tes</button><button type="button" class="btn btn-sm btn-ghost" data-push="off">Matikan</button>`);
+      else card("is-ask", "bell", "<b>Dapet notif di HP ini?</b> Pendaftar baru, warga aktivasi, challenge, kotak pos -- sama kayak di Telegram.", `<button type="button" class="btn btn-sm" data-push="on">Nyalakan</button>`);
+    }
+    async function pushEnable(btn) {
+      // requestPermission HARUS langsung dari ketukan (iOS), sebelum await lain
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") { abToast("Izin notifikasi nggak dikasih", "err"); renderPushCard(); return; }
+      if (btn) btn.disabled = true;
+      try {
+        const cfg = await api("adminPushConfig", { token: getToken() });
+        if (!cfg || cfg.status !== "success" || !cfg.publicKey) { abToast("Push belum disetel di server", "err"); return; }
+        const reg = await navigator.serviceWorker.ready;
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64urlToU8(cfg.publicKey) });
+        const r = await api("adminPushSubscribe", { token: getToken(), subscription: sub.toJSON(), device: pushDeviceName() });
+        if (!r || r.status !== "success") { abToast((r && r.message) || "Gagal nyimpen", "err"); return; }
+        abToast("Notifikasi nyala. Ngirim tes…", "ok");
+        api("adminPushTest", { token: getToken() });
+      } catch (e) { abToast("Gagal nyalain notifikasi: " + (e.message || e), "err"); }
+      finally { if (btn) btn.disabled = false; renderPushCard(); }
+    }
+    async function pushDisable() {
+      try {
+        const reg = await navigator.serviceWorker.ready; const sub = await reg.pushManager.getSubscription();
+        if (sub) { await api("adminPushUnsubscribe", { token: getToken(), endpoint: sub.endpoint }); await sub.unsubscribe(); }
+        abToast("Notifikasi dimatikan di perangkat ini", "ok");
+      } catch (e) {}
+      renderPushCard();
+    }
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.addEventListener("message", (e) => { if (e.data && e.data.type === "nav" && e.data.url) location.href = e.data.url; });
+    }
+    // buka dashboard = titik merah di ikon app dihapus
+    function clearAppBadgeSoon() { try { if (navigator.clearAppBadge) navigator.clearAppBadge(); } catch (e) {} }
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") clearAppBadgeSoon(); });
+    clearAppBadgeSoon();
 
     function wireActivityOnce() {
       const v = document.getElementById("viewActivity");
@@ -15685,14 +15742,17 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         renderActivityInbox(); abToast("Semua ditandai dibaca", "ok");
       });
       v.addEventListener("click", async (e) => {
+        const pb = e.target.closest("[data-push]");
+        if (pb) { if (pb.dataset.push === "on") pushEnable(pb); else if (pb.dataset.push === "off") pushDisable(); else { api("adminPushTest", { token: getToken() }); abToast("Tes dikirim", "ok"); } return; }
         const f = e.target.closest("[data-nxf]"); if (f) { NX.filter = f.dataset.nxf; renderActivityInbox(); return; }
         const bd = e.target.closest("[data-nxbday]");
         if (bd) { if (nxWa(bd.dataset.nxbday, memWaMsg("bday", nxFirst(bd.dataset.nm)))) { markBdayWished(bd.dataset.nxbday); renderActivityInbox(); abToast("Ditandai udah diucapin", "ok"); } return; }
         const gr = e.target.closest("[data-nxgreet]");
         if (gr) {
           const nm = nxFirst(gr.dataset.nm);
+          // pendaftar: pesan dari server = persis tombol "Sambut" di Telegram (ada link grup batch-nya)
           const msg = gr.dataset.nxgreet === "daftar"
-            ? `Hai ${nm}! 👋 Makasih udah daftar ${gr.dataset.ev} di Seminggu Satu 💙 Pendaftaranmu udah kami terima ya. Info detail acaranya nanti kami kabarin di sini.`
+            ? (gr.dataset.greet || `Hai ka ${gr.dataset.nm || "kak"}\nTerima kasih banyak ya udah daftar di ${gr.dataset.ev}🙌✨`)
             : memWaMsg("nudge", nm);
           nxWa(gr.dataset.wa, msg); return;
         }

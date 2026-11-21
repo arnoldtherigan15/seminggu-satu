@@ -1,12 +1,20 @@
 import { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { waKey } from "./auth.ts";
 import { mergeBatchConfig } from "./batch-merge.ts";
+import { sendAdminPush, telegramToPush } from "./admin-push.ts";
 
 // Generic sender -- port dari sendTelegram_(). TELEGRAM_TOKEN/TELEGRAM_CHATID
 // disimpen sebagai Edge Function secret (supabase secrets set), BUKAN
 // hardcode kayak di Google_Script_Code.js dulu (folder ini KE-COMMIT ke git).
 // deno-lint-ignore no-explicit-any
 export async function sendTelegramText(text: string, replyMarkup?: any) {
+  // Push ke PWA admin jalan barengan (paralel) sama Telegram -- isi sama.
+  const pushP = sendAdminPush(telegramToPush(text)).catch(() => {});
+  try { await sendTelegramTextOnly(text, replyMarkup); } finally { await pushP; }
+}
+
+// deno-lint-ignore no-explicit-any
+async function sendTelegramTextOnly(text: string, replyMarkup?: any) {
   const token = Deno.env.get("TELEGRAM_TOKEN");
   const chatId = Deno.env.get("TELEGRAM_CHATID");
   if (!token || !chatId) return; // belum dikonfigurasi -> diem aja
@@ -72,31 +80,53 @@ export async function notifyRegistration(
     `📊 Total di batch ini: *${count ?? "?"}* peserta`;
 
   const nick = info.nickname || "kak";
-  // BUG lama: link grup WA di sini ketarik dari WORKSHOPS_JSON (Config level
-  // TIPE workshop) doang, sama sekali nggak liat batch mana yang beneran
-  // didaftarin -- begitu ada 2+ batch aktif tiap punya link WA sendiri (mis.
-  // Vol 4 vs Vol 5), notif ini bisa share link batch yang SALAH ke admin
-  // (dan tombol "Sambut di WhatsApp" isinya ikut salah). Sekarang ambil dari
-  // batch itu sendiri dulu (di-merge sama Config kayak mergeBatchConfig di
-  // tempat lain), baru fallback ke Config kalau batch-nya nggak override.
-  let groupLink = "";
-  try {
-    const { data: cfgRow } = await admin.from("app_config").select("value").eq("key", "WORKSHOPS_JSON").maybeSingle();
-    const cfg = JSON.parse(cfgRow?.value || "[]");
-    const typeConfig = cfg.find((x: { id: string }) => x.id === info.workshopType) || {};
-    if (info.batchId) {
-      const { data: batchRow } = await admin.from("batches").select("*").eq("id", info.batchId).maybeSingle();
-      if (batchRow) groupLink = mergeBatchConfig(batchRow, typeConfig).whatsappGroupLink;
-    }
-    if (!groupLink && typeConfig.whatsappGroupLink) groupLink = typeConfig.whatsappGroupLink;
-  } catch (_e) { /* abaikan */ }
+  const sapaan = await registrationGreeting(admin, { workshopType: info.workshopType, label: info.label, nickname: info.nickname, batchId: info.batchId });
 
-  const sapaan =
-    `Hai ka ${nick}\n` +
+  await sendTelegramText(pesan, waButton(info.whatsapp, nick, sapaan));
+}
+
+// Link grup WA per batch (batch override > Config tipe workshop). Cache opsional
+// biar getActivity (puluhan pendaftar) nggak query berulang.
+// BUG lama: dulu cuma dari WORKSHOPS_JSON (level tipe) -> begitu ada 2+ batch
+// aktif dengan link beda, link yang dishare bisa SALAH batch.
+export async function groupLinkFor(
+  admin: SupabaseClient, workshopType: string, batchId?: string,
+  cache?: { cfg?: { id: string; whatsappGroupLink?: string }[]; batches?: Map<string, string> },
+): Promise<string> {
+  try {
+    const c = cache || {};
+    if (!c.cfg) {
+      const { data: cfgRow } = await admin.from("app_config").select("value").eq("key", "WORKSHOPS_JSON").maybeSingle();
+      c.cfg = JSON.parse(cfgRow?.value || "[]");
+    }
+    const typeConfig = (c.cfg || []).find((x) => x.id === workshopType) || {};
+    let link = "";
+    if (batchId) {
+      if (!c.batches) c.batches = new Map();
+      if (c.batches.has(batchId)) link = c.batches.get(batchId) || "";
+      else {
+        const { data: batchRow } = await admin.from("batches").select("*").eq("id", batchId).maybeSingle();
+        // deno-lint-ignore no-explicit-any
+        link = batchRow ? (mergeBatchConfig(batchRow, typeConfig as any).whatsappGroupLink || "") : "";
+        c.batches.set(batchId, link);
+      }
+    }
+    return link || (typeConfig as { whatsappGroupLink?: string }).whatsappGroupLink || "";
+  } catch (_e) { return ""; }
+}
+
+// Pesan sambutan ke pendaftar (dipake tombol WA di Telegram DAN di Notifikasi admin -- satu sumber).
+export async function registrationGreeting(
+  admin: SupabaseClient,
+  info: { workshopType: string; label: string; nickname?: string; batchId?: string },
+  // deno-lint-ignore no-explicit-any
+  cache?: any,
+): Promise<string> {
+  const nick = info.nickname || "kak";
+  const groupLink = await groupLinkFor(admin, info.workshopType, info.batchId, cache);
+  return `Hai ka ${nick}\n` +
     `Terima kasih banyak ya udah daftar di ${info.label}🙌✨\n` +
     "Biar kamu nggak ketinggalan informasi, yuk langsung gabung ke grup WhatsApp lewat link di bawah ini:\n" +
     `🔗 ${groupLink || "(link grup menyusul ya)"}\n` +
     `Sampai ketemu di keseruan ${info.label}! 🥳`;
-
-  await sendTelegramText(pesan, waButton(info.whatsapp, nick, sapaan));
 }
