@@ -5699,6 +5699,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
                 </div>
               </div>
               <section class="fin-card" style="margin-top:16px;">
+                <div style="font-weight:800;margin-bottom:4px;">Paling banyak ke mana</div>
+                <p class="hint" style="margin:0 0 10px;">Pengeluaran per catatan di periode ini (mis. Kopken, Grab). Ketuk buat lihat transaksinya.</p>
+                <div id="anaTop"></div>
+              </section>
+              <section class="fin-card" style="margin-top:16px;">
                 <div style="font-weight:800;margin-bottom:4px;">Tren per kategori</div>
                 <p class="hint" style="margin:0 0 10px;">Pengeluaran periode ini dibanding rata-rata 3 periode sebelumnya. Paling naik di atas.</p>
                 <div id="anaTrend"></div>
@@ -16855,9 +16860,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       });
       document.getElementById("anaTotalExpense").textContent = rupiah(total);
       const rows = Object.keys(catTotals).map(catId => ({
+        id: catId,
         name: catId === "__none__" ? "Tanpa kategori" : ((perCategoryById(catId) || {}).name || "Tanpa kategori"),
         amount: catTotals[catId]
       })).sort((a, b) => b.amount - a.amount);
+      renderAnaTop(ym);
 
       const donutWrap = document.getElementById("anaDonutWrap");
       const catList = document.getElementById("anaCatList");
@@ -16880,13 +16887,51 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
       catList.innerHTML = rows.map((row, i) => {
         const pct = Math.round((row.amount / total) * 100);
-        return `<div class="per-cat-row">
+        return `<button type="button" class="per-cat-row ana-click" data-anacat="${row.id}" title="Lihat transaksi ${escapeHtml(row.name)}">
           <span class="per-cat-dot" style="background:${PER_CHART_COLORS[i % PER_CHART_COLORS.length]};"></span>
           <span class="per-cat-name">${escapeHtml(row.name)}</span>
           <span class="per-cat-pct">${pct}%</span>
           <span class="per-cat-amt">${rupiah(row.amount)}</span>
-        </div>`;
+        </button>`;
       }).join("");
+    }
+    // "Paling banyak ke mana": pengeluaran dikelompokin per catatan
+    function renderAnaTop(ym) {
+      const box = document.getElementById("anaTop"); if (!box) return;
+      const g = new Map();
+      PER_TRANSACTIONS.forEach(t => {
+        if (t.type !== "expense" || !inPayPeriod(t.date, ym)) return;
+        const name = (t.note || (perCategoryById(t.category_id) || {}).name || "Tanpa catatan").trim();
+        const k = name.toLowerCase();
+        const x = g.get(k) || { name, n: 0, total: 0 };
+        x.n++; x.total += Number(t.amount) || 0; g.set(k, x);
+      });
+      const top = [...g.values()].sort((a, b) => b.total - a.total).slice(0, 8);
+      if (!top.length) { box.innerHTML = '<p class="hint" style="margin:0;">Belum ada pengeluaran di periode ini.</p>'; return; }
+      const max = top[0].total;
+      box.innerHTML = top.map(x => `<button type="button" class="ana-top ana-click" data-anaq="${escapeHtml(x.name)}">
+          <span class="ana-top-name"><b>${escapeHtml(x.name)}</b><small>${x.n}×</small></span>
+          <span class="ana-top-bar"><i style="width:${Math.max(4, Math.round(x.total / max * 100))}%"></i></span>
+          <span class="ana-top-amt">${rupiah(x.total)}</span>
+        </button>`).join("");
+    }
+    // klik di Analisis -> buka Daftar transaksi yang udah kefilter
+    function anaDrill(opts) {
+      const ym = anaPeriod || currentPayPeriod();
+      if (opts.cat) {
+        perTxSearch = ""; const s = document.getElementById("txSearch"); if (s) s.value = "";
+        perTxFilterPeriod = ym;
+        perTxFilterTypes = new Set(["expense"]);
+        perTxFilterCategories = new Set([opts.cat]);
+      } else if (opts.q) {
+        perTxSearch = opts.q.toLowerCase(); const s = document.getElementById("txSearch"); if (s) s.value = opts.q;
+        perTxFilterTypes = new Set(["expense"]);
+      }
+      document.querySelectorAll("#txTypeChips [data-txtype]").forEach(x => x.classList.toggle("active", x.dataset.txtype === "expense"));
+      updateTxFilterCountBadge();
+      perSegShow("tx", "daftar");
+      renderPersonalTransactions();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     // ===== Keuangan pribadi ala Lunch Money (fase 1, tanpa ubah database) =====
@@ -17722,6 +17767,17 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         renderPersonalTransactions();
       });
       const shift = (n) => { const [y, m] = (perTxFilterPeriod || currentPayPeriod()).split("-").map(Number); const d = new Date(y, m - 1 + n, 1); perTxFilterPeriod = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); renderPersonalTransactions(); };
+      document.getElementById("txSum").addEventListener("click", (e) => {
+        if (!e.target.closest("[data-txclearcat]")) return;
+        perTxFilterCategories = new Set(PER_CATEGORIES.map(c => c.id));
+        perTxFilterTypes = new Set(["income", "expense", "transfer"]);
+        document.querySelectorAll("#txTypeChips [data-txtype]").forEach(x => x.classList.toggle("active", x.dataset.txtype === "all"));
+        updateTxFilterCountBadge(); renderPersonalTransactions();
+      });
+      document.querySelector('[data-segpane="tx:analisis"]').addEventListener("click", (e) => {
+        const c = e.target.closest("[data-anacat]"); if (c) { anaDrill({ cat: c.dataset.anacat }); return; }
+        const q = e.target.closest("[data-anaq]"); if (q) anaDrill({ q: q.dataset.anaq });
+      });
       document.getElementById("txPrev").addEventListener("click", () => shift(-1));
       document.getElementById("txNext").addEventListener("click", () => shift(1));
       // ganti kategori langsung dari baris
@@ -17887,7 +17943,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (sumEl) {
         const inc = filtered.filter(t => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
         const out = filtered.filter(t => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
-        sumEl.innerHTML = filtered.length ? `<span>${filtered.length} transaksi</span><span class="txb-in">Masuk ${rupiah(inc)}</span><span class="txb-out">Keluar ${rupiah(out)}</span><span>Selisih <b class="${inc - out >= 0 ? "txb-in" : "txb-out"}">${inc - out >= 0 ? "+" : "−"}${rupiah(Math.abs(inc - out))}</b></span>` : "";
+        const oneCat = perTxFilterCategories && perTxFilterCategories.size === 1 ? perCategoryById([...perTxFilterCategories][0]) : null;
+        const catChip = perTxFilterCategories && perTxFilterCategories.size === 1 ? `<button type="button" class="txb-filterchip" data-txclearcat>Kategori: ${escapeHtml(oneCat ? oneCat.name : "Tanpa kategori")} <b aria-hidden="true">×</b><span class="sr-only">hapus filter</span></button>` : "";
+        sumEl.innerHTML = catChip + (filtered.length ? `<span>${filtered.length} transaksi</span><span class="txb-in">Masuk ${rupiah(inc)}</span><span class="txb-out">Keluar ${rupiah(out)}</span><span>Selisih <b class="${inc - out >= 0 ? "txb-in" : "txb-out"}">${inc - out >= 0 ? "+" : "−"}${rupiah(Math.abs(inc - out))}</b></span>` : "");
       }
       if (!perTxGroupsCache.length) {
         list.innerHTML = `<p class="hint" style="padding:10px 2px;">${perTxSearch ? "Nggak ketemu. Coba kata lain." : "Belum ada transaksi di periode ini. Ketik di kolom Catat cepat di atas, mis. <b>kopi 25rb</b>."}</p>`;
@@ -20272,7 +20330,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           push(d, {
             kind: "agenda", id: a.id, raw: a, title: a.title, color: a.color || "",
             time: d === a.start_date && a.start_time ? calHm(a.start_time) + (a.end_time ? "–" + calHm(a.end_time) : "") : (multi ? (d === a.start_date ? "Mulai" : d === end ? "Selesai" : "Lanjut") : ""),
-            sub: a.location || "", sort: "1" + (a.start_time || "99"),
+            sub: [a.repeat ? "↻ " + ({ weekly: "tiap minggu", monthly: "tiap bulan", yearly: "tiap tahun" })[a.repeat] : "", a.location].filter(Boolean).join(" · "), sort: "1" + (a.start_time || "99"),
           });
         }
       });
@@ -20415,7 +20473,9 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     // ---------- tambah / ubah agenda ----------
     async function calAgendaDialog(a, dayIso) {
       const isEdit = !!(a && a.id);
-      a = a || { title: "", start_date: dayIso || calIso(new Date()), end_date: null, start_time: null, end_time: null, location: "", note: "", color: "" };
+      a = a || { title: "", start_date: dayIso || calIso(new Date()), end_date: null, start_time: null, end_time: null, location: "", note: "", color: "", repeat: "", repeat_until: null };
+      // agenda berulang: yang diedit aturan seri-nya (tanggal mulai asli), bukan kejadian ini aja
+      if (a.series_start) a = Object.assign({}, a, { start_date: a.series_start, end_date: a.series_end || null });
       let color = a.color || "";
       const allDay = !a.start_time;
       const v = await abDialog({
@@ -20432,15 +20492,22 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
               <label class="ab-dlg-lbl">Mulai<input class="form-control" data-f="t1" type="time" value="${a.start_time ? String(a.start_time).slice(0, 5) : "09:00"}"></label>
               <label class="ab-dlg-lbl">Selesai<input class="form-control" data-f="t2" type="time" value="${a.end_time ? String(a.end_time).slice(0, 5) : ""}"></label>
             </div>
+            <div class="cal-form-row">
+              <label class="ab-dlg-lbl">Ulangi<select class="form-control" data-f="rep">
+                ${[["", "Tidak"], ["weekly", "Tiap minggu"], ["monthly", "Tiap bulan"], ["yearly", "Tiap tahun"]].map(([v, l]) => `<option value="${v}"${(a.repeat || "") === v ? " selected" : ""}>${l}</option>`).join("")}
+              </select></label>
+              <label class="ab-dlg-lbl" data-until${a.repeat ? "" : " hidden"}>Sampai (opsional)<input class="form-control" data-f="until" type="date" value="${a.repeat_until || ""}" min="${a.start_date}"></label>
+            </div>
             <label class="ab-dlg-lbl">Lokasi (opsional)<input class="form-control" data-f="loc" type="text" value="${escapeHtml(a.location || "")}" placeholder="mis. Kopi Kenangan Senopati / Zoom"></label>
             <label class="ab-dlg-lbl">Catatan (opsional)<textarea class="form-control" data-f="note" rows="2">${escapeHtml(a.note || "")}</textarea></label>
             <div class="ab-dlg-lbl" style="margin-bottom:6px;">Warna</div>
             <div class="nt-swatches">${NOTE_COLORS.map((c) => `<button type="button" class="nt-swatch${c[0] === color ? " is-on" : ""}" data-color="${c[0]}" style="background:${c[2]}" title="${c[1]}" aria-label="${c[1]}"></button>`).join("")}</div>
-            ${isEdit ? `<button type="button" class="cal-del" data-del>${icon("trash")} Hapus agenda ini</button>` : ""}
+            ${isEdit ? `<button type="button" class="cal-del" data-del>${icon("trash")} ${a.repeat ? "Hapus agenda ini (semua kejadiannya)" : "Hapus agenda ini"}</button>` : ""}
           </div>`,
         onOpen: (box) => {
           const q = (f) => box.querySelector(`[data-f="${f}"]`);
           q("allday").addEventListener("change", (e) => { box.querySelector("[data-times]").hidden = e.target.checked; });
+          q("rep").addEventListener("change", (e) => { box.querySelector("[data-until]").hidden = !e.target.value; });
           q("start").addEventListener("change", (e) => { q("end").min = e.target.value; if (q("end").value && q("end").value < e.target.value) q("end").value = ""; });
           box.addEventListener("click", async (e) => {
             const sw = e.target.closest("[data-color]");
@@ -20463,7 +20530,9 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           if (!title) throw new Error("Isi judulnya dulu ya.");
           if (!q("start").value) throw new Error("Pilih tanggalnya dulu.");
           const all = q("allday").checked;
-          return { title, startDate: q("start").value, endDate: q("end").value || "", startTime: all ? "" : q("t1").value, endTime: all ? "" : q("t2").value, location: q("loc").value, note: q("note").value, color };
+          const repeat = q("rep").value, until = repeat ? q("until").value : "";
+          if (until && until < q("start").value) throw new Error("Tanggal \"sampai\" harus setelah tanggal mulai.");
+          return { title, startDate: q("start").value, endDate: q("end").value || "", startTime: all ? "" : q("t1").value, endTime: all ? "" : q("t2").value, location: q("loc").value, note: q("note").value, color, repeat, repeatUntil: until };
         },
       });
       if (!v) return;

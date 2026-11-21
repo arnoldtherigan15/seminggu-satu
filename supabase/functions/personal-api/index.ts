@@ -626,7 +626,7 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
 
         const [agRes, batchRes, taskRes] = await Promise.all([
           admin.from("personal_agenda").select("*").lte("start_date", to)
-            .or(`end_date.gte.${from},and(end_date.is.null,start_date.gte.${from})`)
+            .or(`repeat.in.(weekly,monthly,yearly),end_date.gte.${from},and(end_date.is.null,start_date.gte.${from})`)
             .order("start_date", { ascending: true }),
           admin.from("batches").select("*").eq("archived", false),
           admin.from("tasks").select("id, title, due_date, status").neq("status", "done").gte("due_date", from).lte("due_date", to),
@@ -657,7 +657,36 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
           for (const r of regs || []) cnt.set(r.batch_id, (cnt.get(r.batch_id) || 0) + 1);
           for (const e of events) e.count = cnt.get(e.batchId as string) || 0;
         }
-        return jsonResponse({ status: "success", agenda: agRes.data || [], events, tasks: taskRes.error ? [] : (taskRes.data || []) });
+        // agenda berulang -> dipecah jadi kejadian per tanggal dalam rentang.
+        // Tiap kejadian bawa series_start/series_end (aturan aslinya) buat form edit.
+        const agenda: Record<string, unknown>[] = [];
+        const dayMs = 86400000, toMs = (d: string) => Date.parse(d + "T00:00:00Z");
+        const isoOf = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+        for (const a of agRes.data || []) {
+          if (!a.repeat) { agenda.push(a); continue; }
+          const dur = a.end_date ? Math.round((toMs(a.end_date) - toMs(a.start_date)) / dayMs) : 0;
+          const s0 = new Date(a.start_date + "T00:00:00Z");
+          // mulai kira-kira dekat `from` biar nggak muter dari tahun jebot
+          let i = a.repeat === "weekly" ? Math.max(0, Math.floor((toMs(from) - toMs(a.start_date)) / (7 * dayMs)) - 1)
+            : a.repeat === "monthly" ? Math.max(0, (Number(from.slice(0, 4)) - s0.getUTCFullYear()) * 12 + Number(from.slice(5, 7)) - 1 - s0.getUTCMonth() - 1)
+            : Math.max(0, Number(from.slice(0, 4)) - s0.getUTCFullYear() - 1);
+          for (let guard = 0; guard < 400; guard++, i++) {
+            let d: string;
+            if (a.repeat === "weekly") d = isoOf(toMs(a.start_date) + i * 7 * dayMs);
+            else {
+              const x = new Date(s0);
+              if (a.repeat === "monthly") x.setUTCMonth(s0.getUTCMonth() + i); else x.setUTCFullYear(s0.getUTCFullYear() + i);
+              if (x.getUTCDate() !== s0.getUTCDate()) continue; // tgl 31 di bulan pendek -> lewati
+              d = isoOf(x.getTime());
+            }
+            if (d > to || (a.repeat_until && d > a.repeat_until)) break;
+            const e = isoOf(toMs(d) + dur * dayMs);
+            if (e < from) continue;
+            agenda.push({ ...a, start_date: d, end_date: dur ? e : null, series_start: a.start_date, series_end: a.end_date });
+          }
+        }
+        agenda.sort((x, y) => String(x.start_date).localeCompare(String(y.start_date)));
+        return jsonResponse({ status: "success", agenda, events, tasks: taskRes.error ? [] : (taskRes.data || []) });
       }
 
       case "saveAgendaItem": {
@@ -678,6 +707,8 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
           location: String(data.location || "").trim().slice(0, 200),
           note: String(data.note || "").trim().slice(0, 2000),
           color: COLORS.includes(String(data.color || "")) ? String(data.color || "") : "",
+          repeat: ["weekly", "monthly", "yearly"].includes(String(data.repeat || "")) ? String(data.repeat) : "",
+          repeat_until: data.repeat && iso.test(String(data.repeatUntil || "")) && String(data.repeatUntil) >= startDate ? String(data.repeatUntil) : null,
           updated_at: new Date().toISOString(),
         };
         if (id) {
