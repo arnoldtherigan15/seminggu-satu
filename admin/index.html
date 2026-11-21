@@ -18891,37 +18891,78 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         buildRichNoteTab(),
       ];
 
+      // 10 tab -> 5 grup (pola sama kayak Keuangan): tab = grup, isinya
+      // pilihan kecil (seg). Badge hitungan anak pertama naik ke tab grup,
+      // sisanya nempel di tombol seg-nya. ID tab lama (#prep:x:faq dst) tetap
+      // bisa dipanggil -- show(id) otomatis buka grup + seg-nya.
+      const PREP_GROUPS = [
+        { id: "g-peserta", label: icon("people") + " Peserta", kids: [["peserta", "Daftar peserta"], ["faq", "Jawab cepat"]] },
+        { id: "g-pesanan", label: icon("cup") + " Pesanan", kids: [["pesanan-ringkas", "Pesanan minum"]] },
+        { id: "g-persiapan", label: icon("checkCircle") + " Persiapan", kids: [["todos", "Checklist"], ["bring", "Barang dibawa"], ["supplies", "Alat & bahan"]] },
+        { id: "g-tim", label: icon("clipboard") + " Partner &amp; asisten", kids: [["partnerreq", "Partner"], ["asisten", "Link asisten"]] },
+        { id: "g-catatan", label: icon("journal") + " Catatan", kids: [["catatan", "Catatan lengkap"], ["notes", "Catatan & link"]] },
+      ];
+      const defById = Object.fromEntries(defs.map(d => [d.id, d]));
+      // def yang belum kebagian grup (jaga-jaga section baru) -> grup sendiri
+      defs.forEach(d => { if (!PREP_GROUPS.some(g => g.kids.some(k => k[0] === d.id))) PREP_GROUPS.push({ id: "g-" + d.id, label: d.labelHtml, kids: [[d.id, ""]] }); });
+      const groupOf = {};
+      const countSpan = (d) => d && d.countId ? ` <span class="subtab-count" id="${d.countId}">${d.countDefault || ""}</span>` : "";
       const wrap = document.createElement("div");
       wrap.className = "subtabs";
       const bar = document.createElement("div");
       bar.className = "subtab-bar";
-      defs.forEach(d => {
+      const panels = [];
+      PREP_GROUPS.forEach(g => {
+        const kids = g.kids.filter(k => defById[k[0]]);
+        if (!kids.length) return;
+        kids.forEach(k => { groupOf[k[0]] = g.id; });
         const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "subtab-btn";
-        btn.dataset.tab = d.id;
-        btn.innerHTML = d.labelHtml + (d.countId ? ` <span class="subtab-count" id="${d.countId}">${d.countDefault || ""}</span>` : "");
+        btn.type = "button"; btn.className = "subtab-btn"; btn.dataset.tab = g.id;
+        btn.innerHTML = g.label + countSpan(defById[kids[0][0]]);
         bar.appendChild(btn);
+        const panel = document.createElement("div");
+        panel.className = "subtab-panel"; panel.dataset.tab = g.id;
+        if (kids.length > 1) {
+          const seg = document.createElement("div");
+          seg.className = "per-seg"; seg.setAttribute("role", "tablist"); seg.dataset.pseg = g.id;
+          seg.innerHTML = kids.map((k, i) => `<button type="button" class="per-seg-btn" role="tab" data-psegbtn="${k[0]}">${k[1]}${i ? countSpan(defById[k[0]]) : ""}</button>`).join("");
+          panel.appendChild(seg);
+        }
+        kids.forEach(k => {
+          const pane = document.createElement("div");
+          pane.className = "per-seg-pane"; pane.dataset.psegpane = k[0];
+          pane.appendChild(defById[k[0]].bodyEl);
+          panel.appendChild(pane);
+        });
+        panels.push(panel);
       });
       wrap.appendChild(bar);
-      defs.forEach(d => {
-        const panel = document.createElement("div");
-        panel.className = "subtab-panel";
-        panel.dataset.tab = d.id;
-        panel.appendChild(d.bodyEl);
-        wrap.appendChild(panel);
-      });
+      panels.forEach(p => wrap.appendChild(p));
       cont.appendChild(wrap);
-      let prepPrevSubtab = defs[0].id;
-      const prepTabsCtl = wireSubtabs(wrap, (tabId) => {
+      let prepPrevSubtab = "peserta";
+      let prepActiveKid = {};
+      try { prepActiveKid = JSON.parse(localStorage.getItem("ab.prepSeg") || "{}"); } catch (e) {}
+      function prepKidShown(kid) {
         const wsId = document.getElementById("prepSelect").value;
-        history.replaceState(null, "", "#prep:" + wsId + ":" + tabId);
-        if (tabId === "catatan" && isTouchDevice()) {
-          openRichNoteFullScreen(() => prepTabsCtl.show(prepPrevSubtab));
-        } else {
-          prepPrevSubtab = tabId;
-        }
-      });
+        history.replaceState(null, "", "#prep:" + wsId + ":" + kid);
+        if (kid === "catatan" && isTouchDevice()) openRichNoteFullScreen(() => prepTabsCtl.show(prepPrevSubtab));
+        else prepPrevSubtab = kid;
+      }
+      function prepSegShow(gid, kid) {
+        const panel = wrap.querySelector(`.subtab-panel[data-tab="${gid}"]`); if (!panel) return;
+        const panes = [...panel.querySelectorAll(":scope > [data-psegpane]")];
+        if (!panes.some(p => p.dataset.psegpane === kid)) kid = panes[0].dataset.psegpane;
+        panes.forEach(p => { p.hidden = p.dataset.psegpane !== kid; });
+        panel.querySelectorAll("[data-psegbtn]").forEach(b => { const on = b.dataset.psegbtn === kid; b.classList.toggle("active", on); b.setAttribute("aria-selected", String(on)); });
+        prepActiveKid[gid] = kid;
+        try { localStorage.setItem("ab.prepSeg", JSON.stringify(prepActiveKid)); } catch (e) {}
+        prepKidShown(kid);
+        queueStickyStack();
+      }
+      wrap.addEventListener("click", (e) => { const b = e.target.closest("[data-psegbtn]"); if (b) prepSegShow(b.closest(".subtab-panel").dataset.tab, b.dataset.psegbtn); });
+      const prepTabsCtl = wireSubtabs(wrap, (gid) => prepSegShow(gid, prepActiveKid[gid]));
+      const baseShow = prepTabsCtl.show;
+      prepTabsCtl.show = (id) => { const gid = groupOf[id]; if (gid) { prepActiveKid[gid] = id; baseShow(gid); } else baseShow(id); };
       // Dari hash #prep:workshopId:subtabId -- cuma dipakai sekali per
       // load/refresh, jangan sampai batch/workshop switch berikutnya kepental
       // balik ke tab ini terus-terusan.
