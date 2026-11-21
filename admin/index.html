@@ -14061,8 +14061,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // asBlob=true -> balikin Blob PDF-nya (buat di-share, lihat
     // openShopOrdWaFn) BUKAN auto-download; dipake juga apa adanya (asBlob
     // kosong) buat tombol "Unduh invoice (PDF)" yang auto-save kayak biasa.
-    async function downloadShopOrderInvoiceFn(asBlob) {
-      if (!SHOPORD_CURRENT.items.length) { if (!asBlob) alert("Belum ada item di order ini."); return null; }
+    async function buildShopOrderInvoiceBlob() {
       const deliveryInfo = SHOPORD_CURRENT.isCod
         ? "COD -- Ketemu Langsung"
         : (SHOPORD_CURRENT.deliveryAddress || "");
@@ -14085,46 +14084,132 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           signerName: "Seminggu Satu",
         },
       };
-      return await downloadInvoicePdf(doc, asBlob ? { returnBlob: true } : undefined);
+      return await downloadInvoicePdf(doc, { returnBlob: true });
     }
 
-    // WhatsApp (wa.me / api.whatsapp.com) SENGAJA nggak nyediain cara buka
-    // chat ke nomor tertentu SEKALIGUS nempelin file -- itu batasan
-    // WhatsApp sendiri (cuma bisa prefill teks lewat ?text=), bukan
-    // sesuatu yang bisa diakalin dari kode. Yang BISA dilakuin: kalau
-    // device-nya dukung Web Share API buat file (kebanyakan HP, BUKAN
-    // desktop), lampirin PDF invoice-nya lewat share sheet bawaan OS --
-    // WA bakal jadi salah satu pilihan di situ, tapi Arnold tetep harus
-    // milih kontaknya manual di dalam WA (itu juga batasan WhatsApp, share
-    // sheet nggak bisa "lempar langsung" ke kontak tertentu). Kalau device
-    // nggak dukung (umumnya desktop) atau generate PDF-nya gagal, fallback
-    // ke buka chat teks doang kayak sebelumnya.
+    // KENAPA ADA SHEET "Invoice siap": di iPhone (Safari & browser bawaan
+    // app), navigator.share / window.open / download cuma diizinin kalau
+    // dipanggil LANGSUNG dari tap. Bikin PDF (html2canvas) makan beberapa
+    // detik, jadi pas PDF-nya jadi "izin tap"-nya udah kadaluarsa -> iOS
+    // diem-diem nolak (tombol kerasa nggak ngapa-ngapain). Solusinya: bikin
+    // PDF dulu, terus tampilin sheet -- tiap tombol di sheet = tap baru.
+    function canShareFiles() {
+      try {
+        return !!(navigator.canShare && navigator.share &&
+          navigator.canShare({ files: [new File(["x"], "x.pdf", { type: "application/pdf" })] }));
+      } catch (e) { return false; }
+    }
+    function saveBlobAs(blob, fileName) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = fileName; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+    function openUrlNow(url) {
+      // <a target=_blank>.click() lebih jarang kena popup blocker daripada window.open
+      const a = document.createElement("a");
+      a.href = url; a.target = "_blank"; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    function showPdfReadySheet({ blob, fileName, shareText, waUrl }) {
+      const file = blob ? new File([blob], fileName, { type: "application/pdf" }) : null;
+      const share = !!file && canShareFiles();
+      const ov = document.createElement("div");
+      ov.className = "ab-dlg-ov";
+      ov.innerHTML = `<div class="ab-dlg" role="dialog" aria-modal="true" aria-labelledby="pdfReadyT">
+          <div class="ab-dlg-t" id="pdfReadyT">Invoice siap</div>
+          <div class="ab-dlg-body">
+            <p class="ab-dlg-text">${share
+              ? (waUrl ? "Tap <b>Kirim PDF</b>, pilih WhatsApp, lalu pilih kontak pembeli. Atau buka chatnya dulu buat kirim rincian teks."
+                       : "Tap <b>Simpan / Bagikan</b>, lalu pilih <b>Simpan ke File</b> atau aplikasi lain.")
+              : (file ? "PDF udah jadi." : "PDF gagal dibuat -- kirim rincian teks lewat chat WA aja ya.")}</p>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+              ${share ? `<button type="button" class="btn" data-act="share">${waUrl ? "Kirim PDF (WA, dll)" : "Simpan / Bagikan PDF"}</button>` : ""}
+              ${waUrl ? `<button type="button" class="btn btn-ghost" data-act="wa">Buka chat WA pembeli</button>` : ""}
+              ${file ? `<button type="button" class="btn btn-ghost" data-act="dl">Unduh PDF</button>` : ""}
+            </div>
+          </div>
+          <div class="ab-dlg-msg" aria-live="polite"></div>
+          <div class="ab-dlg-foot"><button type="button" class="btn btn-ghost" data-act="close">Tutup</button></div>
+        </div>`;
+      document.body.appendChild(ov);
+      const msg = ov.querySelector(".ab-dlg-msg");
+      const close = () => { document.removeEventListener("keydown", onKey); ov.remove(); };
+      const onKey = (e) => { if (e.key === "Escape") close(); };
+      document.addEventListener("keydown", onKey);
+      ov.addEventListener("click", async (e) => {
+        if (e.target === ov) return close();
+        const b = e.target.closest("[data-act]");
+        if (!b) return;
+        const act = b.dataset.act;
+        if (act === "close") return close();
+        if (act === "wa") return openUrlNow(waUrl);
+        if (act === "dl") return saveBlobAs(blob, fileName);
+        if (act === "share") {
+          msg.textContent = "";
+          try {
+            // WA sering ngebuang teks kalau dikirim bareng file -- kirim file aja,
+            // rincian teks bisa lewat tombol "Buka chat WA".
+            await navigator.share({ files: [file], title: fileName });
+            close();
+          } catch (err) {
+            if (err && err.name === "AbortError") return;
+            msg.textContent = "Gagal membuka menu bagikan" + (err && err.message ? ": " + err.message : "") + ". Coba Unduh PDF.";
+          }
+        }
+      });
+    }
+
+    async function makeShopOrderInvoiceBlob(btn) {
+      if (btn) abBusy(btn, true, "Bikin PDF");
+      try {
+        const blob = await buildShopOrderInvoiceBlob();
+        if (!blob) throw new Error("PDF kosong");
+        return blob;
+      } finally {
+        if (btn) abBusy(btn, false);
+      }
+    }
+    function shopOrderInvoiceFileName() {
+      return safeFileName("Invoice - " + SHOPORD_CURRENT.buyerName) + ".pdf";
+    }
+
+    async function downloadShopOrderInvoiceFn() {
+      if (!SHOPORD_CURRENT.items.length) { alert("Belum ada item di order ini."); return; }
+      let blob;
+      try { blob = await makeShopOrderInvoiceBlob(document.getElementById("shopOrdInvoiceBtn")); }
+      catch (e) { alert("Gagal bikin PDF: " + (e && e.message ? e.message : e)); return; }
+      const fileName = shopOrderInvoiceFileName();
+      // Desktop: langsung kesimpen. HP: lewat sheet (download blob di iOS
+      // sering nggak jalan -- "Simpan ke File" lewat share sheet yang aman).
+      if (canShareFiles()) showPdfReadySheet({ blob, fileName });
+      else saveBlobAs(blob, fileName);
+    }
+
+    // WhatsApp (wa.me) nggak bisa buka chat ke nomor tertentu SEKALIGUS
+    // nempelin file -- batasan WhatsApp sendiri. Di HP: PDF dikirim lewat
+    // share sheet OS (pilih WA -> pilih kontak manual), teks rincian lewat
+    // tombol "Buka chat WA". Di desktop (nggak bisa share file): langsung
+    // buka chat teks, SINKRON di dalam tap biar nggak kena popup blocker.
     async function openShopOrdWaFn() {
       const wa = waNormalize(SHOPORD_CURRENT.buyerWa);
       if (!wa) { alert("Nomor WA pembeli belum diisi."); return; }
       const itemsText = SHOPORD_CURRENT.items.map(it => `- ${it.productName || "Produk"}${it.notes ? ` (${it.notes})` : ""} x${it.qty} = ${rupiah(it.lineTotal)}`).join("\n");
       const text = `Halo ${SHOPORD_CURRENT.buyerName}! Ini rincian belanjamu:\n${itemsText}\n\nTotal: ${rupiah(SHOPORD_CURRENT.total)}\n\nTransfer ke Blu by BCA Digital 090163537583 a.n Arnold Therigan ya. Terima kasih! 🐾`;
+      const waUrl = "https://wa.me/" + wa + "?text=" + encodeURIComponent(text);
 
-      let file = null;
-      if (SHOPORD_CURRENT.items.length && navigator.canShare) {
-        try {
-          const blob = await downloadShopOrderInvoiceFn(true);
-          if (blob) {
-            const candidate = new File([blob], safeFileName("Invoice - " + SHOPORD_CURRENT.buyerName) + ".pdf", { type: "application/pdf" });
-            if (navigator.canShare({ files: [candidate] })) file = candidate;
-          }
-        } catch (e) { /* gagal generate PDF -- lanjut tanpa lampiran di bawah */ }
-      }
+      if (!SHOPORD_CURRENT.items.length || !canShareFiles()) { openUrlNow(waUrl); return; }
 
-      if (file) {
-        try {
-          await navigator.share({ files: [file], text });
-          return; // user udah milih aplikasi (WA/lainnya) & kontaknya dari share sheet OS
-        } catch (e) {
-          if (e && e.name === "AbortError") return; // sengaja dibatalin user -- JANGAN maksa fallback buka WA
-        }
+      let blob;
+      try { blob = await makeShopOrderInvoiceBlob(document.getElementById("shopOrdWaBtn")); }
+      catch (e) { blob = null; }
+      if (!blob) {
+        // PDF gagal -- tetep kasih jalan ke chat teks (lewat sheet = tap baru)
+        showPdfReadySheet({ blob: null, fileName: "", waUrl });
+        return;
       }
-      window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(text), "_blank");
+      showPdfReadySheet({ blob, fileName: shopOrderInvoiceFileName(), waUrl });
     }
 
     async function deleteShopOrdFn() {
