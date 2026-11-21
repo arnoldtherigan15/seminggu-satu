@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
           const { error } = await admin.from("personal_transactions").update(payload).eq("id", id);
           if (error) return errorResponse("Gagal update transaksi: " + error.message);
         } else {
-          const source = ["screenshot", "adjustment", "quick"].includes(String(data.source)) ? String(data.source) : "manual";
+          const source = ["screenshot", "adjustment", "quick", "bill"].includes(String(data.source)) ? String(data.source) : "manual";
           const { error } = await admin.from("personal_transactions").insert({ ...payload, source });
           if (error) return errorResponse("Gagal simpan transaksi: " + error.message);
         }
@@ -563,17 +563,40 @@ Abaikan elemen yang bukan transaksi (judul halaman, filter, tombol navigasi, sal
       // (unique bill_id+period_key jaga nggak dobel), unchecked -> hapus baris.
       // periodKey dihitung di frontend dari reset_day (lihat billPeriodKey()).
       case "toggleBillPaid": {
+        // paid + createTx -> sekalian catat pengeluaran (kategori Tagihan) dan
+        // simpan transaction_id-nya. Batal bayar -> transaksi itu ikut dihapus.
         const billId = String(data.billId || "");
         const periodKey = String(data.periodKey || "").trim();
         if (!billId || !/^\d{4}-\d{2}$/.test(periodKey)) return errorResponse("Data tagihan nggak valid.");
         if (data.paid) {
+          let txId: string | null = null;
+          if (data.createTx) {
+            const { data: bill } = await admin.from("personal_bills").select("name, amount").eq("id", billId).maybeSingle();
+            const amount = Math.round(Number(data.amount) || Number(bill?.amount) || 0);
+            const accountId = String(data.accountId || "");
+            if (!bill) return errorResponse("Tagihannya nggak ketemu.");
+            if (amount <= 0) return errorResponse("Jumlah bayar harus lebih dari 0.");
+            if (!accountId) return errorResponse("Pilih akun yang dipakai bayar.");
+            const { data: cats } = await admin.from("personal_categories").select("id, name").eq("type", "expense").eq("archived", false);
+            const cat = (cats || []).find((c: { name: string }) => /tagihan|langganan/i.test(c.name));
+            const today = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+            const { data: tx, error: te } = await admin.from("personal_transactions").insert({
+              date: /^\d{4}-\d{2}-\d{2}$/.test(String(data.date || "")) ? String(data.date) : today,
+              type: "expense", amount, account_id: accountId, category_id: cat ? cat.id : null,
+              note: String(bill.name).slice(0, 300), source: "bill",
+            }).select("id").single();
+            if (te) return errorResponse("Gagal nyatet pengeluaran: " + te.message);
+            txId = tx.id;
+          }
           const { error } = await admin.from("personal_bill_payments")
-            .upsert({ bill_id: billId, period_key: periodKey }, { onConflict: "bill_id,period_key" });
+            .upsert({ bill_id: billId, period_key: periodKey, transaction_id: txId }, { onConflict: "bill_id,period_key" });
           if (error) return errorResponse("Gagal centang tagihan: " + error.message);
         } else {
+          const { data: pay } = await admin.from("personal_bill_payments").select("transaction_id").eq("bill_id", billId).eq("period_key", periodKey).maybeSingle();
           const { error } = await admin.from("personal_bill_payments")
             .delete().eq("bill_id", billId).eq("period_key", periodKey);
           if (error) return errorResponse("Gagal batal centang: " + error.message);
+          if (pay && pay.transaction_id) await admin.from("personal_transactions").delete().eq("id", pay.transaction_id);
         }
         return jsonResponse({ status: "success" });
       }
