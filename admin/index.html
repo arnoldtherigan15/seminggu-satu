@@ -4299,7 +4299,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=33">
+  <link rel="stylesheet" href="admin-binder.css?v=34">
 </head>
 
 <body>
@@ -5324,43 +5324,15 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
 
             <div class="subtab-panel" data-tab="semua">
-              <div class="toolbar">
-                <div class="field">
-                  <label for="shopOrdAllYearSelect">Tahun</label>
-                  <select class="form-control" id="shopOrdAllYearSelect"></select>
+              <div class="ab-listbar so-bar">
+                <div class="so-bar-row">
+                  <input class="form-control" type="search" id="shopOrdAllSearch" placeholder="Cari nama pembeli atau produk…" autocomplete="off">
+                  <select class="form-control so-period" id="shopOrdAllPeriod" aria-label="Periode"></select>
+                  <button class="btn so-new" id="shopOrdAllNewBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg><span>Order baru</span></button>
                 </div>
-                <div class="field">
-                  <label for="shopOrdAllMonthSelect">Bulan</label>
-                  <select class="form-control" id="shopOrdAllMonthSelect">
-                    <option value="">Semua Bulan</option>
-                    <option value="0">Januari</option>
-                    <option value="1">Februari</option>
-                    <option value="2">Maret</option>
-                    <option value="3">April</option>
-                    <option value="4">Mei</option>
-                    <option value="5">Juni</option>
-                    <option value="6">Juli</option>
-                    <option value="7">Agustus</option>
-                    <option value="8">September</option>
-                    <option value="9">Oktober</option>
-                    <option value="10">November</option>
-                    <option value="11">Desember</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label for="shopOrdAllSearch">Cari Nama</label>
-                  <input class="form-control" type="text" id="shopOrdAllSearch" placeholder="Cari nama pembeli, peserta atau walk-in...">
-                </div>
-                <button class="btn btn-sm btn-ghost" id="shopOrdAllReloadBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg> Reload</button>
+                <div class="so-chips" id="shopOrdAllChips" role="tablist" aria-label="Status bayar"></div>
               </div>
-              <p class="hint" style="margin-bottom:12px;">Semua order (peserta event maupun pembeli lain) digabung di sini -- biar bisa dicari & difilter sekaligus, nggak perlu tau dia ikut batch mana.</p>
-              <div class="fin-card" style="margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Order (periode ini)</span><b id="shopOrdAllCount">0</b></div>
-                <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Sudah Lunas</span><b id="shopOrdAllPaidCount">0</b></div>
-                <div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid var(--line);margin-top:6px;"><span class="hint">Total Pendapatan (lunas)</span><b id="shopOrdAllRevenue">Rp 0</b></div>
-                <div style="display:flex;justify-content:space-between;padding:4px 0;"><span class="hint">Total Modal (HPP)</span><b id="shopOrdAllHpp">Rp 0</b></div>
-                <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);margin-top:6px;font-size:1.1rem;"><span style="font-weight:700;">Keuntungan</span><b id="shopOrdAllProfit" style="color:var(--brand);">Rp 0</b></div>
-              </div>
+              <div class="so-stats" id="shopOrdAllStats"></div>
               <div id="shopOrdAllList"></div>
             </div>
           </div>
@@ -13828,15 +13800,21 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("shopOrdWalkinYearSelect").addEventListener("change", renderShopOrdWalkinList);
         document.getElementById("shopOrdWalkinMonthSelect").addEventListener("change", renderShopOrdWalkinList);
         document.getElementById("shopOrdWalkinSearch").addEventListener("input", renderShopOrdWalkinList);
-        document.getElementById("shopOrdAllYearSelect").addEventListener("change", renderShopOrdAllList);
-        document.getElementById("shopOrdAllMonthSelect").addEventListener("change", renderShopOrdAllList);
+        document.getElementById("shopOrdAllPeriod").addEventListener("change", (e) => { SO_ALL.period = e.target.value; renderShopOrdAllList(); });
         document.getElementById("shopOrdAllSearch").addEventListener("input", renderShopOrdAllList);
-        document.getElementById("shopOrdAllReloadBtn").addEventListener("click", loadShopOrdAllList);
+        document.getElementById("shopOrdAllNewBtn").addEventListener("click", () => openKasir({ source: "semua" }));
+        document.getElementById("shopOrdAllChips").addEventListener("click", (e) => {
+          const b = e.target.closest("[data-sost]"); if (!b) return;
+          SO_ALL.status = b.dataset.sost; renderShopOrdAllList();
+        });
+        document.getElementById("shopOrdAllStats").addEventListener("click", (e) => {
+          const b = e.target.closest("[data-sost]"); if (!b) return;
+          SO_ALL.status = SO_ALL.status === b.dataset.sost ? "all" : b.dataset.sost; renderShopOrdAllList();
+        });
         // Default bulan filter = bulan SEKARANG (bukan "Semua Bulan") --
         // sekali doang pas pertama kali dibuka, biar pilihan manual user
         // nanti nggak ke-reset tiap list-nya di-reload.
         document.getElementById("shopOrdWalkinMonthSelect").value = String(new Date().getMonth());
-        document.getElementById("shopOrdAllMonthSelect").value = String(new Date().getMonth());
         document.getElementById("shopOrdBackBtn").addEventListener("click", closeShopOrdEditor);
         document.getElementById("shopOrdSaveInfoBtn").addEventListener("click", saveShopOrdInfoFn);
         document.getElementById("shopOrdCodCheck").addEventListener("change", updateShopOrdAddressVisibility);
@@ -14060,23 +14038,52 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     // ascending -- yang terbaru malah nyangkut paling bawah).
     const byNewestOrder = (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
 
-    function renderShopOrdRow(name, order, reg) {
+    // Baris order ringkas (dipakai 3 tab): avatar inisial, nama, isi order,
+    // info kecil; kanan = total + status bayar (ketuk = ganti status).
+    // Ketuk barisnya = buka order.
+    const SO_COLORS = ["#3b6cff", "#e6528a", "#1f9d5c", "#e07a1f", "#7c4dff", "#0f9bb5", "#c2410c", "#4b5563"];
+    function soInitials(name) {
+      const w = String(name || "").trim().split(/\s+/).filter(Boolean);
+      return w.length ? (w[0][0] + (w[1] ? w[1][0] : "")).toUpperCase() : "?";
+    }
+    function soColor(name) { let h = 0; for (const c of String(name || "")) h = (h * 31 + c.charCodeAt(0)) >>> 0; return SO_COLORS[h % SO_COLORS.length]; }
+    function soItemsSummary(items) {
+      if (!items || !items.length) return "Belum ada item";
+      const parts = items.map(it => (it.productName || "Produk") + (it.qty > 1 ? " ×" + it.qty : ""));
+      return parts.length > 3 ? parts.slice(0, 3).join(", ") + ` +${parts.length - 3} lagi` : parts.join(", ");
+    }
+    function soTime(iso) {
+      const d = new Date(iso); if (isNaN(d)) return "";
+      return String(d.getHours()).padStart(2, "0") + "." + String(d.getMinutes()).padStart(2, "0");
+    }
+    function renderShopOrdRow(name, order, reg, opts) {
+      opts = opts || {};
+      const clean = String(name || "").trim();
+      const shown = clean || "Pembeli tanpa nama";
+      const ava = `<span class="so-ava" style="background:${clean ? soColor(clean) : "#c3cadb"}">${escapeHtml(clean ? soInitials(clean) : "?")}</span>`;
       if (order) {
-        const paidBtn = order.isPaid
-          ? `<button class="btn btn-sm" data-ord-paid="${escapeHtml(order.id)}" data-cur="1" style="background:#dcfce7;color:#166534;">✓ Lunas</button>`
-          : `<button class="btn btn-sm btn-ghost" data-ord-paid="${escapeHtml(order.id)}" data-cur="0" style="color:var(--err);">Belum Bayar</button>`;
-        return `<div class="fin-card" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-          <div><div style="font-weight:700;">${escapeHtml(name)}</div>
-          <div class="hint">${order.items.length} item &middot; <b>${rupiah(order.total)}</b></div></div>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-            ${paidBtn}
-            <button class="btn btn-sm" data-ord-open="${escapeHtml(order.id)}">Lihat Order</button>
+        const meta = [];
+        if (opts.showSource) meta.push(order.batchId ? escapeHtml(workshopName(order.workshopType) || "Event") : "Pembeli lain");
+        if (opts.showDate) meta.push(new Date(order.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" }));
+        meta.push(soTime(order.createdAt));
+        if (order.isCod === false && order.deliveryAddress) meta.push("Dikirim");
+        const pill = order.isPaid
+          ? `<button type="button" class="so-pill is-paid" data-ord-paid="${escapeHtml(order.id)}" data-cur="1" title="Ketuk kalau ternyata belum dibayar">${icon("check")}Lunas</button>`
+          : `<button type="button" class="so-pill" data-ord-paid="${escapeHtml(order.id)}" data-cur="0" title="Ketuk kalau udah dibayar">Belum bayar</button>`;
+        return `<div class="so-row" data-ord-open="${escapeHtml(order.id)}" role="button" tabindex="0" aria-label="Buka order ${escapeHtml(shown)}">
+          ${ava}
+          <div class="so-text">
+            <b class="${clean ? "" : "is-empty"}">${escapeHtml(shown)}</b>
+            <small>${escapeHtml(soItemsSummary(order.items))}</small>
+            <em>${meta.filter(Boolean).join(" · ")}</em>
           </div>
+          <div class="so-right"><b>${rupiah(order.total)}</b>${pill}</div>
         </div>`;
       }
-      return `<div class="fin-card" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-        <div style="font-weight:700;">${escapeHtml(name)}</div>
-        <button class="btn btn-sm btn-ghost" data-ord-new="${escapeHtml(reg.id)}">+ Buat Order</button>
+      return `<div class="so-row is-plain">
+        ${ava}
+        <div class="so-text"><b>${escapeHtml(shown)}</b><small>Belum ada order</small></div>
+        <div class="so-right"><button type="button" class="btn btn-sm btn-ghost so-mk" data-ord-new="${escapeHtml(reg.id)}">${icon("plus")}Buat order</button></div>
       </div>`;
     }
 
@@ -14092,11 +14099,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         });
       });
       container.querySelectorAll("[data-ord-open]").forEach(btn => {
-        btn.addEventListener("click", () => {
+        const open = () => {
           const list = source === "walkin" ? SHOPORD_WALKIN_ORDERS : source === "semua" ? SHOPORD_ALL_ORDERS : SHOPORD_ORDERS;
           const order = list.find(o => o.id === btn.dataset.ordOpen);
           if (order) openShopOrdEditor(order, source);
-        });
+        };
+        btn.addEventListener("click", open);
+        btn.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target === btn) { e.preventDefault(); open(); } });
       });
       container.querySelectorAll("[data-ord-paid]").forEach(btn => {
         btn.addEventListener("click", async (e) => {
@@ -14109,6 +14118,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal memperbarui."); btn.disabled = false; return; }
             const updateIn = (arr) => { const o = arr.find(x => x.id === id); if (o) o.isPaid = newVal; };
             updateIn(SHOPORD_ORDERS); updateIn(SHOPORD_WALKIN_ORDERS); updateIn(SHOPORD_ALL_ORDERS);
+            abToast(newVal ? "Ditandai lunas" : "Ditandai belum bayar", newVal ? "ok" : "");
             if (source === "walkin") renderShopOrdWalkinList();
             else if (source === "semua") renderShopOrdAllList();
             else renderShopOrdList();
@@ -14149,13 +14159,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       withoutOrder.sort((a, b) => new Date(b.reg.created_at || 0) - new Date(a.reg.created_at || 0));
 
       let html = withOrder.length
-        ? withOrder.map(({ reg, order }) => renderShopOrdRow(reg.full_name || reg.nickname || "(tanpa nama)", order, reg)).join("")
+        ? `<div class="so-list">${withOrder.map(({ reg, order }) => renderShopOrdRow(reg.full_name || reg.nickname || "", order, reg, { showDate: true })).join("")}</div>`
         : `<p class="hint">Belum ada order di batch ini -- buka daftar peserta di bawah buat mulai bikin order.</p>`;
       if (withoutOrder.length) {
-        html += `<details style="margin-top:10px;">
-          <summary style="cursor:pointer;font-weight:700;padding:10px 4px;">Peserta Belum Order (${withoutOrder.length})</summary>
-          <div style="margin-top:8px;">
-            ${withoutOrder.map(({ reg }) => renderShopOrdRow(reg.full_name || reg.nickname || "(tanpa nama)", null, reg)).join("")}
+        html += `<details class="so-more">
+          <summary>Peserta belum order <span class="so-count">${withoutOrder.length}</span></summary>
+          <div class="so-list">
+            ${withoutOrder.map(({ reg }) => renderShopOrdRow(reg.full_name || reg.nickname || "", null, reg)).join("")}
           </div>
         </details>`;
       }
@@ -14208,7 +14218,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         listEl.innerHTML = `<p class="hint">${searchVal ? "Nggak ada pembeli yang cocok dengan pencarian." : "Belum ada pembeli lain di periode ini."}</p>`;
         return;
       }
-      listEl.innerHTML = filtered.slice().sort(byNewestOrder).map(o => renderShopOrdRow(o.buyerName, o, null)).join("");
+      listEl.innerHTML = `<div class="so-list">${filtered.slice().sort(byNewestOrder).map(o => renderShopOrdRow(o.buyerName, o, null, { showDate: true })).join("")}</div>`;
       wireShopOrdRowHandlers(listEl, "walkin");
     }
 
@@ -14235,43 +14245,87 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       }
     }
 
+    // State tab Semua: periode ("m:2026-11" | "y:2026" | "all") + status bayar.
+    const SO_ALL = { period: "", status: "all" };
+    const SO_MONTHS = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const soMonthKey = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
     function populateShopOrdAllYearFilter() {
-      const sel = document.getElementById("shopOrdAllYearSelect");
-      const years = Array.from(new Set(SHOPORD_ALL_ORDERS.map(o => new Date(o.createdAt).getFullYear())));
-      const nowYear = new Date().getFullYear();
-      if (!years.includes(nowYear)) years.push(nowYear);
-      years.sort((a, b) => b - a);
-      const prevVal = sel.value;
-      sel.innerHTML = `<option value="">Semua Tahun</option>` + years.map(y => `<option value="${y}">${y}</option>`).join("");
-      sel.value = (prevVal && years.some(y => String(y) === prevVal)) ? prevVal : String(nowYear);
+      const sel = document.getElementById("shopOrdAllPeriod");
+      const now = new Date(), cur = soMonthKey(now);
+      const months = new Set([cur]), years = new Set([now.getFullYear()]);
+      SHOPORD_ALL_ORDERS.forEach(o => { const d = new Date(o.createdAt); if (!isNaN(d)) { months.add(soMonthKey(d)); years.add(d.getFullYear()); } });
+      const mList = [...months].sort().reverse();
+      const label = (k) => {
+        if (k === cur) return "Bulan ini";
+        const [y, m] = k.split("-").map(Number);
+        return SO_MONTHS[m - 1] + (y !== now.getFullYear() ? " " + y : "");
+      };
+      sel.innerHTML = `<optgroup label="Bulan">${mList.map(k => `<option value="m:${k}">${label(k)}</option>`).join("")}</optgroup>`
+        + `<optgroup label="Tahun">${[...years].sort((a, b) => b - a).map(y => `<option value="y:${y}">Tahun ${y}</option>`).join("")}</optgroup>`
+        + `<option value="all">Semua waktu</option>`;
+      if (!SO_ALL.period || ![...sel.options].some(o => o.value === SO_ALL.period)) SO_ALL.period = "m:" + cur;
+      sel.value = SO_ALL.period;
+    }
+
+    function soInPeriod(o, period) {
+      if (!period || period === "all") return true;
+      const d = new Date(o.createdAt); if (isNaN(d)) return false;
+      return period.startsWith("y:") ? String(d.getFullYear()) === period.slice(2) : soMonthKey(d) === period.slice(2);
+    }
+    function soDayLabel(d) {
+      const t = new Date(); t.setHours(0, 0, 0, 0);
+      const x = new Date(d); x.setHours(0, 0, 0, 0);
+      const diff = Math.round((t - x) / 86400000);
+      if (diff === 0) return "Hari ini";
+      if (diff === 1) return "Kemarin";
+      return x.toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: x.getFullYear() !== t.getFullYear() ? "numeric" : undefined });
     }
 
     function renderShopOrdAllList() {
       const listEl = document.getElementById("shopOrdAllList");
-      const yearVal = document.getElementById("shopOrdAllYearSelect").value;
-      const monthVal = document.getElementById("shopOrdAllMonthSelect").value;
       const searchVal = (document.getElementById("shopOrdAllSearch").value || "").trim().toLowerCase();
-      let filtered = SHOPORD_ALL_ORDERS;
-      if (yearVal) filtered = filtered.filter(o => new Date(o.createdAt).getFullYear() === Number(yearVal));
-      if (monthVal !== "") filtered = filtered.filter(o => new Date(o.createdAt).getMonth() === Number(monthVal));
-      if (searchVal) filtered = filtered.filter(o => (o.buyerName || "").toLowerCase().includes(searchVal));
+      let base = SHOPORD_ALL_ORDERS.filter(o => soInPeriod(o, SO_ALL.period));
+      if (searchVal) base = base.filter(o => (o.buyerName || "").toLowerCase().includes(searchVal)
+        || (o.items || []).some(it => (it.productName || "").toLowerCase().includes(searchVal)));
 
-      // Overview cuma ngitung order yang UDAH LUNAS -- sama filosofi kayak
-      // Laporan Keuangan (belum bayar = piutang, belum beneran "untung").
-      const paid = filtered.filter(o => o.isPaid);
+      // Ringkasan cuma ngitung yang UDAH LUNAS (sama kayak Laporan Keuangan:
+      // belum bayar = piutang, belum beneran masuk).
+      const paid = base.filter(o => o.isPaid), unpaid = base.filter(o => !o.isPaid);
       const revenue = paid.reduce((s, o) => s + (o.total || 0), 0);
-      const hpp = paid.reduce((s, o) => s + o.items.reduce((si, it) => si + (it.qty * it.unitHpp), 0), 0);
-      document.getElementById("shopOrdAllCount").textContent = String(filtered.length);
-      document.getElementById("shopOrdAllPaidCount").textContent = String(paid.length);
-      document.getElementById("shopOrdAllRevenue").textContent = rupiah(revenue);
-      document.getElementById("shopOrdAllHpp").textContent = rupiah(hpp);
-      document.getElementById("shopOrdAllProfit").textContent = rupiah(revenue - hpp);
+      const hpp = paid.reduce((s, o) => s + (o.items || []).reduce((si, it) => si + (it.qty * it.unitHpp), 0), 0);
+      const owed = unpaid.reduce((s, o) => s + (o.total || 0), 0);
+      document.getElementById("shopOrdAllStats").innerHTML = `
+        <div class="so-stat"><span>Masuk</span><b>${rupiah(revenue)}</b><small>${paid.length} order lunas</small></div>
+        <div class="so-stat is-profit"><span>Untung</span><b>${rupiah(revenue - hpp)}</b><small>modal ${rupiah(hpp)}</small></div>
+        ${unpaid.length
+          ? `<button type="button" class="so-stat is-owed${SO_ALL.status === "unpaid" ? " is-on" : ""}" data-sost="unpaid"><span>Belum dibayar</span><b>${rupiah(owed)}</b><small>${unpaid.length} order · ketuk buat lihat</small></button>`
+          : `<div class="so-stat is-clear"><span>Belum dibayar</span><b>Rp 0</b><small>${base.length ? "semua udah lunas" : "-"}</small></div>`}`;
 
+      const chip = (k, lbl, n) => `<button type="button" class="so-chip${SO_ALL.status === k ? " active" : ""}" data-sost="${k}" role="tab" aria-selected="${SO_ALL.status === k}">${lbl}<span>${n}</span></button>`;
+      document.getElementById("shopOrdAllChips").innerHTML = chip("all", "Semua", base.length) + chip("unpaid", "Belum bayar", unpaid.length) + chip("paid", "Lunas", paid.length);
+
+      const filtered = SO_ALL.status === "paid" ? paid : SO_ALL.status === "unpaid" ? unpaid : base;
       if (!filtered.length) {
-        listEl.innerHTML = `<p class="hint">${searchVal ? "Nggak ada order yang cocok dengan pencarian." : "Belum ada order di periode ini."}</p>`;
+        const msg = searchVal ? "Nggak ada order yang cocok sama pencarian."
+          : SO_ALL.status === "unpaid" ? "Nggak ada yang belum bayar di periode ini."
+          : SO_ALL.status === "paid" ? "Belum ada order lunas di periode ini."
+          : "Belum ada order di periode ini.";
+        listEl.innerHTML = `<div class="so-empty">${icon("cart")}<b>${msg}</b>${!searchVal && SO_ALL.status === "all" ? `<button type="button" class="btn btn-sm" data-so-new>${icon("plus")} Catat order</button>` : ""}</div>`;
+        const nb = listEl.querySelector("[data-so-new]"); if (nb) nb.addEventListener("click", () => openKasir({ source: "semua" }));
         return;
       }
-      listEl.innerHTML = filtered.slice().sort(byNewestOrder).map(o => renderShopOrdRow(o.buyerName, o, null)).join("");
+      // dikelompokin per hari (terbaru di atas)
+      const groups = [];
+      filtered.slice().sort(byNewestOrder).forEach(o => {
+        const lbl = soDayLabel(o.createdAt);
+        let g = groups[groups.length - 1];
+        if (!g || g.lbl !== lbl) { g = { lbl, list: [], sum: 0 }; groups.push(g); }
+        g.list.push(o); g.sum += o.total || 0;
+      });
+      listEl.innerHTML = groups.map(g => `<div class="so-day">
+          <div class="so-day-h"><b>${escapeHtml(g.lbl)}</b><span>${g.list.length} order · ${rupiah(g.sum)}</span></div>
+          <div class="so-list">${g.list.map(o => renderShopOrdRow(o.buyerName, o, null, { showSource: true })).join("")}</div>
+        </div>`).join("");
       wireShopOrdRowHandlers(listEl, "semua");
     }
 
