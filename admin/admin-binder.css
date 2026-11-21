@@ -1168,7 +1168,9 @@ body.has-fab #dashboard .main-content { padding-bottom: 88px; }
 .nt-emoji:hover { background: var(--bg); }
 .nt-emoji.is-on { background: var(--brand-light); box-shadow: inset 0 0 0 2px var(--brand); }
 .nt-link-btn { border: 0; background: none; color: var(--muted); font: 700 13px 'Open Sans', sans-serif; text-decoration: underline; cursor: pointer; margin-top: 6px; padding: 0; }
-.nt-swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+/* padding = ruang buat cincin "terpilih" (5px) -- tanpa ini kepotong sama wadah yang bisa di-scroll */
+.nt-swatches { display: flex; gap: 10px; flex-wrap: wrap; padding: 6px 6px 6px 6px; }
+.cal-form > div.ab-dlg-lbl { margin-left: 4px; }
 .nt-swatch { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(16, 36, 94, .12); cursor: pointer; }
 .nt-swatch.is-on { box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px var(--brand); }
 
