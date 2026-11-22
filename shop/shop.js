@@ -7,7 +7,7 @@
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const CART_KEY = 'ss_shop_cart', FORM_KEY = 'ss_shop_form';
     const S = { products: [], cart: new Map(), bank: null, ongkirReady: false, step: 0, dest: null, ship: null, options: [], proof: '', ref: '', focused: false, q: '' };
-    const STEPS = [{ k: 'cart', t: 'Keranjang' }, { k: 'addr', t: 'Data & alamat' }, { k: 'ship', t: 'Ongkir JNE' }, { k: 'pay', t: 'Bayar' }];
+    const STEPS = [{ k: 'cart', t: 'Keranjang' }, { k: 'addr', t: 'Data & alamat' }, { k: 'pay', t: 'Bayar' }];
 
     async function api(action, body) {
         const res = await fetch(SUPABASE_URL + '/functions/v1/shop-public', {
@@ -86,8 +86,7 @@
         $('shNext').innerHTML = S.step === STEPS.length - 1 ? '<span>Kirim pesanan</span>' : '<span>Lanjut</span> &rarr;';
         const k = STEPS[S.step].k;
         if (k === 'cart') renderCart();
-        if (k === 'ship') loadShip();
-        if (k === 'pay') renderPay();
+        if (k === 'pay') { renderPay(); loadShip(); }
     }
     function err(msg) { const e = $('shErr'); e.textContent = msg; e.hidden = false; }
     function renderCart() {
@@ -122,25 +121,37 @@
     }
     function clearDest() { S.dest = null; S.ship = null; $('shDestPicked').hidden = true; $('shDestQ').closest('.input-wrapper').hidden = false; $('shDestQ').value = ''; $('shDestQ').focus(); saveForm(); }
 
+    // ongkir JNE REG dihitung otomatis pas masuk langkah Bayar (nggak ada pilihan layanan)
+    let shipSeq = 0;
     async function loadShip() {
-        const list = $('shShipList'), info = $('shShipInfo');
+        const my = ++shipSeq;
+        const info = $('shShipInfo');
         const grams = cartLines().reduce((s, l) => s + (l.p.weight || 150) * l.qty, 0);
-        info.textContent = `Kirim dari Jakarta Selatan ke ${S.dest ? S.dest.label : '-'} · berat ±${(grams / 1000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} kg`;
+        info.hidden = false;
+        info.textContent = `Dikirim pakai JNE REG dari Jakarta Selatan ke ${S.dest ? S.dest.label : '-'} · berat ±${(grams / 1000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} kg`;
+        $('shPayBox').hidden = true;
         if (!S.ongkirReady) {
-            list.innerHTML = `<p class="rs-err">Cek ongkir otomatis lagi belum aktif. Kamu tetap bisa pesan lewat WhatsApp admin, ongkirnya kami hitungin.</p>
+            $('shShipList').innerHTML = `<p class="rs-err">Cek ongkir otomatis lagi belum aktif. Kamu tetap bisa pesan lewat WhatsApp admin, ongkirnya kami hitungin.</p>
                 <a class="submit-btn" style="text-decoration:none;margin-top:10px" target="_blank" rel="noopener" href="${waOrderLink()}">Pesan lewat WhatsApp</a>`;
             return;
         }
-        list.innerHTML = '<p class="sh-muted">Ngecek ongkir JNE…</p>';
+        if (S.ship && S.ship._dest === S.dest.id && S.ship._grams === grams) { $('shShipList').innerHTML = ''; $('shPayBox').hidden = false; renderPay(); return; }
+        S.ship = null;
+        $('shShipList').innerHTML = '<p class="sh-muted">Ngitung ongkir JNE REG…</p>';
         try {
             const r = await api('ongkir', { destId: S.dest.id, items: cartPayload() });
-            S.options = r.options;
-            if (S.ship && !S.options.find(o => o.service === S.ship.service)) S.ship = null;
-            list.innerHTML = S.options.map(o => `<label class="sh-opt${S.ship && S.ship.service === o.service ? ' on' : ''}">
-                <input type="radio" name="shShip" value="${esc(o.service)}"${S.ship && S.ship.service === o.service ? ' checked' : ''}>
-                <span class="sh-opt-txt"><b>JNE ${esc(o.service)}</b><small>${esc(o.description || '')}${o.etd ? ' · estimasi ' + esc(o.etd).replace(/day/i, 'hari') : ''}</small></span>
-                <strong>${rp(o.cost)}</strong></label>`).join('');
-        } catch (e) { list.innerHTML = `<p class="rs-err">${esc(e.message)}</p>`; }
+            if (my !== shipSeq) return;
+            const reg = r.ship || (r.options || []).find(o => String(o.service).toUpperCase() === 'REG');
+            if (!reg) throw new Error('JNE REG ke alamat ini nggak tersedia. Hubungi admin lewat WA ya.');
+            S.ship = Object.assign({}, reg, { _dest: S.dest.id, _grams: grams });
+            $('shShipList').innerHTML = '';
+            $('shPayBox').hidden = false;
+            renderPay();
+        } catch (e) {
+            if (my !== shipSeq) return;
+            $('shShipList').innerHTML = `<p class="rs-err">${esc(e.message)}</p>
+                <a class="submit-btn" style="text-decoration:none;margin-top:10px" target="_blank" rel="noopener" href="${waOrderLink()}">Pesan lewat WhatsApp</a>`;
+        }
     }
     function waOrderLink() {
         const lines = cartLines().map(l => `- ${l.p.name} x${l.qty}`).join('\n');
@@ -152,7 +163,7 @@
     function renderPay() {
         const sub = subtotal(), ship = S.ship ? S.ship.cost : 0, total = sub + ship;
         $('shSummary').innerHTML = cartLines().map(l => `<div class="sh-sum-row"><span>${esc(l.p.name)} ×${l.qty}</span><b>${rp(l.p.price * l.qty)}</b></div>`).join('') +
-            `<div class="sh-sum-row"><span>Ongkir JNE ${esc(S.ship ? S.ship.service : '')}</span><b>${rp(ship)}</b></div>` +
+            `<div class="sh-sum-row"><span>Ongkir JNE REG${S.ship && S.ship.etd ? ' · estimasi ' + esc(S.ship.etd).replace(/day/i, 'hari') : ''}</span><b>${S.ship ? rp(ship) : '…'}</b></div>` +
             `<div class="sh-sum-row total"><span>Total transfer</span><b>${rp(total)}</b></div>`;
         $('shPayTotal').textContent = rp(total);
         const b = S.bank || {};
@@ -195,8 +206,11 @@
             if ($('shAddr').value.trim().length < 10) miss.push('alamat lengkap');
             if (miss.length) return 'Belum lengkap: ' + miss.join(', ');
         }
-        if (k === 'ship') { if (!S.ongkirReady) return 'Pesan lewat WhatsApp dulu ya, ongkir otomatis belum aktif.'; if (!S.ship) return 'Pilih layanan JNE dulu.'; }
-        if (k === 'pay' && !S.proof) return 'Upload bukti transfer dulu ya.';
+        if (k === 'pay') {
+            if (!S.ongkirReady) return 'Pesan lewat WhatsApp dulu ya, ongkir otomatis belum aktif.';
+            if (!S.ship) return 'Ongkirnya belum kehitung. Tunggu sebentar atau cek lagi kecamatannya.';
+            if (!S.proof) return 'Upload bukti transfer dulu ya.';
+        }
         return '';
     }
     async function next() {
@@ -206,7 +220,7 @@
         try {
             const r = await api('createOrder', {
                 name: $('shName').value.trim(), wa: $('shWa').value.trim(), address: $('shAddr').value.trim(),
-                destId: S.dest.id, destLabel: S.dest.label, service: S.ship.service, items: cartPayload(),
+                destId: S.dest.id, destLabel: S.dest.label, service: 'REG', items: cartPayload(),
                 proofBase64: S.proof.split(',')[1], note: $('shNote').value.trim(), ref: S.ref,
             });
             S.cart.clear(); saveCart();
@@ -261,13 +275,6 @@
         const dec = e.target.closest('[data-dec]'); if (dec) { setQty(dec.dataset.dec, (S.cart.get(dec.dataset.dec) || 0) - 1); return; }
         const d = e.target.closest('[data-dest]'); if (d) { pickDest(d.dataset.dest, d.dataset.label); return; }
         if (e.target.closest('#shDestChange')) { clearDest(); return; }
-    });
-    document.addEventListener('change', (e) => {
-        if (e.target.name === 'shShip') {
-            S.ship = S.options.find(o => o.service === e.target.value) || null;
-            document.querySelectorAll('.sh-opt').forEach(o => o.classList.toggle('on', o.querySelector('input').checked));
-            $('shErr').hidden = true;
-        }
     });
     $('shCheckoutBtn').addEventListener('click', openCheckout);
     // "+ Tambah produk lain": buka daftar produk (di link khusus produk, daftar ini awalnya disembunyiin)

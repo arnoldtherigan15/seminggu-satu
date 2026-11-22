@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="../style.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../binder-form.css?v=4">
-    <link rel="stylesheet" href="shop.css?v=3">
+    <link rel="stylesheet" href="shop.css?v=4">
 </head>
 
 <body>
@@ -90,14 +90,11 @@
                 </div>
             </div>
 
-            <!-- langkah 3: ongkir -->
-            <div class="sh-step" data-step="ship" hidden>
+            <!-- langkah 3: bayar (ongkir JNE REG otomatis) -->
+            <div class="sh-step" data-step="pay" hidden>
                 <p class="sh-muted" id="shShipInfo"></p>
                 <div id="shShipList"></div>
-            </div>
-
-            <!-- langkah 4: bayar -->
-            <div class="sh-step" data-step="pay" hidden>
+                <div id="shPayBox">
                 <div class="sh-summary" id="shSummary"></div>
                 <div class="payment-info">
                     <h4>Transfer ke rekening ini</h4>
@@ -119,6 +116,7 @@
                     <label for="shNote">Catatan buat admin <span class="sh-muted">(opsional)</span></label>
                     <textarea id="shNote" rows="2" placeholder="Mis. warna pilihan, request khusus"></textarea>
                 </div>
+                </div>
             </div>
 
             <p class="rs-err" id="shErr" hidden></p>
@@ -139,7 +137,7 @@
     <footer>
         <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
     </footer>
-    <script src="shop.js?v=2"></script>
+    <script src="shop.js?v=4"></script>
 </body>
 
 </html>

@@ -110,3 +110,4 @@ body.sh-has-cart main.container { padding-bottom: 90px; }
 .sh-row-act .sh-add { font-size: 0.86rem; min-height: 38px; }
 .sh-how li { display: block; position: relative; padding-left: 34px; line-height: 1.45; }
 .sh-how li::before { position: absolute; left: 0; top: 0; }
+.sh-sum-row b { white-space: nowrap; }

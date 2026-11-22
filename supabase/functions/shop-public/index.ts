@@ -20,6 +20,7 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 // deno-lint-ignore no-explicit-any
 type Any = any;
 
+const SHIP_SERVICE = "REG"; // JNE Reguler saja
 const BANK_DEFAULT = { bank: "Blu by BCA Digital", number: "090163537583", holder: "Arnold Therigan" };
 const STATUS_LABEL: Record<string, string> = {
   verifikasi: "Menunggu verifikasi pembayaran",
@@ -114,8 +115,10 @@ Deno.serve(async (req) => {
       const origin = await getConfigValue(admin, "SHOP_ORIGIN_ID");
       if (!origin) return errorResponse("Alamat asal toko belum diatur.");
       const options = await jneOptions(admin, origin, destId, grams);
-      if (!options.length) return errorResponse(rajaKey() ? "Ongkir ke alamat ini belum bisa dihitung. Coba pilih kecamatan lain / hubungi admin." : "Cek ongkir otomatis belum aktif. Hubungi admin lewat WA ya.");
-      return jsonResponse({ status: "success", options, grams, subtotal });
+      // toko cuma pakai JNE REG (keputusan admin) -- nggak ada pilihan layanan
+      const reg = options.find((o) => o.service.toUpperCase() === SHIP_SERVICE);
+      if (!reg) return errorResponse(rajaKey() ? "JNE REG ke alamat ini belum bisa dihitung. Coba pilih kecamatan lain, atau hubungi admin lewat WA ya." : "Cek ongkir otomatis belum aktif. Hubungi admin lewat WA ya.");
+      return jsonResponse({ status: "success", options: [reg], ship: reg, grams, subtotal });
     }
 
     if (action === "createOrder") {
@@ -123,19 +126,19 @@ Deno.serve(async (req) => {
       const wa = waKey(data.wa);
       const address = String(data.address || "").trim().slice(0, 400);
       const destId = Number(data.destId) || 0;
-      const service = String(data.service || "").trim();
+      const service = SHIP_SERVICE; // selalu JNE REG, apa pun yang dikirim browser
       const note = String(data.note || "").trim().slice(0, 300);
       if (!name) return errorResponse("Nama wajib diisi.");
       if (wa.length < 10) return errorResponse("Nomor WhatsApp-nya kayaknya belum bener.");
       if (address.length < 10) return errorResponse("Alamat lengkap wajib diisi (jalan, nomor rumah, RT/RW).");
-      if (!destId || !service) return errorResponse("Pilih kecamatan & layanan JNE dulu.");
+      if (!destId) return errorResponse("Pilih kecamatan tujuan dulu.");
       if (!data.proofBase64) return errorResponse("Upload bukti transfer dulu ya.");
 
       const { lines, subtotal, grams } = await resolveCart(admin, data.items);
       const origin = await getConfigValue(admin, "SHOP_ORIGIN_ID");
       const options = origin ? await jneOptions(admin, origin, destId, grams) : [];
-      const pick = options.find((o) => o.service === service);
-      if (!pick) return errorResponse("Ongkirnya berubah / layanan nggak tersedia. Pilih ulang layanan JNE ya.");
+      const pick = options.find((o) => o.service.toUpperCase() === service);
+      if (!pick) return errorResponse("JNE REG ke alamat ini nggak tersedia. Hubungi admin lewat WA ya.");
       const destLabel = String(data.destLabel || "").slice(0, 200);
 
       const proof = await uploadBase64(admin, "payment-proofs", String(data.proofBase64), `shop-${name}`);
