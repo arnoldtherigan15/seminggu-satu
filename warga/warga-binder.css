@@ -2223,3 +2223,12 @@ button.bw-brand:focus-visible { outline: 3px solid var(--bw-yellow); outline-off
    washi tape yang sedikit keluar pinggir dulu bikin modal bisa kegeser kiri-kanan
    pas di-scroll di HP. Swipe antar foto galeri tetap jalan (ditangani JS). */
 .quest-modal-box { overflow-x: hidden; overflow-x: clip; overscroll-behavior: contain; touch-action: pan-y; }
+
+/* filter Quest Board (Semua / Baru / Belum dicoba / Udah kamu ikuti): cuma 3-4 chip,
+   jadi turun ke baris berikutnya kalau nggak muat -- dulu chip terakhir kepotong di pinggir layar */
+#qTabs.rfilters { flex-wrap: wrap; overflow: visible; margin-right: 0; row-gap: 0.55rem; }
+#qTabs .rfilter { white-space: nowrap; }
+@media (max-width: 430px) {
+    #qTabs.rfilters { gap: 0.5rem; }
+    #qTabs .rfilter { padding: 0.45rem 0.8rem; font-size: 0.86rem; }
+}
