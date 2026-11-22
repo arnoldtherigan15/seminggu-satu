@@ -130,6 +130,7 @@ html[data-theme="dark"] .konten-item .k-del:hover { background: #521818; }
 html[data-theme="dark"] .konten-item.dragging { box-shadow: 0 12px 30px rgba(0, 0, 0, 0.51); }
 html[data-theme="dark"] .konten-field label { color: #c6cbd9; }
 html[data-theme="dark"], html[data-theme="dark"] body { background: #171b2c; }
+html[data-theme="dark"], html[data-theme="dark"] body { background: #171b2c; }
 html[data-theme="dark"] body { color: #e6e6e6; }
 html[data-theme="dark"] .lb { background: #321e1a; }
 @media screen { html[data-theme="dark"] .lb { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.70); } }
@@ -475,6 +476,7 @@ html[data-theme="dark"] .so-st-dikirim { background: #112f3c; color: #6dccf4; bo
 html[data-theme="dark"] .so-st-selesai { background: #162036; color: #c3c8d9; border-color: #19243d; }
 html[data-theme="dark"] .so-st-batal { background: #3a1111; color: #e77183; border-color: #49151c; }
 html[data-theme="dark"] .so-ch-web { background: #111c39; }
+html[data-theme="dark"] .so-pend { color: #f7a362 !important; }
 
 /* --- manual: Argon form, tabel, inline style, elemen yang sengaja tetap terang --- */
 html[data-theme="dark"] body { background-color: var(--bg); background-image: radial-gradient(rgba(255, 255, 255, .035) 1px, transparent 1.2px); color: var(--ink); }

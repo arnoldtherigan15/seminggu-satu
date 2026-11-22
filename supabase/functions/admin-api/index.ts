@@ -1769,6 +1769,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
             channel: o.channel || (o.batch_id ? "event" : null),
             source: o.source || "", status: o.status || "", statusUpdatedAt: o.status_updated_at || null,
             trackToken: o.track_token || "", shipService: o.ship_service || "", shipCost: Number(o.ship_cost) || 0,
+            shipPending: o.source === "web" && o.ship_cost == null,
             shipEtd: o.ship_etd || "", shipDest: o.ship_dest_label || "", awb: o.awb || "",
             paymentProof: o.payment_proof || "", buyerNote: o.buyer_note || "",
             items, total, createdAt: o.created_at,
@@ -1826,6 +1827,16 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         }
         const { error } = await admin.from("shop_orders").update(patch).eq("id", id);
         if (error) return errorResponse("Gagal update status: " + error.message);
+        return jsonResponse({ status: "success" });
+      }
+
+      // Ongkir yang tadinya "menyusul" (nggak bisa dihitung otomatis pas checkout)
+      case "setShopOrderShipCost": {
+        const id = String(data.id || "");
+        const cost = Math.round(Number(data.cost));
+        if (!id || !(cost >= 0)) return errorResponse("Ongkir nggak valid.");
+        const { error } = await admin.from("shop_orders").update({ ship_cost: cost, updated_at: new Date().toISOString() }).eq("id", id);
+        if (error) return errorResponse("Gagal simpan ongkir: " + error.message);
         return jsonResponse({ status: "success" });
       }
 

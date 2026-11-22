@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="../style.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../binder-form.css?v=4">
-    <link rel="stylesheet" href="shop.css?v=6">
+    <link rel="stylesheet" href="shop.css?v=7">
     <style>
         .tr-new { margin: 0 0 1rem; padding: 12px 14px; border-radius: 12px; background: #e9fbf0; color: #0a7a3d; font-weight: 700; font-size: 0.92rem; }
         .tr-status { font: 800 1.35rem/1.25 'Outfit', sans-serif; color: var(--ink); margin: 0.2rem 0 0.2rem; }
@@ -82,7 +82,9 @@
                     ${o.status === 'batal' ? '' : `<ol class="tr-steps">${FLOW.map((f, i) => `<li class="${i < idx ? 'done' : i === idx ? 'now' : ''}">${esc(f[1])}</li>`).join('')}</ol>`}
                     <div class="sh-summary">
                         ${o.items.map(i => `<div class="sh-sum-row"><span>${esc(i.name)} ×${i.qty}</span><b>${rp(i.lineTotal)}</b></div>`).join('')}
-                        <div class="sh-sum-row"><span>Ongkir JNE ${esc(o.shipService)}${o.shipEtd ? ' (' + esc(o.shipEtd).replace(/day/i, 'hari') + ')' : ''}</span><b>${rp(o.shipCost)}</b></div>
+                        ${o.shipPending
+                          ? `<div class="sh-sum-row"><span>Ongkir JNE</span><b>menyusul</b></div>`
+                          : `<div class="sh-sum-row"><span>Ongkir JNE ${esc(o.shipService)}${o.shipEtd ? ' (' + esc(o.shipEtd).replace(/day/i, 'hari') + ')' : ''}</span><b>${rp(o.shipCost)}</b></div>`}
                         <div class="sh-sum-row total"><span>Total</span><b>${rp(o.total)}</b></div>
                     </div>
                     ${o.shipDest ? `<p class="sh-muted">Dikirim ke ${esc(o.shipDest)}</p>` : ''}

@@ -4305,7 +4305,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=47">
+  <link rel="stylesheet" href="admin-binder.css?v=48">
   <link rel="stylesheet" href="admin-dark.css?v=6">
 </head>
 
@@ -14793,9 +14793,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       box.innerHTML = `
         <div class="so-web-h"><b>Order toko online</b><span class="so-st so-st-${st}">${escapeHtml(SO_STATUS_LABEL[st] || st)}</span></div>
         <div class="so-web-grid">
-          <div><span>Ongkir</span><b>JNE ${escapeHtml(o.shipService || "-")} &middot; ${rupiah(o.shipCost)}</b><small>${escapeHtml(o.shipDest || "")}${o.shipEtd ? " &middot; " + escapeHtml(o.shipEtd) : ""}</small></div>
-          <div><span>Total transfer</span><b>${rupiah(soGrandTotal(o))}</b><small>barang ${rupiah(o.total)} + ongkir</small></div>
+          <div><span>Ongkir</span>${o.shipPending ? `<b class="so-pend">Menyusul</b><small>belum bisa dihitung otomatis${o.shipDest ? " &middot; " + escapeHtml(o.shipDest) : ""}</small>` : `<b>JNE ${escapeHtml(o.shipService || "-")} &middot; ${rupiah(o.shipCost)}</b><small>${escapeHtml(o.shipDest || "")}${o.shipEtd ? " &middot; " + escapeHtml(o.shipEtd) : ""}</small>`}</div>
+          <div><span>${o.shipPending ? "Udah dibayar (barang)" : "Total transfer"}</span><b>${rupiah(soGrandTotal(o))}</b><small>${o.shipPending ? "ongkir ditagih terpisah" : "barang " + rupiah(o.total) + " + ongkir"}</small></div>
         </div>
+        ${o.shipPending ? `<div class="so-awb"><div class="konten-field" style="flex:1;margin:0;"><label for="shopOrdShipCost">Ongkir JNE (cek manual, mis. di cekaja)</label><input class="form-control" type="text" inputmode="numeric" id="shopOrdShipCost" placeholder="mis. 10.000"></div><button type="button" class="btn btn-sm" data-soweb="shipcost">Simpan &amp; tagih via WA</button></div>` : ""}
         ${o.buyerNote ? `<div class="so-web-note"><span>Catatan pembeli</span>${escapeHtml(o.buyerNote)}</div>` : ""}
         <div class="so-web-row">
           ${o.paymentProof ? `<button type="button" class="btn btn-sm btn-ghost" data-soweb="proof">${icon("receipt")} Lihat bukti transfer</button>` : `<span class="hint" style="margin:0;">Belum ada bukti transfer</span>`}
@@ -14854,6 +14855,20 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       } else if (act === "copy") {
         const url = soTrackUrl(o);
         (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => abToast("Link tracking disalin", "ok")).catch(() => prompt("Salin link:", url));
+      } else if (act === "shipcost") {
+        const cost = parseRibuan(document.getElementById("shopOrdShipCost").value);
+        if (!(cost > 0)) { abToast("Isi ongkirnya dulu", "err"); return; }
+        b.disabled = true;
+        const r = await api("setShopOrderShipCost", { token: getToken(), id: o.id, cost });
+        b.disabled = false;
+        if (!r || r.status !== "success") { handleAuthError(r || {}); abToast((r && r.message) || "Gagal simpan ongkir", "err"); return; }
+        o.shipCost = cost; o.shipPending = false;
+        renderShopOrdWebCard();
+        const wa = waNormalize(o.buyerWa);
+        const nm = (o.buyerName || "").split(" ")[0] || "kak";
+        const msg = `Halo ${nm}! Pesananmu udah siap dikirim 🎉\nOngkir JNE ke alamatmu: ${rupiah(cost)}.\nTransfer ke Blu by BCA Digital 090163537583 a.n Arnold Therigan ya, lalu kirim buktinya di chat ini. Makasih!` + (soTrackUrl(o) ? "\n\nStatus pesanan: " + soTrackUrl(o) : "");
+        if (wa) openUrlNow("https://wa.me/" + wa + "?text=" + encodeURIComponent(msg));
+        else abToast("Ongkir disimpan (nomor WA pembeli kosong)", "ok");
       } else if (act === "awb") {
         const awb = document.getElementById("shopOrdAwb").value.trim().toUpperCase();
         if (!awb) { abToast("Isi nomor resi dulu", "err"); return; }

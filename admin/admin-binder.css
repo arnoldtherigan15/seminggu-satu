@@ -2262,3 +2262,4 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
 .so-st-batal { background: #fdecec; color: #a51c30; border-color: #f6c6cc; }
 .so-ch-web { background: #eef3ff; color: #1f45c9; }
 @media (max-width: 600px) { .so-web-grid { grid-template-columns: 1fr; } .so-awb .btn { width: 100%; } }
+.so-pend { color: #b45309 !important; }

@@ -21,6 +21,12 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 type Any = any;
 
 const SHIP_SERVICE = "REG"; // JNE Reguler saja
+// Dalam 1 kota (mis. Jakarta -> Jakarta) JNE nggak punya "REG", adanya "CTC" (City Courier)
+// = reguler versi dalam kota. Jadi REG, kalau nggak ada pakai CTC.
+// deno-lint-ignore no-explicit-any
+function pickReg(options: any[]) {
+  return options.find((o) => String(o.service).toUpperCase() === "REG") || options.find((o) => String(o.service).toUpperCase() === "CTC") || null;
+}
 const BANK_DEFAULT = { bank: "Blu by BCA Digital", number: "090163537583", holder: "Arnold Therigan" };
 const STATUS_LABEL: Record<string, string> = {
   verifikasi: "Menunggu verifikasi pembayaran",
@@ -128,8 +134,9 @@ Deno.serve(async (req) => {
       if (!origin) return errorResponse("Alamat asal toko belum diatur.");
       const options = await jneOptions(admin, origin, destId, grams);
       // toko cuma pakai JNE REG (keputusan admin) -- nggak ada pilihan layanan
-      const reg = options.find((o) => o.service.toUpperCase() === SHIP_SERVICE);
-      if (!reg) return errorResponse(rajaKey() ? "JNE REG ke alamat ini belum bisa dihitung. Coba pilih kecamatan lain, atau hubungi admin lewat WA ya." : "Cek ongkir otomatis belum aktif. Hubungi admin lewat WA ya.");
+      const reg = pickReg(options);
+      // ongkir nggak ketemu -> tetap boleh checkout, ongkir ditagih menyusul pas mau dikirim
+      if (!reg) return jsonResponse({ status: "success", options: [], ship: null, pending: true, grams, subtotal });
       return jsonResponse({ status: "success", options: [reg], ship: reg, grams, subtotal });
     }
 
@@ -149,8 +156,9 @@ Deno.serve(async (req) => {
       const { lines, subtotal, grams } = await resolveCart(admin, data.items);
       const origin = await getConfigValue(admin, "SHOP_ORIGIN_ID");
       const options = origin ? await jneOptions(admin, origin, destId, grams) : [];
-      const pick = options.find((o) => o.service.toUpperCase() === service);
-      if (!pick) return errorResponse("JNE REG ke alamat ini nggak tersedia. Hubungi admin lewat WA ya.");
+      // null = ongkir belum bisa dihitung -> menyusul (admin isi pas mau kirim)
+      const pick = pickReg(options) as { service: string; cost: number; etd: string } | null;
+      void service;
       const destLabel = String(data.destLabel || "").slice(0, 200);
 
       const proof = await uploadBase64(admin, "payment-proofs", String(data.proofBase64), `shop-${name}`);
@@ -161,8 +169,8 @@ Deno.serve(async (req) => {
         buyer_name: name, buyer_wa: wa, is_cod: false, is_paid: false,
         delivery_address: address + (destLabel ? "\n" + destLabel : ""),
         channel, source: "web", status: "verifikasi", status_updated_at: now,
-        ship_dest_id: destId, ship_dest_label: destLabel, ship_service: pick.service,
-        ship_cost: pick.cost, ship_etd: pick.etd, ship_weight_grams: grams,
+        ship_dest_id: destId, ship_dest_label: destLabel, ship_service: pick ? pick.service : "REG",
+        ship_cost: pick ? pick.cost : null, ship_etd: pick ? pick.etd : null, ship_weight_grams: grams,
         payment_proof: proof, buyer_note: note || null,
       }).select("*").single();
       if (oe || !order) return errorResponse("Gagal nyimpen order: " + (oe?.message || "coba lagi"), 500);
@@ -174,14 +182,15 @@ Deno.serve(async (req) => {
       const { error: se } = await admin.from("shop_sales").insert(sales);
       if (se) { await admin.from("shop_orders").delete().eq("id", order.id); return errorResponse("Gagal nyimpen item: " + se.message, 500); }
 
-      const total = subtotal + pick.cost;
+      const total = subtotal + (pick ? pick.cost : 0);
       try {
         await sendTelegramText(
           "🛍️ *Order Baru dari Toko!*\n\n" +
             `👤 Nama: ${name}\n📱 WA: ${wa}\n` +
             lines.map((l) => `• ${l.product.name}${l.variant ? " (" + l.variant + ")" : ""} ×${l.qty}`).join("\n") + "\n" +
-            `🚚 JNE ${pick.service} → ${destLabel || "-"}\n` +
-            `💰 Total: Rp ${total.toLocaleString("id-ID")} (ongkir ${pick.cost.toLocaleString("id-ID")})\n` +
+            `🚚 JNE ${pick ? pick.service : "REG"} → ${destLabel || "-"}\n` +
+            (pick ? `💰 Total: Rp ${total.toLocaleString("id-ID")} (ongkir ${pick.cost.toLocaleString("id-ID")})\n`
+              : `💰 Dibayar: Rp ${total.toLocaleString("id-ID")} (barang aja) -- ⚠️ ONGKIR MENYUSUL, isi ongkir di Order toko\n`) +
             "🧾 Bukti transfer: udah diupload, cek di Order toko",
           undefined,
           { url: "/admin/#shoporders:order:" + order.id },
@@ -209,7 +218,7 @@ Deno.serve(async (req) => {
         status: "success",
         order: {
           name: o.buyer_name, createdAt: o.created_at, status, statusLabel: STATUS_LABEL[status] || status, statusUpdatedAt: o.status_updated_at,
-          items, subtotal, shipCost: Number(o.ship_cost) || 0, total: subtotal + (Number(o.ship_cost) || 0),
+          items, subtotal, shipCost: Number(o.ship_cost) || 0, shipPending: o.ship_cost == null, total: subtotal + (Number(o.ship_cost) || 0),
           shipService: o.ship_service || "", shipEtd: o.ship_etd || "", shipDest: o.ship_dest_label || "", awb: o.awb || "",
           orderNo: String(o.id).slice(0, 8).toUpperCase(),
         },

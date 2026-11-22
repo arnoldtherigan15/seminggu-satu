@@ -166,16 +166,19 @@
         try {
             const r = await api('ongkir', { destId: S.dest.id, items: cartPayload() });
             if (my !== shipSeq) return;
-            const reg = r.ship || (r.options || []).find(o => String(o.service).toUpperCase() === 'REG');
-            if (!reg) throw new Error('JNE REG ke alamat ini nggak tersedia. Hubungi admin lewat WA ya.');
-            S.ship = Object.assign({}, reg, { _dest: S.dest.id, _grams: grams });
+            const reg = r.ship || (r.options || []).find(o => ['REG', 'CTC'].includes(String(o.service).toUpperCase()));
+            // ongkir nggak ketemu -> "menyusul": bayar barang dulu, ongkir ditagih pas mau dikirim
+            S.ship = reg ? Object.assign({}, reg, { _dest: S.dest.id, _grams: grams }) : { pending: true, cost: 0, service: 'REG', _dest: S.dest.id, _grams: grams };
             $('shShipList').innerHTML = '';
             $('shPayBox').hidden = false;
             renderPay();
         } catch (e) {
             if (my !== shipSeq) return;
-            $('shShipList').innerHTML = `<p class="rs-err">${esc(e.message)}</p>
-                <a class="submit-btn" style="text-decoration:none;margin-top:10px" target="_blank" rel="noopener" href="${waOrderLink()}">Pesan lewat WhatsApp</a>`;
+            // server/API lagi gangguan -> tetap bisa lanjut, ongkir menyusul
+            S.ship = { pending: true, cost: 0, service: 'REG', _dest: S.dest.id, _grams: grams };
+            $('shShipList').innerHTML = '';
+            $('shPayBox').hidden = false;
+            renderPay();
         }
     }
     function waOrderLink() {
@@ -188,8 +191,11 @@
     function renderPay() {
         const sub = subtotal(), ship = S.ship ? S.ship.cost : 0, total = sub + ship;
         $('shSummary').innerHTML = cartLines().map(l => `<div class="sh-sum-row"><span>${esc(lineName(l))} ×${l.qty}</span><b>${rp(l.p.price * l.qty)}</b></div>`).join('') +
-            `<div class="sh-sum-row"><span>Ongkir JNE REG${S.ship && S.ship.etd ? ' · estimasi ' + esc(S.ship.etd).replace(/day/i, 'hari') : ''}</span><b>${S.ship ? rp(ship) : '…'}</b></div>` +
-            `<div class="sh-sum-row total"><span>Total transfer</span><b>${rp(total)}</b></div>`;
+            (S.ship && S.ship.pending
+              ? `<div class="sh-sum-row"><span>Ongkir JNE</span><b>menyusul</b></div>`
+              : `<div class="sh-sum-row"><span>Ongkir JNE REG${S.ship && S.ship.etd ? ' · estimasi ' + esc(S.ship.etd).replace(/day/i, 'hari') : ''}</span><b>${S.ship ? rp(ship) : '…'}</b></div>`) +
+            `<div class="sh-sum-row total"><span>Total transfer${S.ship && S.ship.pending ? ' sekarang' : ''}</span><b>${rp(total)}</b></div>` +
+            (S.ship && S.ship.pending ? `<p class="sh-pending">Ongkir ke alamat ini belum bisa dihitung otomatis. Transfer harga barangnya dulu ya, <b>ongkir kami tagih lewat WhatsApp</b> pas pesananmu siap dikirim.</p>` : '');
         $('shPayTotal').textContent = rp(total);
         const b = S.bank || {};
         $('shBankName').textContent = b.bank || ''; $('shBankNo').textContent = b.number || ''; $('shBankOwner').textContent = b.holder ? 'a.n ' + b.holder : '';
