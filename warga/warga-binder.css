@@ -2210,3 +2210,11 @@ button.bw-brand:focus-visible { outline: 3px solid var(--bw-yellow); outline-off
     .mood-btn, .mood-btn .mood-e { transition: none; }
     .mood-btn:hover .mood-e { transform: none; }
 }
+
+/* kalender cuaca: 7 kolom WAJIB muat di layar HP -- kolom boleh menyusut,
+   ikon cuaca (svg) dikunci ke ukuran sel (dulu bikin kolom melebar -> Minggu kepotong) */
+.mg-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); width: 100%; }
+.mg-cell { min-width: 0; overflow: hidden; box-sizing: border-box; }
+.mg-cell svg.ma { display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; }
+.mg-h { min-width: 0; overflow: hidden; }
+@media (max-width: 380px) { .mg-grid { gap: 3px; } .mg-cell.on { padding: 8%; } }
