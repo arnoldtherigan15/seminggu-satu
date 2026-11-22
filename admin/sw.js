@@ -2,7 +2,7 @@
 // Strategi: network-first (biar kode & data selalu fresh), fallback ke cache saat offline.
 // Scope = folder /admin/, jadi TIDAK mengintervensi request ke Apps Script (beda origin).
 
-const CACHE = "ss-admin-v3";
+const CACHE = "ss-admin-v4";
 const CORE = [
   "./index.html",
   "./manifest.webmanifest",
@@ -31,8 +31,11 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // jangan intercept API (script.google.com)
 
+  // halaman & file admin selalu dicek ulang ke server (bukan cache browser 10 menit
+  // dari GitHub Pages) -- biar update baru langsung kepake begitu app dibuka
+  const fresh = req.mode === "navigate" || /\.(html|css|js)$/.test(url.pathname);
   e.respondWith(
-    fetch(req)
+    fetch(fresh ? new Request(req, { cache: "no-cache" }) : req)
       .then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(req, copy));
