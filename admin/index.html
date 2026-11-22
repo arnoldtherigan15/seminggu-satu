@@ -4305,7 +4305,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=51">
+  <link rel="stylesheet" href="admin-binder.css?v=52">
   <link rel="stylesheet" href="admin-dark.css?v=7">
 </head>
 
@@ -8253,6 +8253,30 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       "reka-rekat": { path: "/reka-rekat/update-photo.html", msg: (nm, link) => `Halo ${nm} 👋\nBoleh upload ulang foto buat Reka Rekat kamu di sini ya (kalau kemarin masih asal-asalan pas daftar):\n${link}` },
       "journaling-date": { path: "/journaling-date/update-photo.html", msg: (nm, link) => `Halo ${nm} 👋\nMau nambah/ganti foto kenang-kenangan buat Journaling Date? Tinggal upload di sini ya (opsional kok):\n${link}` },
     };
+    // Link ubah PILIHAN (bukan foto) -- sekarang khusus Upcycle Journal Private Session
+    const UPDATE_DATA_CFG = {
+      "private-uc": { path: "/private-uc/update-data.html", msg: (nm, link) => `Halo ${nm} 👋\nKalau mau ganti warna tali, warna buku, atau jenis buku buat Upcycle Journal Private Session, bisa diubah sendiri di sini ya:\n${link}` },
+    };
+    function updateDataLink(workshop, regId) {
+      const cfg = UPDATE_DATA_CFG[workshop]; if (!cfg) return "";
+      return siteOrigin() + cfg.path + "?rid=" + encodeURIComponent(regId);
+    }
+    function sendUpdateDataLink(workshop, regId, name, wa) {
+      const cfg = UPDATE_DATA_CFG[workshop], link = updateDataLink(workshop, regId);
+      if (!cfg || !link) return;
+      const num = waNormalize(wa || "");
+      if (num) {
+        const nm = String(name || "").trim().split(/\s+/)[0] || "kak";
+        window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(cfg.msg(nm, link)), "_blank");
+      } else {
+        (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(() => abToast("Choice edit link copied", "ok")).catch(() => prompt("Copy link:", link));
+      }
+    }
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-datalink]"); if (!b) return;
+      sendUpdateDataLink(b.dataset.dataws, b.dataset.datalink, b.dataset.dataname, b.dataset.datawa);
+    });
+
     function updatePhotoLink(workshop, regId, name) {
       const cfg = UPDATE_PHOTO_CFG[workshop]; if (!cfg) return "";
       return siteOrigin() + cfg.path + "?rid=" + encodeURIComponent(regId) + "&nama=" + encodeURIComponent(name || "");
@@ -8312,6 +8336,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           const regMenu = abMore([
             photoCfg ? abMi("camera", (it && it.wa) ? "Kirim link ganti foto (WA)" : "Salin link ganti foto",
               `data-photolink="${escapeHtml(regId)}" data-photoname="${escapeHtml(nm)}" data-photowa="${escapeHtml((it && it.wa) || "")}"`) : "",
+            UPDATE_DATA_CFG[workshop] ? abMi("pencil", (it && it.wa) ? "Send choice edit link (WhatsApp)" : "Copy choice edit link",
+              `data-datalink="${escapeHtml(regId)}" data-dataws="${escapeHtml(workshop)}" data-dataname="${escapeHtml(nm)}" data-datawa="${escapeHtml((it && it.wa) || "")}"`) : "",
             abMi("archive", isArchived ? "Batal arsip" : "Arsipkan", `data-archivereg="${escapeHtml(regId)}" data-archived="${isArchived ? "0" : "1"}"`),
             `<div class="ab-menu-sep"></div>`,
             abMi("trash", "Hapus peserta", `data-delreg="${escapeHtml(regId)}"`, true),
@@ -23252,6 +23278,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           let btns = "";
           if (num) btns += `<button type="button" class="wa-btn" data-num="${num}" data-name="${escapeHtml(wname)}">${icon("chat")} WhatsApp</button>`;
           if (igRaw) btns += `<button type="button" class="ig-copy" data-ig="${escapeHtml(igRaw)}" title="Salin username IG">${icon("camera")} Copy IG</button>`;
+          if (UPDATE_DATA_CFG[event]) btns += `<button type="button" class="pc-datalink" data-datalink="${escapeHtml(id)}" data-dataws="${escapeHtml(event)}" data-dataname="${escapeHtml(wname)}" data-datawa="${escapeHtml(num)}" title="Send link to change strap/book colour & notebook type">${icon("pencil")} Choice edit link</button>`;
           if (photoCfg) btns += `<button type="button" class="pc-photolink" data-rid="${escapeHtml(id)}" data-name="${escapeHtml(wname)}" data-wa="${escapeHtml(num)}" title="Kirim link buat upload ulang foto">${icon("refresh")} Photo re-upload link</button>`;
           const isPrinted = printedSet.has(id);
           const hay = row.map(c => String(c || "")).join(" ").toLowerCase();
@@ -23259,7 +23286,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
 
           const cells = row.map((c, idx) => hideIdx(idx) ? null : `<td>${regValueHtml(keys[idx], c, event)}</td>`).filter(x => x !== null).join("");
           const attCell = `<td><input type="checkbox" class="att-check" data-id="${escapeHtml(id)}" ${isHadir ? "checked" : ""} aria-label="Hadir"/></td>`;
-          const action = hasAction || photoCfg ? `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>` : "";
+          const action = hasAction || photoCfg || UPDATE_DATA_CFG[event] ? `<td class="wa-cell"><div class="wa-actions">${btns || "-"}</div></td>` : "";
           const printCell = `<td><input type="checkbox" class="print-check" data-id="${escapeHtml(id)}" ${isPrinted ? "checked" : ""} aria-label="Sudah dicetak"/></td>`;
           tableRows.push(`<tr class="${isPrinted ? "row-printed" : ""}" ${dataAttrs}><td>${i + 1}</td>${attCell}${action}${cells}${printCell}</tr>`);
 

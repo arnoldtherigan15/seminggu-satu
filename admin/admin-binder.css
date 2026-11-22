@@ -642,7 +642,7 @@ th { text-transform: none !important; letter-spacing: 0 !important; color: var(-
 .ab-global-refresh { justify-self: end; width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid #c9d6f5; background: #ffffff; color: var(--ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 .ab-global-refresh:hover { border-color: var(--brand); color: var(--brand); }
 .ab-global-refresh:active svg { transform: rotate(180deg); transition: transform .3s ease; }
-.wa-actions .pc-photolink { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 10px; border-radius: 10px; border: 1.5px solid #c9d6f5; background: #ffffff; color: var(--ink); font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.wa-actions .pc-photolink, .wa-actions .pc-datalink, .pc-datalink { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 10px; border-radius: 10px; border: 1.5px solid #c9d6f5; background: #ffffff; color: var(--ink); font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
 
 /* ---------- Utang & Target tabungan: kartu + panel detail ---------- */
 .fd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubah Pilihan — Upcycle Journal Private Session</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <script src="../theme.js?v=2"></script>
+    <script src="../env.js"></script>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../binder-form.css?v=4">
+    <style>
+        .type-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .type-btn { padding: 0.6rem 1.1rem; border-radius: 10px; border: 2px solid var(--field-border); background: var(--paper); color: var(--ink); font-weight: 700; font-size: 0.92rem; cursor: pointer; }
+        .type-btn.active { border-color: #0046ff; background: rgba(0, 70, 255, .08); color: #0046ff; }
+        .picker-group { margin-bottom: 1.4rem; }
+        .picker-group > label { display: block; font-weight: 700; margin-bottom: .6rem; color: var(--ink); }
+        .picked { font-weight: 600; color: var(--ink-2); font-size: .88rem; margin-left: 6px; }
+        .ud-msg { margin-top: 12px; padding: 12px 14px; border-radius: 12px; font-weight: 600; font-size: .95rem; }
+        .ud-msg.ok { background: #e9fbf0; color: #0a7a3d; }
+        .ud-msg.err { background: #fff1f1; color: #b42318; }
+        [hidden] { display: none !important; }
+    </style>
+</head>
+
+<body>
+    <header class="hero">
+        <div class="brand">
+            <a href="../index.html" style="text-decoration:none;">
+                <img src="../images/logo-paw-tight.png" alt="Seminggu Satu" class="brand-logo" width="240" height="240">
+                <p>by Arnold</p>
+            </a>
+        </div>
+        <div class="hero-content">
+            <h2>Ubah Pilihan</h2>
+            <p class="subtitle" id="udSub">Upcycle Journal Private Session — ganti warna tali, warna buku, atau jenis buku kamu di sini.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="registration-form-section">
+            <div class="section-header">
+                <h3 id="udHello">Memuat data…</h3>
+                <p>Pilihan yang sekarang udah ketandain. Ganti yang mau diubah, lalu simpan.</p>
+            </div>
+            <div id="udForm" hidden>
+                <div class="picker-group">
+                    <label>Warna buku journal (A6)<span class="picked" id="pkBookColor"></span></label>
+                    <div class="color-grid" id="gBookColor"></div>
+                </div>
+                <div class="picker-group">
+                    <label>Jenis notebook<span class="picked" id="pkBookType"></span></label>
+                    <div class="type-grid" id="gBookType"></div>
+                </div>
+                <div class="picker-group">
+                    <label>Warna tali (closure)<span class="picked" id="pkColorStrap"></span></label>
+                    <div class="color-grid" id="gColorStrap"></div>
+                </div>
+                <div class="picker-group">
+                    <label>Kotak susu 1L, kamu…</label>
+                    <div class="type-grid" id="gCarton"></div>
+                </div>
+                <button type="button" class="submit-btn" id="udSave">Simpan perubahan</button>
+            </div>
+            <div class="ud-msg" id="udMsg" hidden></div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
+    </footer>
+
+    <script>
+        (async function () {
+            // sama persis dengan pilihan di form daftar (private-uc/main.js)
+            const BOOK = [['Toska', '#02bbe0'], ['Biru Langit', '#0281e1'], ['Maroon', '#af2e31'], ['Abu Tua', '#707270'], ['Jingga', '#fe8b30'], ['Hijau Tua', '#147242'], ['Fusia', '#fe0d88'], ['Ungu', '#4904a3'], ['Lavender', '#a27de2'], ['Kunyit', '#f4b004'], ['Kuning', '#f8e407'], ['Jambon', '#f29b94']];
+            const TYPES = ['Dotted', 'Polos', 'Grid'];
+            const STRAP = [['Putih', '#ebe5e5'], ['Cream', '#cfac8c'], ['Kuning', '#fde355'], ['Stabilo', '#9dde6d'], ['Orange', '#f05e37'], ['Merah', '#b71c2c'], ['Pink', '#f3c3b9'], ['Pink Magenta', '#b65179'], ['Ungu', '#692f4a'], ['Hijau', '#97ab52'], ['Tosca', '#77b59b'], ['Biru Muda', '#5cd0ea'], ['Biru Tua', '#0955a0'], ['Abu Abu', '#6c6f79'], ['Coklat', '#633114'], ['Hitam', '#110d0c']];
+            const CARTON = [['yes', 'Punya, bawa sendiri'], ['no', 'Tidak punya, tolong bawain']];
+            const $ = (id) => document.getElementById(id);
+            const rid = new URLSearchParams(location.search).get('rid') || '';
+            const S = {};
+            const call = async (body) => {
+                const res = await fetch(SUPABASE_URL + '/functions/v1/update-registration-choices', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY }, body: JSON.stringify(Object.assign({ rid }, body)) });
+                const j = await res.json().catch(() => ({ status: 'error', message: 'Server lagi bermasalah.' }));
+                if (j.status !== 'success') throw new Error(j.message || 'Gagal');
+                return j;
+            };
+            const msg = (t, ok) => { const m = $('udMsg'); m.hidden = false; m.className = 'ud-msg ' + (ok ? 'ok' : 'err'); m.textContent = t; };
+            function colors(gridId, pickId, list, key) {
+                const g = $(gridId); g.innerHTML = '';
+                list.forEach(([name, hex]) => {
+                    const b = document.createElement('button'); b.type = 'button';
+                    b.className = 'color-btn' + (S[key] === name ? ' active' : ''); b.style.backgroundColor = hex; b.title = name; b.setAttribute('aria-label', name);
+                    b.onclick = () => { S[key] = name; colors(gridId, pickId, list, key); };
+                    g.appendChild(b);
+                });
+                $(pickId).textContent = S[key] ? '· ' + S[key] : '';
+            }
+            function types(gridId, pickId, list, key) {
+                const g = $(gridId); g.innerHTML = '';
+                list.forEach((it) => {
+                    const [val, label] = Array.isArray(it) ? it : [it, it];
+                    const b = document.createElement('button'); b.type = 'button';
+                    b.className = 'type-btn' + (String(S[key]) === String(val) ? ' active' : ''); b.textContent = label;
+                    b.onclick = () => { S[key] = val; types(gridId, pickId, list, key); };
+                    g.appendChild(b);
+                });
+                if (pickId) $(pickId).textContent = S[key] ? '· ' + S[key] : '';
+            }
+            function render() {
+                colors('gBookColor', 'pkBookColor', BOOK, 'bookColor');
+                types('gBookType', 'pkBookType', TYPES, 'bookType');
+                colors('gColorStrap', 'pkColorStrap', STRAP, 'colorStrap');
+                types('gCarton', null, CARTON, 'hasOwnCarton');
+            }
+            if (!rid) { $('udHello').textContent = 'Link nggak valid'; msg('Minta link baru ke admin ya.', false); return; }
+            try {
+                const r = await call({ action: 'get' });
+                Object.assign(S, r.current); S.hasOwnCarton = r.current.hasOwnCarton ? 'yes' : 'no';
+                $('udHello').textContent = 'Hai, ' + (r.name || 'kamu') + '! 👋';
+                $('udForm').hidden = false; render();
+            } catch (e) { $('udHello').textContent = 'Nggak bisa dibuka'; msg(e.message, false); return; }
+            $('udSave').addEventListener('click', async () => {
+                const btn = $('udSave'); btn.disabled = true; btn.textContent = 'Menyimpan…';
+                try {
+                    const r = await call({ action: 'save', bookColor: S.bookColor, bookType: S.bookType, colorStrap: S.colorStrap, hasOwnCarton: S.hasOwnCarton });
+                    msg(r.changed ? 'Pilihanmu udah diperbarui! Admin udah dikabarin 💙' : 'Nggak ada yang berubah.', true);
+                } catch (e) { msg(e.message, false); }
+                btn.disabled = false; btn.textContent = 'Simpan perubahan';
+            });
+        })();
+    </script>
+</body>
+
+</html>

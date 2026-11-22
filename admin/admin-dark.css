@@ -229,7 +229,7 @@ html[data-theme="dark"] .per-hero-mini-item { background: rgba(23, 29, 48, 0.14)
 html[data-theme="dark"] .per-loss { color: #839eea; }
 html[data-theme="dark"] .rb-card { background: #171b2c; }
 html[data-theme="dark"] .ab-global-refresh { border: 1.5px solid #152448; background: #171b2c; }
-html[data-theme="dark"] .wa-actions .pc-photolink { border: 1.5px solid #152448; background: #171b2c; }
+html[data-theme="dark"] .wa-actions .pc-photolink, html[data-theme="dark"] .wa-actions .pc-datalink, html[data-theme="dark"] .pc-datalink { border: 1.5px solid #152448; background: #171b2c; }
 html[data-theme="dark"] .fd-card { background: #171b2c; }
 html[data-theme="dark"] .fd-ico { background: #111d3c; }
 html[data-theme="dark"] .fd-bar { background: #111d3c; }
