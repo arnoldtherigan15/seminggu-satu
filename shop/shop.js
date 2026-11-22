@@ -6,7 +6,7 @@
     const rp = (n) => 'Rp ' + Math.round(Number(n) || 0).toLocaleString('id-ID');
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const CART_KEY = 'ss_shop_cart', FORM_KEY = 'ss_shop_form';
-    const S = { products: [], cart: new Map(), bank: null, ongkirReady: false, step: 0, dest: null, ship: null, options: [], proof: '', ref: '' };
+    const S = { products: [], cart: new Map(), bank: null, ongkirReady: false, step: 0, dest: null, ship: null, options: [], proof: '', ref: '', focused: false, q: '' };
     const STEPS = [{ k: 'cart', t: 'Keranjang' }, { k: 'addr', t: 'Data & alamat' }, { k: 'ship', t: 'Ongkir JNE' }, { k: 'pay', t: 'Bayar' }];
 
     async function api(action, body) {
@@ -30,19 +30,26 @@
     const initials = (n) => String(n || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
     const imgHtml = (p, cls) => p.image ? `<div class="${cls}"><img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy"></div>` : `<div class="${cls}">${esc(initials(p.name))}</div>`;
     function qtyHtml(id, q) { return `<div class="sh-qty"><button type="button" data-dec="${id}" aria-label="Kurangi">&minus;</button><b>${q}</b><button type="button" data-inc="${id}" aria-label="Tambah">+</button></div>`; }
+    // daftar produk (list, bukan grid -- tetap rapi walau produknya banyak) + cari kalau > 6
     function renderGrid() {
         const g = $('shGrid');
         if (!S.products.length) { g.innerHTML = '<div class="sh-empty">Belum ada produk yang dibuka buat pre-order. Pantau Instagram kami ya!</div>'; return; }
-        g.innerHTML = S.products.map(p => {
-            const q = S.cart.get(p.id) || 0;
-            return `<article class="sh-card">${imgHtml(p, 'sh-img')}<div class="sh-body">
-                <div class="sh-name">${esc(p.name)}</div>
-                <div class="sh-price">${rp(p.price)}</div>
-                <span class="sh-pre">${esc(p.preorderNote || 'Pre-order')}</span>
-                ${p.desc ? `<div class="sh-desc">${esc(p.desc)}</div>` : ''}
-                ${q ? qtyHtml(p.id, q) : `<button type="button" class="sh-add" data-inc="${p.id}">Tambah</button>`}
-            </div></article>`;
-        }).join('');
+        const sw = $('shSearchWrap');
+        if (sw) sw.hidden = S.products.length <= 6;
+        const q = S.q.toLowerCase();
+        const list = S.products.filter(p => !q || (p.name + ' ' + (p.desc || '')).toLowerCase().includes(q));
+        g.innerHTML = list.length ? list.map(p => {
+            const qty = S.cart.get(p.id) || 0;
+            return `<article class="sh-row${qty ? ' in-cart' : ''}">${imgHtml(p, 'sh-row-img')}
+                <div class="sh-row-txt">
+                    <b>${esc(p.name)}</b>
+                    <span class="sh-row-price">${rp(p.price)}</span>
+                    <span class="sh-pre">${esc(p.preorderNote || 'Pre-order')}</span>
+                    ${p.desc ? `<small class="sh-desc">${esc(p.desc)}</small>` : ''}
+                </div>
+                <div class="sh-row-act">${qty ? qtyHtml(p.id, qty) : `<button type="button" class="sh-add" data-inc="${p.id}">Tambah</button>`}</div>
+            </article>`;
+        }).join('') : '<div class="sh-empty">Nggak ada produk yang cocok.</div>';
     }
     function cartLines() { return [...S.cart.entries()].map(([id, qty]) => ({ p: S.products.find(x => x.id === id), qty })).filter(l => l.p && l.qty > 0); }
     const subtotal = () => cartLines().reduce((s, l) => s + l.p.price * l.qty, 0);
@@ -74,6 +81,7 @@
         $('shStepCount').textContent = `Langkah ${S.step + 1} dari ${STEPS.length}`;
         $('shBars').innerHTML = STEPS.map((s, j) => `<span class="rs-bar${j < S.step ? ' done' : j === S.step ? ' on' : ''}"><i></i></span>`).join('');
         $('shErr').hidden = true;
+        $('shBack').hidden = S.step === 0 && S.focused;
         $('shBack').textContent = S.step === 0 ? '← Belanja lagi' : '← Kembali';
         $('shNext').innerHTML = S.step === STEPS.length - 1 ? '<span>Kirim pesanan</span>' : '<span>Lanjut</span> &rarr;';
         const k = STEPS[S.step].k;
@@ -236,7 +244,12 @@
         let jump = false;
         if (want) {
             const p = S.products.find(x => x.code && x.code.toLowerCase() === want.toLowerCase()) || S.products.find(x => x.id === want);
-            if (p) { if (!S.cart.get(p.id)) S.cart.set(p.id, 1); jump = true; }
+            if (p) {
+                // link khusus produk: keranjang = produk itu aja, daftar produk lain disembunyiin
+                S.cart.clear(); S.cart.set(p.id, 1); jump = true; S.focused = true;
+                $('shCatalog').hidden = true;
+                document.body.classList.add('sh-focused');
+            }
             else toast('Produk dari link itu lagi nggak dibuka pre-order', true);
         }
         saveCart(); renderGrid(); renderCartbar();
@@ -257,7 +270,18 @@
         }
     });
     $('shCheckoutBtn').addEventListener('click', openCheckout);
-    $('shAddMore').addEventListener('click', () => { $('shCheckout').hidden = true; renderCartbar(); $('shCatalog').scrollIntoView({ behavior: 'smooth' }); });
+    // "+ Tambah produk lain": buka daftar produk (di link khusus produk, daftar ini awalnya disembunyiin)
+    $('shAddMore').addEventListener('click', () => {
+        const cat = $('shCatalog');
+        if (S.focused) {
+            cat.hidden = !cat.hidden;
+            $('shAddMore').textContent = cat.hidden ? '+ Tambah produk lain' : 'Tutup daftar produk';
+            if (!cat.hidden) cat.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        $('shCheckout').hidden = true; renderCartbar(); cat.scrollIntoView({ behavior: 'smooth' });
+    });
+    const sq = $('shSearch'); if (sq) sq.addEventListener('input', () => { S.q = sq.value.trim(); renderGrid(); });
     $('shNext').addEventListener('click', next);
     $('shBack').addEventListener('click', back);
     $('shDestQ').addEventListener('input', onDestInput);

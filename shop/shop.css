@@ -86,3 +86,27 @@ body.sh-has-cart main.container { padding-bottom: 90px; }
 .upload-area .preview-img { display: block; }
 
 @media (max-width: 380px) { .sh-grid { gap: 0.6rem; } .sh-body { padding: 0.6rem; } }
+
+/* daftar produk (list) */
+.sh-list { display: flex; flex-direction: column; background: var(--paper); border-radius: 12px; box-shadow: var(--depth-paper); overflow: hidden; }
+.sh-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-top: 1px solid var(--rule); }
+.sh-row:first-child { border-top: 0; }
+.sh-row.sh-skel { min-height: 84px; border-radius: 0; }
+.sh-row.in-cart { background: rgba(0, 70, 255, .04); }
+.sh-row-img { width: 64px; height: 64px; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: var(--desk); display: flex; align-items: center; justify-content: center; color: var(--ink-2); font: 800 1.05rem 'Outfit', sans-serif; }
+.sh-row-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sh-row-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.sh-row-txt b { font: 800 0.98rem/1.25 'Outfit', sans-serif; color: var(--ink); }
+.sh-row-price { font: 800 0.95rem 'Outfit', sans-serif; color: #0046ff; }
+.sh-row-txt .sh-desc { -webkit-line-clamp: 2; }
+.sh-row-act { flex-shrink: 0; width: 104px; }
+.sh-row-act .sh-add { width: 100%; margin: 0; }
+.sh-row-act .sh-qty { margin: 0; }
+.sh-row-act .sh-qty button { width: 34px; }
+.sh-search { margin-bottom: 0.8rem; }
+@media (max-width: 380px) { .sh-row { gap: 10px; padding: 10px; } .sh-row-img { width: 52px; height: 52px; } .sh-row-act { width: 92px; } }
+.sh-pre { border-radius: 6px; line-height: 1.35; padding: 2px 7px; }
+.sh-row-act { width: 92px; }
+.sh-row-act .sh-add { font-size: 0.86rem; min-height: 38px; }
+.sh-how li { display: block; position: relative; padding-left: 34px; line-height: 1.45; }
+.sh-how li::before { position: absolute; left: 0; top: 0; }
