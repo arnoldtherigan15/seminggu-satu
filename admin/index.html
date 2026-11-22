@@ -9751,7 +9751,18 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     let incomeVisible = false;
     let lastIncome = { revenue: 0, profit: 0 };
 
+    // Order toko online yang belum dikirim -> muncul di "Perlu perhatian" Overview
+    let OV_SHOP_PENDING = [];
+    async function loadOvShopPending() {
+      try {
+        const r = await api("listShopOrders", { token: getToken() });
+        if (!r || r.status !== "success") return;
+        OV_SHOP_PENDING = (r.orders || []).filter(o => ["verifikasi", "dibayar", "diproses"].includes(o.status));
+        renderAttention();
+      } catch (e) { }
+    }
     async function ensureOverview() {
+      loadOvShopPending();
       if (!overviewInit) {
         document.getElementById("incomeToggle").addEventListener("click", () => {
           incomeVisible = !incomeVisible;
@@ -9896,6 +9907,16 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const dueSoon = open.filter(t => t.dueDate && dayDiff(t.dueDate) >= 0 && dayDiff(t.dueDate) <= 3).length;
       if (overdue) items.push({ tone: "warn", t: overdue + " task lewat tenggat", d: "Dari " + open.length + " task yang belum selesai", go: "tasks", cta: "Buka Tasks" });
       else if (dueSoon) items.push({ tone: "soon", t: dueSoon + " task tenggatnya ≤ 3 hari", d: "Dari " + open.length + " task yang belum selesai", go: "tasks", cta: "Buka Tasks" });
+      // order toko online yang belum dikirim (paling lama di atas), maks 4 baris + ringkasan
+      const SO_ATT = { verifikasi: ["warn", "Cek bukti bayar"], dibayar: ["soon", "Udah dibayar, siap dibuat"], diproses: ["info", "Lagi dibuat, belum dikirim"] };
+      const pend = (OV_SHOP_PENDING || []).slice().sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      pend.slice(0, 4).forEach(o => {
+        const st = SO_ATT[o.status] || ["info", o.status];
+        const days = Math.floor((Date.now() - new Date(o.createdAt)) / 86400000);
+        const what = (o.items || []).map(it => (it.productName || "Produk") + (it.notes ? " (" + it.notes + ")" : "") + (it.qty > 1 ? " ×" + it.qty : "")).join(", ");
+        items.push({ tone: st[0], t: "Order toko · " + escapeHtml(o.buyerName || "Pembeli"), d: st[1] + (days > 0 ? " · " + days + " hari lalu" : " · hari ini") + (what ? " · " + what : ""), go: "shoporders:order:" + o.id, cta: o.status === "verifikasi" ? "Cek bukti" : "Buka order" });
+      });
+      if (pend.length > 4) items.push({ tone: "info", t: (pend.length - 4) + " order toko lain belum dikirim", d: "Total " + pend.length + " order nunggu diproses", go: "shoporders", cta: "Lihat semua" });
       const nb = document.getElementById("navActBadge");
       const notif = nb && nb.style.display !== "none" ? parseInt(nb.textContent, 10) || 0 : 0;
       if (notif) items.push({ tone: "info", t: notif + " notifikasi belum dicek", d: "Pendaftar baru, karya, atau pesan warga", go: "activity", cta: "Lihat" });
