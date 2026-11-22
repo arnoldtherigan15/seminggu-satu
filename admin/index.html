@@ -12382,8 +12382,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (show && !el) {
         el = document.createElement("div");
         el.id = "pdfGenOverlay";
-        el.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(20,20,20,.45);display:flex;align-items:center;justify-content:center;color:#fff;font:600 14px 'Open Sans',sans-serif;";
-        el.textContent = "Bikin PDF…";
+        el.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(13,21,38,.55);display:flex;align-items:center;justify-content:center;";
+        el.innerHTML = `<div style="background:#fff;color:#10245e;border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:12px;font:700 15px 'Open Sans',sans-serif;box-shadow:0 12px 30px rgba(0,0,0,.25)"><span class="ab-spin" aria-hidden="true" style="width:20px;height:20px"></span> Bikin PDF, sebentar ya…</div>`;
         document.body.appendChild(el);
       } else if (!show && el) {
         el.remove();
@@ -12407,14 +12407,26 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const SCALE = 2;
 
       pdfGenOverlay(true);
-      // PDF selalu tema TERANG -- dirender dari DOM halaman ini, jadi kalau admin lagi
-      // mode gelap, warna gelapnya ikut kebawa (teks pucat di kertas putih). Ditutup overlay.
-      const prevTheme = document.documentElement.getAttribute("data-theme");
-      document.documentElement.setAttribute("data-theme", "light");
-      const stage = document.createElement("div");
-      stage.style.cssText = `position:fixed;left:-10000px;top:0;width:${contentWidthPx}px;background:#fff;color:#10245e;`;
-      stage.innerHTML = html;
-      document.body.appendChild(stage);
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); // biar overlay "Bikin PDF" sempat kegambar dulu
+      // Dirender di IFRAME terpisah yang isinya cuma dokumen ini (bukan di halaman admin):
+      // html2canvas nge-clone seluruh dokumen tiap render -- di halaman admin (3000+ elemen)
+      // itu makan ~7 detik, di iframe kecil < 1 detik. Bonus: tema gelap admin nggak ikut
+      // kebawa (admin-dark.css nggak dimuat di iframe), PDF selalu terang.
+      const ifr = document.createElement("iframe");
+      ifr.setAttribute("aria-hidden", "true");
+      ifr.style.cssText = `position:fixed;left:-10000px;top:0;width:${contentWidthPx}px;height:200px;border:0;`;
+      const inlineCss = [...document.querySelectorAll("head style")].map(el => el.textContent).join("\n");
+      const argon = document.querySelector('link[href*="argon-dashboard"]');
+      document.body.appendChild(ifr);
+      await new Promise((res) => {
+        ifr.onload = res;
+        ifr.srcdoc = `<!doctype html><html><head><meta charset="utf-8">${argon ? `<link rel="stylesheet" href="${argon.href}">` : ""}<style>${inlineCss}</style>
+          <style>html,body{margin:0;background:#fff;}</style></head><body><div id="pdfStage" style="width:${contentWidthPx}px;background:#fff;">${html}</div></body></html>`;
+        setTimeout(res, 4000);
+      });
+      const idoc = ifr.contentDocument;
+      const stage = idoc.getElementById("pdfStage");
+      await Promise.all([...idoc.images].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; setTimeout(r, 4000); })));
       const docEl = stage.firstElementChild;
       docEl.style.maxWidth = "none";
       docEl.style.width = contentWidthPx + "px";
@@ -12475,8 +12487,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         if (opts && opts.returnBlob) return pdf.output("blob");
         pdf.save(fileName + ".pdf");
       } finally {
-        stage.remove();
-        if (prevTheme) document.documentElement.setAttribute("data-theme", prevTheme);
+        ifr.remove();
         pdfGenOverlay(false);
       }
     }
