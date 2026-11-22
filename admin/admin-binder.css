@@ -2265,7 +2265,7 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
 .so-pend { color: #b45309 !important; }
 
 /* Overview: Order belum dikirim */
-.ovo { margin: 0 0 28px; }
+.ovo { margin: 28px 0 32px; }
 .ovo-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .ovo-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
 .ovo-list { background: #ffffff; border-radius: 16px; box-shadow: var(--shadow-sm); overflow: hidden; }

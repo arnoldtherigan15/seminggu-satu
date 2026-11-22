@@ -4305,7 +4305,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=50">
+  <link rel="stylesheet" href="admin-binder.css?v=51">
   <link rel="stylesheet" href="admin-dark.css?v=7">
 </head>
 
@@ -4511,7 +4511,7 @@
           </section>
 
           <section class="ovo" id="ovOrdersSec" hidden>
-            <div class="ovo-h"><h3 class="ov-section-title" style="margin:0;">Order belum dikirim</h3><a class="btn btn-sm btn-ghost" href="#shoporders">Order toko</a></div>
+            <div class="ovo-h"><h3 class="ov-section-title" style="margin:0;">Order belum dikirim</h3><a class="btn btn-sm btn-ghost" href="#shoporders:semua">Order toko</a></div>
             <div id="ovOrders"></div>
           </section>
 
@@ -8676,6 +8676,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         ensureShopOrdersView();
         // link langsung ke 1 order (mis. dari push "Order Baru dari Toko"): #shoporders:order:<id>
         if (event === "order" && subtab) openShopOrderById(subtab);
+        else if (event === "semua" || event === "walkin" || event === "event") {
+          // buka tab tertentu (mis. dari Overview "Order toko" -> tab Semua)
+          setTimeout(() => {
+            if (document.getElementById("shopOrdEditorWrap").style.display === "block") closeShopOrdEditor();
+            if (shopOrdTabsCtl && shopOrdTabsCtl.show) shopOrdTabsCtl.show(event);
+          }, 0);
+        }
       }
       if (view === "shopfinance") ensureShopFinanceView();
       if (view === "leads") ensureLeads();
@@ -9784,7 +9791,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         </button>`;
       }).join("");
       box.innerHTML = `<div class="ovo-pills">${pills}</div><div class="ovo-list">${rows}</div>` +
-        (list.length > 5 ? `<a class="ovo-more" href="#shoporders">Lihat semua ${list.length} order &rarr;</a>` : "");
+        (list.length > 5 ? `<a class="ovo-more" href="#shoporders:semua">Lihat semua ${list.length} order &rarr;</a>` : "");
     }
     document.addEventListener("click", (e) => { const b = e.target.closest("[data-ovorder]"); if (b) location.hash = "shoporders:order:" + b.dataset.ovorder; });
 
