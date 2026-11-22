@@ -940,6 +940,21 @@ Kasih:
         const { data: mem } = await admin.from("members").select("nickname, wa, created_at").gte("created_at", actCutoff).order("created_at", { ascending: false }).limit(200);
         for (const r of mem || []) acts.push({ type: "member", who: r.nickname || "Warga", detail: "gabung Balai Warga", wa: r.wa || "", ts: r.created_at ? new Date(r.created_at).getTime() : 0 });
 
+        // checkout toko online
+        const { data: webOrders } = await admin.from("shop_orders").select("id, buyer_name, ship_cost, status, created_at").eq("source", "web").gte("created_at", actCutoff).order("created_at", { ascending: false }).limit(200);
+        if (webOrders && webOrders.length) {
+          // deno-lint-ignore no-explicit-any
+          const ids = webOrders.map((o: any) => o.id);
+          const { data: ws } = await admin.from("shop_sales").select("order_id, qty, unit_sell_price").in("order_id", ids);
+          const sum = new Map<string, { n: number; total: number }>();
+          // deno-lint-ignore no-explicit-any
+          for (const x of (ws || []) as any[]) { const c = sum.get(x.order_id) || { n: 0, total: 0 }; c.n += Number(x.qty) || 0; c.total += (Number(x.qty) || 0) * (Number(x.unit_sell_price) || 0); sum.set(x.order_id, c); }
+          // deno-lint-ignore no-explicit-any
+          for (const o of webOrders as any[]) {
+            const c = sum.get(o.id) || { n: 0, total: 0 };
+            acts.push({ type: "order", who: o.buyer_name || "Pembeli", orderId: o.id, detail: `${c.n} barang · Rp ${(c.total + (Number(o.ship_cost) || 0)).toLocaleString("id-ID")}${o.ship_cost == null ? " · ongkir menyusul" : ""}`, ts: o.created_at ? new Date(o.created_at).getTime() : 0 });
+          }
+        }
         acts.sort((a, b) => b.ts - a.ts);
 
         // Kotak Pos Warga yang belum ditindak (approve/tolak) -- ini yang

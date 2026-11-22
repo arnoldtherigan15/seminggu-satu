@@ -4305,8 +4305,8 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=48">
-  <link rel="stylesheet" href="admin-dark.css?v=6">
+  <link rel="stylesheet" href="admin-binder.css?v=49">
+  <link rel="stylesheet" href="admin-dark.css?v=7">
 </head>
 
 <body>
@@ -4508,6 +4508,11 @@
           <section class="ov-attn" id="ovAttention" aria-labelledby="ovAttnT">
             <h3 class="ov-section-title" id="ovAttnT">Perlu perhatian</h3>
             <div id="ovAttnList"><div class="sk-attn" aria-hidden="true"><div class="sk-attn-row"><i class="sk sk-dot"></i><span><i class="sk" style="width:45%;height:13px"></i><i class="sk" style="width:70%;height:10px"></i></span></div><div class="sk-attn-row"><i class="sk sk-dot"></i><span><i class="sk" style="width:45%;height:13px"></i><i class="sk" style="width:70%;height:10px"></i></span></div></div></div>
+          </section>
+
+          <section class="ovo" id="ovOrdersSec" hidden>
+            <div class="ovo-h"><h3 class="ov-section-title" style="margin:0;">Order belum dikirim</h3><a class="btn btn-sm btn-ghost" href="#shoporders">Order toko</a></div>
+            <div id="ovOrders"></div>
           </section>
 
           <h3 class="ov-section-title">Event mendatang</h3>
@@ -9758,9 +9763,31 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const r = await api("listShopOrders", { token: getToken() });
         if (!r || r.status !== "success") return;
         OV_SHOP_PENDING = (r.orders || []).filter(o => ["verifikasi", "dibayar", "diproses"].includes(o.status));
-        renderAttention();
+        renderOvOrders();
       } catch (e) { }
     }
+    // Section "Order belum dikirim": ringkas (hitungan per status + 5 order terlama), sisanya di Order toko
+    function renderOvOrders() {
+      const box = document.getElementById("ovOrders"); if (!box) return;
+      const list = (OV_SHOP_PENDING || []).slice().sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      document.getElementById("ovOrdersSec").hidden = !list.length;
+      if (!list.length) return;
+      const n = (k) => list.filter(o => o.status === k).length;
+      const pills = [["verifikasi", "cek bukti bayar"], ["dibayar", "siap dibuat"], ["diproses", "lagi dibuat"]].filter(([k]) => n(k))
+        .map(([k, l]) => `<span class="so-st so-st-${k}">${n(k)} ${l}</span>`).join("");
+      const rows = list.slice(0, 5).map(o => {
+        const days = Math.floor((Date.now() - new Date(o.createdAt)) / 86400000);
+        const what = (o.items || []).map(it => (it.productName || "Produk") + (it.notes ? " (" + it.notes + ")" : "") + (it.qty > 1 ? " ×" + it.qty : "")).join(", ");
+        return `<button type="button" class="ovo-row" data-ovorder="${escapeHtml(o.id)}">
+          <span class="ovo-txt"><b>${escapeHtml(o.buyerName || "Pembeli")}</b><small>${escapeHtml(what || "-")}</small></span>
+          <span class="ovo-meta">${o.shipPending ? `<span class="so-st so-st-verifikasi">ongkir menyusul</span>` : ""}<span class="so-st so-st-${o.status}">${escapeHtml(SO_STATUS_LABEL[o.status] || o.status)}</span><small>${days > 0 ? days + " hari lalu" : "hari ini"}</small></span>
+        </button>`;
+      }).join("");
+      box.innerHTML = `<div class="ovo-pills">${pills}</div><div class="ovo-list">${rows}</div>` +
+        (list.length > 5 ? `<a class="ovo-more" href="#shoporders">Lihat semua ${list.length} order &rarr;</a>` : "");
+    }
+    document.addEventListener("click", (e) => { const b = e.target.closest("[data-ovorder]"); if (b) location.hash = "shoporders:order:" + b.dataset.ovorder; });
+
     async function ensureOverview() {
       loadOvShopPending();
       if (!overviewInit) {
@@ -9907,16 +9934,6 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const dueSoon = open.filter(t => t.dueDate && dayDiff(t.dueDate) >= 0 && dayDiff(t.dueDate) <= 3).length;
       if (overdue) items.push({ tone: "warn", t: overdue + " task lewat tenggat", d: "Dari " + open.length + " task yang belum selesai", go: "tasks", cta: "Buka Tasks" });
       else if (dueSoon) items.push({ tone: "soon", t: dueSoon + " task tenggatnya ≤ 3 hari", d: "Dari " + open.length + " task yang belum selesai", go: "tasks", cta: "Buka Tasks" });
-      // order toko online yang belum dikirim (paling lama di atas), maks 4 baris + ringkasan
-      const SO_ATT = { verifikasi: ["warn", "Cek bukti bayar"], dibayar: ["soon", "Udah dibayar, siap dibuat"], diproses: ["info", "Lagi dibuat, belum dikirim"] };
-      const pend = (OV_SHOP_PENDING || []).slice().sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-      pend.slice(0, 4).forEach(o => {
-        const st = SO_ATT[o.status] || ["info", o.status];
-        const days = Math.floor((Date.now() - new Date(o.createdAt)) / 86400000);
-        const what = (o.items || []).map(it => (it.productName || "Produk") + (it.notes ? " (" + it.notes + ")" : "") + (it.qty > 1 ? " ×" + it.qty : "")).join(", ");
-        items.push({ tone: st[0], t: "Order toko · " + escapeHtml(o.buyerName || "Pembeli"), d: st[1] + (days > 0 ? " · " + days + " hari lalu" : " · hari ini") + (what ? " · " + what : ""), go: "shoporders:order:" + o.id, cta: o.status === "verifikasi" ? "Cek bukti" : "Buka order" });
-      });
-      if (pend.length > 4) items.push({ tone: "info", t: (pend.length - 4) + " order toko lain belum dikirim", d: "Total " + pend.length + " order nunggu diproses", go: "shoporders", cta: "Lihat semua" });
       const nb = document.getElementById("navActBadge");
       const notif = nb && nb.style.display !== "none" ? parseInt(nb.textContent, 10) || 0 : 0;
       if (notif) items.push({ tone: "info", t: notif + " notifikasi belum dicek", d: "Pendaftar baru, karya, atau pesan warga", go: "activity", cta: "Lihat" });
@@ -14259,7 +14276,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         if (opts.showSource) meta.push(order.batchId ? escapeHtml(workshopName(order.workshopType) || "Event") : (ch === "event" ? "Event" : (ch ? "" : "Pembeli lain")));
         if (opts.showDate) meta.push(new Date(order.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" }));
         meta.push(soTime(order.createdAt));
-        if (order.isCod === false && order.deliveryAddress) meta.push("Dikirim");
+        if (order.isCod === false && order.deliveryAddress && !order.status) meta.push("Dikirim");
+        if (order.shipPending) meta.push(`<span class="so-ch so-ch-pend">ongkir menyusul</span>`);
         const pill = order.status
           ? `<span class="so-pill so-st so-st-${order.status}">${escapeHtml(SO_STATUS_LABEL[order.status] || order.status)}</span>`
           : order.isPaid
@@ -14843,6 +14861,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         const st = sb.dataset.sostatus;
         if (st === "dikirim" && !SHOPORD_CURRENT.awb && !document.getElementById("shopOrdAwb").value.trim()) { abToast("Isi nomor resi JNE dulu", "err"); document.getElementById("shopOrdAwb").focus(); return; }
         if (st === "batal" && !await abConfirm("Batalkan order ini? Pembeli bisa liat status Dibatalkan di link tracking-nya.")) return;
+        if (st === "dikirim" && SHOPORD_CURRENT.shipPending && !await abConfirm("Ongkir order ini masih MENYUSUL (belum diisi & ditagih). Tetap tandai Dikirim?")) return;
         sb.disabled = true; await setShopOrdStatus(st); sb.disabled = false; return;
       }
       const b = e.target.closest("[data-soweb]"); if (!b) return;
@@ -14872,6 +14891,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       } else if (act === "awb") {
         const awb = document.getElementById("shopOrdAwb").value.trim().toUpperCase();
         if (!awb) { abToast("Isi nomor resi dulu", "err"); return; }
+        if (o.shipPending && !await abConfirm("Ongkir order ini masih MENYUSUL (belum diisi & ditagih). Tetap tandai Dikirim?")) return;
         b.disabled = true; await setShopOrdStatus("dikirim", awb); b.disabled = false;
       } else if (act === "wa") {
         const wa = waNormalize(o.buyerWa);
@@ -15205,7 +15225,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           items: SHOPORD_CURRENT.items.map(it => ({
             description: (it.productName || "Produk dihapus") + (it.notes ? " — " + it.notes : ""),
             qty: it.qty, price: it.unitSellPrice,
-          })).concat(Number(SHOPORD_CURRENT.shipCost) > 0 ? [{ description: "Ongkir JNE " + (SHOPORD_CURRENT.shipService || ""), qty: 1, price: Number(SHOPORD_CURRENT.shipCost) }] : []),
+          })).concat(Number(SHOPORD_CURRENT.shipCost) > 0 ? [{ description: "Ongkir JNE " + (SHOPORD_CURRENT.shipService || ""), qty: 1, price: Number(SHOPORD_CURRENT.shipCost) }]
+            : SHOPORD_CURRENT.shipPending ? [{ description: "Ongkir JNE — MENYUSUL (belum termasuk, ditagih terpisah)", qty: 1, price: 0 }] : []),
           bankName: "Blu by BCA Digital",
           bankAccountName: "Arnold Therigan",
           bankAccountNo: "090163537583",
@@ -15945,6 +15966,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       daftar: { label: "Pendaftar", icon: "journal", color: "#3b6cff" },
       quest: { label: "Challenge", icon: "lightning", color: "#e07a1f" },
       member: { label: "Warga baru", icon: "people", color: "#1f9d5c" },
+      order: { label: "Order toko", icon: "cart", color: "#c2410c" },
     };
     function nxAgo(ts) {
       if (!ts) return "";
@@ -16002,9 +16024,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       seenBtn.hidden = !(fresh.length || !NX.seen) || !acts.length;
 
       // chip filter
-      const cnt = { all: acts.length, daftar: 0, quest: 0, member: 0 };
+      const cnt = { all: acts.length, daftar: 0, quest: 0, member: 0, order: 0 };
       acts.forEach(a => { cnt[a.type] = (cnt[a.type] || 0) + 1; });
-      const chips = [["all", "Semua"], ["daftar", "Pendaftar"], ["quest", "Challenge"], ["member", "Warga baru"]].filter(([k]) => k === "all" || cnt[k]);
+      const chips = [["all", "Semua"], ["order", "Order toko"], ["daftar", "Pendaftar"], ["quest", "Challenge"], ["member", "Warga baru"]].filter(([k]) => k === "all" || cnt[k]);
       document.getElementById("nxChips").innerHTML = chips.map(([k, l]) => `<button type="button" class="so-chip so-chip-sm${NX.filter === k ? " active" : ""}" data-nxf="${k}" role="tab" aria-selected="${NX.filter === k}">${l}<span>${cnt[k] || 0}</span></button>`).join("");
 
       // Perlu tindakan: usulan warga + ulang tahun minggu ini
@@ -16038,10 +16060,10 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       list.slice(0, 200).forEach(a => { const l = nxDayLabel(a.ts); let g = groups[groups.length - 1]; if (!g || g.l !== l) { g = { l, items: [] }; groups.push(g); } g.items.push(a); });
       feed.innerHTML = groups.map(g => `<div class="nx-day"><div class="nx-day-h">${escapeHtml(g.l)}<span>${g.items.length}</span></div><div class="nx-card">${g.items.map((a, i) => {
         const m = NX_META[a.type] || NX_META.daftar, isNew = NX.seen && a.ts > NX.seen;
-        const what = a.type === "daftar" ? `daftar <b>${escapeHtml(a.detail || "")}</b>` : a.type === "quest" ? `kirim karya <b>${escapeHtml(a.detail || "")}</b>` : "gabung Balai Warga";
+        const what = a.type === "order" ? `checkout <b>${escapeHtml(a.detail || "")}</b>` : a.type === "daftar" ? `daftar <b>${escapeHtml(a.detail || "")}</b>` : a.type === "quest" ? `kirim karya <b>${escapeHtml(a.detail || "")}</b>` : "gabung Balai Warga";
         const btn = a.wa && a.type !== "quest"
           ? `<button type="button" class="nx-mini" data-nxgreet="${a.type}" data-wa="${escapeHtml(a.wa)}" data-nm="${escapeHtml(a.who)}" data-ev="${escapeHtml(a.detail || "")}" data-greet="${escapeHtml(a.greet || "")}" title="${a.type === "daftar" ? "Sapa / konfirmasi via WA" : "Sambut via WA"}">${icon("chat")}<span>${a.type === "daftar" ? "Sapa" : "Sambut"}</span></button>` : "";
-        return `<div class="nx-row${isNew ? " is-new" : ""}" data-jump="${a.type === "daftar" ? "pendaftar" : a.type === "quest" ? "quest" : "members"}" data-ws="${escapeHtml(a.workshopType || "")}" data-batch="${escapeHtml(a.batchId || "")}" role="button" tabindex="0">
+        return `<div class="nx-row${isNew ? " is-new" : ""}" data-jump="${a.type === "order" ? "shoporders:order:" + escapeHtml(a.orderId || "") : a.type === "daftar" ? "pendaftar" : a.type === "quest" ? "quest" : "members"}" data-ws="${escapeHtml(a.workshopType || "")}" data-batch="${escapeHtml(a.batchId || "")}" role="button" tabindex="0">
           <span class="nx-ic" style="background:${m.color}1a;color:${m.color}">${icon(m.icon)}</span>
           <span class="nx-row-txt"><span><b>${escapeHtml(a.who)}</b> ${what}</span><small>${m.label} · ${nxAgo(a.ts)}${isNew ? ' · <em>Baru</em>' : ""}</small></span>
           ${btn}
@@ -16144,7 +16166,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           updateInboxBadge(NX.data.pending.length); renderActivityInbox(); return;
         }
         const row = e.target.closest(".nx-row");
-        if (row) jumpFromActivity(row.dataset.jump, row.dataset.ws, row.dataset.batch);
+        if (row) { if (row.dataset.jump.indexOf("shoporders:") === 0) location.hash = row.dataset.jump; else jumpFromActivity(row.dataset.jump, row.dataset.ws, row.dataset.batch); }
       });
       v.addEventListener("keydown", (e) => { const row = e.target.closest(".nx-row"); if (row && (e.key === "Enter" || e.key === " ") && e.target === row) { e.preventDefault(); row.click(); } });
     }
