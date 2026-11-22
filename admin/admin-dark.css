@@ -129,6 +129,10 @@ html[data-theme="dark"] .cfg-field.cfg-check { background: #181d2f; }
 html[data-theme="dark"] .konten-item .k-del:hover { background: #521818; }
 html[data-theme="dark"] .konten-item.dragging { box-shadow: 0 12px 30px rgba(0, 0, 0, 0.51); }
 html[data-theme="dark"] .konten-field label { color: #c6cbd9; }
+html[data-theme="dark"], html[data-theme="dark"] body { background: #171b2c; }
+html[data-theme="dark"] body { color: #e6e6e6; }
+html[data-theme="dark"] .lb { background: #321e1a; }
+@media screen { html[data-theme="dark"] .lb { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.70); } }
 html[data-theme="dark"] .form-control, html[data-theme="dark"] select.form-control, html[data-theme="dark"] input.form-control, html[data-theme="dark"] textarea.form-control { border: 1.5px solid #152448; }
 html[data-theme="dark"] .sidebar { background: #171b2c; }
 html[data-theme="dark"] .sidebar-header h2 { box-shadow: inset 4px 0 0 rgba(0, 0, 0, 0.56); }
@@ -459,6 +463,18 @@ html[data-theme="dark"] .sf-panel .so-stat { background: #171b2c; }
 html[data-theme="dark"] .sf-panel .so-stat.is-profit { background: #171b2c; }
 html[data-theme="dark"] .sf-trend { background: #171b2c; }
 @media (max-width: 700px) { html[data-theme="dark"] body.nt-doc-open .nt-toolbar { background: rgba(23, 29, 48, 0.96); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.61), 0 0 0 1px rgba(0, 0, 0, 0.22); } }
+html[data-theme="dark"] .so-web { border: 1.5px solid #142443; background: #181d2f; }
+html[data-theme="dark"] .so-web-grid > div { background: #171b2c; }
+html[data-theme="dark"] .so-web-note { background: #413813; color: #ffda73; }
+html[data-theme="dark"] .so-web-note span { color: #ffca67; }
+html[data-theme="dark"] .so-step { background: #171b2c; }
+html[data-theme="dark"] .so-st-verifikasi { background: #3c2e11; color: #ffc267; border-color: #5e481b; }
+html[data-theme="dark"] .so-st-dibayar { background: #113c22; color: #74f4ae; border-color: #1b4c2e; }
+html[data-theme="dark"] .so-st-diproses { background: #111c39; border-color: #142043; }
+html[data-theme="dark"] .so-st-dikirim { background: #112f3c; color: #6dccf4; border-color: #163b4c; }
+html[data-theme="dark"] .so-st-selesai { background: #162036; color: #c3c8d9; border-color: #19243d; }
+html[data-theme="dark"] .so-st-batal { background: #3a1111; color: #e77183; border-color: #49151c; }
+html[data-theme="dark"] .so-ch-web { background: #111c39; }
 
 /* --- manual: Argon form, tabel, inline style, elemen yang sengaja tetap terang --- */
 html[data-theme="dark"] body { background-color: var(--bg); background-image: radial-gradient(rgba(255, 255, 255, .035) 1px, transparent 1.2px); color: var(--ink); }

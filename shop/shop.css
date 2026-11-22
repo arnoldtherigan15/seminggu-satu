@@ -1,0 +1,88 @@
+/* Toko pre-order -- nambahin komponen di atas binder-form.css (sampul, kertas, form) */
+[hidden] { display: none !important; }
+.sh-how { margin: 1rem 0 0; padding: 0; list-style: none; counter-reset: sh; display: flex; flex-direction: column; gap: 0.45rem; }
+.sh-how li { counter-increment: sh; display: flex; align-items: center; gap: 0.6rem; color: #e3ebff; font-size: 0.92rem; }
+.sh-how li::before { content: counter(sh); width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; background: var(--yellow); color: #10245e; display: inline-flex; align-items: center; justify-content: center; font: 800 0.8rem 'Outfit', sans-serif; }
+.sh-how b { color: #ffffff; }
+
+.sh-muted { color: var(--ink-2); font-size: 0.9rem; font-weight: 400; }
+.sh-link { background: none; border: 0; padding: 0.6rem 0; color: #0046ff; font: 700 0.95rem 'Open Sans', sans-serif; cursor: pointer; }
+
+/* katalog */
+.sh-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
+.sh-card { background: var(--paper); border-radius: 12px; box-shadow: var(--depth-paper); overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.sh-skel { min-height: 240px; background: linear-gradient(90deg, var(--rule) 25%, var(--peel) 37%, var(--rule) 63%); background-size: 400% 100%; animation: shimmer 1.3s infinite; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+.sh-img { aspect-ratio: 1; background: var(--desk); display: flex; align-items: center; justify-content: center; color: var(--ink-2); font: 800 1.6rem 'Outfit', sans-serif; }
+.sh-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sh-body { padding: 0.7rem 0.75rem 0.8rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+.sh-name { font: 800 0.98rem/1.25 'Outfit', sans-serif; color: var(--ink); }
+.sh-price { font: 800 1rem 'Outfit', sans-serif; color: #0046ff; }
+.sh-pre { display: inline-block; align-self: flex-start; font-size: 0.72rem; font-weight: 700; color: #8a5a00; background: #fff3c4; border-radius: 999px; padding: 2px 8px; }
+.sh-desc { font-size: 0.8rem; color: var(--ink-2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.sh-add { margin-top: auto; min-height: 40px; border-radius: 10px; border: 0; background: #0046ff; color: #fff; font: 800 0.9rem 'Outfit', sans-serif; cursor: pointer; transition: transform .12s ease; }
+.sh-add:active { transform: scale(.97); }
+.sh-qty { margin-top: auto; display: flex; align-items: center; justify-content: space-between; border: 1.5px solid var(--field-border); border-radius: 10px; min-height: 40px; }
+.sh-qty button { width: 40px; height: 38px; border: 0; background: none; color: #0046ff; font: 800 1.2rem 'Outfit', sans-serif; cursor: pointer; }
+.sh-qty b { font: 800 1rem 'Outfit', sans-serif; color: var(--ink); }
+.sh-empty { grid-column: 1 / -1; padding: 1.5rem 1rem; text-align: center; color: var(--ink-2); border: 1.5px dashed var(--rule); border-radius: 12px; }
+
+/* bar keranjang */
+.sh-cartbar { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 10px 10px 16px; border-radius: 16px; background: #10245e; color: #fff; box-shadow: 0 12px 30px rgba(16, 36, 94, .35); max-width: 640px; margin: 0 auto; }
+.sh-cartbar > div { display: flex; flex-direction: column; }
+.sh-cartbar b { font: 800 0.95rem 'Outfit', sans-serif; }
+.sh-cartbar span { font-size: 0.85rem; opacity: .8; }
+.sh-cartbar .submit-btn { width: auto; min-height: 46px; padding: 0 18px; margin: 0; transform: none; box-shadow: none; background: var(--yellow); color: #10245e; }
+.sh-cartbar .submit-btn::after { display: none; }
+body.sh-has-cart main.container { padding-bottom: 90px; }
+
+/* checkout */
+.sh-progress { position: static; margin: 0 0 1rem; padding: 0; background: none; }
+.rs-progress-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 9px; }
+.rs-progress-top b { font: 800 17px 'Outfit', sans-serif; color: var(--ink); }
+.rs-progress-top span { font-size: 13px; color: var(--ink-2); font-weight: 600; }
+.rs-bars { display: flex; gap: 6px; }
+.rs-bar { flex: 1; height: 6px; border-radius: 999px; background: var(--rule); overflow: hidden; }
+.rs-bar i { display: block; height: 100%; width: 0; background: #0046ff; transition: width .3s ease; }
+.rs-bar.done i, .rs-bar.on i { width: 100%; }
+.rs-nav { display: flex; gap: 10px; margin-top: 18px; align-items: stretch; }
+.rs-nav .submit-btn { margin-top: 0; min-height: 56px; transform: none; box-shadow: 0 6px 16px rgba(0, 70, 255, .22); flex: 1; }
+.rs-nav .submit-btn::after { display: none; }
+.rs-back { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 20px; border-radius: 14px; border: 1.5px solid var(--field-border); background: transparent; color: var(--ink); font: 700 1rem 'Open Sans', sans-serif; cursor: pointer; }
+.rs-err { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: #fff1f1; color: #b42318; font-size: 14px; font-weight: 600; }
+
+.sh-cline { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--rule); }
+.sh-cline-img { width: 52px; height: 52px; flex-shrink: 0; border-radius: 10px; background: var(--desk); overflow: hidden; display: flex; align-items: center; justify-content: center; font: 800 1rem 'Outfit', sans-serif; color: var(--ink-2); }
+.sh-cline-img img { width: 100%; height: 100%; object-fit: cover; }
+.sh-cline-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sh-cline-txt b { color: var(--ink); font-size: 0.95rem; }
+.sh-cline-txt small { color: var(--ink-2); font-size: 0.82rem; }
+.sh-cline .sh-qty { margin: 0; min-height: 36px; width: 110px; flex-shrink: 0; }
+.sh-cline .sh-qty button { height: 34px; width: 34px; }
+
+.sh-dest { position: relative; }
+.sh-dest-list { margin-top: 6px; border: 1.5px solid var(--field-border); border-radius: 12px; overflow: hidden; background: var(--paper); max-height: 260px; overflow-y: auto; }
+.sh-dest-list button { display: block; width: 100%; text-align: left; padding: 10px 12px; border: 0; border-top: 1px solid var(--rule); background: none; color: var(--ink); font: 600 0.88rem 'Open Sans', sans-serif; cursor: pointer; }
+.sh-dest-list button:first-child { border-top: 0; }
+.sh-dest-list button:hover { background: var(--desk); }
+.sh-dest-list p { margin: 0; padding: 10px 12px; color: var(--ink-2); font-size: 0.88rem; }
+.sh-dest-picked { margin-top: 6px; padding: 10px 12px; border-radius: 12px; background: #e9fbf0; color: #0a7a3d; font-size: 0.88rem; font-weight: 700; display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.sh-dest-picked button { background: none; border: 0; color: #0046ff; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+
+.sh-opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid var(--field-border); border-radius: 12px; margin-bottom: 8px; cursor: pointer; background: var(--paper); }
+.sh-opt input { width: 20px; height: 20px; accent-color: #0046ff; }
+.sh-opt.on { border: 2.5px solid #0046ff; padding: 11px 13px; }
+.sh-opt-txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.sh-opt-txt b { color: var(--ink); }
+.sh-opt-txt small { color: var(--ink-2); font-size: 0.8rem; }
+.sh-opt > strong { color: var(--ink); font-family: 'Outfit', sans-serif; white-space: nowrap; }
+
+.sh-summary { border: 1.5px solid var(--rule); border-radius: 12px; padding: 6px 14px; margin-bottom: 1rem; }
+.sh-sum-row { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; font-size: 0.9rem; color: var(--ink-2); border-top: 1px solid var(--rule); }
+.sh-sum-row:first-child { border-top: 0; }
+.sh-sum-row b { color: var(--ink); }
+.sh-sum-row.total { font-size: 1rem; }
+.sh-sum-row.total b { font-family: 'Outfit', sans-serif; font-size: 1.1rem; color: #0046ff; }
+.upload-area .preview-img { display: block; }
+
+@media (max-width: 380px) { .sh-grid { gap: 0.6rem; } .sh-body { padding: 0.6rem; } }

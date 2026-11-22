@@ -4305,8 +4305,8 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=46">
-  <link rel="stylesheet" href="admin-dark.css?v=5">
+  <link rel="stylesheet" href="admin-binder.css?v=47">
+  <link rel="stylesheet" href="admin-dark.css?v=6">
 </head>
 
 <body>
@@ -5219,6 +5219,16 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               </div>
             </div>
 
+            <div class="fin-card sp-shop" style="margin-top:12px;">
+              <label class="sp-shop-tog"><input type="checkbox" id="shopProdShowInShop"> <span><b>Tampil di toko online</b><small>seminggusatu.com/shop &middot; sistem pre-order, nggak dibatasi stok. Wajib ada Harga Jual.</small></span></label>
+              <div class="sp-shop-fields">
+                <div class="konten-field"><label for="shopProdWeight">Berat per pcs (gram) &middot; buat hitung ongkir JNE</label><input class="form-control" type="number" inputmode="numeric" min="1" id="shopProdWeight" placeholder="mis. 150"></div>
+                <div class="konten-field"><label for="shopProdPreNote">Catatan pre-order (tampil di kartu produk)</label><input class="form-control" type="text" id="shopProdPreNote" maxlength="140" placeholder="mis. Pre-order &middot; dikirim 7-10 hari kerja"></div>
+                <div class="konten-field"><label for="shopProdShopDesc">Deskripsi singkat di toko (opsional)</label><textarea class="form-control" id="shopProdShopDesc" rows="2" maxlength="600" placeholder="Isi kit, ukuran, pilihan warna..."></textarea></div>
+                <div class="sp-shop-link" id="shopProdShopLink"></div>
+              </div>
+            </div>
+
             <div class="fin-card" id="shopProdShareCard" style="margin-top:12px;display:none;">
               <!-- Diisi JS -- QR "scan buat jual" (sell_token), cuma muncul kalau produk udah tersimpan -->
             </div>
@@ -5357,10 +5367,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <div class="toolbar">
               <button class="btn btn-sm btn-ghost" id="shopOrdBackBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg> Kembali ke Daftar</button>
             </div>
+            <div class="fin-card so-web" id="shopOrdWebCard" hidden></div>
             <div class="fin-card">
               <div class="konten-field"><label>Nama Pembeli</label><input class="form-control" type="text" id="shopOrdBuyerName"></div>
               <div class="konten-field"><label>Nomor WA</label><input class="form-control" type="text" id="shopOrdBuyerWa" placeholder="08xx..."></div>
-              <div class="konten-field"><label for="shopOrdChannel">Order dari</label><select class="form-control" id="shopOrdChannel"><option value="">Belum diisi</option><option value="instagram">Instagram</option><option value="threads">Threads</option><option value="whatsapp">WhatsApp</option><option value="event">Event</option><option value="lainnya">Lainnya</option></select></div>
+              <div class="konten-field"><label for="shopOrdChannel">Order dari</label><select class="form-control" id="shopOrdChannel"><option value="">Belum diisi</option><option value="instagram">Instagram</option><option value="threads">Threads</option><option value="whatsapp">WhatsApp</option><option value="event">Event</option><option value="web">Toko online</option><option value="lainnya">Lainnya</option></select></div>
               <div style="display:flex;align-items:center;gap:8px;margin:10px 0 4px;">
                 <input type="checkbox" id="shopOrdCodCheck" style="width:18px;height:18px;">
                 <label for="shopOrdCodCheck" style="margin:0;cursor:pointer;">COD -- ketemu langsung, nggak perlu alamat</label>
@@ -5404,6 +5415,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
               <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 <button class="btn btn-sm btn-ghost" id="shopOrdInvoiceBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5zM3 12v-2h2v2zm0 1h2v2H4a1 1 0 0 1-1-1zm3 2v-2h3v2zm4 0v-2h3v1a1 1 0 0 1-1 1zm3-3h-3v-2h3zm-7-2H3V9h2zm1 0V9h3v2zm4 0V9h3v2z"/></svg> Unduh invoice (PDF)</button>
                 <button class="btn btn-sm btn-ghost" id="shopOrdWaBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.336-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" /></svg> Buka WA</button>
+                <button class="btn btn-sm btn-ghost" id="shopOrdLabelBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/><path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/></svg> Cetak label kirim (A6)</button>
                 <button class="btn btn-sm btn-ghost" id="shopOrdDeleteBtn" type="button" style="color:var(--err);margin-left:auto;">Hapus Order</button>
               </div>
               <div class="msg" id="shopOrdMsg"></div>
@@ -13474,7 +13486,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
     function openShopProdEditor(p) {
       SHOPPROD_CURRENT = p
-        ? { id: p.id, name: p.name, image: p.image, materials: p.materials.map(m => ({ materialId: m.materialId, qty: m.qty })), extraCosts: p.extraCosts.map(e => Object.assign({}, e)), sellPrice: p.sellPrice, sellToken: p.sellToken }
+        ? { id: p.id, code: p.code, name: p.name, image: p.image, materials: p.materials.map(m => ({ materialId: m.materialId, qty: m.qty })), extraCosts: p.extraCosts.map(e => Object.assign({}, e)), sellPrice: p.sellPrice, sellToken: p.sellToken }
         : { id: null, name: "", image: "", materials: [], extraCosts: [], sellPrice: null, sellToken: null };
       document.getElementById("shopProdListWrap").style.display = "none";
       document.getElementById("shopProdEditorWrap").style.display = "block";
@@ -13493,6 +13505,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("shopProdSellPrice").value = SHOPPROD_CURRENT.sellPrice != null ? formatRibuan(SHOPPROD_CURRENT.sellPrice) : "";
       document.getElementById("shopProdMsg").textContent = "";
       document.getElementById("shopProdNoMatsHint").style.display = SHOPPROD_MATERIALS_CACHE.length ? "none" : "block";
+      document.getElementById("shopProdShowInShop").checked = !!(p && p.showInShop);
+      document.getElementById("shopProdWeight").value = p ? (p.weightGrams || 150) : 150;
+      document.getElementById("shopProdPreNote").value = p ? (p.preorderNote || "") : "";
+      document.getElementById("shopProdShopDesc").value = p ? (p.shopDesc || "") : "";
+      renderShopProdShopLink();
       renderShopProdShareCard();
       renderShopProdMatRows();
       renderShopProdCostRows();
@@ -13793,6 +13810,23 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       }
     }
 
+    // Link order khusus produk ini (toko online): /shop/?p=KODE (+ ?ref=ig/threads/wa buat tau asal order)
+    const SHOP_ORIGIN = "https://seminggusatu.com";
+    function renderShopProdShopLink() {
+      const box = document.getElementById("shopProdShopLink"); if (!box) return;
+      const code = SHOPPROD_CURRENT && SHOPPROD_CURRENT.code;
+      if (!code) { box.innerHTML = `<p class="hint" style="margin:0;">Link order khusus produk ini muncul setelah produk disimpan.</p>`; return; }
+      const base = SHOP_ORIGIN + "/shop/?p=" + encodeURIComponent(code);
+      box.innerHTML = `<div class="hint" style="margin:0 0 6px;">Link order langsung ke produk ini (pembeli tetap bisa nambah produk lain):</div>
+        <div class="sp-links">${[["", "Umum"], ["ig", "Instagram"], ["threads", "Threads"], ["wa", "WhatsApp"]].map(([r, l]) =>
+          `<button type="button" class="btn btn-sm btn-ghost" data-shoplink="${escapeHtml(base + (r ? "&ref=" + r : ""))}">${icon("link")} ${l}</button>`).join("")}</div>`;
+    }
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-shoplink]"); if (!b) return;
+      const url = b.dataset.shoplink;
+      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => abToast("Link disalin", "ok")).catch(() => prompt("Salin link:", url));
+    });
+
     async function saveShopProdFn() {
       const name = document.getElementById("shopProdName").value.trim();
       if (!name) { alert("Nama produk wajib diisi."); return; }
@@ -13807,7 +13841,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         extraCosts: SHOPPROD_CURRENT.extraCosts.filter(e => e.label && e.label.trim()),
         sellPrice: sellPriceRaw !== "" ? parseRibuan(sellPriceRaw) : null,
         stockQty: stockRaw !== "" ? stockRaw : undefined,
+        showInShop: document.getElementById("shopProdShowInShop").checked,
+        weightGrams: document.getElementById("shopProdWeight").value || 150,
+        preorderNote: document.getElementById("shopProdPreNote").value,
+        shopDesc: document.getElementById("shopProdShopDesc").value,
       };
+      if (payload.showInShop && payload.sellPrice == null) { alert("Isi Harga Jual dulu biar produk bisa tampil di toko."); return; }
       const btn = document.getElementById("shopProdSaveBtn");
       const msg = document.getElementById("shopProdMsg");
       btn.disabled = true; msg.className = "msg"; msg.textContent = "Menyimpan…";
@@ -13915,6 +13954,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         document.getElementById("shopOrdInvoiceBtn").addEventListener("click", () => downloadShopOrderInvoiceFn());
         document.getElementById("shopOrdWaBtn").addEventListener("click", openShopOrdWaFn);
         document.getElementById("shopOrdDeleteBtn").addEventListener("click", deleteShopOrdFn);
+        document.getElementById("shopOrdLabelBtn").addEventListener("click", () => {
+          if (!SHOPORD_CURRENT) return;
+          if (!String(SHOPORD_CURRENT.deliveryAddress || "").trim()) { abToast("Alamat pengiriman masih kosong", "err"); return; }
+          printShippingLabel(SHOPORD_CURRENT);
+        });
         wireShopOrdProdSearch();
         wireSubtabs(document.getElementById("shopOrdSubtabs"), (tabId) => {
           if (tabId === "walkin") loadShopOrdWalkinList();
@@ -14148,7 +14192,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const d = new Date(iso); if (isNaN(d)) return "";
       return String(d.getHours()).padStart(2, "0") + "." + String(d.getMinutes()).padStart(2, "0");
     }
-    const SO_CHANNELS = { instagram: "Instagram", threads: "Threads", whatsapp: "WhatsApp", event: "Event", lainnya: "Lainnya" };
+    const SO_CHANNELS = { instagram: "Instagram", threads: "Threads", whatsapp: "WhatsApp", event: "Event", web: "Toko online", lainnya: "Lainnya" };
     function renderShopOrdRow(name, order, reg, opts) {
       opts = opts || {};
       const clean = String(name || "").trim();
@@ -14162,7 +14206,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         if (opts.showDate) meta.push(new Date(order.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" }));
         meta.push(soTime(order.createdAt));
         if (order.isCod === false && order.deliveryAddress) meta.push("Dikirim");
-        const pill = order.isPaid
+        const pill = order.status
+          ? `<span class="so-pill so-st so-st-${order.status}">${escapeHtml(SO_STATUS_LABEL[order.status] || order.status)}</span>`
+          : order.isPaid
           ? `<button type="button" class="so-pill is-paid" data-ord-paid="${escapeHtml(order.id)}" data-cur="1" title="Ketuk kalau ternyata belum dibayar">${icon("check")}Lunas</button>`
           : `<button type="button" class="so-pill" data-ord-paid="${escapeHtml(order.id)}" data-cur="0" title="Ketuk kalau udah dibayar">Belum bayar</button>`;
         return `<div class="so-row" data-ord-open="${escapeHtml(order.id)}" role="button" tabindex="0" aria-label="Buka order ${escapeHtml(shown)}">
@@ -14172,7 +14218,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             <small>${escapeHtml(soItemsSummary(order.items))}</small>
             <em>${meta.filter(Boolean).join(" · ")}</em>
           </div>
-          <div class="so-right"><b>${rupiah(order.total)}</b>${pill}</div>
+          <div class="so-right"><b>${rupiah((Number(order.total) || 0) + (Number(order.shipCost) || 0))}</b>${pill}</div>
         </div>`;
       }
       return `<div class="so-row is-plain">
@@ -14385,7 +14431,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       // asal order: chip cuma muncul buat yang ada isinya di periode ini
       const chOf = (o) => o.channel || (o.batchId ? "event" : "none");
       const chCount = {}; base.forEach(o => { const c = chOf(o); chCount[c] = (chCount[c] || 0) + 1; });
-      const chKeys = ["instagram", "threads", "whatsapp", "event", "lainnya", "none"].filter(k => chCount[k]);
+      const chKeys = ["web", "instagram", "threads", "whatsapp", "event", "lainnya", "none"].filter(k => chCount[k]);
       if (SO_ALL.channel && !chCount[SO_ALL.channel]) SO_ALL.channel = "";
       document.getElementById("shopOrdAllChChips").innerHTML = chKeys.length > 1 || SO_ALL.channel
         ? `<span class="so-chips-lbl">Dari</span>` + chKeys.map(k => `<button type="button" class="so-chip so-chip-sm${SO_ALL.channel === k ? " active" : ""}" data-soch="${k}" aria-pressed="${SO_ALL.channel === k}">${k === "none" ? "Belum diisi" : SO_CHANNELS[k]}<span>${chCount[k]}</span></button>`).join("")
@@ -14654,7 +14700,173 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("shopOrdMsg").textContent = "";
       renderShopOrdPaidToggleBtn();
       renderShopOrdItems();
+      renderShopOrdWebCard();
       window.scrollTo(0, 0);
+    }
+
+    // ===== Order dari toko online: status, resi, bukti transfer, kirim update WA =====
+    const SO_STATUS = [
+      ["verifikasi", "Cek bukti bayar"], ["dibayar", "Dibayar"], ["diproses", "Diproses"],
+      ["dikirim", "Dikirim"], ["selesai", "Selesai"], ["batal", "Batal"],
+    ];
+    const SO_STATUS_LABEL = Object.fromEntries(SO_STATUS);
+    function soTrackUrl(o) { return o && o.trackToken ? SHOP_ORIGIN + "/shop/track.html?t=" + o.trackToken : ""; }
+    function soGrandTotal(o) { return (Number(o.total) || 0) + (Number(o.shipCost) || 0); }
+    function renderShopOrdWebCard() {
+      const box = document.getElementById("shopOrdWebCard"); const o = SHOPORD_CURRENT;
+      if (!box || !o) return;
+      const web = o.source === "web" || !!o.status;
+      box.hidden = !web; if (!web) { box.innerHTML = ""; return; }
+      const st = o.status || "verifikasi";
+      box.innerHTML = `
+        <div class="so-web-h"><b>Order toko online</b><span class="so-st so-st-${st}">${escapeHtml(SO_STATUS_LABEL[st] || st)}</span></div>
+        <div class="so-web-grid">
+          <div><span>Ongkir</span><b>JNE ${escapeHtml(o.shipService || "-")} &middot; ${rupiah(o.shipCost)}</b><small>${escapeHtml(o.shipDest || "")}${o.shipEtd ? " &middot; " + escapeHtml(o.shipEtd) : ""}</small></div>
+          <div><span>Total transfer</span><b>${rupiah(soGrandTotal(o))}</b><small>barang ${rupiah(o.total)} + ongkir</small></div>
+        </div>
+        ${o.buyerNote ? `<div class="so-web-note"><span>Catatan pembeli</span>${escapeHtml(o.buyerNote)}</div>` : ""}
+        <div class="so-web-row">
+          ${o.paymentProof ? `<button type="button" class="btn btn-sm btn-ghost" data-soweb="proof">${icon("receipt")} Lihat bukti transfer</button>` : `<span class="hint" style="margin:0;">Belum ada bukti transfer</span>`}
+          ${o.trackToken ? `<button type="button" class="btn btn-sm btn-ghost" data-soweb="copy">${icon("link")} Salin link tracking</button>` : ""}
+        </div>
+        <label class="hint" style="display:block;margin:12px 0 6px;">Ubah status</label>
+        <div class="so-steps">${SO_STATUS.map(([k, l]) => `<button type="button" class="so-step${k === st ? " on" : ""}${k === "batal" ? " danger" : ""}" data-sostatus="${k}">${l}</button>`).join("")}</div>
+        <div class="so-awb">
+          <div class="konten-field" style="flex:1;margin:0;"><label for="shopOrdAwb">No. resi JNE</label><input class="form-control" type="text" id="shopOrdAwb" value="${escapeHtml(o.awb || "")}" placeholder="Isi pas paket udah dikirim" autocapitalize="characters"></div>
+          <button type="button" class="btn btn-sm" data-soweb="awb">Simpan &amp; tandai Dikirim</button>
+        </div>
+        <button type="button" class="btn btn-sm so-wa-upd" data-soweb="wa">${icon("chat")} Kirim update status ke WA pembeli</button>`;
+    }
+    async function setShopOrdStatus(status, awb) {
+      const o = SHOPORD_CURRENT; if (!o) return;
+      const body = { token: getToken(), id: o.id, status };
+      if (awb !== undefined) body.awb = awb;
+      const r = await api("setShopOrderStatus", body);
+      if (!r || r.status !== "success") { handleAuthError(r || {}); abToast((r && r.message) || "Gagal update status", "err"); return false; }
+      o.status = status; o.isPaid = ["dibayar", "diproses", "dikirim", "selesai"].includes(status);
+      if (awb !== undefined) o.awb = awb;
+      [SHOPORD_ORDERS, SHOPORD_WALKIN_ORDERS, SHOPORD_ALL_ORDERS].forEach(arr => { const x = arr.find(y => y.id === o.id); if (x) Object.assign(x, { status: o.status, isPaid: o.isPaid, awb: o.awb }); });
+      renderShopOrdWebCard(); renderShopOrdPaidToggleBtn();
+      abToast("Status: " + (SO_STATUS_LABEL[status] || status), "ok");
+      return true;
+    }
+    function shopOrdStatusWaText(o) {
+      const st = o.status || "verifikasi", nm = (o.buyerName || "").split(" ")[0] || "kak";
+      const lines = {
+        verifikasi: `Halo ${nm}! Pesananmu udah kami terima, bukti transfernya lagi kami cek ya.`,
+        dibayar: `Halo ${nm}! Pembayaranmu udah kami terima, makasih ya 💙 Pesananmu masuk antrean pre-order.`,
+        diproses: `Halo ${nm}! Pesananmu lagi kami buat sekarang ✨`,
+        dikirim: `Halo ${nm}! Pesananmu udah dikirim lewat JNE ${o.shipService || ""}.${o.awb ? "\nNo. resi: " + o.awb : ""}`,
+        selesai: `Halo ${nm}! Semoga pesanannya udah sampai dengan selamat ya. Makasih udah belanja di Seminggu Satu 🐾`,
+        batal: `Halo ${nm}, pesananmu kami batalkan. Kalau ada pertanyaan langsung balas chat ini ya.`,
+      };
+      const url = soTrackUrl(o);
+      return (lines[st] || lines.verifikasi) + (url ? "\n\nPantau status pesananmu di sini:\n" + url : "");
+    }
+    document.addEventListener("click", async (e) => {
+      const card = e.target.closest("#shopOrdWebCard"); if (!card || !SHOPORD_CURRENT) return;
+      const sb = e.target.closest("[data-sostatus]");
+      if (sb) {
+        const st = sb.dataset.sostatus;
+        if (st === "dikirim" && !SHOPORD_CURRENT.awb && !document.getElementById("shopOrdAwb").value.trim()) { abToast("Isi nomor resi JNE dulu", "err"); document.getElementById("shopOrdAwb").focus(); return; }
+        if (st === "batal" && !await abConfirm("Batalkan order ini? Pembeli bisa liat status Dibatalkan di link tracking-nya.")) return;
+        sb.disabled = true; await setShopOrdStatus(st); sb.disabled = false; return;
+      }
+      const b = e.target.closest("[data-soweb]"); if (!b) return;
+      const act = b.dataset.soweb, o = SHOPORD_CURRENT;
+      if (act === "proof") {
+        const w = window.open("", "_blank");
+        const r = await api("getSignedUrl", { token: getToken(), path: o.paymentProof });
+        if (r && r.status === "success") { if (w) w.location = r.url; else openUrlNow(r.url); }
+        else { if (w) w.close(); abToast((r && r.message) || "Gagal buka bukti", "err"); }
+      } else if (act === "copy") {
+        const url = soTrackUrl(o);
+        (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => abToast("Link tracking disalin", "ok")).catch(() => prompt("Salin link:", url));
+      } else if (act === "awb") {
+        const awb = document.getElementById("shopOrdAwb").value.trim().toUpperCase();
+        if (!awb) { abToast("Isi nomor resi dulu", "err"); return; }
+        b.disabled = true; await setShopOrdStatus("dikirim", awb); b.disabled = false;
+      } else if (act === "wa") {
+        const wa = waNormalize(o.buyerWa);
+        if (!wa) { abToast("Nomor WA pembeli kosong", "err"); return; }
+        openUrlNow("https://wa.me/" + wa + "?text=" + encodeURIComponent(shopOrdStatusWaText(o)));
+      }
+    });
+
+    // ===== Label kirim A6 (landscape 148x105mm), format: header kotak | TERIMA KASIH | pecah belah,
+    // PENERIMA, PENGIRIM, ORDER LIST + logo paw. Dibuka di tab baru lalu langsung dialog print. =====
+    let LABEL_LOGO = "";
+    async function labelLogoDataUrl() {
+      if (LABEL_LOGO) return LABEL_LOGO;
+      const src = location.origin.startsWith("http") ? location.origin + "/images/logo-paw-tight.png" : new URL("../images/logo-paw-tight.png", location.href).href;
+      try {
+        const blob = await (await fetch(src)).blob();
+        LABEL_LOGO = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
+      } catch (e) { LABEL_LOGO = src; } // file:// dsb -> pakai URL biasa
+      return LABEL_LOGO;
+    }
+    async function printShippingLabel(o) {
+      // tab dibuka LANGSUNG dari ketukan (biar nggak diblok popup), isinya nyusul setelah logo siap
+      const w = window.open("", "_blank");
+      if (!w) { abToast("Popup diblokir browser. Izinkan popup buat halaman admin ini.", "err"); return; }
+      w.document.write("<p style='font:16px sans-serif;padding:20px'>Menyiapkan label…</p>");
+      const esc = escapeHtml;
+      const addr = String(o.deliveryAddress || "").trim();
+      const items = (o.items || []).map(it => `<li>${esc(it.productName || "Produk")} (${it.qty})${it.notes ? " - " + esc(it.notes) : ""}</li>`).join("");
+      const logo = await labelLogoDataUrl();
+      const box = '<svg viewBox="0 0 64 64" width="58" height="58" fill="none" stroke="#000" stroke-width="3.2" stroke-linejoin="round"><path d="M32 6 56 18v28L32 58 8 46V18z"/><path d="M8 18l24 12 24-12M32 30v28"/><path d="M20 12l24 12v8l-6-3v-7" fill="#000"/><path d="M40 44v-8m0 0-3 3m3-3 3 3M47 41v-8m0 0-3 3m3-3 3 3M38 47h11"/></svg>';
+      const glass = '<svg viewBox="0 0 24 32" width="20" height="26"><path d="M3 2h18v6a9 9 0 0 1-8 9v9h5v3H6v-3h5v-9A9 9 0 0 1 3 8z" fill="#000"/><path d="M11 2 9 7l3 1-2 4" stroke="#f7f1f0" stroke-width="1.4" fill="none"/></svg>';
+      const arrows = '<svg viewBox="0 0 28 32" width="24" height="26" fill="#000"><path d="M8 2 1 10h5v16h4V10h5zM20 2l-7 8h5v16h4V10h5z"/><rect x="0" y="28" width="28" height="3"/></svg>';
+      const umb = '<svg viewBox="0 0 32 32" width="28" height="26" fill="#000"><path d="M16 3C8 3 2 9 1 16h30C30 9 24 3 16 3z"/><path d="M15 16h2v10a4 4 0 0 1-8 0h2a2 2 0 0 0 4 0z"/></svg>';
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>Label ${esc(o.buyerName || "")}</title>
+        <style>
+          @page { size: 148mm 105mm; margin: 0; }
+          * { box-sizing: border-box; }
+          html, body { margin: 0; background: #fff; }
+          body { font-family: Arial, "Helvetica Neue", sans-serif; color: #000; }
+          .lb { width: 148mm; height: 105mm; padding: 4mm 5mm; background: #f7f1f0; display: flex; flex-direction: column; overflow: hidden; }
+          .top { display: grid; grid-template-columns: 1fr 1.6fr 1fr; align-items: center; border-bottom: 1mm solid #000; padding-bottom: 2mm; }
+          .top > div { display: flex; align-items: center; justify-content: center; min-height: 16mm; }
+          .top .mid { border-left: .9mm solid #000; border-right: .9mm solid #000; font-style: italic; font-weight: 700; font-size: 3.4mm; letter-spacing: .02em; }
+          .top .frag { flex-direction: column; gap: 1mm; font-style: italic; font-weight: 700; font-size: 2.6mm; text-align: center; line-height: 1.15; }
+          .frag .ic { display: flex; gap: 2.5mm; align-items: flex-end; }
+          h2 { margin: 2mm 0 1mm; font-size: 4.6mm; font-style: italic; font-weight: 800; }
+          .row { display: grid; grid-template-columns: 24mm 4mm 1fr; font-size: 3.4mm; align-items: end; margin: .8mm 0; }
+          .row .v { border-bottom: .35mm solid #000; padding: 0 0 .4mm 1mm; min-height: 4.6mm; line-height: 1.3; word-break: break-word; }
+          .row .v.addr { font-size: 3mm; }
+          .sec { border-bottom: 1mm solid #000; padding-bottom: 2mm; }
+          .bottom { flex: 1; display: grid; grid-template-columns: 1fr 34mm; gap: 3mm; min-height: 0; }
+          .bottom .left { min-width: 0; }
+          .sender { border-bottom: 1mm solid #000; padding-bottom: 2mm; }
+          .sender .row { grid-template-columns: 24mm 4mm 1fr; }
+          .sender .row .v { border: 0; }
+          ul { margin: 1mm 0 0 5mm; padding: 0; font-size: 3.3mm; line-height: 1.45; }
+          .paw { display: flex; align-items: center; justify-content: center; }
+          .paw img { width: 32mm; height: auto; filter: grayscale(1) contrast(1.4); }
+          @media screen { body { padding: 16px; background: #888; } .lb { box-shadow: 0 6px 20px rgba(0,0,0,.35); margin: 0 auto; } .hint { text-align: center; color: #fff; font: 14px sans-serif; margin: 10px 0 0; } }
+          @media print { .hint { display: none; } }
+        </style></head><body>
+        <div class="lb">
+          <div class="top"><div>${box}</div><div class="mid">TERIMA KASIH</div><div class="frag">BARANG<br>PECAH BELAH<span class="ic">${glass}${arrows}${umb}</span></div></div>
+          <div class="sec">
+            <h2>PENERIMA</h2>
+            <div class="row"><span>Nama</span><span>:</span><span class="v">${esc(o.buyerName || "")}</span></div>
+            <div class="row"><span>Alamat</span><span>:</span><span class="v addr">${esc(addr).replace(/\n/g, ", ")}</span></div>
+            <div class="row"><span>No Telepon</span><span>:</span><span class="v">${esc(o.buyerWa || "")}</span></div>
+          </div>
+          <div class="bottom">
+            <div class="left">
+              <div class="sender"><h2>PENGIRIM</h2><div class="row"><span>Nama</span><span>:</span><span class="v">Seminggu Satu ( Arnold )</span></div></div>
+              <h2>ORDER LIST</h2>
+              <ul>${items || "<li>-</li>"}</ul>
+            </div>
+            <div class="paw"><img src="${logo}" alt=""></div>
+          </div>
+        </div>
+        <p class="hint">Ukuran A6 landscape (148 &times; 105 mm). Di dialog print pilih ukuran kertas A6, skala 100%.</p>
+        <script>window.onload = function () { setTimeout(function () { window.print(); }, 350); };<\/script>
+        </body></html>`;
+      w.document.open(); w.document.write(html); w.document.close();
     }
 
     function closeShopOrdEditor() {
@@ -14870,7 +15082,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           items: SHOPORD_CURRENT.items.map(it => ({
             description: (it.productName || "Produk dihapus") + (it.notes ? " — " + it.notes : ""),
             qty: it.qty, price: it.unitSellPrice,
-          })),
+          })).concat(Number(SHOPORD_CURRENT.shipCost) > 0 ? [{ description: "Ongkir JNE " + (SHOPORD_CURRENT.shipService || ""), qty: 1, price: Number(SHOPORD_CURRENT.shipCost) }] : []),
           bankName: "Blu by BCA Digital",
           bankAccountName: "Arnold Therigan",
           bankAccountNo: "090163537583",
@@ -14990,7 +15202,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const wa = waNormalize(SHOPORD_CURRENT.buyerWa);
       if (!wa) { alert("Nomor WA pembeli belum diisi."); return; }
       const itemsText = SHOPORD_CURRENT.items.map(it => `- ${it.productName || "Produk"}${it.notes ? ` (${it.notes})` : ""} x${it.qty} = ${rupiah(it.lineTotal)}`).join("\n");
-      const text = `Halo ${SHOPORD_CURRENT.buyerName}! Ini rincian belanjamu:\n${itemsText}\n\nTotal: ${rupiah(SHOPORD_CURRENT.total)}\n\nTransfer ke Blu by BCA Digital 090163537583 a.n Arnold Therigan ya. Terima kasih! 🐾`;
+      const ship = Number(SHOPORD_CURRENT.shipCost) || 0;
+      const track = soTrackUrl(SHOPORD_CURRENT);
+      const payLine = SHOPORD_CURRENT.isPaid ? "Pembayaran udah kami terima, makasih ya!" : "Transfer ke Blu by BCA Digital 090163537583 a.n Arnold Therigan ya.";
+      const text = `Halo ${SHOPORD_CURRENT.buyerName}! Ini rincian belanjamu:\n${itemsText}` +
+        (ship ? `\n- Ongkir JNE ${SHOPORD_CURRENT.shipService || ""} = ${rupiah(ship)}` : "") +
+        `\n\nTotal: ${rupiah((Number(SHOPORD_CURRENT.total) || 0) + ship)}\n\n${payLine}` +
+        (track ? `\n\nPantau status pesanan:\n${track}` : "") + ` Terima kasih! 🐾`;
       const waUrl = "https://wa.me/" + wa + "?text=" + encodeURIComponent(text);
 
       if (!SHOPORD_CURRENT.items.length || !canShareFiles()) { openUrlNow(waUrl); return; }

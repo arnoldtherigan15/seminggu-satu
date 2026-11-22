@@ -1638,6 +1638,8 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
             stockQty: Number(r.stock_qty) || 0,
             sellToken: r.sell_token,
             soldQty: sold.soldQty, profit: sold.profit,
+            showInShop: !!r.show_in_shop, weightGrams: Number(r.weight_grams) || 150,
+            preorderNote: r.preorder_note || "", shopDesc: r.shop_desc || "",
             createdAt: r.created_at,
           };
         });
@@ -1674,6 +1676,11 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         if (data.stockQty !== undefined && data.stockQty !== null && String(data.stockQty).trim() !== "") {
           patch.stock_qty = Number(data.stockQty);
         }
+        // toko online (pre-order) -- cuma dipatch kalau dikirim
+        if (data.showInShop !== undefined) patch.show_in_shop = !!data.showInShop;
+        if (data.weightGrams !== undefined && String(data.weightGrams).trim() !== "") patch.weight_grams = Math.max(1, Math.round(Number(data.weightGrams) || 150));
+        if (data.preorderNote !== undefined) patch.preorder_note = String(data.preorderNote || "").trim().slice(0, 140) || null;
+        if (data.shopDesc !== undefined) patch.shop_desc = String(data.shopDesc || "").trim().slice(0, 600) || null;
         if (id) {
           const { error } = await admin.from("shop_products").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
           if (error) return errorResponse("Gagal menyimpan produk: " + error.message);
@@ -1752,6 +1759,10 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
             buyerName: o.buyer_name, buyerWa: o.buyer_wa, isPaid: !!o.is_paid,
             deliveryAddress: o.delivery_address || null, isCod: !!o.is_cod,
             channel: o.channel || (o.batch_id ? "event" : null),
+            source: o.source || "", status: o.status || "", statusUpdatedAt: o.status_updated_at || null,
+            trackToken: o.track_token || "", shipService: o.ship_service || "", shipCost: Number(o.ship_cost) || 0,
+            shipEtd: o.ship_etd || "", shipDest: o.ship_dest_label || "", awb: o.awb || "",
+            paymentProof: o.payment_proof || "", buyerNote: o.buyer_note || "",
             items, total, createdAt: o.created_at,
           };
         });
@@ -1788,6 +1799,26 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         }
         const lines = await getEventShopLines(admin, batchId);
         return jsonResponse({ status: "success", message: "Produk event disimpan.", lines });
+      }
+
+      // Status order toko online: verifikasi -> dibayar -> diproses -> dikirim (resi) -> selesai / batal.
+      // "dibayar" ke atas otomatis set is_paid (biar masuk Laporan Keuangan), batal/verifikasi = belum lunas.
+      case "setShopOrderStatus": {
+        const id = String(data.id || "");
+        const status = String(data.status || "");
+        const OK = ["verifikasi", "dibayar", "diproses", "dikirim", "selesai", "batal"];
+        if (!id || !OK.includes(status)) return errorResponse("Status nggak valid.");
+        // deno-lint-ignore no-explicit-any
+        const patch: Record<string, any> = { status, status_updated_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+          is_paid: ["dibayar", "diproses", "dikirim", "selesai"].includes(status) };
+        if (data.awb !== undefined) patch.awb = String(data.awb || "").trim().slice(0, 40) || null;
+        if (status === "dikirim" && !patch.awb) {
+          const { data: cur } = await admin.from("shop_orders").select("awb").eq("id", id).maybeSingle();
+          if (!cur?.awb) return errorResponse("Isi nomor resi JNE dulu buat status Dikirim.");
+        }
+        const { error } = await admin.from("shop_orders").update(patch).eq("id", id);
+        if (error) return errorResponse("Gagal update status: " + error.message);
+        return jsonResponse({ status: "success" });
       }
 
       case "setShopOrderPaid": {

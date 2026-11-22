@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Seminggu Satu</title>
+    <meta name="description" content="Toko Seminggu Satu: journaling kit & produk handmade, sistem pre-order. Pesan, transfer, lalu pantau status pesananmu di sini.">
+    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <script src="../icons.js?v=1"></script>
+    <script src="../theme.js?v=2"></script>
+    <script src="../env.js"></script>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../binder-form.css?v=4">
+    <link rel="stylesheet" href="shop.css?v=1">
+</head>
+
+<body>
+    <header class="hero">
+        <div class="brand">
+            <a href="../index.html" style="text-decoration:none;">
+                <img src="../images/logo-paw-tight.png" alt="Seminggu Satu" class="brand-logo" width="240" height="240">
+                <p>by Arnold</p>
+            </a>
+        </div>
+        <div class="hero-content">
+            <h2>Toko Seminggu Satu</h2>
+            <p class="subtitle">Journaling kit &amp; produk handmade. Semua <b>pre-order</b>: dibuat setelah kamu pesan, lalu dikirim lewat JNE.</p>
+            <ol class="sh-how">
+                <li><b>Pilih produk</b> &amp; isi alamat</li>
+                <li><b>Transfer</b> &amp; upload buktinya</li>
+                <li><b>Pantau status</b> lewat link yang kamu dapat</li>
+            </ol>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 1. KATALOG -->
+        <section class="registration-form-section" id="shCatalog">
+            <div class="section-header">
+                <h3>Produk</h3>
+                <p id="shCatalogSub">Ketuk "Tambah" buat masukin ke keranjang.</p>
+            </div>
+            <div class="sh-grid" id="shGrid">
+                <div class="sh-card sh-skel"></div><div class="sh-card sh-skel"></div>
+            </div>
+        </section>
+
+        <!-- 2. CHECKOUT -->
+        <section class="registration-form-section" id="shCheckout" hidden>
+            <div class="section-header">
+                <h3>Checkout</h3>
+            </div>
+            <div class="rs-progress sh-progress">
+                <div class="rs-progress-top"><b id="shStepTitle">Keranjang</b><span id="shStepCount"></span></div>
+                <div class="rs-bars" id="shBars"></div>
+            </div>
+
+            <!-- langkah 1: keranjang -->
+            <div class="sh-step" data-step="cart">
+                <div id="shCartList"></div>
+                <button type="button" class="sh-link" id="shAddMore">+ Tambah produk lain</button>
+            </div>
+
+            <!-- langkah 2: data & alamat -->
+            <div class="sh-step" data-step="addr" hidden>
+                <div class="form-group">
+                    <label for="shName">Nama penerima</label>
+                    <div class="input-wrapper"><input type="text" id="shName" autocomplete="name" placeholder="Nama lengkap"></div>
+                </div>
+                <div class="form-group">
+                    <label for="shWa">Nomor WhatsApp</label>
+                    <div class="input-wrapper"><input type="tel" id="shWa" inputmode="tel" autocomplete="tel" placeholder="Contoh: 0812xxxxxxxx"></div>
+                </div>
+                <div class="form-group sh-dest">
+                    <label for="shDestQ">Kecamatan / kota tujuan</label>
+                    <div class="input-wrapper"><input type="search" id="shDestQ" autocomplete="off" placeholder="Ketik nama kecamatan, mis. Pesanggrahan"></div>
+                    <div class="sh-dest-list" id="shDestList" hidden></div>
+                    <div class="sh-dest-picked" id="shDestPicked" hidden></div>
+                </div>
+                <div class="form-group">
+                    <label for="shAddr">Alamat lengkap</label>
+                    <textarea id="shAddr" rows="3" autocomplete="street-address" placeholder="Nama jalan, nomor rumah, RT/RW, patokan"></textarea>
+                </div>
+            </div>
+
+            <!-- langkah 3: ongkir -->
+            <div class="sh-step" data-step="ship" hidden>
+                <p class="sh-muted" id="shShipInfo"></p>
+                <div id="shShipList"></div>
+            </div>
+
+            <!-- langkah 4: bayar -->
+            <div class="sh-step" data-step="pay" hidden>
+                <div class="sh-summary" id="shSummary"></div>
+                <div class="payment-info">
+                    <h4>Transfer ke rekening ini</h4>
+                    <p>Total <strong id="shPayTotal"></strong> (pas, biar gampang dicek)</p>
+                    <div class="bank-card">
+                        <div class="bank-name" id="shBankName"></div>
+                        <div class="bank-account"><span id="shBankNo"></span><button type="button" class="copy-btn" id="shCopy" aria-label="Salin nomor rekening">Salin</button></div>
+                        <div class="bank-owner" id="shBankOwner"></div>
+                    </div>
+                </div>
+                <div class="form-group upload-group">
+                    <label>Bukti transfer</label>
+                    <div class="upload-area" id="shProofArea">
+                        <span id="shProofTxt">Upload bukti transfer</span>
+                        <input type="file" id="shProof" accept="image/*">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="shNote">Catatan buat admin <span class="sh-muted">(opsional)</span></label>
+                    <textarea id="shNote" rows="2" placeholder="Mis. warna pilihan, request khusus"></textarea>
+                </div>
+            </div>
+
+            <p class="rs-err" id="shErr" hidden></p>
+            <div class="rs-nav">
+                <button type="button" class="rs-back" id="shBack">&larr; Kembali</button>
+                <button type="button" class="submit-btn rs-next" id="shNext"><span>Lanjut</span> &rarr;</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- bar keranjang (nempel di bawah) -->
+    <div class="sh-cartbar" id="shCartbar" hidden>
+        <div><b id="shCartCount"></b><span id="shCartTotal"></span></div>
+        <button type="button" class="submit-btn" id="shCheckoutBtn">Checkout &rarr;</button>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+    <footer>
+        <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
+    </footer>
+    <script src="shop.js?v=1"></script>
+</body>
+
+</html>

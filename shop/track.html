@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Pesanan — Toko Seminggu Satu</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#0d1526">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <script src="../icons.js?v=1"></script>
+    <script src="../theme.js?v=2"></script>
+    <script src="../env.js"></script>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../binder-form.css?v=4">
+    <link rel="stylesheet" href="shop.css?v=1">
+    <style>
+        .tr-new { margin: 0 0 1rem; padding: 12px 14px; border-radius: 12px; background: #e9fbf0; color: #0a7a3d; font-weight: 700; font-size: 0.92rem; }
+        .tr-status { font: 800 1.35rem/1.25 'Outfit', sans-serif; color: var(--ink); margin: 0.2rem 0 0.2rem; }
+        .tr-sub { color: var(--ink-2); font-size: 0.9rem; margin-bottom: 1rem; }
+        .tr-steps { list-style: none; margin: 0 0 1.2rem; padding: 0; display: flex; flex-direction: column; }
+        .tr-steps li { position: relative; padding: 0 0 1rem 2.2rem; color: var(--ink-2); font-size: 0.92rem; }
+        .tr-steps li::before { content: ""; position: absolute; left: 0.45rem; top: 0.15rem; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--field-border); background: var(--paper); }
+        .tr-steps li::after { content: ""; position: absolute; left: calc(0.45rem + 6px); top: 1.2rem; bottom: 0; width: 2.5px; background: var(--rule); }
+        .tr-steps li:last-child::after { display: none; }
+        .tr-steps li.done { color: var(--ink); }
+        .tr-steps li.done::before { background: #0a7a3d; border-color: #0a7a3d; }
+        .tr-steps li.done::after { background: #0a7a3d; }
+        .tr-steps li.now { color: var(--ink); font-weight: 800; }
+        .tr-steps li.now::before { background: #0046ff; border-color: #0046ff; }
+        .tr-awb { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--sticky); color: #10245e; margin-bottom: 1rem; }
+        .tr-awb b { font: 800 1.05rem 'Outfit', sans-serif; letter-spacing: .02em; }
+        .tr-awb a { color: #0046ff; font-weight: 700; white-space: nowrap; }
+        .tr-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+        .tr-btns a, .tr-btns button { text-decoration: none; }
+    </style>
+</head>
+
+<body>
+    <header class="hero">
+        <div class="brand">
+            <a href="../index.html" style="text-decoration:none;">
+                <img src="../images/logo-paw-tight.png" alt="Seminggu Satu" class="brand-logo" width="240" height="240">
+                <p>by Arnold</p>
+            </a>
+        </div>
+        <div class="hero-content">
+            <h2>Status Pesanan</h2>
+            <p class="subtitle">Simpan link halaman ini, bisa dibuka kapan aja buat ngecek pesananmu.</p>
+        </div>
+    </header>
+    <main class="container">
+        <section class="registration-form-section" id="trBox">
+            <p class="sh-muted">Memuat pesanan…</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Seminggu Satu by Arnold. All rights reserved.</p>
+    </footer>
+    <script>
+        (async function () {
+            const box = document.getElementById('trBox');
+            const p = new URLSearchParams(location.search), token = p.get('t') || '';
+            const rp = (n) => 'Rp ' + Math.round(Number(n) || 0).toLocaleString('id-ID');
+            const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            const FLOW = [['verifikasi', 'Pesanan diterima, pembayaran dicek'], ['dibayar', 'Pembayaran diterima'], ['diproses', 'Lagi dibuat (pre-order)'], ['dikirim', 'Dikirim lewat JNE'], ['selesai', 'Selesai']];
+            try {
+                const res = await fetch(SUPABASE_URL + '/functions/v1/shop-public', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY }, body: JSON.stringify({ action: 'track', token }) });
+                const j = await res.json();
+                if (j.status !== 'success') throw new Error(j.message || 'Gagal memuat');
+                const o = j.order;
+                const idx = FLOW.findIndex(f => f[0] === o.status);
+                const when = (iso) => iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+                const waMsg = encodeURIComponent(`Halo admin, aku mau nanya pesanan #${o.orderNo} atas nama ${o.name}. Link: ${location.href.split('&')[0]}`);
+                box.innerHTML = `
+                    ${p.get('new') ? '<div class="tr-new">Pesanan terkirim! Kami cek bukti transfernya dulu ya. Simpan / bookmark halaman ini buat pantau statusnya.</div>' : ''}
+                    <div class="sh-muted">Pesanan #${esc(o.orderNo)} · ${esc(when(o.createdAt))}</div>
+                    <div class="tr-status">${esc(o.statusLabel)}</div>
+                    <div class="tr-sub">${o.status === 'batal' ? 'Pesanan ini dibatalkan. Hubungi admin kalau ada pertanyaan.' : 'Diperbarui ' + esc(when(o.statusUpdatedAt || o.createdAt))}</div>
+                    ${o.awb ? `<div class="tr-awb"><span>Resi JNE<br><b>${esc(o.awb)}</b></span><a href="https://www.jne.co.id/tracking-package" target="_blank" rel="noopener">Lacak di JNE</a></div>` : ''}
+                    ${o.status === 'batal' ? '' : `<ol class="tr-steps">${FLOW.map((f, i) => `<li class="${i < idx ? 'done' : i === idx ? 'now' : ''}">${esc(f[1])}</li>`).join('')}</ol>`}
+                    <div class="sh-summary">
+                        ${o.items.map(i => `<div class="sh-sum-row"><span>${esc(i.name)} ×${i.qty}</span><b>${rp(i.lineTotal)}</b></div>`).join('')}
+                        <div class="sh-sum-row"><span>Ongkir JNE ${esc(o.shipService)}${o.shipEtd ? ' (' + esc(o.shipEtd).replace(/day/i, 'hari') + ')' : ''}</span><b>${rp(o.shipCost)}</b></div>
+                        <div class="sh-sum-row total"><span>Total</span><b>${rp(o.total)}</b></div>
+                    </div>
+                    ${o.shipDest ? `<p class="sh-muted">Dikirim ke ${esc(o.shipDest)}</p>` : ''}
+                    <div class="tr-btns">
+                        <a class="submit-btn" href="https://wa.me/${esc(j.adminWa)}?text=${waMsg}" target="_blank" rel="noopener">Chat admin di WhatsApp</a>
+                        <a class="sh-link" href="./">Belanja lagi di toko</a>
+                    </div>`;
+                if (p.get('new')) history.replaceState(null, '', location.pathname + '?t=' + encodeURIComponent(token));
+            } catch (e) {
+                box.innerHTML = `<p class="rs-err">${esc(e.message)}</p><a class="sh-link" href="./">Ke toko</a>`;
+            }
+        })();
+    </script>
+</body>
+
+</html>
