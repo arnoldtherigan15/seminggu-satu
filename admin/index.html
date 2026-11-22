@@ -4305,7 +4305,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=44">
+  <link rel="stylesheet" href="admin-binder.css?v=46">
   <link rel="stylesheet" href="admin-dark.css?v=5">
 </head>
 
@@ -20246,6 +20246,10 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
           if (r.status !== "success") { handleAuthError(r); alert(r.message || "Gagal mengunggah."); return; }
           editor.focus();
           document.execCommand("insertImage", false, r.url);
+          // selalu ada baris kosong di bawah gambar + kursor pindah ke situ,
+          // biar bisa langsung lanjut ngetik (dulu mentok di gambar)
+          const img = [...editor.querySelectorAll("img")].reverse().find(x => x.getAttribute("src") === r.url);
+          if (img) rnLineAfter(editor, img, true);
           editor.dispatchEvent(new Event("input", { bubbles: true }));
         } catch (err) {
           alert("Failed to upload image: " + (err.message || ""));
@@ -20254,11 +20258,48 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       input.click();
     }
 
+    // Baris kosong setelah `node` (gambar/blok non-teks) di editor; focus=true -> kursor ke situ.
+    function rnLineAfter(editor, node, focus) {
+      let blk = node;
+      while (blk.parentNode && blk.parentNode !== editor) blk = blk.parentNode;
+      if (blk.parentNode !== editor) return null;
+      let next = blk.nextSibling;
+      while (next && next.nodeType === 3 && !next.textContent.trim()) next = next.nextSibling;
+      let line = next;
+      const isTextLine = (el) => el && el.nodeType === 1 && /^(DIV|P)$/.test(el.tagName) && !el.querySelector("img");
+      if (!isTextLine(next)) {
+        line = document.createElement("div"); line.appendChild(document.createElement("br"));
+        editor.insertBefore(line, blk.nextSibling);
+      }
+      if (focus) {
+        const r = document.createRange(); r.setStart(line, 0); r.collapse(true);
+        const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        line.scrollIntoView({ block: "nearest" });
+      }
+      return line;
+    }
+    // Ketuk area kosong di bawah isi -> kursor ke baris terakhir (bikin baru kalau yang terakhir gambar/checklist)
+    function rnTapBelow(editor, e) {
+      if (e.target !== editor) return;
+      const last = editor.lastElementChild;
+      if (!last) return;
+      if (e.clientY < last.getBoundingClientRect().bottom) return;
+      const textLast = /^(DIV|P)$/.test(last.tagName) && !last.querySelector("img, input, .rn-check") && !last.classList.contains("rn-checkitem");
+      let line = last;
+      if (!textLast) { line = document.createElement("div"); line.appendChild(document.createElement("br")); editor.appendChild(line); }
+      e.preventDefault();
+      editor.focus();
+      const r = document.createRange(); r.selectNodeContents(line); r.collapse(false);
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    }
+
     // Wires the .rn-btn toolbar buttons (found inside `container`) to `editor`
     // (a contenteditable .rn-editor), plus paste-as-plain-text and checklist
     // behavior on the editor itself. onDirty fires on any edit/format change.
     function wireRnToolbar(container, editor, onDirty) {
       container.querySelectorAll(".rn-btn").forEach(b => {
+        // jangan curi fokus dari editor (di HP, keyboard nutup tiap tombol diketuk)
+        b.addEventListener("pointerdown", (e) => { if (b.dataset.cmd !== "image" && b.dataset.cmd !== "link") e.preventDefault(); });
         b.addEventListener("click", async () => {
           editor.focus();
           const cmd = b.dataset.cmd;
@@ -20291,6 +20332,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
       // to select an <img> and hit Backspace inside contenteditable,
       // especially on mobile (no adjacent text to place a caret next to),
       // so a saved image was otherwise stuck there permanently.
+      editor.addEventListener("pointerdown", (e) => rnTapBelow(editor, e));
       editor.addEventListener("click", async (e) => {
         if (e.target.tagName !== "IMG") return;
         if (await abConfirm("Hapus gambar ini dari catatan?")) {
@@ -21428,6 +21470,7 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
         `<div class="rn-editor nt-editor" id="noteEditor" contenteditable="true" data-emoji-raw data-ph="Mulai nulis… ketik / buat pilih jenis blok">${n.body_html || ""}</div>`;
       const ed = wrap.querySelector("#noteEditor");
       NT.editor = ed;
+      ntWireKeyboardBar();
       wireRnToolbar(wrap, ed, ntMarkDirty);
       wireRnBlocks(ed, ntMarkDirty, { linkNotes: true });
       // judul tautan selalu ikut judul terbaru (catatannya mungkin udah di-rename)
@@ -21789,6 +21832,20 @@ What to bring: personal journal, stationery, own water bottle."></textarea>
     }
     // Menu "/" melayang di posisi kursor
     // opts.linkNotes: "[[" buka pemilih catatan buat ditautin (khusus Catatan)
+    // HP: toolbar catatan ngambang di bawah, nempel di atas keyboard (kayak Notes iPhone).
+    // visualViewport ngasih tinggi area yang kelihatan -> selisihnya = tinggi keyboard.
+    function ntWireKeyboardBar() {
+      if (window._ntKbWired || !window.visualViewport) return;
+      window._ntKbWired = true;
+      const vv = window.visualViewport;
+      const upd = () => {
+        const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        document.documentElement.style.setProperty("--nt-kb", (kb > 60 ? kb : 0) + "px");
+        document.body.classList.toggle("nt-kb-open", kb > 60);
+      };
+      vv.addEventListener("resize", upd); vv.addEventListener("scroll", upd); upd();
+    }
+
     function wireRnBlocks(editor, onDirty, opts) {
       opts = opts || {};
       let menu = null, slash = null, idx = 0, items = []; // slash = { node, off, len, mode: "slash" | "link" }

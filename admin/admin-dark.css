@@ -458,6 +458,7 @@ html[data-theme="dark"] .nx-push.is-off .nx-push-ic { background: #3e1212; color
 html[data-theme="dark"] .sf-panel .so-stat { background: #171b2c; }
 html[data-theme="dark"] .sf-panel .so-stat.is-profit { background: #171b2c; }
 html[data-theme="dark"] .sf-trend { background: #171b2c; }
+@media (max-width: 700px) { html[data-theme="dark"] body.nt-doc-open .nt-toolbar { background: rgba(23, 29, 48, 0.96); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.61), 0 0 0 1px rgba(0, 0, 0, 0.22); } }
 
 /* --- manual: Argon form, tabel, inline style, elemen yang sengaja tetap terang --- */
 html[data-theme="dark"] body { background-color: var(--bg); background-image: radial-gradient(rgba(255, 255, 255, .035) 1px, transparent 1.2px); color: var(--ink); }

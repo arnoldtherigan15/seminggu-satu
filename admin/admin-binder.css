@@ -2208,3 +2208,21 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
 .th-opt { border: 0; background: none; border-radius: 9px; min-height: 34px; padding: 0 4px; white-space: nowrap; font: 700 11.5px 'Open Sans', sans-serif; color: var(--muted); cursor: pointer; transition: background-color .12s ease, color .12s ease; }
 .th-opt:hover { color: var(--ink); }
 .th-opt[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: var(--shadow-sm); }
+
+/* ===== Catatan di HP: toolbar ngambang di bawah, dekat jempol & di atas keyboard ===== */
+@media (max-width: 700px) {
+    body.nt-doc-open .nt-toolbar {
+        position: fixed; top: auto; left: 10px; right: 10px;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--nt-kb, 0px));
+        z-index: 60; margin: 0; padding: 6px; border-radius: 16px;
+        background: rgba(255, 255, 255, .96); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+        box-shadow: 0 8px 28px rgba(16, 36, 94, .22), 0 0 0 1px rgba(16, 36, 94, .06);
+        justify-content: space-between; transition: bottom .12s ease;
+    }
+    body.nt-doc-open.nt-kb-open .nt-toolbar { bottom: calc(6px + var(--nt-kb, 0px)); }
+    body.nt-doc-open .nt-toolbar .rn-btn { opacity: 1; min-width: 33px; width: auto; height: 40px; padding: 0 4px; flex: 1 1 0; }
+    body.nt-doc-open .rn-editor.nt-editor { padding-bottom: 120px; }
+    body.nt-doc-open .ab-fab { display: none !important; }
+}
+/* ruang ketuk di bawah isi catatan (desktop juga) */
+.rn-editor.nt-editor { padding-bottom: 80px; }
