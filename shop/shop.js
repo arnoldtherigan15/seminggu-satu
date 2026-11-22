@@ -6,7 +6,7 @@
     const rp = (n) => 'Rp ' + Math.round(Number(n) || 0).toLocaleString('id-ID');
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const CART_KEY = 'ss_shop_cart', FORM_KEY = 'ss_shop_form';
-    const S = { products: [], cart: new Map(), bank: null, ongkirReady: false, step: 0, dest: null, ship: null, options: [], proof: '', ref: '', focused: false, q: '' };
+    const S = { products: [], cart: new Map(), bank: null, ongkirReady: false, step: 0, dest: null, ship: null, options: [], proof: '', ref: '', q: '' };
     const STEPS = [{ k: 'cart', t: 'Keranjang' }, { k: 'addr', t: 'Data & alamat' }, { k: 'pay', t: 'Bayar' }];
 
     async function api(action, body) {
@@ -57,23 +57,36 @@
     function setQty(id, q) {
         if (q <= 0) S.cart.delete(id); else S.cart.set(id, Math.min(50, q));
         saveCart(); S.ship = null; renderGrid(); renderCartbar();
-        if (!$('shCheckout').hidden && STEPS[S.step].k === 'cart') renderCart();
+        if (screen() === 'checkout' && STEPS[S.step].k === 'cart') renderCart();
+        if (screen() === 'checkout' && !cartLines().length) go('produk');
     }
     function renderCartbar() {
         const lines = cartLines(), n = lines.reduce((s, l) => s + l.qty, 0);
         const bar = $('shCartbar');
-        bar.hidden = !n || !$('shCheckout').hidden;
+        bar.hidden = !n || screen() !== 'produk';
         document.body.classList.toggle('sh-has-cart', !bar.hidden);
         $('shCartCount').textContent = n + ' barang';
         $('shCartTotal').textContent = rp(subtotal());
     }
 
-    // ---------- checkout ----------
-    function openCheckout() {
-        if (!cartLines().length) { toast('Keranjangnya masih kosong', true); return; }
-        $('shCheckout').hidden = false; renderCartbar();
-        showStep(0); $('shCheckout').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // ---------- 2 layar: Produk (daftar) & Checkout -- pakai hash biar tombol back HP jalan ----------
+    function screen() { return location.hash === '#checkout' && cartLines().length ? 'checkout' : 'produk'; }
+    function applyScreen(scroll) {
+        const sc = screen();
+        $('shCatalog').hidden = sc !== 'produk';
+        $('shCheckout').hidden = sc !== 'checkout';
+        document.body.classList.toggle('sh-on-checkout', sc === 'checkout');
+        renderCartbar();
+        if (sc === 'checkout') showStep(S.step || 0); else renderGrid();
+        if (scroll) { const t = (sc === 'checkout' ? $('shCheckout') : $('shCatalog')).getBoundingClientRect().top + window.scrollY - 12; window.scrollTo({ top: Math.max(0, t), behavior: 'smooth' }); }
     }
+    function go(sc) {
+        if (sc === 'checkout' && !cartLines().length) { toast('Keranjangnya masih kosong', true); return; }
+        const h = sc === 'checkout' ? '#checkout' : '#produk';
+        if (location.hash === h) applyScreen(true); else location.hash = h;
+    }
+    window.addEventListener('hashchange', () => applyScreen(true));
+    function openCheckout() { S.step = 0; go('checkout'); }
     function showStep(i) {
         S.step = Math.max(0, Math.min(STEPS.length - 1, i));
         document.querySelectorAll('.sh-step').forEach(el => { el.hidden = el.dataset.step !== STEPS[S.step].k; });
@@ -81,8 +94,7 @@
         $('shStepCount').textContent = `Langkah ${S.step + 1} dari ${STEPS.length}`;
         $('shBars').innerHTML = STEPS.map((s, j) => `<span class="rs-bar${j < S.step ? ' done' : j === S.step ? ' on' : ''}"><i></i></span>`).join('');
         $('shErr').hidden = true;
-        $('shBack').hidden = S.step === 0 && S.focused;
-        $('shBack').textContent = S.step === 0 ? '← Belanja lagi' : '← Kembali';
+        $('shBack').textContent = S.step === 0 ? '← Lihat produk' : '← Kembali';
         $('shNext').innerHTML = S.step === STEPS.length - 1 ? '<span>Kirim pesanan</span>' : '<span>Lanjut</span> &rarr;';
         const k = STEPS[S.step].k;
         if (k === 'cart') renderCart();
@@ -232,7 +244,7 @@
         }
     }
     function back() {
-        if (S.step === 0) { $('shCheckout').hidden = true; renderCartbar(); $('shCatalog').scrollIntoView({ behavior: 'smooth' }); return; }
+        if (S.step === 0) { go('produk'); return; }
         showStep(S.step - 1);
     }
     function saveForm() { store.set(FORM_KEY, { name: $('shName').value, wa: $('shWa').value, addr: $('shAddr').value, dest: S.dest }); }
@@ -259,15 +271,15 @@
         if (want) {
             const p = S.products.find(x => x.code && x.code.toLowerCase() === want.toLowerCase()) || S.products.find(x => x.id === want);
             if (p) {
-                // link khusus produk: keranjang = produk itu aja, daftar produk lain disembunyiin
-                S.cart.clear(); S.cart.set(p.id, 1); jump = true; S.focused = true;
-                $('shCatalog').hidden = true;
-                document.body.classList.add('sh-focused');
+                // link khusus produk: keranjang = produk itu aja, langsung ke layar checkout
+                S.cart.clear(); S.cart.set(p.id, 1); jump = true;
+                history.replaceState(null, '', location.pathname + (S.ref ? '?ref=' + encodeURIComponent(ref) : '') + '#checkout');
             }
             else toast('Produk dari link itu lagi nggak dibuka pre-order', true);
         }
-        saveCart(); renderGrid(); renderCartbar();
-        if (jump) openCheckout();
+        saveCart();
+        S.step = 0;
+        applyScreen(false);
     }
 
     document.addEventListener('click', (e) => {
@@ -277,17 +289,8 @@
         if (e.target.closest('#shDestChange')) { clearDest(); return; }
     });
     $('shCheckoutBtn').addEventListener('click', openCheckout);
-    // "+ Tambah produk lain": buka daftar produk (di link khusus produk, daftar ini awalnya disembunyiin)
-    $('shAddMore').addEventListener('click', () => {
-        const cat = $('shCatalog');
-        if (S.focused) {
-            cat.hidden = !cat.hidden;
-            $('shAddMore').textContent = cat.hidden ? '+ Tambah produk lain' : 'Tutup daftar produk';
-            if (!cat.hidden) cat.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            return;
-        }
-        $('shCheckout').hidden = true; renderCartbar(); cat.scrollIntoView({ behavior: 'smooth' });
-    });
+    // "+ Tambah produk lain" -> pindah ke layar daftar produk; balik lewat tombol Checkout di bar bawah
+    $('shAddMore').addEventListener('click', () => go('produk'));
     const sq = $('shSearch'); if (sq) sq.addEventListener('input', () => { S.q = sq.value.trim(); renderGrid(); });
     $('shNext').addEventListener('click', next);
     $('shBack').addEventListener('click', back);
