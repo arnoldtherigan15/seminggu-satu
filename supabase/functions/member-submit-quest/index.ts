@@ -56,8 +56,7 @@ Deno.serve(async (req) => {
           `📱 WA: ${prof.wa || "-"}\n` +
           (photoUrl ? "📸 Foto: ada (masuk galeri)\n" : "📸 Foto: tidak ada\n") +
           (caption ? `💬 Caption: "${caption}"\n` : "") +
-          `📊 Total peserta challenge ini: *${total ?? "?"}*`,
-      );
+          `📊 Total peserta challenge ini: *${total ?? "?"}*`, undefined, { url: "/admin/#quest" });
 
       await sendPush(
         "🎨 Karya baru di Balai Warga!",

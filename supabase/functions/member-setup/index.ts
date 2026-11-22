@@ -68,8 +68,7 @@ Deno.serve(async (req) => {
       await sendTelegramText(
         "🎉 *Warga Baru Aktivasi Akun!*\n\n" +
           `👤 Nama: ${nickname}\n` +
-          `📱 WA: ${waK}`,
-      );
+          `📱 WA: ${waK}`, undefined, { url: "/admin/#members" });
     } catch (_e) { /* abaikan */ }
 
     return jsonResponse(await profileResponse(admin, row));

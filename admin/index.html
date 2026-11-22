@@ -8645,7 +8645,17 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       applyMemSearchHeightVar();
       if (view === "overview") ensureOverview();
       if (view === "calendar") ensureCalendar(event);
-      if (view === "pendaftar") ensurePendaftar();
+      if (view === "pendaftar") {
+        // link langsung (mis. dari push "Pendaftar Baru"): #pendaftar:<workshop>:<batchId>
+        if (event && WORKSHOP_IDS.includes(event)) {
+          const ws = document.getElementById("wsSelect");
+          if (ws && ![...ws.options].some(o => o.value === event)) populateWorkshopSelect();
+          if (ws) ws.value = event;
+          PENDING_REG_BATCH = subtab || "";
+          if (pendaftarInit) loadBatches();
+        }
+        ensurePendaftar();
+      }
       if (view === "keuangan") { ensureFinanceLoaded(); if (event && finTabsCtl) finTabsCtl.show(event); }
       if (view === "prep") ensurePrep(event, subtab, batchId);
       if (view === "config") ensureConfigLoaded();
@@ -8657,7 +8667,11 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       if (view === "recbatch") ensureRecBatchView();
       if (view === "shopstock") ensureShopStockView();
       if (view === "shopproduct") ensureShopProductView();
-      if (view === "shoporders") ensureShopOrdersView();
+      if (view === "shoporders") {
+        ensureShopOrdersView();
+        // link langsung ke 1 order (mis. dari push "Order Baru dari Toko"): #shoporders:order:<id>
+        if (event === "order" && subtab) openShopOrderById(subtab);
+      }
       if (view === "shopfinance") ensureShopFinanceView();
       if (view === "leads") ensureLeads();
       if (view === "quest") { ensureQuest(); if (event && questTabsCtl) questTabsCtl.show(event); }
@@ -12372,8 +12386,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const SCALE = 2;
 
       pdfGenOverlay(true);
+      // PDF selalu tema TERANG -- dirender dari DOM halaman ini, jadi kalau admin lagi
+      // mode gelap, warna gelapnya ikut kebawa (teks pucat di kertas putih). Ditutup overlay.
+      const prevTheme = document.documentElement.getAttribute("data-theme");
+      document.documentElement.setAttribute("data-theme", "light");
       const stage = document.createElement("div");
-      stage.style.cssText = `position:fixed;left:-10000px;top:0;width:${contentWidthPx}px;background:#fff;`;
+      stage.style.cssText = `position:fixed;left:-10000px;top:0;width:${contentWidthPx}px;background:#fff;color:#10245e;`;
       stage.innerHTML = html;
       document.body.appendChild(stage);
       const docEl = stage.firstElementChild;
@@ -12410,7 +12428,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
 
         const pdf = new window.jspdf.jsPDF({ unit: "mm", format: "a4" });
         let cursor = 0, bpIdx = 0, firstPage = true;
-        while (cursor < totalHeightPx - 0.5) {
+        while (cursor < totalHeightPx - 4) { // sisa <4px (cuma padding) jangan jadi halaman kosong
           const maxEnd = Math.min(cursor + contentHeightPx, totalHeightPx);
           let end = maxEnd;
           while (bpIdx < breakPoints.length && breakPoints[bpIdx] <= maxEnd + 0.5) {
@@ -12437,6 +12455,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         pdf.save(fileName + ".pdf");
       } finally {
         stage.remove();
+        if (prevTheme) document.documentElement.setAttribute("data-theme", prevTheme);
         pdfGenOverlay(false);
       }
     }
@@ -13963,7 +13982,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           printShippingLabel(SHOPORD_CURRENT);
         });
         wireShopOrdProdSearch();
-        wireSubtabs(document.getElementById("shopOrdSubtabs"), (tabId) => {
+        shopOrdTabsCtl = wireSubtabs(document.getElementById("shopOrdSubtabs"), (tabId) => {
           if (tabId === "walkin") loadShopOrdWalkinList();
           else if (tabId === "semua") loadShopOrdAllList();
         });
@@ -14688,6 +14707,20 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       try { if (KSR.ctx.source === "walkin") loadShopOrdWalkinList(); else if (KSR.ctx.source === "semua") loadShopOrdAllList(); else loadShopOrdList(); } catch (err) {}
     }
 
+    let shopOrdTabsCtl = null;
+    async function openShopOrderById(id) {
+      try {
+        const r = await api("listShopOrders", { token: getToken() });
+        if (!r || r.status !== "success") { handleAuthError(r || {}); return; }
+        SHOPORD_ALL_ORDERS = r.orders || [];
+        const o = SHOPORD_ALL_ORDERS.find(x => x.id === id);
+        if (!o) { abToast("Order-nya nggak ketemu (mungkin udah dihapus)", "err"); return; }
+        if (shopOrdTabsCtl && shopOrdTabsCtl.show) shopOrdTabsCtl.show("semua");
+        openShopOrdEditor(o, "semua");
+        history.replaceState(null, "", "#shoporders"); // biar refresh nggak buka ulang terus
+      } catch (e) { abToast("Gagal buka order", "err"); }
+    }
+
     function openShopOrdEditor(order, source) {
       shopOrdEditorSource = source || "event";
       SHOPORD_CURRENT = Object.assign({}, order, { items: (order.items || []).map(it => Object.assign({}, it)) });
@@ -14812,11 +14845,47 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       } catch (e) { LABEL_LOGO = src; } // file:// dsb -> pakai URL biasa
       return LABEL_LOGO;
     }
+    // HP / app di Home Screen: tab baru + dialog print sering nggak jalan -> bikin PDF A6 aja
+    // (Simpan / Bagikan -> buka di Files -> Print). Desktop: langsung dialog print.
+    function preferLabelPdf() {
+      const standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+      return standalone || canShareFiles() || window.innerWidth <= 700;
+    }
     async function printShippingLabel(o) {
+      if (preferLabelPdf()) return shippingLabelPdf(o);
       // tab dibuka LANGSUNG dari ketukan (biar nggak diblok popup), isinya nyusul setelah logo siap
       const w = window.open("", "_blank");
-      if (!w) { abToast("Popup diblokir browser. Izinkan popup buat halaman admin ini.", "err"); return; }
+      if (!w) { return shippingLabelPdf(o); }
       w.document.write("<p style='font:16px sans-serif;padding:20px'>Menyiapkan label…</p>");
+      const html = await buildShippingLabelHtml(o, true);
+      w.document.open(); w.document.write(html); w.document.close();
+    }
+    async function shippingLabelPdf(o) {
+      const btn = document.getElementById("shopOrdLabelBtn");
+      if (btn) abBusy(btn, true, "Bikin label");
+      const ifr = document.createElement("iframe");
+      ifr.style.cssText = "position:fixed;left:-10000px;top:0;width:560px;height:397px;border:0;";
+      document.body.appendChild(ifr);
+      try {
+        const html = await buildShippingLabelHtml(o, false);
+        await new Promise((res) => { ifr.onload = res; ifr.srcdoc = html; setTimeout(res, 3000); });
+        const doc = ifr.contentDocument;
+        await Promise.all([...doc.images].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
+        const canvas = await html2canvas(doc.querySelector(".lb"), { scale: 3, backgroundColor: "#f7f1f0", useCORS: true });
+        const pdf = new window.jspdf.jsPDF({ unit: "mm", format: [148, 105], orientation: "landscape" });
+        pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, 148, 105);
+        const blob = pdf.output("blob");
+        const fileName = safeFileName("Label - " + (o.buyerName || "order")) + ".pdf";
+        if (canShareFiles()) showPdfReadySheet({ blob, fileName, title: "Label kirim siap (A6)" });
+        else saveBlobAs(blob, fileName);
+      } catch (e) {
+        abToast("Gagal bikin label: " + (e && e.message ? e.message : e), "err");
+      } finally {
+        ifr.remove();
+        if (btn) abBusy(btn, false);
+      }
+    }
+    async function buildShippingLabelHtml(o, autoPrint) {
       const esc = escapeHtml;
       const addr = String(o.deliveryAddress || "").trim();
       const items = (o.items || []).map(it => `<li>${esc(it.productName || "Produk")} (${it.qty})${it.notes ? " - " + esc(it.notes) : ""}</li>`).join("");
@@ -14871,9 +14940,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
           </div>
         </div>
         <p class="hint">Ukuran A6 landscape (148 &times; 105 mm). Di dialog print pilih ukuran kertas A6, skala 100%.</p>
-        <script>window.onload = function () { setTimeout(function () { window.print(); }, 350); };<\/script>
+        ${autoPrint ? `<script>window.onload = function () { setTimeout(function () { window.print(); }, 350); };<\/script>` : ""}
         </body></html>`;
-      w.document.open(); w.document.write(html); w.document.close();
+      return html;
     }
 
     function closeShopOrdEditor() {
@@ -15125,13 +15194,13 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       a.href = url; a.target = "_blank"; a.rel = "noopener";
       document.body.appendChild(a); a.click(); a.remove();
     }
-    function showPdfReadySheet({ blob, fileName, shareText, waUrl }) {
+    function showPdfReadySheet({ blob, fileName, shareText, waUrl, title }) {
       const file = blob ? new File([blob], fileName, { type: "application/pdf" }) : null;
       const share = !!file && canShareFiles();
       const ov = document.createElement("div");
       ov.className = "ab-dlg-ov";
       ov.innerHTML = `<div class="ab-dlg" role="dialog" aria-modal="true" aria-labelledby="pdfReadyT">
-          <div class="ab-dlg-t" id="pdfReadyT">Invoice siap</div>
+          <div class="ab-dlg-t" id="pdfReadyT">${title || "Invoice siap"}</div>
           <div class="ab-dlg-body">
             <p class="ab-dlg-text">${share
               ? (waUrl ? "Tap <b>Kirim PDF</b>, pilih WhatsApp, lalu pilih kontak pembeli. Atau buka chatnya dulu buat kirim rincian teks."

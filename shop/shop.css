@@ -126,3 +126,6 @@ body.sh-has-cart main.container { padding-bottom: 90px; }
 .sh-only { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 0.8rem; padding: 10px 12px; border-radius: 12px; background: #eef3ff; color: var(--ink); font-size: 0.9rem; }
 .sh-only .sh-link { padding: 0; }
 @media (max-width: 380px) { .sh-vars { padding-left: 0; } }
+
+/* textarea alamat: lebar penuh & teks normal (dulu sempit + huruf kecil di HP) */
+.sh-step textarea, #shAddr { display: block; width: 100%; max-width: 100%; box-sizing: border-box; min-height: 104px; padding: 12px 14px; font: 400 16px/1.5 'Open Sans', -apple-system, sans-serif; color: var(--ink); resize: vertical; }

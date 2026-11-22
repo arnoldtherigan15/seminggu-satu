@@ -87,12 +87,13 @@ Deno.serve(async (_req) => {
       await sendTelegramText(
         `🎂 *Ultah Hari Ini!*\n\n${names}\n\n_Jangan lupa kasih ucapan ya_ 🥳`,
         buttons.length ? { inline_keyboard: buttons } : undefined,
+        { url: "/admin/#activity" },
       );
     }
   } catch (_e) { /* jangan ganggu reminder event kalau ini gagal */ }
 
   if (!blocks.length) return new Response(JSON.stringify({ status: "success", sent: false, reason: "no events today/tomorrow", deactivated: pastIds.length }));
 
-  await sendTelegramText(`⏰ *Reminder Event*\n\n${blocks.join("\n\n")}\n\n_Cek tab Prep buat checklist persiapan & barang bawaan ya!_ 💪`);
+  await sendTelegramText(`⏰ *Reminder Event*\n\n${blocks.join("\n\n")}\n\n_Cek tab Prep buat checklist persiapan & barang bawaan ya!_ 💪`, undefined, { url: "/admin/#overview" });
   return new Response(JSON.stringify({ status: "success", sent: true, events: blocks.length, deactivated: pastIds.length }), { headers: { "Content-Type": "application/json" } });
 });

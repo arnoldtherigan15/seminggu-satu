@@ -38,8 +38,7 @@ Deno.serve(async (req) => {
       await sendTelegramText(
         "🔄 *Barter Baru!*\n\n" +
           `👤 Dari: ${prof.nickname || "Sahabat"}\n` +
-          `📦 Barang: ${text}`,
-      );
+          `📦 Barang: ${text}`, undefined, { url: "/admin/#barter" });
     } catch (_e) { /* abaikan */ }
 
     return jsonResponse({ status: "success", message: "Barter kamu udah kepasang! 🔄" });

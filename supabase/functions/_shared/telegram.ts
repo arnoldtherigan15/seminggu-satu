@@ -7,9 +7,12 @@ import { sendAdminPush, telegramToPush } from "./admin-push.ts";
 // disimpen sebagai Edge Function secret (supabase secrets set), BUKAN
 // hardcode kayak di Google_Script_Code.js dulu (folder ini KE-COMMIT ke git).
 // deno-lint-ignore no-explicit-any
-export async function sendTelegramText(text: string, replyMarkup?: any) {
+export async function sendTelegramText(text: string, replyMarkup?: any, opts?: { url?: string }) {
   // Push ke PWA admin jalan barengan (paralel) sama Telegram -- isi sama.
-  const pushP = sendAdminPush(telegramToPush(text)).catch(() => {});
+  // opts.url = halaman admin yang dibuka pas push-nya diketuk (mis. detail order).
+  const msg = telegramToPush(text);
+  if (opts?.url) msg.url = opts.url;
+  const pushP = sendAdminPush(msg).catch(() => {});
   try { await sendTelegramTextOnly(text, replyMarkup); } finally { await pushP; }
 }
 
@@ -82,7 +85,9 @@ export async function notifyRegistration(
   const nick = info.nickname || "kak";
   const sapaan = await registrationGreeting(admin, { workshopType: info.workshopType, label: info.label, nickname: info.nickname, batchId: info.batchId });
 
-  await sendTelegramText(pesan, waButton(info.whatsapp, nick, sapaan));
+  await sendTelegramText(pesan, waButton(info.whatsapp, nick, sapaan), {
+    url: "/admin/#pendaftar:" + encodeURIComponent(info.workshopType) + (info.batchId ? ":" + encodeURIComponent(info.batchId) : ""),
+  });
 }
 
 // Link grup WA per batch (batch override > Config tipe workshop). Cache opsional

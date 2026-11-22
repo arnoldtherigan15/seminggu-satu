@@ -183,6 +183,8 @@ Deno.serve(async (req) => {
             `🚚 JNE ${pick.service} → ${destLabel || "-"}\n` +
             `💰 Total: Rp ${total.toLocaleString("id-ID")} (ongkir ${pick.cost.toLocaleString("id-ID")})\n` +
             "🧾 Bukti transfer: udah diupload, cek di Order toko",
+          undefined,
+          { url: "/admin/#shoporders:order:" + order.id },
         );
       } catch (_e) { /* best-effort */ }
 

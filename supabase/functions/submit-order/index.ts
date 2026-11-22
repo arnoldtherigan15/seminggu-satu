@@ -63,8 +63,7 @@ Deno.serve(async (req) => {
         (isUpdate ? "🔄 *Pesanan Diperbarui!*\n\n" : "🥤 *Pesanan Masuk!*\n\n") +
           `🎫 Event: ${eventLabel}\n` +
           `👤 Nama: ${participantName}\n` +
-          `🍹 Menu: ${item.name}`,
-      );
+          `🍹 Menu: ${item.name}`, undefined, { url: "/admin/#pesanan:" + batchId });
     } catch (_e) { /* abaikan */ }
 
     return jsonResponse({ status: "success", message: isUpdate ? "Pesanan kamu udah diperbarui!" : "Pesanan tercatat!" });

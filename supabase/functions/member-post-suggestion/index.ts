@@ -52,8 +52,7 @@ Deno.serve(async (req) => {
         "📮 *Kotak Pos Baru!*\n\n" +
           `🏷️ Kategori: ${SUGGEST_CAT_LABEL[category] || category}\n` +
           `👤 Dari: ${prof.nickname || "Sahabat"}\n` +
-          `💬 Usulan: ${text}`,
-      );
+          `💬 Usulan: ${text}`, undefined, { url: "/admin/#activity" });
     } catch (_e) { /* abaikan */ }
 
     return jsonResponse({ status: "success", message: "Usulanmu masuk Kotak Pos! 📮", id: inserted.id });
