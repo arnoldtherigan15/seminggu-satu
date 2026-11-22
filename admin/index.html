@@ -4305,7 +4305,7 @@
       font-family: monospace;
     }
   </style>
-  <link rel="stylesheet" href="admin-binder.css?v=49">
+  <link rel="stylesheet" href="admin-binder.css?v=50">
   <link rel="stylesheet" href="admin-dark.css?v=7">
 </head>
 
@@ -12393,6 +12393,12 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     function safeFileName(s) {
       return String(s || "Document").replace(/[\\/:*?"<>|]+/g, "-").trim() || "Document";
     }
+
+    // kunci scroll halaman selama ada dialog (.ab-dlg-ov) -- biar overlay nggak "kegeser" di iPhone
+    new MutationObserver(() => {
+      const open = !!document.querySelector("body > .ab-dlg-ov");
+      document.body.classList.toggle("ab-dlg-lock", open);
+    }).observe(document.body, { childList: true });
 
     function pdfGenOverlay(show) {
       let el = document.getElementById("pdfGenOverlay");

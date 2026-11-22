@@ -2280,3 +2280,12 @@ path.sf-bar.neg { fill: #e9a0a0; } path.sf-bar.neg.is-sel { fill: #d64545; }
 .ovo-more { display: inline-block; margin-top: 8px; font-weight: 700; color: var(--brand); text-decoration: none; }
 .so-ch-pend { background: #fff7e6; color: #8a5300; }
 @media (max-width: 600px) { .ovo-row { padding: 11px 12px; } }
+
+/* Dialog di HP: overlay selalu nutup layar penuh (iOS kadang ngitung fixed+inset dari
+   viewport lama habis scroll/keyboard -> overlay kepotong), dialog jadi bottom sheet */
+.ab-dlg-ov { top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; height: 100dvh; min-height: 100vh; transform: translateZ(0); overscroll-behavior: contain; overflow-y: auto; }
+body.ab-dlg-lock { overflow: hidden; }
+@media (max-width: 600px) {
+    .ab-dlg-ov { align-items: flex-end; padding: 0; }
+    .ab-dlg { max-width: none; border-radius: 20px 20px 0 0; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-height: 88dvh; overflow-y: auto; }
+}
