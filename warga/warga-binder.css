@@ -2218,3 +2218,8 @@ button.bw-brand:focus-visible { outline: 3px solid var(--bw-yellow); outline-off
 .mg-cell svg.ma { display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; }
 .mg-h { min-width: 0; overflow: hidden; }
 @media (max-width: 380px) { .mg-grid { gap: 3px; } .mg-cell.on { padding: 8%; } }
+
+/* modal (detail challenge, galeri, dst): cuma boleh scroll ke BAWAH. Foto miring &
+   washi tape yang sedikit keluar pinggir dulu bikin modal bisa kegeser kiri-kanan
+   pas di-scroll di HP. Swipe antar foto galeri tetap jalan (ditangani JS). */
+.quest-modal-box { overflow-x: hidden; overflow-x: clip; overscroll-behavior: contain; touch-action: pan-y; }
