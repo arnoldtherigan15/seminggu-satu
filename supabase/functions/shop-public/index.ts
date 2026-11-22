@@ -61,24 +61,36 @@ function publicProduct(p: Any) {
   return {
     id: p.id, code: p.code || "", name: p.name, price: Number(p.sell_price) || 0, image: p.image || "",
     weight: Number(p.weight_grams) || 150, preorderNote: p.preorder_note || "", desc: p.shop_desc || "",
+    variants: Array.isArray(p.variants) ? p.variants : [],
   };
 }
 
-// keranjang -> produk valid (tampil di toko & ada harga), qty dibatasi wajar
+// keranjang -> produk valid (tampil di toko & ada harga), qty dibatasi wajar.
+// Produk bervarian WAJIB punya varian yang terdaftar; 1 baris per (produk, varian).
 async function resolveCart(admin: SupabaseClient, items: Any[]) {
-  const want = new Map<string, number>();
+  const want = new Map<string, { id: string; variant: string; qty: number }>();
   for (const it of Array.isArray(items) ? items : []) {
-    const id = String(it?.productId || ""), q = Math.round(Number(it?.qty) || 0);
+    const id = String(it?.productId || ""), q = Math.round(Number(it?.qty) || 0), variant = String(it?.variant || "").trim();
     if (!id || q <= 0) continue;
-    want.set(id, Math.min(50, (want.get(id) || 0) + q));
+    const k = id + "::" + variant.toLowerCase();
+    const cur = want.get(k) || { id, variant, qty: 0 };
+    cur.qty = Math.min(50, cur.qty + q);
+    want.set(k, cur);
   }
   if (!want.size) throw new Error("Keranjangnya masih kosong.");
-  const { data: rows } = await admin.from("shop_products").select("*").in("id", [...want.keys()]);
-  const lines: { product: Any; qty: number }[] = [];
-  for (const [id, qty] of want) {
-    const p = (rows || []).find((r: Any) => r.id === id);
+  const ids = [...new Set([...want.values()].map((w) => w.id))];
+  const { data: rows } = await admin.from("shop_products").select("*").in("id", ids);
+  const lines: { product: Any; qty: number; variant: string }[] = [];
+  for (const w of want.values()) {
+    const p = (rows || []).find((r: Any) => r.id === w.id);
     if (!p || !p.show_in_shop || p.sell_price == null) throw new Error("Ada produk yang udah nggak dijual. Muat ulang halamannya ya.");
-    lines.push({ product: p, qty });
+    const vars: string[] = Array.isArray(p.variants) ? p.variants : [];
+    let variant = "";
+    if (vars.length) {
+      variant = vars.find((v) => v.toLowerCase() === w.variant.toLowerCase()) || "";
+      if (!variant) throw new Error(`Pilih varian buat "${p.name}" dulu ya.`);
+    }
+    lines.push({ product: p, qty: w.qty, variant });
   }
   const subtotal = lines.reduce((s, l) => s + Number(l.product.sell_price) * l.qty, 0);
   const grams = lines.reduce((s, l) => s + (Number(l.product.weight_grams) || 150) * l.qty, 0);
@@ -157,7 +169,7 @@ Deno.serve(async (req) => {
 
       const sales = [];
       for (const l of lines) {
-        sales.push({ order_id: order.id, product_id: l.product.id, qty: l.qty, unit_sell_price: Number(l.product.sell_price), unit_hpp: await unitHpp(admin, l.product) });
+        sales.push({ order_id: order.id, product_id: l.product.id, qty: l.qty, unit_sell_price: Number(l.product.sell_price), unit_hpp: await unitHpp(admin, l.product), notes: l.variant || null });
       }
       const { error: se } = await admin.from("shop_sales").insert(sales);
       if (se) { await admin.from("shop_orders").delete().eq("id", order.id); return errorResponse("Gagal nyimpen item: " + se.message, 500); }
@@ -167,7 +179,7 @@ Deno.serve(async (req) => {
         await sendTelegramText(
           "🛍️ *Order Baru dari Toko!*\n\n" +
             `👤 Nama: ${name}\n📱 WA: ${wa}\n` +
-            lines.map((l) => `• ${l.product.name} ×${l.qty}`).join("\n") + "\n" +
+            lines.map((l) => `• ${l.product.name}${l.variant ? " (" + l.variant + ")" : ""} ×${l.qty}`).join("\n") + "\n" +
             `🚚 JNE ${pick.service} → ${destLabel || "-"}\n` +
             `💰 Total: Rp ${total.toLocaleString("id-ID")} (ongkir ${pick.cost.toLocaleString("id-ID")})\n` +
             "🧾 Bukti transfer: udah diupload, cek di Order toko",
@@ -182,12 +194,12 @@ Deno.serve(async (req) => {
       if (!/^[0-9a-f-]{36}$/i.test(token)) return errorResponse("Link tracking nggak valid.");
       const { data: o } = await admin.from("shop_orders").select("*").eq("track_token", token).maybeSingle();
       if (!o) return errorResponse("Order nggak ketemu.", 404);
-      const { data: sales } = await admin.from("shop_sales").select("product_id, qty, unit_sell_price").eq("order_id", o.id);
+      const { data: sales } = await admin.from("shop_sales").select("product_id, qty, unit_sell_price, notes").eq("order_id", o.id);
       const ids = [...new Set((sales || []).map((s: Any) => s.product_id))];
       const { data: prods } = ids.length ? await admin.from("shop_products").select("id, name, image, preorder_note").in("id", ids) : { data: [] };
       const items = (sales || []).map((s: Any) => {
         const p: Any = (prods || []).find((x: Any) => x.id === s.product_id) || {};
-        return { name: p.name || "Produk", image: p.image || "", preorderNote: p.preorder_note || "", qty: Number(s.qty), price: Number(s.unit_sell_price), lineTotal: Number(s.qty) * Number(s.unit_sell_price) };
+        return { name: (p.name || "Produk") + (s.notes ? " - " + s.notes : ""), image: p.image || "", preorderNote: p.preorder_note || "", qty: Number(s.qty), price: Number(s.unit_sell_price), lineTotal: Number(s.qty) * Number(s.unit_sell_price) };
       });
       const subtotal = items.reduce((s: number, i: Any) => s + i.lineTotal, 0);
       const status = o.status || (o.is_paid ? "dibayar" : "verifikasi");

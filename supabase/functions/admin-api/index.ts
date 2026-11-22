@@ -1640,6 +1640,7 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
             soldQty: sold.soldQty, profit: sold.profit,
             showInShop: !!r.show_in_shop, weightGrams: Number(r.weight_grams) || 150,
             preorderNote: r.preorder_note || "", shopDesc: r.shop_desc || "",
+            variants: Array.isArray(r.variants) ? r.variants : [],
             createdAt: r.created_at,
           };
         });
@@ -1681,6 +1682,13 @@ Gaya bahasa santai & akrab kayak chat personal dari temen (bukan formal), seseka
         if (data.weightGrams !== undefined && String(data.weightGrams).trim() !== "") patch.weight_grams = Math.max(1, Math.round(Number(data.weightGrams) || 150));
         if (data.preorderNote !== undefined) patch.preorder_note = String(data.preorderNote || "").trim().slice(0, 140) || null;
         if (data.shopDesc !== undefined) patch.shop_desc = String(data.shopDesc || "").trim().slice(0, 600) || null;
+        if (data.variants !== undefined) {
+          const seen = new Set<string>();
+          patch.variants = (Array.isArray(data.variants) ? data.variants : [])
+            .map((v: unknown) => String(v || "").trim().slice(0, 40))
+            .filter((v: string) => v && !seen.has(v.toLowerCase()) && seen.add(v.toLowerCase()))
+            .slice(0, 30);
+        }
         if (id) {
           const { error } = await admin.from("shop_products").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
           if (error) return errorResponse("Gagal menyimpan produk: " + error.message);

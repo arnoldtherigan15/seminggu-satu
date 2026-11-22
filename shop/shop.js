@@ -6,7 +6,7 @@
     const rp = (n) => 'Rp ' + Math.round(Number(n) || 0).toLocaleString('id-ID');
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const CART_KEY = 'ss_shop_cart', FORM_KEY = 'ss_shop_form';
-    const S = { products: [], cart: new Map(), bank: null, ongkirReady: false, step: 0, dest: null, ship: null, options: [], proof: '', ref: '', q: '' };
+    const S = { only: '', products: [], cart: new Map(), bank: null, ongkirReady: false, step: 0, dest: null, ship: null, options: [], proof: '', ref: '', q: '' };
     const STEPS = [{ k: 'cart', t: 'Keranjang' }, { k: 'addr', t: 'Data & alamat' }, { k: 'pay', t: 'Bayar' }];
 
     async function api(action, body) {
@@ -29,7 +29,9 @@
     // ---------- katalog ----------
     const initials = (n) => String(n || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
     const imgHtml = (p, cls) => p.image ? `<div class="${cls}"><img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy"></div>` : `<div class="${cls}">${esc(initials(p.name))}</div>`;
-    function qtyHtml(id, q) { return `<div class="sh-qty"><button type="button" data-dec="${id}" aria-label="Kurangi">&minus;</button><b>${q}</b><button type="button" data-inc="${id}" aria-label="Tambah">+</button></div>`; }
+    const keyOf = (id, v) => id + '::' + (v || '');
+    const parseKey = (k) => { const i = k.indexOf('::'); return i < 0 ? { id: k, v: '' } : { id: k.slice(0, i), v: k.slice(i + 2) }; };
+    function qtyHtml(id, q) { return `<div class="sh-qty"><button type="button" data-dec="${esc(id)}" aria-label="Kurangi">&minus;</button><b>${q}</b><button type="button" data-inc="${esc(id)}" aria-label="Tambah">+</button></div>`; }
     // daftar produk (list, bukan grid -- tetap rapi walau produknya banyak) + cari kalau > 6
     function renderGrid() {
         const g = $('shGrid');
@@ -37,21 +39,32 @@
         const sw = $('shSearchWrap');
         if (sw) sw.hidden = S.products.length <= 6;
         const q = S.q.toLowerCase();
-        const list = S.products.filter(p => !q || (p.name + ' ' + (p.desc || '')).toLowerCase().includes(q));
+        const list = S.products.filter(p => (!S.only || p.id === S.only) && (!q || (p.name + ' ' + (p.desc || '')).toLowerCase().includes(q)));
+        const onlyBar = $('shOnlyBar');
+        if (onlyBar) onlyBar.hidden = !S.only;
         g.innerHTML = list.length ? list.map(p => {
-            const qty = S.cart.get(p.id) || 0;
-            return `<article class="sh-row${qty ? ' in-cart' : ''}">${imgHtml(p, 'sh-row-img')}
+            const vars = p.variants || [];
+            const total = [...S.cart.entries()].filter(([k]) => parseKey(k).id === p.id).reduce((s, [, q]) => s + q, 0);
+            const key = keyOf(p.id, '');
+            const act = vars.length ? '' : `<div class="sh-row-act">${S.cart.get(key) ? qtyHtml(key, S.cart.get(key)) : `<button type="button" class="sh-add" data-inc="${esc(key)}">Tambah</button>`}</div>`;
+            // produk bervarian: pilih varian lewat chip (1 ketuk = +1), atur jumlah per varian di bawahnya
+            const varHtml = vars.length ? `<div class="sh-vars"><span class="sh-vars-lbl">Pilih varian:</span>${vars.map(v => {
+                const k = keyOf(p.id, v), q = S.cart.get(k) || 0;
+                return q ? `<div class="sh-var on"><span>${esc(v)}</span>${qtyHtml(k, q)}</div>` : `<button type="button" class="sh-var" data-inc="${esc(k)}">+ ${esc(v)}</button>`;
+            }).join('')}</div>` : '';
+            return `<article class="sh-row${total ? ' in-cart' : ''}${vars.length ? ' has-vars' : ''}">${imgHtml(p, 'sh-row-img')}
                 <div class="sh-row-txt">
                     <b>${esc(p.name)}</b>
                     <span class="sh-row-price">${rp(p.price)}</span>
                     <span class="sh-pre">${esc(p.preorderNote || 'Pre-order')}</span>
                     ${p.desc ? `<small class="sh-desc">${esc(p.desc)}</small>` : ''}
                 </div>
-                <div class="sh-row-act">${qty ? qtyHtml(p.id, qty) : `<button type="button" class="sh-add" data-inc="${p.id}">Tambah</button>`}</div>
+                ${act}${varHtml}
             </article>`;
         }).join('') : '<div class="sh-empty">Nggak ada produk yang cocok.</div>';
     }
-    function cartLines() { return [...S.cart.entries()].map(([id, qty]) => ({ p: S.products.find(x => x.id === id), qty })).filter(l => l.p && l.qty > 0); }
+    function cartLines() { return [...S.cart.entries()].map(([k, qty]) => { const { id, v } = parseKey(k); return { key: k, p: S.products.find(x => x.id === id), v, qty }; }).filter(l => l.p && l.qty > 0); }
+    const lineName = (l) => l.p.name + (l.v ? ' - ' + l.v : '');
     const subtotal = () => cartLines().reduce((s, l) => s + l.p.price * l.qty, 0);
     function saveCart() { store.set(CART_KEY, [...S.cart.entries()]); }
     function setQty(id, q) {
@@ -104,8 +117,8 @@
     function renderCart() {
         const lines = cartLines();
         $('shCartList').innerHTML = lines.length ? lines.map(l => `<div class="sh-cline">${imgHtml(l.p, 'sh-cline-img')}
-            <div class="sh-cline-txt"><b>${esc(l.p.name)}</b><small>${rp(l.p.price)} · ${esc(l.p.preorderNote || 'Pre-order')}</small></div>
-            ${qtyHtml(l.p.id, l.qty)}</div>`).join('') + `<div class="sh-sum-row total" style="border:0;padding-top:12px"><span>Subtotal</span><b>${rp(subtotal())}</b></div>`
+            <div class="sh-cline-txt"><b>${esc(l.p.name)}</b>${l.v ? `<span class="sh-cline-var">${esc(l.v)}</span>` : ''}<small>${rp(l.p.price)} · ${esc(l.p.preorderNote || 'Pre-order')}</small></div>
+            ${qtyHtml(l.key, l.qty)}</div>`).join('') + `<div class="sh-sum-row total" style="border:0;padding-top:12px"><span>Subtotal</span><b>${rp(subtotal())}</b></div>`
             : '<p class="sh-muted">Keranjang kosong.</p>';
     }
     // alamat tujuan (autocomplete RajaOngkir, di server di-cache)
@@ -166,15 +179,15 @@
         }
     }
     function waOrderLink() {
-        const lines = cartLines().map(l => `- ${l.p.name} x${l.qty}`).join('\n');
+        const lines = cartLines().map(l => `- ${lineName(l)} x${l.qty}`).join('\n');
         const msg = `Halo admin Seminggu Satu, aku mau pre-order:\n${lines}\n\nNama: ${$('shName').value}\nAlamat: ${$('shAddr').value}${S.dest ? ', ' + S.dest.label : ''}`;
         return 'https://wa.me/6281214574782?text=' + encodeURIComponent(msg);
     }
-    const cartPayload = () => cartLines().map(l => ({ productId: l.p.id, qty: l.qty }));
+    const cartPayload = () => cartLines().map(l => ({ productId: l.p.id, qty: l.qty, variant: l.v }));
 
     function renderPay() {
         const sub = subtotal(), ship = S.ship ? S.ship.cost : 0, total = sub + ship;
-        $('shSummary').innerHTML = cartLines().map(l => `<div class="sh-sum-row"><span>${esc(l.p.name)} ×${l.qty}</span><b>${rp(l.p.price * l.qty)}</b></div>`).join('') +
+        $('shSummary').innerHTML = cartLines().map(l => `<div class="sh-sum-row"><span>${esc(lineName(l))} ×${l.qty}</span><b>${rp(l.p.price * l.qty)}</b></div>`).join('') +
             `<div class="sh-sum-row"><span>Ongkir JNE REG${S.ship && S.ship.etd ? ' · estimasi ' + esc(S.ship.etd).replace(/day/i, 'hari') : ''}</span><b>${S.ship ? rp(ship) : '…'}</b></div>` +
             `<div class="sh-sum-row total"><span>Total transfer</span><b>${rp(total)}</b></div>`;
         $('shPayTotal').textContent = rp(total);
@@ -265,15 +278,27 @@
             $('shGrid').innerHTML = `<div class="sh-empty">Toko lagi nggak bisa dimuat: ${esc(e.message)}<br><button type="button" class="sh-link" onclick="location.reload()">Coba lagi</button></div>`;
             return;
         }
-        [...S.cart.keys()].forEach(id => { if (!S.products.find(p => p.id === id)) S.cart.delete(id); });
+        // buang isi keranjang yang produk/varian-nya udah nggak ada (atau keranjang format lama)
+        [...S.cart.keys()].forEach(k => { const { id, v } = parseKey(k); const p = S.products.find(x => x.id === id);
+            if (!p || (p.variants && p.variants.length ? !p.variants.includes(v) : v) || k.indexOf('::') < 0) S.cart.delete(k); });
         const want = params.get('p');
         let jump = false;
         if (want) {
             const p = S.products.find(x => x.code && x.code.toLowerCase() === want.toLowerCase()) || S.products.find(x => x.id === want);
             if (p) {
-                // link khusus produk: keranjang = produk itu aja, langsung ke layar checkout
-                S.cart.clear(); S.cart.set(p.id, 1); jump = true;
-                history.replaceState(null, '', location.pathname + (S.ref ? '?ref=' + encodeURIComponent(ref) : '') + '#checkout');
+                const vars = p.variants || [];
+                const wantV = vars.find(v => v.toLowerCase() === (params.get('v') || '').toLowerCase());
+                S.cart.clear(); jump = true;
+                const qs = S.ref ? '?ref=' + encodeURIComponent(ref) : '';
+                if (vars.length && !wantV) {
+                    // produk bervarian: tampilin produk itu aja dulu biar pembeli pilih varian
+                    S.only = p.id;
+                    history.replaceState(null, '', location.pathname + qs + '#produk');
+                } else {
+                    // link khusus produk (tanpa varian / varian udah ditentuin ?v=): langsung checkout
+                    S.cart.set(keyOf(p.id, wantV || ''), 1);
+                    history.replaceState(null, '', location.pathname + qs + '#checkout');
+                }
             }
             else toast('Produk dari link itu lagi nggak dibuka pre-order', true);
         }
@@ -291,6 +316,7 @@
     $('shCheckoutBtn').addEventListener('click', openCheckout);
     // "+ Tambah produk lain" -> pindah ke layar daftar produk; balik lewat tombol Checkout di bar bawah
     $('shAddMore').addEventListener('click', () => go('produk'));
+    $('shShowAll').addEventListener('click', () => { S.only = ''; renderGrid(); });
     const sq = $('shSearch'); if (sq) sq.addEventListener('input', () => { S.q = sq.value.trim(); renderGrid(); });
     $('shNext').addEventListener('click', next);
     $('shBack').addEventListener('click', back);

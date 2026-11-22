@@ -111,3 +111,18 @@ body.sh-has-cart main.container { padding-bottom: 90px; }
 .sh-how li { display: block; position: relative; padding-left: 34px; line-height: 1.45; }
 .sh-how li::before { position: absolute; left: 0; top: 0; }
 .sh-sum-row b { white-space: nowrap; }
+
+/* varian produk */
+.sh-row.has-vars { flex-wrap: wrap; }
+.sh-vars { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 4px 0 2px 76px; }
+.sh-vars-lbl { flex-basis: 100%; font-size: 0.8rem; font-weight: 700; color: var(--ink-2); }
+.sh-var { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--field-border); background: var(--paper); color: var(--ink); font: 700 0.88rem 'Open Sans', sans-serif; cursor: pointer; transition: border-color .12s ease, transform .12s ease; }
+.sh-var:hover { border-color: #0046ff; }
+.sh-var:active { transform: scale(.97); }
+.sh-var.on { cursor: default; padding: 0 4px 0 12px; border-color: #0046ff; background: rgba(0, 70, 255, .06); }
+.sh-var.on .sh-qty { min-height: 32px; border: 0; margin: 0; }
+.sh-var.on .sh-qty button { width: 30px; height: 30px; }
+.sh-cline-var { display: inline-block; align-self: flex-start; font-size: 0.78rem; font-weight: 700; color: #1f45c9; background: #eef3ff; border-radius: 6px; padding: 1px 7px; }
+.sh-only { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 0.8rem; padding: 10px 12px; border-radius: 12px; background: #eef3ff; color: var(--ink); font-size: 0.9rem; }
+.sh-only .sh-link { padding: 0; }
+@media (max-width: 380px) { .sh-vars { padding-left: 0; } }

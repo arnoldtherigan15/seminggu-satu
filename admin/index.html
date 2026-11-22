@@ -5204,6 +5204,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
             </div>
             <div class="fin-card">
               <div class="konten-field"><label>Nama Produk</label><input class="form-control" type="text" id="shopProdName" placeholder="mis. Deco Paper Matcha Series"></div>
+              <div class="konten-field"><label for="shopProdVariants">Varian <span class="hint" style="font-weight:400;">(opsional &middot; satu per baris, kosongin kalau nggak ada varian)</span></label><textarea class="form-control" id="shopProdVariants" rows="3" placeholder="Blue Cat&#10;Red Flower"></textarea></div>
               <p class="hint" id="shopProdCodeInfo" style="margin:-4px 0 12px;"></p>
               <div class="konten-field"><label>Foto Produk</label>
                 <input class="form-control" type="text" id="shopProdImage" placeholder="Upload di bawah, atau tempel URL manual">
@@ -13505,6 +13506,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       document.getElementById("shopProdSellPrice").value = SHOPPROD_CURRENT.sellPrice != null ? formatRibuan(SHOPPROD_CURRENT.sellPrice) : "";
       document.getElementById("shopProdMsg").textContent = "";
       document.getElementById("shopProdNoMatsHint").style.display = SHOPPROD_MATERIALS_CACHE.length ? "none" : "block";
+      document.getElementById("shopProdVariants").value = p && p.variants ? p.variants.join("\n") : "";
       document.getElementById("shopProdShowInShop").checked = !!(p && p.showInShop);
       document.getElementById("shopProdWeight").value = p ? (p.weightGrams || 150) : 150;
       document.getElementById("shopProdPreNote").value = p ? (p.preorderNote || "") : "";
@@ -13842,6 +13844,7 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
         sellPrice: sellPriceRaw !== "" ? parseRibuan(sellPriceRaw) : null,
         stockQty: stockRaw !== "" ? stockRaw : undefined,
         showInShop: document.getElementById("shopProdShowInShop").checked,
+        variants: document.getElementById("shopProdVariants").value.split("\n").map(v => v.trim()).filter(Boolean),
         weightGrams: document.getElementById("shopProdWeight").value || 150,
         preorderNote: document.getElementById("shopProdPreNote").value,
         shopDesc: document.getElementById("shopProdShopDesc").value,
@@ -14595,7 +14598,9 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
       const box = document.getElementById("ksrCart");
       const lines = [...KSR.cart.entries()];
       box.innerHTML = lines.length ? lines.map(([k, l]) => `<div class="ksr-line">
-          <span class="ksr-line-main"><b>${escapeHtml(l.p.name)}</b><input class="ksr-note" data-ksrnote="${k}" value="${escapeHtml(l.notes || "")}" placeholder="varian / catatan" aria-label="Catatan ${escapeHtml(l.p.name)}"></span>
+          <span class="ksr-line-main"><b>${escapeHtml(l.p.name)}</b>${(l.p.variants || []).length
+            ? `<select class="ksr-note" data-ksrnote="${k}" aria-label="Varian ${escapeHtml(l.p.name)}"><option value="">Pilih varian…</option>${l.p.variants.map(v => `<option${v === l.notes ? " selected" : ""}>${escapeHtml(v)}</option>`).join("")}</select>`
+            : `<input class="ksr-note" data-ksrnote="${k}" value="${escapeHtml(l.notes || "")}" placeholder="varian / catatan" aria-label="Catatan ${escapeHtml(l.p.name)}">`}</span>
           <span class="ksr-qty"><button type="button" data-ksrdec="${k}" aria-label="Kurangi">−</button><b>${l.qty}</b><button type="button" data-ksrinc="${k}" aria-label="Tambah" ${l.qty >= l.p.stockQty ? "disabled" : ""}>+</button></span>
           <span class="ksr-line-amt">${rupiah(l.qty * l.p.sellPrice)}</span>
         </div>`).join("") : `<p class="ksr-empty">Ketuk produk di atas buat nambahin.</p>`;
@@ -14646,6 +14651,8 @@ Dapat: Workshop Kit Lino Cut, Special Journaling Kit, voucher diskon 20% Gramedi
     async function ksrSave() {
       const name = document.getElementById("ksrName").value.trim();
       if (!name || !KSR.cart.size || KSR.busy) return;
+      const noVar = [...KSR.cart.values()].find(l => (l.p.variants || []).length && !l.notes);
+      if (noVar) { document.getElementById("ksrMsg").textContent = `Pilih varian buat "${noVar.p.name}" dulu.`; return; }
       const isCod = document.getElementById("ksrCod").checked;
       const msg = document.getElementById("ksrMsg");
       KSR.busy = true; ksrSync(); msg.textContent = "Menyimpan…";
