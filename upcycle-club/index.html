@@ -6,380 +6,554 @@
     <script src="../icons.js?v=1"></script>
     <script src="../bgm-toggle.js?v=2"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Upcycle Club — Seminggu Satu</title>
+    <title>Seminggu Satu — This journal used to be a milk carton</title>
     <meta name="description" content="Your journal used to be a milk carton. Here's its story — and a little letter from Mochi to help you start writing.">
     <meta property="og:title" content="This journal used to be a milk carton">
     <meta property="og:description" content="The story of your upcycled journal, and a gentle nudge to start writing — from Seminggu Satu.">
     <meta property="og:image" content="https://seminggusatu.com/images/black.png">
-    <meta name="theme-color" content="#0046ff">
+    <meta name="theme-color" content="#e6cfa4">
     <link rel="icon" href="../images/black.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Open+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
+        /* =========================================================
+           Upcycle Club — "Scrapbook karton".
+           Halamannya kayak scrapbook yang ditempel di atas karton
+           kraft (bagian dalam kotak susu): kertas sobek, washi tape,
+           stiker Mochi (ring putih = pinggiran stiker), coretan spidol.
+           Turunan dunia "Binder Diary" (DESIGN.md): biru/kuning brand,
+           pink cuma dekorasi, tanpa emoji, gerak = sekali "nempel".
+           ========================================================= */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
 
         :root {
             --blue: #0046ff;
-            --blue-2: #0092ff;
+            --blue-deep: #0033c4;
             --yellow: #ffe600;
+            --pink: #ff8fb8;
             --ink: #10245e;
-            --bg: #f4f7ff;
-            --card: #ffffff;
-            --line: #e4e9f5;
-            --muted: #6b7794;
-            --green: #12a150;
-            --grad: linear-gradient(155deg, #0043f5 0%, #0092ff 55%, #00b4ff 100%);
+            --ink-2: #4a5674;
+            --kraft: #e6cfa4;
+            --kraft-deep: #c9a26a;
+            --paper: #fffdf7;
+            --rule: #d6e3ff;
+            --sticky: #fff6a8;
+            --tint: 16, 36, 94;
+            --sh-paper: 0 1px 2px rgba(var(--tint), .12), 0 8px 18px rgba(var(--tint), .10);
+            --sh-photo: 0 12px 26px rgba(var(--tint), .22);
+            --sh-sticker: 0 0 0 3px #fff, 0 5px 10px rgba(var(--tint), .25);
+            --ring: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 6px 8px rgba(16, 36, 94, .25));
+            --ease: cubic-bezier(.16, 1, .3, 1);
+            --hand: 'Caveat', 'Comic Sans MS', cursive;
+            --mono: 'Space Mono', ui-monospace, monospace;
         }
 
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; overflow-x: hidden; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        html, body { max-width: 100%; overscroll-behavior-x: none; }
+        section, footer { overflow-x: clip; }
+        body {
+            font-family: 'Open Sans', -apple-system, sans-serif; color: var(--ink); line-height: 1.55; overflow-x: hidden; overflow-x: clip; position: relative;
+            background-color: var(--kraft);
+            /* serat karton */
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .27 0 0 0 0 .1 0 0 0 .5 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(120% 60% at 50% 0%, #f0dcb6 0%, transparent 70%);
+        }
+        ::selection { background: var(--yellow); color: var(--ink); }
+        a { color: inherit; text-underline-offset: 3px; text-decoration-color: var(--pink); text-decoration-thickness: 2px; }
+        :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+        img { display: block; max-width: 100%; height: auto; }
 
-        .wrap { max-width: 560px; margin: 0 auto; padding: 0 1.2rem; }
-        section { padding: 4.5rem 0; position: relative; }
-        h1, h2, h3 { font-family: 'Outfit', sans-serif; font-weight: 800; line-height: 1.15; }
-        h2 { font-size: clamp(1.7rem, 6.5vw, 2.3rem); margin-bottom: 0.9rem; }
-        h3 { font-size: 1.15rem; margin-bottom: 0.35rem; }
-        p { font-size: 1.02rem; }
-        .muted { color: var(--muted); }
-        .eyebrow { display: inline-block; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); background: #e6edff; padding: 5px 12px; border-radius: 999px; margin-bottom: 1rem; }
-        .hl { background: linear-gradient(transparent 60%, var(--yellow) 60%); padding: 0 2px; }
-        .src { font-size: 0.72rem; color: var(--muted); margin-top: 1rem; }
-        .src a { color: inherit; }
+        .wrap { max-width: 540px; margin: 0 auto; padding: 0 1.1rem; position: relative; }
+        section { position: relative; padding: 3.6rem 0; }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; text-wrap: balance; }
+        h2 { font-size: clamp(1.75rem, 7.4vw, 2.4rem); margin-bottom: 0.8rem; }
+        h3 { font-size: 1.12rem; letter-spacing: -0.01em; margin-bottom: 0.2rem; }
+        .lede { color: var(--ink-2); font-size: 1rem; max-width: 34rem; }
+        .hand { font-family: var(--hand); font-weight: 700; }
+        .src { font-size: 0.76rem; color: var(--ink-2); margin-top: 1rem; line-height: 1.5; }
+        .src a { text-decoration-color: currentColor; text-decoration-thickness: 1px; }
+        .i { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* ---------- reveal on scroll ---------- */
-        .rv { opacity: 0; transform: translateY(26px); transition: opacity .8s cubic-bezier(.16, 1, .3, 1), transform .8s cubic-bezier(.16, 1, .3, 1); }
-        .rv.in { opacity: 1; transform: none; }
-        .rv.d1 { transition-delay: .12s; } .rv.d2 { transition-delay: .24s; } .rv.d3 { transition-delay: .36s; }
+        /* stabilo kuning, sedikit miring kayak dicoret tangan */
+        .hl { background: linear-gradient(100deg, transparent 2%, var(--yellow) 3%, var(--yellow) 96%, transparent 97%) 0 62% / 100% 46% no-repeat; padding: 0 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+        /* ---------- bahan: washi, kertas ---------- */
+        .tape { position: absolute; z-index: 3; width: 92px; height: 24px; opacity: .88; pointer-events: none;
+            clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 88% 0, 92% 10%, 96% 0, 100% 8%, 100% 92%, 96% 100%, 92% 90%, 88% 100%, 12% 100%, 8% 90%, 4% 100%, 0 92%);
+            background: repeating-linear-gradient(-45deg, rgba(255,143,184,.85) 0 7px, rgba(255,190,214,.85) 7px 14px); }
+        .tape.blue { background: repeating-linear-gradient(90deg, rgba(0,146,255,.55) 0 5px, rgba(150,205,255,.65) 5px 10px); }
+        .tape.yellow { background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.7) 2px, transparent 2.5px) 0 0 / 9px 9px, rgba(255,230,0,.8); }
+        .paper { background: var(--paper); border-radius: 4px 14px 14px 4px; box-shadow: var(--sh-paper); position: relative; }
+
+        /* ---------- tombol stiker ---------- */
+        .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 52px; border: none; cursor: pointer;
+            font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.05rem; padding: 0.8rem 1.4rem; border-radius: 14px; text-decoration: none;
+            box-shadow: var(--sh-sticker); transform: rotate(-1deg); transition: transform .25s var(--ease), box-shadow .25s var(--ease); -webkit-tap-highlight-color: transparent; }
+        .btn .i { width: 1.15em; height: 1.15em; }
+        .btn:hover { transform: rotate(-2deg) translateY(-2px); box-shadow: 0 0 0 3px #fff, 0 10px 18px rgba(var(--tint), .28); }
+        .btn:active { transform: rotate(-1deg) scale(.97); }
+        .btn-yellow { background: var(--yellow); color: var(--ink); }
+        .btn-blue { background: var(--blue); color: #fff; }
+        .btn-white { background: #fff; color: var(--ink); box-shadow: 0 0 0 3px #fff, 0 0 0 4.5px #e3d6bd, 0 5px 10px rgba(var(--tint), .2); transform: rotate(1deg); }
+        .btn-white:hover { transform: rotate(2deg) translateY(-2px); }
+        .btn-ig { background: linear-gradient(45deg, #d6249f, #c13584 40%, #6228d7); color: #fff; }
 
         /* ---------- top bar ---------- */
-        .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: calc(0.7rem + env(safe-area-inset-top)) 1rem 0.7rem; pointer-events: none; }
+        .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: calc(0.7rem + env(safe-area-inset-top)) 0.9rem 0.7rem; pointer-events: none; }
         .topbar > * { pointer-events: auto; }
-        .brand { display: flex; align-items: center; gap: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; color: var(--ink); text-decoration: none; background: rgba(255,255,255,.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 6px 12px 6px 6px; border-radius: 999px; border: 1px solid var(--line); }
+        .brand { display: flex; align-items: center; gap: 7px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.92rem; color: var(--ink); text-decoration: none; background: #fff; padding: 5px 13px 5px 5px; border-radius: 999px; box-shadow: var(--sh-sticker); transform: rotate(-2deg); }
         .brand img { width: 28px; height: 28px; }
-        .sound-btn { display: flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: rgba(255,255,255,.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--ink); font-family: inherit; font-weight: 700; font-size: 0.82rem; padding: 8px 14px; border-radius: 999px; cursor: pointer; transition: transform .15s; }
-        .sound-btn:active { transform: scale(.95); }
-        .eq { display: inline-flex; gap: 2px; align-items: flex-end; height: 12px; }
-        .eq i { width: 3px; background: var(--blue); border-radius: 2px; height: 3px; }
-        .playing .eq i { animation: eq 0.9s ease-in-out infinite; }
-        .playing .eq i:nth-child(2) { animation-delay: .2s; } .playing .eq i:nth-child(3) { animation-delay: .4s; }
-        @keyframes eq { 0%, 100% { height: 3px; } 50% { height: 12px; } }
 
-        /* ---------- hero ---------- */
-        .hero { min-height: 100svh; display: flex; align-items: center; background: var(--grad); color: #fff; overflow: hidden; padding-top: 5rem; }
-        .hero h1 { font-size: clamp(2.2rem, 10vw, 3.3rem); margin: 1rem 0 1rem; }
-        .hero h1 .y { color: var(--yellow); }
-        .hero p { opacity: .92; max-width: 26rem; }
-        .orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .45; }
-        .orb.a { width: 260px; height: 260px; background: #00e1ff; top: -60px; right: -80px; }
-        .orb.b { width: 220px; height: 220px; background: var(--yellow); bottom: -90px; left: -70px; opacity: .3; }
-        .morph { width: 170px; height: 190px; margin: 0 auto 0.5rem; position: relative; }
-        .morph svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .m-carton { animation: mCarton 5s ease-in-out infinite; }
-        .m-journal { animation: mJournal 5s ease-in-out infinite; }
-        @keyframes mCarton { 0%, 38% { opacity: 1; transform: none; } 50%, 88% { opacity: 0; transform: rotate(-8deg) scale(.85); } 100% { opacity: 1; transform: none; } }
-        @keyframes mJournal { 0%, 38% { opacity: 0; transform: rotate(8deg) scale(.85); } 50%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; transform: rotate(8deg) scale(.85); } }
-        .sparkle { position: absolute; font-size: 1.2rem; animation: tw 2.4s ease-in-out infinite; }
-        @keyframes tw { 0%, 100% { opacity: 0; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
-        .btn { display: inline-flex; align-items: center; gap: 9px; border: none; cursor: pointer; font-family: inherit; font-weight: 800; font-size: 1rem; padding: 0.95rem 1.5rem; border-radius: 14px; text-decoration: none; transition: transform .15s, box-shadow .2s; }
-        .btn:active { transform: scale(.97); }
-        .btn-yellow { background: var(--yellow); color: var(--ink); box-shadow: 0 10px 26px rgba(0,0,0,.18); }
-        .btn-blue { background: var(--blue); color: #fff; box-shadow: 0 10px 24px rgba(0,70,255,.28); }
-        .btn-ghost { background: var(--card); color: var(--ink); border: 1.5px solid var(--line); }
-        .scroll-hint { margin-top: 2.2rem; font-size: 0.8rem; opacity: .8; display: flex; align-items: center; gap: 8px; }
-        .scroll-hint span { display: inline-block; animation: bob 1.6s ease-in-out infinite; }
-        @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+        /* ---------- 1. hero ---------- */
+        .hero { min-height: 100svh; padding: calc(5.2rem + env(safe-area-inset-top)) 0 3rem; display: flex; align-items: center; overflow: hidden; }
+        .stage { position: relative; width: 220px; height: 250px; margin: 0 auto 1.3rem; }
+        .flip { position: absolute; inset: 0; border: none; background: none; cursor: pointer; perspective: 900px; -webkit-tap-highlight-color: transparent; border-radius: 20px; }
+        .flip-in { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 1s var(--ease); transform: rotate(-5deg); }
+        .flip.turned .flip-in { transform: rotate(4deg) rotateY(180deg); }
+        .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; filter: var(--ring); }
+        .face svg { width: 100%; height: 100%; overflow: visible; }
+        .face.back { transform: rotateY(180deg); }
+        .flip:active .flip-in { transition-duration: .2s; }
+        .tapnote { position: absolute; left: -18px; top: 6px; font-family: var(--hand); font-weight: 700; font-size: 1.55rem; color: var(--blue); transform: rotate(-12deg); line-height: 1; pointer-events: none; }
+        .tapnote svg { position: absolute; left: 30px; top: 26px; width: 56px; height: 44px; stroke: var(--blue); fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+        .spark { position: absolute; width: 26px; height: 26px; color: var(--blue); }
+        .spark.y { color: #f5b800; }
+        .hero h1 { font-size: clamp(2.45rem, 11.5vw, 3.7rem); text-align: center; line-height: 1.02; }
+        .label-tape { display: inline-block; margin-top: 0.35rem; background: var(--blue); color: #fff; padding: 0.05em 0.32em 0.1em; border-radius: 8px; transform: rotate(-2.5deg); box-shadow: var(--sh-sticker); }
+        .hero-p { text-align: center; color: var(--ink-2); max-width: 24rem; margin: 1.2rem auto 0; font-size: 1.02rem; }
+        .hero-cta { display: flex; flex-direction: column; align-items: center; gap: 1.1rem; margin-top: 1.8rem; }
+        .scroll-hint { font-family: var(--hand); font-weight: 700; font-size: 1.3rem; color: var(--ink-2); display: flex; align-items: center; gap: 6px; transform: rotate(-2deg); }
+        .scroll-hint .i { width: 20px; height: 20px; }
 
-        /* ---------- cards ---------- */
-        .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 1.5rem; box-shadow: 0 8px 20px rgba(0,30,120,.06); }
+        /* ---------- 2. struk penghitung ---------- */
+        .receipt-wrap { position: relative; max-width: 360px; margin: 3.6rem auto 0; }
+        .receipt { position: relative; z-index: 1; background: #fff; padding: 1.6rem 1.3rem 1.5rem; font-family: var(--mono); color: var(--ink); box-shadow: var(--sh-photo); transform: rotate(1.2deg); }
+        .receipt::after { content: ""; position: absolute; left: 0; right: 0; bottom: -9px; height: 9px; background: conic-gradient(from -45deg at 50% 0, #fff 90deg, transparent 0) 0 0 / 14px 100% repeat-x; transform: scaleY(-1); }
+        .receipt .tape { top: -12px; left: 50%; margin-left: -46px; transform: rotate(-3deg); }
+        .r-head { text-align: center; font-weight: 700; font-size: 0.82rem; letter-spacing: .14em; text-transform: uppercase; }
+        .r-dash { border: none; border-top: 2px dashed #c9cfdd; margin: 0.9rem 0; }
+        .r-small { font-size: 0.8rem; color: var(--ink-2); text-align: center; line-height: 1.45; }
+        .counter { font-family: var(--mono); font-weight: 700; font-size: clamp(1.9rem, 10vw, 2.6rem); color: var(--blue); line-height: 1.1; margin: 0.35rem 0; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; word-break: break-all; }
+        .r-row { display: flex; align-items: baseline; gap: 6px; font-size: 0.8rem; margin-top: 0.45rem; }
+        .r-row span { color: var(--ink-2); }
+        .r-row i { flex: 1; border-bottom: 2px dotted #c9cfdd; transform: translateY(-4px); min-width: 12px; }
+        .r-row b { font-weight: 700; white-space: nowrap; }
+        .barcode { height: 38px; margin: 1.1rem auto 0.3rem; width: 78%; background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px, var(--ink) 8px 11px, transparent 11px 12px, var(--ink) 12px 13px, transparent 13px 16px); opacity: .85; }
+        .receipt .src { font-family: 'Open Sans', sans-serif; text-align: center; }
+        .mochi-peek { position: absolute; width: 104px; right: 4px; top: -78px; z-index: 0; filter: var(--ring); transform: rotate(9deg); }
 
-        /* ---------- live counter ---------- */
-        .counter { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(2.6rem, 13vw, 4rem); color: var(--blue); line-height: 1; margin: 0.6rem 0 0.4rem; font-variant-numeric: tabular-nums; }
-        .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 1.2rem; }
-        .stat { background: var(--bg); border-radius: 16px; padding: 1rem; }
-        .stat b { display: block; font-family: 'Outfit', sans-serif; font-size: 1.45rem; color: var(--ink); line-height: 1.1; }
-        .stat span { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+        /* ---------- 3. anatomi ---------- */
+        .sheet { margin-top: 1.5rem; padding: 1.6rem 1.2rem 1.3rem; transform: rotate(-.5deg); }
+        .sheet > .tape { top: -11px; left: 18px; transform: rotate(-6deg); }
+        .layer + .layer { margin-top: 1.05rem; }
+        .layer-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+        .layer-name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.98rem; display: flex; align-items: center; gap: 7px; }
+        .layer-name .i { color: var(--blue); }
+        .layer-pct { font-family: var(--hand); font-weight: 700; font-size: 1.7rem; line-height: .8; color: var(--blue); }
+        .strip { height: 26px; width: var(--w); min-width: 14px; transform-origin: left center;
+            clip-path: polygon(0 6%, 100% 0, 98.5% 22%, 100% 40%, 98% 62%, 100% 80%, 98.8% 100%, 0 94%); }
+        .strip.paperboard { background: repeating-linear-gradient(100deg, rgba(120,72,20,.18) 0 2px, transparent 2px 7px), #b9884f; }
+        .strip.plastic { background: repeating-linear-gradient(-60deg, rgba(255,255,255,.5) 0 6px, transparent 6px 16px), #6fb6ff; }
+        .strip.alu { background: linear-gradient(90deg, #aeb6c6, #e9edf4 45%, #9aa4b8); }
+        html.js .strip { transform: scaleX(0); transition: transform 1.2s var(--ease); }
+        html.js .layer:nth-child(2) .strip { transition-delay: .2s; }
+        html.js .layer:nth-child(3) .strip { transition-delay: .4s; }
+        html.js .seen .strip { transform: none; }
+        .sticky { position: relative; background: var(--sticky); padding: 1.1rem 1.1rem 1rem; margin: 1.5rem 0.4rem 0 1.4rem; transform: rotate(1.6deg); box-shadow: var(--sh-paper); font-size: 0.95rem; display: flex; gap: 12px; align-items: flex-start; }
+        .sticky .tape { top: -12px; right: 22px; transform: rotate(5deg); width: 70px; }
 
-        /* ---------- anatomy ---------- */
-        .layers { margin-top: 1.4rem; display: flex; flex-direction: column; gap: 10px; }
-        .layer { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 12px; }
-        .layer-name { font-weight: 800; font-size: 0.9rem; margin-bottom: 5px; }
-        .layer-track { height: 16px; border-radius: 999px; background: var(--bg); overflow: hidden; }
-        .layer-bar { height: 100%; border-radius: 999px; width: 0; transition: width 1.4s cubic-bezier(.16, 1, .3, 1); }
-        .in .layer-bar { width: var(--w); }
-        .layer:nth-child(2) .layer-bar { transition-delay: .25s; }
-        .layer:nth-child(3) .layer-bar { transition-delay: .5s; }
-        .layer-pct { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.15rem; min-width: 3.2rem; text-align: right; }
-        .lb-paper { background: #b07b46; }
-        .lb-plastic { background: #4aa3ff; }
-        .lb-alu { background: #9aa4b8; }
-        .callout { margin-top: 1.3rem; padding: 1rem 1.1rem; border-radius: 16px; background: #fff8cc; font-size: 0.95rem; }
+        /* round icon sticker */
+        .dot { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; background: var(--yellow); color: var(--ink); display: grid; place-items: center; box-shadow: var(--sh-sticker); }
+        .dot .i { width: 22px; height: 22px; }
+        .dot.white { background: #fff; }
+        .dot.blue { background: var(--blue); color: #fff; }
 
-        /* ---------- 3 out of 4 ---------- */
-        .four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 1.4rem 0 0.6rem; }
-        .four .c { aspect-ratio: 3/4; border-radius: 14px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-size: 0.68rem; font-weight: 800; transition: transform .6s cubic-bezier(.16, 1, .3, 1), background .6s, color .6s; background: #eef2fb; color: var(--muted); position: relative; }
-        .four .c span { display: block; width: 100%; text-align: center; white-space: nowrap; line-height: 1.1; padding: 0 3px; }
-        .four .c svg { position: absolute; top: 14%; left: 50%; transform: translateX(-50%); width: 46%; }
-        .in .four .c.gone { background: #e9ebf0; color: #8a93a6; transform: translateY(8px) rotate(-4deg); filter: grayscale(1); }
-        .in .four .c.saved { background: #dff7e8; color: var(--green); transform: translateY(-6px); }
-        .four .c:nth-child(2) { transition-delay: .15s; } .four .c:nth-child(3) { transition-delay: .3s; } .four .c:nth-child(4) { transition-delay: .45s; }
-        .big-frac { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(3rem, 15vw, 4.5rem); line-height: 1; color: var(--ink); }
+        /* ---------- 4. 3 dari 4 ---------- */
+        .frac { display: flex; align-items: baseline; justify-content: center; gap: 0.5rem; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(4rem, 22vw, 6rem); line-height: .9; color: var(--ink); }
+        .frac .of { font-family: var(--hand); font-weight: 700; font-size: 0.42em; color: var(--blue); transform: rotate(-6deg) translateY(-0.2em); }
+        .frac-p { text-align: center; color: var(--ink-2); margin-top: 0.5rem; }
+        .four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 1.5rem 0 0.2rem; }
+        .c { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .c svg.box { width: 100%; max-width: 64px; height: auto; overflow: visible; }
+        .c .lbl { font-family: var(--hand); font-weight: 700; font-size: 1.2rem; line-height: 1; color: var(--ink-2); }
+        .c.saved .lbl { color: var(--blue); }
+        .c svg.mark { position: absolute; left: 50%; top: 0; width: 84px; height: 96px; transform: translateX(-50%); overflow: visible; fill: none; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+        .c.gone svg.mark { stroke: var(--ink); stroke-width: 5; opacity: .85; }
+        .c.saved svg.mark { stroke: var(--blue); stroke-width: 4; }
+        .c.gone svg.box { opacity: .55; filter: grayscale(1); }
+        html.js .c svg.mark path { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .5s var(--ease); }
+        html.js .seen .c svg.mark path { stroke-dashoffset: 0; }
+        html.js .seen .c:nth-child(2) svg.mark path { transition-delay: .25s; }
+        html.js .seen .c:nth-child(3) svg.mark path { transition-delay: .5s; }
+        html.js .seen .c:nth-child(4) svg.mark path { transition-delay: .85s; transition-duration: .8s; }
+        html.js .c.gone svg.box { transition: opacity .4s .3s, filter .4s .3s; }
+        html.js .c.gone svg.box { opacity: 1; filter: none; }
+        html.js .seen .c.gone svg.box { opacity: .55; filter: grayscale(1); }
 
-        /* ---------- the chain ---------- */
-        .paths { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.4rem; }
-        .path { border-radius: 20px; padding: 1.1rem 1rem; }
-        .path.old { background: #eef1f6; }
-        .path.new { background: var(--grad); color: #fff; }
-        .path-title { font-size: 0.75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 0.7rem; opacity: .8; }
-        .steps { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
-        .step { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0; opacity: .25; transform: scale(.85); transition: opacity .5s, transform .5s; }
-        .in .step { opacity: 1; transform: none; }
-        .step .e { width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,.9); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; }
-        .path.old .step .e { background: #fff; }
-        .step small { font-size: 0.66rem; font-weight: 700; text-align: center; line-height: 1.2; }
-        .arrow { font-weight: 800; opacity: .5; flex: 0 0 auto; font-size: 0.8rem; }
-        .path.old .step:last-child .e { background: #dfe3ea; filter: grayscale(1); }
-        .path.new .step:last-child .e { background: var(--yellow); box-shadow: 0 0 0 4px rgba(255,230,0,.35); }
+        /* ---------- 5. dua jalur ---------- */
+        .route { position: relative; padding: 1.3rem 1rem 1.2rem; margin-top: 1.4rem; }
+        .route.old { background: #ecebe6; border-radius: 6px; transform: rotate(.8deg); box-shadow: var(--sh-paper);
+            background-image: linear-gradient(115deg, transparent 48%, rgba(0,0,0,.05) 49%, transparent 51%), linear-gradient(35deg, transparent 60%, rgba(0,0,0,.045) 61%, transparent 63%); }
+        .route.new { transform: rotate(-.6deg); background-color: var(--paper);
+            background-image: radial-gradient(circle, rgba(0,70,255,.14) 1.2px, transparent 1.6px); background-size: 16px 16px; }
+        .route.new > .tape { top: -11px; right: 26px; transform: rotate(4deg); }
+        .route-title { font-family: var(--hand); font-weight: 700; font-size: 1.55rem; line-height: 1; margin-bottom: 1rem; }
+        .route.old .route-title { color: #6b6f7b; }
+        .route.new .route-title { color: var(--blue); }
+        .steps { position: relative; display: flex; justify-content: space-between; align-items: flex-start; }
+        .steps::before { content: ""; position: absolute; left: 22px; right: 22px; top: 21px; border-top: 2.5px dashed #a7abb6; }
+        .route.new .steps::before { border-top-color: var(--blue); }
+        .step { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; width: 54px; }
+        .step small { font-size: 0.74rem; font-weight: 700; text-align: center; line-height: 1.2; }
+        .route.old .dot { background: #fff; color: #6b6f7b; box-shadow: 0 0 0 3px #ecebe6, 0 2px 4px rgba(0,0,0,.12); }
+        .route.old .step:last-child .dot { background: #d3d5db; }
+        .route.old small { color: #5b606c; }
+        .route.new .step:last-child .dot { background: var(--blue); color: #fff; transform: scale(1.12); }
+        html.js .route.new .dot { transform: scale(0) rotate(-30deg); transition: transform .5s var(--ease); }
+        html.js .route.new.seen .dot { transform: none; }
+        html.js .route.new.seen .step:last-child .dot { transform: scale(1.12); }
+        html.js .route.new .step:nth-child(2) .dot { transition-delay: .12s; } html.js .route.new .step:nth-child(3) .dot { transition-delay: .24s; }
+        html.js .route.new .step:nth-child(4) .dot { transition-delay: .36s; } html.js .route.new .step:nth-child(5) .dot { transition-delay: .5s; }
+        .mochi-sad { position: absolute; width: 70px; right: -8px; top: -40px; filter: var(--ring); transform: rotate(8deg); }
+        .after-route { margin-top: 1.6rem; color: var(--ink-2); }
 
-        /* ---------- you broke it ---------- */
-        .you { background: var(--grad); color: #fff; border-radius: 28px; padding: 2.2rem 1.6rem; text-align: center; overflow: hidden; position: relative; box-shadow: 0 18px 45px rgba(0,60,200,.28); }
-        .you .num { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 6rem; line-height: 1; color: var(--yellow); }
-        .you p { opacity: .95; }
+        /* ---------- 6. kamu (sampul biru dijahit) ---------- */
+        .cover { position: relative; background: var(--blue); color: #fff; border-radius: 14px 26px 26px 14px; padding: 2.2rem 1.4rem 2rem 2rem; box-shadow: var(--sh-photo); text-align: center; overflow: hidden; }
+        .cover::before { content: ""; position: absolute; inset: 9px 9px 9px 20px; border: 2px dashed rgba(255,255,255,.6); border-radius: 8px 18px 18px 8px; pointer-events: none; }
+        .cover::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 12px; background: var(--blue-deep); }
+        .cover-k { font-family: var(--hand); font-weight: 700; font-size: 1.5rem; color: var(--yellow); line-height: 1; transform: rotate(-3deg); }
+        .badge { position: relative; width: 190px; height: 190px; margin: 1rem auto 0.8rem; }
+        .badge svg { width: 100%; height: 100%; filter: drop-shadow(0 8px 12px rgba(0,0,40,.35)); }
+        .badge .num { position: absolute; inset: 0; display: grid; place-items: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 6rem; color: var(--ink); line-height: 1; padding-bottom: 8px; }
+        html.js .badge { transform: scale(1.6) rotate(18deg); opacity: 0; transition: transform .7s var(--ease), opacity .3s; }
+        html.js .seen .badge { transform: rotate(-7deg); opacity: 1; }
+        .cover h2 { font-size: 1.7rem; margin: 0 auto 0.6rem; max-width: 18rem; }
+        .cover p { color: #e6edff; max-width: 21rem; margin: 0 auto; }
+        .cover .i.heart { color: var(--yellow); fill: var(--yellow); }
+        .mochi-ok { position: absolute; width: 100px; right: -12px; top: -46px; filter: var(--ring); transform: rotate(10deg); z-index: 2; }
+        .cover-wrap { position: relative; padding-top: 1.4rem; }
 
-        /* ---------- tips ---------- */
-        .tips { display: grid; gap: 0.8rem; margin-top: 1.3rem; }
-        .tip { display: flex; gap: 14px; align-items: flex-start; }
-        .tip .ic { width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px; background: #e6edff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        /* ---------- 7. tips ---------- */
+        .tips { display: grid; gap: 1.6rem; margin-top: 1.8rem; }
+        .tip { position: relative; display: flex; gap: 14px; align-items: flex-start; padding: 1.25rem 1.1rem 1.1rem; box-shadow: var(--sh-paper); max-width: 92%; }
+        .tip p { color: var(--ink-2); font-size: 0.93rem; }
+        .tip.t1 { background: var(--sticky); transform: rotate(-1.4deg); }
+        .tip.t2 { background: #fff; margin-left: auto; transform: rotate(1.2deg); border-top: 26px solid #fff; padding-top: .4rem;
+            background-image: linear-gradient(var(--pink), var(--pink)), repeating-linear-gradient(transparent 0 23px, var(--rule) 23px 24px); background-size: 100% 2px, 100% 100%; background-repeat: no-repeat, repeat; background-position: 0 0, 0 0; }
+        .tip.t3 { background: #ffe1ec; transform: rotate(-.6deg); margin-left: 0.6rem; }
+        .tip .tape { top: -12px; left: 50%; margin-left: -40px; width: 80px; }
+        .tip.t2 .tape { top: -38px; }
 
-        /* ---------- Mochi letter ---------- */
-        .letter-stage { position: relative; min-height: 340px; margin-top: 1.5rem; }
-        .envelope { position: relative; width: 100%; max-width: 340px; aspect-ratio: 1.55; margin: 0 auto; cursor: pointer; perspective: 900px; -webkit-tap-highlight-color: transparent; }
-        .env-body { position: absolute; inset: 0; background: #fff3c4; border-radius: 14px; box-shadow: 0 14px 34px rgba(16,36,94,.18); overflow: hidden; }
-        .env-body::before, .env-body::after { content: ""; position: absolute; bottom: 0; width: 60%; height: 70%; background: #ffe98a; }
-        .env-body::before { left: 0; clip-path: polygon(0 0, 100% 100%, 0 100%); }
-        .env-body::after { right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
-        .env-flap { position: absolute; top: 0; left: 0; right: 0; height: 58%; background: #ffdc4d; clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: top; transition: transform .6s ease; z-index: 3; border-radius: 14px 14px 0 0; }
-        .env-seal { position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%); width: 54px; height: 54px; border-radius: 50%; background: #ff5f7e; z-index: 4; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,.18); transition: opacity .3s; font-size: 1.4rem; }
-        .env-stamp { position: absolute; bottom: 12px; right: 14px; width: 46px; height: 56px; background: #fff; border: 2px dashed #ffb3c1; border-radius: 6px; z-index: 5; display: flex; align-items: center; justify-content: center; transform: rotate(6deg); box-shadow: 0 3px 8px rgba(16,36,94,.12); }
-        .env-stamp img { width: 32px; }
-        .env-to { position: absolute; left: 16px; bottom: 14px; z-index: 5; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; color: #8a6d00; }
-        .envelope:not(.open) { animation: wiggle 3.2s ease-in-out infinite; }
-        @keyframes wiggle { 0%, 82%, 100% { transform: rotate(0); } 86% { transform: rotate(-3deg); } 90% { transform: rotate(3deg); } 94% { transform: rotate(-2deg); } }
+        /* ---------- 8. surat Mochi ---------- */
+        .letter-stage { position: relative; margin-top: 1.8rem; }
+        .env-hint { position: relative; text-align: right; font-family: var(--hand); font-weight: 700; font-size: 1.45rem; color: var(--blue); margin: 0 0.6rem 0.5rem 0; transform: rotate(-4deg); line-height: 1; }
+        .env-hint svg { width: 46px; height: 34px; vertical-align: -14px; margin-left: 4px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+        .envelope { position: relative; display: block; width: 100%; max-width: 360px; aspect-ratio: 1.6; margin: 0 auto; border: none; padding: 0; cursor: pointer; perspective: 900px; background: none; transform: rotate(-2deg); transition: transform .3s var(--ease); -webkit-tap-highlight-color: transparent; font: inherit; color: inherit; }
+        .envelope:hover { transform: rotate(-3deg) translateY(-3px); }
+        .envelope:active { transform: rotate(-2deg) scale(.98); }
+        .env-body { position: absolute; inset: 0; background: #fffaf0; border-radius: 10px; box-shadow: var(--sh-photo); overflow: hidden; }
+        .env-body::before { content: ""; position: absolute; inset: 0; border-radius: 10px; border: 9px solid transparent;
+            background: repeating-linear-gradient(-45deg, var(--blue) 0 10px, #fff 10px 16px, var(--pink) 16px 26px, #fff 26px 32px) border-box;
+            -webkit-mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0); mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0); }
+        .env-flap { position: absolute; top: 0; left: 0; right: 0; height: 56%; background: #f6ecd6; clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: top; transition: transform .6s ease; z-index: 3; }
+        .env-seal { position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); width: 52px; height: 52px; border-radius: 50%; background: #ff5f8a; color: #fff; z-index: 4; display: grid; place-items: center; box-shadow: inset 0 0 0 4px rgba(255,255,255,.25), 0 4px 10px rgba(0,0,0,.2); transition: opacity .3s; }
+        .env-seal .i { width: 22px; height: 22px; fill: #fff; }
+        .env-stamp { position: absolute; top: 16px; right: 18px; width: 54px; height: 64px; z-index: 5; background: #fff; padding: 5px; transform: rotate(6deg);
+            --perf: radial-gradient(circle 3px at 3px 3px, transparent 98%, #000) -3px -3px / 8px 8px; -webkit-mask: linear-gradient(#000 0 0) content-box, var(--perf); mask: linear-gradient(#000 0 0) content-box, var(--perf); }
+        .env-stamp > span { width: 100%; height: 100%; background: #dfeaff; display: grid; place-items: center; }
+        .env-stamp img { width: 38px; }
+        .env-to { position: absolute; left: 30px; bottom: 26px; z-index: 5; font-family: var(--hand); font-weight: 700; font-size: 1.6rem; color: var(--ink); transform: rotate(-3deg); }
         .envelope.open .env-flap { transform: rotateX(180deg); }
         .envelope.open .env-seal { opacity: 0; }
-        .tap-hint { text-align: center; font-size: 0.85rem; color: var(--muted); margin-top: 0.9rem; font-weight: 700; }
-        .note { display: none; position: relative; background: #fffdf6; border: 1px solid #f1e7c4; border-radius: 18px; padding: 1.6rem 1.4rem 1.3rem; box-shadow: 0 16px 36px rgba(16,36,94,.14); background-image: repeating-linear-gradient(transparent 0 31px, #efe6c8 31px 32px); animation: rise .6s cubic-bezier(.16, 1, .3, 1); }
-        .note.show { display: block; }
-        @keyframes rise { from { opacity: 0; transform: translateY(30px) scale(.96); } to { opacity: 1; transform: none; } }
-        .note .from { display: flex; align-items: center; gap: 10px; margin-bottom: 0.9rem; }
-        .note .from img { width: 40px; }
-        .note .from b { font-family: 'Outfit', sans-serif; }
-        .note .cat { font-size: 0.7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #c2410c; }
-        .note .prompt { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.3rem; line-height: 1.4; margin: 0.4rem 0 1rem; }
-        .note .ps { font-size: 0.88rem; color: var(--muted); font-style: italic; }
-        .note-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.1rem; }
-        .note-actions .btn { padding: 0.75rem 1.1rem; font-size: 0.9rem; }
+        .letter { display: none; position: relative; background-color: #fffef9; border-radius: 4px; padding: 2rem 1.3rem 1.3rem 1.5rem; box-shadow: var(--sh-photo); transform: rotate(.6deg);
+            background-image: linear-gradient(90deg, transparent 22px, rgba(255,143,184,.7) 22px 24px, transparent 24px), repeating-linear-gradient(transparent 0 31px, var(--rule) 31px 32px); background-position: 0 0, 0 14px; }
+        .letter.show { display: block; animation: rise .7s var(--ease); }
+        @keyframes rise { from { opacity: 0; transform: translateY(30px) rotate(-3deg) scale(.95); } to { opacity: 1; transform: rotate(.6deg); } }
+        .letter > .tape { top: -12px; left: 50%; margin-left: -46px; transform: rotate(-2deg); }
+        .from { display: flex; align-items: center; gap: 10px; margin-bottom: 0.4rem; }
+        .from img { width: 40px; filter: var(--ring); }
+        .from b { font-family: 'Outfit', sans-serif; font-size: 1rem; }
+        .cat { display: inline-block; margin-top: 2px; font-size: 0.72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; background: var(--yellow); color: var(--ink); padding: 2px 9px; border-radius: 999px; transform: rotate(-2deg); }
+        .prompt { font-family: var(--hand); font-weight: 700; font-size: 1.75rem; line-height: 32px; margin: 0.9rem 0 0.8rem; color: var(--ink); }
+        .ps { font-size: 0.86rem; color: var(--ink-2); font-style: italic; line-height: 32px; }
+        .note-actions { display: flex; gap: 0.9rem; flex-wrap: wrap; margin-top: 1rem; }
+        .note-actions .btn { min-height: 46px; padding: 0.6rem 1.1rem; font-size: 0.95rem; }
 
-        /* ---------- closing ---------- */
-        .closing { text-align: center; }
-        .closing img.logo { width: 72px; margin-bottom: 0.8rem; }
-        .ig-btn { background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); color: #fff; box-shadow: 0 12px 28px rgba(238,42,123,.3); }
-        footer { padding: 2rem 0 3rem; font-size: 0.72rem; color: var(--muted); }
-        footer ol { padding-left: 1.1rem; margin-top: 0.4rem; }
-        footer a { color: inherit; }
+        /* ---------- 9. kartu member ---------- */
+        .card-id { position: relative; text-align: left; max-width: 340px; margin: 0 auto 2.2rem; background: #fff; border-radius: 16px; box-shadow: var(--sh-photo); overflow: hidden; transform: rotate(-2.5deg); }
+        .card-id .head { background: var(--blue); color: #fff; padding: 0.9rem 1.1rem; display: flex; align-items: center; gap: 10px; position: relative; }
+        .card-id .head::after { content: ""; position: absolute; inset: 5px; border: 1.5px dashed rgba(255,255,255,.55); border-radius: 10px; pointer-events: none; }
+        .card-id .head img { width: 34px; height: 34px; background: #fff; border-radius: 50%; padding: 3px; }
+        .card-id .head b { font-family: 'Outfit', sans-serif; font-size: 1.05rem; display: block; line-height: 1.1; }
+        .card-id .head small { font-size: 0.72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--yellow); }
+        .card-id .body { padding: 0.9rem 1.1rem 1.1rem; display: grid; grid-template-columns: 1fr auto; gap: 0.2rem 1rem;
+            background-image: repeating-linear-gradient(transparent 0 33px, var(--rule) 33px 34px); }
+        .card-id dl { display: grid; gap: 0.35rem; }
+        .card-id dt { font-size: 0.72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+        .card-id dd { font-family: var(--hand); font-weight: 700; font-size: 1.45rem; line-height: 1; color: var(--blue); margin-bottom: 0.25rem; }
+        .card-id .mochi-card { width: 86px; align-self: end; filter: var(--ring); transform: rotate(8deg) translateY(6px); }
+        .closing { text-align: center; padding-bottom: 2.4rem; }
+        .closing p { color: var(--ink-2); max-width: 25rem; margin: 0 auto; }
+
+        footer { padding: 0 0 calc(5rem + env(safe-area-inset-bottom)); }
+        .sources { padding: 1.2rem 1.1rem; font-size: 0.74rem; color: var(--ink-2); transform: rotate(.4deg); }
+        .sources b { font-family: 'Outfit', sans-serif; color: var(--ink); font-size: 0.9rem; }
+        .sources ol { padding-left: 1.1rem; margin-top: 0.4rem; display: grid; gap: 0.25rem; }
+        .foot-meta { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.74rem; color: var(--ink); }
+        .foot-meta a { font-weight: 700; }
+
+        @media (min-width: 760px) {
+            section { padding: 4.6rem 0; }
+            .stage { width: 260px; height: 296px; }
+            .mochi-peek { right: -70px; }
+        }
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation: none !important; transition: none !important; }
-            .rv { opacity: 1; transform: none; }
-            .layer-bar { width: var(--w); }
-            .step { opacity: 1; transform: none; }
-            .m-journal { opacity: 0; }
+            html.js .strip, html.js .route.new .dot, html.js .badge { transform: none; opacity: 1; }
+            html.js .c svg.mark path { stroke-dashoffset: 0; }
         }
     </style>
+    <script>document.documentElement.classList.add('js');</script>
 </head>
 
 <body>
+    <!-- ikon garis gaya Lucide (ISC) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="i-milk" viewBox="0 0 24 24"><path d="M8 2h8"/><path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/><path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/></symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+        <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+        <symbol id="i-mountain" viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></symbol>
+        <symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+        <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></symbol>
+        <symbol id="i-hand" viewBox="0 0 24 24"><path d="M11 14h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/><path d="m14.45 13.39 5.05-4.694C20.196 8 21 6.85 21 5.75a2.75 2.75 0 0 0-4.797-1.837.276.276 0 0 1-.406 0A2.75 2.75 0 0 0 11 5.75c0 1.2.802 2.248 1.5 2.946L16 11.95"/><path d="m2 15 6 6"/><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a1 1 0 0 0-2.75-2.91"/></symbol>
+        <symbol id="i-notebook" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></symbol>
+        <symbol id="i-timer" viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></symbol>
+        <symbol id="i-pen" viewBox="0 0 24 24"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></symbol>
+        <symbol id="i-dice" viewBox="0 0 24 24"><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/></symbol>
+        <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+        <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></symbol>
+        <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+        <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></symbol>
+        <symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><polyline points="3.29 7 12 12 20.71 7"/><path d="m7.5 4.27 9 5.15"/></symbol>
+        <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></symbol>
+        <symbol id="i-puzzle" viewBox="0 0 24 24"><path d="M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z"/></symbol>
+        <symbol id="i-camera" viewBox="0 0 24 24"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></symbol>
+        <!-- kotak susu mini (bagian "3 dari 4") -->
+        <symbol id="carton-mini" viewBox="0 0 40 60"><path d="M8 18 20 5l12 13v38a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z" fill="#fff" stroke="#10245e" stroke-width="2.5" stroke-linejoin="round"/><path d="M17 6.5h6v-3h-6z" fill="#fff" stroke="#10245e" stroke-width="2" stroke-linejoin="round"/><rect x="8" y="30" width="24" height="12" fill="#0046ff"/><circle cx="15" cy="48" r="1.6" fill="#10245e"/><circle cx="25" cy="48" r="1.6" fill="#10245e"/></symbol>
+    </svg>
+
     <audio id="bgm" src="bg-music.m4a" loop preload="auto"></audio>
     <audio id="sfxOpen" src="../sound-effect/open-mail.mp3" preload="auto"></audio>
     <audio id="sfxFlip" src="../sound-effect/flip.mp3" preload="auto"></audio>
 
     <div class="topbar">
-        <a class="brand" href="https://seminggusatu.com" aria-label="Seminggu Satu"><img src="../images/black.png" alt="">Upcycle Club</a>
-        <button class="sound-btn playing" id="soundBtn" type="button" aria-pressed="true"><span class="eq"><i></i><i></i><i></i></span><span id="soundLbl">Sound on</span></button>
+        <a class="brand" href="https://seminggusatu.com" aria-label="Seminggu Satu"><img src="../images/black.png" alt="">Seminggu Satu</a>
     </div>
 
     <!-- 1. HERO -->
     <section class="hero">
-        <div class="orb a"></div><div class="orb b"></div>
-        <div class="wrap" style="position:relative;">
-            <div class="morph" aria-hidden="true">
-                <!-- milk carton -->
-                <svg class="m-carton" viewBox="0 0 170 190">
-                    <rect x="45" y="31" width="80" height="128" rx="10" fill="#ffffff" />
-                    <rect x="45" y="79" width="80" height="44" fill="#0092ff" />
-                    <text x="85" y="107" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="17" fill="#fff">MILK</text>
-                    <circle cx="66" cy="57" r="7" fill="#ffe600" />
-                </svg>
-                <!-- journal -->
-                <svg class="m-journal" viewBox="0 0 170 190">
-                    <rect x="38" y="22" width="102" height="150" rx="10" fill="#ffffff" />
-                    <rect x="38" y="22" width="20" height="150" rx="6" fill="#0092ff" />
-                    <rect x="38" y="22" width="102" height="150" rx="10" fill="none" stroke="#e4e9f5" stroke-width="2" />
-                    <g fill="#ffe600"><circle cx="48" cy="45" r="4" /><circle cx="48" cy="70" r="4" /><circle cx="48" cy="95" r="4" /><circle cx="48" cy="120" r="4" /><circle cx="48" cy="145" r="4" /></g>
-                    <g stroke="#cfd8ee" stroke-width="3" stroke-linecap="round"><line x1="72" y1="62" x2="124" y2="62" /><line x1="72" y1="80" x2="124" y2="80" /><line x1="72" y1="98" x2="110" y2="98" /></g>
-                    <path d="M98 128 q8 -14 16 0 q8 14 16 0" fill="none" stroke="#ff5f7e" stroke-width="4" stroke-linecap="round" />
-                </svg>
-                <span class="sparkle" style="top:8px;left:6px;">✨</span>
-                <span class="sparkle" style="bottom:20px;right:0;animation-delay:1.2s;">✨</span>
+        <div class="wrap">
+            <div class="stage">
+                <button class="flip" id="flip" type="button" aria-label="Turn the carton into a journal">
+                    <span class="flip-in">
+                        <!-- kotak susu -->
+                        <span class="face front" aria-hidden="true">
+                            <svg viewBox="0 0 160 220">
+                                <path d="M28 64 64 22l36 42z" fill="#fff" stroke="#10245e" stroke-width="4" stroke-linejoin="round"/>
+                                <path d="M100 64 64 22l30-14 34 42z" fill="#c9d6f5" stroke="#10245e" stroke-width="4" stroke-linejoin="round"/>
+                                <path d="M58 25 90 10V2L58 17z" fill="#fff" stroke="#10245e" stroke-width="4" stroke-linejoin="round"/>
+                                <path d="M100 64l28-14v140l-28 16z" fill="#dfe7fb" stroke="#10245e" stroke-width="4" stroke-linejoin="round"/>
+                                <rect x="28" y="64" width="72" height="142" rx="3" fill="#fff" stroke="#10245e" stroke-width="4"/>
+                                <rect x="30" y="112" width="68" height="44" fill="#0046ff"/>
+                                <text x="64" y="141" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="19" fill="#fff">MILK</text>
+                                <circle cx="48" cy="88" r="9" fill="#ffe600" stroke="#10245e" stroke-width="3"/>
+                                <circle cx="54" cy="176" r="3.6" fill="#10245e"/><circle cx="76" cy="176" r="3.6" fill="#10245e"/>
+                                <path d="M58 185q7 7 14 0" fill="none" stroke="#10245e" stroke-width="3.2" stroke-linecap="round"/>
+                                <circle cx="47" cy="184" r="4" fill="#ff8fb8" opacity=".7"/><circle cx="83" cy="184" r="4" fill="#ff8fb8" opacity=".7"/>
+                            </svg>
+                        </span>
+                        <!-- jurnal -->
+                        <span class="face back" aria-hidden="true">
+                            <svg viewBox="0 0 160 220">
+                                <rect x="36" y="22" width="100" height="184" rx="8" fill="#fff" stroke="#10245e" stroke-width="4"/>
+                                <rect x="24" y="14" width="102" height="186" rx="8" fill="#0046ff" stroke="#10245e" stroke-width="4"/>
+                                <rect x="26" y="16" width="16" height="182" rx="5" fill="#0033c4"/>
+                                <g fill="#ffe600" stroke="#10245e" stroke-width="2"><circle cx="34" cy="40" r="4.5"/><circle cx="34" cy="72" r="4.5"/><circle cx="34" cy="104" r="4.5"/><circle cx="34" cy="136" r="4.5"/><circle cx="34" cy="168" r="4.5"/></g>
+                                <rect x="110" y="14" width="8" height="186" fill="#ff8fb8" stroke="#10245e" stroke-width="2.5"/>
+                                <rect x="52" y="44" width="50" height="30" rx="4" fill="#fff" stroke="#10245e" stroke-width="3"/>
+                                <path d="M59 55h36M59 64h24" stroke="#c9d6f5" stroke-width="3.5" stroke-linecap="round"/>
+                                <circle cx="77" cy="134" r="24" fill="#ffe600" stroke="#fff" stroke-width="4"/>
+                                <circle cx="69" cy="130" r="3.4" fill="#10245e"/><circle cx="85" cy="130" r="3.4" fill="#10245e"/>
+                                <path d="M70 140q7 7 14 0" fill="none" stroke="#10245e" stroke-width="3.2" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                    </span>
+                </button>
+                <div class="tapnote" id="tapnote"><span id="tapTxt">tap me!</span><svg viewBox="0 0 56 44"><path d="M4 4c6 14 18 22 34 26"/><path d="M30 24l9 6-9 6"/></svg></div>
+                <svg class="spark y" style="right:-6px;top:30px;" aria-hidden="true"><use href="#i-sparkles"/></svg>
+                <svg class="spark" style="left:-2px;bottom:22px;width:20px;height:20px;" aria-hidden="true"><use href="#i-sparkles"/></svg>
             </div>
-            <span class="eyebrow" style="background:rgba(255,255,255,.18);color:#fff;">Upcycle Club</span>
-            <h1>This journal used to be a <span class="y">milk carton.</span></h1>
-            <p>Before it held your thoughts, it was part of someone's breakfast. This is its story — and maybe the start of yours.</p>
-            <div style="margin-top:1.8rem;">
-                <button class="btn btn-yellow" id="beginBtn" type="button">🎧 Begin the story</button>
+            <h1 data-t="h1">This journal used to be a <span class="label-tape">milk carton.</span></h1>
+            <p class="hero-p" data-t="heroP">I buy a lot of coffee. One day it hit me how many milk cartons get thrown away every day just to make our iced lattes. So I started turning them into journals. This is the story of yours.</p>
+            <div class="hero-cta">
+                <button class="btn btn-yellow" id="beginBtn" type="button"><svg class="i" aria-hidden="true"><use href="#i-headphones"/></svg><span data-t="begin">Begin the story</span></button>
+                <div class="scroll-hint"><span data-t="scroll">scroll slowly, it's a short one</span><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></div>
             </div>
-            <div class="scroll-hint"><span>↓</span> Scroll slowly, it's a short one</div>
         </div>
     </section>
 
-    <!-- 2. LIVE COUNTER -->
+    <!-- 2. LIVE COUNTER (struk) -->
     <section id="story">
         <div class="wrap">
-            <span class="eyebrow rv">While you were reading</span>
-            <h2 class="rv d1">Cartons are made faster than you can blink.</h2>
-            <div class="card rv d2">
-                <p class="muted" style="font-size:0.92rem;">Since you opened this page, around</p>
-                <div class="counter" id="counter">0</div>
-                <p class="muted" style="font-size:0.92rem;">drink cartons were produced by just one company.</p>
-                <div class="stat-row">
-                    <div class="stat"><b>174 billion</b><span>packages sold in a year</span></div>
-                    <div class="stat"><b>~477 million</b><span>every single day</span></div>
+            <h2 data-t="cH">Cartons are made faster than you can <span class="hl">blink.</span></h2>
+            <div class="receipt-wrap">
+                <img class="mochi-peek" src="img/mochi-shock.webp" alt="" width="360" height="360">
+                <div class="receipt">
+                    <span class="tape blue"></span>
+                    <div class="r-head" data-t="rHead">Carton counter · live</div>
+                    <hr class="r-dash">
+                    <p class="r-small" data-t="cSince">Since you opened this page, around</p>
+                    <div class="counter" id="counter" aria-live="off">0</div>
+                    <p class="r-small" data-t="cMade">drink cartons were produced by just one company.</p>
+                    <hr class="r-dash">
+                    <div class="r-row"><span data-t="cYear">packages sold in a year</span><i></i><b data-t="cYearV">174 billion</b></div>
+                    <div class="r-row"><span data-t="cDay">every single day</span><i></i><b data-t="cDayV">~477 million</b></div>
+                    <div class="barcode" aria-hidden="true"></div>
+                    <p class="src" data-t="cSrc">Estimate based on Tetra Pak's 174 billion packages sold in 2025 <sup>[1]</sup>, spread evenly across the year.</p>
                 </div>
-                <p class="src">Estimate based on Tetra Pak's 174 billion packages sold in 2025 <sup>[1]</sup>, spread evenly across the year.</p>
             </div>
         </div>
     </section>
 
     <!-- 3. ANATOMY -->
-    <section style="padding-top:1rem;">
+    <section>
         <div class="wrap">
-            <span class="eyebrow rv">Anatomy of a carton</span>
-            <h2 class="rv d1">It looks like paper. <span class="hl">It's not just paper.</span></h2>
-            <p class="rv d2 muted">A typical 1-litre carton is a sandwich of thin layers, pressed together so your milk stays fresh for months.</p>
-            <div class="card rv d3" style="margin-top:1.3rem;">
-                <div class="layers" id="layers">
-                    <div class="layer"><div><div class="layer-name">📦 Paperboard</div><div class="layer-track"><div class="layer-bar lb-paper" style="--w:70%;"></div></div></div><div class="layer-pct">~70%</div></div>
-                    <div class="layer"><div><div class="layer-name">🧴 Plastic</div><div class="layer-track"><div class="layer-bar lb-plastic" style="--w:26%;"></div></div></div><div class="layer-pct">~26%</div></div>
-                    <div class="layer"><div><div class="layer-name">✨ Aluminium foil</div><div class="layer-track"><div class="layer-bar lb-alu" style="--w:4%;min-width:8px;"></div></div></div><div class="layer-pct">~4%</div></div>
+            <h2 data-t="aH">It looks like paper. <span class="hl">It's not just paper.</span></h2>
+            <p class="lede" data-t="aP">A typical 1-litre carton is a sandwich of thin layers, pressed together so your milk stays fresh for months.</p>
+            <div class="sheet paper reveal" id="layers">
+                <span class="tape yellow"></span>
+                <div class="layer"><div class="layer-top"><div class="layer-name"><svg class="i" aria-hidden="true"><use href="#i-package"/></svg><span data-t="l1">Paperboard</span></div><div class="layer-pct">~70%</div></div><div class="strip paperboard" style="--w:70%;"></div></div>
+                <div class="layer"><div class="layer-top"><div class="layer-name"><svg class="i" aria-hidden="true"><use href="#i-droplet"/></svg><span data-t="l2">Plastic</span></div><div class="layer-pct">~26%</div></div><div class="strip plastic" style="--w:26%;"></div></div>
+                <div class="layer"><div class="layer-top"><div class="layer-name"><svg class="i" aria-hidden="true"><use href="#i-layers"/></svg><span data-t="l3">Aluminium foil</span></div><div class="layer-pct">~4%</div></div><div class="strip alu" style="--w:4%;"></div></div>
+                <div class="sticky">
+                    <span class="tape"></span>
+                    <span class="dot white"><svg class="i" aria-hidden="true"><use href="#i-puzzle"/></svg></span>
+                    <p data-t="aNote">Brilliant at protecting milk. <b>Tricky to pull apart again</b> — the layers need special facilities to be separated and recycled.</p>
                 </div>
-                <div class="callout">🧩 Brilliant at protecting milk. <b>Tricky to pull apart again</b> — the layers need special facilities to be separated and recycled.</div>
-                <p class="src">Layer split: estimate for a typical 1-litre beverage carton by Deutsche Umwelthilfe <sup>[2]</sup>. Tetra Pak reports cartons are on average more than 70% paperboard <sup>[3]</sup>.</p>
+                <p class="src" data-t="aSrc">Layer split: estimate for a typical 1-litre beverage carton by Deutsche Umwelthilfe <sup>[2]</sup>. Tetra Pak reports cartons are on average more than 70% paperboard <sup>[3]</sup>.</p>
             </div>
         </div>
     </section>
 
     <!-- 4. 3 OUT OF 4 -->
-    <section style="padding-top:1rem;">
+    <section>
         <div class="wrap">
-            <span class="eyebrow rv">Where they go</span>
-            <h2 class="rv d1">Most cartons never get a second life.</h2>
-            <div class="card rv d2" id="fourCard">
-                <div class="big-frac">3 <span class="muted" style="font-size:0.45em;">out of</span> 4</div>
-                <p class="muted" style="margin-top:0.4rem;">cartons around the world are <b>not</b> recycled.</p>
+            <h2 data-t="fH">Most cartons never get a second life.</h2>
+            <div class="sheet paper reveal" id="fourCard" style="transform:rotate(.7deg);">
+                <span class="tape blue" style="left:auto;right:20px;transform:rotate(5deg);"></span>
+                <div class="frac">3 <span class="of" data-t="outOf">out of</span> 4</div>
+                <p class="frac-p" data-t="fP">cartons around the world are <b>not</b> recycled.</p>
                 <div class="four">
-                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg><span>landfill</span></div>
-                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg><span>landfill</span></div>
-                    <div class="c gone"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg><span>landfill</span></div>
-                    <div class="c saved"><svg viewBox="0 0 30 40"><polygon points="5,10 15,2 25,10" fill="currentColor" opacity=".5" /><rect x="5" y="10" width="20" height="28" rx="2" fill="currentColor" /></svg><span>recycled</span></div>
+                    <div class="c gone"><svg class="box" viewBox="0 0 40 60" aria-hidden="true"><use href="#carton-mini"/></svg><svg class="mark" viewBox="0 0 84 96" aria-hidden="true"><path pathLength="1" d="M14 14C34 40 52 62 72 84"/><path pathLength="1" d="M70 12C52 38 32 62 12 86"/></svg><span class="lbl" data-t="landfill">landfill</span></div>
+                    <div class="c gone"><svg class="box" viewBox="0 0 40 60" aria-hidden="true"><use href="#carton-mini"/></svg><svg class="mark" viewBox="0 0 84 96" aria-hidden="true"><path pathLength="1" d="M12 16C32 38 54 64 70 86"/><path pathLength="1" d="M72 14C50 36 30 64 14 84"/></svg><span class="lbl" data-t="landfill">landfill</span></div>
+                    <div class="c gone"><svg class="box" viewBox="0 0 40 60" aria-hidden="true"><use href="#carton-mini"/></svg><svg class="mark" viewBox="0 0 84 96" aria-hidden="true"><path pathLength="1" d="M16 12C34 40 50 60 70 86"/><path pathLength="1" d="M70 16C52 40 32 60 14 86"/></svg><span class="lbl" data-t="landfill">landfill</span></div>
+                    <div class="c saved"><svg class="box" viewBox="0 0 40 60" aria-hidden="true"><use href="#carton-mini"/></svg><svg class="mark" viewBox="0 0 84 96" aria-hidden="true"><path pathLength="1" d="M44 6C20 4 6 26 8 50s18 42 38 40 32-22 30-46S58 2 30 10"/></svg><span class="lbl" data-t="recycled">recycled</span></div>
                 </div>
-                <p class="src">The global carton recycling rate was about 27% in 2023, according to Tetra Pak <sup>[4]</sup>.</p>
+                <p class="src" data-t="fSrc">The global carton recycling rate was about 27% in 2023, according to Tetra Pak <sup>[4]</sup>.</p>
             </div>
         </div>
     </section>
 
     <!-- 5. THE CHAIN -->
-    <section style="padding-top:1rem;">
+    <section>
         <div class="wrap">
-            <span class="eyebrow rv">Breaking the chain</span>
-            <h2 class="rv d1">Same carton. Two very different endings.</h2>
-            <div class="paths">
-                <div class="path old rv d2">
-                    <div class="path-title">The usual way</div>
-                    <div class="steps">
-                        <div class="step"><div class="e">🥛</div><small>Drink</small></div><span class="arrow">→</span>
-                        <div class="step"><div class="e">🗑️</div><small>Bin</small></div><span class="arrow">→</span>
-                        <div class="step"><div class="e">🚛</div><small>Truck</small></div><span class="arrow">→</span>
-                        <div class="step"><div class="e">⛰️</div><small>Landfill</small></div>
-                    </div>
+            <h2 data-t="chH">Same carton. Two very different endings.</h2>
+            <div class="route old">
+                <div class="route-title" data-t="usual">The usual way</div>
+                <div class="steps">
+                    <div class="step"><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-milk"/></svg></span><small data-t="sDrink">Drink</small></div>
+                    <div class="step"><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg></span><small data-t="sBin">Bin</small></div>
+                    <div class="step"><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-truck"/></svg></span><small data-t="sTruck">Truck</small></div>
+                    <div class="step"><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-mountain"/></svg></span><small data-t="sLandfill">Landfill</small></div>
                 </div>
-                <div class="path new rv d3">
-                    <div class="path-title">Your journal's way</div>
-                    <div class="steps">
-                        <div class="step"><div class="e">🥛</div><small>Drink</small></div><span class="arrow">→</span>
-                        <div class="step"><div class="e">🫧</div><small>Washed</small></div><span class="arrow">→</span>
-                        <div class="step"><div class="e">✂️</div><small>Cut</small></div><span class="arrow">→</span>
-                        <div class="step"><div class="e">🤲</div><small>Handmade</small></div><span class="arrow">→</span>
-                        <div class="step"><div class="e">📓</div><small>You</small></div>
-                    </div>
+                <img class="mochi-sad" src="img/mochi-sad.webp" alt="" width="360" height="360">
+            </div>
+            <div class="route new paper reveal">
+                <span class="tape yellow"></span>
+                <div class="route-title" data-t="yours">Your journal's way</div>
+                <div class="steps">
+                    <div class="step"><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-milk"/></svg></span><small data-t="sDrink">Drink</small></div>
+                    <div class="step"><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-droplet"/></svg></span><small data-t="sWashed">Washed</small></div>
+                    <div class="step"><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-scissors"/></svg></span><small data-t="sCut">Cut</small></div>
+                    <div class="step"><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-hand"/></svg></span><small data-t="sHand">Handmade</small></div>
+                    <div class="step"><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-notebook"/></svg></span><small data-t="sYou">You</small></div>
                 </div>
             </div>
-            <p class="rv muted" style="margin-top:1.2rem;">Every journal is washed, cut and handmade — by us, or by you.</p>
+            <p class="after-route" data-t="chP">Every journal is washed, cut and handmade — by us, or by you.</p>
         </div>
     </section>
 
     <!-- 6. YOU -->
-    <section style="padding-top:1rem;">
-        <div class="wrap">
-            <div class="you rv">
-                <div class="orb a" style="opacity:.3;"></div>
-                <p style="font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:0.75rem;">The one in your hands</p>
-                <div class="num" id="oneNum">1</div>
-                <h2 style="font-size:1.6rem;margin:0.4rem 0 0.7rem;">carton that skipped the landfill.</h2>
-                <p>Small? Absolutely. But you just broke the waste chain for this one. Thank you. 💛</p>
+    <section>
+        <div class="wrap cover-wrap reveal" id="you">
+            <div class="cover">
+                <div class="cover-k" data-t="yK">the one in your hands</div>
+                <div class="badge">
+                    <svg viewBox="0 0 200 200" aria-hidden="true"><path fill="#ffe600" stroke="#fff" stroke-width="6" d="M100 6l12.5 13.6 17.6-6.1 6.6 17.4 18.5 1.3-.6 18.6 16.4 8.6-7.6 17 12 14.1-14.2 12 4.7 18-17.6 5.8-2.4 18.4-18.5-1.4-8.9 16.3-16.3-8.9L100 194l-12.5-13.6-17.6 6.1-6.6-17.4-18.5-1.3.6-18.6-16.4-8.6 7.6-17-12-14.1 14.2-12-4.7-18 17.6-5.8 2.4-18.4 18.5 1.4 8.9-16.3 16.3 8.9z"/><circle cx="100" cy="100" r="66" fill="none" stroke="#10245e" stroke-width="2.5" stroke-dasharray="6 6" opacity=".45"/></svg>
+                    <div class="num" id="oneNum">1</div>
+                </div>
+                <h2 data-t="yH">carton you just gave a second life.</h2>
+                <p><span data-t="yP">Small? Absolutely. But you just broke the waste chain for this one. Thank you.</span> <svg class="i heart" aria-hidden="true"><use href="#i-heart"/></svg></p>
             </div>
+            <img class="mochi-ok" src="img/mochi-ok.webp" alt="" width="360" height="360">
         </div>
     </section>
 
     <!-- 7. NEW TO JOURNALING -->
-    <section style="padding-top:1rem;">
+    <section>
         <div class="wrap">
-            <span class="eyebrow rv">Now, the fun part</span>
-            <h2 class="rv d1">Never journaled before? Perfect.</h2>
-            <p class="rv d2 muted">There's no right way to fill these pages. A few gentle ground rules:</p>
+            <h2 data-t="tH">Never journaled before? <span class="hl">Perfect.</span></h2>
+            <p class="lede" data-t="tP">There's no right way to fill these pages. A few gentle ground rules:</p>
             <div class="tips">
-                <div class="card tip rv d1"><div class="ic">⏱️</div><div><h3>Five minutes is enough</h3><p class="muted" style="font-size:0.93rem;">One sentence counts. So does a doodle. Start tiny.</p></div></div>
-                <div class="card tip rv d2"><div class="ic">🌀</div><div><h3>Messy is welcome</h3><p class="muted" style="font-size:0.93rem;">Crossed-out words, wobbly lines, bad spelling — it's all part of it.</p></div></div>
-                <div class="card tip rv d3"><div class="ic">🔒</div><div><h3>It's just for you</h3><p class="muted" style="font-size:0.93rem;">Nobody grades it. Write like no one's reading, because no one is.</p></div></div>
+                <div class="tip t1"><span class="tape blue"></span><span class="dot white"><svg class="i" aria-hidden="true"><use href="#i-timer"/></svg></span><div><h3 data-t="t1h">Five minutes is enough</h3><p data-t="t1p">One sentence counts. So does a doodle. Start tiny.</p></div></div>
+                <div class="tip t2"><span class="tape"></span><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg></span><div><h3 data-t="t2h">Messy is welcome</h3><p data-t="t2p">Crossed-out words, wobbly lines, bad spelling — it's all part of it.</p></div></div>
+                <div class="tip t3"><span class="tape yellow"></span><span class="dot blue"><svg class="i" aria-hidden="true"><use href="#i-lock"/></svg></span><div><h3 data-t="t3h">It's just for you</h3><p data-t="t3p">Nobody grades it. Write like no one's reading, because no one is.</p></div></div>
             </div>
         </div>
     </section>
 
     <!-- 8. LETTER FROM MOCHI -->
-    <section style="padding-top:1rem;" id="letter">
+    <section id="letter">
         <div class="wrap">
-            <span class="eyebrow rv">A letter for you</span>
-            <h2 class="rv d1">Stuck on the first page? Mochi wrote you a letter.</h2>
-            <p class="rv d2 muted">Mochi is our little community mascot. Inside every letter is one question to get your pen moving.</p>
-            <div class="letter-stage rv d3">
+            <h2 data-t="lH">Stuck on the first page? Mochi wrote you a letter.</h2>
+            <p class="lede" data-t="lP">Mochi is our little community mascot. Inside every letter is one question to get your pen moving.</p>
+            <div class="letter-stage">
                 <div id="envWrap">
-                    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Open Mochi's letter">
-                        <div class="env-body"></div>
-                        <div class="env-flap"></div>
-                        <div class="env-seal">💌</div>
-                        <div class="env-stamp"><img src="../images/mochi_maskot_sm.png" alt=""></div>
-                        <div class="env-to">To: you ✿</div>
-                    </div>
-                    <p class="tap-hint">Tap the envelope to open it</p>
+                    <div class="env-hint"><span data-t="tapEnv">tap to open it</span><svg viewBox="0 0 46 34" aria-hidden="true"><path d="M4 6c14 0 26 6 34 20"/><path d="M30 22l8 5 2-9"/></svg></div>
+                    <button class="envelope" id="envelope" type="button" aria-label="Open Mochi's letter">
+                        <span class="env-body"></span>
+                        <span class="env-flap"></span>
+                        <span class="env-seal"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg></span>
+                        <span class="env-stamp"><span><img src="../images/mochi_maskot_sm.png" alt=""></span></span>
+                        <span class="env-to" data-t="to">To: you</span>
+                    </button>
                 </div>
-                <div class="note" id="note" aria-live="polite">
-                    <div class="from"><img src="../images/mochi_maskot_sm.png" alt="Mochi"><div><b>From Mochi</b><div class="cat" id="noteCat"></div></div></div>
+                <div class="letter" id="note" aria-live="polite">
+                    <span class="tape blue"></span>
+                    <div class="from"><img src="../images/mochi_maskot_sm.png" alt="Mochi"><div><b data-t="fromMochi">From Mochi</b><br><span class="cat" id="noteCat"></span></div></div>
                     <div class="prompt" id="notePrompt"></div>
-                    <p class="ps">P.S. No need to answer perfectly. Just start with the first thing that comes to mind. 🌱</p>
+                    <p class="ps" data-t="ps">P.S. No need to answer perfectly. Just start with the first thing that comes to mind.</p>
                     <div class="note-actions">
-                        <button class="btn btn-blue" id="anotherBtn" type="button">🎲 Another letter</button>
-                        <button class="btn btn-ghost" id="copyBtn" type="button">📋 Copy</button>
+                        <button class="btn btn-blue" id="anotherBtn" type="button"><svg class="i" aria-hidden="true"><use href="#i-dice"/></svg><span data-t="another">Another letter</span></button>
+                        <button class="btn btn-white" id="copyBtn" type="button"><svg class="i" id="copyIc" aria-hidden="true"><use href="#i-copy"/></svg><span id="copyLbl" data-t="copy">Copy</span></button>
                     </div>
                 </div>
             </div>
@@ -387,31 +561,47 @@
     </section>
 
     <!-- 9. CLOSING -->
-    <section class="closing" style="padding-top:2rem;">
+    <section class="closing">
         <div class="wrap">
-            <img class="logo rv" src="../images/black.png" alt="Seminggu Satu">
-            <h2 class="rv d1">Welcome to the Upcycle Club.</h2>
-            <p class="rv d2 muted" style="max-width:26rem;margin:0 auto;">Seminggu Satu is a journaling community from Jakarta. Our name means <i>“one a week”</i> — one page, one moment, one small habit at a time.</p>
-            <p class="rv d2 muted" style="max-width:26rem;margin:1rem auto 0;">Show us your first page — we'd love to see it.</p>
-            <div class="rv d3" style="margin-top:1.6rem;">
-                <a class="btn ig-btn" href="https://instagram.com/seminggu_satu" target="_blank" rel="noopener">📸 Follow @seminggu_satu</a>
+            <div class="card-id">
+                <div class="head"><img src="../images/black.png" alt=""><div><b>Seminggu Satu</b><small data-t="memberCard">Member card</small></div></div>
+                <div class="body">
+                    <dl>
+                        <div><dt data-t="mName">Member</dt><dd data-t="mYou">You</dd></div>
+                        <div><dt data-t="mJoined">Joined</dt><dd id="joined">today</dd></div>
+                        <div><dt data-t="mSaved">Cartons saved</dt><dd>1</dd></div>
+                    </dl>
+                    <img class="mochi-card" src="img/mochi-ok.webp" alt="" width="360" height="360">
+                </div>
+            </div>
+            <h2 data-t="wH">Welcome to Seminggu Satu.</h2>
+            <p data-t="wP1">Seminggu Satu is a journaling community from Jakarta. Our name means <i>“one a week”</i> — one page, one moment, one small habit at a time.</p>
+            <p style="margin-top:1rem;" data-t="wP2">Show us your first page — we'd love to see it.</p>
+            <div style="margin-top:1.8rem;">
+                <a class="btn btn-ig" href="https://instagram.com/seminggu_satu" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-camera"/></svg><span data-t="follow">Follow @seminggu_satu</span></a>
             </div>
         </div>
     </section>
 
     <footer>
         <div class="wrap">
-            <b>Sources</b>
-            <ol>
-                <li><a href="https://www.tetrapak.com/about-tetra-pak/the-company/facts-figures" target="_blank" rel="noopener">Tetra Pak — Facts &amp; figures</a> <span>(174 billion packages sold, 2025)</span></li>
-                <li><span>Deutsche Umwelthilfe (2014) estimate for a typical 1-litre beverage carton: ~70% paperboard, ~26% polyethylene, ~4% aluminium</span></li>
-                <li><a href="https://www.tetrapak.com/solutions/packaging/packaging-material" target="_blank" rel="noopener">Tetra Pak — Packaging material</a></li>
-                <li><a href="https://www.packagingdive.com/news/tetra-pak-sustainability-report-fy23-packaging-recycling/718034/" target="_blank" rel="noopener">Packaging Dive — Tetra Pak sustainability report FY23</a> <span>(global carton recycling rate ~27%)</span></li>
-            </ol>
-            <p style="margin-top:1rem;"><span>© Seminggu Satu · Made with love (and old milk cartons) in Jakarta</span></p>
+            <div class="sources paper">
+                <b data-t="sources">Sources</b>
+                <ol>
+                    <li><a href="https://www.tetrapak.com/about-tetra-pak/the-company/facts-figures" target="_blank" rel="noopener">Tetra Pak — Facts &amp; figures</a> <span data-t="s1">(174 billion packages sold, 2025)</span></li>
+                    <li><span data-t="s2">Deutsche Umwelthilfe (2014) estimate for a typical 1-litre beverage carton: ~70% paperboard, ~26% polyethylene, ~4% aluminium</span></li>
+                    <li><a href="https://www.tetrapak.com/solutions/packaging/packaging-material" target="_blank" rel="noopener">Tetra Pak — Packaging material</a></li>
+                    <li><a href="https://www.packagingdive.com/news/tetra-pak-sustainability-report-fy23-packaging-recycling/718034/" target="_blank" rel="noopener">Packaging Dive — Tetra Pak sustainability report FY23</a> <span data-t="s4">(global carton recycling rate ~27%)</span></li>
+                </ol>
+            </div>
+            <div class="foot-meta">
+                <span data-t="made">© Seminggu Satu · Made with love (and old milk cartons) in Jakarta</span>
+                <a id="langLink" href="?lang=id">Baca dalam Bahasa Indonesia</a>
+            </div>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" defer></script>
     <script>
         // Prompt journaling khusus pembeli Upcycle Journal (bahasa Inggris,
         // ramah pemula) -- SENGAJA bukan terjemahan list_prompt.js, ditulis
@@ -451,121 +641,186 @@
 
         // ---------- bahasa: ?lang=en (default) / ?lang=id ----------
         // HTML-nya ditulis dalam bahasa Inggris (default buat QR di amplop).
-        // Versi Indonesia nyocokin isi tiap elemen (innerHTML yang
-        // dinormalisasi) ke kamus di bawah -- tambah teks baru di HTML =
-        // tambah entri juga di sini.
+        // Elemen yang bisa diterjemahin punya data-t="kunci"; versi Indonesia
+        // ada di ID_TEXT (isi innerHTML). Tambah teks baru = tambah data-t +
+        // entri di sini.
         const LANG = (new URLSearchParams(location.search).get('lang') || '').toLowerCase() === 'id' ? 'id' : 'en';
-        const ID_TEXT = {"This journal used to be a <span class=\"y\">milk carton.</span>": "Jurnal ini dulunya <span class=\"y\">kotak susu.</span>", "Before it held your thoughts, it was part of someone's breakfast. This is its story — and maybe the start of yours.": "Sebelum menampung isi pikiranmu, ia pernah menemani sarapan seseorang. Ini ceritanya — dan mungkin awal ceritamu juga.", "🎧 Begin the story": "🎧 Mulai ceritanya", "<span>↓</span> Scroll slowly, it's a short one": "<span>↓</span> Scroll pelan-pelan, ceritanya singkat kok", "While you were reading": "Selagi kamu membaca", "Cartons are made faster than you can blink.": "Kotak minuman dibuat lebih cepat dari kedipan mata.", "Since you opened this page, around": "Sejak kamu membuka halaman ini, sekitar", "drink cartons were produced by just one company.": "kotak minuman sudah diproduksi oleh satu perusahaan saja.", "<b>174 billion</b><span>packages sold in a year</span>": "<b>174 miliar</b><span>kemasan terjual dalam setahun</span>", "<b>~477 million</b><span>every single day</span>": "<b>~477 juta</b><span>setiap harinya</span>", "Estimate based on Tetra Pak's 174 billion packages sold in 2025 <sup>[1]</sup>, spread evenly across the year.": "Perkiraan dari 174 miliar kemasan Tetra Pak yang terjual di 2025 <sup>[1]</sup>, dibagi rata sepanjang tahun.", "Anatomy of a carton": "Anatomi sebuah kotak", "It looks like paper. <span class=\"hl\">It's not just paper.</span>": "Kelihatannya kertas. <span class=\"hl\">Tapi bukan cuma kertas.</span>", "A typical 1-litre carton is a sandwich of thin layers, pressed together so your milk stays fresh for months.": "Kotak 1 liter pada umumnya adalah tumpukan lapisan tipis yang dipres jadi satu, supaya susumu tetap segar berbulan-bulan.", "📦 Paperboard": "📦 Karton", "🧴 Plastic": "🧴 Plastik", "✨ Aluminium foil": "✨ Lapisan aluminium", "🧩 Brilliant at protecting milk. <b>Tricky to pull apart again</b> — the layers need special facilities to be separated and recycled.": "🧩 Jago banget melindungi susu. <b>Tapi susah dipisahkan lagi</b> — lapisannya butuh fasilitas khusus untuk dipisah dan didaur ulang.", "Layer split: estimate for a typical 1-litre beverage carton by Deutsche Umwelthilfe <sup>[2]</sup>. Tetra Pak reports cartons are on average more than 70% paperboard <sup>[3]</sup>.": "Pembagian lapisan: perkiraan Deutsche Umwelthilfe untuk kotak minuman 1 liter pada umumnya <sup>[2]</sup>. Menurut Tetra Pak, rata-rata lebih dari 70% kotaknya adalah karton <sup>[3]</sup>.", "Where they go": "Ke mana perginya", "Most cartons never get a second life.": "Kebanyakan kotak nggak pernah dapat kesempatan kedua.", "3 <span class=\"muted\" style=\"font-size:0.45em;\">out of</span> 4": "3 <span class=\"muted\" style=\"font-size:0.45em;\">dari</span> 4", "cartons around the world are <b>not</b> recycled.": "kotak di seluruh dunia <b>tidak</b> didaur ulang.", "The global carton recycling rate was about 27% in 2023, according to Tetra Pak <sup>[4]</sup>.": "Menurut Tetra Pak, tingkat daur ulang karton global sekitar 27% di 2023 <sup>[4]</sup>.", "Breaking the chain": "Memutus rantai", "Same carton. Two very different endings.": "Kotak yang sama. Dua akhir cerita yang beda banget.", "The usual way": "Jalur biasanya", "Drink": "Diminum", "Bin": "Tong sampah", "Truck": "Truk", "Landfill": "TPA", "Your journal's way": "Jalur jurnalmu", "Washed": "Dicuci", "Cut": "Dipotong", "Handmade": "Handmade", "You": "Kamu", "Every journal is washed, cut and handmade — by us, or by you.": "Setiap jurnal dicuci, dipotong, lalu dibuat secara handmade — oleh kami, atau oleh kamu sendiri.", "The one in your hands": "Yang ada di tanganmu", "carton that skipped the landfill.": "kotak yang batal berakhir di TPA.", "Small? Absolutely. But you just broke the waste chain for this one. Thank you. 💛": "Kecil? Iya. Tapi kamu sudah berhasil memutus rantai sampah itu. Terima kasih. 💛", "Now, the fun part": "Sekarang, bagian serunya", "Never journaled before? Perfect.": "Belum pernah journaling? Pas banget.", "There's no right way to fill these pages. A few gentle ground rules:": "Nggak ada cara benar atau salah buat ngisi halaman ini. Cuma beberapa aturan santai:", "Five minutes is enough": "Lima menit itu cukup", "One sentence counts. So does a doodle. Start tiny.": "Satu kalimat juga dihitung. Coretan juga. Mulai dari yang kecil.", "Messy is welcome": "Berantakan itu boleh", "Crossed-out words, wobbly lines, bad spelling — it's all part of it.": "Kata yang dicoret, garis yang miring, salah ketik — semuanya bagian dari proses.", "It's just for you": "Ini cuma buat kamu", "Nobody grades it. Write like no one's reading, because no one is.": "Nggak ada yang menilai. Tulis seolah nggak ada yang baca, karena memang nggak ada.", "A letter for you": "Ada surat buatmu", "Stuck on the first page? Mochi wrote you a letter.": "Bingung mau nulis apa di halaman pertama? Mochi nulisin kamu surat.", "Mochi is our little community mascot. Inside every letter is one question to get your pen moving.": "Mochi itu maskot kecil komunitas kami. Di setiap surat ada satu pertanyaan buat bikin penamu mulai bergerak.", "To: you ✿": "Untuk: kamu ✿", "Tap the envelope to open it": "Tap amplopnya buat membuka", "From Mochi": "Dari Mochi", "P.S. No need to answer perfectly. Just start with the first thing that comes to mind. 🌱": "P.S. Nggak perlu dijawab sempurna. Mulai aja dari hal pertama yang muncul di kepala. 🌱", "🎲 Another letter": "🎲 Surat lainnya", "📋 Copy": "📋 Salin", "Welcome to the Upcycle Club.": "Selamat datang di Upcycle Club.", "Seminggu Satu is a journaling community from Jakarta. Our name means <i>“one a week”</i> — one page, one moment, one small habit at a time.": "Seminggu Satu adalah komunitas journaling dari Jakarta. Satu halaman, satu momen, satu kebiasaan kecil — seminggu sekali.", "Show us your first page — we'd love to see it.": "Tunjukin halaman pertamamu ke kami — kami pengen lihat!", "Sources": "Sumber", "(174 billion packages sold, 2025)": "(174 miliar kemasan terjual, 2025)", "Deutsche Umwelthilfe (2014) estimate for a typical 1-litre beverage carton: ~70% paperboard, ~26% polyethylene, ~4% aluminium": "Perkiraan Deutsche Umwelthilfe (2014) untuk kotak minuman 1 liter pada umumnya: ~70% karton, ~26% polietilena, ~4% aluminium", "(global carton recycling rate ~27%)": "(tingkat daur ulang karton global ~27%)", "© Seminggu Satu · Made with love (and old milk cartons) in Jakarta": "© Seminggu Satu · Dibuat dengan cinta (dan kotak susu bekas) di Jakarta", "landfill": "TPA", "recycled": "daur ulang"};
+        const ID_TEXT = {
+            h1: 'Jurnal ini dulunya <span class="label-tape">kotak susu.</span>',
+            heroP: 'Aku sering banget beli kopi susu. Suatu hari aku baru sadar, tiap hari ada banyak banget karton susu yang kebuang cuma buat bikin kopi-kopi itu. Jadi aku kepikiran buat mengolahnya jadi buku jurnal. Ini cerita jurnalmu.',
+            begin: 'Mulai ceritanya',
+            scroll: 'scroll pelan-pelan, ceritanya singkat kok',
+            cH: 'Kotak minuman dibuat lebih cepat dari <span class="hl">kedipan mata.</span>',
+            rHead: 'Penghitung kotak · live',
+            cSince: 'Sejak kamu membuka halaman ini, sekitar',
+            cMade: 'kotak minuman sudah diproduksi oleh satu perusahaan saja.',
+            cYear: 'terjual dalam setahun', cYearV: '174 miliar',
+            cDay: 'setiap harinya', cDayV: '~477 juta',
+            cSrc: 'Perkiraan dari 174 miliar kemasan Tetra Pak yang terjual di 2025 <sup>[1]</sup>, dibagi rata sepanjang tahun.',
+            aH: 'Kelihatannya kertas. <span class="hl">Tapi bukan cuma kertas.</span>',
+            aP: 'Kotak 1 liter pada umumnya adalah tumpukan lapisan tipis yang dipres jadi satu, supaya susumu tetap segar berbulan-bulan.',
+            l1: 'Karton', l2: 'Plastik', l3: 'Lapisan aluminium',
+            aNote: 'Jago banget melindungi susu. <b>Tapi susah dipisahkan lagi</b> — lapisannya butuh fasilitas khusus untuk dipisah dan didaur ulang.',
+            aSrc: 'Pembagian lapisan: perkiraan Deutsche Umwelthilfe untuk kotak minuman 1 liter pada umumnya <sup>[2]</sup>. Menurut Tetra Pak, rata-rata lebih dari 70% kotaknya adalah karton <sup>[3]</sup>.',
+            fH: 'Kebanyakan kotak nggak pernah dapat kesempatan kedua.',
+            outOf: 'dari',
+            fP: 'kotak di seluruh dunia <b>tidak</b> didaur ulang.',
+            landfill: 'TPA', recycled: 'didaur ulang',
+            fSrc: 'Menurut Tetra Pak, tingkat daur ulang karton global sekitar 27% di 2023 <sup>[4]</sup>.',
+            chH: 'Kotak yang sama. Dua akhir cerita yang beda banget.',
+            usual: 'Jalur biasanya', yours: 'Jalur jurnalmu',
+            sDrink: 'Diminum', sBin: 'Tong sampah', sTruck: 'Truk', sLandfill: 'TPA',
+            sWashed: 'Dicuci', sCut: 'Dipotong', sHand: 'Handmade', sYou: 'Kamu',
+            chP: 'Setiap jurnal dicuci, dipotong, lalu dibuat secara handmade — oleh kami, atau oleh kamu sendiri.',
+            yK: 'yang ada di tanganmu',
+            yH: 'kotak susu yang kamu kasih kesempatan kedua.',
+            yP: 'Kecil? Iya. Tapi kamu sudah berhasil memutus rantai sampah itu. Terima kasih.',
+            tH: 'Belum pernah journaling? <span class="hl">Pas banget.</span>',
+            tP: 'Nggak ada cara benar atau salah buat ngisi halaman ini. Cuma beberapa aturan santai:',
+            t1h: 'Lima menit itu cukup', t1p: 'Satu kalimat juga dihitung. Coretan juga. Mulai dari yang kecil.',
+            t2h: 'Berantakan itu boleh', t2p: 'Kata yang dicoret, garis yang miring, salah ketik — semuanya bagian dari proses.',
+            t3h: 'Ini cuma buat kamu', t3p: 'Nggak ada yang menilai. Tulis seolah nggak ada yang baca, karena memang nggak ada.',
+            lH: 'Bingung mau nulis apa di halaman pertama? Mochi nulisin kamu surat.',
+            lP: 'Mochi itu maskot kecil komunitas kami. Di setiap surat ada satu pertanyaan buat bikin penamu mulai bergerak.',
+            tapEnv: 'tap buat membuka', to: 'Untuk: kamu',
+            fromMochi: 'Dari Mochi',
+            ps: 'P.S. Nggak perlu dijawab sempurna. Mulai aja dari hal pertama yang muncul di kepala.',
+            another: 'Surat lainnya', copy: 'Salin',
+            memberCard: 'Kartu anggota', mName: 'Anggota', mYou: 'Kamu', mJoined: 'Gabung', mSaved: 'Kotak diselamatkan',
+            wH: 'Selamat datang di Seminggu Satu.',
+            wP1: 'Seminggu Satu adalah komunitas journaling dari Jakarta. Satu halaman, satu momen, satu kebiasaan kecil — seminggu sekali.',
+            wP2: 'Tunjukin halaman pertamamu ke kami — kami pengen lihat!',
+            follow: 'Follow @seminggu_satu',
+            sources: 'Sumber',
+            s1: '(174 miliar kemasan terjual, 2025)',
+            s2: 'Perkiraan Deutsche Umwelthilfe (2014) untuk kotak minuman 1 liter pada umumnya: ~70% karton, ~26% polietilena, ~4% aluminium',
+            s4: '(tingkat daur ulang karton global ~27%)',
+            made: '© Seminggu Satu · Dibuat dengan cinta (dan kotak susu bekas) di Jakarta',
+        };
         const PROMPTS_ID = [{"c": "Memperhatikan", "p": "Hal kecil apa yang kamu lihat hari ini, yang dilewatin begitu aja sama kebanyakan orang?"}, {"c": "Memperhatikan", "p": "Gambarkan tempatmu duduk sekarang pakai kelima indramu."}, {"c": "Memperhatikan", "p": "Suara apa yang ternyata bikin kamu tenang?"}, {"c": "Memperhatikan", "p": "Makanan paling enak minggu ini apa, dan kamu makan bareng siapa?"}, {"c": "Bersyukur", "p": "Siapa yang belakangan bikin harimu lebih ringan, tanpa dia sadari?"}, {"c": "Bersyukur", "p": "Sebutkan tiga hal biasa yang bakal kamu kangenin kalau besok tiba-tiba hilang."}, {"c": "Bersyukur", "p": "Barang apa yang udah bertahun-tahun nemenin kamu? Kenapa masih kamu simpan?"}, {"c": "Bersyukur", "p": "Tulis surat terima kasih untuk satu tempat yang berarti buatmu."}, {"c": "Kesempatan kedua", "p": "Jurnal ini dapat kesempatan kedua. Hal apa yang pengen kamu kasih kesempatan kedua?"}, {"c": "Kesempatan kedua", "p": "Kebiasaan apa yang dulu kamu tinggalin, tapi diam-diam pengen kamu mulai lagi?"}, {"c": "Kesempatan kedua", "p": "Bayangin dirimu yang dulu. Apa yang pengen kamu bilang ke dia hari ini?"}, {"c": "Kesempatan kedua", "p": "Apa hal yang awalnya kelihatan kayak sampah, tapi ternyata jadi sesuatu yang baik?"}, {"c": "Tentang kamu", "p": "Terakhir kali kamu ketawa lepas, apa yang bikin kamu ketawa?"}, {"c": "Tentang kamu", "p": "Ceritain hari Minggu santai idamanmu, dari bangun sampai tidur lagi."}, {"c": "Tentang kamu", "p": "Pujian apa yang pernah kamu terima dan masih kamu ingat sampai sekarang?"}, {"c": "Tentang kamu", "p": "Lagi penasaran sama apa belakangan ini?"}, {"c": "Tentang kamu", "p": "Kalau minggu ini punya warna, warnanya apa — dan kenapa?"}, {"c": "Tentang kamu", "p": "Kemenangan kecil apa minggu ini yang pantas dirayain?"}, {"c": "Perasaan", "p": "Kamu apa kabar, beneran? Bukan jawaban sopan — jawaban yang jujur."}, {"c": "Perasaan", "p": "Apa yang paling banyak menyita pikiranmu belakangan ini?"}, {"c": "Perasaan", "p": "Kapan terakhir kali kamu merasa benar-benar tenang? Apa yang bikin begitu?"}, {"c": "Perasaan", "p": "Apa yang pengen kamu lepasin sebelum bulan ini berakhir?"}, {"c": "Perasaan", "p": "Tulis satu kekhawatiranmu, lalu tulis apa yang bakal kamu bilang ke teman yang punya kekhawatiran yang sama."}, {"c": "Impian", "p": "Satu hal apa yang pengen kamu pelajari cuma karena seneng aja?"}, {"c": "Impian", "p": "Kalau besok bisa pergi ke mana aja di dunia, kamu ke mana, dan apa yang pertama kamu lakuin?"}, {"c": "Impian", "p": "Bayangin dirimu setahun lagi, lagi bahagia. Kayak apa satu hari biasa buatmu?"}, {"c": "Impian", "p": "Janji kecil apa yang pengen kamu buat untuk dirimu sendiri minggu ini?"}, {"c": "Bumi", "p": "Barang apa di rumahmu yang bisa dipakai ulang daripada dibuang?"}, {"c": "Bumi", "p": "Ceritain satu tempat di alam yang pengen kamu jaga, dan kenapa tempat itu spesial buatmu."}, {"c": "Bumi", "p": "Satu hal kecil dan baik apa yang bisa kamu lakuin buat bumi minggu ini — tanpa rasa bersalah, cuma penasaran aja?"}];
         const UI = {
-            en: { soundOn: 'Sound on', soundOff: 'Sound off', copied: '✓ Copied', copy: '📋 Copy' },
-            id: { soundOn: 'Suara nyala', soundOff: 'Suara mati', copied: '✓ Tersalin', copy: '📋 Salin' },
+            en: { copied: 'Copied', copy: 'Copy', tap: 'tap me!', tada: 'ta-da!', flipLbl: 'Flip the journal back into a carton', flipLbl0: 'Turn the carton into a journal', envLbl: "Open Mochi's letter", other: 'Baca dalam Bahasa Indonesia', otherHref: '?lang=id' },
+            id: { copied: 'Tersalin', copy: 'Salin', tap: 'tap aku!', tada: 'ta-da!', flipLbl: 'Balikin jurnalnya jadi kotak susu', flipLbl0: 'Ubah kotak susu jadi jurnal', envLbl: 'Buka surat dari Mochi', other: 'Read in English', otherHref: '?lang=en' },
         }[LANG];
         const ACTIVE_PROMPTS = LANG === 'id' ? PROMPTS_ID : PROMPTS;
         if (LANG === 'id') {
             document.documentElement.lang = 'id';
-            document.title = 'Upcycle Club — Seminggu Satu';
             const md = document.querySelector('meta[name="description"]');
             if (md) md.content = 'Jurnalmu dulunya kotak susu. Ini ceritanya — plus surat kecil dari Mochi buat bantu kamu mulai menulis.';
-            const norm = h => h.replace(/\s+/g, ' ').trim();
-            document.querySelectorAll('body *').forEach(el => {
-                if (el.closest('script, svg')) return;
-                const t = ID_TEXT[norm(el.innerHTML)];
+            document.querySelectorAll('[data-t]').forEach(el => {
+                const t = ID_TEXT[el.dataset.t];
                 if (t !== undefined) el.innerHTML = t;
             });
+            document.getElementById('envelope').setAttribute('aria-label', UI.envLbl);
         }
+        document.getElementById('tapTxt').textContent = UI.tap;
+        document.getElementById('flip').setAttribute('aria-label', UI.flipLbl0);
+        const langLink = document.getElementById('langLink');
+        langLink.textContent = UI.other; langLink.href = UI.otherHref;
+        document.getElementById('joined').textContent = new Date().toLocaleDateString(LANG === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-        // ---------- reveal on scroll ----------
-        const io = new IntersectionObserver(entries => {
-            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-        }, { threshold: 0.2 });
-        document.querySelectorAll('.rv, .path').forEach(el => io.observe(el));
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // ---------- momen "nempel" sekali waktu kelihatan ----------
+        function onSeen(el) {
+            if (el.id === 'you') celebrate();
+        }
+        if ('IntersectionObserver' in window) {
+            const io = new IntersectionObserver(entries => {
+                entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('seen'); io.unobserve(e.target); onSeen(e.target); } });
+            }, { threshold: 0.35 });
+            document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+        } else {
+            document.querySelectorAll('.reveal').forEach(el => el.classList.add('seen'));
+        }
+        function celebrate() {
+            if (reduceMotion) return;
+            setTimeout(() => {
+                if (typeof confetti !== 'function') return;
+                const r = document.getElementById('oneNum').getBoundingClientRect();
+                confetti({
+                    particleCount: 90, spread: 75, startVelocity: 38, scalar: .9, ticks: 160,
+                    origin: { x: (r.left + r.width / 2) / innerWidth, y: (r.top + r.height / 2) / innerHeight },
+                    colors: ['#ffe600', '#0046ff', '#ff8fb8', '#ffffff', '#00b4ff'],
+                });
+            }, 350);
+        }
 
         // ---------- live counter (Tetra Pak 2025: 174 miliar / tahun) ----------
         const PER_SEC = 174e9 / (365 * 24 * 3600);
         const counterEl = document.getElementById('counter');
         const t0 = performance.now();
+        const fmt = new Intl.NumberFormat(LANG === 'id' ? 'id-ID' : 'en-US');
         (function tick() {
-            counterEl.textContent = Math.floor((performance.now() - t0) / 1000 * PER_SEC).toLocaleString(LANG === 'id' ? 'id-ID' : 'en-US');
+            counterEl.textContent = fmt.format(Math.floor((performance.now() - t0) / 1000 * PER_SEC));
             requestAnimationFrame(tick);
         })();
 
         // ---------- background music ----------
         // Default ON. Browser (terutama HP) nge-blok audio sebelum ada
         // interaksi -- jadi coba play langsung, kalau ditolak, mulai di
-        // sentuhan/klik/tombol PERTAMA di mana aja. Cuma diem kalau pengunjung
-        // sendiri yang pernah matiin (diinget di localStorage).
+        // sentuhan/klik PERTAMA di mana aja. Tombol mute = tombol bulat
+        // kiri bawah dari bgm-toggle.js (setelan ss_mute_music, berlaku di
+        // semua halaman); kalau lagi mute, play() otomatis ditahan di sana.
         const bgm = document.getElementById('bgm');
-        const soundBtn = document.getElementById('soundBtn');
-        const soundLbl = document.getElementById('soundLbl');
+        const isMuted = () => !!(window.ssBgm && window.ssBgm.muted());
         bgm.volume = 0;
         let fadeTimer = null;
-        function fadeTo(target, done) {
+        function fadeTo(target) {
             clearInterval(fadeTimer);
             fadeTimer = setInterval(() => {
                 const v = bgm.volume + (target > bgm.volume ? 0.03 : -0.03);
                 if ((target > bgm.volume && v >= target) || (target <= bgm.volume && v <= target)) {
-                    bgm.volume = Math.max(0, Math.min(1, target)); clearInterval(fadeTimer); if (done) done();
+                    bgm.volume = Math.max(0, Math.min(1, target)); clearInterval(fadeTimer);
                 } else bgm.volume = Math.max(0, Math.min(1, v));
             }, 60);
         }
-        function setSoundUi(on) {
-            soundBtn.classList.toggle('playing', on);
-            soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-            soundLbl.textContent = on ? UI.soundOn : UI.soundOff;
-        }
-        function playMusic() {
-            const p = bgm.play();
-            if (p && p.catch) p.catch(() => { });
-            setSoundUi(true);
-            fadeTo(0.4);
-            try { localStorage.setItem('uc_sound', 'on'); } catch (e) { }
-        }
-        function stopMusic() {
-            setSoundUi(false);
-            fadeTo(0, () => bgm.pause());
-            try { localStorage.setItem('uc_sound', 'off'); } catch (e) { }
-        }
-        let userMuted = false;
-        try { userMuted = localStorage.getItem('uc_sound') === 'off'; } catch (e) { }
-        // Mau bunyi (soundOn) beda sama lagi bunyi (bgm.paused) -- sebelum
-        // interaksi pertama, soundOn = true tapi audionya masih ketahan browser.
-        let soundOn = !userMuted;
-        setSoundUi(soundOn);
         function tryAutoplay() {
-            if (!soundOn || !bgm.paused) return;
+            if (!bgm.paused) return;
             const p = bgm.play();
             if (p && p.then) p.then(() => fadeTo(0.4)).catch(() => { });
         }
         tryAutoplay();
         const unlockEvents = ['pointerdown', 'touchend', 'click', 'keydown'];
         function unlock(e) {
-            if (e.target.closest && e.target.closest('#soundBtn')) return; // tombol Sound ngurus dirinya sendiri
+            if (e.target.closest && e.target.closest('.ss-bgm')) return; // tombol mute ngurus dirinya sendiri
             unlockEvents.forEach(ev => document.removeEventListener(ev, unlock, true));
             tryAutoplay();
         }
         unlockEvents.forEach(ev => document.addEventListener(ev, unlock, true));
 
-        soundBtn.addEventListener('click', () => {
-            soundOn = !soundOn;
-            if (soundOn) playMusic(); else stopMusic();
-        });
         document.getElementById('beginBtn').addEventListener('click', () => {
             tryAutoplay();
-            document.getElementById('story').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('story').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
         });
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && !bgm.paused) bgm.pause();
-            else if (!document.hidden && soundOn && bgm.volume > 0) bgm.play().catch(() => { });
+            else if (!document.hidden && !isMuted() && bgm.volume > 0) bgm.play().catch(() => { });
         });
 
-        // ---------- Mochi letter ----------
-        // Efek suara ikut tombol Sound -- kalau pengunjung matiin suara, ikut diem.
+        // Efek suara ikut tombol mute -- kalau pengunjung matiin musik, ikut diem.
         function sfx(id) {
-            if (!soundOn) return;
+            if (isMuted()) return;
             const a = document.getElementById(id);
             try { a.currentTime = 0; a.volume = 0.8; const p = a.play(); if (p && p.catch) p.catch(() => { }); } catch (e) { }
         }
+
+        // ---------- kotak susu <-> jurnal (hero) ----------
+        // Balik sendiri sekali pas halaman kebuka, habis itu pengunjung yang tap.
+        const flip = document.getElementById('flip');
+        const tapTxt = document.getElementById('tapTxt');
+        let flipped = false, touched = false;
+        function setFlip(on, withSound) {
+            flipped = on;
+            flip.classList.toggle('turned', on);
+            flip.setAttribute('aria-label', on ? UI.flipLbl : UI.flipLbl0);
+            tapTxt.textContent = on ? UI.tada : UI.tap;
+            if (withSound) sfx('sfxFlip');
+        }
+        flip.addEventListener('click', () => { touched = true; setFlip(!flipped, true); });
+        if (!reduceMotion) setTimeout(() => { if (!touched) setFlip(true, false); }, 1600);
+
+        // ---------- surat Mochi ----------
         const envelope = document.getElementById('envelope');
         const envWrap = document.getElementById('envWrap');
         const note = document.getElementById('note');
@@ -582,21 +837,23 @@
             envelope.classList.add('open');
             sfx('sfxOpen');
             pickPrompt();
-            setTimeout(() => { envWrap.style.display = 'none'; note.classList.add('show'); }, 650);
+            setTimeout(() => { envWrap.style.display = 'none'; note.classList.add('show'); }, reduceMotion ? 0 : 650);
         }
         envelope.addEventListener('click', openLetter);
-        envelope.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLetter(); } });
         document.getElementById('anotherBtn').addEventListener('click', () => {
             sfx('sfxFlip');
             note.classList.remove('show'); void note.offsetWidth;
             pickPrompt(); note.classList.add('show');
         });
-        document.getElementById('copyBtn').addEventListener('click', e => {
-            const btn = e.currentTarget;
-            navigator.clipboard.writeText(document.getElementById('notePrompt').textContent).then(() => {
-                btn.textContent = UI.copied;
-                setTimeout(() => { btn.textContent = UI.copy; }, 1500);
-            }).catch(() => { });
+        const copyLbl = document.getElementById('copyLbl');
+        const copyIc = document.getElementById('copyIc').querySelector('use');
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const text = document.getElementById('notePrompt').textContent;
+            const done = () => {
+                copyLbl.textContent = UI.copied; copyIc.setAttribute('href', '#i-check');
+                setTimeout(() => { copyLbl.textContent = UI.copy; copyIc.setAttribute('href', '#i-copy'); }, 1500);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(() => { });
         });
     </script>
 </body>
