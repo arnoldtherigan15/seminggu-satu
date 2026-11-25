@@ -51,7 +51,7 @@
             --mono: 'Space Mono', ui-monospace, monospace;
         }
 
-        html { scroll-behavior: smooth; overflow-x: hidden; }
+        html { scroll-behavior: smooth; overflow-x: hidden; scroll-snap-type: y mandatory; }
         html, body { max-width: 100%; overscroll-behavior-x: none; }
         section, footer { overflow-x: clip; }
         body {
@@ -68,7 +68,11 @@
         img { display: block; max-width: 100%; height: auto; }
 
         .wrap { max-width: 540px; margin: 0 auto; padding: 0 1.1rem; position: relative; }
-        section { position: relative; padding: 3.6rem 0; }
+        /* tiap section = satu lembar seukuran layar; scroll/swipe nempel ke lembar berikutnya */
+        section { position: relative; min-height: 100vh; min-height: 100svh; display: flex; align-items: center;
+            padding: calc(4.3rem + env(safe-area-inset-top)) 0 calc(3.4rem + env(safe-area-inset-bottom));
+            scroll-snap-align: start; scroll-snap-stop: always; }
+        section > .wrap { width: 100%; }
         h1, h2, h3 { font-family: 'Outfit', sans-serif; font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; text-wrap: balance; }
         h2 { font-size: clamp(1.75rem, 7.4vw, 2.4rem); margin-bottom: 0.8rem; }
         h3 { font-size: 1.12rem; letter-spacing: -0.01em; margin-bottom: 0.2rem; }
@@ -109,7 +113,7 @@
         .brand img { width: 28px; height: 28px; }
 
         /* ---------- 1. hero ---------- */
-        .hero { min-height: 100svh; padding: calc(5.2rem + env(safe-area-inset-top)) 0 3rem; display: flex; align-items: center; overflow: hidden; }
+        .hero { overflow: hidden; }
         .stage { position: relative; width: 220px; height: 250px; margin: 0 auto 1.3rem; }
         .flip { position: absolute; inset: 0; border: none; background: none; cursor: pointer; perspective: 900px; -webkit-tap-highlight-color: transparent; border-radius: 20px; }
         .flip-in { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 1s var(--ease); transform: rotate(-5deg); }
@@ -299,7 +303,7 @@
         .closing { text-align: center; padding-bottom: 2.4rem; }
         .closing p { color: var(--ink-2); max-width: 25rem; margin: 0 auto; }
 
-        footer { padding: 0 0 calc(5rem + env(safe-area-inset-bottom)); }
+        footer { padding: 1rem 0 calc(5rem + env(safe-area-inset-bottom)); scroll-snap-align: end; }
         .sources { padding: 1.2rem 1.1rem; font-size: 0.74rem; color: var(--ink-2); transform: rotate(.4deg); }
         .sources b { font-family: 'Outfit', sans-serif; color: var(--ink); font-size: 0.9rem; }
         .sources ol { padding-left: 1.1rem; margin-top: 0.4rem; display: grid; gap: 0.25rem; }
@@ -307,9 +311,104 @@
         .foot-meta a { font-weight: 700; }
 
         @media (min-width: 760px) {
-            section { padding: 4.6rem 0; }
             .stage { width: 260px; height: 296px; }
             .mochi-peek { right: -70px; }
+        }
+
+        /* penanda halaman (kanan) */
+        .pager { position: fixed; right: 2px; top: 50%; transform: translateY(-50%); z-index: 40; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .pager button { width: 16px; height: 18px; border: none; background: none; cursor: pointer; display: grid; place-items: center; padding: 0; -webkit-tap-highlight-color: transparent; }
+        .pager button::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: rgba(16,36,94,.28); transition: height .35s var(--ease), background .35s; }
+        .pager button[aria-current="true"]::before { height: 18px; background: var(--blue); box-shadow: 0 0 0 2px #fff; }
+        section > .wrap { padding-right: 1.5rem; }
+
+        /* HP pendek (mis. iPhone SE): rapatin biar tiap lembar muat satu layar */
+        @media (max-height: 760px), (min-width: 820px) and (min-height: 600px) and (max-height: 940px) {
+            section { padding-top: calc(3.9rem + env(safe-area-inset-top)); padding-bottom: calc(2.8rem + env(safe-area-inset-bottom)); }
+            h2 { font-size: clamp(1.55rem, 6.6vw, 2rem); margin-bottom: .6rem; }
+            .stage { width: 160px; height: 182px; margin-bottom: .8rem; }
+            .hero h1 { font-size: clamp(2rem, 9.5vw, 2.6rem); }
+            .hero-p { font-size: .94rem; margin-top: .8rem; }
+            .hero-cta { margin-top: 1.1rem; gap: .7rem; }
+            .receipt-wrap { margin-top: 3rem; }
+            .receipt { padding: 1.2rem 1.1rem 1.1rem; }
+            .barcode { height: 28px; margin-top: .8rem; }
+            .sheet { margin-top: 1rem; padding: 1.3rem 1.1rem 1rem; }
+            .sticky { margin-top: 1rem; padding: .8rem .9rem; font-size: .9rem; }
+            .frac { font-size: clamp(3.4rem, 18vw, 4.6rem); }
+            .route { margin-top: 1rem; padding: 1rem .9rem; }
+            .badge { width: 150px; height: 150px; margin: .6rem auto .5rem; }
+            .badge .num { font-size: 4.6rem; }
+            .cover { padding: 1.6rem 1.2rem 1.5rem 1.8rem; }
+            .tips { gap: 1.2rem; margin-top: 1.2rem; }
+            .tip { padding: 1rem 1rem .9rem; }
+            .letter-stage { margin-top: 1.1rem; }
+            .letter { padding: 1.6rem 1.1rem 1.1rem 1.4rem; }
+            .prompt { font-size: 1.55rem; line-height: 30px; margin: .6rem 0; }
+            .card-id { margin-bottom: 1.3rem; }
+            .card-id .body { padding: .7rem 1rem .9rem; }
+            .lede { font-size: .94rem; }
+        }
+
+        .book-cover, .book-nav { display: none; }
+
+        /* =========== DESKTOP / TABLET: jurnal yang dibuka, dua halaman =========== */
+        @media (min-width: 820px) and (min-height: 600px) {
+            html { scroll-snap-type: none; overflow: hidden; }
+            body { height: 100vh; overflow: hidden; background-color: #dfe7fb;
+                background-image: radial-gradient(circle, rgba(16,36,94,.13) 1.2px, transparent 1.6px); background-size: 22px 22px; }
+            .pager { display: none; }
+            .book { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding-top: 1.6rem; }
+            .pages { position: relative; width: min(1120px, 94vw); height: min(calc(100vh - 140px), 980px, calc(min(1120px, 94vw) * 1.3)); perspective: 2600px; transition: transform .9s var(--ease); }
+            .book.closed .pages { transform: translateX(-25%); }
+            .book.closed .pg { display: none !important; }
+            .pg { position: absolute; top: 0; bottom: 0; width: 50%; min-height: 0; display: none; align-items: flex-start; padding: 1.5rem 1.7rem; scroll-snap-align: none;
+                overflow-y: auto; overflow-x: hidden; scrollbar-width: none; background-color: var(--kraft); box-shadow: 0 18px 40px rgba(var(--tint), .22); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+            .pg::-webkit-scrollbar { display: none; }
+            .pg.l { left: 0; border-radius: 16px 3px 3px 16px; transform-origin: right center;
+                background-image: linear-gradient(to left, rgba(90,55,10,.22), transparent 54px), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .27 0 0 0 0 .1 0 0 0 .5 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+            .pg.r { left: 50%; border-radius: 3px 16px 16px 3px; transform-origin: left center;
+                background-image: linear-gradient(to right, rgba(90,55,10,.22), transparent 54px), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .27 0 0 0 0 .1 0 0 0 .5 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+            .pg.on { display: flex; }
+            .pg.top { z-index: 3; }
+            .pg > .wrap { max-width: none; padding: 0; margin: auto 0; }
+            .hero h1 { font-size: clamp(2.1rem, 3.4vw, 3rem); }
+            .stage { width: 170px; height: 194px; }
+            footer.pg { padding-bottom: 1.5rem; }
+            .pg.out-r { animation: outR .4s cubic-bezier(.55, 0, .9, .45) forwards; }
+            .pg.in-l { animation: inL .4s cubic-bezier(.1, .55, .45, 1) forwards; }
+            .pg.out-l { animation: outL .4s cubic-bezier(.55, 0, .9, .45) forwards; }
+            .pg.in-r { animation: inR .4s cubic-bezier(.1, .55, .45, 1) forwards; }
+            @keyframes outR { to { transform: rotateY(-90deg); filter: brightness(.85); } }
+            @keyframes inL { from { transform: rotateY(90deg); filter: brightness(.85); } to { transform: none; } }
+            @keyframes outL { to { transform: rotateY(90deg); filter: brightness(.85); } }
+            @keyframes inR { from { transform: rotateY(-90deg); filter: brightness(.85); } to { transform: none; } }
+            .mochi-peek { right: 4px; }
+
+            /* sampul: kain biru dijahit, kayak sampul binder di homepage */
+            .book-cover { display: block; position: absolute; left: 50%; top: 0; bottom: 0; width: 50%; z-index: 20; border: none; padding: 0; cursor: pointer; font: inherit; color: #fff;
+                background: var(--blue); border-radius: 4px 20px 20px 4px; box-shadow: 0 22px 48px rgba(var(--tint), .32); transform-origin: left center; transform-style: preserve-3d;
+                transition: transform 1s var(--ease), visibility 0s linear 1s; }
+            .book-cover::before { content: ""; position: absolute; inset: 14px 14px 14px 30px; border: 2.5px dashed rgba(255,255,255,.6); border-radius: 8px 14px 14px 8px; pointer-events: none; }
+            .book-cover::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 18px; background: var(--blue-deep); border-radius: 4px 0 0 4px; }
+            .book-cover:hover { transform: rotateY(-8deg); }
+            .book-cover:focus-visible { outline: 3px solid var(--yellow); outline-offset: 6px; }
+            .book:not(.closed) .book-cover { transform: rotateY(-180deg); visibility: hidden; pointer-events: none; }
+            .bc-front { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+            .bc-logo { width: 92px; height: 92px; background: #fff; border-radius: 50%; padding: 10px; box-shadow: var(--sh-sticker); transform: rotate(-6deg); }
+            .bc-label { background: #fff; color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(1.8rem, 3.4vw, 2.6rem); letter-spacing: -0.02em; padding: .25em .6em .3em; border-radius: 10px; box-shadow: var(--sh-sticker); transform: rotate(-2deg); }
+            .bc-sub { font-family: var(--hand); font-weight: 700; font-size: 1.7rem; color: var(--yellow); transform: rotate(-3deg); }
+            .bc-tap { position: absolute; bottom: 44px; right: 46px; display: flex; align-items: center; gap: 4px; font-family: var(--hand); font-weight: 700; font-size: 1.5rem; color: #fff; transform: rotate(-4deg); }
+            .bc-tap .i { width: 22px; height: 22px; }
+            .bc-mochi { position: absolute; width: 110px; left: 38px; bottom: 30px; filter: var(--ring); transform: rotate(-10deg); }
+
+            .book-nav { display: flex; align-items: center; gap: 40px; transition: opacity .4s; }
+            .book.closed .book-nav { opacity: 0; pointer-events: none; }
+            .bn-btn { width: 46px; height: 46px; border-radius: 50%; border: none; background: #fff; color: var(--ink); display: grid; place-items: center; cursor: pointer; box-shadow: var(--sh-sticker); transition: transform .2s var(--ease), opacity .2s; }
+            .bn-btn .i { width: 22px; height: 22px; }
+            .bn-btn:hover { transform: translateY(-2px) rotate(-4deg); }
+            .bn-btn:active { transform: scale(.94); }
+            .bn-btn:disabled { opacity: .35; cursor: default; transform: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -340,6 +439,8 @@
         <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
         <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
         <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></symbol>
+        <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+        <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
         <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
         <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></symbol>
         <symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><polyline points="3.29 7 12 12 20.71 7"/><path d="m7.5 4.27 9 5.15"/></symbol>
@@ -358,8 +459,23 @@
         <a class="brand" href="https://seminggusatu.com" aria-label="Seminggu Satu"><img src="../images/black.png" alt="">Seminggu Satu</a>
     </div>
 
+    <nav class="pager" id="pager" aria-label="Pages"></nav>
+
+    <main class="book closed" id="book">
+    <div class="pages" id="pages">
+    <!-- sampul (cuma tampil di desktop/tablet) -->
+    <button class="book-cover" id="bookCover" type="button" aria-label="Open the journal">
+        <span class="bc-front">
+            <img class="bc-logo" src="../images/black.png" alt="">
+            <span class="bc-label">Seminggu Satu</span>
+            <span class="bc-sub" data-t="coverSub">made from milk cartons</span>
+            <span class="bc-tap"><span data-t="coverTap">tap to open</span><svg class="i" aria-hidden="true"><use href="#i-right"/></svg></span>
+            <img class="bc-mochi" src="img/mochi-ok.webp" alt="" width="360" height="360">
+        </span>
+    </button>
+
     <!-- 1. HERO -->
-    <section class="hero">
+    <section class="pg hero">
         <div class="wrap">
             <div class="stage">
                 <button class="flip" id="flip" type="button" aria-label="Turn the carton into a journal">
@@ -405,13 +521,13 @@
             <p class="hero-p" data-t="heroP">I buy a lot of coffee. One day it hit me how many milk cartons get thrown away every day just to make our iced lattes. So I started turning them into journals. This is the story of yours.</p>
             <div class="hero-cta">
                 <button class="btn btn-yellow" id="beginBtn" type="button"><svg class="i" aria-hidden="true"><use href="#i-headphones"/></svg><span data-t="begin">Begin the story</span></button>
-                <div class="scroll-hint"><span data-t="scroll">scroll slowly, it's a short one</span><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></div>
+                <div class="scroll-hint"><span data-t="scroll">swipe up — it's a short one</span><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></div>
             </div>
         </div>
     </section>
 
     <!-- 2. LIVE COUNTER (struk) -->
-    <section id="story">
+    <section class="pg" id="story">
         <div class="wrap">
             <h2 data-t="cH">Cartons are made faster than you can <span class="hl">blink.</span></h2>
             <div class="receipt-wrap">
@@ -434,10 +550,10 @@
     </section>
 
     <!-- 3. ANATOMY -->
-    <section>
+    <section class="pg">
         <div class="wrap">
             <h2 data-t="aH">It looks like paper. <span class="hl">It's not just paper.</span></h2>
-            <p class="lede" data-t="aP">A typical 1-litre carton is a sandwich of thin layers, pressed together so your milk stays fresh for months.</p>
+            <p class="lede" data-t="aP">A carton is a sandwich of thin layers, pressed together so the milk stays fresh for months.</p>
             <div class="sheet paper reveal" id="layers">
                 <span class="tape yellow"></span>
                 <div class="layer"><div class="layer-top"><div class="layer-name"><svg class="i" aria-hidden="true"><use href="#i-package"/></svg><span data-t="l1">Paperboard</span></div><div class="layer-pct">~70%</div></div><div class="strip paperboard" style="--w:70%;"></div></div>
@@ -448,13 +564,13 @@
                     <span class="dot white"><svg class="i" aria-hidden="true"><use href="#i-puzzle"/></svg></span>
                     <p data-t="aNote">Brilliant at protecting milk. <b>Tricky to pull apart again</b> — the layers need special facilities to be separated and recycled.</p>
                 </div>
-                <p class="src" data-t="aSrc">Layer split: estimate for a typical 1-litre beverage carton by Deutsche Umwelthilfe <sup>[2]</sup>. Tetra Pak reports cartons are on average more than 70% paperboard <sup>[3]</sup>.</p>
+                <p class="src" data-t="aSrc">Typical 1-litre carton. Estimate: Deutsche Umwelthilfe <sup>[2]</sup>, Tetra Pak <sup>[3]</sup>.</p>
             </div>
         </div>
     </section>
 
     <!-- 4. 3 OUT OF 4 -->
-    <section>
+    <section class="pg">
         <div class="wrap">
             <h2 data-t="fH">Most cartons never get a second life.</h2>
             <div class="sheet paper reveal" id="fourCard" style="transform:rotate(.7deg);">
@@ -473,7 +589,7 @@
     </section>
 
     <!-- 5. THE CHAIN -->
-    <section>
+    <section class="pg">
         <div class="wrap">
             <h2 data-t="chH">Same carton. Two very different endings.</h2>
             <div class="route old">
@@ -502,7 +618,7 @@
     </section>
 
     <!-- 6. YOU -->
-    <section>
+    <section class="pg">
         <div class="wrap cover-wrap reveal" id="you">
             <div class="cover">
                 <div class="cover-k" data-t="yK">the one in your hands</div>
@@ -518,10 +634,10 @@
     </section>
 
     <!-- 7. NEW TO JOURNALING -->
-    <section>
+    <section class="pg">
         <div class="wrap">
             <h2 data-t="tH">Never journaled before? <span class="hl">Perfect.</span></h2>
-            <p class="lede" data-t="tP">There's no right way to fill these pages. A few gentle ground rules:</p>
+            <p class="lede" data-t="tP">There's no right way to fill these pages. Just three gentle rules:</p>
             <div class="tips">
                 <div class="tip t1"><span class="tape blue"></span><span class="dot white"><svg class="i" aria-hidden="true"><use href="#i-timer"/></svg></span><div><h3 data-t="t1h">Five minutes is enough</h3><p data-t="t1p">One sentence counts. So does a doodle. Start tiny.</p></div></div>
                 <div class="tip t2"><span class="tape"></span><span class="dot"><svg class="i" aria-hidden="true"><use href="#i-pen"/></svg></span><div><h3 data-t="t2h">Messy is welcome</h3><p data-t="t2p">Crossed-out words, wobbly lines, bad spelling — it's all part of it.</p></div></div>
@@ -531,7 +647,7 @@
     </section>
 
     <!-- 8. LETTER FROM MOCHI -->
-    <section id="letter">
+    <section class="pg" id="letter">
         <div class="wrap">
             <h2 data-t="lH">Stuck on the first page? Mochi wrote you a letter.</h2>
             <p class="lede" data-t="lP">Mochi is our little community mascot. Inside every letter is one question to get your pen moving.</p>
@@ -561,7 +677,7 @@
     </section>
 
     <!-- 9. CLOSING -->
-    <section class="closing">
+    <section class="pg closing">
         <div class="wrap">
             <div class="card-id">
                 <div class="head"><img src="../images/black.png" alt=""><div><b>Seminggu Satu</b><small data-t="memberCard">Member card</small></div></div>
@@ -583,7 +699,7 @@
         </div>
     </section>
 
-    <footer>
+    <footer class="pg">
         <div class="wrap">
             <div class="sources paper">
                 <b data-t="sources">Sources</b>
@@ -600,6 +716,12 @@
             </div>
         </div>
     </footer>
+    </div>
+    <div class="book-nav" id="bookNav">
+        <button class="bn-btn" id="bnPrev" type="button" aria-label="Previous page"><svg class="i" aria-hidden="true"><use href="#i-left"/></svg></button>
+        <button class="bn-btn" id="bnNext" type="button" aria-label="Next page"><svg class="i" aria-hidden="true"><use href="#i-right"/></svg></button>
+    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" defer></script>
     <script>
@@ -649,7 +771,7 @@
             h1: 'Jurnal ini dulunya <span class="label-tape">kotak susu.</span>',
             heroP: 'Aku sering banget beli kopi susu. Suatu hari aku baru sadar, tiap hari ada banyak banget karton susu yang kebuang cuma buat bikin kopi-kopi itu. Jadi aku kepikiran buat mengolahnya jadi buku jurnal. Ini cerita jurnalmu.',
             begin: 'Mulai ceritanya',
-            scroll: 'scroll pelan-pelan, ceritanya singkat kok',
+            scroll: 'geser ke atas — ceritanya singkat kok',
             cH: 'Kotak minuman dibuat lebih cepat dari <span class="hl">kedipan mata.</span>',
             rHead: 'Penghitung kotak · live',
             cSince: 'Sejak kamu membuka halaman ini, sekitar',
@@ -658,10 +780,10 @@
             cDay: 'setiap harinya', cDayV: '~477 juta',
             cSrc: 'Perkiraan dari 174 miliar kemasan Tetra Pak yang terjual di 2025 <sup>[1]</sup>, dibagi rata sepanjang tahun.',
             aH: 'Kelihatannya kertas. <span class="hl">Tapi bukan cuma kertas.</span>',
-            aP: 'Kotak 1 liter pada umumnya adalah tumpukan lapisan tipis yang dipres jadi satu, supaya susumu tetap segar berbulan-bulan.',
+            aP: 'Kotak susu itu tumpukan lapisan tipis yang dipres jadi satu, biar susunya tetap segar berbulan-bulan.',
             l1: 'Karton', l2: 'Plastik', l3: 'Lapisan aluminium',
             aNote: 'Jago banget melindungi susu. <b>Tapi susah dipisahkan lagi</b> — lapisannya butuh fasilitas khusus untuk dipisah dan didaur ulang.',
-            aSrc: 'Pembagian lapisan: perkiraan Deutsche Umwelthilfe untuk kotak minuman 1 liter pada umumnya <sup>[2]</sup>. Menurut Tetra Pak, rata-rata lebih dari 70% kotaknya adalah karton <sup>[3]</sup>.',
+            aSrc: 'Kotak 1 liter pada umumnya. Perkiraan: Deutsche Umwelthilfe <sup>[2]</sup>, Tetra Pak <sup>[3]</sup>.',
             fH: 'Kebanyakan kotak nggak pernah dapat kesempatan kedua.',
             outOf: 'dari',
             fP: 'kotak di seluruh dunia <b>tidak</b> didaur ulang.',
@@ -676,7 +798,7 @@
             yH: 'kotak susu yang kamu kasih kesempatan kedua.',
             yP: 'Kecil? Iya. Tapi kamu sudah berhasil memutus rantai sampah itu. Terima kasih.',
             tH: 'Belum pernah journaling? <span class="hl">Pas banget.</span>',
-            tP: 'Nggak ada cara benar atau salah buat ngisi halaman ini. Cuma beberapa aturan santai:',
+            tP: 'Nggak ada cara benar atau salah buat ngisi halaman ini. Cuma tiga aturan santai:',
             t1h: 'Lima menit itu cukup', t1p: 'Satu kalimat juga dihitung. Coretan juga. Mulai dari yang kecil.',
             t2h: 'Berantakan itu boleh', t2p: 'Kata yang dicoret, garis yang miring, salah ketik — semuanya bagian dari proses.',
             t3h: 'Ini cuma buat kamu', t3p: 'Nggak ada yang menilai. Tulis seolah nggak ada yang baca, karena memang nggak ada.',
@@ -695,6 +817,7 @@
             s1: '(174 miliar kemasan terjual, 2025)',
             s2: 'Perkiraan Deutsche Umwelthilfe (2014) untuk kotak minuman 1 liter pada umumnya: ~70% karton, ~26% polietilena, ~4% aluminium',
             s4: '(tingkat daur ulang karton global ~27%)',
+            coverSub: 'dibuat dari kotak susu', coverTap: 'tap buat membuka',
             made: '© Seminggu Satu · Dibuat dengan cinta (dan kotak susu bekas) di Jakarta',
         };
         const PROMPTS_ID = [{"c": "Memperhatikan", "p": "Hal kecil apa yang kamu lihat hari ini, yang dilewatin begitu aja sama kebanyakan orang?"}, {"c": "Memperhatikan", "p": "Gambarkan tempatmu duduk sekarang pakai kelima indramu."}, {"c": "Memperhatikan", "p": "Suara apa yang ternyata bikin kamu tenang?"}, {"c": "Memperhatikan", "p": "Makanan paling enak minggu ini apa, dan kamu makan bareng siapa?"}, {"c": "Bersyukur", "p": "Siapa yang belakangan bikin harimu lebih ringan, tanpa dia sadari?"}, {"c": "Bersyukur", "p": "Sebutkan tiga hal biasa yang bakal kamu kangenin kalau besok tiba-tiba hilang."}, {"c": "Bersyukur", "p": "Barang apa yang udah bertahun-tahun nemenin kamu? Kenapa masih kamu simpan?"}, {"c": "Bersyukur", "p": "Tulis surat terima kasih untuk satu tempat yang berarti buatmu."}, {"c": "Kesempatan kedua", "p": "Jurnal ini dapat kesempatan kedua. Hal apa yang pengen kamu kasih kesempatan kedua?"}, {"c": "Kesempatan kedua", "p": "Kebiasaan apa yang dulu kamu tinggalin, tapi diam-diam pengen kamu mulai lagi?"}, {"c": "Kesempatan kedua", "p": "Bayangin dirimu yang dulu. Apa yang pengen kamu bilang ke dia hari ini?"}, {"c": "Kesempatan kedua", "p": "Apa hal yang awalnya kelihatan kayak sampah, tapi ternyata jadi sesuatu yang baik?"}, {"c": "Tentang kamu", "p": "Terakhir kali kamu ketawa lepas, apa yang bikin kamu ketawa?"}, {"c": "Tentang kamu", "p": "Ceritain hari Minggu santai idamanmu, dari bangun sampai tidur lagi."}, {"c": "Tentang kamu", "p": "Pujian apa yang pernah kamu terima dan masih kamu ingat sampai sekarang?"}, {"c": "Tentang kamu", "p": "Lagi penasaran sama apa belakangan ini?"}, {"c": "Tentang kamu", "p": "Kalau minggu ini punya warna, warnanya apa — dan kenapa?"}, {"c": "Tentang kamu", "p": "Kemenangan kecil apa minggu ini yang pantas dirayain?"}, {"c": "Perasaan", "p": "Kamu apa kabar, beneran? Bukan jawaban sopan — jawaban yang jujur."}, {"c": "Perasaan", "p": "Apa yang paling banyak menyita pikiranmu belakangan ini?"}, {"c": "Perasaan", "p": "Kapan terakhir kali kamu merasa benar-benar tenang? Apa yang bikin begitu?"}, {"c": "Perasaan", "p": "Apa yang pengen kamu lepasin sebelum bulan ini berakhir?"}, {"c": "Perasaan", "p": "Tulis satu kekhawatiranmu, lalu tulis apa yang bakal kamu bilang ke teman yang punya kekhawatiran yang sama."}, {"c": "Impian", "p": "Satu hal apa yang pengen kamu pelajari cuma karena seneng aja?"}, {"c": "Impian", "p": "Kalau besok bisa pergi ke mana aja di dunia, kamu ke mana, dan apa yang pertama kamu lakuin?"}, {"c": "Impian", "p": "Bayangin dirimu setahun lagi, lagi bahagia. Kayak apa satu hari biasa buatmu?"}, {"c": "Impian", "p": "Janji kecil apa yang pengen kamu buat untuk dirimu sendiri minggu ini?"}, {"c": "Bumi", "p": "Barang apa di rumahmu yang bisa dipakai ulang daripada dibuang?"}, {"c": "Bumi", "p": "Ceritain satu tempat di alam yang pengen kamu jaga, dan kenapa tempat itu spesial buatmu."}, {"c": "Bumi", "p": "Satu hal kecil dan baik apa yang bisa kamu lakuin buat bumi minggu ini — tanpa rasa bersalah, cuma penasaran aja?"}];
@@ -746,6 +869,101 @@
             }, 350);
         }
 
+        // ---------- lembar per lembar: penanda halaman + swipe kiri/kanan + tombol panah ----------
+        // Scroll atas-bawah udah nempel per lembar lewat CSS scroll-snap. Di sini:
+        // titik penanda (bisa di-tap), swipe kiri = lanjut / kanan = balik, dan
+        // panah kiri/kanan di keyboard.
+        const pages = [...document.querySelectorAll('section')];
+        const pager = document.getElementById('pager');
+        const dots = pages.map((pg, i) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.setAttribute('aria-label', (LANG === 'id' ? 'Halaman ' : 'Page ') + (i + 1));
+            b.addEventListener('click', () => goTo(i));
+            pager.appendChild(b);
+            return b;
+        });
+        let cur = 0;
+        function setCur(i) {
+            cur = i;
+            dots.forEach((d, j) => d.setAttribute('aria-current', j === i ? 'true' : 'false'));
+        }
+        function goTo(i) {
+            i = Math.max(0, Math.min(pages.length - 1, i));
+            pages[i].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        }
+        setCur(0);
+        if ('IntersectionObserver' in window) {
+            const pio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) setCur(pages.indexOf(e.target)); }), { threshold: 0.55 });
+            pages.forEach(pg => pio.observe(pg));
+        }
+        // ---------- desktop/tablet: buku dua halaman ----------
+        // Lembar yang sama (section + footer) jadi halaman kiri/kanan. Sampul
+        // diketuk -> kebuka; halaman kanan dilipat ke kiri pas lanjut.
+        const BOOK = window.matchMedia('(min-width: 820px) and (min-height: 600px)');
+        const bookEl = document.getElementById('book');
+        const leaves = [...document.querySelectorAll('.pg')];
+        leaves.forEach((pg, i) => pg.classList.add(i % 2 ? 'r' : 'l'));
+        const spreads = Math.ceil(leaves.length / 2);
+        let sp = 0, opened = false, busy = false;
+        const bnPrev = document.getElementById('bnPrev'), bnNext = document.getElementById('bnNext');
+        function showSpread(k) {
+            leaves.forEach((pg, i) => { pg.classList.toggle('on', Math.floor(i / 2) === k); pg.classList.remove('top', 'out-r', 'in-l', 'out-l', 'in-r'); });
+            sp = k;
+            bnPrev.disabled = k === 0; bnNext.disabled = k === spreads - 1;
+        }
+        showSpread(0);
+        if (BOOK.matches) {
+            const hint = document.querySelector('[data-t="scroll"]');
+            if (hint) hint.textContent = LANG === 'id' ? 'balik halamannya pakai panah di bawah' : 'flip the pages with the arrows below';
+        }
+        function openBook() {
+            if (opened) return;
+            opened = true;
+            bookEl.classList.remove('closed');
+            sfx('sfxFlip'); tryAutoplay();
+            setTimeout(() => { if (!touched) setFlip(true, false); }, 1200);
+        }
+        function flipTo(k) {
+            if (!opened) return openBook();
+            if (busy || k < 0 || k >= spreads || k === sp) return;
+            const A = leaves.slice(sp * 2, sp * 2 + 2), B = leaves.slice(k * 2, k * 2 + 2);
+            const fwd = k > sp;
+            sfx('sfxFlip');
+            if (reduceMotion) return showSpread(k);
+            busy = true;
+            const goingOut = fwd ? A[1] : A[0], comingIn = fwd ? B[0] : B[1], under = fwd ? B[1] : B[0];
+            if (under) under.classList.add('on');
+            if (goingOut) goingOut.classList.add('top', fwd ? 'out-r' : 'out-l');
+            setTimeout(() => {
+                if (goingOut) goingOut.classList.remove('on', 'top', 'out-r', 'out-l');
+                if (comingIn) comingIn.classList.add('on', 'top', fwd ? 'in-l' : 'in-r');
+                setTimeout(() => { busy = false; showSpread(k); }, 400);
+            }, goingOut ? 400 : 0);
+        }
+        document.getElementById('bookCover').addEventListener('click', openBook);
+        bnPrev.addEventListener('click', () => flipTo(sp - 1));
+        bnNext.addEventListener('click', () => flipTo(sp + 1));
+        function step(d) {
+            if (BOOK.matches) { if (!opened) openBook(); else flipTo(sp + d); }
+            else goTo(cur + d);
+        }
+
+        let tx = 0, ty = 0, tOn = false;
+        document.addEventListener('touchstart', e => { if (e.touches.length !== 1) return; tOn = true; tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+        document.addEventListener('touchend', e => {
+            if (!tOn) return; tOn = false;
+            const t = e.changedTouches[0], dx = t.clientX - tx, dy = t.clientY - ty;
+            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) step(dx < 0 ? 1 : -1);
+        }, { passive: true });
+        document.addEventListener('keydown', e => {
+            if (e.target.closest && e.target.closest('input, textarea')) return;
+            const fwdKeys = BOOK.matches ? ['ArrowRight', 'ArrowDown', 'PageDown'] : ['ArrowRight'];
+            const backKeys = BOOK.matches ? ['ArrowLeft', 'ArrowUp', 'PageUp'] : ['ArrowLeft'];
+            if (fwdKeys.includes(e.key)) { e.preventDefault(); step(1); }
+            else if (backKeys.includes(e.key)) { e.preventDefault(); step(-1); }
+        });
+
         // ---------- live counter (Tetra Pak 2025: 174 miliar / tahun) ----------
         const PER_SEC = 174e9 / (365 * 24 * 3600);
         const counterEl = document.getElementById('counter');
@@ -791,6 +1009,7 @@
 
         document.getElementById('beginBtn').addEventListener('click', () => {
             tryAutoplay();
+            if (BOOK.matches) { flipTo(sp + 1); return; }
             document.getElementById('story').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
         });
         document.addEventListener('visibilitychange', () => {
@@ -818,7 +1037,7 @@
             if (withSound) sfx('sfxFlip');
         }
         flip.addEventListener('click', () => { touched = true; setFlip(!flipped, true); });
-        if (!reduceMotion) setTimeout(() => { if (!touched) setFlip(true, false); }, 1600);
+        if (!reduceMotion && !BOOK.matches) setTimeout(() => { if (!touched) setFlip(true, false); }, 1600);
 
         // ---------- surat Mochi ----------
         const envelope = document.getElementById('envelope');
