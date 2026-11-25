@@ -6,13 +6,15 @@
     <script src="../icons.js?v=1"></script>
     <script src="../bgm-toggle.js?v=2"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="icon" href="/favicon.ico?v=2" sizes="any">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/site-icon-192.png?v=2">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
     <title>Seminggu Satu — This journal used to be a milk carton</title>
     <meta name="description" content="Your journal used to be a milk carton. Here's its story — and a little letter from Mochi to help you start writing.">
     <meta property="og:title" content="This journal used to be a milk carton">
     <meta property="og:description" content="The story of your upcycled journal, and a gentle nudge to start writing — from Seminggu Satu.">
     <meta property="og:image" content="https://seminggusatu.com/images/black.png">
     <meta name="theme-color" content="#e6cfa4">
-    <link rel="icon" href="../images/black.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -222,7 +224,7 @@
         html.js .route.new.seen .step:last-child .dot { transform: scale(1.12); }
         html.js .route.new .step:nth-child(2) .dot { transition-delay: .12s; } html.js .route.new .step:nth-child(3) .dot { transition-delay: .24s; }
         html.js .route.new .step:nth-child(4) .dot { transition-delay: .36s; } html.js .route.new .step:nth-child(5) .dot { transition-delay: .5s; }
-        .mochi-sad { position: absolute; width: 70px; right: -8px; top: -40px; filter: var(--ring); transform: rotate(8deg); }
+        .mochi-sad { position: absolute; width: 70px; right: 6px; top: -40px; filter: var(--ring); transform: rotate(8deg); }
         .after-route { margin-top: 1.6rem; color: var(--ink-2); }
 
         /* ---------- 6. kamu (sampul biru dijahit) ---------- */
@@ -238,8 +240,10 @@
         .cover h2 { font-size: 1.7rem; margin: 0 auto 0.6rem; max-width: 18rem; }
         .cover p { color: #e6edff; max-width: 21rem; margin: 0 auto; }
         .cover .i.heart { color: var(--yellow); fill: var(--yellow); }
-        .mochi-ok { position: absolute; width: 100px; right: -12px; top: -46px; filter: var(--ring); transform: rotate(10deg); z-index: 2; }
-        .cover-wrap { position: relative; padding-top: 1.4rem; }
+        /* Mochi nongol dari BELAKANG sampul biru (kepala + tangan kelihatan, badan ketutup) */
+        .mochi-ok { position: absolute; width: 128px; right: 22px; top: -52px; filter: var(--ring); transform: rotate(7deg); z-index: 0; }
+        .cover { z-index: 1; }
+        .cover-wrap { position: relative; padding-top: 2.6rem; }
 
         /* ---------- 7. tips ---------- */
         .tips { display: grid; gap: 1.6rem; margin-top: 1.8rem; }
